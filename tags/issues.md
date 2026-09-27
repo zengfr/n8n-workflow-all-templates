@@ -1,4 +1,4 @@
-# issues : 44
+# issues : 50
 
 |id|file|
 |----|----|
@@ -46,3 +46,9 @@
 |16035|[16035_Implement_AI-ready_GitHub_issues_with_CloudCLI_and_Telegram_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16035_Implement_AI-ready_GitHub_issues_with_CloudCLI_and_Telegram_summaries.json)|
 |16121|[16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json)|
 |16748|[16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json)|
+|17364|[17364_Generate_network_audit_reports__GitHub_issues__and_Slack_alerts_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17364_Generate_network_audit_reports__GitHub_issues__and_Slack_alerts_with_Claude.json)|
+|18044|[18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json)|
+|18521|[18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json)|
+|18699|[18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json)|
+|19339|[19339_Discuss_GitHub_issues_with_council-style_AI_reviewers_and_optional_BVC.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19339_Discuss_GitHub_issues_with_council-style_AI_reviewers_and_optional_BVC.json)|
+|19740|[19740_Classify_QA_QC_compliance_issues_with_Google_Gemini__GitHub__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19740_Classify_QA_QC_compliance_issues_with_Google_Gemini__GitHub__and_Google_Sheets.json)|

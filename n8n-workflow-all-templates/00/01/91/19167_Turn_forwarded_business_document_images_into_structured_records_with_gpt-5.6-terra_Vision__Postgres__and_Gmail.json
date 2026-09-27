@@ -1,0 +1,770 @@
+{
+  "id": "F9y5xG5sXU8Ovcga",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Turn forwarded business document images into structured records with gpt-5.6-terra Vision, Postgres, and Gmail",
+    "wechat": "youandme10086",
+    "id": 19167,
+    "update_time": "2026-09-27"
+  },
+  "name": "turn forwarded business documents into structured records with AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "n_trigger",
+      "name": "When a document is forwarded",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -768,
+        -208
+      ],
+      "webhookId": "docintake",
+      "parameters": {
+        "path": "docintake",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "n_parse",
+      "name": "Normalize submission",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -544,
+        -208
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a_doc_id",
+              "name": "doc_id",
+              "type": "string",
+              "value": "={{ 'DOC-' + $now.format('yyyyMMddHHmmss') + '-' + Math.floor(Math.random()*9000+1000) }}"
+            },
+            {
+              "id": "a_source",
+              "name": "source",
+              "type": "string",
+              "value": "={{ ($json.body.source || 'webhook') }}"
+            },
+            {
+              "id": "a_received_at",
+              "name": "received_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "a_doc_type_label",
+              "name": "doc_type_label",
+              "type": "string",
+              "value": "={{ ($json.body.doc_type || 'auto') }}"
+            },
+            {
+              "id": "a_note",
+              "name": "note",
+              "type": "string",
+              "value": "={{ ($json.body.note || '') }}"
+            },
+            {
+              "id": "a_img_url",
+              "name": "img_url",
+              "type": "string",
+              "value": "={{ ($json.body.image_url || '') }}"
+            },
+            {
+              "id": "a_img_b64",
+              "name": "img_b64",
+              "type": "string",
+              "value": "={{ ($json.body.image_base64 || '') }}"
+            },
+            {
+              "id": "a_submitter",
+              "name": "submitter",
+              "type": "string",
+              "value": "={{ ($json.body.submitter || 'unknown') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "n_hasimg",
+      "name": "Has an image attached",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -320,
+        -208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict",
+            "looseTypeValidation": false
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "c1",
+              "leftType": "string",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.img_url }}",
+              "rightType": "string",
+              "rightValue": ""
+            },
+            {
+              "id": "c2",
+              "leftType": "string",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.img_b64 }}",
+              "rightType": "string",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "n_vision",
+      "name": "Build GPT-4o vision request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        48,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "const img = $json.img_url ? $json.img_url : ('data:image/png;base64,' + $json.img_b64);\nconst system = 'You are a document intake clerk for a small business. The user forwards a photo or screenshot of a business document (receipt, invoice, contract, ID card, bank statement, bill, or other). Classify the document type, extract the key fields into a structured record, and write a short plain-language summary for a non-technical owner. Respond with ONLY valid JSON using this exact shape: {\"doc_type\": string, \"title\": string, \"summary\": string, \"extracted\": object, \"amount\": number or null, \"currency\": string or null, \"party_name\": string or null, \"doc_date\": string or null, \"due_date\": string or null, \"confidence\": number between 0 and 1}. If the image is not a readable business document, set doc_type to \"unrecognized\".';\nconst userText = 'Document type hint from sender: ' + $json.doc_type_label + '. Sender note: ' + $json.note + '.';\nreturn [{ json: { reqObj: {\n  model: 'gpt-4o', temperature: 0.1, max_tokens: 1200,\n  messages: [\n    { role: 'system', content: system },\n    { role: 'user', content: [ { type: 'text', text: userText }, { type: 'image_url', image_url: { url: img } } ] }\n  ]\n} } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "n_parseai",
+      "name": "Parse vision result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        496,
+        -320
+      ],
+      "parameters": {
+        "jsCode": "// Parse the GPT-4o vision JSON from the OpenAI response\nlet raw = '';\ntry {\n  const choices = $json.choices;\n  raw = (choices && choices[0] && choices[0].message && choices[0].message.content) || '';\n} catch (e) {\n  raw = '';\n}\nraw = (raw || '').trim();\nif (raw.startsWith('```')) {\n  raw = raw.replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();\n}\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = { doc_type: 'unrecognized', title: 'Could not parse model output', summary: 'The vision model returned an answer we could not read.', extracted: {}, amount: null, currency: null, party_name: null, doc_date: null, due_date: null, confidence: 0 };\n}\nreturn [\n  {\n    json: {\n      doc_id: $('Normalize submission').item.json.doc_id,\n      source: $('Normalize submission').item.json.source,\n      received_at: $('Normalize submission').item.json.received_at,\n      submitter: $('Normalize submission').item.json.submitter,\n      note: $('Normalize submission').item.json.note,\n      doc_type: parsed.doc_type || 'unrecognized',\n      title: parsed.title || 'Untitled document',\n      summary: parsed.summary || '',\n      extracted: parsed.extracted || {},\n      amount: parsed.amount ?? null,\n      currency: parsed.currency || null,\n      party_name: parsed.party_name || null,\n      doc_date: parsed.doc_date || null,\n      due_date: parsed.due_date || null,\n      confidence: parsed.confidence ?? null\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "n_unrec",
+      "name": "Is the document readable",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        720,
+        -320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict",
+            "looseTypeValidation": false
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cc1",
+              "leftType": "string",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.doc_type }}",
+              "rightType": "string",
+              "rightValue": "unrecognized"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "n_store",
+      "name": "Store record in Postgres",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        976,
+        -544
+      ],
+      "parameters": {
+        "query": "INSERT INTO biz_documents (doc_id, source, received_at, submitter, note, doc_type, title, summary, extracted, amount, currency, party_name, doc_date, due_date, confidence, status, last_action_at) VALUES ($1,$2,$3,$4,$5,$6,$7,$8,$9,$10,$11,$12,$13,$14,$15,'received',NOW()) ON CONFLICT (doc_id) DO UPDATE SET source=EXCLUDED.source, received_at=EXCLUDED.received_at, submitter=EXCLUDED.submitter, note=EXCLUDED.note, doc_type=EXCLUDED.doc_type, title=EXCLUDED.title, summary=EXCLUDED.summary, extracted=EXCLUDED.extracted, amount=EXCLUDED.amount, currency=EXCLUDED.currency, party_name=EXCLUDED.party_name, doc_date=EXCLUDED.doc_date, due_date=EXCLUDED.due_date, confidence=EXCLUDED.confidence, last_action_at=NOW();",
+        "options": {
+          "queryReplacement": "={{ [ $json.doc_id, $json.source, $json.received_at, $json.submitter, $json.note, $json.doc_type, $json.title, $json.summary, JSON.stringify($json.extracted || {}), $json.amount, $json.currency, $json.party_name, $json.doc_date, $json.due_date, $json.confidence ] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "credential-id",
+          "name": "neon-translation"
+        }
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "n_reattach",
+      "name": "Reattach parsed fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1200,
+        -544
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "doc_id",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.doc_id }}"
+            },
+            {
+              "id": "r2",
+              "name": "source",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.source }}"
+            },
+            {
+              "id": "r3",
+              "name": "received_at",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.received_at }}"
+            },
+            {
+              "id": "r4",
+              "name": "submitter",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.submitter }}"
+            },
+            {
+              "id": "r5",
+              "name": "note",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.note }}"
+            },
+            {
+              "id": "r6",
+              "name": "doc_type",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.doc_type }}"
+            },
+            {
+              "id": "r7",
+              "name": "title",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.title }}"
+            },
+            {
+              "id": "r8",
+              "name": "summary",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.summary }}"
+            },
+            {
+              "id": "r9",
+              "name": "amount",
+              "type": "number",
+              "value": "={{ $('Parse vision result').item.json.amount }}"
+            },
+            {
+              "id": "r10",
+              "name": "currency",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.currency }}"
+            },
+            {
+              "id": "r11",
+              "name": "party_name",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.party_name }}"
+            },
+            {
+              "id": "r12",
+              "name": "doc_date",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.doc_date }}"
+            },
+            {
+              "id": "r13",
+              "name": "due_date",
+              "type": "string",
+              "value": "={{ $('Parse vision result').item.json.due_date }}"
+            },
+            {
+              "id": "r14",
+              "name": "confidence",
+              "type": "number",
+              "value": "={{ $('Parse vision result').item.json.confidence }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "n_gmail_std",
+      "name": "Email received summary to operations",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1424,
+        -544
+      ],
+      "webhookId": "fe1ffec1-3160-4fe6-aa8c-8c0a56e06b5f",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ '<p>A new <b>' + $json.doc_type + '</b> was captured by the document desk.</p><p><b>Title:</b> ' + $json.title + '<br><b>Summary:</b> ' + $json.summary + (($json.amount != null) ? ('<br><b>Amount:</b> ' + ($json.currency || '') + ' ' + $json.amount) : '') + (($json.party_name != null) ? ('<br><b>Party:</b> ' + $json.party_name) : '') + (($json.due_date != null) ? ('<br><b>Due:</b> ' + $json.due_date) : '') + '<br><b>ID:</b> ' + $json.doc_id + '</p>' }}",
+        "options": {},
+        "subject": "={{ '[DocDesk] New ' + $json.doc_type + ' captured: ' + $json.title }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "contactmuhtadin@gmail.com"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "n_gmail_bad",
+      "name": "Email unrecognized notice to operations",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1024,
+        -192
+      ],
+      "webhookId": "192ba621-c7e2-499b-80ba-35dab91fbb90",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ '<p>The document desk could not read an image forwarded by <b>' + ($json.submitter || 'unknown') + '</b>.</p><p>Sender note: ' + ($json.note || '(none)') + '<br>ID: ' + $json.doc_id + '</p><p>Please resend a clearer photo or forward it another way.</p>' }}",
+        "options": {},
+        "subject": "={{ '[DocDesk] Could not read forwarded document (' + $json.doc_id + ')' }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "contactmuhtadin@gmail.com"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "n_sched",
+      "name": "Daily follow-up sweep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -768,
+        240
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "n_sweep",
+      "name": "Find open documents from yesterday or earlier",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -544,
+        240
+      ],
+      "parameters": {
+        "query": "SELECT doc_id, source, received_at, submitter, doc_type, title, summary, due_date, status FROM biz_documents WHERE status <> 'done' AND received_at < (NOW() - INTERVAL '24 hours') ORDER BY received_at ASC LIMIT 50;",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "credential-id",
+          "name": "neon-translation"
+        }
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "n_sweepcheck",
+      "name": "Are there open documents",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -320,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict",
+            "looseTypeValidation": false
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "s1",
+              "leftType": "string",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.doc_id }}",
+              "rightType": "string",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "n_sweepsum",
+      "name": "Build follow-up summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -96,
+        144
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json);\nconst lines = rows.map(r => '- [' + r.doc_type + '] ' + r.title + ' (from ' + (r.submitter || 'unknown') + ', due ' + (r.due_date || 'n/a') + ', id ' + r.doc_id + ')');\nreturn [\n  {\n    json: {\n      count: rows.length,\n      body: 'Open documents still awaiting action:\\n' + lines.join('\\n')\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "n_gmail_sweep",
+      "name": "Email follow-up to operations",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        128,
+        144
+      ],
+      "webhookId": "1d82d8c4-b8c2-4bc8-9c99-d4326e64e5d5",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ '<p>The document desk has <b>' + $json.count + '</b> documents still open from previous days:</p><pre>' + $json.body + '</pre>' }}",
+        "options": {},
+        "subject": "={{ '[DocDesk] ' + $json.count + ' documents still open' }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "contactmuhtadin@gmail.com"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "n_sweepclear",
+      "name": "Build all-clear note",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -96,
+        336
+      ],
+      "parameters": {
+        "jsCode": "return [\n  {\n    json: {\n      headline: 'Document follow-up: nothing open',\n      report_body: 'No documents are waiting for action. All clear.'\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "n_sticky_main",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1360,
+        -864
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 832,
+        "content": "## 08-23-01 turn forwarded business documents into structured records with AI\n\n### How it works\n\n1. Forward any business document (receipt, invoice, contract, ID, bank statement, bill) as a photo or screenshot to a webhook.\n2. The workflow validates that an image arrived, then sends it to GPT-4o Vision to classify the document type and extract the key fields into a structured record.\n3. The record is stored in Postgres, then posted to a Discord channel and emailed to the operations inbox.\n4. If the image is unreadable, the team is alerted on Discord and by email so nothing is lost.\n5. A daily 8am sweep finds documents still open from the previous day or earlier and sends a follow-up reminder on Discord and by email, or an all-clear when nothing is pending.\n\n### Setup steps\n\n1. Create the Postgres table `biz_documents` (see notes in registry).\n2. Point the webhook at your capture channel (Zapier, Make, email parser, or a phone number that forwards to the URL).\n3. Set the Discord channel, the operations email, and the OpenAI credential (gpt-4o vision).\n4. Activate. Forward a test receipt and confirm it appears in Postgres, Discord, and email.\n\n### Customization\n\n- Change `doc_type` routing to push invoices to accounting and contracts to legal.\n- Add an Airtable or Sheets mirror for non-technical reporting.\n- Swap the vision model for Gemini or Claude if you prefer."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "n_sticky_capture",
+      "name": "Capture and extract",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        -464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1704,
+        "height": 440,
+        "content": "## Capture and extract\nWebhook intake receives the forwarded document, normalizes the fields, checks an image is present, then GPT-4o Vision classifies and extracts the record."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "n_sticky_route",
+      "name": "Store and route",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 776,
+        "height": 376,
+        "content": "## Store and route\nParsed records are saved to Postgres, then routed to Discord and email. Unrecognized images alert the team instead of failing silently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "n_sticky_sweep",
+      "name": "Follow-up sweep",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1160,
+        "height": 488,
+        "content": "## Daily follow-up sweep\nA scheduled sweep finds documents still open from earlier days and reminds the team on Discord and email, or sends an all-clear when nothing is pending."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "n_vision_call",
+      "name": "Call GPT-4o vision",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        272,
+        -320
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json.reqObj) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "jonathan"
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "Asia/Jakarta",
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "168ddb58-8e29-4c52-b32a-073758493c69",
+  "nodeGroups": [],
+  "connections": {
+    "Call GPT-4o vision": {
+      "main": [
+        [
+          {
+            "node": "Parse vision result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse vision result": {
+      "main": [
+        [
+          {
+            "node": "Is the document readable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build all-clear note": {
+      "main": [
+        []
+      ]
+    },
+    "Normalize submission": {
+      "main": [
+        [
+          {
+            "node": "Has an image attached",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily follow-up sweep": {
+      "main": [
+        [
+          {
+            "node": "Find open documents from yesterday or earlier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has an image attached": {
+      "main": [
+        [
+          {
+            "node": "Build GPT-4o vision request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email unrecognized notice to operations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reattach parsed fields": {
+      "main": [
+        [
+          {
+            "node": "Email received summary to operations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build follow-up summary": {
+      "main": [
+        [
+          {
+            "node": "Email follow-up to operations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Are there open documents": {
+      "main": [
+        [
+          {
+            "node": "Build follow-up summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build all-clear note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is the document readable": {
+      "main": [
+        [
+          {
+            "node": "Store record in Postgres",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email unrecognized notice to operations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store record in Postgres": {
+      "main": [
+        [
+          {
+            "node": "Reattach parsed fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build GPT-4o vision request": {
+      "main": [
+        [
+          {
+            "node": "Call GPT-4o vision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When a document is forwarded": {
+      "main": [
+        [
+          {
+            "node": "Normalize submission",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find open documents from yesterday or earlier": {
+      "main": [
+        [
+          {
+            "node": "Are there open documents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

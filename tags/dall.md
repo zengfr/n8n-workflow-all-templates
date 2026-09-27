@@ -1,4 +1,4 @@
-# dall : 35
+# dall : 36
 
 |id|file|
 |----|----|
@@ -37,3 +37,4 @@
 |13113|[13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13113_Publish_SEO_blogs_to_WordPress_with_GPT-4.1__DALL-E__Gemini__and_Google_Sheets.json)|
 |14256|[14256_Generate_UGC_product_videos_from_Google_Sheets_with_DALL_E__GPT-4_and_Sora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14256_Generate_UGC_product_videos_from_Google_Sheets_with_DALL_E__GPT-4_and_Sora.json)|
 |16062|[16062_Generate_and_publish_SEO_blog_posts_to_WordPress_with_Gemini_and_DALL-E_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16062_Generate_and_publish_SEO_blog_posts_to_WordPress_with_Gemini_and_DALL-E_3.json)|
+|18770|[18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json)|

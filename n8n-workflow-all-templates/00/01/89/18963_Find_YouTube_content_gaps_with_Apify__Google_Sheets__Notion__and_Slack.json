@@ -1,0 +1,368 @@
+{
+  "name": "Find the YouTube topics your competitors cover and you do not, with Apify",
+  "nodes": [
+    {
+      "id": "t",
+      "name": "Every Monday at 7",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfg",
+      "name": "Your topic and theirs",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "yourQueries",
+              "type": "string",
+              "value": "notion templates for freelancers"
+            },
+            {
+              "id": "a2",
+              "name": "rivalQueries",
+              "type": "string",
+              "value": "notion tutorial, notion setup"
+            },
+            {
+              "id": "a3",
+              "name": "maxItems",
+              "type": "number",
+              "value": 40
+            },
+            {
+              "id": "a4",
+              "name": "minViews",
+              "type": "number",
+              "value": 5000
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "mine",
+      "name": "What you already cover",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        340
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~youtube-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ searchQueries: $json.yourQueries.split(',').map(s => s.trim()), maxItems: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "theirs",
+      "name": "What they cover",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        700
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~youtube-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ searchQueries: $json.rivalQueries.split(',').map(s => s.trim()), maxItems: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "gap",
+      "name": "Find what is missing",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        900,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// Two lists in, one list out: the subjects THEY have covered and you have not.\n// Matching on whole titles finds nothing, because nobody words a title the same way twice. So\n// reduce each title to its meaningful words and compare on the overlap.\nconst cfg = $('Your topic and theirs').first().json;\nconst minViews = Number(cfg.minViews) || 0;\n\nconst STOP = new Set(['the','a','an','and','or','for','to','in','of','on','with','how','your','you','my','is','it','this','that','best','top','new','2024','2025','2026','vs','from','what','why','free','full','guide','tutorial','video']);\nconst keywords = (title) => new Set(\n  String(title || '').toLowerCase().replace(/[^a-z0-9\\s]/g, ' ').split(/\\s+/)\n    .filter((word) => word.length > 2 && !STOP.has(word))\n);\nconst overlap = (a, b) => {\n  let n = 0;\n  for (const word of a) if (b.has(word)) n += 1;\n  return a.size ? n / a.size : 0;\n};\n\nconst mine = $('What you already cover').all().map((i) => keywords(i.json.title));\nconst gaps = [];\n\nfor (const item of $('What they cover').all()) {\n  const v = item.json;\n  const views = Number(v.viewCount || v.views || 0);\n  if (views < minViews) continue;                       // ignore what did not work for them either\n\n  const words = keywords(v.title);\n  if (words.size < 2) continue;\n\n  // Covered already if any of your videos shares more than half its meaningful words.\n  const covered = mine.some((m) => overlap(words, m) > 0.5);\n  if (covered) continue;\n\n  gaps.push({\n    json: {\n      title: v.title,\n      views,\n      url: v.url || v.videoUrl || '',\n      channel: v.channelName || v.channel || '',\n      subject: [...words].slice(0, 6).join(' '),\n    },\n  });\n}\n\n// Best-performing gaps first — a subject nobody watched is not a gap worth filling.\ngaps.sort((a, b) => b.json.views - a.json.views);\nreturn gaps.slice(0, 25);"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "out",
+      "name": "Log the gaps",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1180,
+        520
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "opt-notion",
+      "name": "Optional: keep them as Notion ideas",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        520,
+        1120
+      ],
+      "parameters": {
+        "title": "={{ $json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Views|number",
+              "numberValue": "={{ $json.views }}"
+            },
+            {
+              "key": "Link|url",
+              "urlValue": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "opt-slack",
+      "name": "Optional: post the gap list to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        880,
+        1120
+      ],
+      "parameters": {
+        "text": "=*Gap:* {{ $json.title }}\n{{ Number($json.views).toLocaleString() }} views · {{ $json.channel }}\n{{ $json.url }}",
+        "select": "channel",
+        "channelId": "#content",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "st0",
+      "name": "Sticky Note s0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 1. Schedule\n\nWeekly. Content gaps move at the speed of publishing, not of news."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st1",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 2. Your topic and theirs\n\nTwo sets of search terms: what you already make, and the wider subject you compete in."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st2",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 3. Both searches run\n\nTwo YouTube searches from the same config, one for each side. Both run before anything is compared."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st3",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 4. Find what is missing\n\nReduces every title to its meaningful words and keeps the subjects they cover that you do not. Sorted by views, because an unwatched gap is not a gap."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st4",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 5. Log them\n\nOne row per gap, best performing first."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-opt",
+      "name": "Sticky Note optional",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        940
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 760,
+        "height": 160,
+        "content": "## Optional — other endings\n\nWired to nothing on purpose. Hang **Notion** off \"Find what is missing\" to keep the gaps as an idea board, or **Slack** to have them arrive on Monday morning."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-desc",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        40
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1420,
+        "content": "## Find the YouTube topics your competitors cover and you do not, with Apify and Google Sheets\n\nRuns two searches — what you already publish, and the wider subject — then returns only the subjects that appear on their side and not yours, best performing first.\n\n**Who is this for?**\nAnyone making videos on a subject where several channels compete, who has run out of ideas that are not guesses.\n\n**What problem is this workflow solving?**\n\"What should I make next\" usually gets answered by scrolling a competitor's channel and feeling vaguely behind. The actual question is narrower: what have they covered, that worked, that you have not touched. Answering it by hand means holding two content libraries in your head at once, which is why nobody does it twice.\n\n**What this workflow does**\n- Searches YouTube twice from one config: your terms, and the wider subject.\n- Reduces every title on both sides to its meaningful words, so wording differences do not hide a match.\n- Keeps the subjects that appear on their side with no close match on yours.\n- Drops anything below your view floor, because a subject nobody watched is not an opportunity.\n- Writes the gaps to a sheet, highest views first.\n\n**Setup**\n1. Add an Apify credential and a Google Sheets credential.\n2. Set `yourQueries` to terms that find your own videos, and `rivalQueries` to the broader subject.\n3. Set `minViews` — 5,000 is a reasonable floor for a mid-sized niche, lower it for a small one.\n4. Pick your sheet in the last node.\n\n**Requirements**\nAn Apify account and API token, and a Google Sheet you can append to. No OpenAI key: the comparison is plain word overlap, not a model.\n\n**How to customize this workflow to your needs**\n\nTwo nodes sit below the main row, wired to nothing on purpose — **Notion** to keep the gaps as an idea board, **Slack** to have them arrive Monday morning.\n\nThe comparison lives in \"Find what is missing\". The stop-word list and the 0.5 overlap threshold are the two things worth tuning: raise the threshold and near-misses count as gaps, lower it and only untouched subjects survive.\n\n**Good to know**\nThis finds subjects, not scripts, and it cannot tell whether a gap exists because nobody wanted it. Some things your competitors cover are things you deliberately do not, and those will show up every week until you add their words to the stop list. The view floor is doing most of the filtering — check what it is excluding before trusting a short list."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "What they cover": {
+      "main": [
+        [
+          {
+            "node": "Find what is missing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday at 7": {
+      "main": [
+        [
+          {
+            "node": "Your topic and theirs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find what is missing": {
+      "main": [
+        [
+          {
+            "node": "Log the gaps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Your topic and theirs": {
+      "main": [
+        [
+          {
+            "node": "What you already cover",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "What they cover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Find YouTube content gaps with Apify, Google Sheets, Notion, and Slack",
+    "wechat": "youandme10086",
+    "id": 18963,
+    "update_time": "2026-09-27"
+  }
+}

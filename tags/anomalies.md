@@ -1,4 +1,4 @@
-# anomalies : 6
+# anomalies : 12
 
 |id|file|
 |----|----|
@@ -8,3 +8,9 @@
 |13322|[13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13322_Detect_and_route_gameplay_security_anomalies_with_GPT-4o__Slack_and_Sheets.json)|
 |13980|[13980_Reconcile_Stripe_payments_and_flag_anomalies_with_Google_Sheets_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13980_Reconcile_Stripe_payments_and_flag_anomalies_with_Google_Sheets_and_Gemini_AI.json)|
 |15887|[15887_Detect_pricing_anomalies_in_Google_Sheets_with_Groq_AI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15887_Detect_pricing_anomalies_in_Google_Sheets_with_Groq_AI_and_Slack_alerts.json)|
+|17293|[17293_Detect_Stripe_payment_anomalies_with_Groq__Supabase__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17293_Detect_Stripe_payment_anomalies_with_Groq__Supabase__Slack__and_Google_Sheets.json)|
+|18093|[18093_Review_electricity_bills_and_flag_anomalies_with_OpenAI__Google_Sheets__and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18093_Review_electricity_bills_and_flag_anomalies_with_OpenAI__Google_Sheets__and_SendGrid.json)|
+|18247|[18247_Monitor_grid_frequency_anomalies_and_incidents_with_SCADA_and_ops_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18247_Monitor_grid_frequency_anomalies_and_incidents_with_SCADA_and_ops_APIs.json)|
+|18491|[18491_Detect_smart_meter_anomalies_and_route_critical_alerts_via_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18491_Detect_smart_meter_anomalies_and_route_critical_alerts_via_HTTP_API.json)|
+|19059|[19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json)|
+|19804|[19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json)|

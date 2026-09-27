@@ -1,4 +1,4 @@
-# monthly : 32
+# monthly : 44
 
 |id|file|
 |----|----|
@@ -34,3 +34,15 @@
 |16328|[16328_Send_monthly_P_L_email_reports_with_Google_Sheets__GPT-4o-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16328_Send_monthly_P_L_email_reports_with_Google_Sheets__GPT-4o-mini_and_Gmail.json)|
 |16362|[16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json)|
 |16538|[16538_Generate_monthly_BigQuery_KPI_PDF_reports_with_Claude__Google_Docs__Outlook_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16538_Generate_monthly_BigQuery_KPI_PDF_reports_with_Claude__Google_Docs__Outlook_and_Teams.json)|
+|16913|[16913_Send_monthly_real_estate_market_summaries_to_Slack_with_Supabase_and_Rentcast.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16913_Send_monthly_real_estate_market_summaries_to_Slack_with_Supabase_and_Rentcast.json)|
+|16914|[16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json)|
+|16983|[16983_Log_email_receipt_data_to_Google_Sheets_with_Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16983_Log_email_receipt_data_to_Google_Sheets_with_Gmail_and_OpenAI.json)|
+|17406|[17406_Summarize_Google_Reviews_into_monthly_owner_digests_with_Claude_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17406_Summarize_Google_Reviews_into_monthly_owner_digests_with_Claude_and_Supabase.json)|
+|17678|[17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json)|
+|17771|[17771_Send_monthly_consolidated_customer_statements_from_Google_Sheets_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17771_Send_monthly_consolidated_customer_statements_from_Google_Sheets_with_Gmail.json)|
+|17986|[17986_Send_monthly_volunteer_hour_statements_from_Google_Sheets_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17986_Send_monthly_volunteer_hour_statements_from_Google_Sheets_with_Gmail.json)|
+|18466|[18466_Route_Clio_draft_pre-bill_review_and_escalation_emails_with_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18466_Route_Clio_draft_pre-bill_review_and_escalation_emails_with_SMTP.json)|
+|19015|[19015_Generate_monthly_invoice_PDFs_from_Google_Sheets_with_Gmail__Drive__Slack__and_Emitforge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19015_Generate_monthly_invoice_PDFs_from_Google_Sheets_with_Gmail__Drive__Slack__and_Emitforge.json)|
+|19221|[19221_Build_an_EU_AI_Act_risk_inventory_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19221_Build_an_EU_AI_Act_risk_inventory_with_OpenAI_and_Google_Sheets.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|
+|19310|[19310_Generate_monthly_PDF_lead_reports_from_Monday.com_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19310_Generate_monthly_PDF_lead_reports_from_Monday.com_with_Gemini_and_Gmail.json)|

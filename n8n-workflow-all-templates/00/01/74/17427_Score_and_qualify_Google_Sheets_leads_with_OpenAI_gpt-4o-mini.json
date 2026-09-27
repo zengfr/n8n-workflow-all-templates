@@ -1,0 +1,528 @@
+{
+  "name": "Lead Qualifier & Scorer",
+  "nodes": [
+    {
+      "id": "6b1f2a01-0000-4000-8000-00000000e701",
+      "name": "When clicking 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -380,
+        200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a02-0000-4000-8000-00000000e702",
+      "name": "⭐ Configure Your Run",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -180,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b1f2a21-+1234567890000e721",
+              "name": "max_per_run",
+              "type": "string",
+              "value": "25"
+            },
+            {
+              "id": "6b1f2a22-+1234567890000e722",
+              "name": "openai_model",
+              "type": "string",
+              "value": "gpt-4o-mini"
+            },
+            {
+              "id": "6b1f2a23-+1234567890000e723",
+              "name": "icp_description",
+              "type": "string",
+              "value": "Independent direct-to-consumer brands that sell physical products online through their own store (e.g. Shopify or WooCommerce), roughly 5-100 staff. Not agencies, not banks or financial services, not large enterprises."
+            },
+            {
+              "id": "6b1f2a24-+1234567890000e724",
+              "name": "min_qualified_score",
+              "type": "string",
+              "value": "0"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6b1f2a03-0000-4000-8000-00000000e703",
+      "name": "Read Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        40,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PASTE_YOUR_GOOGLE_SHEET_URL"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "6b1f2a04-0000-4000-8000-00000000e704",
+      "name": "Select Pending",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        240,
+        200
+      ],
+      "parameters": {
+        "jsCode": "\n// Select Pending — status-driven idempotency + per-run cap + model allowlist. No web fetch.\nconst APPROVED_MODELS = [\"gpt-4o-mini\", \"gpt-4.1-mini\"];\nconst DEFAULT_MODEL = \"gpt-4o-mini\";\nconst HARD_CAP = 100;\nconst DEFAULT_CAP = 25;\n\nconst cfg = $('⭐ Configure Your Run').first().json;\nlet model = String(cfg.openai_model || '').trim();\nif (!APPROVED_MODELS.includes(model)) model = DEFAULT_MODEL;\n\nlet cap = Number(cfg.max_per_run);\nif (!Number.isFinite(cap) || cap <= 0) cap = DEFAULT_CAP;\ncap = Math.min(Math.floor(cap), HARD_CAP);\n\nconst icp = String(cfg.icp_description || '').trim();\n\n// Validate min_qualified_score HERE, before any billable call: a typo like 750 must be a clear\n// config error up front, not a silent empty hand-off after every lead has been charged.\nconst minqRaw = String(cfg.min_qualified_score ?? '').trim();\nconst minq = minqRaw === '' ? 0 : Number(minqRaw);\nif (!Number.isFinite(minq) || minq < 0 || minq > 100) {\n  throw new Error(\"Configuration error: min_qualified_score must be a number between 0 and 100 \" +\n                  \"(scores are 0-100). Got: '\" + minqRaw + \"'. Fix it in ⭐ Configure Your Run.\");\n}\n\nconst rows = $input.all();\nconst out = [];\nfor (const item of rows) {\n  const j = item.json;\n  const name    = String(j.name    || '').trim();\n  const company = String(j.company || '').trim();\n  const role    = String(j.role    || '').trim();\n  const website = String(j.website || '').trim();\n  const notes   = String(j.notes   || '').trim();\n  const hasContent = name || company || website;                        // skip genuinely empty rows\n  const done = String(j.status || '').trim().toLowerCase() === 'done';  // status-driven: clear 'status' to re-score\n  if (!hasContent || done) continue;                                    // 'failed'/blank rows are (re)processed\n  out.push({ json: {\n    row_number: j.row_number,                                           // stable per-row match key\n    name, company, role, website, notes,\n    _model: model,\n    _icp: icp,\n  }});\n  if (out.length >= cap) break;\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b1f2a06-0000-4000-8000-00000000e706",
+      "name": "Build Scoring Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        200
+      ],
+      "parameters": {
+        "jsCode": "\n// Build Scoring Prompt — compose the ICP + one lead into a strict scoring request.\nconst SYSTEM_RULES = \"You are a B2B lead-qualification assistant. Given an Ideal Customer Profile (ICP) and ONE lead's details, assess how well the lead fits the ICP and produce an actionable, honest evaluation. (1) Use ONLY the ICP and the lead fields provided \\u2014 NEVER invent facts about the lead (no assumed company size, funding, location, tech stack, intent, or names not present in the input). If a detail is missing, treat it as unknown and LOWER both the score band and the confidence rather than guessing. (2) NEVER MERGE SEPARATE FACTS INTO ONE CLAIM. Base red_flags, next_action and personalization_angle only on what the input actually says. (3) SCORE = integer 0-100 for fit to the ICP. Apply this rubric CONSISTENTLY; the band is set by how completely the lead meets the ICP and how material any caveat is: 90-100 = exceptional, near-exact fit meeting the ICP's core criteria with NO material caveat; 75-89 = strong fit with only a MINOR caveat or one small unknown; 55-74 = good but CAVEATED fit \\u2014 meets some ICP criteria while a MATERIAL caveat or key unknown (relies partly on a marketplace, unclear size, mixed business model) clearly holds it back; 35-54 = partial or uncertain fit \\u2014 a few criteria met, several missing or unknown; 15-34 = weak fit, mostly misaligned with the ICP; 0-14 = clear non-fit or an explicit disqualifier (excluded industry/type, size far outside the range). A lead that plainly matches EVERY stated ICP criterion belongs in 90-100, not the 80s; a genuine caveat (e.g. sells partly via a marketplace) must drop it into the caveated band, not keep it near the top. (4) tier follows the band: 'hot' = 75-100, 'warm' = 35-74, 'cold' = 0-34. (5) reason = 1-2 plain sentences naming the specific ICP criteria the lead meets or misses, and the caveat that set the band. (6) next_action = ONE specific, practical next step GROUNDED in this lead's own evidence (their product, stage, channel, role or notes) \\u2014 never generic filler such as 'reach out to discuss collaboration'. If the input is too sparse to be specific, state the exact information to gather first (e.g. 'confirm staff size and whether they sell on their own store before any outreach'). (7) personalization_angle = one specific, genuine hook drawn from the lead's own details (empty string if the input offers nothing genuine \\u2014 never fabricate one). (8) red_flags = a short comma-separated list of concrete disqualifiers or risks from the input (empty string if none). confidence = 'high|medium|low' ('low' when fields are sparse or the fit is uncertain). (9) Plain spoken English, no marketing fluff, no emojis, no exclamation marks. (10) Return STRICT JSON only: {\\\"score\\\":0,\\\"tier\\\":\\\"hot|warm|cold\\\",\\\"reason\\\":\\\"...\\\",\\\"next_action\\\":\\\"...\\\",\\\"personalization_angle\\\":\\\"...\\\",\\\"red_flags\\\":\\\"...\\\",\\\"confidence\\\":\\\"high|medium|low\\\"}.\";\nconst leads = $input.all();\nconst out = [];\nfor (let i = 0; i < leads.length; i++) {\n  const lead = leads[i].json;\n  const icp = String(lead._icp || '').trim();\n  const leadFields = {\n    name: lead.name || '', company: lead.company || '', role: lead.role || '',\n    website: lead.website || '', notes: lead.notes || '',\n  };\n  const user = [\n    'IDEAL CUSTOMER PROFILE (ICP):',\n    icp || '(No ICP was provided. Score general B2B fit conservatively and set confidence to \"low\".)',\n    'LEAD (use ONLY these fields — do not invent anything else):',\n    JSON.stringify(leadFields),\n    'Return the assessment as strict JSON only.',\n  ].join('\\n\\n');\n  out.push({ json: { ...lead,\n    _oai_body: {\n      model: lead._model,\n      messages: [\n        { role: 'system', content: SYSTEM_RULES },\n        { role: 'user', content: user },\n      ],\n      response_format: { type: 'json_object' },\n      max_tokens: 500,\n      temperature: 0.2,\n    }\n  }});\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b1f2a07-0000-4000-8000-00000000e707",
+      "name": "Score Lead (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        640,
+        200
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "jsonBody": "={{ JSON.stringify($json._oai_body) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "OpenAI"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6b1f2a08-0000-4000-8000-00000000e708",
+      "name": "Parse Score",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        840,
+        200
+      ],
+      "parameters": {
+        "jsCode": "\n// Parse Score — robust parse; honest fallback; status-driven, retryable. No fabricated scores.\nconst inputs = $input.all();\nconst prepared = $('Build Scoring Prompt').all();\nif (inputs.length !== prepared.length) throw new Error('openai/prepare item count mismatch: ' + inputs.length + ' vs ' + prepared.length);\nconst clean = s => String(s == null ? '' : s).replace(/[\\r\\n]+/g, ' ').trim();\nconst out = [];\nfor (let i = 0; i < inputs.length; i++) {\n  const j = inputs[i].json;\n  const lead = prepared[i].json;\n  let score = null, tier = '', reason = '', nextAction = '', angle = '', redFlags = '', confidence = 'low';\n  const apiFailed = !!j.error || !j.choices;\n\n  if (!apiFailed) {\n    try {\n      const p = JSON.parse(j.choices?.[0]?.message?.content || '');\n      const n = Number(p.score);\n      if (Number.isFinite(n)) score = Math.max(0, Math.min(100, Math.round(n)));\n      tier       = clean(p.tier).toLowerCase();\n      reason     = clean(p.reason);\n      nextAction = clean(p.next_action);\n      angle      = clean(p.personalization_angle);\n      redFlags   = clean(p.red_flags);\n      confidence = clean(p.confidence).toLowerCase();\n    } catch (e) { /* fallback below */ }\n  }\n  // A real success needs a numeric score AND a reason. Otherwise keep the row RETRYABLE:\n  // blank outputs + status='failed' so a re-run re-scores it. Never write a fake score.\n  const failed = apiFailed || score === null || !reason;\n  if (failed) {\n    score = ''; tier = ''; reason = ''; nextAction = ''; angle = ''; redFlags = ''; confidence = 'low';\n  } else {\n    if (!['hot','warm','cold'].includes(tier)) tier = score >= 75 ? 'hot' : (score >= 35 ? 'warm' : 'cold');\n    if (!['high','medium','low'].includes(confidence)) confidence = 'medium';\n  }\n\n  out.push({ json: {\n    row_number: lead.row_number,               // match key — write to THIS exact row\n    score: score,\n    tier: tier,\n    reason: reason,\n    next_action: nextAction,\n    personalization_angle: angle,\n    red_flags: redFlags,\n    confidence: confidence,\n    status: failed ? 'failed' : 'done',\n    scored_at: new Date().toISOString().slice(0, 16).replace('T', ' '),\n  }});\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b1f2a09-0000-4000-8000-00000000e709",
+      "name": "Write Score",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 3,
+      "position": [
+        1040,
+        200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "row_number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "name",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "company",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "role",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "role",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "website",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "website",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "notes",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "notes",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "score",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tier",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tier",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reason",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "next_action",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "next_action",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "personalization_angle",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "personalization_angle",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "red_flags",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "red_flags",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "confidence",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "scored_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "scored_at",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PASTE_YOUR_GOOGLE_SHEET_URL"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "6b1f2a10-0000-4000-8000-00000000e710",
+      "name": "Qualified Leads (≥ min score)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1240,
+        200
+      ],
+      "parameters": {
+        "jsCode": "\n// Qualified Leads — POST-SCORE qualification. Every pending lead has ALREADY been scored once above;\n// this forwards only leads whose score is at/above the Minimum Qualified Score. It does NOT skip or\n// cheapen scoring — it just re-joins lead identity so users can CHAIN further automation off this node\n// (send to CRM, draft outreach, Slack, etc.).\nconst cfg = $('⭐ Configure Your Run').first().json;\nlet min = Number(cfg.min_qualified_score);\nif (!Number.isFinite(min)) min = 0;\nmin = Math.max(0, Math.min(100, min));   // belt-and-braces: Select Pending already rejects out-of-range\nconst scored = $('Parse Score').all();\nconst leads = $('Build Scoring Prompt').all();\nconst out = [];\nfor (let i = 0; i < scored.length; i++) {\n  const s = scored[i].json;\n  const L = (leads[i] && leads[i].json) || {};\n  const n = Number(s.score);\n  if (s.status === 'done' && Number.isFinite(n) && n >= min) {\n    out.push({ json: {\n      row_number: s.row_number,\n      name: L.name || '', company: L.company || '', role: L.role || '', website: L.website || '',\n      score: n, tier: s.tier, reason: s.reason, next_action: s.next_action,\n      personalization_angle: s.personalization_angle, red_flags: s.red_flags, confidence: s.confidence,\n    }});\n  }\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b1f2a51-0000-4000-8000-00000000e751",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        20
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 900,
+        "content": "## 🎯 Lead Qualifier & Scorer\n\nDecide who to contact first. Scores every lead in your Google Sheet 0–100 against your own Ideal Customer Profile — for founders, agencies, SDRs and small sales teams.\n\n### How it works\n1. **Read** — pulls your leads from the `leads` tab of your Google Sheet.\n2. **Select** — skips rows already marked `done`, so re-running is safe and won't re-charge them.\n3. **Score** — one OpenAI call per lead, judged against the ICP you wrote in plain English.\n4. **Write back** — score, tier (hot/warm/cold), reason, next action, personalisation angle, red flags and confidence go back onto the lead's own row.\n5. **Hand off** — leads at or above your Minimum Qualified Score are emitted from the **Qualified Leads** output, ready to chain into a CRM, an alert, or your outreach.\n\n### Setup steps\n- [ ] Copy the companion Google Sheet — open [this link](https://docs.google.com/spreadsheets/d/10FhTFY6eMKU2daCXifpBCw_RpitrU1S_fqb6bYW87LU/copy), sign in to Google if asked, then click **Make a copy**\n- [ ] Add your **Google Sheets** credential to *Read Leads* and *Write Score*\n- [ ] Add your **OpenAI** credential to *Score Lead (OpenAI)*\n- [ ] Paste **your copy's** Sheet URL into *Read Leads* and *Write Score*\n- [ ] Write your ICP in one sentence in **⭐ Configure Your Run**, then press **Execute workflow**\n\n### Customization\n- **Your ICP:** `icp_description` — one plain sentence describing your ideal customer. This is the whole scoring standard; change it and every score changes.\n- **Volume:** `max_per_run` — 1–100 leads per run.\n- **Qualification bar:** `min_qualified_score` (0–100) — every pending lead is still scored; leave it at 0 to pass all of them through.\n- **Re-scoring:** clear the `status` column; failed rows retry automatically.\n\nBuilt by **FirstDropHQ** — firstdrophq.com"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a52-0000-4000-8000-00000000e752",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 840,
+        "height": 360,
+        "content": "## 1. Read your leads\n\nReads the `leads` tab of your Google Sheet and selects only the leads that have not been scored yet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a53-0000-4000-8000-00000000e753",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 360,
+        "content": "## 2. Score against your ICP\n\nBuilds the scoring prompt from your one-sentence Ideal Customer Profile and sends each lead to OpenAI once, under rules that forbid inventing facts about the lead."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a54-0000-4000-8000-00000000e754",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 360,
+        "content": "## 3. Write back and hand off\n\nWrites the score, tier and reasoning onto the lead's own row. Leads at or above your Minimum Qualified Score are emitted from the **Qualified Leads** output — connect your CRM or alert here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a55-0000-4000-8000-00000000e755",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        440
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 600,
+        "height": 310,
+        "content": "## ⚠️ Runs on your own OpenAI key\n\nEvery lead is one OpenAI call **billed to your key** — well under $0.0005 per lead on `gpt-4o-mini` (comfortably under $0.05 per 100 leads). Rows marked `done` are never re-charged — but if the write-back to your Sheet fails after scoring (rare; it retries first), those rows re-bill on the next run.\n\nNo key yet? Create one at **platform.openai.com → API keys**.\n\n**Score quality tracks ICP quality** — a vague one-word ICP produces vague, low-confidence scores."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Read Leads": {
+      "main": [
+        [
+          {
+            "node": "Select Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Score": {
+      "main": [
+        [
+          {
+            "node": "Write Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Score": {
+      "main": [
+        [
+          {
+            "node": "Qualified Leads (≥ min score)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Pending": {
+      "main": [
+        [
+          {
+            "node": "Build Scoring Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Lead (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Parse Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Scoring Prompt": {
+      "main": [
+        [
+          {
+            "node": "Score Lead (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⭐ Configure Your Run": {
+      "main": [
+        [
+          {
+            "node": "Read Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "⭐ Configure Your Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Score and qualify Google Sheets leads with OpenAI gpt-4o-mini",
+    "wechat": "youandme10086",
+    "id": 17427,
+    "update_time": "2026-09-27"
+  }
+}

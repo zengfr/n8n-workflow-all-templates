@@ -1,4 +1,4 @@
-# commodity : 9
+# commodity : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |16303|[16303_Track_gold_price_changes_and_send_Slack_alerts_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16303_Track_gold_price_changes_and_send_Slack_alerts_with_Gemini.json)|
 |16362|[16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json)|
 |16367|[16367_Analyze_commodity_portfolio_diversification_with_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16367_Analyze_commodity_portfolio_diversification_with_Sheets__Gemini__and_Gmail.json)|
+|18128|[18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json)|

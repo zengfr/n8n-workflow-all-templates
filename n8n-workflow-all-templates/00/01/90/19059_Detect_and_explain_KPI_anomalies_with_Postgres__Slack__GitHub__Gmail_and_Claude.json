@@ -1,0 +1,2019 @@
+{
+  "name": "KPI Anomaly Watchdog",
+  "nodes": [
+    {
+      "id": "collect-manual",
+      "name": "Collect On Demand",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1780,
+        -1080
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "collect-cron",
+      "name": "Collect Nightly 01:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1780,
+        -920
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 1,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "load-registry",
+      "name": "Load Metric Registry",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -1540,
+        -1000
+      ],
+      "parameters": {
+        "query": "select metric_key, metric_sql, unit, direction, z_threshold, min_abs_change,\n       owner_team, owner_email, owner_slack, repo_owner, repo_name\nfrom kpi_metrics\nwhere enabled = true\norder by metric_key",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "run-metric",
+      "name": "Run Metric Query",
+      "type": "n8n-nodes-base.postgres",
+      "onError": "continueRegularOutput",
+      "position": [
+        -1300,
+        -1000
+      ],
+      "parameters": {
+        "query": "={{ $json.metric_sql }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "build-observation",
+      "name": "Build Observation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1060,
+        -1000
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// The registry row travels alongside the query result, so a metric that\n// returns an unexpected shape fails loudly here instead of silently\n// poisoning the baseline with a NaN.\nconst registry = $('Load Metric Registry').item.json;\nconst row = $json;\n\nif (row.error) {\n  return { json: {\n    metric_key: registry.metric_key,\n    unit: registry.unit || '',\n    value: null,\n    collection_error: String(row.error),\n  } };\n}\n\nconst candidate = row.value !== undefined ? row.value : Object.values(row)[0];\nconst value = Number(candidate);\n\nreturn { json: {\n  metric_key: registry.metric_key,\n  unit: registry.unit || '',\n  value: Number.isFinite(value) ? value : null,\n  collection_error: Number.isFinite(value)\n    ? null\n    : `Metric SQL returned a non-numeric value: ${JSON.stringify(row).slice(0, 200)}`,\n} };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "store-observation",
+      "name": "Store Observation",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -820,
+        -1000
+      ],
+      "parameters": {
+        "query": "insert into kpi_observations (metric_key, observed_on, value, unit, collection_error)\nvalues ($1, current_date - 1, nullif($2, '')::numeric, $3, nullif($4, ''))\non conflict (metric_key, observed_on) do update\n  set value = excluded.value,\n      unit = excluded.unit,\n      collection_error = excluded.collection_error\nreturning metric_key, observed_on, value",
+        "options": {
+          "queryReplacement": "={{ $json.metric_key }},{{ $json.value }},{{ $json.unit }},{{ $json.collection_error }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "recompute-baselines",
+      "name": "Recompute Baselines",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -580,
+        -1000
+      ],
+      "parameters": {
+        "query": "-- Median and MAD, not mean and standard deviation. One bad deploy day\n-- moves a mean enough to hide the next bad deploy day; it barely moves a median.\nwith recent as (\n  select metric_key, observed_on, value,\n         extract(isodow from observed_on)::int as dow\n  from kpi_observations\n  where observed_on >= current_date - interval '28 days'\n    and observed_on <  current_date\n    and value is not null\n),\nmed as (\n  select metric_key,\n         percentile_cont(0.5) within group (order by value) as median_value,\n         count(*) as n_obs\n  from recent\n  group by metric_key\n),\ndev as (\n  select r.metric_key,\n         percentile_cont(0.5) within group (order by abs(r.value - m.median_value)) as mad,\n         stddev_samp(r.value) as stdev_value\n  from recent r\n  join med m on m.metric_key = r.metric_key\n  group by r.metric_key\n),\ndow_med as (\n  select metric_key, dow,\n         percentile_cont(0.5) within group (order by value) as dow_median\n  from recent\n  group by metric_key, dow\n),\ndow_map as (\n  select metric_key, jsonb_object_agg(dow::text, dow_median) as dow_medians\n  from dow_med\n  group by metric_key\n)\ninsert into kpi_baselines\n  (metric_key, median_value, mad, stdev_value, n_obs, dow_medians, computed_at)\nselect m.metric_key, m.median_value, d.mad, d.stdev_value, m.n_obs,\n       coalesce(w.dow_medians, '{}'::jsonb), now()\nfrom med m\njoin dev d      on d.metric_key = m.metric_key\nleft join dow_map w on w.metric_key = m.metric_key\non conflict (metric_key) do update set\n  median_value = excluded.median_value,\n  mad          = excluded.mad,\n  stdev_value  = excluded.stdev_value,\n  n_obs        = excluded.n_obs,\n  dow_medians  = excluded.dow_medians,\n  computed_at  = excluded.computed_at\nreturning metric_key, n_obs, median_value, mad",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "executeOnce": true,
+      "typeVersion": 2.7
+    },
+    {
+      "id": "summarise-coverage",
+      "name": "Summarise Baseline Coverage",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -340,
+        -1000
+      ],
+      "parameters": {
+        "jsCode": "// A baseline built on nine days of history is not a baseline. Detection\n// refuses to score those metrics, so surface them here instead of letting\n// them sit silently unmonitored.\nconst MIN_OBS = 14;\nconst rows = $input.all().map(i => i.json);\n\nconst thin = rows.filter(r => Number(r.n_obs) < MIN_OBS);\nconst flat = rows.filter(r => Number(r.mad) === 0);\n\nreturn [{ json: {\n  metrics_total: rows.length,\n  metrics_ready: rows.length - thin.length,\n  thin_count: thin.length,\n  thin_metrics: thin.map(r => `${r.metric_key} (${r.n_obs}/${MIN_OBS} days)`),\n  flat_metrics: flat.map(r => r.metric_key),\n  min_observations: MIN_OBS,\n  computed_at: new Date().toISOString(),\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "record-baseline-run",
+      "name": "Record Baseline Run",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -100,
+        -1000
+      ],
+      "parameters": {
+        "query": "insert into kpi_baseline_runs\n  (ran_at, metrics_total, metrics_ready, thin_count, thin_metrics)\nvalues (now(), $1::int, $2::int, $3::int, $4::jsonb)\nreturning id, ran_at",
+        "options": {
+          "queryReplacement": "={{ $json.metrics_total }},{{ $json.metrics_ready }},{{ $json.thin_count }},{{ JSON.stringify($json.thin_metrics) }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "only-thin",
+      "name": "Only Thin Coverage",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        140,
+        -1000
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "thin-present",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $('Summarise Baseline Coverage').item.json.thin_count }}",
+              "rightValue": 0
+            }
+          ]
+        },
+        "looseTypeValidation": false
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "warn-thin",
+      "name": "Warn Thin History",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        380,
+        -1000
+      ],
+      "parameters": {
+        "text": "=:hourglass: *KPI baselines are still warming up*\n{{ $('Summarise Baseline Coverage').item.json.thin_count }} of {{ $('Summarise Baseline Coverage').item.json.metrics_total }} metrics have fewer than {{ $('Summarise Baseline Coverage').item.json.min_observations }} days of history and will not be scored until they do.\n\n{{ $('Summarise Baseline Coverage').item.json.thin_metrics.join('\n') }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "ALERT_SLACK_CHANNEL"
+        },
+        "messageType": "text",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "accessToken"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "detect-cron",
+      "name": "Detect Every Morning 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1780,
+        -380
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 7,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "detection-settings",
+      "name": "Detection Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -1540,
+        -380
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s-critical-channel",
+              "name": "critical_channel",
+              "type": "string",
+              "value": "ALERT_SLACK_CHANNEL"
+            },
+            {
+              "id": "s-warning-channel",
+              "name": "warning_channel",
+              "type": "string",
+              "value": "ALERT_SLACK_CHANNEL"
+            },
+            {
+              "id": "s-oncall",
+              "name": "oncall_email",
+              "type": "string",
+              "value": "DATA_ONCALL_EMAIL"
+            },
+            {
+              "id": "s-max",
+              "name": "max_incidents_per_run",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "s-cooldown",
+              "name": "cooldown_hours",
+              "type": "number",
+              "value": 24
+            },
+            {
+              "id": "s-minobs",
+              "name": "min_observations",
+              "type": "number",
+              "value": 14
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fetch-latest",
+      "name": "Fetch Latest Vs Baseline",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -1300,
+        -380
+      ],
+      "parameters": {
+        "query": "select o.metric_key, o.observed_on, o.value, o.unit,\n       b.median_value, b.mad, b.stdev_value, b.n_obs, b.dow_medians,\n       m.description, m.direction, m.z_threshold, m.min_abs_change,\n       m.owner_team, m.owner_email, m.owner_slack, m.repo_owner, m.repo_name\nfrom kpi_observations o\njoin kpi_metrics   m on m.metric_key = o.metric_key and m.enabled = true\njoin kpi_baselines b on b.metric_key = o.metric_key\nwhere o.observed_on = current_date - 1\n  and o.value is not null\norder by o.metric_key",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "score-anomalies",
+      "name": "Score Anomalies",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1060,
+        -380
+      ],
+      "parameters": {
+        "jsCode": "// This node, and only this node, decides what counts as an anomaly.\n// It is deterministic and auditable. The model downstream can explain a\n// flagged metric, argue it is a false positive, or fail entirely, and none\n// of that changes the numbers computed here.\nconst settings = $('Detection Settings').first().json;\nconst MIN_OBS = Number(settings.min_observations) || 14;\n\n// 0.6745 puts a median-absolute-deviation score on the same scale as a\n// standard-deviation score, so a threshold of 3 still means what people\n// expect it to mean.\nconst MAD_TO_SIGMA = 0.6745;\n\nconst isoDow = (d) => {\n  const day = new Date(String(d).slice(0, 10) + 'T00:00:00Z').getUTCDay();\n  return day === 0 ? 7 : day;\n};\n\nreturn $input.all().map((item) => {\n  const r = item.json;\n  const value = Number(r.value);\n  const nObs = Number(r.n_obs) || 0;\n  const madRaw = Number(r.mad) || 0;\n  const stdev = Number(r.stdev_value) || 0;\n  const threshold = Number(r.z_threshold) || 3;\n  const minAbs = Number(r.min_abs_change) || 0;\n  const direction = r.direction || 'both';\n\n  // Prefer the day-of-week median where we have one. Weekly seasonality is\n  // the biggest source of false positives on business metrics: Saturday\n  // signups are not an incident.\n  const dowMap = r.dow_medians || {};\n  const dowMedian = Number(dowMap[String(isoDow(r.observed_on))]);\n  const usedDow = Number.isFinite(dowMedian) && nObs >= 21;\n  const baseline = usedDow ? dowMedian : Number(r.median_value);\n\n  const absChange = value - baseline;\n  const pctChange = baseline !== 0 ? (absChange / Math.abs(baseline)) * 100 : null;\n\n  // MAD of zero means a perfectly flat series. Fall back to sample stdev\n  // rather than dividing by zero and calling every wobble a 10-sigma event.\n  let z = null;\n  let scale = 'mad';\n  if (madRaw > 0) {\n    z = (MAD_TO_SIGMA * absChange) / madRaw;\n  } else if (stdev > 0) {\n    z = absChange / stdev;\n    scale = 'stdev';\n  } else {\n    scale = 'none';\n  }\n\n  const base = {\n    ...r, value, baseline_value: baseline, used_dow_baseline: usedDow,\n    abs_change: absChange, pct_change: pctChange, z_score: z, scale,\n  };\n  const skip = (reason) => ({ json: {\n    ...base, is_anomaly: false, severity: 'none', skip_reason: reason } });\n\n  if (nObs < MIN_OBS) return skip('only ' + nObs + ' of ' + MIN_OBS + ' baseline days');\n  if (z === null) return skip('series has no dispersion to score against');\n  if (Math.abs(absChange) < minAbs) {\n    return skip('change ' + absChange.toFixed(2) + ' below floor ' + minAbs);\n  }\n  if (direction === 'drop' && absChange >= 0) return skip('metric rose, only drops alert');\n  if (direction === 'rise' && absChange <= 0) return skip('metric fell, only rises alert');\n  if (Math.abs(z) < threshold) {\n    return skip('z ' + z.toFixed(2) + ' below threshold ' + threshold);\n  }\n\n  const magnitude = Math.abs(z);\n  const severity = magnitude >= threshold * 2 ? 'critical'\n                 : magnitude >= threshold * 1.4 ? 'warning'\n                 : 'info';\n\n  return { json: { ...base, is_anomaly: true, severity, skip_reason: null } };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "keep-anomalies",
+      "name": "Keep Only Anomalies",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -820,
+        -380
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-anomaly",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_anomaly }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": false
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fetch-open-incidents",
+      "name": "Fetch Open Incidents",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -580,
+        -380
+      ],
+      "parameters": {
+        "query": "select metric_key,\n       max(opened_at) as last_opened_at,\n       count(*) as recent_count\nfrom kpi_incidents\nwhere opened_at >= now() - interval '7 days'\n  and status in ('open', 'acknowledged')\ngroup by metric_key",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "executeOnce": true,
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "suppress-duplicates",
+      "name": "Suppress Duplicates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -340,
+        -380
+      ],
+      "parameters": {
+        "jsCode": "// Two jobs: stop re-alerting on a drift that is already someone's problem,\n// and cap how many investigations one run can start. A warehouse-wide outage\n// trips every metric at once. Without the cap that is one agent run per\n// metric, all reaching the same conclusion, all billed.\nconst settings = $('Detection Settings').first().json;\nconst COOLDOWN_HOURS = Number(settings.cooldown_hours) || 24;\nconst MAX_PER_RUN = Number(settings.max_incidents_per_run) || 10;\n\nconst anomalies = $('Keep Only Anomalies').all().map(i => i.json);\nconst openRows = $('Fetch Open Incidents').all()\n  .map(i => i.json)\n  .filter(r => r && r.metric_key);\n\nconst openBy = {};\nfor (const row of openRows) openBy[row.metric_key] = row;\n\n// Loudest first, so if the cap bites it keeps the incidents that matter.\nconst ranked = anomalies.slice().sort(\n  (a, b) => Math.abs(Number(b.z_score)) - Math.abs(Number(a.z_score))\n);\n\nlet admitted = 0;\nreturn ranked.map((r) => {\n  const open = openBy[r.metric_key];\n  let suppressed = false;\n  let reason = null;\n\n  if (open) {\n    const hours = (Date.now() - new Date(open.last_opened_at).getTime()) / 3600000;\n    if (hours < COOLDOWN_HOURS) {\n      suppressed = true;\n      reason = 'open incident on this metric ' + hours.toFixed(1)\n             + 'h ago, cooldown is ' + COOLDOWN_HOURS + 'h';\n    }\n  }\n\n  if (!suppressed && admitted >= MAX_PER_RUN) {\n    suppressed = true;\n    reason = 'run cap of ' + MAX_PER_RUN + ' incidents reached, ranked #'\n           + (admitted + 1) + ' by absolute z-score';\n  }\n\n  if (!suppressed) admitted += 1;\n\n  return { json: { ...r, suppressed, suppression_reason: reason,\n                   detected_at: new Date().toISOString() } };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "new-incident",
+      "name": "New Incident",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -100,
+        -380
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "not-suppressed",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.suppressed }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": false
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "log-suppressed",
+      "name": "Log Suppressed Alert",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        140,
+        -220
+      ],
+      "parameters": {
+        "query": "insert into kpi_suppressed_alerts\n  (metric_key, observed_on, z_score, severity, reason, suppressed_at)\nvalues ($1, $2::date, nullif($3, '')::numeric, $4, $5, now())\nreturning id",
+        "options": {
+          "queryReplacement": "={{ $json.metric_key }},{{ $json.observed_on }},{{ $json.z_score }},{{ $json.severity }},{{ $json.suppression_reason }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "open-incident",
+      "name": "Open Incident Record",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        140,
+        -460
+      ],
+      "parameters": {
+        "query": "insert into kpi_incidents\n  (metric_key, observed_on, observed_value, baseline_value, z_score,\n   pct_change, severity, direction, status, opened_at)\nvalues ($1, $2::date, nullif($3, '')::numeric, nullif($4, '')::numeric, nullif($5, '')::numeric, nullif($6, '')::numeric, $7, $8, 'open', now())\nreturning id, metric_key, opened_at",
+        "options": {
+          "queryReplacement": "={{ $json.metric_key }},{{ $json.observed_on }},{{ $json.value }},{{ $json.baseline_value }},{{ $json.z_score }},{{ $json.pct_change }},{{ $json.severity }},{{ $json.direction }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "investigator-model",
+      "name": "Investigator Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "position": [
+        200,
+        -60
+      ],
+      "parameters": {
+        "model": "anthropic/claude-opus-5",
+        "options": {
+          "maxRetries": 2,
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "investigation-schema",
+      "name": "Investigation Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1740,
+        -60
+      ],
+      "parameters": {
+        "autoFix": false,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"primary_hypothesis\": {\n      \"type\": \"string\",\n      \"description\": \"One paragraph. What most likely caused this move, stated so a data engineer can act on it.\"\n    },\n    \"hypothesis_class\": {\n      \"type\": \"string\",\n      \"enum\": [\"data_pipeline\", \"product_change\", \"seasonality\", \"external\",\n               \"measurement_artifact\", \"genuine_business_change\", \"unknown\"],\n      \"description\": \"Use unknown when the tools did not give you enough to choose.\"\n    },\n    \"evidence\": {\n      \"type\": \"array\",\n      \"description\": \"Every entry must come from a tool call you actually made. Two entries minimum.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"tool\": {\"type\": \"string\", \"description\": \"Which tool produced this\"},\n          \"finding\": {\"type\": \"string\", \"description\": \"The concrete number, row, or title you saw\"},\n          \"supports\": {\"type\": \"string\", \"enum\": [\"for\", \"against\"]}\n        },\n        \"required\": [\"tool\", \"finding\", \"supports\"]\n      }\n    },\n    \"alternative_hypotheses\": {\n      \"type\": \"array\",\n      \"items\": {\"type\": \"string\"},\n      \"description\": \"Explanations you considered and could not rule out\"\n    },\n    \"referenced_metric_keys\": {\n      \"type\": \"array\",\n      \"items\": {\"type\": \"string\"},\n      \"description\": \"Every metric_key you named anywhere in this response\"\n    },\n    \"confidence\": {\n      \"type\": \"number\",\n      \"description\": \"0 to 1. Confidence in the primary hypothesis given the evidence, not in your writing.\"\n    },\n    \"is_likely_false_positive\": {\n      \"type\": \"boolean\",\n      \"description\": \"True if the move looks like a measurement artefact rather than a real change\"\n    },\n    \"recommended_next_step\": {\n      \"type\": \"string\",\n      \"description\": \"The single next thing a human should check. Be specific.\"\n    }\n  },\n  \"required\": [\"primary_hypothesis\", \"hypothesis_class\", \"evidence\",\n               \"alternative_hypotheses\", \"referenced_metric_keys\", \"confidence\",\n               \"is_likely_false_positive\", \"recommended_next_step\"]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "tool-definition",
+      "name": "Get Metric Definition",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        420,
+        -60
+      ],
+      "parameters": {
+        "query": "select metric_key, description, unit, direction, owner_team, metric_sql\nfrom kpi_metrics\nwhere metric_key = $1",
+        "options": {
+          "queryReplacement": "={{ $fromAI('metric_key', 'The exact metric_key to look up', 'string') }}"
+        },
+        "operation": "executeQuery",
+        "descriptionType": "manual",
+        "toolDescription": "Look up what a metric actually measures, who owns it, and the SQL behind it. Call this first: a drop in a metric you have misunderstood is not an incident."
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "tool-history",
+      "name": "Get Metric History",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        640,
+        -60
+      ],
+      "parameters": {
+        "query": "select observed_on, value, collection_error\nfrom kpi_observations\nwhere metric_key = $1\n  and observed_on >= current_date - interval '60 days'\norder by observed_on desc\nlimit 60",
+        "options": {
+          "queryReplacement": "={{ $fromAI('metric_key', 'The exact metric_key to pull history for', 'string') }}"
+        },
+        "operation": "executeQuery",
+        "descriptionType": "manual",
+        "toolDescription": "Return the last 60 daily values for one metric, newest first. Use it to see whether this is a one-day spike, a step change, or a slow slide that finally crossed the threshold."
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "tool-segments",
+      "name": "Get Segment Breakdown",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        860,
+        -60
+      ],
+      "parameters": {
+        "query": "select dimension, segment, value, prev_value,\n       (value - prev_value) as delta\nfrom kpi_segment_observations\nwhere metric_key = $1\n  and observed_on = $2::date\norder by abs(value - prev_value) desc\nlimit 25",
+        "options": {
+          "queryReplacement": "={{ $fromAI('metric_key', 'The exact metric_key', 'string') }},{{ $fromAI('observed_on', 'The date to break down, as YYYY-MM-DD', 'string') }}"
+        },
+        "operation": "executeQuery",
+        "descriptionType": "manual",
+        "toolDescription": "Break one metric down by its recorded dimensions on a given date, ordered by how far each slice moved. This is how you tell a company-wide problem from one broken channel, region, or platform."
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "tool-related",
+      "name": "Get Related Metric Moves",
+      "type": "n8n-nodes-base.postgresTool",
+      "position": [
+        1080,
+        -60
+      ],
+      "parameters": {
+        "query": "select o.metric_key, o.value, b.median_value,\n       round((o.value - b.median_value)::numeric, 4) as delta\nfrom kpi_observations o\njoin kpi_baselines b on b.metric_key = o.metric_key\nwhere o.observed_on = $1::date\n  and b.mad > 0\n  and abs(o.value - b.median_value) > 3 * b.mad\n  and o.metric_key <> $2\norder by abs(o.value - b.median_value) desc\nlimit 20",
+        "options": {
+          "queryReplacement": "={{ $fromAI('observed_on', 'The date to check, as YYYY-MM-DD', 'string') }},{{ $fromAI('exclude_metric_key', 'The metric under investigation, so it is not returned', 'string') }}"
+        },
+        "operation": "executeQuery",
+        "descriptionType": "manual",
+        "toolDescription": "List other metrics that also moved more than three MADs on the same date. Several metrics breaking together usually means one upstream cause, and that cause is usually the pipeline rather than the business."
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "tool-deploys",
+      "name": "List Recent Deployments",
+      "type": "n8n-nodes-base.githubTool",
+      "onError": "continueRegularOutput",
+      "position": [
+        1300,
+        -60
+      ],
+      "parameters": {
+        "limit": 20,
+        "owner": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $fromAI('repo_owner', 'GitHub owner or org that holds the pipeline repo', 'string') }}"
+        },
+        "resource": "repository",
+        "operation": "getPullRequests",
+        "returnAll": false,
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $fromAI('repo_name', 'GitHub repository name', 'string') }}"
+        },
+        "authentication": "accessToken",
+        "descriptionType": "manual",
+        "toolDescription": "List recently merged pull requests on the repository that owns this metric's pipeline. A metric that broke the morning after a merge is worth saying so about, but a merge alone is correlation, not proof.",
+        "getRepositoryPullRequestsFilters": {
+          "sort": "updated",
+          "state": "closed",
+          "direction": "desc"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "tool-think",
+      "name": "Think Out Loud",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "position": [
+        1520,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "return query;",
+        "language": "javaScript",
+        "description": "A scratchpad. Write out what you know so far, what is still unexplained, and which tool you will call next. It returns your own words back. Use it before your first query and again after any surprising result."
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "investigate",
+      "name": "Investigate Anomaly",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "position": [
+        400,
+        -460
+      ],
+      "parameters": {
+        "text": "=A confirmed anomaly needs an explanation.\n\nMetric: {{ $('Suppress Duplicates').item.json.metric_key }}\nWhat it measures: {{ $('Suppress Duplicates').item.json.description }}\nDate: {{ $('Suppress Duplicates').item.json.observed_on }}\nObserved: {{ $('Suppress Duplicates').item.json.value }} {{ $('Suppress Duplicates').item.json.unit }}\nBaseline: {{ $('Suppress Duplicates').item.json.baseline_value }} ({{ $('Suppress Duplicates').item.json.used_dow_baseline ? 'day-of-week median' : '28-day median' }})\nRobust z-score: {{ $('Suppress Duplicates').item.json.z_score }} (scale: {{ $('Suppress Duplicates').item.json.scale }})\nChange: {{ $('Suppress Duplicates').item.json.pct_change }}%\nSeverity assigned by the detector: {{ $('Suppress Duplicates').item.json.severity }}\nOwning team: {{ $('Suppress Duplicates').item.json.owner_team }}\nPipeline repo: {{ $('Suppress Duplicates').item.json.repo_owner }}/{{ $('Suppress Duplicates').item.json.repo_name }}",
+        "options": {
+          "maxIterations": 12,
+          "systemMessage": "You investigate a metric movement that has ALREADY been confirmed as a statistical anomaly. That decision was made before you ran, by code, and nothing you write changes it. Your only job is to explain it.\n\nWhat you can and cannot do:\n- You cannot raise an alert. You cannot cancel one. You cannot change its severity.\n- If you believe this is a measurement artefact rather than a real change, say so with is_likely_false_positive and put the evidence behind it. A human decides what that is worth.\n- You have no free-form SQL. Every tool takes named parameters against a fixed query. If the answer needs data these tools do not expose, say so in recommended_next_step instead of guessing at it.\n\nHow to work:\n1. Call Get Metric Definition first. Most wrong explanations start with a misread metric.\n2. Call Get Metric History. A single bad day, a step change, and a slow slide all cross the same threshold and mean completely different things.\n3. Call Get Segment Breakdown. If one segment carries the whole move, name it. That single fact usually is the explanation.\n4. Call Get Related Metric Moves. Several metrics breaking together points upstream, at the pipeline, not at the business.\n5. Call List Recent Deployments only when timing makes it relevant. A merge near the break is worth reporting as a lead, never as a conclusion.\n6. Use Think Out Loud before your first query and after anything that surprises you.\n\nRules for what you write:\n- Every entry in evidence must come from a tool call you actually made, and must contain the concrete number, row, or title you saw. Do not write \"history shows a decline\" when you can write \"value fell from 412 on 2026-08-27 to 191 on 2026-08-28\".\n- Record evidence that cuts against your hypothesis too, with supports set to \"against\". An investigation that only found confirming evidence did not look.\n- referenced_metric_keys must list every metric_key you named. Anything not returned by a tool will be caught and your explanation will be discarded.\n- Set confidence on the evidence, not on your prose. Two tool calls that agree is roughly 0.6. A named segment carrying the whole move plus a matching deploy window is 0.85. If the tools told you nothing useful, that is 0.2, hypothesis_class is \"unknown\", and that is a perfectly good answer.\n- recommended_next_step names one specific thing: a table, a dashboard, a pull request, a person's team. Not \"investigate further\".\n\nNever invent a metric_key, a date, a segment name, a pull request title, or a number. An honest \"the tools did not show me enough\" is worth more than a confident story, because the alert reaches a human either way.",
+          "enableStreaming": false,
+          "returnIntermediateSteps": false
+        },
+        "promptType": "define",
+        "needsFallback": false,
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "check-evidence",
+      "name": "Check Evidence",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1660,
+        -460
+      ],
+      "parameters": {
+        "jsCode": "// The agent cannot be trusted to mark its own homework, so this checks the\n// shape of what it returned against what the detector already knows. A\n// hypothesis that cites a metric nobody has ever collected is the classic\n// confabulation, and it is cheap to catch here.\nconst out = $json.output || $json;\nconst incident = $('Open Incident Record').item.json;\nconst detected = $('Suppress Duplicates').item.json;\n\nconst knownKeys = new Set(\n  $('Fetch Latest Vs Baseline').all().map(i => i.json.metric_key)\n);\n\nconst evidence = Array.isArray(out.evidence) ? out.evidence : [];\nconst usable = evidence.filter(\n  e => e && typeof e.finding === 'string' && e.finding.trim().length >= 12\n);\nconst referenced = Array.isArray(out.referenced_metric_keys)\n  ? out.referenced_metric_keys : [];\nconst fabricated = referenced.filter(k => k && !knownKeys.has(k));\n\nconst confidence = Number(out.confidence);\n\nreturn [{ json: {\n  incident_id: incident.id,\n  metric_key: detected.metric_key,\n  observed_on: detected.observed_on,\n  observed_value: detected.value,\n  baseline_value: detected.baseline_value,\n  unit: detected.unit || '',\n  z_score: detected.z_score,\n  pct_change: detected.pct_change,\n  severity: detected.severity,\n  direction: detected.direction,\n  owner_team: detected.owner_team,\n  owner_email: detected.owner_email,\n  owner_slack: detected.owner_slack,\n  repo_owner: detected.repo_owner,\n  repo_name: detected.repo_name,\n\n  primary_hypothesis: out.primary_hypothesis || '',\n  hypothesis_class: out.hypothesis_class || 'unknown',\n  alternative_hypotheses: out.alternative_hypotheses || [],\n  recommended_next_step: out.recommended_next_step || '',\n  is_likely_false_positive: out.is_likely_false_positive === true,\n  confidence: Number.isFinite(confidence) ? confidence : 0,\n  evidence: usable,\n\n  evidence_count: usable.length,\n  has_counter_evidence: usable.some(e => e.supports === 'against'),\n  fabricated_metric_keys: fabricated,\n  fabricated_count: fabricated.length,\n  investigation_failed: false,\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "investigation-failed",
+      "name": "Record Investigation Failure",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1660,
+        -300
+      ],
+      "parameters": {
+        "jsCode": "// The model erroring out must never lose the alert. It downgrades the\n// explanation to \"none\", and the incident carries on to a human exactly as\n// it would if the explanation had failed the evidence check.\nconst incident = $('Open Incident Record').item.json;\nconst detected = $('Suppress Duplicates').item.json;\n\nreturn [{ json: {\n  incident_id: incident.id,\n  metric_key: detected.metric_key,\n  observed_on: detected.observed_on,\n  observed_value: detected.value,\n  baseline_value: detected.baseline_value,\n  unit: detected.unit || '',\n  z_score: detected.z_score,\n  pct_change: detected.pct_change,\n  severity: detected.severity,\n  direction: detected.direction,\n  owner_team: detected.owner_team,\n  owner_email: detected.owner_email,\n  owner_slack: detected.owner_slack,\n  repo_owner: detected.repo_owner,\n  repo_name: detected.repo_name,\n\n  primary_hypothesis: '',\n  hypothesis_class: 'unknown',\n  alternative_hypotheses: [],\n  recommended_next_step: '',\n  is_likely_false_positive: false,\n  confidence: 0,\n  evidence: [],\n\n  evidence_count: 0,\n  has_counter_evidence: false,\n  fabricated_metric_keys: [],\n  fabricated_count: 0,\n  investigation_failed: true,\n  investigation_error: String($json.error && $json.error.message\n    ? $json.error.message : ($json.error || 'agent step failed')).slice(0, 500),\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "explanation-trusted",
+      "name": "Explanation Trusted",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1900,
+        -460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ev-count",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.evidence_count }}",
+              "rightValue": 2
+            },
+            {
+              "id": "ev-confidence",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.confidence }}",
+              "rightValue": 0.6
+            },
+            {
+              "id": "ev-fabricated",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.fabricated_count }}",
+              "rightValue": 0
+            },
+            {
+              "id": "ev-hypothesis",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.primary_hypothesis }}",
+              "rightValue": ""
+            },
+            {
+              "id": "ev-class",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.hypothesis_class }}",
+              "rightValue": "unknown"
+            }
+          ]
+        },
+        "looseTypeValidation": false
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "label-explained",
+      "name": "Label Explained",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2140,
+        -560
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "lbl-e-status",
+              "name": "explanation_status",
+              "type": "string",
+              "value": "explained"
+            },
+            {
+              "id": "lbl-e-note",
+              "name": "explanation_note",
+              "type": "string",
+              "value": "=Cleared the evidence check with {{ $json.evidence_count }} tool-backed findings at confidence {{ $json.confidence }}."
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "label-unexplained",
+      "name": "Label Unexplained",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2140,
+        -380
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "lbl-u-status",
+              "name": "explanation_status",
+              "type": "string",
+              "value": "unexplained"
+            },
+            {
+              "id": "lbl-u-note",
+              "name": "explanation_note",
+              "type": "string",
+              "value": "=Alert stands, explanation discarded. {{ $json.investigation_failed ? 'The investigating model failed to run.' : ($json.fabricated_count > 0 ? 'It cited ' + $json.fabricated_count + ' metric key(s) that do not exist: ' + $json.fabricated_metric_keys.join(', ') : 'It produced ' + $json.evidence_count + ' usable findings at confidence ' + $json.confidence + ', below the bar.') }}"
+            },
+            {
+              "id": "lbl-u-hyp",
+              "name": "primary_hypothesis",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "merge-explanation",
+      "name": "Merge Explanation Paths",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2380,
+        -460
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "update-incident",
+      "name": "Update Incident Findings",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        2620,
+        -460
+      ],
+      "parameters": {
+        "query": "update kpi_incidents set\n  explanation_status  = $2,\n  hypothesis_class    = $3,\n  primary_hypothesis  = $4,\n  confidence          = nullif($5, '')::numeric,\n  evidence            = $6::jsonb,\n  recommended_next_step = $7,\n  likely_false_positive = ($8 = 'true'),\n  investigated_at     = now()\nwhere id = $1\nreturning id, metric_key, severity, explanation_status",
+        "options": {
+          "queryReplacement": "={{ $json.incident_id }},{{ $json.explanation_status }},{{ $json.hypothesis_class }},{{ $json.primary_hypothesis }},{{ $json.confidence }},{{ JSON.stringify($json.evidence) }},{{ $json.recommended_next_step }},{{ $json.is_likely_false_positive }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "route-severity",
+      "name": "Route By Severity",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2860,
+        -460
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "outputKey": "critical",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "sev-critical",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Merge Explanation Paths').item.json.severity }}",
+                    "rightValue": "critical"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "warning",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "sev-warning",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Merge Explanation Paths').item.json.severity }}",
+                    "rightValue": "warning"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "info"
+        },
+        "looseTypeValidation": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "alert-critical",
+      "name": "Alert Critical In Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        3100,
+        -660
+      ],
+      "parameters": {
+        "text": "=:rotating_light: *{{ $('Merge Explanation Paths').item.json.metric_key }}* moved past the critical threshold\n*{{ $('Merge Explanation Paths').item.json.observed_value }} {{ $('Merge Explanation Paths').item.json.unit }}* against a baseline of *{{ $('Merge Explanation Paths').item.json.baseline_value }}* ({{ $('Merge Explanation Paths').item.json.pct_change === null ? 'n/a' : $('Merge Explanation Paths').item.json.pct_change.toFixed(1) + '%' }}, robust z {{ $('Merge Explanation Paths').item.json.z_score.toFixed(2) }}) on {{ $('Merge Explanation Paths').item.json.observed_on }}.\n\n{{ $('Merge Explanation Paths').item.json.explanation_status === 'explained' ? '*Likely cause* (' + $('Merge Explanation Paths').item.json.hypothesis_class + ', confidence ' + $('Merge Explanation Paths').item.json.confidence + ')\\n' + $('Merge Explanation Paths').item.json.primary_hypothesis + '\\n\\n*Evidence*\\n' + $('Merge Explanation Paths').item.json.evidence.map(e => (e.supports === 'against' ? ':small_orange_diamond: ' : ':small_blue_diamond: ') + e.tool + ': ' + e.finding).join('\\n') + '\\n\\n*Next step*\\n' + $('Merge Explanation Paths').item.json.recommended_next_step : ':grey_question: *No explanation survived the evidence check.*\\n' + $('Merge Explanation Paths').item.json.explanation_note + '\\nThe number is still real. Someone needs to look.' }}\n\nIncident `{{ $('Merge Explanation Paths').item.json.incident_id }}` · owner *{{ $('Merge Explanation Paths').item.json.owner_team }}*{{ $('Merge Explanation Paths').item.json.is_likely_false_positive ? ' · the investigator flagged this as a possible measurement artefact' : '' }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Detection Settings').first().json.critical_channel }}"
+        },
+        "messageType": "text",
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "accessToken"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "file-issue",
+      "name": "File Investigation Issue",
+      "type": "n8n-nodes-base.github",
+      "onError": "continueRegularOutput",
+      "position": [
+        3340,
+        -660
+      ],
+      "parameters": {
+        "body": "=**Detected automatically by the KPI Anomaly Watchdog.**\n\n| | |\n|---|---|\n| Metric | `{{ $('Merge Explanation Paths').item.json.metric_key }}` |\n| Date | {{ $('Merge Explanation Paths').item.json.observed_on }} |\n| Observed | {{ $('Merge Explanation Paths').item.json.observed_value }} {{ $('Merge Explanation Paths').item.json.unit }} |\n| Baseline | {{ $('Merge Explanation Paths').item.json.baseline_value }} |\n| Robust z | {{ $('Merge Explanation Paths').item.json.z_score.toFixed(2) }} |\n| Change | {{ $('Merge Explanation Paths').item.json.pct_change === null ? 'n/a' : $('Merge Explanation Paths').item.json.pct_change.toFixed(1) + '%' }} |\n| Owner | {{ $('Merge Explanation Paths').item.json.owner_team }} |\n| Incident | {{ $('Merge Explanation Paths').item.json.incident_id }} |\n\n## Hypothesis\n\n{{ $('Merge Explanation Paths').item.json.explanation_status === 'explained' ? $('Merge Explanation Paths').item.json.primary_hypothesis + '\\n\\n_Class: ' + $('Merge Explanation Paths').item.json.hypothesis_class + ', confidence ' + $('Merge Explanation Paths').item.json.confidence + '_' : '_No explanation cleared the evidence check._ ' + $('Merge Explanation Paths').item.json.explanation_note }}\n\n## Evidence\n\n{{ $('Merge Explanation Paths').item.json.evidence.length ? $('Merge Explanation Paths').item.json.evidence.map(e => '- **' + e.supports + '** (' + e.tool + ') ' + e.finding).join('\\n') : '- None recorded.' }}\n\n## Alternatives not ruled out\n\n{{ $('Merge Explanation Paths').item.json.alternative_hypotheses.length ? $('Merge Explanation Paths').item.json.alternative_hypotheses.map(a => '- ' + a).join('\\n') : '- None recorded.' }}\n\n## Recommended next step\n\n{{ $('Merge Explanation Paths').item.json.recommended_next_step || 'Not provided.' }}\n",
+        "owner": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Merge Explanation Paths').item.json.repo_owner }}"
+        },
+        "title": "=[KPI] {{ $('Merge Explanation Paths').item.json.metric_key }} broke on {{ $('Merge Explanation Paths').item.json.observed_on }} (z {{ $('Merge Explanation Paths').item.json.z_score.toFixed(2) }})",
+        "labels": [
+          {
+            "label": "kpi-anomaly"
+          }
+        ],
+        "resource": "issue",
+        "operation": "create",
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Merge Explanation Paths').item.json.repo_name }}"
+        },
+        "authentication": "accessToken"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "request-ack",
+      "name": "Request Owner Acknowledgement",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        3580,
+        -660
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Merge Explanation Paths').item.json.owner_email || $('Detection Settings').first().json.oncall_email }}",
+        "message": "=<h2>{{ $('Merge Explanation Paths').item.json.metric_key }} needs an owner</h2>\n<p><b>{{ $('Merge Explanation Paths').item.json.observed_value }} {{ $('Merge Explanation Paths').item.json.unit }}</b> against a baseline of <b>{{ $('Merge Explanation Paths').item.json.baseline_value }}</b>, robust z <b>{{ $('Merge Explanation Paths').item.json.z_score.toFixed(2) }}</b>, on {{ $('Merge Explanation Paths').item.json.observed_on }}.</p>\n<h3>What the investigator found</h3>\n<p>{{ $('Merge Explanation Paths').item.json.explanation_status === 'explained' ? $('Merge Explanation Paths').item.json.primary_hypothesis : $('Merge Explanation Paths').item.json.explanation_note }}</p>\n<h3>Recommended next step</h3>\n<p>{{ $('Merge Explanation Paths').item.json.recommended_next_step || 'None offered. Start with the segment breakdown for this metric.' }}</p>\n<hr>\n<p><b>I have got this</b> marks the incident acknowledged. <b>Not mine</b> leaves it open and routes it to the on-call rota.</p>",
+        "options": {
+          "limitWaitTime": {
+            "values": {
+              "limitType": "afterTimeInterval",
+              "resumeUnit": "hours",
+              "resumeAmount": 8
+            }
+          },
+          "appendAttribution": false
+        },
+        "subject": "=Critical KPI anomaly · {{ $('Merge Explanation Paths').item.json.metric_key }} · {{ $('Merge Explanation Paths').item.json.observed_on }}",
+        "resource": "message",
+        "operation": "sendAndWait",
+        "responseType": "approval",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "I have got this",
+            "disapproveLabel": "Not mine",
+            "buttonApprovalStyle": "primary",
+            "buttonDisapprovalStyle": "secondary"
+          }
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "record-ack",
+      "name": "Record Acknowledgement",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3820,
+        -660
+      ],
+      "parameters": {
+        "query": "update kpi_incidents set\n  status = case when $2 = 'true' then 'acknowledged' else 'open' end,\n  acknowledged_by = $3,\n  acknowledged_at = now()\nwhere id = $1\nreturning id, status",
+        "options": {
+          "queryReplacement": "={{ $('Merge Explanation Paths').item.json.incident_id }},{{ $json.data && $json.data.approved }},{{ $('Merge Explanation Paths').item.json.owner_email }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "alert-warning",
+      "name": "Alert Warning In Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        3100,
+        -440
+      ],
+      "parameters": {
+        "text": "=:warning: *{{ $('Merge Explanation Paths').item.json.metric_key }}* drifted on {{ $('Merge Explanation Paths').item.json.observed_on }}\n{{ $('Merge Explanation Paths').item.json.observed_value }} {{ $('Merge Explanation Paths').item.json.unit }} against {{ $('Merge Explanation Paths').item.json.baseline_value }} (robust z {{ $('Merge Explanation Paths').item.json.z_score.toFixed(2) }}).\n{{ $('Merge Explanation Paths').item.json.explanation_status === 'explained' ? '*' + $('Merge Explanation Paths').item.json.hypothesis_class + '* · ' + $('Merge Explanation Paths').item.json.primary_hypothesis : $('Merge Explanation Paths').item.json.explanation_note }}\n_Next: {{ $('Merge Explanation Paths').item.json.recommended_next_step || 'check the segment breakdown' }}_ · incident `{{ $('Merge Explanation Paths').item.json.incident_id }}`",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Detection Settings').first().json.warning_channel }}"
+        },
+        "messageType": "text",
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "accessToken"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "record-warning",
+      "name": "Record Warning Sent",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3340,
+        -440
+      ],
+      "parameters": {
+        "query": "update kpi_incidents set notified_at = now(), notified_channel = 'slack'\nwhere id = $1 returning id",
+        "options": {
+          "queryReplacement": "={{ $('Merge Explanation Paths').item.json.incident_id }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "record-info",
+      "name": "Record Info Only",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3100,
+        -240
+      ],
+      "parameters": {
+        "query": "update kpi_incidents set notified_at = now(), notified_channel = 'none',\n  status = 'logged'\nwhere id = $1 returning id",
+        "options": {
+          "queryReplacement": "={{ $('Merge Explanation Paths').item.json.incident_id }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "feedback-webhook",
+      "name": "Disposition Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1780,
+        440
+      ],
+      "parameters": {
+        "path": "kpi-alert-feedback",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "authentication": "headerAuth"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "validate-feedback",
+      "name": "Validate Feedback",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1540,
+        440
+      ],
+      "parameters": {
+        "jsCode": "// Segment D is only as good as this input. Anything that is not one of the\n// three dispositions is rejected rather than written, so precision numbers\n// are never computed over junk.\nconst ALLOWED = ['confirmed', 'false_positive', 'wont_fix'];\nconst body = $json.body || $json;\n\nconst incidentId = Number(body.incident_id);\nconst disposition = String(body.disposition || '').toLowerCase().trim();\nconst note = String(body.note || '').slice(0, 1000);\nconst actor = String(body.actor || '').slice(0, 200);\n\nconst problems = [];\nif (!Number.isInteger(incidentId) || incidentId <= 0) {\n  problems.push('incident_id must be a positive integer');\n}\nif (!ALLOWED.includes(disposition)) {\n  problems.push('disposition must be one of ' + ALLOWED.join(', '));\n}\n\nreturn [{ json: {\n  incident_id: incidentId, disposition, note, actor,\n  valid: problems.length === 0,\n  problems,\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "feedback-valid",
+      "name": "Feedback Valid",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1300,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fb-valid",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": false
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "record-disposition",
+      "name": "Record Disposition",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -1060,
+        360
+      ],
+      "parameters": {
+        "query": "update kpi_incidents set\n  disposition = $2,\n  disposition_note = $3,\n  disposition_by = $4,\n  disposition_at = now(),\n  status = case when $2 = 'confirmed' then 'confirmed' else 'closed' end\nwhere id = $1\nreturning id, metric_key, disposition",
+        "options": {
+          "queryReplacement": "={{ $json.incident_id }},{{ $json.disposition }},{{ $json.note }},{{ $json.actor }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "confirm-feedback",
+      "name": "Confirm Feedback",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -820,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: true, incident_id: $('Validate Feedback').item.json.incident_id, disposition: $('Validate Feedback').item.json.disposition }) }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "reject-feedback",
+      "name": "Reject Feedback",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -1060,
+        540
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ ok: false, problems: $json.problems }) }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "weekly-cron",
+      "name": "Weekly Report Cron",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -340,
+        440
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8,
+              "weeksInterval": 1,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "report-settings",
+      "name": "Report Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -100,
+        440
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r-to",
+              "name": "report_email",
+              "type": "string",
+              "value": "DATA_ONCALL_EMAIL"
+            },
+            {
+              "id": "r-channel",
+              "name": "report_channel",
+              "type": "string",
+              "value": "ALERT_SLACK_CHANNEL"
+            },
+            {
+              "id": "r-window",
+              "name": "window_days",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "id": "r-minsample",
+              "name": "min_sample",
+              "type": "number",
+              "value": 5
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "query-precision",
+      "name": "Query Alert Precision",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        140,
+        440
+      ],
+      "parameters": {
+        "query": "select i.metric_key,\n       m.z_threshold,\n       count(*)                                                    as alerts,\n       count(*) filter (where i.disposition = 'confirmed')          as confirmed,\n       count(*) filter (where i.disposition = 'false_positive')     as false_positives,\n       count(*) filter (where i.disposition = 'wont_fix')           as wont_fix,\n       count(*) filter (where i.disposition is null)                as undispositioned,\n       count(*) filter (where i.explanation_status = 'explained')   as explained,\n       count(*) filter (where i.likely_false_positive)              as flagged_artefact,\n       round(avg(i.confidence) filter (where i.explanation_status = 'explained')::numeric, 3)\n                                                                    as avg_confidence,\n       round(avg(abs(i.z_score))::numeric, 2)                       as avg_abs_z\nfrom kpi_incidents i\njoin kpi_metrics m on m.metric_key = i.metric_key\nwhere i.opened_at >= now() - interval '30 days'\ngroup by i.metric_key, m.z_threshold\norder by false_positives desc, alerts desc",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "recommend-thresholds",
+      "name": "Recommend Threshold Changes",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        380,
+        440
+      ],
+      "parameters": {
+        "jsCode": "// Thresholds set once and never revisited are how alerting dies: people\n// stop reading the channel long before anyone admits the numbers are wrong.\n// This turns human dispositions back into a concrete threshold suggestion.\nconst settings = $('Report Settings').first().json;\nconst MIN_SAMPLE = Number(settings.min_sample) || 5;\n\nconst rows = $input.all().map(i => i.json);\n\nconst scored = rows.map((r) => {\n  const confirmed = Number(r.confirmed) || 0;\n  const falsePositives = Number(r.false_positives) || 0;\n  const judged = confirmed + falsePositives;\n  const alerts = Number(r.alerts) || 0;\n  const undispositioned = Number(r.undispositioned) || 0;\n\n  const precision = judged > 0 ? confirmed / judged : null;\n  const ignoreRate = alerts > 0 ? undispositioned / alerts : null;\n  const threshold = Number(r.z_threshold) || 3;\n\n  let recommendation = 'hold';\n  let rationale = judged < MIN_SAMPLE\n    ? 'only ' + judged + ' judged alert(s), not enough to move a threshold on'\n    : 'precision looks acceptable';\n\n  if (judged >= MIN_SAMPLE && precision !== null && precision < 0.5) {\n    recommendation = 'raise to ' + (threshold + 0.5).toFixed(1);\n    rationale = 'precision ' + (precision * 100).toFixed(0) + '% over ' + judged\n              + ' judged alerts, most of what this metric reports is noise';\n  } else if (judged >= MIN_SAMPLE && precision === 1 && Number(r.avg_abs_z) > threshold * 2) {\n    recommendation = 'lower to ' + Math.max(2, threshold - 0.5).toFixed(1);\n    rationale = 'every judged alert was real and the average was '\n              + r.avg_abs_z + ' against a threshold of ' + threshold\n              + ', so smaller genuine moves are probably going unreported';\n  } else if (ignoreRate !== null && ignoreRate > 0.6 && alerts >= MIN_SAMPLE) {\n    recommendation = 'review';\n    rationale = (ignoreRate * 100).toFixed(0) + '% of alerts were never dispositioned, '\n              + 'which usually means nobody is reading them';\n  }\n\n  return { ...r, precision, ignore_rate: ignoreRate, recommendation, rationale };\n});\n\nconst judgedTotal = scored.reduce(\n  (a, r) => a + (Number(r.confirmed) || 0) + (Number(r.false_positives) || 0), 0);\nconst confirmedTotal = scored.reduce((a, r) => a + (Number(r.confirmed) || 0), 0);\n\nreturn [{ json: {\n  window_days: Number(settings.window_days) || 30,\n  metrics: scored,\n  metrics_count: scored.length,\n  alerts_total: scored.reduce((a, r) => a + (Number(r.alerts) || 0), 0),\n  judged_total: judgedTotal,\n  overall_precision: judgedTotal > 0 ? confirmedTotal / judgedTotal : null,\n  actions: scored.filter(r => r.recommendation !== 'hold'),\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "format-report",
+      "name": "Format Precision Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        620,
+        440
+      ],
+      "parameters": {
+        "jsCode": "const d = $json;\nconst pct = (v) => v === null || v === undefined ? 'n/a' : (v * 100).toFixed(0) + '%';\n\nconst rows = d.metrics.map(m =>\n  '<tr><td><code>' + m.metric_key + '</code></td>'\n  + '<td align=\"right\">' + m.alerts + '</td>'\n  + '<td align=\"right\">' + m.confirmed + '</td>'\n  + '<td align=\"right\">' + m.false_positives + '</td>'\n  + '<td align=\"right\">' + m.undispositioned + '</td>'\n  + '<td align=\"right\">' + pct(m.precision) + '</td>'\n  + '<td align=\"right\">' + m.z_threshold + '</td>'\n  + '<td>' + m.recommendation + '</td></tr>'\n).join('');\n\nconst actions = d.actions.length\n  ? d.actions.map(a => '<li><b>' + a.metric_key + '</b>: ' + a.recommendation\n      + ' &mdash; ' + a.rationale + '</li>').join('')\n  : '<li>No threshold changes suggested this week.</li>';\n\nconst html =\n  '<h2>KPI watchdog, last ' + d.window_days + ' days</h2>'\n  + '<p><b>' + d.alerts_total + '</b> alerts across <b>' + d.metrics_count\n  + '</b> metrics. <b>' + d.judged_total + '</b> were judged by a human, and of those '\n  + '<b>' + pct(d.overall_precision) + '</b> were real.</p>'\n  + '<h3>Suggested threshold changes</h3><ul>' + actions + '</ul>'\n  + '<h3>Per metric</h3>'\n  + '<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\">'\n  + '<tr><th>Metric</th><th>Alerts</th><th>Real</th><th>False</th><th>Unjudged</th>'\n  + '<th>Precision</th><th>Threshold</th><th>Suggestion</th></tr>'\n  + rows + '</table>'\n  + '<p style=\"color:#666\">Precision is computed only over alerts a human actually judged. '\n  + 'A large unjudged column means this number is not trustworthy yet, and that is the '\n  + 'first thing worth fixing.</p>';\n\nconst slack =\n  ':bar_chart: *KPI watchdog, last ' + d.window_days + ' days*\\n'\n  + d.alerts_total + ' alerts across ' + d.metrics_count + ' metrics · '\n  + d.judged_total + ' judged · ' + pct(d.overall_precision) + ' of judged were real\\n'\n  + (d.actions.length\n      ? '\\n*Threshold suggestions*\\n' + d.actions.map(\n          a => '• *' + a.metric_key + '* → ' + a.recommendation + ' (' + a.rationale + ')'\n        ).join('\\n')\n      : '\\nNo threshold changes suggested.');\n\nreturn [{ json: { ...d, html, slack } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-report",
+      "name": "Send Precision Report",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        860,
+        360
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Report Settings').first().json.report_email }}",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=KPI watchdog · {{ $json.alerts_total }} alerts, {{ $json.overall_precision === null ? 'no' : ($json.overall_precision * 100).toFixed(0) + '%' }} precision",
+        "resource": "message",
+        "emailType": "html",
+        "operation": "send"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "post-report",
+      "name": "Post Precision Summary",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        860,
+        540
+      ],
+      "parameters": {
+        "text": "={{ $json.slack }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Report Settings').first().json.report_channel }}"
+        },
+        "messageType": "text",
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "accessToken"
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "readme",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2600,
+        -1240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 900,
+        "content": "# KPI Anomaly Watchdog\n\nWatches the numbers your business actually runs on, and when one of them\nbreaks, sends a human an explanation instead of a red square.\n\n## How it works\n\nStatistics decide **whether** something is an anomaly. The model only ever\nexplains **why**. A Code node scores every metric against a 28-day median\nand median absolute deviation, adjusted for day of week, and that score is\nwhat raises the alert. The investigating agent runs afterwards, cannot\nchange the verdict, and has no free-form SQL: five parameterised tools and\nnothing else.\n\nIts explanation then has to survive an evidence check. Two tool-backed\nfindings, confidence at or above 0.6, a named cause, and zero invented\nmetric keys. Fail any one and the alert still goes out, labelled\n**unexplained**. A model that errors out entirely does the same thing. The\nnumber was real before the model ran and it stays real afterwards.\n\nEvery alert a human judges feeds Monday's precision report, which turns\nthose judgements back into concrete threshold suggestions.\n\n## Setup steps\n\n1. Run `sql/01-schema.sql` against your Postgres\n2. Insert your metrics into `kpi_metrics`, one row per number you care about\n3. Replace `ALERT_SLACK_CHANNEL` and `DATA_ONCALL_EMAIL` in\n   **Detection Settings** and **Report Settings**\n4. Attach credentials to every node showing a warning\n5. Run **Collect On Demand** daily for two weeks, or backfill\n   `kpi_observations`, before switching detection on\n6. Point your alert buttons at the **Disposition Webhook**. Without\n   dispositions the Monday report has nothing to compute precision from\n\n**It will be quiet for two weeks.** Metrics with fewer than 14 days of\nhistory are not scored at all, and that is deliberate."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "frame-a",
+      "name": "Segment A Frame",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1860,
+        -1240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 2520,
+        "height": 500,
+        "content": "## A · Metric Collection And Baselines\n### Registry SQL in, median and MAD out, nightly at 01:00\n\nMetrics are rows in `kpi_metrics`, so adding one is an insert rather than a\nworkflow edit. Baselines use median and median absolute deviation, plus a\nmedian per weekday, because Saturday signups are not an incident."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "frame-b",
+      "name": "Segment B Frame",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1860,
+        -740
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 5960,
+        "height": 900,
+        "content": "## B · Detection And Investigation\n### Score, suppress, investigate, check the evidence, then route\n\n**Score Anomalies alone decides what is an anomaly.** The agent explains it\nafterwards, has no free-form SQL, and can neither raise nor cancel an alert.\nFailing the evidence check labels the alert unexplained and sends it anyway."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "frame-c",
+      "name": "Segment C Frame",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1860,
+        260
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1360,
+        "height": 480,
+        "content": "## C · Alert Disposition\n### The feedback that makes segment D mean something\n\nThree dispositions only: `confirmed`, `false_positive`, `wont_fix`. Anything\nelse is rejected rather than stored, so precision is never computed over junk."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "frame-d",
+      "name": "Segment D Frame",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -420,
+        260
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1640,
+        "height": 480,
+        "content": "## D · Weekly Precision Report\n### Human judgements back into thresholds, Mondays 08:00\n\nPrecision is computed only over alerts a human actually judged. The report\nproposes threshold changes and never applies them."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "New Incident": {
+      "main": [
+        [
+          {
+            "node": "Open Incident Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Suppressed Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Evidence": {
+      "main": [
+        [
+          {
+            "node": "Explanation Trusted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Feedback Valid": {
+      "main": [
+        [
+          {
+            "node": "Record Disposition",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Think Out Loud": {
+      "ai_tool": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Explained": {
+      "main": [
+        [
+          {
+            "node": "Merge Explanation Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report Settings": {
+      "main": [
+        [
+          {
+            "node": "Query Alert Precision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Anomalies": {
+      "main": [
+        [
+          {
+            "node": "Keep Only Anomalies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Metric Query": {
+      "main": [
+        [
+          {
+            "node": "Build Observation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Observation": {
+      "main": [
+        [
+          {
+            "node": "Store Observation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect On Demand": {
+      "main": [
+        [
+          {
+            "node": "Load Metric Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Unexplained": {
+      "main": [
+        [
+          {
+            "node": "Merge Explanation Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Route By Severity": {
+      "main": [
+        [
+          {
+            "node": "Alert Critical In Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Warning In Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Info Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Observation": {
+      "main": [
+        [
+          {
+            "node": "Recompute Baselines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Feedback": {
+      "main": [
+        [
+          {
+            "node": "Feedback Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detection Settings": {
+      "main": [
+        [
+          {
+            "node": "Fetch Latest Vs Baseline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Metric History": {
+      "ai_tool": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Investigator Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Thin Coverage": {
+      "main": [
+        [
+          {
+            "node": "Warn Thin History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Disposition": {
+      "main": [
+        [
+          {
+            "node": "Confirm Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Report Cron": {
+      "main": [
+        [
+          {
+            "node": "Report Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Disposition Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate Feedback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explanation Trusted": {
+      "main": [
+        [
+          {
+            "node": "Label Explained",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Label Unexplained",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Investigate Anomaly": {
+      "main": [
+        [
+          {
+            "node": "Check Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Investigation Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Only Anomalies": {
+      "main": [
+        [
+          {
+            "node": "Fetch Open Incidents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recompute Baselines": {
+      "main": [
+        [
+          {
+            "node": "Summarise Baseline Coverage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Baseline Run": {
+      "main": [
+        [
+          {
+            "node": "Only Thin Coverage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Suppress Duplicates": {
+      "main": [
+        [
+          {
+            "node": "New Incident",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Open Incidents": {
+      "main": [
+        [
+          {
+            "node": "Suppress Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Investigation Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Metric Registry": {
+      "main": [
+        [
+          {
+            "node": "Run Metric Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Open Incident Record": {
+      "main": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Nightly 01:00": {
+      "main": [
+        [
+          {
+            "node": "Load Metric Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Metric Definition": {
+      "ai_tool": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Segment Breakdown": {
+      "ai_tool": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Alert Precision": {
+      "main": [
+        [
+          {
+            "node": "Recommend Threshold Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Warning In Slack": {
+      "main": [
+        [
+          {
+            "node": "Record Warning Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Critical In Slack": {
+      "main": [
+        [
+          {
+            "node": "File Investigation Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Precision Report": {
+      "main": [
+        [
+          {
+            "node": "Send Precision Report",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Precision Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Recent Deployments": {
+      "ai_tool": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Explanation Paths": {
+      "main": [
+        [
+          {
+            "node": "Update Incident Findings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Latest Vs Baseline": {
+      "main": [
+        [
+          {
+            "node": "Score Anomalies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File Investigation Issue": {
+      "main": [
+        [
+          {
+            "node": "Request Owner Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Related Metric Moves": {
+      "ai_tool": [
+        [
+          {
+            "node": "Investigate Anomaly",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Incident Findings": {
+      "main": [
+        [
+          {
+            "node": "Route By Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Every Morning 07:00": {
+      "main": [
+        [
+          {
+            "node": "Detection Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recommend Threshold Changes": {
+      "main": [
+        [
+          {
+            "node": "Format Precision Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise Baseline Coverage": {
+      "main": [
+        [
+          {
+            "node": "Record Baseline Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Investigation Failure": {
+      "main": [
+        [
+          {
+            "node": "Label Unexplained",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Owner Acknowledgement": {
+      "main": [
+        [
+          {
+            "node": "Record Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Detect and explain KPI anomalies with Postgres, Slack, GitHub, Gmail and Claude",
+    "wechat": "youandme10086",
+    "id": 19059,
+    "update_time": "2026-09-27"
+  }
+}

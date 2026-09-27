@@ -1,4 +1,4 @@
-# enterprise : 10
+# enterprise : 17
 
 |id|file|
 |----|----|
@@ -12,3 +12,10 @@
 |13331|[13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json)|
 |13592|[13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13592_Orchestrate_enterprise_MCP_AI_tool_access_with_Claude_and_Google_Sheets.json)|
 |15849|[15849_Automate_B2B_cold_email_outreach_with_Gemini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15849_Automate_B2B_cold_email_outreach_with_Gemini__Gmail_and_Google_Sheets.json)|
+|17210|[17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json)|
+|17214|[17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json)|
+|18107|[18107_Build_an_enterprise_deal_knowledge_graph_with_Salesforce__Gmail_and_Neo4j.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18107_Build_an_enterprise_deal_knowledge_graph_with_Salesforce__Gmail_and_Neo4j.json)|
+|18113|[18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json)|
+|18974|[18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json)|
+|19190|[19190_Create_Shopify_product_SEO_blog_posts_with_OpenAI_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19190_Create_Shopify_product_SEO_blog_posts_with_OpenAI_and_WordPress.json)|
+|19658|[19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json)|

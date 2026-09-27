@@ -1,0 +1,3085 @@
+{
+  "id": "96bL0pjZMVaIZumo",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Expose workflow management tools over an MCP server using the n8n Public API",
+    "wechat": "youandme10086",
+    "id": 18003,
+    "update_time": "2026-09-27"
+  },
+  "name": "n8n MCP Server",
+  "tags": [
+    {
+      "id": "YqsnPBStdCs8UWVd",
+      "name": "Template",
+      "createdAt": "2024-06-28T16:06:23.898Z",
+      "updatedAt": "2024-06-28T16:06:23.898Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "75745d55-9502-4fa2-875e-c3d828e3d121",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -1312,
+        592
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "operation"
+            },
+            {
+              "name": "payload",
+              "type": "any"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "a1c11000-cfg0-0000-0000-000000000001",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "notes": "The only node to edit. host = n8n base URL, no trailing slash. api_key = Settings > n8n API > create key.",
+      "position": [
+        -1088,
+        592
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "92b459de-c524-4aef-bf04-93d01a293cda",
+              "name": "host",
+              "type": "string",
+              "value": "https://your-instance.n8n.cloud"
+            },
+            {
+              "id": "0e570b94-b6ed-4663-85cb-657f07986236",
+              "name": "api_key",
+              "type": "string",
+              "value": "PASTE_YOUR_N8N_API_KEY_HERE"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "41f42ffe-cf36-4871-b65d-867875c0644b",
+      "name": "Parse Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -864,
+        592
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse the outer payload (string-or-object).\nconst raw = $json.payload;\nlet payload = raw;\n\nif (typeof raw === 'string') {\n  try { payload = JSON.parse(raw); } catch { payload = raw; }\n}\n\n// Deterministic repair for the #1 cause of invalid tool-arg JSON: an LLM\n// emitting RAW control characters (real newlines / tabs) inside a JSON\n// string value — e.g. multi-line jsCode or a systemMessage. JSON forbids\n// literal control chars inside strings, so JSON.parse throws. We walk the\n// string tracking whether we're inside a string literal (respecting\n// backslash escapes) and escape only the control chars that sit INSIDE a\n// string. Structural whitespace between tokens is left untouched. Fully\n// deterministic and idempotent on already-valid JSON.\nfunction repairJsonControlChars(s) {\n  let out = '';\n  let inStr = false;\n  let esc = false;\n  for (let i = 0; i < s.length; i++) {\n    const ch = s[i];\n    const code = s.charCodeAt(i);\n    if (esc) { out += ch; esc = false; continue; }\n    if (ch === '\\\\') { out += ch; esc = true; continue; }\n    if (ch === '\"') { inStr = !inStr; out += ch; continue; }\n    if (inStr && code < 0x20) {\n      if (ch === '\\n') out += '\\\\n';\n      else if (ch === '\\r') out += '\\\\r';\n      else if (ch === '\\t') out += '\\\\t';\n      else if (ch === '\\b') out += '\\\\b';\n      else if (ch === '\\f') out += '\\\\f';\n      else out += '\\\\u' + code.toString(16).padStart(4, '0');\n      continue;\n    }\n    out += ch;\n  }\n  return out;\n}\n\n// Deep-parse nested JSON-string fields. The MCP transport delivers\n// object-shaped tool args as JSON-stringified strings, so for fields\n// that are supposed to be objects/arrays we parse them here once.\n// Idempotent: already-parsed objects pass through unchanged.\n// On a parse failure we attempt a single deterministic control-char\n// repair before giving up (then fall back to the raw value, unchanged\n// behaviour, so this can never regress a payload that parses today).\nfunction deepParse(value) {\n  if (typeof value !== 'string') return value;\n  const trimmed = value.trim();\n  if (!trimmed) return value;\n  try {\n    return JSON.parse(trimmed);\n  } catch {\n    try {\n      return JSON.parse(repairJsonControlChars(trimmed));\n    } catch {\n      return value;\n    }\n  }\n}\n\nif (payload && typeof payload === 'object' && !Array.isArray(payload)) {\n  if ('updates'      in payload) payload.updates      = deepParse(payload.updates);\n  if ('body'         in payload) payload.body         = deepParse(payload.body);\n  if ('node_payload' in payload) payload.node_payload = deepParse(payload.node_payload);\n  if ('connect_to'   in payload) payload.connect_to   = deepParse(payload.connect_to);\n  if ('disconnect'   in payload) payload.disconnect   = deepParse(payload.disconnect);\n}\n\nreturn { ...$json, payload };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7e8d58b0-cb42-45cf-a841-db761ae28852",
+      "name": "Execution Data",
+      "type": "n8n-nodes-base.executionData",
+      "notes": "Custom-data search is a case-insensitive SUBSTRING match and the executions list takes ONE key at a time - hence `search`, which holds every facet in a fixed order so one filter can combine them (e.g. `write wf:AbC123`).",
+      "position": [
+        -640,
+        592
+      ],
+      "parameters": {
+        "dataToSave": {
+          "values": [
+            {
+              "key": "type",
+              "value": "sub"
+            },
+            {
+              "key": "operation",
+              "value": "={{ $json.operation }}"
+            },
+            {
+              "key": "kind",
+              "value": "={{ /^(get|search|list)/.test($json.operation) ? \"read\" : \"write\" }}"
+            },
+            {
+              "key": "workflow_id",
+              "value": "={{ $json.payload?.workflow_id\n  ?? ([\"get_workflow\", \"delete_workflow\", \"activate_workflow\", \"deactivate_workflow\"].includes($json.operation)\n    ? String($json.payload ?? \"\")\n    : \"\") }}"
+            },
+            {
+              "key": "search",
+              "value": "={{ [\n  $json.operation,\n  /^(get|search|list)/.test($json.operation) ? \"read\" : \"write\",\n  $json.payload?.workflow_id ? \"wf:\" + $json.payload.workflow_id : null,\n  $json.payload?.execution_id ? \"exec:\" + $json.payload.execution_id : null,\n  $json.payload?.node_name ? \"node:\" + $json.payload.node_name : null,\n  typeof $json.payload?.name === \"string\" ? \"name:\" + $json.payload.name : null,\n  typeof $json.payload === \"object\" ? null : String($json.payload ?? \"\")\n].filter(Boolean).join(\" \").slice(0, 500) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c37aa593-3047-4e01-ace8-9c3157be710c",
+      "name": "Operation",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -368,
+        368
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "list_all_workflows",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "51e03f7d-6f60-48b9-9a42-58dd425ab918",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "list_all_workflows"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "search_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "81b134bc-d671-4493-b3ad-8df9be3f49a6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "search_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "get_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "e76f39fa-34eb-4d2f-aa3b-ea4203bc1bc5",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "get_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "get_single_node",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "1fd514fe-e936-4e5b-8c46-bac85074b760",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "get_single_node"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "create_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "cbaaa96f-b322-4325-88fe-4b3999c70d8e",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "create_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "search_execution",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8dabaae1-f7e2-416d-a8ab-87ff57b820bf",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "search_execution"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "get_execution",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "72fb0f64-1a11-403e-bab8-a45cb04d484f",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "get_execution"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "get_node_execution",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "c2c6887b-f467-4df2-b3d3-6e6bed6da67e",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "get_node_execution"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "add_node_to_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "46f390ab-29b6-494d-98d1-5c4ac30c6045",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "add_node_to_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "update_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "eef3f7e7-0b6c-481c-b448-e24d98c17be7",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "update_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "delete_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "04abbd89-ea16-4177-b0af-087e2595f193",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "delete_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "activate_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "ecce5fd4-2ea1-42a9-a0e1-a002c6e43663",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "activate_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "deactivate_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "a1e3dd7b-ea66-4adf-ba5b-a4f78fdf8fc7",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "deactivate_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "update_node",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "bdb9100a-902a-4813-bada-c635ab8e0b31",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "update_node"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "remove_node",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "da6b70ee-8a3f-44fd-8725-c5f2a8054b83",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "remove_node"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "run_workflow",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "3d6d636c-af33-4461-bfe4-9f9dfeb070cd",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.operation }}",
+                    "rightValue": "run_workflow"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "557942dc-65bf-4ec2-b9bf-a1041fac8a86",
+      "name": "Stop and Error",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        -368,
+        1008
+      ],
+      "parameters": {
+        "errorMessage": "Option not found, update sub workflow in n8n."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1c11000-0001-0000-0000-000000000001",
+      "name": "Split Workflows List",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        192,
+        -1120
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e40c7f8c-7111-40cf-ae21-8dc17a8637a0",
+      "name": "Search Workflow By Name",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        192,
+        -896
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "name",
+              "value": "={{ $json.q }}"
+            },
+            {
+              "name": "limit",
+              "value": "200"
+            },
+            {
+              "name": "excludePinnedData",
+              "value": "true"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1c11000-0001-0000-0000-000000000002",
+      "name": "Rank & Shape Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        416,
+        -896
+      ],
+      "parameters": {
+        "jsCode": "// Merge, de-dupe and rank the per-keyword search hits into a smart result list.\n// The HTTP node ran once per probe (keyword x case-variant); collect every hit,\n// de-dupe by workflow id, then score each candidate against the lowercased\n// keyword tokens so multi-keyword / word-order-independent queries rank well.\n\nconst httpItems = $('Search Workflow By Name').all();\nconst meta = $('Build Search Queries').first().json;\nconst scoreTokens = Array.isArray(meta.scoreTokens) ? meta.scoreTokens : [];\nconst rawQuery = meta.rawQuery ?? '';\nconst phrase = scoreTokens.join(' ');\n\n// Collect unique candidate workflows by id (defensive: HTTP errors / empties).\nconst byId = new Map();\nfor (const it of httpItems) {\n  const data = it && it.json ? it.json.data : null;\n  if (!Array.isArray(data)) continue;\n  for (const wf of data) {\n    if (wf && wf.id != null && !byId.has(wf.id)) byId.set(wf.id, wf);\n  }\n}\n\nfunction escapeRe(s) {\n  return s.replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n}\n\nfunction scoreWorkflow(wf) {\n  const nameLc = String(wf.name ?? '').toLowerCase();\n  if (scoreTokens.length === 0) return 1;\n  let matched = 0;\n  let wholeWord = 0;\n  for (const t of scoreTokens) {\n    if (!t) continue;\n    if (nameLc.includes(t)) {\n      matched++;\n      const re = new RegExp('(^|[^a-z0-9])' + escapeRe(t) + '($|[^a-z0-9])');\n      if (re.test(nameLc)) wholeWord++;\n    }\n  }\n  if (matched === 0) return 0;\n  let score = matched * 10 + wholeWord * 3;\n  if (matched === scoreTokens.length) score += 50; // all keywords present\n  if (phrase && nameLc.includes(phrase)) score += 40; // contiguous phrase\n  return score;\n}\n\nlet ranked = [...byId.values()]\n  .map((wf) => ({ wf, score: scoreWorkflow(wf) }))\n  .filter((x) => x.score > 0)\n  .sort(\n    (a, b) =>\n      b.score - a.score ||\n      String(a.wf.name).length - String(b.wf.name).length ||\n      String(b.wf.updatedAt).localeCompare(String(a.wf.updatedAt)),\n  )\n  .slice(0, 25);\n\nif (ranked.length === 0) {\n  return [\n    {\n      json: {\n        message: `No workflows matched \"${rawQuery}\".`,\n        query: rawQuery,\n        count: 0,\n      },\n    },\n  ];\n}\n\nreturn ranked.map(({ wf, score }) => ({\n  json: {\n    id: wf.id,\n    name: wf.name,\n    active: wf.active ?? null,\n    tags: Array.isArray(wf.tags)\n      ? wf.tags.map((t) => (t && t.name ? t.name : t))\n      : [],\n    updatedAt: wf.updatedAt ?? null,\n    _score: score,\n  },\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3d4e9b24-28ee-4051-ba74-d89417447d90",
+      "name": "Find Node",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        -448
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const targetNode = $('Parse Payload').first().json?.payload?.node_name;\n\nif (!targetNode) {\n  throw new Error(\"Missing payload.node_name in 'Parse Payload'.\");\n}\n\nconst nodes = $json.nodes\n\nif (!Array.isArray(nodes)) {\n  throw new Error(\"workflowData.nodes not found on $json.\");\n}\n\nconst nodeItem = nodes.find(n => n?.name === targetNode) || null;\n\nif (!nodeItem) {\n  const available = nodes.map(n => n?.name).filter(Boolean);\n  throw new Error(\n    `Node not found in workflowData.nodes: \"${targetNode}\". Available: ${available.slice(0, 50).join(\", \")}`\n  );\n}\n\nreturn nodeItem;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1c11000-0004-0000-0000-000000000001",
+      "name": "Sanitize Create Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -32,
+        -224
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// The n8n public POST /workflows endpoint rejects read-only fields.\n// We strip them defensively and ensure required fields have safe defaults.\nconst raw = $('Parse Payload').first().json.payload;\nconst wf = typeof raw === 'string' ? JSON.parse(raw) : raw;\n\nif (!wf || typeof wf !== 'object') throw new Error('payload must be an object describing a workflow');\nif (!wf.name) throw new Error('payload.name is required');\nif (!Array.isArray(wf.nodes)) throw new Error('payload.nodes must be an array');\n\nconst {\n  id, active, tags, shared, pinData, versionId, meta, triggerCount,\n  createdAt, updatedAt,\n  ...clean\n} = wf;\n\nreturn {\n  name: clean.name,\n  nodes: clean.nodes,\n  connections: clean.connections ?? {},\n  settings: clean.settings ?? { executionOrder: 'v1' },\n  ...(clean.staticData ? { staticData: clean.staticData } : {}),\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "208d9e73-4f4f-481c-94f2-f1aab29f0280",
+      "name": "POST Create Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        192,
+        -224
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "29c6b3d4-217c-410f-af5a-d4be7f66a2d2",
+      "name": "Fetch Executions",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/executions",
+        "options": {},
+        "jsonQuery": "={\n  \"workflowId\": \"{{ $json.payload.workflow_id }}\",\n  \"includeData\": false,\n  {{ $if($json.payload.status !== 'all',`\"status\": \"${$json.payload.status}\",`,'') }}\n  {{ $if($json.payload.cursor,`\"cursor\": \"${$json.payload.cursor}\",`,'') }}\n  \"limit\": 20\n}",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "specifyQuery": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2a6912eb-462c-4e54-b038-d32386c4bdef",
+      "name": "Get an execution",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        224
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/executions/{{ $json.payload }}",
+        "options": {},
+        "jsonQuery": "{\n  \"includeData\": true\n}",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "specifyQuery": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8af069c1-c803-400a-8f07-8d3bdfb39f95",
+      "name": "Find Node Execution",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        416,
+        448
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const targetNode = $('Parse Payload').first().json?.payload?.node_name;\n\nif (!targetNode) {\n  throw new Error(\"Missing payload.node_name in 'Parse Payload'.\");\n}\n\nconst executionHistory = $json.executionHistory;\n\nif (!Array.isArray(executionHistory)) {\n  throw new Error(\"executionHistory not found on $json.\");\n}\n\nconst nodeExecution = executionHistory.find(entry => entry?.node === targetNode) || null;\n\nif (!nodeExecution) {\n  const available = executionHistory.map(entry => entry?.node).filter(Boolean);\n  throw new Error(\n    `Node not found in executionHistory: \"${targetNode}\". Available (nodes that ran): ${available.slice(0, 50).join(\", \")}`\n  );\n}\n\nreturn { ...nodeExecution };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d998d61a-cec8-4b39-8c3f-bbecc30a791f",
+      "name": "Append Node To Workflow",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        672
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const ALLOWED_SETTINGS = ['saveExecutionProgress','saveManualExecutions','saveDataErrorExecution','saveDataSuccessExecution','executionTimeout','errorWorkflow','timezone','executionOrder','callerPolicy','callerIds','timeSavedPerExecution'];\nfunction sanitizeSettings(s) {\n  if (!s || typeof s !== 'object') return { executionOrder: 'v1' };\n  const out = {};\n  for (const k of ALLOWED_SETTINGS) if (k in s) out[k] = s[k];\n  if (!out.executionOrder) out.executionOrder = 'v1';\n  return out;\n}\n\nconst ALLOWED_NODE_KEYS = new Set(['id','name','type','typeVersion','position','parameters','credentials','disabled','notes','notesInFlow','executeOnce','retryOnFail','maxTries','waitBetweenTries','onError','webhookId','alwaysOutputData','continueOnFail','color']);\nfunction sanitizeNode(node) {\n  const clean = {};\n  for (const k of Object.keys(node)) {\n    if (ALLOWED_NODE_KEYS.has(k)) clean[k] = node[k];\n  }\n  return clean;\n}\n\n// n8n connections shape: connections[fromName][type][outputIndex] = [{ node, type, index }, ...]\nfunction mergeEdges(connections, edges) {\n  const out = JSON.parse(JSON.stringify(connections ?? {}));\n  for (const edge of edges) {\n    if (!edge || !edge.from || !edge.to) continue;\n    const type = edge.type || 'main';\n    const outputIndex = edge.outputIndex ?? 0;\n    const inputIndex  = edge.inputIndex  ?? 0;\n    out[edge.from] ??= {};\n    out[edge.from][type] ??= [];\n    while (out[edge.from][type].length <= outputIndex) out[edge.from][type].push([]);\n    out[edge.from][type][outputIndex].push({ node: edge.to, type, index: inputIndex });\n  }\n  return out;\n}\n\n// Remove edges matching { from, to, type? }. inputIndex is ignored on match —\n// callers usually don't track it. If multiple matching edges exist on the same\n// outputIndex bucket, they're all removed.\nfunction removeEdges(connections, edges) {\n  const out = JSON.parse(JSON.stringify(connections ?? {}));\n  for (const edge of edges) {\n    if (!edge || !edge.from || !edge.to) continue;\n    const type = edge.type || 'main';\n    if (!out[edge.from] || !out[edge.from][type]) continue;\n    out[edge.from][type] = out[edge.from][type].map(\n      bucket => bucket.filter(c => !(c.node === edge.to && (c.type ?? 'main') === type))\n    );\n    // Tidy: if every outputIndex bucket is empty, drop the type. Then if empty, drop the from key.\n    if (out[edge.from][type].every(b => b.length === 0)) delete out[edge.from][type];\n    if (Object.keys(out[edge.from]).length === 0) delete out[edge.from];\n  }\n  return out;\n}\n\nconst parsed         = $('Parse Payload').first().json.payload;\nconst newNode        = parsed.node_payload;\nconst edgesToAdd     = Array.isArray(parsed.connect_to) ? parsed.connect_to : [];\nconst edgesToRemove  = Array.isArray(parsed.disconnect) ? parsed.disconnect : [];\nconst workflow       = $json;\n\nconst hasNewNode = newNode && typeof newNode === 'object' && !Array.isArray(newNode)\n  && typeof newNode.name === 'string' && newNode.name.trim() !== ''\n  && typeof newNode.type === 'string' && newNode.type.trim() !== '';\n\nconst nodes        = hasNewNode ? [...workflow.nodes, newNode] : [...workflow.nodes];\n// Order: remove first, then add. Lets a caller swap an edge in one call.\nconst afterRemove  = removeEdges(workflow.connections, edgesToRemove);\nconst connections  = mergeEdges(afterRemove, edgesToAdd);\n\nconst out = {\n  name: workflow.name,\n  nodes: nodes.map(sanitizeNode),\n  connections,\n  settings: sanitizeSettings(workflow.settings),\n};\nif (workflow.staticData) out.staticData = workflow.staticData;\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ef167d96-1980-4875-b6ba-10877f6a4747",
+      "name": "PUT Save Added Node",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        416,
+        672
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload.workflow_id }}",
+        "method": "PUT",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1c11000-0008-0000-0000-000000000001",
+      "name": "Return Add Node Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        672
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json || {};\nif (r.message && !r.id) {\n  return { success: false, error: r.message, description: r.description || '', hint: 'Common causes: workflow not found, malformed node payload, missing required node fields, invalid typeVersion.' };\n}\nreturn { success: true, id: r.id, name: r.name, active: r.active, updatedAt: r.updatedAt };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7033575b-a0d0-486c-a292-cab44e393b58",
+      "name": "PUT Update Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        896
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload.workflow_id }}",
+        "method": "PUT",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($('Parse Payload').first().json.payload.body) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0e22c06f-fd70-4ec0-96a6-dda8504fab43",
+      "name": "Return Update Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        896
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Surface n8n public API errors instead of swallowing them.\n// n8n response shapes:\n//   success → full workflow object with `id`\n//   error   → { message: '...' } with no `id`\nconst r = $json || {};\nif (r.message && !r.id) {\n  return { success: false, error: r.message, description: r.description || '', hint: 'Common causes: workflow not found, missing credentials on nodes, no schedulable trigger to activate, unsupported top-level fields (id/active/tags/pinData), invalid node typeVersion.' };\n}\nreturn { success: true, id: r.id, name: r.name, active: r.active, updatedAt: r.updatedAt };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cd466bd5-8e18-4db6-a14a-5829750e922e",
+      "name": "DELETE Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        1120
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload }}",
+        "method": "DELETE",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "50e54c9a-91f3-44da-996f-2238f2f8266e",
+      "name": "Return Delete Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        1120
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json || {};\nif (r.message && !r.id && r.message !== 'OK') {\n  return { success: false, error: r.message, description: r.description || '', hint: 'Common causes: workflow not found, workflow currently active (deactivate first).' };\n}\nreturn { success: true, message: r.id ? `Workflow ${r.id} deleted` : 'Workflow deleted' };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4d880acb-b2f8-491e-a131-dd2859caaa78",
+      "name": "POST Activate Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        1344
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload }}/activate",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "42423325-840e-479f-8705-f0fabe97d994",
+      "name": "Return Activate Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        1344
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json || {};\nif (r.message && !r.id) {\n  return { success: false, error: r.message, description: r.description || '', hint: 'Common causes: workflow has no schedulable trigger (manual triggers do not count), missing credentials on nodes, workflow not found.' };\n}\nreturn { success: true, id: r.id, name: r.name, active: r.active };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "840af8a2-be6a-4f1c-a58d-0b388142cfa7",
+      "name": "POST Deactivate Workflow",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        1568
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload }}/deactivate",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8c7838a1-2f8d-4260-b9e9-5d9214c75bd5",
+      "name": "Return Deactivate Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        1568
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json || {};\nif (r.message && !r.id) {\n  return { success: false, error: r.message, description: r.description || '', hint: 'Common causes: workflow not found.' };\n}\nreturn { success: true, id: r.id, name: r.name, active: r.active };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6c6a945c-5c1f-4f81-a483-155865abb823",
+      "name": "GET Workflow For Node Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        1792
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload.workflow_id }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b90c8167-f6b3-4c37-bf4a-268114e0677d",
+      "name": "Apply Node Updates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        1792
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst ALLOWED_SETTINGS = ['saveExecutionProgress','saveManualExecutions','saveDataErrorExecution','saveDataSuccessExecution','executionTimeout','errorWorkflow','timezone','executionOrder','callerPolicy','callerIds','timeSavedPerExecution'];\nfunction sanitizeSettings(s) {\n  if (!s || typeof s !== 'object') return { executionOrder: 'v1' };\n  const out = {};\n  for (const k of ALLOWED_SETTINGS) if (k in s) out[k] = s[k];\n  if (!out.executionOrder) out.executionOrder = 'v1';\n  return out;\n}\n\nconst ALLOWED_NODE_KEYS = new Set(['id','name','type','typeVersion','position','parameters','credentials','disabled','notes','notesInFlow','executeOnce','retryOnFail','maxTries','waitBetweenTries','onError','webhookId','alwaysOutputData','continueOnFail','color']);\nfunction sanitizeNode(node) {\n  const clean = {};\n  for (const k of Object.keys(node)) {\n    if (ALLOWED_NODE_KEYS.has(k)) clean[k] = node[k];\n  }\n  return clean;\n}\n\nfunction deepMerge(target, source) {\n  const result = { ...target };\n  for (const key of Object.keys(source)) {\n    if (\n      source[key] && typeof source[key] === 'object' && !Array.isArray(source[key]) &&\n      target[key] && typeof target[key] === 'object' && !Array.isArray(target[key])\n    ) {\n      result[key] = deepMerge(target[key], source[key]);\n    } else {\n      result[key] = source[key];\n    }\n  }\n  return result;\n}\n\nconst payload = $('Parse Payload').first().json.payload;\nconst targetName = payload.node_name;\nconst updates = payload.updates;\nconst workflow = $json;\n\nif (!targetName) throw new Error('Missing payload.node_name');\nif (!updates || typeof updates !== 'object') throw new Error('Missing or invalid payload.updates');\n\nconst nodeIndex = workflow.nodes.findIndex(n => n.name === targetName);\nif (nodeIndex === -1) {\n  const available = workflow.nodes.map(n => n.name).join(', ');\n  throw new Error(`Node \"${targetName}\" not found. Available: ${available}`);\n}\n\nconst node = workflow.nodes[nodeIndex];\nfor (const [key, value] of Object.entries(updates)) {\n  if (key === 'parameters' && typeof value === 'object' && typeof node.parameters === 'object') {\n    node.parameters = deepMerge(node.parameters, value);\n  } else {\n    node[key] = value;\n  }\n}\nworkflow.nodes[nodeIndex] = node;\n\nconst out = {\n  name: workflow.name,\n  nodes: workflow.nodes.map(sanitizeNode),\n  connections: workflow.connections ?? {},\n  settings: sanitizeSettings(workflow.settings),\n};\nif (workflow.staticData) out.staticData = workflow.staticData;\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a54a0c55-51a4-46cc-b436-f4343c51cbb1",
+      "name": "PUT Save Node Update",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        416,
+        1792
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload.workflow_id }}",
+        "method": "PUT",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4d126feb-c13c-465d-a544-993c15baf411",
+      "name": "Return Node Update Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        1792
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json || {};\nif (r.message && !r.id) {\n  return { success: false, error: r.message, description: r.description || '', hint: 'Common causes: workflow or node not found, missing credentials on existing nodes, invalid update payload.' };\n}\nreturn { success: true, message: r.id ? `Node updated in workflow ${r.id}` : 'Node updated', updatedAt: r.updatedAt };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bb17ce9c-cb2f-46c9-9467-bd8fe97a6876",
+      "name": "GET Workflow For Node Removal",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        2016
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload.workflow_id }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "365abf27-99db-44f6-8c00-9abb1445f27f",
+      "name": "Remove Node And Clean Connections",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        2016
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "\nconst ALLOWED_SETTINGS = ['saveExecutionProgress','saveManualExecutions','saveDataErrorExecution','saveDataSuccessExecution','executionTimeout','errorWorkflow','timezone','executionOrder','callerPolicy','callerIds','timeSavedPerExecution'];\nfunction sanitizeSettings(s) {\n  if (!s || typeof s !== 'object') return { executionOrder: 'v1' };\n  const out = {};\n  for (const k of ALLOWED_SETTINGS) if (k in s) out[k] = s[k];\n  if (!out.executionOrder) out.executionOrder = 'v1';\n  return out;\n}\n\nconst ALLOWED_NODE_KEYS = new Set(['id','name','type','typeVersion','position','parameters','credentials','disabled','notes','notesInFlow','executeOnce','retryOnFail','maxTries','waitBetweenTries','onError','webhookId','alwaysOutputData','continueOnFail','color']);\nfunction sanitizeNode(node) {\n  const clean = {};\n  for (const k of Object.keys(node)) {\n    if (ALLOWED_NODE_KEYS.has(k)) clean[k] = node[k];\n  }\n  return clean;\n}\n\nconst payload = $('Parse Payload').first().json.payload;\nconst targetName = payload.node_name;\nconst workflow = $json;\n\nif (!targetName) throw new Error('Missing payload.node_name');\n\nconst nodeIndex = workflow.nodes.findIndex(n => n.name === targetName);\nif (nodeIndex === -1) {\n  const available = workflow.nodes.map(n => n.name).join(', ');\n  throw new Error(`Node \"${targetName}\" not found. Available: ${available}`);\n}\n\nworkflow.nodes.splice(nodeIndex, 1);\n\nconst connections = workflow.connections ?? {};\ndelete connections[targetName];\n\nfor (const [sourceName, outputs] of Object.entries(connections)) {\n  if (!outputs.main) continue;\n  for (let i = 0; i < outputs.main.length; i++) {\n    if (!Array.isArray(outputs.main[i])) continue;\n    outputs.main[i] = outputs.main[i].filter(conn => conn.node !== targetName);\n  }\n}\n\nconst out = {\n  name: workflow.name,\n  nodes: workflow.nodes.map(sanitizeNode),\n  connections,\n  settings: sanitizeSettings(workflow.settings),\n};\nif (workflow.staticData) out.staticData = workflow.staticData;\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "33558a66-d3be-41f3-916e-e5c01ff8bdcf",
+      "name": "PUT Save Node Removal",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        416,
+        2016
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $('Parse Payload').first().json.payload.workflow_id }}",
+        "method": "PUT",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "14c800cd-2cfc-49b3-94bf-2e27ea7cf03d",
+      "name": "Return Node Removal Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        2016
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json || {};\nif (r.message && !r.id) {\n  return { success: false, error: r.message, description: r.description || '', hint: 'Common causes: workflow or node not found.' };\n}\nreturn { success: true, message: r.id ? `Node removed from workflow ${r.id}` : 'Node removed', updatedAt: r.updatedAt };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c1ef6d42-4a8b-4523-8ff5-9588bc5367de",
+      "name": "n8n MCP Server",
+      "type": "@n8n/n8n-nodes-langchain.mcpTrigger",
+      "position": [
+        -2896,
+        -32
+      ],
+      "webhookId": "7be07c22-1f47-467d-b515-c2600c0712dd",
+      "parameters": {
+        "path": "n8n-mcp"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f5c68a9a-70ef-40fa-8382-451e83e87748",
+      "name": "Get Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2400,
+        208
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('payload', `workflow id`, 'string') }}",
+            "operation": "get_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "66ae8cc5-6451-44db-9f89-9a46b3f9cbbc",
+      "name": "Get Execution",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2400,
+        368
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('payload', `execution_id`, 'string') }}",
+            "operation": "get_execution"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "08e08e89-6868-4c27-b8da-0dadb882c5d7",
+      "name": "Search Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2576,
+        208
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('payload', `keyword to search. use minimal terms, the less words the better. be specific.`, 'string') }}",
+            "operation": "search_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f1b6820c-0050-4e54-afeb-1a01ad34c219",
+      "name": "Search Execution",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2576,
+        368
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ JSON.stringify({\n  workflow_id: $fromAI('workflow_id', 'The ID of the workflow whose executions to list', 'string'),\n  status:      $fromAI('status', \"Filter by execution status. One of: 'success', 'error', 'waiting', 'all'. Defaults to 'all'.\", 'string', 'all'),\n  cursor:      $fromAI('cursor', 'Pagination cursor returned by the previous page. Leave empty for first page.', 'string', '')\n}) }}",
+            "operation": "search_execution"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "359bef27-8e56-4e5e-a965-78096f6d17b3",
+      "name": "List All Workflows",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2224,
+        208
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Use when you fail direct search multiple times. ",
+        "workflowInputs": {
+          "value": {
+            "payload": "=null",
+            "operation": "list_all_workflows"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "73c26e25-3f6d-4707-b603-4181d7db2c4c",
+      "name": "Create Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2576,
+        720
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('payload', 'Full workflow JSON as a string. Must contain name (string), nodes (array), connections (object), and settings (object).', 'string') }}",
+            "operation": "create_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c66853ee-db83-4c45-b4d5-c5aed2bc7d1f",
+      "name": "Get Node Input And Output",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2576,
+        528
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={\n  \"execution_id\": \"{{ $fromAI('execution_id') }}\",\n  \"node_name\": \"{{ $fromAI('node_name', 'The id of the node', 'string') }}\"\n}",
+            "operation": "get_node_execution"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5819f351-ebf3-4985-bee2-0fa332fb9112",
+      "name": "Get Single Node In Current Canvas",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2400,
+        528
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={\n  \"workflow_id\": \"{{ $fromAI('workflow_id') }}\",\n  \"node_name\": \"{{ $fromAI('node_name', 'The id of the node', 'string') }}\"\n}",
+            "operation": "get_single_node"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "79dc5e51-2ff3-4f30-8872-d8d029ae14bd",
+      "name": "Add Node To Current Canvas",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2400,
+        720
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Add a node and/or add/remove edges in an n8n workflow. CRITICAL — CONCURRENCY: this does a FULL-workflow read-modify-write with NO locking, and the save uses neverError so conflicts are hidden. NEVER call this (or Update Node / Remove Node / Update Workflow) more than once at a time, in parallel, or back-to-back — concurrent calls race and the last write SILENTLY overwrites the others. Make ONE mutation, then re-read the workflow to confirm before the next. CRITICAL — CODE FORMATTING: when a node_payload is a Code node, write its jsCode as readable MULTI-LINE code (real newlines, indentation, comments); never collapse it to a single line.",
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ JSON.stringify({\n  workflow_id:  $fromAI('workflow_id',  'The ID of the workflow to mutate', 'string'),\n  node_payload: $fromAI('node_payload', 'Full node JSON as a JSON-stringified object. Required: name (string), type (string, e.g. \"n8n-nodes-base.set\" or \"@n8n/n8n-nodes-langchain.lmChatOpenAi\"), typeVersion (number), position ([x,y] array), parameters (object). Optional: credentials (object), disabled (boolean), notes (string). Must be valid JSON. Pass \"{}\" to skip node addition and only mutate edges via connect_to / disconnect.', 'string', '{}'),\n  connect_to:   $fromAI('connect_to',   'Optional. JSON-stringified array of edges to ADD. Each: { from: string (node NAME), to: string (node NAME), type?: \"main\"|\"ai_tool\"|\"ai_languageModel\"|\"ai_memory\"|\"ai_outputParser\", outputIndex?: number (default 0), inputIndex?: number (default 0) }. Use type=\"ai_tool\" when wiring a tool node to an AI Agent. Pass \"[]\" or omit when not adding edges.', 'string', '[]'),\n  disconnect:   $fromAI('disconnect',   'Optional. JSON-stringified array of edges to REMOVE (applied BEFORE connect_to additions, so you can swap an edge in one call). Each: { from, to, type? }. Pass \"[]\" or omit when not removing edges.', 'string', '[]')\n}) }}",
+            "operation": "add_node_to_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0905b373-ad84-4383-84b9-092320f5bfac",
+      "name": "Delete Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2576,
+        1072
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('workflow_id', 'The ID of the workflow to delete. WARNING: This is permanent and cannot be undone.', 'string') }}",
+            "operation": "delete_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "04c3b95e-98f9-4116-a4be-cdd2c4b65981",
+      "name": "Activate Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2576,
+        1248
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('workflow_id', 'The ID of the workflow to activate (turn on)', 'string') }}",
+            "operation": "activate_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0d53f1b5-770d-4739-bda5-5e2abe49dc17",
+      "name": "Deactivate Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2400,
+        1248
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('workflow_id', 'The ID of the workflow to deactivate (turn off)', 'string') }}",
+            "operation": "deactivate_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "965077f9-cc84-46a8-8360-716a9052f98f",
+      "name": "Update Node In Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2400,
+        896
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Update one node's fields in an n8n workflow (parameters are merged shallowly; also name/disabled/position/credentials/type/typeVersion/onError). CRITICAL — CONCURRENCY: this does a FULL-workflow read-modify-write with NO locking or version check, and the save uses neverError so conflicts are hidden. NEVER call this (or Add Node / Remove Node / Update Workflow) more than once at a time, in parallel, or back-to-back — concurrent calls race and the last write SILENTLY overwrites the others (this is why edits 'disappear'). Always mutate ONE node, then re-read it with Get Single Node to confirm it stuck before the next edit. CRITICAL — CODE FORMATTING: always write a Code node's jsCode as readable MULTI-LINE code with real newlines, indentation and comments. Multi-line jsCode saves fine here — never collapse it onto a single line.",
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ JSON.stringify({\n  workflow_id: $fromAI('workflow_id', 'The ID of the workflow containing the node', 'string'),\n  node_name:   $fromAI('node_name',   'The exact name of the node to update', 'string'),\n  updates:     $fromAI('updates',     \"Partial node update as a JSON-stringified object. Pass ONLY the fields you want to change. Supported fields: `parameters` (object \\u2014 merged shallowly with existing params), `name` (string), `disabled` (boolean), `position` ([x, y] array), `credentials` (object), `type` (string), `typeVersion` (number), `onError` (string). Example: '{\\\"parameters\\\":{\\\"url\\\":\\\"https://new-api.com\\\"},\\\"disabled\\\":false}'. Must be valid JSON. Pass the JSON-stringified value, not a raw object.\", 'string')\n}) }}",
+            "operation": "update_node"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8b66e8e7-4623-4369-bf0f-76e3948e8627",
+      "name": "Remove Node From Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2400,
+        1072
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Remove a node (and clean its connections) from an n8n workflow. CRITICAL — CONCURRENCY: this does a FULL-workflow read-modify-write with NO locking, and the save uses neverError so conflicts are hidden. NEVER call this (or Update Node / Add Node / Update Workflow) more than once at a time, in parallel, or back-to-back — concurrent calls race and the last write SILENTLY overwrites the others. Make ONE mutation, then re-read the workflow to confirm before the next.",
+        "workflowInputs": {
+          "value": {
+            "payload": "={\n  \"workflow_id\": \"{{ $fromAI('workflow_id', 'The ID of the workflow containing the node', 'string') }}\",\n  \"node_name\": \"{{ $fromAI('node_name', 'The exact name of the node to remove', 'string') }}\"\n}",
+            "operation": "remove_node"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f755402a-8a7f-43bb-9ac4-468a9d4493c6",
+      "name": "Run Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2224,
+        1248
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ $fromAI('payload', `JSON object as a string:\n{\n  \"workflow_id\": \"<id of the workflow to run>\",\n  \"execution_id\": \"<optional: a specific execution to retry, empty for the latest>\"\n}\nThe workflow is run by retrying an execution with loadWorkflow=true, so the CURRENT saved definition runs. It must have run at least once before.`, 'string') }}",
+            "operation": "run_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a1c11000-0002-0000-0000-000000000010",
+      "name": "Build Search Queries",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -32,
+        -896
+      ],
+      "parameters": {
+        "jsCode": "// Build a set of small, case-variant name probes from the search payload.\n// WHY: the n8n public API `/workflows?name=` filter is a CASE-SENSITIVE,\n// contiguous-substring match. A naive single query (e.g. \"universal\") misses\n// \"Universal contact-finder\" and can't handle multiple keywords or word order.\n// Fetching all ~400 workflows to filter locally is ~100MB, so instead we probe\n// each keyword in a few casings and let the HTTP node fan out. Only matching\n// workflows come back -> light payloads. Ranking happens downstream.\n\nconst raw = String($input.first().json.payload ?? '').trim();\n\nconst STOP = new Set([\n  'the', 'a', 'an', 'of', 'to', 'and', 'or', 'for', 'in', 'on', 'with',\n  'workflow', 'workflows', 'n8n',\n]);\n\n// Tokenize on any non-alphanumeric separator; drop tiny tokens and stopwords.\nlet tokens = raw\n  .split(/[^A-Za-z0-9]+/)\n  .map((t) => t.trim())\n  .filter((t) => t.length >= 2 && !STOP.has(t.toLowerCase()));\n\n// De-dupe tokens case-insensitively, preserve order, cap to 6.\nconst seen = new Set();\ntokens = tokens\n  .filter((t) => {\n    const k = t.toLowerCase();\n    if (seen.has(k)) return false;\n    seen.add(k);\n    return true;\n  })\n  .slice(0, 6);\n\n// Lowercased tokens are what the ranking node scores against.\nconst scoreTokens = tokens.map((t) => t.toLowerCase());\n\n// Probe each token; for 2-4 token queries also probe the joined phrase so an\n// exact-ish phrase match can be found and boosted.\nconst probes = [...tokens];\nif (tokens.length >= 2 && tokens.length <= 4) probes.push(tokens.join(' '));\n\n// Fallback: query was only stopwords/symbols -> probe the raw string.\nif (probes.length === 0 && raw) probes.push(raw);\n\n// Case variants defeat the API's case-sensitive matching: lower, UPPER, Title,\n// and Capitalized-first cover lowercase / ALLCAPS / TitleCase naming.\nfunction variants(s) {\n  const lower = s.toLowerCase();\n  const upper = s.toUpperCase();\n  const title = lower.replace(/\\b\\w/g, (c) => c.toUpperCase());\n  const capFirst = lower.charAt(0).toUpperCase() + lower.slice(1);\n  return [...new Set([s, lower, upper, title, capFirst])];\n}\n\nconst queries = new Set();\nfor (const p of probes) {\n  for (const v of variants(p)) {\n    const q = v.trim();\n    if (q) queries.add(q);\n  }\n}\n\nlet list = [...queries].filter(Boolean);\n\n// Never send an empty name (would match every workflow = huge payload).\nif (list.length === 0) list.push('__no_match__');\n\nreturn list.map((q) => ({ json: { q, scoreTokens, rawQuery: raw } }));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "239fbab4-6f80-4755-844c-cb02fa3b9844",
+      "name": "GET Latest Execution",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        2240
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/executions",
+        "options": {},
+        "jsonQuery": "={\n  \"workflowId\": \"{{ $('Parse Payload').first().json.payload.workflow_id }}\",\n  \"includeData\": false,\n  \"limit\": 1\n}",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "specifyQuery": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "87eea51d-1b90-4f96-938c-e2c7ca0ce586",
+      "name": "Pick Execution To Retry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        2240
+      ],
+      "parameters": {
+        "jsCode": "// Which execution to retry: the caller's explicit execution_id, else the latest one.\nconst payload = $('Parse Payload').first().json.payload || {};\nconst data = Array.isArray($input.first().json.data) ? $input.first().json.data : [];\n\nconst provided = String(payload.execution_id ?? '').trim();\nconst latest = data.length ? data[0].id : null;\nconst execution_id = provided || latest;\n\nif (!execution_id) {\n  throw new Error(\n    'No execution found to retry for workflow \"' + (payload.workflow_id || '') + '\". ' +\n    'Run that workflow once first, or pass execution_id.'\n  );\n}\n\nreturn [{ json: { workflow_id: payload.workflow_id, execution_id: String(execution_id) } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "08ee7eb9-e1e0-4367-a438-d3a859740354",
+      "name": "POST Retry Execution",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        416,
+        2240
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/executions/{{ $json.execution_id }}/retry",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "{\n  \"loadWorkflow\": true\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cd34a1b2-1238-4820-9cf6-1b4412c5db14",
+      "name": "Return Run Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        2240
+      ],
+      "parameters": {
+        "jsCode": "// Shape the tool result for the calling agent.\nconst picked = $('Pick Execution To Retry').first().json;\n\nreturn [{ json: {\n  ok: true,\n  workflow_id: picked.workflow_id,\n  retried_execution_id: picked.execution_id,\n  retry_response: $input.first().json,\n  message: 'Re-ran workflow ' + picked.workflow_id + ' by retrying execution ' +\n           picked.execution_id + ' with loadWorkflow=true (the current saved definition runs).'\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "836c9042-68f7-4a9b-bd98-734da394ee6b",
+      "name": "Update Workflow",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "position": [
+        -2576,
+        896
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $workflow.id }}"
+        },
+        "description": "Replace an entire n8n workflow (name, nodes, connections, settings) in one PUT. CRITICAL — CONCURRENCY: full-workflow write with NO locking; the save hides conflicts. NEVER call this (or Update Node / Add Node / Remove Node) more than once at a time, in parallel, or back-to-back — concurrent calls race and the last write SILENTLY overwrites the others. Fetch current state first, make ONE write, then re-read to confirm. CRITICAL — CODE FORMATTING: write every Code node's jsCode as readable MULTI-LINE code (real newlines, indentation, comments); never collapse it to a single line.",
+        "workflowInputs": {
+          "value": {
+            "payload": "={{ JSON.stringify({\n  workflow_id: $fromAI('workflow_id', 'The ID of the workflow to update', 'string'),\n  body:        $fromAI('body',        \"Full workflow body as a JSON-stringified object. Required fields: `name` (string), `nodes` (array), `connections` (object), `settings` (object). Optional: `staticData`. Recommended workflow: call get_workflow first to fetch current state, modify only what you need, then pass the full updated object as a JSON string here. For single-node edits, prefer update_node which only requires the diff.\", 'string')\n}) }}",
+            "operation": "update_workflow"
+          },
+          "schema": [
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payload",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payload",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "9c4b0db6-4b1e-4f36-b3ea-2a51d0d0b78d",
+      "name": "GET Workflows List",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        -1120
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows",
+        "options": {},
+        "jsonQuery": "{\n  \"limit\": 250,\n  \"excludePinnedData\": true\n}",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "specifyQuery": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1e685e25-a648-4271-80f2-e2bf2cca5794",
+      "name": "GET Workflow By Id",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        -672
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $json.payload }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "46f598c4-0704-4dfa-a8a6-a51bca95d659",
+      "name": "GET Workflow For Node Add",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        672
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $json.payload.workflow_id }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ba2948f5-6fa7-4988-a9d1-ad3f521b04ff",
+      "name": "GET Workflow For Node Lookup",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        -448
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/workflows/{{ $json.payload.workflow_id }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "583a86de-b81a-4a62-9680-3cc69b257989",
+      "name": "GET Execution For Node IO",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        448
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.host }}/api/v1/executions/{{ $json.payload.execution_id }}",
+        "options": {},
+        "jsonQuery": "{\n  \"includeData\": true\n}",
+        "sendQuery": true,
+        "sendHeaders": true,
+        "specifyQuery": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "X-N8N-API-KEY",
+              "value": "={{ $('Config').first().json.api_key }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "11bbe536-93c3-43fd-98a9-66cb0d6bd8b8",
+      "name": "Prepare Execution History",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        224
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Public API returns `data` as a JSON STRING when includeData=true; the legacy\n// native n8n node returned it pre-parsed. Normalize so downstream code is\n// agnostic to the source.\nconst __raw = $json.data;\nconst __parsed = typeof __raw === \"string\"\n  ? (() => { try { return JSON.parse(__raw); } catch { return {}; } })()\n  : (__raw || {});\n\nconst exec = __parsed.resultData || {};\nconst runs = exec.runData || {};\nconst stack = (__parsed.executionData?.nodeExecutionStack || []).reduce((m, s) => {\n  if (s?.node?.id) m.byId[s.node.id] = s;\n  if (s?.node?.name) m.byName[s.node.name] = s;\n  return m;\n}, { byId: {}, byName: {} });\n\n// ============ config ============\nconst PREVIEW_CLIP = 1000; // easy to tweak\n\nconst first = a => (Array.isArray(a) && a[0] ? a[0] : null);\nconst firstDeep = a => (Array.isArray(a) && a[0] && Array.isArray(a[0]) && a[0][0] ? a[0][0] : null);\n\nconst tryParse = v => {\n  if (typeof v !== \"string\") return v;\n  try { return JSON.parse(v); } catch { return v; }\n};\n\nconst pick = (o, ks) => {\n  if (!o || typeof o !== \"object\") return o;\n  const out = {};\n  for (const k of ks) if (k in o) out[k] = o[k];\n  return out;\n};\n\nconst shortVal = v => {\n  if (v == null) return v;\n  if (typeof v === \"string\") return v.length > 400 ? v.slice(0, 400) + \"…\" : v;\n  if (Array.isArray(v)) return v.slice(0, 10).map(shortVal);\n  if (typeof v === \"object\") {\n    const o = {};\n    for (const k of Object.keys(v).slice(0, 20)) o[k] = shortVal(v[k]);\n    return o;\n  }\n  return v;\n};\n\nconst toStr = v => {\n  try { return JSON.stringify(v) ?? \"null\"; } catch { return \"\\\"[unserializable]\\\"\"; }\n};\nconst clip = (v, len = PREVIEW_CLIP) => toStr(v).slice(0, len);\n\nconst extract = c => {\n  if (!c) return null;\n  const main = c.main || c.data?.main;\n  if (main) {\n    const n = firstDeep(main);\n    return n?.json ?? n ?? null; // [[[{ json }]]]\n  }\n  const tool = c.ai_tool;\n  if (tool) return (first(tool)?.json ?? first(tool)) ?? null;\n  const llm = c.ai_languageModel;\n  if (llm) return (first(llm)?.json ?? first(llm)) ?? null;\n  const mem = c.ai_memory;\n  if (mem) return (first(mem)?.json ?? first(mem)) ?? null;\n  return c.json || null;\n};\n\nconst shapeIO = x => {\n  if (!x) return x;\n  if (x.binary && typeof x.binary === \"object\") {\n    x = { ...x, binary: Object.keys(x.binary) }; // collapse binary keys\n  }\n  if (x.headers || x.body || x.params || x.query || x.webhookUrl) {\n    return {\n      body: x.body || null,\n      query: x.query || null,\n      params: x.params || null,\n      headers: x.headers ? pick(x.headers, [\"host\", \"content-type\", \"accept\", \"user-agent\", \"cf-ipcountry\", \"x-forwarded-for\"]) : null,\n      webhookUrl: x.webhookUrl || null,\n      executionMode: x.executionMode || null\n    };\n  }\n  if (x.stocks || x.output_instructions) {\n    return { stocks: tryParse(x.stocks) ?? x.stocks, note: x.output_instructions || null };\n  }\n  return x;\n};\n\nconst parseErrResponse = msgs => {\n  if (!Array.isArray(msgs) || !msgs[0]) return undefined;\n  const s = String(msgs[0]);\n  const m = s.match(/-\\s+\"(.+)\"$/);\n  if (!m) return s.slice(0, 300);\n  const raw = m[1].replace(/\\\\\"/g, '\"');\n  const parsed = tryParse(raw);\n  return typeof parsed === \"string\" ? parsed.slice(0, 300) : parsed;\n};\n\n// map workflow nodes by name to fetch unrendered parameters + type\nconst wfNodesByName = {};\nfor (const n of ($json.workflowData?.nodes || [])) {\n  if (n?.name) wfNodesByName[n.name] = n;\n}\n\n// 1) Collect rows with raw input/output + error if available\nconst rawRows = Object.entries(runs).flatMap(([node, arr]) =>\n  arr.map(r => {\n    const nodeId = r.error?.node?.id;\n    const stk = (nodeId && stack.byId[nodeId]) || stack.byName[node] || null;\n\n    const inputRaw =\n      extract(r.inputOverride || {}) ||\n      extract(stk?.data || {}) ||\n      null;\n\n    const outputRaw = extract(r.data || {}) || null;\n\n    const err = r.error\n      ? shortVal({\n          name: r.error.name,\n          httpCode: r.error.httpCode,\n          message: r.error.message,\n          description: r.error.description,\n          request: r.error.context?.request ? pick(r.error.context.request, [\"method\", \"uri\", \"body\"]) : undefined,\n          response: parseErrResponse(r.error.messages)\n        })\n      : null;\n\n    return {\n      node,\n      index: r.executionIndex ?? null,\n      status: r.executionStatus,\n      ms: r.executionTime ?? null,\n      from: r.source && r.source[0] ? r.source[0].previousNode : null,\n      rawInput: inputRaw,\n      rawOutput: outputRaw,\n      errorRaw: err,\n    };\n  })\n).sort((a, b) => (a.index ?? 0) - (b.index ?? 0));\n\n// 2) Backfill input from previous node's output if missing\nconst prevMap = {};\nfor (const row of rawRows) {\n  if (!prevMap[row.node]) prevMap[row.node] = [];\n  prevMap[row.node].push(row);\n}\nfor (const row of rawRows) {\n  if (row.rawInput == null && row.from) {\n    const prevList = prevMap[row.from] || [];\n    let prev = null;\n    for (let i = prevList.length - 1; i >= 0; i--) {\n      const cand = prevList[i];\n      if ((cand.index ?? -1) < (row.index ?? 1e9)) { prev = cand; break; }\n    }\n    if (prev && prev.rawOutput != null) row.rawInput = prev.rawOutput;\n  }\n}\n\n// 3) Finalize execution history with full parameters\nconst executionHistory = rawRows.map(r => {\n  const input_preview = shortVal(shapeIO(tryParse(r.rawInput)));\n  const output_preview = shortVal(shapeIO(tryParse(r.rawOutput)));\n  const nodeMeta = wfNodesByName[r.node] || null;\n\n  return {\n    node: r.node,\n    type: nodeMeta?.type ?? null,\n    index: r.index,\n    status: r.status,\n    ms: r.ms,\n    from: r.from,\n    parameters: shortVal(nodeMeta?.parameters ?? null),\n    input_preview: clip(input_preview),\n    output_preview: clip(output_preview),\n    error: clip(r.errorRaw),\n  };\n});\n\nreturn { executionHistory };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f6aa7b0c-780a-4919-acb1-7cab60f8d928",
+      "name": "Prepare Execution History (Node IO)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        192,
+        448
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Public API returns `data` as a JSON STRING when includeData=true; the legacy\n// native n8n node returned it pre-parsed. Normalize so downstream code is\n// agnostic to the source.\nconst __raw = $json.data;\nconst __parsed = typeof __raw === \"string\"\n  ? (() => { try { return JSON.parse(__raw); } catch { return {}; } })()\n  : (__raw || {});\n\nconst exec = __parsed.resultData || {};\nconst runs = exec.runData || {};\nconst stack = (__parsed.executionData?.nodeExecutionStack || []).reduce((m, s) => {\n  if (s?.node?.id) m.byId[s.node.id] = s;\n  if (s?.node?.name) m.byName[s.node.name] = s;\n  return m;\n}, { byId: {}, byName: {} });\n\n// ============ config ============\n// This node backs the single-node \"Get Node Input And Output\" tool, so return\n// the FULL input/output rather than a clipped preview. Limits kept very high\n// (not Infinity) purely as a runaway guard.\nconst PREVIEW_CLIP = 5000000; // whole-JSON slice guard\nconst STRING_CLIP = 2000000;  // per-string guard\nconst ARRAY_CLIP = 100000;    // per-array item guard\nconst OBJECT_KEY_CLIP = 100000; // per-object key guard\n\nconst first = a => (Array.isArray(a) && a[0] ? a[0] : null);\nconst firstDeep = a => (Array.isArray(a) && a[0] && Array.isArray(a[0]) && a[0][0] ? a[0][0] : null);\n\nconst tryParse = v => {\n  if (typeof v !== \"string\") return v;\n  try { return JSON.parse(v); } catch { return v; }\n};\n\nconst pick = (o, ks) => {\n  if (!o || typeof o !== \"object\") return o;\n  const out = {};\n  for (const k of ks) if (k in o) out[k] = o[k];\n  return out;\n};\n\nconst shortVal = v => {\n  if (v == null) return v;\n  if (typeof v === \"string\") return v.length > STRING_CLIP ? v.slice(0, STRING_CLIP) + \"…\" : v;\n  if (Array.isArray(v)) return v.slice(0, ARRAY_CLIP).map(shortVal);\n  if (typeof v === \"object\") {\n    const o = {};\n    for (const k of Object.keys(v).slice(0, OBJECT_KEY_CLIP)) o[k] = shortVal(v[k]);\n    return o;\n  }\n  return v;\n};\n\nconst toStr = v => {\n  try { return JSON.stringify(v) ?? \"null\"; } catch { return \"\\\"[unserializable]\\\"\"; }\n};\nconst clip = (v, len = PREVIEW_CLIP) => toStr(v).slice(0, len);\n\nconst extract = c => {\n  if (!c) return null;\n  const main = c.main || c.data?.main;\n  if (main) {\n    const n = firstDeep(main);\n    return n?.json ?? n ?? null; // [[[{ json }]]]\n  }\n  const tool = c.ai_tool;\n  if (tool) return (first(tool)?.json ?? first(tool)) ?? null;\n  const llm = c.ai_languageModel;\n  if (llm) return (first(llm)?.json ?? first(llm)) ?? null;\n  const mem = c.ai_memory;\n  if (mem) return (first(mem)?.json ?? first(mem)) ?? null;\n  return c.json || null;\n};\n\nconst shapeIO = x => {\n  if (!x) return x;\n  if (x.binary && typeof x.binary === \"object\") {\n    x = { ...x, binary: Object.keys(x.binary) }; // collapse binary keys\n  }\n  if (x.headers || x.body || x.params || x.query || x.webhookUrl) {\n    return {\n      body: x.body || null,\n      query: x.query || null,\n      params: x.params || null,\n      headers: x.headers ? pick(x.headers, [\"host\", \"content-type\", \"accept\", \"user-agent\", \"cf-ipcountry\", \"x-forwarded-for\"]) : null,\n      webhookUrl: x.webhookUrl || null,\n      executionMode: x.executionMode || null\n    };\n  }\n  if (x.stocks || x.output_instructions) {\n    return { stocks: tryParse(x.stocks) ?? x.stocks, note: x.output_instructions || null };\n  }\n  return x;\n};\n\nconst parseErrResponse = msgs => {\n  if (!Array.isArray(msgs) || !msgs[0]) return undefined;\n  const s = String(msgs[0]);\n  const m = s.match(/-\\s+\"(.+)\"$/);\n  if (!m) return s.slice(0, 300);\n  const raw = m[1].replace(/\\\\\"/g, '\"');\n  const parsed = tryParse(raw);\n  return typeof parsed === \"string\" ? parsed.slice(0, 300) : parsed;\n};\n\n// map workflow nodes by name to fetch unrendered parameters + type\nconst wfNodesByName = {};\nfor (const n of ($json.workflowData?.nodes || [])) {\n  if (n?.name) wfNodesByName[n.name] = n;\n}\n\n// 1) Collect rows with raw input/output + error if available\nconst rawRows = Object.entries(runs).flatMap(([node, arr]) =>\n  arr.map(r => {\n    const nodeId = r.error?.node?.id;\n    const stk = (nodeId && stack.byId[nodeId]) || stack.byName[node] || null;\n\n    const inputRaw =\n      extract(r.inputOverride || {}) ||\n      extract(stk?.data || {}) ||\n      null;\n\n    const outputRaw = extract(r.data || {}) || null;\n\n    const err = r.error\n      ? shortVal({\n          name: r.error.name,\n          httpCode: r.error.httpCode,\n          message: r.error.message,\n          description: r.error.description,\n          request: r.error.context?.request ? pick(r.error.context.request, [\"method\", \"uri\", \"body\"]) : undefined,\n          response: parseErrResponse(r.error.messages)\n        })\n      : null;\n\n    return {\n      node,\n      index: r.executionIndex ?? null,\n      status: r.executionStatus,\n      ms: r.executionTime ?? null,\n      from: r.source && r.source[0] ? r.source[0].previousNode : null,\n      rawInput: inputRaw,\n      rawOutput: outputRaw,\n      errorRaw: err,\n    };\n  })\n).sort((a, b) => (a.index ?? 0) - (b.index ?? 0));\n\n// 2) Backfill input from previous node's output if missing\nconst prevMap = {};\nfor (const row of rawRows) {\n  if (!prevMap[row.node]) prevMap[row.node] = [];\n  prevMap[row.node].push(row);\n}\nfor (const row of rawRows) {\n  if (row.rawInput == null && row.from) {\n    const prevList = prevMap[row.from] || [];\n    let prev = null;\n    for (let i = prevList.length - 1; i >= 0; i--) {\n      const cand = prevList[i];\n      if ((cand.index ?? -1) < (row.index ?? 1e9)) { prev = cand; break; }\n    }\n    if (prev && prev.rawOutput != null) row.rawInput = prev.rawOutput;\n  }\n}\n\n// 3) Finalize execution history including the full workflow_node object\nconst executionHistory = rawRows.map(r => {\n  const input_preview = shortVal(shapeIO(tryParse(r.rawInput)));\n  const output_preview = shortVal(shapeIO(tryParse(r.rawOutput)));\n  const workflow_node = wfNodesByName[r.node] || null;\n\n  return {\n    node: r.node,\n    type: workflow_node?.type ?? null,\n    index: r.index,\n    status: r.status,\n    ms: r.ms,\n    from: r.from,\n    workflow_node,\n    input_preview: clip(input_preview),\n    output_preview: clip(output_preview),\n    error: clip(r.errorRaw),\n  };\n});\n\nreturn { executionHistory };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9b328ca3-5278-425b-a25c-f897271f05ea",
+      "name": "Shape Execution Result",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        416,
+        224
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5abbdfc9-4142-4297-8ac8-b1173ae73716",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.id }}"
+            },
+            {
+              "id": "312d3706-06f4-4e1d-99dc-446ee3a378bd",
+              "name": "finished",
+              "type": "boolean",
+              "value": "={{ $('Get an execution').item.json.finished }}"
+            },
+            {
+              "id": "cd4b78b5-6eeb-462f-bbdf-219617af00c2",
+              "name": "mode",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.mode }}"
+            },
+            {
+              "id": "9fdb2196-903e-4434-b10a-3f5aa9df446e",
+              "name": "status",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.status }}"
+            },
+            {
+              "id": "a4868adb-5303-451c-9996-73f194c34925",
+              "name": "createdAt",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.createdAt }}"
+            },
+            {
+              "id": "00a58b32-0abd-4f64-9ea8-b7f19b591dd7",
+              "name": "startedAt",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.startedAt }}"
+            },
+            {
+              "id": "ec2c2309-684c-4da5-8e5f-83fa5d3e1c4d",
+              "name": "stoppedAt",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.stoppedAt }}"
+            },
+            {
+              "id": "49d57b30-fa2e-4d56-9250-faa07ad88496",
+              "name": "deletedAt",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.deletedAt }}"
+            },
+            {
+              "id": "d8d23cae-7f5d-4263-b8d8-7e64930d031c",
+              "name": "workflowId",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.workflowId }}"
+            },
+            {
+              "id": "a8d7ab04-b7fc-49ad-bf1d-61be0e9411db",
+              "name": "waitTill",
+              "type": "string",
+              "value": "={{ $('Get an execution').item.json.waitTill }}"
+            },
+            {
+              "id": "59fd0c2f-2dae-4b1d-b244-a8615b2b69fd",
+              "name": "executionHistory",
+              "type": "array",
+              "value": "={{ $json.executionHistory }}"
+            },
+            {
+              "id": "2e326f6a-93a0-4881-a0f1-2f463dd275e4",
+              "name": "lastNodesBeforeError",
+              "type": "array",
+              "value": "={{ $json.lastNodesBeforeError }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7fe2fdcc-908d-431a-9d0c-df25959cfde0",
+      "name": "Shape Workflow List Item",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        416,
+        -1120
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "faccf89d-fd28-4516-b914-9dc423333dd5",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.name }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e1ceea7c-2502-42e5-b808-c01044b0ef08",
+      "name": "Shape Created Workflow",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        416,
+        -224
+      ],
+      "parameters": {
+        "include": "except",
+        "options": {},
+        "assignments": {
+          "assignments": []
+        },
+        "excludeFields": "nodes, connections",
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "01c815d5-edfb-47f7-bc50-859cd6729482",
+      "name": "Shape Workflow Detail",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        192,
+        -672
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c03bca13-c479-44b2-b691-1135fc6b3e5e",
+              "name": "id",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "a781e1d9-0215-47f6-9596-f154f7787036",
+              "name": "name",
+              "type": "string",
+              "value": "={{ $json.name }}"
+            },
+            {
+              "id": "f93881c6-9e2c-4cc4-9570-5bdc5b0da2fa",
+              "name": "updatedAt",
+              "type": "string",
+              "value": "={{ $json.updatedAt }}"
+            },
+            {
+              "id": "24f6709d-5b71-4b6a-864a-1a1a468ccaa5",
+              "name": "active",
+              "type": "boolean",
+              "value": "={{ $json.active }}"
+            },
+            {
+              "id": "ac81368a-ecaa-4d86-8428-208c990d61f9",
+              "name": "nodes",
+              "type": "array",
+              "value": "={{ \n  $json.nodes\n    .filter(i => i.type !== 'n8n-nodes-base.stickyNote')\n    .map(i => ({\n      id: i.id,\n      name: i.name,\n      type: i.type\n    }))\n}}"
+            },
+            {
+              "id": "b2e1f3a4-1234-5678-abcd-ef1234567890",
+              "name": "edges",
+              "type": "array",
+              "value": "={{ \n  Object.entries($json.connections || {}).flatMap(([from, outputs]) =>\n    (outputs.main || []).flatMap((targets, outputIdx) =>\n      (targets || []).map(t => ({\n        from,\n        to: t.node,\n        ...((outputs.main || []).length > 1 ? { output: outputIdx } : {})\n      }))\n    )\n  )\n}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9b832b55-d55d-45d4-9b1e-f5c962c6d733",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1408,
+        352
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 936,
+        "height": 420,
+        "content": "### 1. Set up your instance (the only edit needed)\nOpen **Config** and set:\n- `host` - your n8n base URL, no trailing slash (e.g. `https://n8n.acme.com`)\n- `api_key` - Settings > n8n API > Create an API key\n\nEvery HTTP node reads `$('Config').first().json.host` / `.api_key`, so nothing else changes.\n`Parse Payload` JSON-parses the tool arguments (MCP delivers object args as strings)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fdd3c45e-116c-4fe3-ac37-04b5bba49145",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3008,
+        -384
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1008,
+        "height": 1808,
+        "content": "### 2. The MCP surface\nOne tool node per action, all pointing back at this same workflow (`$workflow.id`) with a different `operation`.\n\n**Activate the workflow**, then copy the URL from **n8n MCP Server** into your client (path: `n8n-mcp`). Change the path if another MCP server on this instance already uses it.\n\nTo remove an action from the surface, delete its tool node - the branch on the right just stops being reachable.\n\n**Careful - this is full write access.** These tools can overwrite, deactivate and delete any workflow on the instance set in **Config**, and anyone you hand this to gets that power. Delete the tool nodes you don't want them to have (`Delete Workflow`, `Update Workflow`, `Update Node In Workflow`, `Remove Node From Workflow`, `Run Workflow`) before sharing it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4995e25-0baf-4c40-8f25-e57fc31e8491",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -464,
+        176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 248,
+        "height": 800,
+        "content": "### 3. Router\n`operation` picks the branch. Unknown operations hit **Stop and Error** so a typo fails loudly instead of returning nothing."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "versionId": "a455c92a-c6c8-4218-bcc4-b7bf49d52630",
+  "nodeGroups": [],
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Parse Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Operation": {
+      "main": [
+        [
+          {
+            "node": "GET Workflows List",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Search Queries",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Workflow By Id",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Workflow For Node Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Sanitize Create Payload",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch Executions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get an execution",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Execution For Node IO",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Workflow For Node Add",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "PUT Update Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "DELETE Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST Activate Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "POST Deactivate Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Workflow For Node Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Workflow For Node Removal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "GET Latest Execution",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Execution": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Payload": {
+      "main": [
+        [
+          {
+            "node": "Execution Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execution Data": {
+      "main": [
+        [
+          {
+            "node": "Operation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DELETE Workflow": {
+      "main": [
+        [
+          {
+            "node": "Return Delete Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get an execution": {
+      "main": [
+        [
+          {
+            "node": "Prepare Execution History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Execution": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activate Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Node Updates": {
+      "main": [
+        [
+          {
+            "node": "PUT Save Node Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Workflow By Id": {
+      "main": [
+        [
+          {
+            "node": "Shape Workflow Detail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Workflows List": {
+      "main": [
+        [
+          {
+            "node": "Split Workflows List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List All Workflows": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deactivate Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PUT Save Added Node": {
+      "main": [
+        [
+          {
+            "node": "Return Add Node Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PUT Update Workflow": {
+      "main": [
+        [
+          {
+            "node": "Return Update Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Search Queries": {
+      "main": [
+        [
+          {
+            "node": "Search Workflow By Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Latest Execution": {
+      "main": [
+        [
+          {
+            "node": "Pick Execution To Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Create Workflow": {
+      "main": [
+        [
+          {
+            "node": "Shape Created Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Retry Execution": {
+      "main": [
+        [
+          {
+            "node": "Return Run Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PUT Save Node Update": {
+      "main": [
+        [
+          {
+            "node": "Return Node Update Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Workflows List": {
+      "main": [
+        [
+          {
+            "node": "Shape Workflow List Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PUT Save Node Removal": {
+      "main": [
+        [
+          {
+            "node": "Return Node Removal Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Activate Workflow": {
+      "main": [
+        [
+          {
+            "node": "Return Activate Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Node To Workflow": {
+      "main": [
+        [
+          {
+            "node": "PUT Save Added Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Execution To Retry": {
+      "main": [
+        [
+          {
+            "node": "POST Retry Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sanitize Create Payload": {
+      "main": [
+        [
+          {
+            "node": "POST Create Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Workflow By Name": {
+      "main": [
+        [
+          {
+            "node": "Rank & Shape Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Node In Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "POST Deactivate Workflow": {
+      "main": [
+        [
+          {
+            "node": "Return Deactivate Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Execution For Node IO": {
+      "main": [
+        [
+          {
+            "node": "Prepare Execution History (Node IO)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Workflow For Node Add": {
+      "main": [
+        [
+          {
+            "node": "Append Node To Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Node Input And Output": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Execution History": {
+      "main": [
+        [
+          {
+            "node": "Shape Execution Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Node From Workflow": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Node To Current Canvas": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Workflow For Node Lookup": {
+      "main": [
+        [
+          {
+            "node": "Find Node",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Workflow For Node Update": {
+      "main": [
+        [
+          {
+            "node": "Apply Node Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GET Workflow For Node Removal": {
+      "main": [
+        [
+          {
+            "node": "Remove Node And Clean Connections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Single Node In Current Canvas": {
+      "ai_tool": [
+        [
+          {
+            "node": "n8n MCP Server",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Node And Clean Connections": {
+      "main": [
+        [
+          {
+            "node": "PUT Save Node Removal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Execution History (Node IO)": {
+      "main": [
+        [
+          {
+            "node": "Find Node Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# pricing : 18
+# pricing : 30
 
 |id|file|
 |----|----|
@@ -20,3 +20,15 @@
 |15887|[15887_Detect_pricing_anomalies_in_Google_Sheets_with_Groq_AI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15887_Detect_pricing_anomalies_in_Google_Sheets_with_Groq_AI_and_Slack_alerts.json)|
 |15893|[15893_Monitor_competitor_pricing_with_Firecrawl__Anthropic__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15893_Monitor_competitor_pricing_with_Firecrawl__Anthropic__Airtable_and_Slack.json)|
 |16737|[16737_Generate_vendor_negotiation_strategies_from_pricing_data_with_GPT-4_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16737_Generate_vendor_negotiation_strategies_from_pricing_data_with_GPT-4_and_SendGrid.json)|
+|17004|[17004_Calculate_Shopify_variant_prices_from_Google_Sheets_with_Slack_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17004_Calculate_Shopify_variant_prices_from_Google_Sheets_with_Slack_approvals.json)|
+|17155|[17155_Monitor_competitor_pricing_page_changes_with_Snapshot_Site_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17155_Monitor_competitor_pricing_page_changes_with_Snapshot_Site_and_Slack.json)|
+|17227|[17227_Track_competitor_pricing_changes_with_Google_Sheets__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17227_Track_competitor_pricing_changes_with_Google_Sheets__OpenAI__and_Gmail.json)|
+|17233|[17233_Monitor_competitor_pricing_page_changes_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17233_Monitor_competitor_pricing_page_changes_with_OpenAI__Google_Sheets_and_Slack.json)|
+|17262|[17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json)|
+|17398|[17398_Track_competitor_pricing_gaps_with_Google_Sheets__ScrapeUnblocker_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17398_Track_competitor_pricing_gaps_with_Google_Sheets__ScrapeUnblocker_and_Gmail.json)|
+|17509|[17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json)|
+|18502|[18502_Track_competitor_Shopify_launches_and_pricing_with_Bright_Data_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18502_Track_competitor_Shopify_launches_and_pricing_with_Bright_Data_and_Gmail.json)|
+|18520|[18520_Analyze_competitor_pricing_and_feature_changes_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18520_Analyze_competitor_pricing_and_feature_changes_with_Google_Gemini.json)|
+|19119|[19119_Sync_NPD_product_pricing_from_Google_Sheets_to_GoHighLevel_custom_objects.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19119_Sync_NPD_product_pricing_from_Google_Sheets_to_GoHighLevel_custom_objects.json)|
+|19242|[19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json)|
+|19496|[19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json)|

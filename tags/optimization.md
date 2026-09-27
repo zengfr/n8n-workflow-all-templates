@@ -1,4 +1,4 @@
-# optimization : 36
+# optimization : 39
 
 |id|file|
 |----|----|
@@ -38,3 +38,6 @@
 |16230|[16230_Analyze_Google_Calendar_patterns_with_OpenAI_and_send_Gmail_weekly_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16230_Analyze_Google_Calendar_patterns_with_OpenAI_and_send_Gmail_weekly_digest.json)|
 |16342|[16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json)|
 |16343|[16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json)|
+|17087|[17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json)|
+|17195|[17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json)|
+|18861|[18861_Generate_Shopify_product_listings_from_images_with_Claude_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18861_Generate_Shopify_product_listings_from_images_with_Claude_and_SerpAPI.json)|

@@ -1,4 +1,4 @@
-# lookup : 23
+# lookup : 26
 
 |id|file|
 |----|----|
@@ -25,3 +25,6 @@
 |10840|[10840_Sales_CRM_Chatbot_with_GPT-4o-mini__Google_Sheets_Lookup___Memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10840_Sales_CRM_Chatbot_with_GPT-4o-mini__Google_Sheets_Lookup___Memory.json)|
 |11375|[11375_Discover_GitHub_Developers_with_Hunter.io_Email_Lookup___Google_Sheets_CRM_Sync.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11375_Discover_GitHub_Developers_with_Hunter.io_Email_Lookup___Google_Sheets_CRM_Sync.json)|
 |13975|[13975_Reverse_lookup_emails_with_ScraperCity_and_sync_contacts_to_HubSpot_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13975_Reverse_lookup_emails_with_ScraperCity_and_sync_contacts_to_HubSpot_CRM.json)|
+|16995|[16995_Look_up_Brazilian_company_data_by_CNPJ_with_forms_and_Minha_Receita_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16995_Look_up_Brazilian_company_data_by_CNPJ_with_forms_and_Minha_Receita_API.json)|
+|17400|[17400_Screen_SMS_campaign_numbers_for_high-risk_lines_with_Twilio__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17400_Screen_SMS_campaign_numbers_for_high-risk_lines_with_Twilio__Sheets__and_Slack.json)|
+|18583|[18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json)|

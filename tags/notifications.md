@@ -1,4 +1,4 @@
-# notifications : 191
+# notifications : 197
 
 |id|file|
 |----|----|
@@ -193,3 +193,9 @@
 |16272|[16272_Sync_new_Shopify_customers_to_Odoo_and_notify_via_Gmail__SMS__WhatsApp_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16272_Sync_new_Shopify_customers_to_Odoo_and_notify_via_Gmail__SMS__WhatsApp_and_Telegram.json)|
 |16520|[16520_Track_expenses_from_phone_notifications_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16520_Track_expenses_from_phone_notifications_with_Google_Gemini_and_Google_Sheets.json)|
 |16650|[16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json)|
+|16838|[16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json)|
+|17339|[17339_Capture_form_leads_in_HubSpot_and_send_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17339_Capture_form_leads_in_HubSpot_and_send_Slack_notifications.json)|
+|18167|[18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json)|
+|18324|[18324_Match_teacher_substitutes_and_send_notifications_with_GPT-4o-mini__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18324_Match_teacher_substitutes_and_send_notifications_with_GPT-4o-mini__Google_Sheets__Gmail_and_Telegram.json)|
+|18947|[18947_Log_UK_Apify_grant_alerts_to_Notion_and_send_closing-soon_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18947_Log_UK_Apify_grant_alerts_to_Notion_and_send_closing-soon_Slack_notifications.json)|
+|19825|[19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json)|

@@ -1,0 +1,1649 @@
+{
+  "id": "7DGEF6T2aLX6n7I5",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Qualify rental leads and send tenant emails with Google Gemini and Gmail",
+    "wechat": "youandme10086",
+    "id": 18489,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Rental Lead Qualifier and Tenant Pre-Screener",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "38d7a747-4f38-4648-948b-b4b35a4c7436",
+      "name": "Webhook: Rental Inquiry Received",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -672,
+        192
+      ],
+      "webhookId": "d3a577f1-7116-4457-a7bc-a41569fec5d5",
+      "parameters": {
+        "path": "d3a577f1-7116-4457-a7bc-a41569fec5d5",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "83192982-a17b-479b-8fd6-c3814062a2e8",
+      "name": "WhatsApp: Rental Inquiry Received",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "disabled": true,
+      "position": [
+        -672,
+        -112
+      ],
+      "webhookId": "b3c59ff2-9d49-428e-8579-6b26b7544f1d",
+      "parameters": {
+        "options": {},
+        "updates": [
+          "messages"
+        ]
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0a13103-0be2-471d-a044-5f17c14c24b0",
+      "name": "Normalize Applicant Details",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -384,
+        48
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst body = raw.body || raw;\n\n// Generate unique applicant ID\nconst applicantId = `app-${Date.now()}`;\n\n// Handle WhatsApp trigger format if needed\n// WhatsApp sends messages in raw.entry[0].changes[0].value.messages[0]\nconst isWhatsApp = !!(raw.entry && raw.entry[0]?.changes);\nlet whatsAppMessage = null;\nlet whatsAppPhone = null;\n\nif (isWhatsApp) {\n  const msg = raw.entry?.[0]?.changes?.[0]?.value?.messages?.[0];\n  whatsAppPhone = msg?.from || null;\n  whatsAppMessage = msg?.text?.body || null;\n}\n\nreturn [{\n  json: {\n    // Core applicant fields\n    applicantId,\n    propertyId:       body.propertyId      || body.property_id   || null,\n    applicantName:    body.applicantName    || body.name          || null,\n    applicantEmail:   body.applicantEmail   || body.email         || null,\n    applicantPhone:   body.applicantPhone   || body.phone\n                      || whatsAppPhone      || null,\n    monthlyIncome:    parseFloat(body.monthlyIncome || body.income || 0) || null,\n    moveInDate:       body.moveInDate       || body.move_in       || null,\n    pets:             body.pets                                   || null,\n    occupants:        parseInt(body.occupants || '1')             || null,\n    message:          body.message          || body.text\n                      || whatsAppMessage    || null,\n\n    // Workflow config\n    CALENDLY_USERNAME:  'YOUR_CALENDLY_USERNAME',\n    CALENDLY_EVENT_SLUG: 'property-viewing',\n    MANAGER_EMAIL:      'user@example.com',\n    MANAGER_NAME:       'Your Name',\n\n    // Metadata\n    timestamp:    new Date().toISOString(),\n    source:       isWhatsApp ? 'WhatsApp' : 'Webhook'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "65a8a075-a53c-4b91-8444-e8f54ce0fc28",
+      "name": "Property Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        240,
+        48
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "3c582113-ca80-4573-aca2-34ed7a10f23c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.propertyFound }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "8a954115-f510-46e2-8a3c-72737fa47840",
+      "name": "Gmail: Property Not Found",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        480,
+        144
+      ],
+      "webhookId": "7eb40068-5b55-4eae-b943-c4ee52afcf24",
+      "parameters": {
+        "sendTo": "={{ $('Normalize Applicant Details').first().json.applicantEmail }}",
+        "message": "=<p>Dear {{ $('Normalize Applicant Details').first().json.applicantName }},</p> <p>Thank you for your enquiry. Unfortunately we were unable to locate the  property you referenced. Please contact us directly and we will be happy  to assist you.</p>",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "Re: Your Rental Inquiry"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "69fd904a-8291-427b-a3f1-eeb48629d3d1",
+      "name": "Prepare Gemini Input",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        -48
+      ],
+      "parameters": {
+        "jsCode": "const applicant = $('Normalize Applicant Details').first().json;\n\n// Airtable returns records array — extract first match\nconst raw = $input.first().json;\nconst property = raw.fields || raw;\n\n// Calculate income ratio for prompt context\nconst rent = parseFloat(property['Monthly Rent'] || 0);\nconst minIncome = parseFloat(property['Min Income Required'] || rent * 3);\nconst incomeRatio = rent > 0 ? (minIncome / rent).toFixed(1) : '3.0';\n\nreturn [{\n  json: {\n    // Applicant fields\n    applicantId:    applicant.applicantId,\n    applicantName:  applicant.applicantName,\n    applicantEmail: applicant.applicantEmail,\n    applicantPhone: applicant.applicantPhone,\n    monthlyIncome:  applicant.monthlyIncome,\n    moveInDate:     applicant.moveInDate,\n    pets:           applicant.pets,\n    occupants:      applicant.occupants,\n    message:        applicant.message,\n    timestamp:      applicant.timestamp,\n    source:         applicant.source,\n\n    // Property fields from Airtable\n    propertyId:       property['Property ID']             || applicant.propertyId,\n    propertyName:     property['Property Name']           || 'the property',\n    address:          property['Address']                 || null,\n    monthlyRent:      rent,\n    minIncomeRequired: minIncome,\n    incomeRatio,\n    petPolicy:        property['Pet Policy']              || 'Not specified',\n    maxOccupants:     property['Max Occupants']           || null,\n    availableFrom:    property['Available From']          || null,\n    propertyType:     property['Property Type']           || null,\n    bedrooms:         property['Bedrooms']                || null,\n    bathrooms:        property['Bathrooms']               || null,\n    applicationUrl:   property['Application URL']         || null,\n    applicationFee:   property['Application Fee']         || null,\n    managerEmail:     property['Property Manager Email']  || applicant.MANAGER_EMAIL,\n    description:      property['Description']             || null,\n\n    // Config\n    CALENDLY_USERNAME:  applicant.CALENDLY_USERNAME,\n    CALENDLY_EVENT_SLUG: applicant.CALENDLY_EVENT_SLUG,\n    MANAGER_EMAIL:      applicant.MANAGER_EMAIL,\n    MANAGER_NAME:       applicant.MANAGER_NAME\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0e52c162-6894-48c3-9735-8e52127b15d0",
+      "name": "Qualify Applicant & Draft Response",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "position": [
+        720,
+        -48
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "options": {
+          "systemMessage": "You are a professional property management assistant. A rental applicant has submitted an inquiry for a property. Qualify them against the property requirements and draft an appropriate response.\n\nQUALIFICATION RULES — apply strictly:\n\nQUALIFIED: ALL of these must be true:\n- Monthly income is at least 3x the monthly rent (use the income figure provided or extracted from message)\n- Move-in date is within 30 days of property availability\n- Pets comply with the property pet policy\n- Number of occupants is within the maximum allowed\n- No red flags in the message (criminal history mentions, previous evictions, extreme urgency suggesting desperation)\n\nBORDERLINE: ONE of these is true, but others are OK:\n- Income is between 2.5x and 3x rent (close but uncertain)\n- Move-in date is slightly outside availability window\n- Pet policy unclear or partially met\n- Missing key information needed to fully qualify\n\nUNQUALIFIED: ANY of these are true:\n- Income is below 2.5x the monthly rent\n- Move-in date incompatible with availability\n- Pets violate property pet policy (e.g. no pets allowed)\n- Number of occupants exceeds maximum\n- Clear red flags in message\n\nRESPONSE DRAFTING:\n\nFor QUALIFIED applicants:\n- Warm, welcoming tone\n- Congratulate them on meeting requirements\n- Invite them to complete the application\n- Mention the application fee if provided\n- Keep it professional and encouraging\n- Do NOT include the application URL in the email body —\n  it will be added automatically\n\nFor BORDERLINE applicants:\n- Professional, non-committal tone\n- Ask specifically for the missing information\n- Do not reject or accept — keep options open\n- Be specific about what clarification is needed\n\nFor UNQUALIFIED applicants:\n- Empathetic, respectful tone\n- Do not be harsh or judgmental\n- Thank them for their interest\n- Briefly explain they do not meet the requirements\n- Wish them well in their search\n\nFormat email_body as two parts separated by \\n\\n:\n  Part 1: Greeting line only e.g., \"Dear {name},\"\n  Part 2: Message body as one paragraph\n\nOutput ONLY valid JSON, no preamble, no markdown:\n{\n  \"extractedIncome\": \"number extracted from message or provided, null if not found\",\n  \"extractedMoveIn\": \"date extracted from message or provided, null if not found\",\n  \"extractedPets\": \"pet description extracted, null if none mentioned\",\n  \"extractedOccupants\": \"number extracted, null if not mentioned\",\n  \"qualificationScore\": \"Qualified | Borderline | Unqualified\",\n  \"scoreReasoning\": \"one sentence explanation\",\n  \"missingInfo\": \"what information is needed for Borderline, null otherwise\",\n  \"email_subject\": \"short subject line\",\n  \"email_body\": \"Dear {name},\\n\\nBody here.\"\n}"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=PROPERTY REQUIREMENTS:\nProperty: {{ $json.propertyName }}\nAddress: {{ $json.address }}\nMonthly Rent: ${{ $json.monthlyRent }}\nMinimum Income Required: ${{ $json.minIncomeRequired }} per month ({{ $json.incomeRatio }}x rent)\nPet Policy: {{ $json.petPolicy }}\nMaximum Occupants: {{ $json.maxOccupants }}\nAvailable From: {{ $json.availableFrom }}\nApplication Fee: {{ $json.applicationFee || 'Not specified' }}\n\nAPPLICANT DETAILS:\nName: {{ $json.applicantName }}\nEmail: {{ $json.applicantEmail }}\nMonthly Income (stated): {{ $json.monthlyIncome || 'Not provided' }}\nMove-in Date (stated): {{ $json.moveInDate || 'Not provided' }}\nPets: {{ $json.pets || 'Not mentioned' }}\nOccupants: {{ $json.occupants || 'Not mentioned' }}\nMessage: {{ $json.message }}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "credential-id",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8f6dacc7-b608-43d6-a738-98a80dd74284",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1056,
+        -48
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================\nconst PREPARE_NODE = 'Prepare Gemini Input';\n// ============================================================\n\nconst prepData = $(PREPARE_NODE).first().json;\nconst allItems = $input.all();\n\n// Extract Gemini output\nlet rawText = '';\nfor (const item of allItems) {\n  const text = item.json?.content?.parts?.[0]?.text\n    || item.json?.candidates?.[0]?.content?.parts?.[0]?.text\n    || item.json?.output || '';\n  if (text && text.includes('qualificationScore')) {\n    rawText = text;\n    break;\n  }\n}\n\nconst cleaned = rawText\n  .replace(/```json\\s*/gi, '')\n  .replace(/```\\s*/gi, '')\n  .trim();\n\n// Parse with fallback\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = {\n    extractedIncome:    null,\n    extractedMoveIn:    null,\n    extractedPets:      null,\n    extractedOccupants: null,\n    qualificationScore: 'Borderline',\n    scoreReasoning:     'AI parsing failed — manual review recommended.',\n    missingInfo:        'Unable to automatically qualify — please review manually.',\n    email_subject:      `Re: Your Inquiry for ${prepData.propertyName}`,\n    email_body:         `Dear ${prepData.applicantName},\\n\\nThank you for your interest in ${prepData.propertyName}. We would like to learn a little more about your situation before proceeding. Could you please provide your monthly income, preferred move-in date, and any pets you may have?`\n  };\n}\n\n// HTML formatter\nfunction escapeHtml(text) {\n  if (!text) return '';\n  return String(text)\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\nfunction formatEmailHtml(text) {\n  if (!text) return '';\n  const paragraphs = text\n    .split(/\\n\\s*\\n/)\n    .map(p => p.replace(/\\s+/g, ' ').trim())\n    .filter(Boolean);\n  return paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');\n}\n\n// Build Calendly booking link\nconst calendlyUsername = prepData.CALENDLY_USERNAME || '';\nconst calendlySlug = prepData.CALENDLY_EVENT_SLUG || 'property-viewing';\nconst bookingLink = calendlyUsername && calendlyUsername !== 'YOUR_CALENDLY_USERNAME'\n  ? `https://calendly.com/${calendlyUsername}/${calendlySlug}`\n  : null;\n\n// Build application CTA for Qualified response\nconst applicationHtml = prepData.applicationUrl\n  ? `<p>\n       <a href=\"${escapeHtml(prepData.applicationUrl)}\" \n          style=\"background:#27ae60;color:white;padding:12px 24px;\n          border-radius:6px;text-decoration:none;font-weight:bold;\">\n         Complete Your Application →\n       </a>\n     </p>\n     ${prepData.applicationFee\n       ? `<p style=\"color:#666;font-size:14px;\">Application fee: ${escapeHtml(prepData.applicationFee)}</p>`\n       : ''}\n     ${bookingLink\n       ? `<p><a href=\"${escapeHtml(bookingLink)}\" style=\"color:#3498db;\">📅 Schedule a viewing</a></p>`\n       : ''}`\n  : '';\n\nreturn [{\n  json: {\n    // All prepared data fields carried forward\n    ...prepData,\n\n    // AI extracted fields\n    extractedIncome:    parsed.extractedIncome,\n    extractedMoveIn:    parsed.extractedMoveIn,\n    extractedPets:      parsed.extractedPets,\n    extractedOccupants: parsed.extractedOccupants,\n\n    // Qualification\n    qualificationScore: parsed.qualificationScore,\n    scoreReasoning:     parsed.scoreReasoning,\n    missingInfo:        parsed.missingInfo,\n\n    // Email content\n    email_subject:   parsed.email_subject,\n    email_body:      formatEmailHtml(parsed.email_body),\n    applicationHtml,\n    bookingLink,\n\n    // Metadata\n    applicantId: prepData.applicantId,\n    timestamp:   prepData.timestamp\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d4f29797-40d4-49ac-ac77-c55e3cae703b",
+      "name": "Switch: Response Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1888,
+        -256
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0473bba8-ce4e-4ae9-a752-6c6fa75f3370",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Parse AI Output').first().json.qualificationScore }}",
+                    "rightValue": "Qualified"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "c108b8db-51a5-4e7f-b669-f4980728e0ac",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Parse AI Output').first().json.qualificationScore }}",
+                    "rightValue": "Borderline"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 3,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "689c59f8-7de4-40c2-b8fc-c5ce03a34cdf",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $('Parse AI Output').first().json.qualificationScore }}",
+                    "rightValue": "Unqualified"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "732552b5-5301-42e2-a272-7a8911910ce9",
+      "name": "Has Email?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1472,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8e7cba08-99d1-443c-b4e0-db0e4dad8107",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Parse AI Output').first().json.applicantEmail }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3124f3ed-053f-4fd0-8667-6747bceee532",
+      "name": "Gmail: Send Qualified Response",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2160,
+        -448
+      ],
+      "webhookId": "1c31d7e9-fb0e-4a19-985c-0b937c040b60",
+      "parameters": {
+        "sendTo": "={{ $('Parse AI Output').first().json.applicantEmail }}",
+        "message": "={{ $('Parse AI Output').first().json.email_body }} {{ $('Parse AI Output').first().json.applicationHtml }} <p style=\"color:#666;font-size:12px;margin-top:24px;\">   {{ $('Parse AI Output').first().json.propertyName }} |    {{ $('Parse AI Output').first().json.address }} </p>",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $('Parse AI Output').first().json.email_subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "64942da7-0399-42c8-91d0-228bc1cdea14",
+      "name": "Gmail: Send Borderline Response",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2160,
+        -240
+      ],
+      "webhookId": "75de5b3a-c6ac-49f9-88b8-58b203422d26",
+      "parameters": {
+        "sendTo": "={{ $('Parse AI Output').first().json.applicantEmail }}",
+        "message": "={{ $('Parse AI Output').first().json.email_body }} <p style=\"color:#666;font-size:12px;margin-top:24px;\">   {{ $('Parse AI Output').first().json.propertyName }} |    {{ $('Parse AI Output').first().json.address }} </p>",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $('Parse AI Output').first().json.email_subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f55c66da-2352-4b8c-a6c2-ffa692950270",
+      "name": "Gmail: Send Unqualified Response",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2160,
+        -32
+      ],
+      "webhookId": "688bb486-bcdb-4104-aa5a-80ac6620f40c",
+      "parameters": {
+        "sendTo": "={{ $('Parse AI Output').first().json.applicantEmail }}",
+        "message": "={{ $('Parse AI Output').first().json.email_body }} <p style=\"color:#666;font-size:12px;margin-top:24px;\">   {{ $('Parse AI Output').first().json.propertyName }} |    {{ $('Parse AI Output').first().json.address }} </p>",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $('Parse AI Output').first().json.email_subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8f2c8522-561b-4003-a35f-f17d16126c1e",
+      "name": "Schedule: Daily Digest",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -672,
+        1200
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "06f50ab8-98a7-4d9b-89ee-f06d19d65acf",
+      "name": "Any Applicants Today?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -32,
+        1200
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f36cc5da-4d4f-4a63-802d-fee409d136cc",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "bb81aee9-0a24-4e86-8428-bf2b6366a985",
+      "name": "Build Daily Digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        176,
+        1104
+      ],
+      "parameters": {
+        "jsCode": "const allApplicants = $input.all().map(i => i.json.fields || i.json);\nconst today = new Date().toLocaleDateString('en-US', {\n  weekday: 'long', year: 'numeric', month: 'long', day: 'numeric'\n});\n\nfunction escapeHtml(text) {\n  if (!text) return 'N/A';\n  return String(text)\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\n// Count by score\nconst qualified   = allApplicants.filter(a => a['Qualification Score'] === 'Qualified');\nconst borderline  = allApplicants.filter(a => a['Qualification Score'] === 'Borderline');\nconst unqualified = allApplicants.filter(a => a['Qualification Score'] === 'Unqualified');\n\n// Group by property\nconst byProperty = {};\nfor (const applicant of allApplicants) {\n  const prop = applicant['Property Name'] || 'Unknown Property';\n  if (!byProperty[prop]) byProperty[prop] = [];\n  byProperty[prop].push(applicant);\n}\n\n// Build property sections\nlet propertySections = '';\nfor (const [propName, applicants] of Object.entries(byProperty)) {\n  const propAddress = applicants[0]?.['Address'] || '';\n  const propRent = applicants[0]?.['Monthly Rent'] || '';\n\n  let rows = '';\n  for (const a of applicants) {\n    const score = a['Qualification Score'] || 'Unknown';\n    const emoji = score === 'Qualified' ? '✅'\n      : score === 'Borderline' ? '⚠️' : '❌';\n    const color = score === 'Qualified' ? '#27ae60'\n      : score === 'Borderline' ? '#f39c12' : '#e74c3c';\n\n    rows += `\n      <tr style=\"border-bottom:1px solid #eee;\">\n        <td style=\"padding:10px 8px;\">\n          ${emoji} <strong>${escapeHtml(a['Applicant Name'])}</strong>\n        </td>\n        <td style=\"padding:10px 8px;color:${color};font-weight:bold;\">\n          ${escapeHtml(score)}\n        </td>\n        <td style=\"padding:10px 8px;color:#555;font-size:13px;\">\n          Income: ${a['Monthly Income'] ? '$' + Number(a['Monthly Income']).toLocaleString() : 'Not stated'} |\n          Move-in: ${escapeHtml(a['Move-in Date'])} |\n          Pets: ${escapeHtml(a['Pets'])}\n        </td>\n        <td style=\"padding:10px 8px;color:#666;font-size:12px;max-width:250px;\">\n          ${escapeHtml(a['Score Reasoning'])}\n        </td>\n      </tr>`;\n  }\n\n  propertySections += `\n    <div style=\"margin:24px 0;\">\n      <h3 style=\"color:#1a1a2e;margin:0 0 4px 0;\">\n        🏠 ${escapeHtml(propName)}\n      </h3>\n      <p style=\"color:#888;font-size:13px;margin:0 0 12px 0;\">\n        ${escapeHtml(propAddress)} | \n        ${propRent ? '$' + Number(propRent).toLocaleString() + '/mo' : ''}\n      </p>\n      <table style=\"width:100%;border-collapse:collapse;font-size:14px;\">\n        <thead>\n          <tr style=\"background:#f8f9fa;\">\n            <th style=\"padding:8px;text-align:left;\">Applicant</th>\n            <th style=\"padding:8px;text-align:left;\">Score</th>\n            <th style=\"padding:8px;text-align:left;\">Details</th>\n            <th style=\"padding:8px;text-align:left;\">Reasoning</th>\n          </tr>\n        </thead>\n        <tbody>${rows}</tbody>\n      </table>\n    </div>`;\n}\n\n// Full digest HTML\nconst digestHtml = `\n  <div style=\"font-family:Arial,sans-serif;max-width:780px;margin:0 auto;color:#333;\">\n    <div style=\"background:#1a1a2e;color:white;padding:24px;border-radius:8px 8px 0 0;\">\n      <h2 style=\"margin:0;\">🏘 Rental Applicant Daily Digest</h2>\n      <p style=\"margin:8px 0 0 0;opacity:0.8;\">${today}</p>\n    </div>\n    <div style=\"background:#f8f9fa;padding:14px 24px;border-bottom:1px solid #ddd;\">\n      <p style=\"margin:0;font-size:14px;\">\n        Total inquiries: <strong>${allApplicants.length}</strong> &nbsp;|&nbsp;\n        ✅ Qualified: <strong>${qualified.length}</strong> &nbsp;|&nbsp;\n        ⚠️ Borderline: <strong>${borderline.length}</strong> &nbsp;|&nbsp;\n        ❌ Unqualified: <strong>${unqualified.length}</strong>\n      </p>\n    </div>\n    <div style=\"padding:24px;background:white;\">\n      ${propertySections}\n    </div>\n    <div style=\"background:#f8f9fa;padding:16px 24px;border-top:1px solid #ddd;\n      border-radius:0 0 8px 8px;font-size:12px;color:#888;\">\n      Powered by QualMatic AI | All applicants responded to automatically.\n    </div>\n  </div>\n`;\n\nreturn [{\n  json: {\n    digestHtml,\n    digestSubject: `🏘 ${allApplicants.length} rental applicant${allApplicants.length > 1 ? 's' : ''} today — ${qualified.length} qualified`,\n    totalApplicants:  allApplicants.length,\n    qualifiedCount:   qualified.length,\n    borderlineCount:  borderline.length,\n    unqualifiedCount: unqualified.length,\n    digestDate:       new Date().toISOString().substring(0, 10)\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "77a7c251-22cf-4252-8b2a-a820ceaefb09",
+      "name": "Gmail: Send Daily Digest",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        464,
+        960
+      ],
+      "webhookId": "502a48e1-3442-40d5-8a01-626e89ad3d3c",
+      "parameters": {
+        "sendTo": "YOUR EMAIL",
+        "message": "={{ $json.digestHtml }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.digestSubject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0154a9a7-273d-451b-88a5-c5bc5c92c7f1",
+      "name": "Find Property Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -160,
+        48
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "3aad0979-e581-46e2-a3fa-70714e1c05c1",
+      "name": "Filter Properties",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        48,
+        48
+      ],
+      "parameters": {
+        "jsCode": "const propertyId = $('Normalize Applicant Details').first().json.propertyId;\nconst allRows = $input.all().map(i => i.json);\n\nconst match = allRows.find(row =>\n  String(row['Property ID'] || '').trim().toLowerCase() ===\n  String(propertyId || '').trim().toLowerCase()\n);\n\nif (!match) {\n  return [{ json: { propertyFound: false, propertyId } }];\n}\n\nreturn [{ json: { ...match, propertyFound: true } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9768072a-2ac5-4a8e-bad9-23fb20af759d",
+      "name": "Create Applicant Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1248,
+        -48
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Pets": "={{ $json.pets }}",
+            "Email": "={{ $json.applicantEmail }}",
+            "Phone": "={{ $json.applicantPhone }}",
+            "Message": "={{ $json.message }}",
+            "Occupants": "={{ $json.occupants }}",
+            "Timestamp": "={{ $json.timestamp }}",
+            "Property ID": "={{ $json.propertyId }}",
+            "Applicant ID": "={{ $json.applicantId }}",
+            "Move-in Date": "={{ $json.moveInDate }}",
+            "Property Name": "={{ $json.propertyName }}",
+            "Response Sent": "false",
+            "Applicant Name": "={{ $json.applicantName }}",
+            "Monthly Income": "={{ $json.monthlyIncome }}",
+            "Score Reasoning": "={{ $json.scoreReasoning }}",
+            "Qualification Score": "={{ $json.qualificationScore }}"
+          },
+          "schema": [
+            {
+              "id": "Applicant ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Applicant ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Property ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Property Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicant Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Applicant Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monthly Income",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Monthly Income",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Move-in Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Move-in Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pets",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Pets",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Occupants",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Occupants",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Qualification Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Qualification Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score Reasoning",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Score Reasoning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Notes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 638319675,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DpFi77b_0Fi86hoT2ILSVqEtuCDJ4SRZr61Net_BR34/edit#gid=638319675",
+          "cachedResultName": "Applicants"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "8a162bc9-364d-4d92-a805-59f824386f68",
+      "name": "Update Response Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2768,
+        -32
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Applicant ID": "={{ $('Parse AI Output').first().json.applicantId }}",
+            "Response Sent": "true",
+            "Response Type": "={{ $('Parse AI Output').first().json.qualificationScore }}"
+          },
+          "schema": [
+            {
+              "id": "Applicant ID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Applicant ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Property ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Property Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Applicant Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Applicant Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Monthly Income",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Monthly Income",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Move-in Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Move-in Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Pets",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Pets",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Occupants",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Occupants",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Qualification Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Qualification Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score Reasoning",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Score Reasoning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Notes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Applicant ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 638319675,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DpFi77b_0Fi86hoT2ILSVqEtuCDJ4SRZr61Net_BR34/edit#gid=638319675",
+          "cachedResultName": "Applicants"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "8791a44c-232d-4ce8-b51a-d0ac100d644e",
+      "name": "Fetch Today's Applicants",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -464,
+        1200
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "508acac8-c8c1-433d-9a70-a2717c6b0624",
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -256,
+        1200
+      ],
+      "parameters": {
+        "jsCode": "const today = new Date().toISOString().substring(0, 10);\nconst allRows = $input.all().map(i => i.json);\n\nconst todayRows = allRows.filter(row => {\n  const ts = String(row['Timestamp'] || '');\n  return ts.startsWith(today);\n});\n\nreturn todayRows.map(row => ({ json: row }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8d5fac7c-e634-4f9e-952d-f2ddfde6feb7",
+      "name": "Log Digest Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        704,
+        960
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Digest Date": "={{ $('Build Daily Digest').item.json.digestDate }}",
+            "Digest Sent": "true",
+            "Qualified Count": "={{ $('Build Daily Digest').item.json.qualifiedCount }}",
+            "Borderline Count": "={{ $('Build Daily Digest').item.json.borderlineCount }}",
+            "Total Applicants": "={{ $('Build Daily Digest').item.json.totalApplicants }}",
+            "Unqualified Count": "={{ $('Build Daily Digest').item.json.unqualifiedCount }}"
+          },
+          "schema": [
+            {
+              "id": "Digest Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Digest Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Applicants",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Total Applicants",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Qualified Count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Qualified Count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Borderline Count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Borderline Count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Unqualified Count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Unqualified Count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Digest Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Digest Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1478782489,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1DpFi77b_0Fi86hoT2ILSVqEtuCDJ4SRZr61Net_BR34/edit#gid=1478782489",
+          "cachedResultName": "Daily Digest Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "9974c86d-9b20-4931-b5ee-4b6a59843ebe",
+      "name": "Slack: Send Digest Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        464,
+        1280
+      ],
+      "webhookId": "92772dcb-c280-4f45-8d62-9f43f4e9d69d",
+      "parameters": {
+        "text": "={{ $json.digestSubject }}  ✅ Qualified: {{ $json.qualifiedCount }} | ⚠️ Borderline: {{ $json.borderlineCount }} | ❌ Unqualified: {{ $json.unqualifiedCount }}  Check your email for the full applicant breakdown.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#rental-applicants"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack API Account - QM"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "a3573fdf-8090-48d5-b1a6-38c37cdfed20",
+      "name": "Has Phone Number?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1872,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ee20ca6b-7fa5-404c-803a-c34f6b965038",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Parse AI Output').first().json.applicantPhone }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "d9d6ea66-58a6-4c98-a029-e562b8ac0e37",
+      "name": "WhatsApp: Send Response",
+      "type": "n8n-nodes-base.whatsApp",
+      "disabled": true,
+      "position": [
+        2320,
+        192
+      ],
+      "webhookId": "6e5923b3-7088-4407-ae6d-c763fffb79ed",
+      "parameters": {
+        "textBody": "={{ $('Parse AI Output').first().json.qualificationScore === 'Qualified'   ? 'Hi ' + $('Parse AI Output').first().json.applicantName + '! Great news — you meet the requirements for ' + $('Parse AI Output').first().json.propertyName + '. Please check your email for the application link.'   : $('Parse AI Output').first().json.qualificationScore === 'Borderline'   ? 'Hi ' + $('Parse AI Output').first().json.applicantName + '! Thank you for your interest in ' + $('Parse AI Output').first().json.propertyName + '. We have sent you an email with a few follow-up questions — please check your inbox.'   : 'Hi ' + $('Parse AI Output').first().json.applicantName + '! Thank you for your interest in ' + $('Parse AI Output').first().json.propertyName + '. We have sent you an email with more details. We wish you the best in your search.' }}",
+        "operation": "send",
+        "additionalFields": {},
+        "recipientPhoneNumber": "={{ $('Parse AI Output').first().json.applicantPhone }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "credential-id",
+          "name": "WhatsApp API Account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "511837b2-278a-4c00-9a4f-48b190203293",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1760,
+        -112
+      ],
+      "parameters": {
+        "width": 704,
+        "height": 1104,
+        "content": "## AI Rental Lead Qualifier and Tenant Pre-Screener\n\nRental listings generate dozens of inquiries in the first 48 hours. Manually pre-screening every applicant takes 30–45 minutes each. This workflow handles it automatically — 24 hours a day, 7 days a week.\n\nWhen a rental inquiry arrives, AI reads the applicant's message, extracts their income, move-in date, pets, and occupants, and qualifies them against the property's specific requirements. Every applicant receives an instant personalized response, application link for qualified, clarification request for borderline, polite decline for unqualified. Every evening a digest email summarises all applicants across all properties ranked by qualification score.\n\nWorks for any number of properties simultaneously. The property ID in the inquiry payload tells the workflow which property's requirements to apply.\n\n### Requirements\n- **Gmail** OAuth2 — all response emails + daily digest\n- **Gemini** API key — applicant qualification + response drafting\n- **Google Sheets** OAuth2 — property database + applicant log + digest history\n- **Slack** OAuth2 — optional daily digest alert\n- **WhatsApp Business Cloud** — optional applicant response messages\n\n### Setup\n1. Connect **Gmail**, **Gemini**, and **Google Sheets** credentials.\n2. Copy the *Rental Management* sheet template — three tabs: Properties, Applicants, Daily Digest Log.\n3. Add your rental properties to the Properties tab.\n4. Update **MANAGER_EMAIL**, **CALENDLY_USERNAME**, and **CALENDLY_EVENT_SLUG** in the Normalize node.\n5. Point your inquiry form or website to the webhook URL.\n6. **Slack** is optional — connect credential and set channel name or leave disconnected.\n7. **WhatsApp** is optional — connect credential or leave disabled.\n\n### Customization\n- Add properties by adding rows to the Properties sheet.\n- Adjust qualification thresholds in the Gemini prompt.\n- Change digest time from 6pm in the Schedule trigger.\n- Translate response emails to any language in the prompt."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "825ca21a-e499-47f4-998e-91e2dcdeeaca",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        -624
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 352,
+        "height": 1088,
+        "content": "## Section A: Rental Inquiry Received\nDefault: Webhook trigger — accepts POST requests from any website form, chatbot, or lead source. \nOptional: WhatsApp Business Cloud trigger for direct WhatsApp inquiry processing.\nBoth triggers produce identical output into the Normalize node — enable one, disable the other."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18c6edb9-6225-4f4c-a95c-75d747d4afda",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -624
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 608,
+        "height": 1088,
+        "content": "## Property Requirements Lookup\nFetches the inquired property's requirements from the Properties tab in Google Sheets using the propertyId from the inquiry payload. Each property has its own rent, income threshold, pet policy, occupant limit, and availability date. Add new properties by adding rows to the sheet without requiring workflow changes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6a1907a-64bd-4d4f-88a9-e6815720075d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -624
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 736,
+        "height": 1088,
+        "content": "## Qualify Applicant & Draft Response\nOne AI call extracts the applicant's criteria from their message and qualifies them against the property requirements. Drafts a personalized response matching the outcome — Qualified, Borderline, or Unqualified. If AI fails, applicant is scored Borderline and receives a clarification request — no inquiry is ever silently dropped."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a6cacd4-8318-4c4b-b86f-3a2326f5bf72",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        -624
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 1520,
+        "height": 1088,
+        "content": "## Three-Way Response + WhatsApp\nEvery applicant with an email address receives an instant personalized response matching their qualification score. If a phone number is also on file, an optional WhatsApp message sends alongside the email. Every applicant is logged to the Applicants tab in Google Sheets with their score, reasoning, and response status."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1e2b58db-c96b-4f3e-9c05-e78fb2e88017",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        752
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 272,
+        "height": 752,
+        "content": "## Section B: Daily Digest\n\nRuns independently every evening at 6 pm. Reads today's applicants from the same Google Sheet written by Section A above. No connection between sections, they share data only through Google Sheets."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4a62641-ed02-4714-808c-1b2864ffbd3e",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -512,
+        752
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 816,
+        "height": 752,
+        "content": "## Build Daily Digest\nCollects all applicants logged today across every property, groups them by property, and colour-codes each by qualification score — Qualified, Borderline, or Unqualified."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9996f979-00d8-4a55-a119-e67a33115155",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -464,
+        16
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 528,
+        "content": "\n\n\n\n\n\n\n\n\n## Update Configuration Before Going Live\n\nSet MANAGER_EMAIL, MANAGER_NAME, CALENDLY_USERNAME, \nand CALENDLY_EVENT_SLUG in this node before activating."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37cc62c4-1451-464b-ae91-4d5bd7860b92",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        16
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 224,
+        "height": 528,
+        "content": "\n\n\n\n\n\n\n\n\n## Properties Sheet Must Be Populated First\nAdd at least one Active property before activating.\nThe Property ID here must exactly match the propertyId \nsent in webhook payloads — case-insensitive."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3106ae01-b643-4f49-8c20-747784359255",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2224,
+        160
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 288,
+        "height": 400,
+        "content": "\n\n\n\n\n\n\n\n\n\n## WhatsApp is Optional\nConnect WhatsApp Business Cloud credentials and Phone Number ID before enabling. Leave disabled if not using. "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d50516e-c7ca-4847-a3e7-836efdff4fc8",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        320,
+        752
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 624,
+        "height": 752,
+        "content": "## Digest Delivery & Logging\nOne digest email sends to the property manager  each evening. Optional Slack alert fires alongside with a brief count summary. Every digest is logged to the Daily Digest Log tab for historical tracking. "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f029aa33-4dcc-4f5f-a797-9bc6d43bbd09",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        -624
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 448,
+        "height": 1088,
+        "content": "## Check Property & Prepare AI Input\nIf the property is found, prepare data for AI qualification. If no property is found, notify the applicant via Email. "
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "1ba33ce7-588a-47df-9889-8c33aaa1a77f",
+  "nodeGroups": [],
+  "connections": {
+    "Has Email?": {
+      "main": [
+        [
+          {
+            "node": "Switch: Response Type",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Has Phone Number?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Create Applicant Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Property Found?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Gemini Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail: Property Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Properties": {
+      "main": [
+        [
+          {
+            "node": "Property Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Phone Number?": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp: Send Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Daily Digest": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Send Daily Digest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Slack: Send Digest Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Any Applicants Today?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Property Record": {
+      "main": [
+        [
+          {
+            "node": "Filter Properties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Gemini Input": {
+      "main": [
+        [
+          {
+            "node": "Qualify Applicant & Draft Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Applicants Today?": {
+      "main": [
+        [
+          {
+            "node": "Build Daily Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Response Type": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Send Qualified Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail: Send Borderline Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gmail: Send Unqualified Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule: Daily Digest": {
+      "main": [
+        [
+          {
+            "node": "Fetch Today's Applicants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Applicant Record": {
+      "main": [
+        [
+          {
+            "node": "Has Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp: Send Response": {
+      "main": [
+        [
+          {
+            "node": "Update Response Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Today's Applicants": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Send Daily Digest": {
+      "main": [
+        [
+          {
+            "node": "Log Digest Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Applicant Details": {
+      "main": [
+        [
+          {
+            "node": "Find Property Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Send Qualified Response": {
+      "main": [
+        [
+          {
+            "node": "Update Response Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Send Borderline Response": {
+      "main": [
+        [
+          {
+            "node": "Update Response Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Send Unqualified Response": {
+      "main": [
+        [
+          {
+            "node": "Update Response Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Rental Inquiry Received": {
+      "main": [
+        [
+          {
+            "node": "Normalize Applicant Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp: Rental Inquiry Received": {
+      "main": [
+        [
+          {
+            "node": "Normalize Applicant Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Qualify Applicant & Draft Response": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

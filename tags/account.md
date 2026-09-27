@@ -1,4 +1,4 @@
-# account : 19
+# account : 23
 
 |id|file|
 |----|----|
@@ -21,3 +21,7 @@
 |13349|[13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json)|
 |16310|[16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json)|
 |16743|[16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json)|
+|17255|[17255_Check_new-hire_identity_risk_and_provision_Google_Workspace_accounts_with_RelayShield.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17255_Check_new-hire_identity_risk_and_provision_Google_Workspace_accounts_with_RelayShield.json)|
+|17612|[17612_Score_Meta_ad_account_health_weekly_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17612_Score_Meta_ad_account_health_weekly_with_Claude_and_Gmail.json)|
+|17771|[17771_Send_monthly_consolidated_customer_statements_from_Google_Sheets_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17771_Send_monthly_consolidated_customer_statements_from_Google_Sheets_with_Gmail.json)|
+|18113|[18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json)|

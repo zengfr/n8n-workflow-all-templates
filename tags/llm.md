@@ -1,4 +1,4 @@
-# llm : 69
+# llm : 80
 
 |id|file|
 |----|----|
@@ -71,3 +71,14 @@
 |16479|[16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json)|
 |16488|[16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json)|
 |16570|[16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json)|
+|16944|[16944_Score_draft_content_citability_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16944_Score_draft_content_citability_with_GPT-4o-mini_and_Google_Sheets.json)|
+|17142|[17142_Detect_LLM_prompt_regressions_with_Data_Tables__OpenAI_APIs__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17142_Detect_LLM_prompt_regressions_with_Data_Tables__OpenAI_APIs__and_Telegram.json)|
+|17226|[17226_Monitor_weekly_LLM_share_of_voice_with_OpenRouter__Google_Sheets__and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17226_Monitor_weekly_LLM_share_of_voice_with_OpenRouter__Google_Sheets__and_email_reports.json)|
+|17478|[17478_Track_daily_LLM_brand_visibility_with_Gemini__Groq__OpenRouter__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17478_Track_daily_LLM_brand_visibility_with_Gemini__Groq__OpenRouter__Sheets_and_Slack.json)|
+|17559|[17559_Classify_Apify_scraped_dataset_rows_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17559_Classify_Apify_scraped_dataset_rows_with_OpenAI_and_Google_Sheets.json)|
+|18012|[18012_Route_LLM_prompts_with_Claude_as_primary_and_OpenAI_as_fallback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18012_Route_LLM_prompts_with_Claude_as_primary_and_OpenAI_as_fallback.json)|
+|18186|[18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json)|
+|18210|[18210_Generate_RAG-based_study_flashcards_from_notes_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18210_Generate_RAG-based_study_flashcards_from_notes_with_OpenAI_and_Slack.json)|
+|19196|[19196_Queue_OpenAI-compatible_LLM_chat_requests_with_PostgreSQL_and_a_local_GPU.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19196_Queue_OpenAI-compatible_LLM_chat_requests_with_PostgreSQL_and_a_local_GPU.json)|
+|19711|[19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json)|
+|19720|[19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json)|

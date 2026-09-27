@@ -1,4 +1,4 @@
-# extractor : 38
+# extractor : 45
 
 |id|file|
 |----|----|
@@ -40,3 +40,10 @@
 |16098|[16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json)|
 |16331|[16331_Extract_invoice_data_from_Gmail_PDFs_to_Google_Sheets_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16331_Extract_invoice_data_from_Gmail_PDFs_to_Google_Sheets_with_OpenAI_and_Slack.json)|
 |16509|[16509_Extract_meeting_insights_and_ClickUp_tasks_with_ChatGPT__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16509_Extract_meeting_insights_and_ClickUp_tasks_with_ChatGPT__Google_Sheets_and_Gmail.json)|
+|16901|[16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json)|
+|17246|[17246_Extract_real_estate_listings_with_Snapshot_Site__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17246_Extract_real_estate_listings_with_Snapshot_Site__OpenAI__and_Google_Sheets.json)|
+|17515|[17515_Extract_business_directory_listings_with_Snapshot_Site__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17515_Extract_business_directory_listings_with_Snapshot_Site__OpenAI_and_Google_Sheets.json)|
+|17579|[17579_Extract_job_listings_from_career_pages_with_Snapshot_Site__GPT-4o__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17579_Extract_job_listings_from_career_pages_with_Snapshot_Site__GPT-4o__and_Google_Sheets.json)|
+|17668|[17668_Extract_event_listings_to_Google_Sheets_with_Snapshot_Site_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17668_Extract_event_listings_to_Google_Sheets_with_Snapshot_Site_and_OpenAI.json)|
+|17774|[17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json)|
+|18674|[18674_Extract_purchase_orders_from_PDFs_with_easybits__Google_Sheets__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18674_Extract_purchase_orders_from_PDFs_with_easybits__Google_Sheets__and_Google_Drive.json)|

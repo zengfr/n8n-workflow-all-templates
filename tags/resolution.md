@@ -1,4 +1,4 @@
-# resolution : 11
+# resolution : 15
 
 |id|file|
 |----|----|
@@ -13,3 +13,7 @@
 |13306|[13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13306_Enhance_images_with_Riverflow_2.0_reference-based_super-resolution_via_Replicate.json)|
 |13319|[13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13319_Optimize_classroom_schedules_and_resolve_conflicts_with_GPT-4o_and_Google_Calendar.json)|
 |15876|[15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json)|
+|17287|[17287_Route_Telegram_customer_complaints_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17287_Route_Telegram_customer_complaints_with_OpenAI_and_Google_Sheets.json)|
+|17469|[17469_Triage_and_resolve_stale_Jira_tickets_with_OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17469_Triage_and_resolve_stale_Jira_tickets_with_OpenAI__Notion__and_Slack.json)|
+|19002|[19002_Manage_end-to-end_RMA_and_warranty_returns_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19002_Manage_end-to-end_RMA_and_warranty_returns_with_GPT-4.1-mini_and_Google_Sheets.json)|
+|19363|[19363_Triage_invoice_disputes_from_Gmail_with_OpenAI_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19363_Triage_invoice_disputes_from_Gmail_with_OpenAI_and_Jira.json)|

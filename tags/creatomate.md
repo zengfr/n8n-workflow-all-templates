@@ -1,4 +1,4 @@
-# creatomate : 18
+# creatomate : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |13676|[13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13676_Create_AI_shorts_with_HeyGen__Creatomate__Replicate__Gemini_and_OpenAI.json)|
 |15832|[15832_Generate_short-form_social_videos_with_Claude__ElevenLabs__Creatomate_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15832_Generate_short-form_social_videos_with_Claude__ElevenLabs__Creatomate_and_Google_Drive.json)|
 |16139|[16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json)|
+|17634|[17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json)|

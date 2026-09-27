@@ -1,4 +1,4 @@
-# handler : 12
+# handler : 17
 
 |id|file|
 |----|----|
@@ -14,3 +14,8 @@
 |15575|[15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json)|
 |16194|[16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json)|
 |16255|[16255_Handle_support_reply_approvals_with_Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16255_Handle_support_reply_approvals_with_Slack__Gmail_and_Google_Sheets.json)|
+|16874|[16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json)|
+|17147|[17147_Handle_NPS_survey_replies_and_routing_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17147_Handle_NPS_survey_replies_and_routing_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|17148|[17148_Handle_NPS_survey_responses_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17148_Handle_NPS_survey_responses_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|17693|[17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json)|
+|19368|[19368_Handle_meeting_no-shows_via_Gmail__Google_Calendar__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19368_Handle_meeting_no-shows_via_Gmail__Google_Calendar__and_OpenAI.json)|

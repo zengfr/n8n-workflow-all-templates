@@ -1,4 +1,4 @@
-# itinerary : 5
+# itinerary : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |6481|[6481_Voice-Driven_Travel_Itinerary_Generator_Using_ElevenLabs__GPT-4o___Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6481_Voice-Driven_Travel_Itinerary_Generator_Using_ElevenLabs__GPT-4o___Pinecone.json)|
 |9846|[9846_Travel_Itinerary_Reminders_with_Google_Calendar__Excel__and_SMS_Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9846_Travel_Itinerary_Reminders_with_Google_Calendar__Excel__and_SMS_Email_Alerts.json)|
 |10352|[10352_AI-Optimized_Travel_Itinerary_Generator_with_Skyscanner__Booking.com_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10352_AI-Optimized_Travel_Itinerary_Generator_with_Skyscanner__Booking.com_and_Gmail.json)|
+|17412|[17412_Build_a_trip_itinerary_from_Gmail_booking_emails_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17412_Build_a_trip_itinerary_from_Gmail_booking_emails_with_Gemini_and_Google_Sheets.json)|

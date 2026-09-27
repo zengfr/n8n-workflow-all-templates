@@ -1,0 +1,547 @@
+{
+  "id": "rfAustinPermits01",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Sync Austin commercial permit use changes to Google Sheets with Apify",
+    "wechat": "youandme10086",
+    "id": 19426,
+    "update_time": "2026-09-27"
+  },
+  "name": "Sync Austin permit use changes to Google Sheets with Apify",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c33d6c04-0d93-4d59-8a6e-0f57d6bb8f11",
+      "name": "Manual trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -760,
+        -120
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "36754e7d-3a90-43c3-9b3d-e7d5e3cb92ea",
+      "name": "Weekly schedule (America/Chicago)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -760,
+        80
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": 1,
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a963a415-3ae4-4f7a-92a0-a8d0b8539f4e",
+      "name": "Calculate last 14 completed UTC dates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -240,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const config = $input.first().json;\nif (typeof config.googleSheetId !== 'string' || config.googleSheetId === 'REPLACE_WITH_GOOGLE_SHEET_ID' || !/^[A-Za-z0-9_-]{25,}$/.test(config.googleSheetId)) {\n  throw new Error('Enter the Google spreadsheet ID in Set user configuration before starting a paid Actor run');\n}\nconst now = new Date();\nconst end = new Date(Date.UTC(now.getUTCFullYear(), now.getUTCMonth(), now.getUTCDate() - 1));\nconst start = new Date(end);\nstart.setUTCDate(start.getUTCDate() - 13);\nreturn [{ json: { startDate: start.toISOString().slice(0, 10), endDate: end.toISOString().slice(0, 10) } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1aaf75c1-9c46-4c70-977c-e8cb0fa7d45c",
+      "name": "Set user configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -480,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "acd57f2f-0d1e-4c44-88f5-7d7f03ab7f13",
+              "name": "googleSheetId",
+              "type": "string",
+              "value": "REPLACE_WITH_GOOGLE_SHEET_ID"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "686b9602-248a-4bc7-8d89-b2134f1aa099",
+      "name": "Fetch one Apify permit report",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/hTUfmKLHBefxw0iJd/run-sync-get-dataset-items",
+        "method": "POST",
+        "options": {
+          "timeout": 210000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ { startDate: $json.startDate, endDate: $json.endDate } }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "timeout",
+              "value": "180"
+            },
+            {
+              "name": "maxTotalChargeUsd",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "REPLACE: Apify Authorization header credential"
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4327a3b2-987a-4b09-bfb6-2d847d56e0c3",
+      "name": "Validate report and flatten records",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Executed inside n8n's Code node. Unknown or malformed reports remain errors.\nconst items = $input.all();\nconst reports = items.length === 1 && Array.isArray(items[0].json)\n  ? items[0].json : items.map(item => item.json);\nif (reports.length !== 1 || !reports[0] || Array.isArray(reports[0])) {\n  throw new Error('Expected exactly one Actor report');\n}\nconst report = reports[0];\nconst requested = $('Calculate last 14 completed UTC dates').first().json;\nfunction text(value, label) {\n  if (typeof value !== 'string' || !value.trim()) throw new Error('Invalid ' + label);\n  return value;\n}\nfunction date(value, label) {\n  text(value, label);\n  const millis = Date.parse(value + 'T00:00:00Z');\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value) || !Number.isFinite(millis) ||\n      new Date(millis).toISOString().slice(0, 10) !== value) throw new Error('Invalid ' + label);\n  return millis;\n}\nfunction timestamp(value, label) {\n  text(value, label);\n  if (!/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d+)?(?:Z|[+-]\\d{2}:\\d{2})$/.test(value) ||\n      !Number.isFinite(Date.parse(value))) throw new Error('Invalid ' + label);\n  date(value.slice(0, 10), label);\n}\n// URL is not available in every n8n sandbox; exact HTTPS authority checks\n// disallow userinfo, alternate ports, lookalike hosts, and non-HTTPS links.\nfunction sourceQuery(value) {\n  text(value, 'sourceQuery');\n  if (!/^https:\\/\\/data\\.austintexas\\.gov\\/resource\\/3syk-w9eu\\.json(?:\\?|$)/.test(value)) {\n    throw new Error('Unexpected source dataset');\n  }\n}\nif (report.schemaVersion !== '1' || report.ruleVersion !== 'explicit-from-to-v2') {\n  throw new Error('Unsupported report schema or extraction rule');\n}\nfor (const key of ['attribution', 'coverage', 'interpretation']) text(report[key], key);\nconst start = date(report.startDate, 'startDate');\nconst end = date(report.endDate, 'endDate');\nconst span = (end - start) / 86400000 + 1;\nif (span < 1 || span > 31 || report.endDate >= new Date().toISOString().slice(0, 10) ||\n    report.startDate !== requested.startDate || report.endDate !== requested.endDate) {\n  throw new Error('Report does not match the requested completed UTC date window');\n}\ntimestamp(report.collectedAt, 'collectedAt');\ntimestamp(report.sourceUpdatedAt, 'sourceUpdatedAt');\nsourceQuery(report.sourceQuery);\nif (!Number.isInteger(report.sourceRecordCount) || report.sourceRecordCount < 0 ||\n    !Number.isInteger(report.matchedPermitCount) || report.matchedPermitCount < 0 ||\n    report.matchedPermitCount > report.sourceRecordCount || !Array.isArray(report.records) ||\n    report.matchedPermitCount !== report.records.length) throw new Error('Invalid report counts');\nconst ids = new Set();\nconst output = report.records.map(r => {\n  if (!r || typeof r !== 'object') throw new Error('Invalid permit record');\n  for (const key of ['recordId', 'permitNumber', 'sourceDescription', 'sourceUrl']) text(r[key], key);\n  date(r.sourceIssueDate, 'sourceIssueDate');\n  if (r.sourceIssueDate < report.startDate || r.sourceIssueDate > report.endDate) {\n    throw new Error('Permit issue date is outside the report window');\n  }\n  if (!/^https:\\/\\/abc\\.austintexas\\.gov\\//.test(r.sourceUrl)) throw new Error('Unexpected official permit URL');\n  for (const key of ['sourceStatus', 'location']) {\n    if (r[key] !== null && typeof r[key] !== 'string') throw new Error('Invalid ' + key);\n  }\n  if (ids.has(r.recordId)) throw new Error('Duplicate record ID');\n  ids.add(r.recordId);\n  if (!Array.isArray(r.describedTransitions) || !r.describedTransitions.length) {\n    throw new Error('Missing described transitions');\n  }\n  for (const transition of r.describedTransitions) {\n    if (!transition || typeof transition !== 'object') throw new Error('Invalid transition');\n    for (const key of ['priorUse', 'proposedUse', 'evidenceQuote']) text(transition[key], key);\n    if (!r.sourceDescription.includes(transition.evidenceQuote)) throw new Error('Evidence is absent from source wording');\n  }\n  const join = field => r.describedTransitions.map(t => t[field]).join('\\n---\\n');\n  // All cells are strings, with Sheets valueInputOption RAW. Preserve source text.\n  return { json: {\n    permitKey: 'austin:' + r.recordId,\n    city: 'Austin, TX', recordId: r.recordId, permitNumber: r.permitNumber,\n    location: r.location ?? '', sourceIssueDate: r.sourceIssueDate,\n    sourceStatus: r.sourceStatus ?? '', priorUses: join('priorUse'),\n    plannedUses: join('proposedUse'), evidenceQuotes: join('evidenceQuote'),\n    sourceDescription: r.sourceDescription, sourceUrl: r.sourceUrl,\n    sourceUpdatedAt: report.sourceUpdatedAt, collectedAt: report.collectedAt,\n    reportStartDate: report.startDate, reportEndDate: report.endDate,\n    schemaVersion: report.schemaVersion, ruleVersion: report.ruleVersion,\n    sourceQuery: report.sourceQuery\n  }, pairedItem: { item: 0 } };\n});\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9e8e5c33-5bf3-4021-94f0-a53165cf7a7a",
+      "name": "Upsert permit rows in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        540,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "city": "={{ $json.city }}",
+            "location": "={{ $json.location }}",
+            "recordId": "={{ $json.recordId }}",
+            "permitKey": "={{ $json.permitKey }}",
+            "priorUses": "={{ $json.priorUses }}",
+            "sourceUrl": "={{ $json.sourceUrl }}",
+            "collectedAt": "={{ $json.collectedAt }}",
+            "plannedUses": "={{ $json.plannedUses }}",
+            "ruleVersion": "={{ $json.ruleVersion }}",
+            "sourceQuery": "={{ $json.sourceQuery }}",
+            "permitNumber": "={{ $json.permitNumber }}",
+            "sourceStatus": "={{ $json.sourceStatus }}",
+            "reportEndDate": "={{ $json.reportEndDate }}",
+            "schemaVersion": "={{ $json.schemaVersion }}",
+            "evidenceQuotes": "={{ $json.evidenceQuotes }}",
+            "reportStartDate": "={{ $json.reportStartDate }}",
+            "sourceIssueDate": "={{ $json.sourceIssueDate }}",
+            "sourceUpdatedAt": "={{ $json.sourceUpdatedAt }}",
+            "sourceDescription": "={{ $json.sourceDescription }}"
+          },
+          "schema": [
+            {
+              "id": "permitKey",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "permitKey",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "city",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "city",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recordId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "recordId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "permitNumber",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "permitNumber",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sourceIssueDate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sourceIssueDate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sourceStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sourceStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priorUses",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "priorUses",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "plannedUses",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "plannedUses",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "evidenceQuotes",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "evidenceQuotes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sourceDescription",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sourceDescription",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sourceUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sourceUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sourceUpdatedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sourceUpdatedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "collectedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "collectedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reportStartDate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reportStartDate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reportEndDate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reportEndDate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "schemaVersion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "schemaVersion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ruleVersion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ruleVersion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sourceQuery",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sourceQuery",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "permitKey"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Permits"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set user configuration').first().json.googleSheetId }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "name": "REPLACE: Google Sheets OAuth2 credential"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "465ac75a-5316-4ef5-98f3-4c348c94bbcc",
+      "name": "Template setup and limitations",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -760,
+        -900
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 760,
+        "height": 780,
+        "content": "# Sync Austin permit use changes to Google Sheets with Apify\n\nFor analysts tracking changes in how commercial properties may be used, this workflow turns Austin permit descriptions into a Google Sheet. It uses Record Foundry’s [Austin commercial use-change API](https://apify.com/recordfoundry/austin-commercial-use-changes).\n\n## How it works\n\nEach run checks the last 14 completed UTC dates. Matching permits become rows with the previous use, planned use, exact supporting wording, original description, official record link, and source timestamps. The `permitKey` column updates existing rows on repeat runs. Source text is written literally using Sheets’ RAW setting.\n\n## Setup\n\nCreate a spreadsheet tab named `Permits` with the headers in the setup note. Enter its spreadsheet ID in **Set user configuration**. Connect an Apify HTTP Header Auth credential (`Authorization: Bearer YOUR_TOKEN`) and Google Sheets OAuth2. Run manually once; then enable the Monday 7 AM America/Chicago schedule if useful.\n\n## Costs and coverage\n\nThe template is free. The API charges $1 per nonempty report; empty reports are free. Each request has a $1 charge limit. n8n hosting costs are separate. There are no automatic retries after an uncertain start.\n\nMalformed reports fail visibly; valid empty reports write nothing. A permit describes planned work, not a confirmed business opening. Weekly overlapping windows can miss later revisions or records published after the window. Run sequentially: concurrent sheet writes can duplicate rows. The sheet retains earlier rows; it is not a deletion-synchronized archive.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "08ef5bca-60df-43ba-941c-8902d2064ed6",
+      "name": "Sheet headers and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        -630
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 650,
+        "height": 390,
+        "content": "## Spreadsheet setup\n\nCreate a tab named **Permits**. Paste this tab-separated header row into A1:\n\n```text\npermitKey\tcity\trecordId\tpermitNumber\tlocation\tsourceIssueDate\tsourceStatus\tpriorUses\tplannedUses\tevidenceQuotes\tsourceDescription\tsourceUrl\tsourceUpdatedAt\tcollectedAt\treportStartDate\treportEndDate\tschemaVersion\truleVersion\tsourceQuery\n```\n\nEnter the spreadsheet ID in **Set user configuration**. Attach Apify Header Auth and Google Sheets OAuth2 credentials. In the last node, match on **permitKey** and retain **Let n8n format / RAW**. Keep one execution at a time.\n\nAfter an uncertain timeout, inspect the existing Apify run before retrying. A retry can create another charge."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8da6ab4a-30d5-4983-a91d-000000000001",
+      "name": "Date window and schedule",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -740,
+        230
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 260,
+        "content": "## 1. Choose the destination\n\nSet your Google spreadsheet ID, attach both credentials, and run manually first. The date step rejects the placeholder before starting a paid request.\n\nEach run uses the last 14 completed UTC issue dates. Weekly windows overlap, but later revisions and records published after the window may be missed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8da6ab4a-30d5-4983-a91d-000000000002",
+      "name": "One report per execution",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        230
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 260,
+        "content": "## 2. Fetch and validate the report\n\nThe Actor request has a $1 maximum charge and no automatic retry. After a timeout, inspect the existing Apify run before starting another.\n\nValidation checks the requested dates, schema, official source, counts, duplicate IDs, and supporting quotes. A valid empty report produces no sheet rows; malformed data stops the workflow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8da6ab4a-30d5-4983-a91d-000000000003",
+      "name": "Keep sheet records traceable",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        230
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 650,
+        "height": 260,
+        "content": "## 3. Update the review sheet\n\nMatch the single **permitKey** column. Keep **Let n8n format / RAW** so source descriptions remain literal text. Original wording, evidence quotes, official links and timestamps stay with each row.\n\nRun sequentially to avoid concurrent duplicates. Previously written rows remain even if a source record later disappears or stops matching. Permits do not confirm a business opening or completed construction."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "America/Chicago",
+    "executionOrder": "v1"
+  },
+  "versionId": "2b436289-92f4-407f-bb7c-c2ec297aeb8d",
+  "connections": {
+    "Manual trigger": {
+      "main": [
+        [
+          {
+            "node": "Set user configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set user configuration": {
+      "main": [
+        [
+          {
+            "node": "Calculate last 14 completed UTC dates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch one Apify permit report": {
+      "main": [
+        [
+          {
+            "node": "Validate report and flatten records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly schedule (America/Chicago)": {
+      "main": [
+        [
+          {
+            "node": "Set user configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate report and flatten records": {
+      "main": [
+        [
+          {
+            "node": "Upsert permit rows in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate last 14 completed UTC dates": {
+      "main": [
+        [
+          {
+            "node": "Fetch one Apify permit report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

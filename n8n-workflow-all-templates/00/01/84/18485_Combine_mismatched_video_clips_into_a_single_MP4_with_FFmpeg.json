@@ -1,0 +1,425 @@
+{
+  "name": "Combine multiple video clips into one MP4 with FFmpeg",
+  "nodes": [
+    {
+      "id": "overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -460
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 660,
+        "height": 1220,
+        "content": "## Combine any number of video clips into one MP4 with FFmpeg (free, no API)\n\nUpload two or more video clips - even mismatched ones, different resolutions, aspect ratios, frame rates - and get back one combined MP4. No API key, no account, no paid service: FFmpeg's `concat` filter does the real work, running for free on your own machine.\n\nThis is the clip-joining step from a larger faceless-video pipeline, pulled out on its own because \"just concatenate these files\" is one of the most common FFmpeg questions there is, and the naive approach (the `concat` demuxer) silently produces a broken or out-of-sync file the moment two clips don't share the exact same codec settings.\n\n### How it works\n\n1. A form takes two or more video files and a target output size (1920x1080 landscape, 1080x1920 vertical, or 1080x1080 square).\n2. Every clip is saved to a per-run temp folder in upload order - that order is the concat order.\n3. FFmpeg's `concat` filter (not the `concat` demuxer) is used: each clip is scaled to fit inside the target frame without stretching or cropping, letterboxed if needed, normalized to 30fps, and its audio is reformatted to a common sample rate - so mismatched clips still join cleanly instead of desyncing.\n4. The combined MP4 is read back off disk and returned with a short report (clip count, output size).\n\n### Setup\n\nSelf-hosted n8n only - this uses Execute Command, which n8n Cloud disables. Install FFmpeg on the PATH of the process running n8n, and start n8n with `NODES_EXCLUDE=\"[]\"` and `N8N_RESTRICT_FILE_ACCESS_TO=\"/tmp\"` - both are required or the file steps fail without a clear error.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---upload",
+      "name": "Section - upload",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 420,
+        "content": "## 1. Upload\nTwo or more clips, any resolution. Order selected = order joined."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---split",
+      "name": "Section - split",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        360,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 420,
+        "content": "## 2. Save each clip\nOne item per clip so every file writes to disk in a single pass."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---build",
+      "name": "Section - build",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 420,
+        "content": "## 3. Build the command\nScales, pads and reformats every clip to a common frame before joining."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---join",
+      "name": "Section - join",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 420,
+        "content": "## 4. Join + deliver\nFFmpeg's concat filter joins them in sync, then the result is read back."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note---self-hosted-only",
+      "name": "Note - self hosted only",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        280
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 160,
+        "content": "## Self-hosted only\nExecute Command does not exist on n8n Cloud. See Setup in the overview."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "form-trigger",
+      "name": "Video clips and output format form",
+      "type": "n8n-nodes-base.formTrigger",
+      "notes": "Entry point. Downstream nodes read every uploaded clip's binary and the Output Format dropdown from here.",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "formTitle": "Combine video clips with FFmpeg",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Video Clips",
+              "multipleFiles": true,
+              "requiredField": true,
+              "acceptFileTypes": ".mp4,.mov,.mkv,.webm,.avi"
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Output Format",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "1920x1080 (landscape / YouTube)"
+                  },
+                  {
+                    "option": "1080x1920 (vertical / Shorts, TikTok, Reels)"
+                  },
+                  {
+                    "option": "1080x1080 (square / Instagram feed)"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Upload two or more video clips and pick an output size. You get back one combined MP4, even if the clips don't match in resolution or format."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "prepare-run",
+      "name": "Prepare Run",
+      "type": "n8n-nodes-base.code",
+      "notes": "Builds a per-run temp folder, lists every uploaded clip in selection order, and parses the target width/height out of the dropdown label. Requires at least 2 clips.",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// One folder per run so concurrent submissions never collide.\nconst runId = ($json.submittedAt || String(Date.now())).replace(/[^a-zA-Z0-9]/g, '');\nconst dir = `/tmp/concat-${runId}`;\n\nconst binKeys = Object.keys($input.item.binary || {});\nif (binKeys.length < 2) {\n  throw new Error(`Need at least 2 video clips to combine - got ${binKeys.length}. Select multiple files in the Video Clips field.`);\n}\n\n// \"1080x1920 (vertical / Shorts, TikTok)\" -> 1080, 1920\nconst formatLabel = $json['Output Format'] || '1920x1080 (landscape / YouTube)';\nconst dimsMatch = formatLabel.match(/(\\d+)x(\\d+)/);\nif (!dimsMatch) throw new Error(`Could not read dimensions from \"${formatLabel}\".`);\nconst width = Number(dimsMatch[1]);\nconst height = Number(dimsMatch[2]);\n\n// Order = the order the files were selected in the form - this is the concat order.\nconst clips = binKeys.map((key, i) => ({ key, index: i, clipPath: `${dir}/clip-${i}.mp4` }));\n\nreturn {\n  json: { ...$json, dir, outputPath: `${dir}/combined.mp4`, width, height, clips },\n  binary: $input.item.binary,\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "make-folder",
+      "name": "Create the temp folder",
+      "type": "n8n-nodes-base.executeCommand",
+      "notes": "mkdir -p is safe to run again. This wipes json + binary, restored in the next node.",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "command": "=mkdir -p \"{{ $json.dir }}\""
+      },
+      "executeOnce": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "restore-binary",
+      "name": "Restore the uploaded clips",
+      "type": "n8n-nodes-base.code",
+      "notes": "Execute Command replaces the item with its own stdout/stderr/exitCode - re-attach every clip's binary and the paths from Prepare Run.",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Create the temp folder (Execute Command) wipes json + binary - re-attach both\n// from Prepare Run so the uploaded clips survive to the split/write step.\nconst run = $('Prepare Run').item.json;\nreturn { json: run, binary: $('Prepare Run').item.binary };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "split-clips",
+      "name": "Split into one item per clip",
+      "type": "n8n-nodes-base.code",
+      "notes": "Turns the single submission (with N binary properties) into N items, each holding one clip - required because Read/Write File writes one binary property per item.",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// One item per clip, each carrying just its own binary - lets the next node\n// (Read/Write File) write every clip to disk in a single pass over N items.\nconst run = $('Prepare Run').item.json;\nconst binary = $('Prepare Run').item.binary;\nreturn run.clips.map(c => ({\n  json: { index: c.index, clipPath: c.clipPath },\n  binary: { clip: binary[c.key] },\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "save-clips",
+      "name": "Save each clip to disk",
+      "type": "n8n-nodes-base.readWriteFile",
+      "notes": "Runs once per clip item, writing every uploaded file to its own path in the temp folder.",
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "fileName": "={{ $json.clipPath }}",
+        "operation": "write",
+        "dataPropertyName": "clip"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "build-command",
+      "name": "Build the FFmpeg command",
+      "type": "n8n-nodes-base.code",
+      "notes": "Ignores the per-clip write results (just file metadata) and rebuilds the full command from Prepare Run's clip list - runs once regardless of clip count. Uses the concat FILTER, not the concat demuxer, so mismatched clips still join in sync.",
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Ignores the N items from the write step (their own output is just file\n// metadata) and rebuilds the command from Prepare Run's deterministic clip list -\n// this only needs to run once no matter how many clips there are.\nconst run = $('Prepare Run').item.json;\nconst { clips, width, height, outputPath } = run;\n\n// concat FILTER, not the concat DEMUXER: clips can differ in resolution, aspect\n// ratio, frame rate or audio format and this still produces a clean, in-sync\n// output. Each clip is scaled to fit inside the target frame (letterboxed, not\n// cropped or stretched) and its audio is reformatted to a common rate/layout\n// before the concat filter joins everything.\nlet inputs = '';\nlet filterParts = '';\nlet joinParts = '';\nclips.forEach((c, i) => {\n  inputs += `-i \"${c.clipPath}\" `;\n  filterParts += `[${i}:v]scale=${width}:${height}:force_original_aspect_ratio=decrease,pad=${width}:${height}:(ow-iw)/2:(oh-ih)/2:color=black,setsar=1,fps=30,format=yuv420p[v${i}];`;\n  filterParts += `[${i}:a]aformat=sample_rates=44100:channel_layouts=stereo[a${i}];`;\n  joinParts += `[v${i}][a${i}]`;\n});\nconst filterComplex = `${filterParts}${joinParts}concat=n=${clips.length}:v=1:a=1[outv][outa]`;\nconst command = `ffmpeg -y ${inputs}-filter_complex \"${filterComplex}\" -map \"[outv]\" -map \"[outa]\" -c:v libx264 -c:a aac -movflags +faststart \"${outputPath}\"`;\n\nreturn [{ json: { command, outputPath, clipCount: clips.length, width, height } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "run-ffmpeg",
+      "name": "Combine all clips (FFmpeg)",
+      "type": "n8n-nodes-base.executeCommand",
+      "notes": "Runs the prebuilt command as a single string. executeOnce=true since the command already covers every clip - this must not repeat per item.",
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "command": "={{ $json.command }}"
+      },
+      "executeOnce": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "check-combine",
+      "name": "Verify the combine succeeded",
+      "type": "n8n-nodes-base.code",
+      "notes": "Throws with the real FFmpeg error if the exit code was not 0, instead of silently returning a broken file path.",
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const cmdResult = $json;\nconst plan = $('Build the FFmpeg command').item.json;\nif (cmdResult.exitCode !== undefined && cmdResult.exitCode !== 0) {\n  throw new Error('FFmpeg failed: ' + (cmdResult.stderr || '').slice(-800));\n}\nreturn {\n  json: {\n    outputPath: plan.outputPath,\n    clipCount: plan.clipCount,\n    width: plan.width,\n    height: plan.height,\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "read-output",
+      "name": "Read the combined video back",
+      "type": "n8n-nodes-base.readWriteFile",
+      "notes": "Reads the finished MP4 off disk as binary output - the free-path deliverable, no external service involved.",
+      "position": [
+        1980,
+        0
+      ],
+      "parameters": {
+        "options": {
+          "dataPropertyName": "combinedVideo"
+        },
+        "operation": "read",
+        "fileSelector": "={{ $json.outputPath }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "attach-report",
+      "name": "Attach the combine report to the file",
+      "type": "n8n-nodes-base.code",
+      "notes": "Read/Write File's read operation replaces json with file metadata only - merges the clip-count/size report back in so the output has both the summary and the file.",
+      "position": [
+        2200,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Read/Write File's read operation replaces json with file metadata only -\n// merge the combine report back in so the output has both the numbers and the file.\nconst report = $('Verify the combine succeeded').item.json;\nreturn { json: { ...report, file: $json }, binary: $input.item.binary };\n"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Prepare Run": {
+      "main": [
+        [
+          {
+            "node": "Create the temp folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create the temp folder": {
+      "main": [
+        [
+          {
+            "node": "Restore the uploaded clips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save each clip to disk": {
+      "main": [
+        [
+          {
+            "node": "Build the FFmpeg command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the FFmpeg command": {
+      "main": [
+        [
+          {
+            "node": "Combine all clips (FFmpeg)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine all clips (FFmpeg)": {
+      "main": [
+        [
+          {
+            "node": "Verify the combine succeeded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore the uploaded clips": {
+      "main": [
+        [
+          {
+            "node": "Split into one item per clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the combined video back": {
+      "main": [
+        [
+          {
+            "node": "Attach the combine report to the file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split into one item per clip": {
+      "main": [
+        [
+          {
+            "node": "Save each clip to disk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify the combine succeeded": {
+      "main": [
+        [
+          {
+            "node": "Read the combined video back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video clips and output format form": {
+      "main": [
+        [
+          {
+            "node": "Prepare Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Combine mismatched video clips into a single MP4 with FFmpeg",
+    "wechat": "youandme10086",
+    "id": 18485,
+    "update_time": "2026-09-27"
+  }
+}

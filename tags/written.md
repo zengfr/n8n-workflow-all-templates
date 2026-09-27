@@ -1,4 +1,4 @@
-# written : 9
+# written : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |15392|[15392_Send_a_weekly_AI_written_WordPress_blog_digest_via_Gmail_using_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15392_Send_a_weekly_AI_written_WordPress_blog_digest_via_Gmail_using_GPT-4o.json)|
 |15574|[15574_Send_AI-written_cold_outreach_and_follow-up_drafts_with_Gmail_and_Google_Sheets_using_Firecrawl__Groq__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15574_Send_AI-written_cold_outreach_and_follow-up_drafts_with_Gmail_and_Google_Sheets_using_Firecrawl__Groq__and_Gemini.json)|
 |15973|[15973_Send_AI-written_invoice_emails_and_payment_reminders_with_Google_Sheets__Gmail__Telegram_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15973_Send_AI-written_invoice_emails_and_payment_reminders_with_Google_Sheets__Gmail__Telegram_and_Groq.json)|
+|17746|[17746_Publish_AI-written_LinkedIn_posts_with_OpenAI_GPT-5_mini_and_Canvora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17746_Publish_AI-written_LinkedIn_posts_with_OpenAI_GPT-5_mini_and_Canvora.json)|
+|18308|[18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json)|
+|18717|[18717_Create_AI-written_Word_docs_from_Google_Sheets_with_Groq_and_Pandoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18717_Create_AI-written_Word_docs_from_Google_Sheets_with_Groq_and_Pandoc.json)|

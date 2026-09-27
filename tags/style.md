@@ -1,4 +1,4 @@
-# style : 18
+# style : 27
 
 |id|file|
 |----|----|
@@ -20,3 +20,12 @@
 |14889|[14889_Generate_style-locked_Seedance_videos_with_an_automated_QC_pipeline.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14889_Generate_style-locked_Seedance_videos_with_an_automated_QC_pipeline.json)|
 |16202|[16202_Create_WordPress_articles_in_author_style_with_Gemini__Telegram_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16202_Create_WordPress_articles_in_author_style_with_Gemini__Telegram_and_Pinecone.json)|
 |16553|[16553_Proxy_OpenAI-style_chat_completions_to_Gemini_with_async_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16553_Proxy_OpenAI-style_chat_completions_to_Gemini_with_async_webhooks.json)|
+|17007|[17007_Generate_CCTV-style_animal_TikTok_videos_with_OpenAI__Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17007_Generate_CCTV-style_animal_TikTok_videos_with_OpenAI__Seedance_and_Blotato.json)|
+|17025|[17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json)|
+|17361|[17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json)|
+|17634|[17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json)|
+|18770|[18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json)|
+|19339|[19339_Discuss_GitHub_issues_with_council-style_AI_reviewers_and_optional_BVC.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19339_Discuss_GitHub_issues_with_council-style_AI_reviewers_and_optional_BVC.json)|
+|19423|[19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json)|
+|19728|[19728_Log_new_LinkedIn-style_job_postings_to_Google_Sheets_with_RapidAPI_JSearch.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19728_Log_new_LinkedIn-style_job_postings_to_Google_Sheets_with_RapidAPI_JSearch.json)|
+|19751|[19751_Create_Reddit-style_story_videos_from_text_or_Reddit_with_OpenRouter__ElevenLabs__and_Zvid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19751_Create_Reddit-style_story_videos_from_text_or_Reddit_with_OpenRouter__ElevenLabs__and_Zvid.json)|

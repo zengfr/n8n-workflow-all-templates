@@ -1,4 +1,4 @@
-# square : 8
+# square : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |7089|[7089_Automatically_Send_Weekly_Sales_Reports_from_Square_via_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7089_Automatically_Send_Weekly_Sales_Reports_from_Square_via_Outlook.json)|
 |7090|[7090_Automatically_Send_Monthly_Sales_Reports_from_Square_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7090_Automatically_Send_Monthly_Sales_Reports_from_Square_via_Gmail.json)|
 |7091|[7091_Automatically_Send_Monthly_Sales_Reports_from_Square_via_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7091_Automatically_Send_Monthly_Sales_Reports_from_Square_via_Outlook.json)|
+|18404|[18404_Generate_Square_invoices_and_subscriptions_from_text_with_GPT-4o_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18404_Generate_Square_invoices_and_subscriptions_from_text_with_GPT-4o_Mini.json)|

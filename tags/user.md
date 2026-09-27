@@ -1,4 +1,4 @@
-# user : 65
+# user : 68
 
 |id|file|
 |----|----|
@@ -67,3 +67,6 @@
 |15792|[15792_Get_Xiaohongshu_user_published_notes_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15792_Get_Xiaohongshu_user_published_notes_with_JustOneAPI.json)|
 |15882|[15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json)|
 |15943|[15943_Collect_astrology_feedback_with_Telegram_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15943_Collect_astrology_feedback_with_Telegram_and_Supabase.json)|
+|16883|[16883_Create_the_newest_Microsoft_Entra_user_in_Seventhings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16883_Create_the_newest_Microsoft_Entra_user_in_Seventhings.json)|
+|18457|[18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json)|
+|18524|[18524_Audit_inactive_Microsoft_365_users_and_email_license_reports_via_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18524_Audit_inactive_Microsoft_365_users_and_email_license_reports_via_Outlook.json)|

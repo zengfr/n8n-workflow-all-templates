@@ -1,4 +1,4 @@
-# coordinate : 7
+# coordinate : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |13709|[13709_Coordinate_smart_factory_operations_with_OpenAI_GPT-4.1-mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13709_Coordinate_smart_factory_operations_with_OpenAI_GPT-4.1-mini_and_Slack_alerts.json)|
 |15572|[15572_Coordinate_robot_swarms_with_OpenAI_GPT-5_and_real-time_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15572_Coordinate_robot_swarms_with_OpenAI_GPT-5_and_real-time_Slack_alerts.json)|
 |16224|[16224_Coordinate_autonomous_UAV_missions_with_multi-agent_AI_and_Microsoft_Dynamics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16224_Coordinate_autonomous_UAV_missions_with_multi-agent_AI_and_Microsoft_Dynamics.json)|
+|18626|[18626_Coordinate_client_onboarding_sagas_via_webhook__Data_Tables_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18626_Coordinate_client_onboarding_sagas_via_webhook__Data_Tables_and_Gmail.json)|

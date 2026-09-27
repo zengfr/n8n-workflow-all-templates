@@ -1,0 +1,510 @@
+{
+  "name": "Detect vendor bank-detail fraud with Groq, Google DNS and n8n Data tables",
+  "nodes": [
+    {
+      "id": "6912ef6b-a4be-401d-a7b6-985a3ba99f39",
+      "name": "Receive Payment Change Request",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "formTitle": "Vendor bank detail change - fraud check",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "vendor_name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "from_address",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "reply_to"
+            },
+            {
+              "fieldLabel": "subject",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "claimed_iban"
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "email_body",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Paste the email that asks you to change a supplier payment account. Nothing gets paid until this check clears."
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "a9e56efc-01f8-4903-8ad1-3afd74cbf4fc",
+      "name": "Set Fraud Policy",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "block-at",
+              "name": "block_at",
+              "type": "number",
+              "value": 60
+            },
+            {
+              "id": "review-at",
+              "name": "review_at",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "id": "lookalike-max",
+              "name": "lookalike_max_distance",
+              "type": "number",
+              "value": 3
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "5112d204-4d94-4a9c-a0e0-724cb9b22e5d",
+      "name": "Load Vendor Bank Register",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "58e0b9f0-7322-410b-9b99-174038a41845",
+      "name": "Score Deterministic Fraud Signals",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const f = $('Receive Payment Change Request').first().json;\nconst p = $('Set Fraud Policy').first().json;\nconst reg = $input.all().map(i => i.json).filter(r => r && (r.vendor_domain || r.vendor_name));\nconst clip = (s, n) => String(s == null ? '' : s).slice(0, n);\nconst low = v => clip(v, 2000).trim().toLowerCase();\nconst addr = e => { const s = low(e).replace(/\"/g,''); const lt = s.lastIndexOf('<'); const gt = s.lastIndexOf('>'); const inner = (lt >= 0 && gt > lt) ? s.slice(lt+1, gt) : s; return inner.replace(/[<>]/g,'').trim(); };\nconst safeAddr = a => a.replace(/[^a-z0-9._%+\\-@]/g,'').slice(0, 320);\nconst safeDom = d => d.replace(/[^a-z0-9.\\-]/g,'').slice(0, 253);\nconst dom = e => { const a = addr(e); const i = a.lastIndexOf('@'); return safeDom(i >= 0 ? a.slice(i+1).trim() : a); };\nconst HOMO = {'0':'o','1':'l','3':'e','4':'a','5':'s','7':'t','8':'b','2':'z'};\nconst deHomo = s => Array.from(s).map(c => HOMO[c] || c).join('');\nconst strip = d => deHomo(low(d)).replace(/[^a-z0-9.]/g,'').slice(0, 253);\nconst acct = v => clip(v, 64).toUpperCase().replace(/[^A-Z0-9]/g,'');\nconst looksIban = a => /^[A-Z]{2}[0-9]{2}[A-Z0-9]{11,30}$/.test(a);\nfunction lev(a,b){const m=a.length,n=b.length;const d=[];for(let i=0;i<=m;i++){d[i]=[i];}for(let j=0;j<=n;j++){d[0][j]=j;}for(let i=1;i<=m;i++){for(let j=1;j<=n;j++){d[i][j]=Math.min(d[i-1][j]+1,d[i][j-1]+1,d[i-1][j-1]+(a[i-1]===b[j-1]?0:1));}}return d[m][n];}\nfunction ibanOk(s){if(s.length<15||s.length>34){return false;}const r=s.slice(4)+s.slice(0,4);let t=0;for(const ch of r){const v=/[0-9]/.test(ch)?ch:String(ch.charCodeAt(0)-55);for(const dg of v){t=(t*10+Number(dg))%97;}}return t===1;}\nconst fromAddr = safeAddr(addr(f.from_address));\nconst replyTo = f.reply_to ? safeAddr(addr(f.reply_to)) : '';\nconst fromDom = dom(f.from_address);\nconst replyDom = replyTo ? dom(f.reply_to) : '';\nconst claimed = acct(f.claimed_iban);\nconst vendorName = low(f.vendor_name).slice(0, 200);\nconst fd = strip(fromDom);\nlet exact = null; let sub = null; let best = 99; let nearest = null;\nfor(const r of reg){ const vd = strip(r.vendor_domain); if(!vd || !fd){ continue; } if(vd === fd){ exact = r; best = 0; nearest = r; break; } if(fd.endsWith('.' + vd)){ if(!sub){ sub = r; } continue; } const dist = lev(vd, fd); if(dist < best){ best = dist; nearest = r; } }\nlet named = null;\nif(!exact && !sub && vendorName){ for(const r of reg){ if(low(r.vendor_name) && low(r.vendor_name) === vendorName){ named = r; break; } } }\nconst isLookalike = (!exact && !sub && nearest && best >= 1 && best <= p.lookalike_max_distance);\nconst ref = exact || sub || named || (isLookalike ? nearest : null);\nconst signals = [];\nlet score = 0;\nconst add = (w, code, detail) => { score = score + w; signals.push({ weight: w, code: code, detail: detail }); };\nif(sub){ add(5,'SUBDOMAIN_SENDER','Sender domain ' + fromDom + ' is a subdomain of the registered vendor domain ' + sub.vendor_domain); }\nelse if(isLookalike){ add(35,'LOOKALIKE_DOMAIN','Sender domain ' + fromDom + ' is ' + best + ' character(s) away from the registered vendor domain ' + nearest.vendor_domain); }\nelse if(!exact){ add(20,'UNKNOWN_DOMAIN','Sender domain ' + (fromDom || 'not supplied') + ' does not match any vendor domain in the register'); }\nif(replyDom && replyDom !== fromDom){ add(25,'REPLY_TO_MISMATCH','Reply-To domain ' + replyDom + ' differs from the From domain ' + fromDom); }\nif(ref && ref.authorised_emails){ const allowed = low(ref.authorised_emails).split(',').map(s => s.trim()).filter(Boolean); if(allowed.length && allowed.indexOf(fromAddr) === -1){ add(15,'UNAUTHORISED_SENDER',fromAddr + ' is not an authorised billing contact for ' + ref.vendor_name); } }\nif(claimed){\n  if(looksIban(claimed) && !ibanOk(claimed)){ add(30,'IBAN_CHECKSUM_FAIL','The account is formatted as an IBAN but fails the ISO 13616 mod-97 checksum, so it cannot be a real IBAN'); }\n  if(ref && ref.known_iban){\n    const known = acct(ref.known_iban);\n    if(known && known !== claimed){\n      add(40,'BANK_DETAILS_CHANGED','The requested account does not match the verified account on file for ' + ref.vendor_name);\n      if(looksIban(known) && looksIban(claimed) && known.slice(0,2) !== claimed.slice(0,2)){ add(20,'COUNTRY_HOP','Account country changed from ' + known.slice(0,2) + ' to ' + claimed.slice(0,2)); }\n    }\n  }\n}\nelse { add(10,'NO_ACCOUNT_SUPPLIED','No account number was supplied, so the change cannot be verified against the register'); }\nif(!ref){ add(10,'VENDOR_NOT_IN_REGISTER','This sender could not be matched to any vendor in the register, so there is no verified account or callback number to check against'); }\nreturn [{ json: { vendor_matched: ref ? ref.vendor_name : null, callback_phone: ref ? ref.callback_phone : null, known_iban_last4: ref && ref.known_iban ? String(ref.known_iban).slice(-4) : null, from_address: fromAddr, from_domain: fromDom, reply_to: replyTo, claimed_iban: claimed, domain_distance: (exact || sub) ? 0 : best, register_size: reg.length, deterministic_score: Math.min(score, 100), signal_count: signals.length, signals: signals, subject: clip(f.subject, 300), email_body: clip(f.email_body, 6000), block_at: p.block_at, review_at: p.review_at } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4f0ff7ac-1ee6-4680-81e1-ac1bc6133d11",
+      "name": "Check Sender Domain MX Records",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "url": "=https://dns.google/resolve?name={{ encodeURIComponent($json.from_domain) }}&type=MX",
+        "options": {}
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "473a9a39-76db-420b-9a6c-4e27333197c6",
+      "name": "Analyse Social Engineering Language",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueRegularOutput",
+      "position": [
+        1104,
+        0
+      ],
+      "parameters": {
+        "text": "=Subject: {{ $('Score Deterministic Fraud Signals').item.json.subject }}\n\nBody:\n{{ $('Score Deterministic Fraud Signals').item.json.email_body }}",
+        "options": {
+          "systemMessage": "You are a fraud analyst reviewing a supplier payment-change request for social-engineering pressure tactics ONLY. You cannot see the vendor register, so never comment on whether the bank details are correct.\n\nScore pressure_score from 0 to 100, where 0 is a calm routine business message and 100 is heavy manipulation. List only the tactics you actually observe, drawn from: urgency, confidentiality, authority, threat, reassurance, isolation. If none are present, return an empty list and a low score. Keep the rationale to one sentence."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "dae27fd7-de40-4c9e-ba82-d3b8b15aa7c6",
+      "name": "Groq Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        1104,
+        224
+      ],
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d303057-901b-411e-9751-c8d71134282d",
+      "name": "Parse Pressure Assessment",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1280,
+        224
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{ \"pressure_score\": 75, \"tactics\": [\"urgency\", \"confidentiality\"], \"rationale\": \"The message asks for secrecy and speed, both classic social-engineering levers.\" }"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "aa8bda43-13d1-4991-bec1-8e8006aba271",
+      "name": "Combine Into Final Verdict",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1472,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const s = $('Score Deterministic Fraud Signals').first().json;\nconst dns = $('Check Sender Domain MX Records').first().json || {};\nconst raw = $input.first().json || {};\nconst ai = raw.output ? raw.output : raw;\nconst signals = s.signals.slice();\nlet score = s.deterministic_score;\nconst answers = Array.isArray(dns.Answer) ? dns.Answer.length : 0;\nif(answers === 0 && s.domain_distance !== 0){ score = score + 15; signals.push({ weight: 15, code: 'NO_MX_RECORDS', detail: 'The sender domain ' + (s.from_domain || 'supplied') + ' publishes no MX records, so it cannot receive mail. Throwaway domains registered for a single fraud attempt often look like this.' }); }\nconst pressure = Number(ai.pressure_score || 0);\nconst tactics = Array.isArray(ai.tactics) ? ai.tactics.slice(0, 8).map(t => String(t).slice(0, 40)) : [];\nif(pressure > 0){ const w = Math.round(Math.min(pressure, 100) * 0.2); score = score + w; signals.push({ weight: w, code: 'PRESSURE_LANGUAGE', detail: 'Language analysis scored ' + Math.min(pressure, 100) + ' out of 100 for pressure tactics: ' + (tactics.length ? tactics.join(', ') : 'none named') }); }\nscore = Math.min(score, 100);\nconst band = score >= s.block_at ? 'BLOCK' : (score >= s.review_at ? 'REVIEW' : 'PASS');\nconst ordered = signals.sort((a,b) => b.weight - a.weight);\nconst lines = ordered.map(x => '[' + x.weight + '] ' + x.code + ': ' + x.detail);\nconst codes = ordered.map(x => x.code).join(', ');\nconst vendorLabel = s.vendor_matched || 'an unrecognised sender';\nconst action = band === 'BLOCK' ? 'DO NOT PAY. Verify with ' + vendorLabel + ' by calling the number already held on file (' + (s.callback_phone || 'no number on file, find one from your own records') + '). Never use a phone number printed in the email itself.' : (band === 'REVIEW' ? 'Hold the payment and verify by callback to a number from your own records before releasing any funds.' : 'No fraud indicators above threshold. Your normal approval process applies.');\nreturn [{ json: { risk_band: band, risk_score: score, vendor_matched: s.vendor_matched, from_address: s.from_address, claimed_iban: s.claimed_iban, known_iban_last4: s.known_iban_last4, callback_phone: s.callback_phone, register_size: s.register_size, pressure_score: pressure, tactics: tactics, signal_codes: codes, signals: ordered, recommended_action: action, checked_at: new Date().toISOString(), report: lines.join('\\n') } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "baf29ea5-0909-46d7-8365-fc8d05b0e29b",
+      "name": "Record Check In Audit Log",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "report": "={{ $json.report }}",
+            "risk_band": "={{ $json.risk_band }}",
+            "checked_at": "={{ $json.checked_at }}",
+            "risk_score": "={{ $json.risk_score }}",
+            "claimed_iban": "={{ $json.claimed_iban }}",
+            "from_address": "={{ $json.from_address }}",
+            "signal_codes": "={{ $json.signal_codes }}",
+            "vendor_matched": "={{ $json.vendor_matched }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "20903a2a-566f-4651-9b8d-3e6d890cc298",
+      "name": "Payment Held Or Blocked",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1904,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $('Combine Into Final Verdict').item.json.risk_band }}",
+              "rightValue": "PASS"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "ac17b420-228e-47a0-9b8b-1b93cd059e5c",
+      "name": "Show Payment Hold Verdict",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        2128,
+        -144
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "completionTitle": "={{ $('Combine Into Final Verdict').item.json.risk_band }} - do not release this payment yet",
+        "completionMessage": "=Risk score {{ $('Combine Into Final Verdict').item.json.risk_score }} of 100 for {{ $('Combine Into Final Verdict').item.json.vendor_matched }}.\n\n{{ $('Combine Into Final Verdict').item.json.recommended_action }}\n\nVerified account on file ends {{ $('Combine Into Final Verdict').item.json.known_iban_last4 }}. Account requested in the email: {{ $('Combine Into Final Verdict').item.json.claimed_iban }}.\n\nEvidence:\n{{ $('Combine Into Final Verdict').item.json.report }}"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "c51f2326-fe9f-4fb5-ba58-b01f4008fd31",
+      "name": "Show Cleared Verdict",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        2128,
+        144
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "completionTitle": "PASS - no fraud indicators above threshold",
+        "completionMessage": "=Risk score {{ $('Combine Into Final Verdict').item.json.risk_score }} of 100 for {{ $('Combine Into Final Verdict').item.json.vendor_matched }}.\n\n{{ $('Combine Into Final Verdict').item.json.recommended_action }}\n\nThis check has been written to the audit log."
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "97bbd88b-051d-4e45-9dbb-7f48496dc096",
+      "name": "Sticky Note eaef080a",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -256
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 760,
+        "content": "## Detect vendor bank-detail fraud (BEC guard)\n\n### Who's it for\n\nBookkeepers and finance teams who pay supplier invoices and receive emails asking to change a vendor's bank account.\n\n### What it does\n\nChecks the request against suppliers you have already verified and returns BLOCK, REVIEW or PASS with the evidence behind it. A screening aid that decides whether to hold a payment. It does not replace calling the supplier back.\n\n### How it works\n\nThe form takes the email as received. A data table supplies your verified vendor records. A Code node scores the deterministic signals: mod-97 checksum on IBANs, lookalike-domain distance with homoglyph folding, Reply-To against From, sender against your authorised contacts, and the account against the one on file. Non-IBAN formats such as US routing numbers are compared but not checksummed. Google DNS is queried for MX records. A Groq chat model rates pressure language only, capped at 20 of the 100 points, so text hidden in the email cannot change the verdict. Every check is written to an audit table.\n\n### Requirements\n\nTwo n8n data tables and a chat model credential. No paid API.\n\n### Setup\n\n1. Create a data table Vendor Bank Register: vendor_name, vendor_domain, authorised_emails, known_iban, known_account_last4, verified_on, callback_phone.\n2. Create a data table Payment Change Audit Log: checked_at, vendor_matched, from_address, claimed_iban, risk_band, risk_score, signal_codes, report.\n3. Point both data table nodes at your tables.\n4. Add your chat model credential on Groq Chat Model.\n5. Tune the thresholds in Set Fraud Policy.\n\n### Customization tips\n\nSwap the form trigger for your mailbox trigger to check requests automatically. Add a notification node on the held branch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec132364-cedb-4d97-a23b-e42f5fba76b3",
+      "name": "Sticky Note 37ea8099",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 416,
+        "content": "## 1. Capture and policy\n\nThe form takes the email exactly as received. Every threshold lives in Set Fraud Policy rather than buried in expressions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b3ca1f7-87d3-43d6-998b-8ba6411815cb",
+      "name": "Sticky Note 669d5092",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        608,
+        -256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 416,
+        "content": "## 2. Deterministic checks\n\nIBAN mod-97, lookalike-domain distance, Reply-To mismatch, unauthorised sender, account diff and an MX lookup. These carry 80 of the 100 points, before any AI runs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c3f87bf0-d068-4788-af4f-e46fba3af930",
+      "name": "Sticky Note ff3a325f",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1056,
+        -256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 640,
+        "content": "## 3. Pressure language\n\nThe model rates social-engineering pressure only and never sees the register. Capped at 20 points, so injected text in the email cannot change the verdict."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c18fe089-ba68-4952-8423-9ee09648d9b2",
+      "name": "Sticky Note 854996f9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1408,
+        -256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 896,
+        "height": 560,
+        "content": "## 4. Verdict and audit trail\n\nBLOCK at 60, REVIEW at 30. Every check is logged either way. A held payment tells the approver to call the number already on file."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "nodeGroups": [],
+  "connections": {
+    "Groq Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Analyse Social Engineering Language",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Fraud Policy": {
+      "main": [
+        [
+          {
+            "node": "Load Vendor Bank Register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment Held Or Blocked": {
+      "main": [
+        [
+          {
+            "node": "Show Payment Hold Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Show Cleared Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Vendor Bank Register": {
+      "main": [
+        [
+          {
+            "node": "Score Deterministic Fraud Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Pressure Assessment": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Analyse Social Engineering Language",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Check In Audit Log": {
+      "main": [
+        [
+          {
+            "node": "Payment Held Or Blocked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Into Final Verdict": {
+      "main": [
+        [
+          {
+            "node": "Record Check In Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Sender Domain MX Records": {
+      "main": [
+        [
+          {
+            "node": "Analyse Social Engineering Language",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Payment Change Request": {
+      "main": [
+        [
+          {
+            "node": "Set Fraud Policy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Deterministic Fraud Signals": {
+      "main": [
+        [
+          {
+            "node": "Check Sender Domain MX Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyse Social Engineering Language": {
+      "main": [
+        [
+          {
+            "node": "Combine Into Final Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Screen vendor bank change requests with Groq, Google DNS and data tables",
+    "wechat": "youandme10086",
+    "id": 18454,
+    "update_time": "2026-09-27"
+  }
+}

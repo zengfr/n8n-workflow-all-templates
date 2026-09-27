@@ -1,0 +1,610 @@
+{
+  "name": "Monitor hotel reviews on Tripadvisor and route the bad ones to Google Sheets",
+  "nodes": [
+    {
+      "id": "d5e8a76c-0001-4e01-f001-000000000001",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d5e8a76c-0002-4e02-f002-000000000002",
+      "name": "Set the hotels to watch",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d5e8a76c-0011-4e11-f011-+1234567890",
+              "name": "placeIds",
+              "type": "array",
+              "value": "[\"143336\"]"
+            },
+            {
+              "id": "d5e8a76c-0012-4e12-f012-+1234567890",
+              "name": "reviewsPerHotel",
+              "type": "number",
+              "value": "10"
+            },
+            {
+              "id": "d5e8a76c-0013-4e13-f013-+1234567890",
+              "name": "alertAtOrBelow",
+              "type": "number",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d5e8a76c-0003-4e03-f003-000000000003",
+      "name": "One lookup per hotel",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        520,
+        520
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "placeIds"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0004-4e04-f004-000000000004",
+      "name": "Fetch the latest reviews",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "memory": 128,
+        "actorId": "johnvc~tripadvisor-api",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ search_mode: 'reviews', place_id: $json.placeIds, max_results: $json.reviewsPerHotel }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0005-4e05-f005-000000000005",
+      "name": "Keep rows that are real reviews",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d5e8a76c-0041-4e41-f041-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.resultType }}",
+              "rightValue": "review"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d5e8a76c-0006-4e06-f006-000000000006",
+      "name": "One row per review",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// One row per review, stamped with the run date and keyed by review ID, so\n// the sheet reads as a review history: an ID in this week's rows that is\n// missing from last week's is a new review.\nconst weekOf = $now.toFormat('yyyy-MM-dd');\nconst threshold = Number($('Set the hotels to watch').first().json.alertAtOrBelow ?? 2);\n\nconst clip = (s, n) => {\n  const v = String(s || '').replace(/\\s+/g, ' ').trim();\n  return v.length > n ? v.slice(0, n - 3) + '...' : v;\n};\n\n// tripDate is only ever month accurate (it always lands on a month end), so\n// it ships as YYYY-MM rather than pretending to be the exact night of the stay.\n// Trip type arrives upper case with NONE standing in for \"not stated\".\nconst tripType = (t) => {\n  const v = String(t || '').trim().toUpperCase();\n  if (!v || v === 'NONE') return '';\n  return v.charAt(0) + v.slice(1).toLowerCase();\n};\n\nreturn $input.all().map((item) => {\n  const r = item.json;\n  const rating = typeof r.rating === 'number' ? r.rating : '';\n  return {\n    json: {\n      'Week of': weekOf,\n      'Hotel place ID': r.placeId || '',\n      'Total reviews': typeof r.totalReviews === 'number' ? r.totalReviews : '',\n      'Review ID': r.reviewId || '',\n      Position: r.position ?? '',\n      Rating: rating,\n      'Needs a reply': rating !== '' && rating <= threshold ? 'YES' : '',\n      'Review date': r.reviewDate || '',\n      'Stay month': String(r.tripDate || '').slice(0, 7),\n      Title: clip(r.title, 140),\n      Review: clip(r.snippet, 300),\n      'Trip type': tripType(r.tripType),\n      Language: r.language || '',\n      Author: clip(r.authorName, 80),\n      'Review URL': r.url || '',\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d5e8a76c-0007-4e07-f007-000000000007",
+      "name": "Is this a bad review?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1560,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d5e8a76c-0071-4e71-f071-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json['Needs a reply'] }}",
+              "rightValue": "YES"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "d5e8a76c-0008-4e08-f008-000000000008",
+      "name": "Queue the bad ones for a reply",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1840,
+        340
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "d5e8a76c-0009-4e09-f009-000000000009",
+      "name": "Append every review to the history",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1840,
+        700
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "d5e8a76c-0021-4e21-f021-000000000021",
+      "name": "Optional: only the first time you see it",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        400,
+        1470
+      ],
+      "parameters": {
+        "logic": "removeItemsWithAlreadySeenKeyValues",
+        "options": {},
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json['Review ID'] }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d5e8a76c-0022-4e22-f022-000000000022",
+      "name": "Optional: post it to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        700,
+        1470
+      ],
+      "parameters": {
+        "text": "=:warning: {{ $json.Rating }} star review for hotel {{ $json['Hotel place ID'] }}\n*{{ $json.Title }}*\n{{ $json.Review }}\n{{ $json['Review URL'] }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": ""
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "d5e8a76c-0023-4e23-f023-000000000023",
+      "name": "Optional: email the duty manager",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1000,
+        1470
+      ],
+      "parameters": {
+        "sendTo": "",
+        "message": "={{ $json.Title }}\n\n{{ $json.Review }}\n\nRead and reply: {{ $json['Review URL'] }}",
+        "options": {},
+        "subject": "=New {{ $json.Rating }} star Tripadvisor review"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d5e8a76c-0101-4e01-a001-000000000101",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1700,
+        "content": "## Monitor hotel reviews on Tripadvisor and route the bad ones\n\nNo reputation management subscription and no review platform API key. Every week this pulls the latest reviews for each hotel you list, then **splits them down two paths**: every review lands in a running history tab, and anything at or below your rating threshold is also queued on a separate tab so nobody has to scan the sheet to find the complaints.\n\nBecause each run appends a dated snapshot keyed by review ID, a review ID in this week's rows that is missing from last week's is a new review, and the running review total on every row shows the pace at which they arrive.\n\n**Who's it for**\nHotel managers who want to see a bad review before the front desk hears about it, agencies reporting on guest feedback for client properties, and teams watching a competitor's reviews next to their own.\n\n**How it works**\n1. A schedule trigger fires once a week\n2. One Set node holds the hotels you watch and your alert threshold\n3. The Apify node fetches the latest reviews for each hotel\n4. A Code node keys each row by review ID and marks the ones needing a reply\n5. An IF node routes those to their own tab, while the history tab gets everything\n\n**Setup**\n1. Create a free Apify account and add your API token to the Apify credential\n2. Connect your Google account in both Sheets nodes and pick a spreadsheet\n3. Replace the example place ID with your own hotels. The place ID is the number after d in the hotel page URL\n\n**Make it yours**\nThree optional nodes sit unconnected at the bottom of the canvas. Drag a connection from the true branch of **Is this a bad review?** into any of them to add Slack, email, or once-only alerting. Nothing else has to change.\n\n**Good to know**\nA review costs about a fifth of a cent, so checking the latest ten reviews on one hotel weekly is just under 2 cents a week.\nActor: https://apify.com/johnvc/tripadvisor-api?fpr=9n7kx3&fp_sid=n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0102-4e02-a002-000000000102",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 1. Schedule\nRuns every Monday morning. Change the cadence, or swap in a manual trigger while you test."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0103-4e03-a003-000000000103",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 2. Your input\nThe hotels to watch as place IDs, how many of the latest reviews to pull, and the rating that counts as bad. This is the only node you edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0104-4e04-a004-000000000104",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 3. Fan out\nTurns your hotel list into one review lookup each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0105-4e05-a005-000000000105",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 4. Fetch\nRuns the Tripadvisor API actor in reviews mode for one hotel. Add your Apify credential here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0106-4e06-a006-000000000106",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 5. Clean\nKeeps only real review rows, so an upstream error never reaches the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0107-4e07-a007-000000000107",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 6. Shape\nOne row per review, keyed by review ID and stamped with the run date, marking anything at or below your threshold."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0108-4e08-a008-000000000108",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 240,
+        "height": 240,
+        "content": "### 7. Route\nBad reviews take the true branch and also carry on to the history, so nothing is lost. This is the branch to hang an alert off."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0109-4e09-a009-000000000109",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1780,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 240,
+        "content": "### 8. Deliver\nTwo tabs in one spreadsheet: a reply queue holding only the bad reviews, and a history holding every review. Columns map automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0110-4e10-a010-000000000110",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### New reviews are a sheet diff\nEvery run appends a dated snapshot keyed by review ID. An ID that appears this week and was not there last week is a new review, and the Total reviews column rising tells you the pace."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0111-4e11-a011-000000000111",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Finding a place ID\nOpen the hotel's Tripadvisor page and read the number after d in the URL: a URL containing d143336 means place ID 143336. The actor's search mode returns the same placeId for every hotel it finds, so you can look properties up by name once and paste the IDs here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0112-4e12-a012-000000000112",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Why two tabs\nA single appended log buries the complaints among the five star reviews. Splitting at the IF gives the front desk a short reply queue while the history tab still holds everything for reporting. Change the threshold in the input node to make the queue stricter or wider."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0113-4e13-a013-000000000113",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1540,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Prefer a dedicated node?\nThere is a community node for this actor: `n8n-nodes-tripadvisor-api`. Install it from Settings then Community nodes if you would rather configure Tripadvisor with typed fields than a JSON body. This template uses the official verified Apify node so it runs on n8n Cloud with nothing to install."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5e8a76c-0114-4e14-a014-000000000114",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        1180
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1120,
+        "height": 440,
+        "content": "## Optional add-ons, not wired up\n\nThese three are deliberately left unconnected. Pick the ones that match how your team wants to hear about a bad review, drag a connection into them from the **true** output of **Is this a bad review?**, and delete the rest.\n\n**Only the first time you see it** stops the same review alerting every week, because the run re-reads the latest reviews each time. **Slack** posts into a channel. **Gmail** emails whoever is on duty. Each needs its own credential before it will run."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "One row per review": {
+      "main": [
+        [
+          {
+            "node": "Is this a bad review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Set the hotels to watch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One lookup per hotel": {
+      "main": [
+        [
+          {
+            "node": "Fetch the latest reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is this a bad review?": {
+      "main": [
+        [
+          {
+            "node": "Queue the bad ones for a reply",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append every review to the history",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append every review to the history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set the hotels to watch": {
+      "main": [
+        [
+          {
+            "node": "One lookup per hotel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch the latest reviews": {
+      "main": [
+        [
+          {
+            "node": "Keep rows that are real reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep rows that are real reviews": {
+      "main": [
+        [
+          {
+            "node": "One row per review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Route low-rated Tripadvisor hotel reviews to Google Sheets with Apify",
+    "wechat": "youandme10086",
+    "id": 18045,
+    "update_time": "2026-09-27"
+  }
+}

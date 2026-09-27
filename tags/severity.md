@@ -1,4 +1,4 @@
-# severity : 4
+# severity : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |12992|[12992_Orchestrate_AI_risk_analysis_and_severity-based_routing_with_Anthropic_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12992_Orchestrate_AI_risk_analysis_and_severity-based_routing_with_Anthropic_and_OpenAI.json)|
 |13139|[13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13139_Monitor_data_integrity_and_route_severity-based_alerts_with_GPT-4o__email_and_Slack.json)|
 |13900|[13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13900_Scan_code_repositories_for_governance_issues_with_GPT-4o_and_severity-based_reports.json)|
+|17929|[17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json)|

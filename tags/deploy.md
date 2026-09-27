@@ -1,4 +1,4 @@
-# deploy : 22
+# deploy : 29
 
 |id|file|
 |----|----|
@@ -24,3 +24,10 @@
 |15795|[15795_Deploy_n8n_workflows_with_GitHub-based_version_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15795_Deploy_n8n_workflows_with_GitHub-based_version_control.json)|
 |16027|[16027_Draft_and_approve_Gmail_replies_with_OpenAI_and_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16027_Draft_and_approve_Gmail_replies_with_OpenAI_and_CustomJS.json)|
 |16764|[16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json)|
+|17032|[17032_Deploy_curated_Docker_app_stacks_to_a_Hostinger_VPS_via_forms_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17032_Deploy_curated_Docker_app_stacks_to_a_Hostinger_VPS_via_forms_and_email.json)|
+|17483|[17483_Generate_and_deploy_Notion_chat_assistants_with_OpenAI_and_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17483_Generate_and_deploy_Notion_chat_assistants_with_OpenAI_and_n8n_API.json)|
+|18133|[18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json)|
+|18309|[18309_Generate_and_deploy_nginx_configs_with_SSH__web_forms_and_Cloudflare.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18309_Generate_and_deploy_nginx_configs_with_SSH__web_forms_and_Cloudflare.json)|
+|18888|[18888_Route_monitoring_incidents_to_self-healing_with_Claude__Cursor__ClickUp_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18888_Route_monitoring_incidents_to_self-healing_with_Claude__Cursor__ClickUp_and_WhatsApp.json)|
+|19075|[19075_Block_noindex_SEO_regressions_in_deploy_pipelines_with_webhook_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19075_Block_noindex_SEO_regressions_in_deploy_pipelines_with_webhook_and_Slack.json)|
+|19270|[19270_Deploy_workflows_from_GitHub_pushes_to_a_production_n8n_instance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19270_Deploy_workflows_from_GitHub_pushes_to_a_production_n8n_instance.json)|

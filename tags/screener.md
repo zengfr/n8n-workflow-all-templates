@@ -1,4 +1,4 @@
-# screener : 7
+# screener : 11
 
 |id|file|
 |----|----|
@@ -9,3 +9,7 @@
 |14856|[14856_Screen_resumes_with_GPT-4_Turbo_from_Gmail_and_send_shortlisted_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14856_Screen_resumes_with_GPT-4_Turbo_from_Gmail_and_send_shortlisted_to_Slack.json)|
 |16153|[16153_Manage_SMC_Screener_analyses_with_n8n_forms_and_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16153_Manage_SMC_Screener_analyses_with_n8n_forms_and_HTTP_API.json)|
 |16764|[16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json)|
+|18024|[18024_Collect_packaging_declarations_from_CSV_with_forms__AI_agents_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18024_Collect_packaging_declarations_from_CSV_with_forms__AI_agents_and_email.json)|
+|18434|[18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json)|
+|18489|[18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json)|
+|18805|[18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json)|

@@ -1,4 +1,4 @@
-# certificates : 15
+# certificates : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |13219|[13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json)|
 |14081|[14081_Generate_bulk_Google_Slides_certificates___as_PDFs_and_email_them_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14081_Generate_bulk_Google_Slides_certificates___as_PDFs_and_email_them_with_Gmail.json)|
 |16379|[16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json)|
+|17861|[17861_Generate_bulk_certificates_from_Google_Sheets_with_BulkCertify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17861_Generate_bulk_certificates_from_Google_Sheets_with_BulkCertify.json)|
+|17967|[17967_Generate_and_email_course_certificates_from_Google_Sheets_with_Canva_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17967_Generate_and_email_course_certificates_from_Google_Sheets_with_Canva_and_Gmail.json)|
+|17973|[17973_Generate_LMS_completion_certificates_with_Groq__PDFShift__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17973_Generate_LMS_completion_certificates_with_Groq__PDFShift__Gmail_and_Slack.json)|
+|18553|[18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json)|
+|18709|[18709_Issue_cohort_completion_certificates_with_pdfmill__Gmail_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18709_Issue_cohort_completion_certificates_with_pdfmill__Gmail_and_Google_Drive.json)|

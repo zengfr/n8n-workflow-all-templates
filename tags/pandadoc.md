@@ -1,4 +1,4 @@
-# pandadoc : 5
+# pandadoc : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |12032|[12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12032_Clear_integration_of_GPT-4_with_key_tools_for_enhanced_functionality.json)|
 |12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
 |14053|[14053_Generate_Real_Estate_Research_Reports_With_Exa_AI__PandaDoc_and_Instantly_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14053_Generate_Real_Estate_Research_Reports_With_Exa_AI__PandaDoc_and_Instantly_AI.json)|
+|16804|[16804_Generate_sales_call_proposals_with_GPT-4o__Google_Slides__PandaDoc__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16804_Generate_sales_call_proposals_with_GPT-4o__Google_Slides__PandaDoc__and_Gmail.json)|

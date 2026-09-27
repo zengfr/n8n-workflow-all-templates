@@ -1,4 +1,4 @@
-# invoicing : 7
+# invoicing : 10
 
 |id|file|
 |----|----|
@@ -9,3 +9,6 @@
 |9218|[9218_Automate_QuickBooks_Invoicing___Customer_Creation_from_Airtable_Sales_Orders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9218_Automate_QuickBooks_Invoicing___Customer_Creation_from_Airtable_Sales_Orders.json)|
 |9542|[9542_Automate_Stripe_Invoicing_Workflow_with_ClickUp___Gmail_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9542_Automate_Stripe_Invoicing_Workflow_with_ClickUp___Gmail_Notifications.json)|
 |13925|[13925_Download_KSeF__Poland_s_e-invoicing_system__invoices_to_an_Excel_spreadsheet.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13925_Download_KSeF__Poland_s_e-invoicing_system__invoices_to_an_Excel_spreadsheet.json)|
+|18704|[18704_Handle_KSeF_e-invoice_exceptions_with_webhooks__Gmail_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18704_Handle_KSeF_e-invoice_exceptions_with_webhooks__Gmail_and_Data_Tables.json)|
+|19017|[19017_Validate_Belgian_VAT_numbers_and_Peppol_status_with_VIES_and_the_Peppol_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19017_Validate_Belgian_VAT_numbers_and_Peppol_status_with_VIES_and_the_Peppol_API.json)|
+|19412|[19412_Reconcile_CRM_and_invoicing_owner_fields_with_HTTPS_APIs_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19412_Reconcile_CRM_and_invoicing_owner_fields_with_HTTPS_APIs_and_Data_Tables.json)|

@@ -1,4 +1,4 @@
-# assessment : 14
+# assessment : 18
 
 |id|file|
 |----|----|
@@ -16,3 +16,7 @@
 |13426|[13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13426_Orchestrate_quality_event_risk_assessment_with_Claude__Gmail_and_Slack_for_human_approval.json)|
 |13995|[13995_Generate_research-backed_curriculum_plans_with_GPT-4o__Perplexity_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13995_Generate_research-backed_curriculum_plans_with_GPT-4o__Perplexity_and_Google_Sheets.json)|
 |16604|[16604_Triage_chronic_care_vitals_with_Google_Sheets__Gmail__Telegram_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16604_Triage_chronic_care_vitals_with_Google_Sheets__Gmail__Telegram_and_Slack.json)|
+|17105|[17105_Verify_loan_documents_and_score_eligibility_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17105_Verify_loan_documents_and_score_eligibility_with_Claude_and_Google_Sheets.json)|
+|17981|[17981_Publish_operational_assessment_microsites_from_Supabase_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17981_Publish_operational_assessment_microsites_from_Supabase_records.json)|
+|18503|[18503_Assess_SaaS_vendor_risk_with_OpenAI_and_Probo_and_notify_security_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18503_Assess_SaaS_vendor_risk_with_OpenAI_and_Probo_and_notify_security_in_Slack.json)|
+|19261|[19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json)|

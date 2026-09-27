@@ -1,4 +1,4 @@
-# vapi : 37
+# vapi : 41
 
 |id|file|
 |----|----|
@@ -39,3 +39,7 @@
 |13948|[13948_Qualify_inbound_leads_with_Vapi_voice_AI_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13948_Qualify_inbound_leads_with_Vapi_voice_AI_and_log_results_to_Google_Sheets.json)|
 |16048|[16048_Trigger_AI_outbound_calls_from_HubSpot_and_log_call_results_with_Vapi.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16048_Trigger_AI_outbound_calls_from_HubSpot_and_log_call_results_with_Vapi.json)|
 |16638|[16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json)|
+|17234|[17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json)|
+|17490|[17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json)|
+|18098|[18098_Sync_Notion_knowledge_base_with_Vapi_assistants_and_Pinecone_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18098_Sync_Notion_knowledge_base_with_Vapi_assistants_and_Pinecone_using_OpenAI.json)|
+|19121|[19121_Place_real_estate_AI_outbound_calls_with_Vapi_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19121_Place_real_estate_AI_outbound_calls_with_Vapi_and_log_results_to_Google_Sheets.json)|

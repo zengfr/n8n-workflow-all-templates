@@ -1,4 +1,4 @@
-# gdpr : 7
+# gdpr : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |14145|[14145_Handle_GDPR_access_and_erasure_emails_with_Gmail__GPT-4o__Supabase_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14145_Handle_GDPR_access_and_erasure_emails_with_Gmail__GPT-4o__Supabase_and_Airtable.json)|
 |14320|[14320_Detect_and_mask_PII_for_GDPR-safe_AI_document_analysis_with_Anthropic_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14320_Detect_and_mask_PII_for_GDPR-safe_AI_document_analysis_with_Anthropic_and_PostgreSQL.json)|
 |16194|[16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json)|
+|18929|[18929_Find_and_log_GDPR_request_evidence_with_Groq_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18929_Find_and_log_GDPR_request_evidence_with_Groq_and_Data_Tables.json)|
+|19261|[19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json)|
+|19266|[19266_Register_GDPR_Article_30_processing_activities_with_Groq_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19266_Register_GDPR_Article_30_processing_activities_with_Groq_and_Discord.json)|
+|19382|[19382_Assess_GDPR_breach_risk_and_72-hour_deadlines_with_Groq_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19382_Assess_GDPR_breach_risk_and_72-hour_deadlines_with_Groq_and_data_tables.json)|
+|19384|[19384_Log_GDPR_Article_22_decisions_and_route_review_requests_with_Groq_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19384_Log_GDPR_Article_22_decisions_and_route_review_requests_with_Groq_and_Discord.json)|
+|19390|[19390_Audit_website_GDPR_privacy_compliance_with_HTTP_checks_and_HTML_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19390_Audit_website_GDPR_privacy_compliance_with_HTTP_checks_and_HTML_reports.json)|

@@ -1,4 +1,4 @@
-# detection : 80
+# detection : 92
 
 |id|file|
 |----|----|
@@ -82,3 +82,15 @@
 |15895|[15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json)|
 |16141|[16141_Send_ramped_cold_email_sequences_with_Gmail__Google_Sheets__and_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16141_Send_ramped_cold_email_sequences_with_Gmail__Google_Sheets__and_Anthropic_Claude.json)|
 |16584|[16584_Detect_maverick_spend_and_alert_reviewers_via_Slack__Gmail__Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16584_Detect_maverick_spend_and_alert_reviewers_via_Slack__Gmail__Sheets_and_Gemini.json)|
+|17109|[17109_Detect_early_payment_invoice_opportunities_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17109_Detect_early_payment_invoice_opportunities_with_Groq_and_Google_Sheets.json)|
+|17417|[17417_Triage_brand_crises_with_OpenAI__Telegram__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17417_Triage_brand_crises_with_OpenAI__Telegram__Slack__and_Google_Sheets.json)|
+|17618|[17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json)|
+|17687|[17687_Send_daily_business_change_digest_with_OpenAI__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17687_Send_daily_business_change_digest_with_OpenAI__Google_Sheets_and_Telegram.json)|
+|17972|[17972_Inspect_product_quality_from_Telegram_photos_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17972_Inspect_product_quality_from_Telegram_photos_with_Google_Sheets_and_Gemini.json)|
+|18491|[18491_Detect_smart_meter_anomalies_and_route_critical_alerts_via_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18491_Detect_smart_meter_anomalies_and_route_critical_alerts_via_HTTP_API.json)|
+|18720|[18720_Detect_procurement_conflicts_of_interest_with_Google_Sheets__Slack_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18720_Detect_procurement_conflicts_of_interest_with_Google_Sheets__Slack_and_Groq.json)|
+|18820|[18820_Detect_and_self-heal_data_pipeline_incidents_with_PostgreSQL__Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18820_Detect_and_self-heal_data_pipeline_incidents_with_PostgreSQL__Claude_and_Slack.json)|
+|18830|[18830_Detect_and_email_top_job_matches_with_RemoteOK__Arbeitnow__OpenAI__Gmail_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18830_Detect_and_email_top_job_matches_with_RemoteOK__Arbeitnow__OpenAI__Gmail_and_PostgreSQL.json)|
+|18982|[18982_Maintain_and_rewrite_knowledge_base_articles_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18982_Maintain_and_rewrite_knowledge_base_articles_with_Claude_and_Slack.json)|
+|19129|[19129_Validate_AI_answers_with_Google_search__OpenAI_GPT-4__Slack_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19129_Validate_AI_answers_with_Google_search__OpenAI_GPT-4__Slack_and_Gmail_alerts.json)|
+|19686|[19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json)|

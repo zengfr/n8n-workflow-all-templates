@@ -1,4 +1,4 @@
-# multimodal : 10
+# multimodal : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |11754|[11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11754_Build_a_WhatsApp_Assistant_for_Text__Audio___Images_using_GPT-4o___Evolution_API.json)|
 |12006|[12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12006_AI_expense_tracker__Telegram_voice_photo_text_to_sheets.json)|
 |13446|[13446_Get_multimodal_AI_dating_advice_on_Telegram_with_Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13446_Get_multimodal_AI_dating_advice_on_Telegram_with_Google_Gemini_and_Sheets.json)|
+|17216|[17216_Run_a_multimodal_WhatsApp_AI_assistant_with_OpenAI_for_text__voice_and_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17216_Run_a_multimodal_WhatsApp_AI_assistant_with_OpenAI_for_text__voice_and_images.json)|
+|17376|[17376_Build_a_multimodal_WhatsApp_assistant_with_GPT-5__Gemini__and_Wikipedia.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17376_Build_a_multimodal_WhatsApp_assistant_with_GPT-5__Gemini__and_Wikipedia.json)|

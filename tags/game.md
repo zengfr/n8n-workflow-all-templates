@@ -1,4 +1,4 @@
-# game : 7
+# game : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |6666|[6666_Automated_Multi-Platform_Game_Deals_Tracker_with_Deku_Deals___Gmail_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6666_Automated_Multi-Platform_Game_Deals_Tracker_with_Deku_Deals___Gmail_Alerts.json)|
 |12194|[12194_Find_the_best_Roblox_server_for_your_game_using_a_webhook_and_Roblox_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12194_Find_the_best_Roblox_server_for_your_game_using_a_webhook_and_Roblox_API.json)|
 |14165|[14165_Get_chess.com_game_reviews_by_email_using_Google_Gemini_or_other_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14165_Get_chess.com_game_reviews_by_email_using_Google_Gemini_or_other_LLMs.json)|
+|18600|[18600_Search_game_prices_and_deals_with_Discord_and_IsThereAnyDeal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18600_Search_game_prices_and_deals_with_Discord_and_IsThereAnyDeal.json)|
+|18907|[18907_Track_game_prices_and_deals_from_Discord_using_IsThereAnyDeal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18907_Track_game_prices_and_deals_from_Discord_using_IsThereAnyDeal.json)|

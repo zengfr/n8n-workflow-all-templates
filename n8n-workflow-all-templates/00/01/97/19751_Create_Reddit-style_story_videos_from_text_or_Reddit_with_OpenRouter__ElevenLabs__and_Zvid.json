@@ -1,0 +1,1225 @@
+{
+  "name": "Create captioned story videos from text or Reddit with Zvid and ElevenLabs",
+  "nodes": [
+    {
+      "id": "zvid-rs-0001",
+      "name": "Every day at 9am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        50,
+        240
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "zvid-rs-0002",
+      "name": "Test manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        310,
+        240
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "zvid-rs-0003",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        570,
+        240
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"apiUrl\": \"https://api.zvid.io\",\n  \"subreddit\": \"tifu\",\n  \"minChars\": 400,\n  \"maxChars\": 2200,\n  \"targetSeconds\": 45,\n  \"llmModel\": \"openai/gpt-4.1-mini\",\n  \"voiceId\": \"nPczCjzI2devNBz1zQrb\",\n  \"voiceLabel\": \"Brian (deep narrator)\",\n  \"elevenModel\": \"eleven_multilingual_v2\",\n  \"voiceStability\": 0.4,\n  \"voiceSimilarity\": 0.75,\n  \"channelHandle\": \"@untoldstories.daily\",\n  \"ctaText\": \"Follow for tomorrow's story\",\n  \"brandBackground\": \"#10141C\",\n  \"brandAccent\": \"#FFC24B\",\n  \"cardFont\": \"Inter\",\n  \"captionFont\": \"Montserrat\",\n  \"captionAnimation\": \"karaoke\",\n  \"captionWordsPerCue\": 3,\n  \"captionSize\": 60,\n  \"captionStrokeWidth\": 6,\n  \"captionActiveColor\": \"#10141C\",\n  \"sceneTransition\": \"fade\",\n  \"transitionSeconds\": 0.35,\n  \"kenBurnsDepth\": 1.12,\n  \"maxShotSeconds\": 12,\n  \"outroSeconds\": 3,\n  \"includeAttribution\": true,\n  \"musicVolume\": 0.1,\n  \"maxMusicSeconds\": 240,\n  \"maxMusicBytes\": 5242880,\n  \"resolution\": \"tiktok\",\n  \"frameRate\": 30,\n  \"tailSeconds\": 0.4,\n  \"dryRun\": false,\n  \"pollSeconds\": 10,\n  \"timeoutMinutes\": 20,\n  \"sourceMode\": \"manual\",\n  \"manualStoryTitle\": \"\",\n  \"manualStoryText\": \"\",\n  \"manualStoryUrl\": \"\",\n  \"redditUserAgent\": \"n8n:zvid.reddit-story:v1.0 (by /u/YOUR_REDDIT_USERNAME)\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "zvid-rs-0004",
+      "name": "Fetch top stories",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1310,
+        240
+      ],
+      "parameters": {
+        "url": "=https://oauth.reddit.com/r/{{ encodeURIComponent($('Config').first().json.subreddit) }}/top?t=day&limit=25&raw_json=1",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "={{ $('Config').first().json.redditUserAgent }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "redditOAuth2Api"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "zvid-rs-0005",
+      "name": "Pick story",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1570,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// Manual text is an explicit input; automatic mode uses Reddit OAuth.\nconst cfg = $('Config').first().json;\nconst res = $input.first().json;\nconst minChars = Number(cfg.minChars ?? 400);\nconst maxChars = Number(cfg.maxChars ?? 2200);\nconst toPlain = s => String(s || '').replace(/[‘’ʼ]/g, \"'\").replace(/[“”]/g, '\"').replace(/[–—]/g, '-').replace(/…/g, '...').replace(/\\s+/g, ' ').trim();\nconst store = $getWorkflowStaticData('global');\nconst used = new Set(Array.isArray(store.usedPostIds) ? store.usedPostIds : []);\nlet entries = [], candidates = [];\nif (cfg.sourceMode === 'manual') {\n  const title = toPlain(cfg.manualStoryTitle), text = toPlain(cfg.manualStoryText);\n  if (!title || !text) throw new Error('Add manualStoryTitle and manualStoryText in Config before running. Automatic Reddit fetching requires an approved Reddit app and a Reddit OAuth2 credential. No AI or render request has been made.');\n  if (text.length < minChars || text.length > maxChars) throw new Error('Manual story must contain between ' + minChars + ' and ' + maxChars + ' characters. Adjust the story or Config limits.');\n  const hash = Array.from(title + text).reduce((n, c) => ((n << 5) - n + c.charCodeAt(0)) | 0, 0);\n  candidates = [{ id: 'manual-' + (hash >>> 0).toString(16), title, text, permalink: String(cfg.manualStoryUrl || '').trim() }];\n  entries = candidates;\n} else if (cfg.sourceMode === 'reddit') {\n  const status = Number(res.statusCode || 200);\n  if (status === 429) {\n    const retry = res.headers?.['retry-after'];\n    const seconds = /^\\d+$/.test(String(retry || '')) ? Number(retry) : Math.max(0, Math.ceil((Date.parse(retry) - Date.now()) / 1000));\n    throw new Error('Reddit rate limit reached (HTTP 429). ' + (Number.isFinite(seconds) && seconds > 0 ? 'Wait at least ' + seconds + ' seconds before trying again. ' : 'Wait for Reddit access to reset before trying again. ') + 'This workflow stops without retrying or spending AI/render credits. You can instead use sourceMode=manual with your own story.');\n  }\n  if (status === 401 || status === 403) throw new Error('Reddit rejected access (HTTP ' + status + '). Connect an approved Reddit OAuth2 app to Fetch top stories and set a descriptive redditUserAgent in Config. A browser header does not replace authorization. Use sourceMode=manual if you have no approved app.');\n  if (status >= 400) throw new Error('Reddit request failed (HTTP ' + status + '). No AI or render request has been made.');\n  const body = res.body || res;\n  if (!Array.isArray(body.data?.children)) throw new Error('Reddit returned an invalid listing. Check the Reddit OAuth2 credential and subreddit in Config.');\n  entries = body.data.children.map(item => item.data || {});\n  candidates = entries.filter(p => p.is_self && !p.over_18 && !p.stickied && !p.removed_by_category && p.selftext !== '[deleted]' && p.selftext !== '[removed]' && !/automoderator/i.test(p.author || '')).map(p => ({id:p.name || p.id, title:toPlain(p.title), text:toPlain(p.selftext), permalink:'https://www.reddit.com' + p.permalink})).filter(p => p.id && p.text.length >= minChars && p.text.length <= maxChars && !used.has(p.id));\n  if (!candidates.length) throw new Error('No eligible unused text story found among ' + entries.length + ' Reddit posts. Check minChars/maxChars or supply your own story in manual mode.');\n} else {\n  throw new Error('Config sourceMode must be manual or reddit.');\n}\nconst post = candidates[0];\n// Word budget: spoken story narration runs at roughly 2.7 words/second.\nconst targetWords = Math.round(Number(cfg.targetSeconds || 45) * 2.7);\n\nconst promptText = [\n  'Source story (from a public forum):',\n  'TITLE: ' + post.title,\n  'STORY: ' + post.text,\n  '',\n  'Retell this as a first-person story video narration of about ' + cfg.targetSeconds + ' seconds - roughly ' + targetWords + ' words.',\n  'Rules:',\n  '1. First person, past tense, told like a voice note to a friend. Keep the real arc: setup, escalation, payoff.',\n  '2. The \"hook\" is the opening sentence: under twelve words, drops into the drama mid-action, no greeting.',\n  '3. Never mention Reddit, any website, any username or any real name. Say \"my wife\", \"my coworker\" and so on.',\n  '4. Family friendly: no profanity, nothing explicit. Soften anything gruesome.',\n  '5. Plain ASCII only: no emoji, no curly quotes, no dashes as punctuation. Spell every number out as words (\"forty\", not \"40\") and avoid abbreviations.',\n  '6. After the hook, write the story as four to six scenes. Each scene is one to three full sentences of narration, in order - together the scenes are the complete story with no gaps and no repeats. The hook is NOT part of any scene.',\n  '7. Each scene needs a \"visualQuery\": two to four plain words naming concrete filmable stock footage for that beat - an object, a place, or a pair of hands doing something. Never an emotion or an abstract idea, and never a person: no \"man\", \"woman\", \"crowd\", \"family\" or any word that would return footage of somebody\\'s face.',\n  '8. \"title\" is the cover-card headline: under sixty characters, sentence case, punchy but honest, no emoji.',\n  '',\n  'Return exactly this JSON shape:',\n  '{',\n  '  \"title\": \"cover card headline\",',\n  '  \"hook\": \"opening sentence under twelve words\",',\n  '  \"narration\": \"the hook plus every scene sentence, as one string\",',\n  '  \"scenes\": [{ \"sentence\": \"one to three sentences\", \"visualQuery\": \"two to four words\" }]',\n  '}',\n].join('\\n');\n\nreturn [{\n  json: {\n    id: post.id,\n    postTitle: post.title,\n    postText: post.text,\n    permalink: post.permalink,\n    subreddit: cfg.sourceMode === 'manual' ? '' : String(cfg.subreddit || ''),\n    checked: entries.length,\n    candidates: candidates.length,\n    targetWords,\n    promptText,\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0006",
+      "name": "Write script",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        2050,
+        240
+      ],
+      "parameters": {
+        "url": "https://openrouter.ai/api/v1/chat/completions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ model: $('Config').first().json.llmModel, response_format: { type: \"json_object\" }, messages: [ { role: \"system\", content: \"You rewrite true stories from public forums into spoken narrations for a faceless story video channel. You return JSON only.\\n\\nEvery word you write is spoken by a text-to-speech voice and burned on screen as word-timed captions, so the output must be clean spoken English with no formatting.\" }, { role: \"user\", content: $json.promptText } ] }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openRouterApi"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-rs-0007",
+      "name": "Parse script",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2310,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// Parses the writer's JSON, normalises it to ASCII and builds the exact\n// narration string that will be sent to TTS. Everything downstream reads this.\nconst cfg = $('Config').first().json;\nconst picked = $('Pick story').first().json;\nconst res = $input.first().json;\n\nconst content = res && res.choices && res.choices[0] && res.choices[0].message && res.choices[0].message.content;\nif (!content) {\n  throw new Error('The model returned no content: ' + JSON.stringify(res).slice(0, 400));\n}\n\nlet script;\ntry {\n  script = JSON.parse(content);\n} catch (e) {\n  const m = /\\{[\\s\\S]*\\}/.exec(content);\n  if (!m) throw new Error('The model did not return JSON:\\n' + content.slice(0, 400));\n  script = JSON.parse(m[0]);\n}\n\n// Models slip curly quotes and dashes in even when told not to, and unusual\n// characters make the voice stumble. Normalise to ASCII before anything\n// counts words or reaches the synthesiser.\nconst toAscii = (s) => String(s)\n  .replace(/[‘’ʼ]/g, \"'\")\n  .replace(/[“”]/g, '\"')\n  .replace(/[–—]/g, '-')\n  .replace(/…/g, '...')\n  .replace(/\\s+/g, ' ')\n  .trim();\n\nconst hook = toAscii(script.hook || '');\nif (!hook) throw new Error('The model returned no hook sentence.');\n\nlet scenes = Array.isArray(script.scenes)\n  ? script.scenes.filter((s) => s && String(s.sentence || '').trim())\n  : [];\n\n// Fallback: if the model returned narration but no usable scenes, split the\n// narration into sentences and group them into five beats.\nif (!scenes.length) {\n  const flat = toAscii(script.narration || '');\n  const sentences = flat.replace(/([.!?])\\s+/g, '$1|').split('|').filter(Boolean);\n  if (!sentences.length) throw new Error('The model returned neither scenes nor narration.');\n  const per = Math.ceil(sentences.length / 5);\n  scenes = [];\n  for (let i = 0; i < sentences.length; i += per) {\n    scenes.push({ sentence: sentences.slice(i, i + per).join(' '), visualQuery: '' });\n  }\n}\n\nfor (const s of scenes) {\n  s.sentence = toAscii(s.sentence);\n  s.visualQuery = toAscii(s.visualQuery || '') || toAscii(script.title || picked.postTitle || 'storytelling');\n}\n\n// Free plans allow five video elements and a sixth beat already falls back to\n// a still photo, so cap the beat list at six by merging any extras into the\n// last one.\nwhile (scenes.length > 6) {\n  const extra = scenes.pop();\n  scenes[scenes.length - 1].sentence += ' ' + extra.sentence;\n}\nif (scenes.length < 3) {\n  throw new Error('The model returned only ' + scenes.length + ' scene(s) - too few for a story arc. Run it again, or use a stronger model.');\n}\n\n// ---- shot planning -------------------------------------------------------\n// One locked-off clip held for fifteen seconds reads as a stalled video, and\n// the beat that follows the hook is where retention is decided. So a beat\n// whose narration would run longer than `maxShotSeconds` is cut into two or\n// more SHOTS at sentence boundaries, each getting its own footage below.\n//\n// The plan has to be made here, before the stock search, so the estimate uses\n// the narration's own word counts at the rate the voice comes back at (~2.9\n// words/second). The real cut points are still the word timings the voice\n// returns; this only decides how many pieces of footage the story needs.\n// A single sentence longer than the cap cannot be split without cutting\n// mid-sentence, so it stays whole - the cap is a ceiling on planned shots,\n// not a guarantee.\nconst WORDS_PER_SECOND = 2.9;\nconst MAX_SHOTS = 8;\nconst maxShotSeconds = Math.max(4, Number(cfg.maxShotSeconds == null ? 12 : cfg.maxShotSeconds));\nconst maxShotWords = Math.max(8, Math.round(maxShotSeconds * WORDS_PER_SECOND));\n\nconst countWords = (s) => String(s || '').split(/\\s+/).filter(Boolean).length;\nconst splitSentences = (s) => String(s).replace(/([.!?])\\s+/g, '$1|').split('|').filter((x) => x.trim());\n\n// Packs sentences into `want` groups of roughly equal word count, so a split\n// beat never leaves one shot doing all the work.\nconst packShots = (sentences, want) => {\n  const weights = sentences.map(countWords);\n  const target = weights.reduce((a, b) => a + b, 0) / want;\n  const groups = [];\n  let current = [];\n  let used = 0;\n  for (let i = 0; i < sentences.length; i += 1) {\n    const groupsLeft = want - groups.length;\n    const closeIsCloser = Math.abs(used - target) <= Math.abs(used + weights[i] - target);\n    if (current.length && groupsLeft > 1 && sentences.length - i >= groupsLeft && closeIsCloser) {\n      groups.push(current);\n      current = [];\n      used = 0;\n    }\n    current.push(sentences[i]);\n    used += weights[i];\n  }\n  if (current.length) groups.push(current);\n  return groups.map((g) => g.join(' '));\n};\n\nconst shots = [];\nscenes.forEach((scene, beat) => {\n  const sentences = splitSentences(scene.sentence);\n  const want = Math.min(sentences.length, Math.ceil(countWords(scene.sentence) / maxShotWords));\n  const pieces = want > 1 ? packShots(sentences, want) : [scene.sentence];\n  pieces.forEach((sentence, shot) => {\n    shots.push({ sentence, visualQuery: scene.visualQuery, beat, shot });\n  });\n});\n\n// Every shot costs one stock search and one element, so keep the list sane.\nwhile (shots.length > MAX_SHOTS) {\n  const extra = shots.pop();\n  shots[shots.length - 1].sentence += ' ' + extra.sentence;\n}\n\n// One space between sentences. This exact string is what gets spoken, and the\n// alignment that comes back is measured against it - which is what keeps\n// captions and cuts frame-accurate. Splitting a beat into shots never changes\n// a character of it.\nconst narration = hook + ' ' + shots.map((s) => s.sentence).join(' ');\n\nconst wordCount = narration.split(/\\s+/).filter(Boolean).length;\nconst targetWords = Number(picked.targetWords) || Math.round(Number(cfg.targetSeconds || 45) * 2.7);\nif (wordCount < targetWords * 0.55) {\n  throw new Error('The script is only ' + wordCount + ' words for a ' + cfg.targetSeconds + 's story (expected around ' + targetWords + '). Retry, or use a stronger model.');\n}\n\nconst title = toAscii(script.title || picked.postTitle || 'A story').slice(0, 70);\n\n// `scenes` downstream means SHOTS: one stock search, one scene and one cut per\n// entry. `beats` records how many story beats the writer actually returned.\nreturn [{\n  json: {\n    title,\n    hook,\n    scenes: shots,\n    narration,\n    wordCount,\n    targetWords,\n    beats: scenes.length,\n    shots: shots.length,\n    maxShotSeconds,\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0008",
+      "name": "Expand scenes",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2790,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// One item per SHOT, so the stock search below runs once per shot. Free plans\n// allow five video elements: the first shot of every beat gets moving footage\n// while that budget lasts, and every continuation shot (a long beat split by\n// `maxShotSeconds`) plus any beat past the budget gets a still photo instead.\n// That keeps the motion on the story's own beats rather than spending it all\n// on the first half of the video.\nconst script = $input.first().json;\nlet videoBudget = 5;\nreturn script.scenes.map((s, index) => {\n  const wantsVideo = Number(s.shot || 0) === 0 && videoBudget > 0;\n  if (wantsVideo) videoBudget -= 1;\n  return {\n    json: {\n      index,\n      beat: s.beat == null ? index : s.beat,\n      shot: Number(s.shot || 0),\n      sentence: s.sentence,\n      visualQuery: s.visualQuery,\n      mediaType: wantsVideo ? 'video' : 'image',\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0009",
+      "name": "Search stock clips",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3050,
+        240
+      ],
+      "parameters": {
+        "resource": "stockMedia",
+        "operation": "search",
+        "stockPage": 1,
+        "stockType": "={{ $json.mediaType }}",
+        "stockQuery": "={{ $json.visualQuery }}",
+        "stockPerPage": "20"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-rs-0010",
+      "name": "Pick scene clip",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3310,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// Picks one clip (or still) per shot from Zvid's stock library.\n// Portrait media wins because the canvas is 1080x1920 — a landscape clip\n// still works via resize:\"cover\", it is just cropped harder.\nconst cfg = $('Config').first().json;\nconst script = $('Parse script').first().json;\nconst responses = $input.all();\nconst approxSceneSeconds = Number(cfg.targetSeconds || 45) / Math.max(1, script.scenes.length);\n\n// This is a first-person confession retold by a synthetic voice. Footage of a\n// recognisable member of the public under that narration reads as \"this is the\n// person it happened to\", which is not something to publish on a monetised\n// channel. Clips whose title or tags name people are pushed down the list so a\n// scenery/object shot wins whenever one exists.\n//\n// It is a bias, not a filter and not a guarantee: some catalogue entries carry\n// no description at all, so a clip with faces in it can still come first. Read\n// the note in the docs before you monetise a channel with this.\nconst PEOPLE = /\\b(man|men|woman|women|boy|girl|guy|lady|ladies|people|person|human|crowd|face|portrait|selfie|model|couple|family|kid|child|children|teen|student|worker|staff|employee|passenger|customer|patient|police|officer|nurse|doctor)s?\\b/i;\nconst showsPeople = (it) => PEOPLE.test(\n  String(it.description || '') + ' ' + String((it.credit && it.credit.link) || '')\n);\n\nconst used = new Set();\n\nfunction pick(items, needSeconds) {\n  const usable = (items || []).filter((it) => it && it.src && !used.has(it.src));\n  if (!usable.length) return null;\n  return usable\n    .map((it) => {\n      const portrait = Number(it.height) > Number(it.width);\n      const longEnough = it.kind !== 'video' || Number(it.duration || 0) >= needSeconds;\n      return {\n        it,\n        score: (portrait ? 2 : 0)\n          + (longEnough ? 1 : 0)\n          + Math.min(1, Number(it.duration || 0) / 30)\n          - (showsPeople(it) ? 1.5 : 0),\n      };\n    })\n    .sort((a, b) => b.score - a.score)[0].it;\n}\n\nconst sceneMedia = script.scenes.map((_, i) => {\n  const body = (responses[i] && responses[i].json) || {};\n  const chosen = pick(body.items, approxSceneSeconds);\n  if (!chosen) return null;\n  // Two shots of the same beat share a visualQuery, so without this the split\n  // would cut from a clip straight back to itself.\n  used.add(chosen.src);\n  return {\n    kind: chosen.kind || 'video',\n    src: chosen.src,\n    duration: Number(chosen.duration) || null,\n    width: Number(chosen.width) || null,\n    height: Number(chosen.height) || null,\n    credit: chosen.credit || null,\n  };\n});\n\nconst missing = sceneMedia.filter((m) => !m).length;\nif (missing === sceneMedia.length) {\n  throw new Error('No stock footage matched any scene. The visualQuery hints were too abstract — running again usually fixes it, since every story produces different hints.');\n}\n\nreturn [{ json: { sceneMedia, missing } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0011",
+      "name": "Music queries",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        50,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// A story bed sits low under the narration, so the mood barely matters as\n// long as it is unobtrusive. Three tags known to return results in Zvid's\n// stock library — tried in order, deterministic on purpose.\nconst queries = ['chill', 'ambient', 'calm'];\nreturn queries.map((query) => ({ json: { query } }));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0012",
+      "name": "Find background music",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "onError": "continueRegularOutput",
+      "position": [
+        310,
+        920
+      ],
+      "parameters": {
+        "resource": "stockMedia",
+        "operation": "search",
+        "stockPage": 1,
+        "stockType": "audio",
+        "stockQuery": "={{ $json.query }}",
+        "stockPerPage": "10"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "zvid-rs-0013",
+      "name": "Shortlist music",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        570,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// Rank the music candidates. Long tracks mean big files, and the renderer\n// rejects any asset over the plan's audio size cap — a 6.3 MB track fails the\n// WHOLE render, so a nice-to-have music bed must never be able to do that.\n// Shortest-but-long-enough wins; the next node probes the real byte size.\nconst cfg = $('Config').first().json;\nconst maxSeconds = Number(cfg.maxMusicSeconds == null ? 240 : cfg.maxMusicSeconds);\n\nconst seen = new Set();\nconst all = [];\nfor (const r of $input.all()) {\n  for (const m of r.json.items || []) {\n    if (!m || !m.src) continue;\n    const key = m.id || m.src;\n    if (seen.has(key)) continue;\n    seen.add(key);\n    all.push(m);\n  }\n}\n\nconst sized = all\n  .filter((m) => { const d = Number(m.duration) || 0; return d >= 45 && d <= maxSeconds; })\n  .sort((a, b) => (Number(a.duration) || 0) - (Number(b.duration) || 0));\n\nconst pool = (sized.length ? sized : all).slice(0, 4);\nif (!pool.length) {\n  // Nothing to probe — send one item the probe can hit harmlessly.\n  return [{ json: { candidate: null, probeUrl: cfg.apiUrl } }];\n}\nreturn pool.map((candidate) => ({ json: { candidate, probeUrl: candidate.src } }));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0014",
+      "name": "Check music asset",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        830,
+        920
+      ],
+      "parameters": {
+        "url": "={{ $json.probeUrl }}",
+        "method": "HEAD",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {}
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "zvid-rs-0015",
+      "name": "Pick music",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        830,
+        1160
+      ],
+      "parameters": {
+        "jsCode": "// Keep the first candidate that is actually downloadable and within the size\n// cap, then collapse to ONE item — otherwise the voiceover step downstream\n// would run once per candidate. No usable track just means no music bed; it\n// must never fail the run.\nconst cfg = $('Config').first().json;\nconst limit = Number(cfg.maxMusicBytes == null ? 5242880 : cfg.maxMusicBytes);\nconst shortlist = $('Shortlist music').all().map((i) => i.json);\nconst probes = $input.all();\n\nlet music = null;\nconst rejected = [];\nfor (let i = 0; i < probes.length; i += 1) {\n  const candidate = shortlist[i] && shortlist[i].candidate;\n  if (!candidate) continue;\n  const p = probes[i] ? probes[i].json : {};\n  const status = Number(p.statusCode);\n  const headers = p.headers || {};\n  const bytes = Number(headers['content-length'] || headers['Content-Length'] || 0);\n\n  if (status !== 200) { rejected.push(candidate.id + ': HTTP ' + (status || '?')); continue; }\n  if (bytes && bytes > limit) { rejected.push(candidate.id + ': ' + bytes + ' bytes > ' + limit); continue; }\n  music = candidate;\n  break;\n}\n\nreturn [{ json: { music, checked: probes.length, rejected } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0016",
+      "name": "Generate voiceover",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1310,
+        920
+      ],
+      "parameters": {
+        "url": "=https://api.elevenlabs.io/v1/text-to-speech/{{ $('Config').first().json.voiceId }}/with-timestamps",
+        "method": "POST",
+        "options": {
+          "timeout": 120000
+        },
+        "jsonBody": "={{ JSON.stringify({ text: $('Parse script').first().json.narration, model_id: $('Config').first().json.elevenModel, voice_settings: { stability: $('Config').first().json.voiceStability, similarity_boost: $('Config').first().json.voiceSimilarity } }) }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "output_format",
+              "value": "mp3_44100_128"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-rs-0017",
+      "name": "Voice + timings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1570,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// Turns one ElevenLabs \"with-timestamps\" response into (a) an mp3 binary ready\n// for upload and (b) word timings.\n//\n// The alignment comes from the synthesiser itself, so the timings ARE the audio\n// — there is no separate transcription step to disagree with, and nothing that\n// can drift. That is the whole reason this endpoint is used instead of plain\n// text-to-speech.\nconst res = $input.first().json;\n\nif (!res || !res.audio_base64) {\n  throw new Error(\n    'ElevenLabs returned no audio. Check the xi-api-key credential, the voiceId, and your character quota. Response: ' +\n      JSON.stringify(res).slice(0, 300)\n  );\n}\n\nconst a = res.alignment || res.normalized_alignment;\nif (!a || !Array.isArray(a.characters)) {\n  throw new Error('ElevenLabs returned audio but no alignment — make sure the URL ends in /with-timestamps.');\n}\n\nconst chars = a.characters;\nconst starts = a.character_start_times_seconds || [];\nconst ends = a.character_end_times_seconds || [];\n\n// Alignment is per CHARACTER; group runs of non-whitespace into words.\nconst words = [];\nlet cur = null;\nfor (let i = 0; i < chars.length; i += 1) {\n  const ch = chars[i];\n  if (/\\s/.test(ch)) {\n    if (cur) { words.push(cur); cur = null; }\n    continue;\n  }\n  if (!cur) cur = { text: ch, start: Number(starts[i]), end: Number(ends[i]) };\n  else { cur.text += ch; cur.end = Number(ends[i]); }\n}\nif (cur) words.push(cur);\n\nif (!words.length) throw new Error('Alignment contained no words.');\n\nconst duration = Number(ends[ends.length - 1]) || words[words.length - 1].end;\n\nreturn [{\n  json: { words, duration, wordCount: words.length },\n  // n8n binary payloads carry base64 in `data`; naming it matters because Zvid\n  // derives the media kind from the MIME type on upload.\n  binary: {\n    data: {\n      data: res.audio_base64,\n      mimeType: 'audio/mpeg',\n      fileName: 'voiceover.mp3',\n      fileExtension: 'mp3',\n    },\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0018",
+      "name": "Upload voiceover",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "File upload exception: the published Zvid node does not expose multipart uploads. The upload step uses HTTP Request → `POST /api/uploads`, authenticated with the same **Zvid API** credential. All supported Zvid operations use the Zvid node.",
+      "maxTries": 3,
+      "position": [
+        1830,
+        920
+      ],
+      "parameters": {
+        "url": "={{ $('Config').first().json.apiUrl }}/api/uploads",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "file",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        },
+        "nodeCredentialType": "zvidApi"
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-rs-0019",
+      "name": "Build project JSON",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2310,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// Assembles the Zvid project: a story cover card timed to the spoken hook,\n// one full-bleed b-roll scene per narration beat with cuts on real word\n// timings, word-timed karaoke captions, a music bed and a CTA end card.\nconst cfg = $('Config').first().json;\nconst picked = $('Pick story').first().json;\nconst script = $('Parse script').first().json;\nconst sceneMedia = $('Pick scene clip').first().json.sceneMedia;\nconst music = $('Pick music').first().json.music || null;\nconst upload = $('Upload voiceover').first().json.upload;\nconst timings = $('Voice + timings').first().json;\n\nif (!upload || !upload.url) {\n  throw new Error('The voiceover upload returned no URL: ' + JSON.stringify($('Upload voiceover').first().json).slice(0, 300));\n}\n\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));\nconst round = (n) => Math.round(n * 100) / 100;\n// Every string below reaches the renderer as HTML, and the story text is\n// untrusted (it comes from a public forum by way of a language model). The\n// apostrophe is escaped too because the SVG blocks quote attributes with it.\nconst esc = (s) => String(s).replace(/[&<>\"']/g, (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' }[c]));\n// Small helper so the watermark pill can tint itself from `brandBackground`\n// instead of hardcoding a colour that would fight a light brand.\nconst rgba = (hex, a) => {\n  const h = String(hex || '').replace('#', '');\n  const full = h.length === 3 ? h.split('').map((c) => c + c).join('') : h.slice(0, 6);\n  const n = parseInt(full, 16);\n  return Number.isFinite(n) ? 'rgba(' + ((n >> 16) & 255) + ',' + ((n >> 8) & 255) + ',' + (n & 255) + ',' + a + ')' : 'rgba(16,20,28,' + a + ')';\n};\n\nconst bg = cfg.brandBackground || '#10141C';\nconst accent = cfg.brandAccent || '#FFC24B';\nconst cardFont = cfg.cardFont || 'Inter';\nconst captionFont = cfg.captionFont || 'Montserrat';\nconst paper = '#F4F6F8';\nconst muted = '#8B93A1';\n\n// ---- narration timing ---------------------------------------------------\nconst words = (Array.isArray(timings.words) ? timings.words : [])\n  .map((w) => ({ text: String(w.text == null ? '' : w.text).trim(), start: Number(w.start), end: Number(w.end) }))\n  .filter((w) => w.text && Number.isFinite(w.start) && Number.isFinite(w.end));\n\nconst narrationEnd = words.length ? words[words.length - 1].end : Number(timings.duration) || 45;\nconst audioDuration = Math.max(Number(timings.duration) || 0, narrationEnd);\n\n// Apostrophes stay inside the word (both ASCII and curly) so \"grandma's\"\n// counts as one word here and one word in the alignment.\nconst countWords = (s) =>\n  String(s || '').replace(/[^\\p{L}\\p{N}'\\u2019]+/gu, ' ').trim().split(/\\s+/).filter(Boolean).length;\n\n// Segment 0 is the spoken hook (the cover card holds while it plays);\n// segments 1..N are the story beats.\nconst segments = [countWords(script.hook)].concat(script.scenes.map((s) => countWords(s.sentence)));\nconst totalScripted = segments.reduce((a, b) => a + b, 0);\n\n// The alignment covers the exact text that was spoken, so walking the word\n// stream by per-segment word count puts every cut on a sentence boundary. If\n// the tokenisation drifts (digits, abbreviations) fall back to a proportional\n// split so the render can never desync.\nconst drift = totalScripted ? Math.abs(words.length - totalScripted) / totalScripted : 1;\nconst useWordMap = words.length > 0 && drift <= 0.2;\n\nconst spans = [];\nif (useWordMap) {\n  let cursor = 0;\n  for (let i = 0; i < segments.length; i += 1) {\n    const start = cursor === 0 ? 0 : words[cursor - 1].end;\n    cursor = Math.min(cursor + segments[i], words.length);\n    const last = words[cursor - 1];\n    spans.push({ start, end: i === segments.length - 1 ? audioDuration : last ? last.end : audioDuration });\n  }\n} else {\n  const weightTotal = totalScripted || segments.length;\n  let t = 0;\n  for (let i = 0; i < segments.length; i += 1) {\n    const start = t;\n    t = i === segments.length - 1 ? audioDuration : t + ((segments[i] || 1) / weightTotal) * audioDuration;\n    spans.push({ start, end: t });\n  }\n}\nspans[spans.length - 1].end += Number(cfg.tailSeconds == null ? 0.4 : cfg.tailSeconds);\n\n// ---- transitions ---------------------------------------------------------\nconst transition = cfg.sceneTransition || null;\nconst tDur = transition ? Number(cfg.transitionSeconds == null ? 0.35 : cfg.transitionSeconds) : 0;\nconst minScene = Math.max(1.6, tDur * 3);\n\n// ---- cover card geometry -------------------------------------------------\n// Greedy word-wrap estimate. A single \"average glyph\" width over-counts a\n// headline made of narrow letters — it predicted three lines for a headline\n// that renders on two, which left a visible hole above the hint — so widths\n// are measured per character in em units for Inter ExtraBold.\nconst NARROW = \"iljtI!.,;:'|()[]\";\nconst WIDE = 'mwMW';\nconst emWidth = (ch) => {\n  if (ch === ' ') return 0.26;\n  if (NARROW.indexOf(ch) >= 0) return 0.3;\n  if (WIDE.indexOf(ch) >= 0) return 0.88;\n  if (ch >= 'A' && ch <= 'Z') return 0.66;\n  return 0.56;\n};\nconst textEm = (s) => String(s).split('').reduce((sum, ch) => sum + emWidth(ch), 0);\nconst wrapLines = (text, fontPx, boxPx) => {\n  const boxEm = boxPx / fontPx;\n  let lines = 1;\n  let used = 0;\n  for (const w of String(text).split(' ')) {\n    const wordEm = textEm(w);\n    const need = used === 0 ? wordEm : used + 0.26 + wordEm;\n    if (need <= boxEm) { used = need; continue; }\n    lines += 1;\n    used = Math.min(wordEm, boxEm);\n  }\n  return lines;\n};\n\nconst title = String(script.title || 'A story').trim();\nconst tLen = title.length;\nconst titleSize = tLen <= 30 ? 62 : tLen <= 44 ? 56 : tLen <= 58 ? 50 : 45;\nconst titleLines = wrapLines(title, titleSize, 780);\nconst titleH = Math.round(titleLines * titleSize * 1.22);\nconst cardH = 170 + titleH + 44 + 34 + 64;\n// Keep the card centred in the upper-middle of the frame and always clear of\n// the caption block at the bottom.\nconst cardTop = Math.round(clamp(860 - cardH / 2, 420, 1380 - cardH));\nconst avatarY = cardTop + 95;\nconst titleY = cardTop + 170;\nconst hintY = titleY + titleH + 44;\n\nconst subreddit = String(picked.subreddit || '').replace(/[^A-Za-z0-9_]/g, '');\nconst showSource = cfg.includeAttribution !== false && subreddit;\nconst tagHtml = showSource\n  ? '<span style=\"color:' + accent + '; font-weight:800;\">r/' + esc(subreddit) + '</span><span style=\"color:' + muted + ';\"> &middot; today\\'s top story</span>'\n  : '<span style=\"color:' + accent + '; font-weight:800;\">STORY TIME</span><span style=\"color:' + muted + ';\"> &middot; today\\'s story</span>';\n\nconst coverVisible = Math.max(minScene, round(spans[0].end - spans[0].start));\n// Scene durations are padded by the transition overlap; elements hold for the\n// padded length so nothing pops out mid-crossfade.\nconst coverHold = round(coverVisible + tDur);\nconst coverSvg = \"<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'>\"\n  + \"<defs><radialGradient id='rsCoverBg' cx='0.5' cy='0.32' r='1'><stop offset='0' stop-color='#1B2231'/><stop offset='1' stop-color='\" + bg + \"'/></radialGradient>\"\n  + \"<linearGradient id='rsCoverGlow' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='\" + accent + \"' stop-opacity='0.14'/><stop offset='0.5' stop-color='\" + accent + \"' stop-opacity='0'/></linearGradient></defs>\"\n  + \"<rect width='1080' height='1920' fill='url(#rsCoverBg)'/>\"\n  + \"<rect x='80' y='\" + cardTop + \"' width='920' height='\" + cardH + \"' rx='36' fill='#161C27' stroke='rgba(255,255,255,0.13)' stroke-width='1.5'/>\"\n  + \"<rect x='80' y='\" + cardTop + \"' width='920' height='\" + cardH + \"' rx='36' fill='url(#rsCoverGlow)'/>\"\n  + \"<circle cx='196' cy='\" + avatarY + \"' r='46' fill='\" + accent + \"'/>\"\n  + \"<circle cx='196' cy='\" + (avatarY - 10) + \"' r='15' fill='rgba(16,20,28,0.82)'/>\"\n  + \"<path d='M164 \" + (avatarY + 30) + \" a32 24 0 0 1 64 0' fill='rgba(16,20,28,0.82)'/>\"\n  + \"<path d='M150 \" + (cardTop + 142) + \" H930' stroke='rgba(255,255,255,0.08)' stroke-width='1.5'/>\"\n  + \"<path d='M150 \" + (hintY + 3) + \" l22 13 l-22 13 z' fill='\" + accent + \"'/>\"\n  + \"</svg>\";\n\nconst coverScene = {\n  id: 'cover',\n  duration: coverHold,\n  backgroundColor: bg,\n  ...(transition ? { transition, transitionDuration: tDur } : {}),\n  visuals: [\n    { type: 'SVG', width: 1080, height: 1920, track: 0, enterBegin: 0, exitEnd: coverHold, svg: coverSvg },\n    {\n      type: 'TEXT', x: 262, y: avatarY - 34, width: 700, anchor: 'top-left', track: 1, enterBegin: 0.15, enterEnd: 0.5, enterAnimation: 'fade', exitEnd: coverHold,\n      // The contrast lint reads style.color, not the inline HTML colors.\n      style: { fontFamily: cardFont, color: muted },\n      html: '<div style=\"font-size:27px; font-weight:600; letter-spacing:1px;\">' + tagHtml + '</div>',\n    },\n    {\n      // No enter animation on purpose: platforms grab frame 0 as the poster\n      // image, and an animated headline is still invisible at t=0, so the\n      // thumbnail was a blank card. The tag line and the hint animate around\n      // a headline that is there from the very first frame.\n      type: 'TEXT', x: 150, y: titleY, width: 780, anchor: 'top-left', track: 2, enterBegin: 0, exitEnd: coverHold,\n      style: { fontFamily: cardFont, color: paper },\n      html: '<div style=\"color:' + paper + '; font-size:' + titleSize + 'px; line-height:1.22; font-weight:800; letter-spacing:-0.5px;\">' + esc(title) + '</div>',\n    },\n    {\n      type: 'TEXT', x: 196, y: hintY, width: 720, anchor: 'top-left', track: 3, enterBegin: 0.6, enterEnd: 0.95, enterAnimation: 'fade', exitEnd: coverHold,\n      style: { fontFamily: cardFont, color: muted },\n      html: '<div style=\"color:' + muted + '; font-size:25px; font-weight:600; letter-spacing:3px;\">TAP FOR THE FULL STORY</div>',\n    },\n  ],\n};\n\n// ---- story beat scenes ---------------------------------------------------\nconst outroLen = Number(cfg.outroSeconds == null ? 3 : cfg.outroSeconds);\nconst beatScenes = spans.slice(1).map((span, i) => {\n  const visible = Math.max(minScene, round(span.end - span.start));\n  const isLastBeat = i === spans.length - 2;\n  const needsTransition = Boolean(transition && (!isLastBeat || outroLen > 0));\n  const hold = round(visible + (needsTransition ? tDur : 0));\n  const media = sceneMedia[i];\n  const visuals = [];\n\n  if (media && media.kind === 'video') {\n    // videoEnd is measured in SOURCE time, so a clip played at speed s covers\n    // \"hold * s\" seconds of source. Slowing a short clip down beats cutting\n    // to black. The visible cut still lands on the narration timestamp; only\n    // the transition overlap rides on top.\n    const speed = media.duration && media.duration < visible\n      ? clamp(round(media.duration / visible), 0.5, 1)\n      : 1;\n    const sourceWindow = round(hold * speed);\n    visuals.push({\n      type: 'VIDEO',\n      src: media.src,\n      resize: 'cover',\n      position: 'center-center',\n      anchor: 'center-center',\n      volume: 0,\n      videoBegin: 0,\n      videoEnd: media.duration ? Math.min(media.duration, sourceWindow) : sourceWindow,\n      ...(speed !== 1 ? { speed } : {}),\n      zoom: { depth: Number(cfg.kenBurnsDepth == null ? 1.12 : cfg.kenBurnsDepth) },\n    });\n  } else if (media && media.kind === 'image') {\n    visuals.push({\n      type: 'IMAGE',\n      src: media.src,\n      resize: 'cover',\n      position: 'center-center',\n      anchor: 'center-center',\n      exitEnd: hold,\n      zoom: { depth: Number(cfg.kenBurnsDepth == null ? 1.12 : cfg.kenBurnsDepth) + 0.08 },\n    });\n  } else {\n    // Nothing in the stock library matched this shot. The beat still has to\n    // hold for its whole narration, so it gets a designed brand plate rather\n    // than a black frame or a flat wash: the brand gradient, a diagonal accent\n    // streak lifted from the cover card, and the concentric ring emblem the\n    // cover avatar and the end card already use. The emblem arrives in two\n    // staggered fades so the panel opens with a beat of its own instead of\n    // cutting in fully formed and then sitting still.\n    visuals.push({\n      type: 'SVG', width: 1080, height: 1920, track: 0, enterBegin: 0, exitEnd: hold,\n      svg: \"<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'><defs>\"\n        + \"<radialGradient id='rsPlateBg\" + i + \"' cx='0.5' cy='0.4' r='0.95'><stop offset='0' stop-color='#242D3F'/><stop offset='1' stop-color='\" + bg + \"'/></radialGradient>\"\n        + \"<linearGradient id='rsPlateStreak\" + i + \"' x1='0' y1='0' x2='1' y2='1'><stop offset='0' stop-color='\" + accent + \"' stop-opacity='0.1'/><stop offset='0.55' stop-color='\" + accent + \"' stop-opacity='0'/></linearGradient>\"\n        + \"<radialGradient id='rsPlateGlow\" + i + \"' cx='0.5' cy='0.5' r='0.5'><stop offset='0' stop-color='\" + accent + \"' stop-opacity='0.13'/><stop offset='1' stop-color='\" + accent + \"' stop-opacity='0'/></radialGradient>\"\n        + \"</defs>\"\n        + \"<rect width='1080' height='1920' fill='url(#rsPlateBg\" + i + \")'/>\"\n        + \"<rect width='1080' height='1920' fill='url(#rsPlateStreak\" + i + \")'/>\"\n        + \"<circle cx='540' cy='860' r='470' fill='url(#rsPlateGlow\" + i + \")'/></svg>\",\n    });\n    visuals.push({\n      type: 'SVG', width: 1080, height: 1920, track: 1, enterBegin: 0.15, enterEnd: 0.95, enterAnimation: 'fade', exitEnd: hold,\n      svg: \"<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'>\"\n        + \"<circle cx='540' cy='860' r='340' fill='none' stroke='\" + accent + \"' stroke-opacity='0.1' stroke-width='2'/>\"\n        + \"<circle cx='540' cy='860' r='262' fill='none' stroke='\" + accent + \"' stroke-opacity='0.18' stroke-width='2'/>\"\n        + \"<path d='M120 860 H250' stroke='\" + accent + \"' stroke-opacity='0.22' stroke-width='2'/>\"\n        + \"<path d='M830 860 H960' stroke='\" + accent + \"' stroke-opacity='0.22' stroke-width='2'/></svg>\",\n    });\n    visuals.push({\n      type: 'SVG', width: 1080, height: 1920, track: 2, enterBegin: 0.5, enterEnd: 1.35, enterAnimation: 'fade', exitEnd: hold,\n      svg: \"<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'>\"\n        + \"<circle cx='540' cy='860' r='190' fill='none' stroke='\" + accent + \"' stroke-opacity='0.32' stroke-width='2'/>\"\n        + \"<circle cx='540' cy='860' r='118' fill='none' stroke='\" + accent + \"' stroke-opacity='0.6' stroke-width='2.5'/>\"\n        + \"<circle cx='540' cy='860' r='17' fill='\" + accent + \"' fill-opacity='0.85'/></svg>\",\n    });\n  }\n\n  // Scrim: keeps the watermark readable at the top and gives the karaoke\n  // captions a dark bed at the bottom, whatever the footage looks like. Over\n  // the brand plate only the bottom half is needed — the plate is already dark\n  // at the top.\n  const defs = media\n    ? \"<linearGradient id='rsBeatS\" + i + \"' x1='0' y1='0' x2='0' y2='1'><stop offset='0' stop-color='\" + bg + \"' stop-opacity='0.5'/><stop offset='0.16' stop-color='\" + bg + \"' stop-opacity='0'/><stop offset='0.55' stop-color='\" + bg + \"' stop-opacity='0'/><stop offset='0.8' stop-color='\" + bg + \"' stop-opacity='0.62'/><stop offset='1' stop-color='\" + bg + \"' stop-opacity='0.92'/></linearGradient>\"\n    : \"<linearGradient id='rsBeatS\" + i + \"' x1='0' y1='0' x2='0' y2='1'><stop offset='0.55' stop-color='\" + bg + \"' stop-opacity='0'/><stop offset='1' stop-color='\" + bg + \"' stop-opacity='0.7'/></linearGradient>\";\n  visuals.push({\n    type: 'SVG', width: 1080, height: 1920, track: media ? 1 : 3, enterBegin: 0, exitEnd: hold,\n    svg: \"<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'><defs>\" + defs + \"</defs><rect width='1080' height='1920' fill='url(#rsBeatS\" + i + \")'/></svg>\",\n  });\n\n  return {\n    id: 'beat-' + (i + 1),\n    // A transition OVERLAPS its two scenes, which would drag every later cut\n    // earlier and desync the voiceover. Padding each scene by the overlap\n    // keeps every visible cut on its narration timestamp.\n    duration: hold,\n    backgroundColor: bg,\n    ...(needsTransition ? { transition, transitionDuration: tDur } : {}),\n    visuals,\n  };\n});\n\nconst scenes = [coverScene].concat(beatScenes);\n\n// ---- end card ------------------------------------------------------------\nconst outroSeconds = outroLen;\nif (outroSeconds > 0) {\n  const outroSvg = \"<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'>\"\n    + \"<defs><radialGradient id='rsOutroBg' cx='0.5' cy='0.38' r='0.95'><stop offset='0' stop-color='#1B2231'/><stop offset='1' stop-color='\" + bg + \"'/></radialGradient></defs>\"\n    + \"<rect width='1080' height='1920' fill='url(#rsOutroBg)'/>\"\n    + \"<circle cx='540' cy='740' r='128' fill='none' stroke='\" + accent + \"' stroke-opacity='0.5' stroke-width='2.5'/>\"\n    + \"<circle cx='540' cy='740' r='92' fill='\" + accent + \"'/>\"\n    + \"<circle cx='540' cy='718' r='30' fill='rgba(16,20,28,0.82)'/>\"\n    + \"<path d='M476 800 a64 48 0 0 1 128 0' fill='rgba(16,20,28,0.82)'/>\"\n    + \"</svg>\";\n  const outroVisuals = [\n    { type: 'SVG', width: 1080, height: 1920, track: 0, enterBegin: 0, exitEnd: outroSeconds, svg: outroSvg },\n    {\n      type: 'TEXT', x: 540, y: 940, width: 880, anchor: 'top-center', track: 1, enterBegin: 0.25, enterEnd: 0.7, enterAnimation: 'smoothup', exitEnd: outroSeconds,\n      style: { fontFamily: cardFont, color: paper },\n      html: '<div style=\"text-align:center; color:' + paper + '; font-size:46px; font-weight:800;\">' + esc(cfg.channelHandle || '@yourchannel') + '</div><div style=\"margin-top:12px; text-align:center; color:' + muted + '; font-size:27px; font-weight:600; letter-spacing:2px;\">a new story every day</div>',\n    },\n    {\n      type: 'TEXT', x: 540, y: 1130, anchor: 'top-center', track: 2, enterBegin: 0.8, enterEnd: 1.2, enterAnimation: 'circleopen', exitEnd: outroSeconds,\n      // The pill is an accent-filled chip; the lint sees the element's\n      // dominant colour (the chip), the dark label rides inside the HTML.\n      style: { fontFamily: cardFont, color: accent },\n      html: '<div style=\"display:inline-block; background:' + accent + '; color:' + bg + '; border-radius:999px; padding:24px 58px; font-size:33px; font-weight:800;\">' + esc(cfg.ctaText || 'Follow for more stories') + '</div>',\n    },\n  ];\n  if (showSource) {\n    outroVisuals.push({\n      type: 'TEXT', x: 540, y: 1330, width: 800, anchor: 'top-center', track: 3, enterBegin: 1.15, enterEnd: 1.5, enterAnimation: 'fade', exitEnd: outroSeconds,\n      style: { fontFamily: cardFont, color: muted },\n      html: '<div style=\"text-align:center; color:' + muted + '; font-size:26px; font-weight:500; letter-spacing:2px;\">story: r/' + esc(subreddit) + '</div>',\n    });\n  }\n  // The last beat already carries its transition into the outro (padded via\n  // needsTransition above) — just append the card.\n  scenes.push({ id: 'outro', duration: outroSeconds, backgroundColor: bg, visuals: outroVisuals });\n}\n\nconst totalDuration = round(\n  scenes.reduce((sum, s) => sum + s.duration, 0) - tDur * Math.max(0, scenes.length - 1)\n);\n\n// ---- captions ------------------------------------------------------------\nconst perCue = Math.max(1, Number(cfg.captionWordsPerCue == null ? 3 : cfg.captionWordsPerCue));\n\n// A fixed N-word window straddles sentence ends (\"heat. Two minutes\"), which\n// reads as broken on screen. Cue boundaries are planned per sentence instead,\n// and each sentence's words are spread evenly so a seven-word sentence at\n// three words per cue reads 3 / 2 / 2 rather than 3 / 3 / 1.\nconst endsSentence = (t) => /[.!?][\"')\\]]*$/.test(String(t));\nconst sentenceGroups = [];\nlet pending = [];\nfor (const w of words) {\n  pending.push(w);\n  if (endsSentence(w.text)) { sentenceGroups.push(pending); pending = []; }\n}\nif (pending.length) sentenceGroups.push(pending);\n\nconst chunks = [];\nfor (const group of sentenceGroups) {\n  const cueCount = Math.max(1, Math.ceil(group.length / perCue));\n  const base = Math.floor(group.length / cueCount);\n  let extra = group.length % cueCount;\n  let cursor = 0;\n  for (let k = 0; k < cueCount; k += 1) {\n    const take = base + (extra > 0 ? 1 : 0);\n    if (extra > 0) extra -= 1;\n    chunks.push(group.slice(cursor, cursor + take));\n    cursor += take;\n  }\n}\n\nconst captions = chunks.map((chunk) => ({\n  start: chunk[0].start,\n  end: chunk[chunk.length - 1].end,\n  text: chunk.map((w) => w.text).join(' '),\n  words: chunk.map((w) => ({ start: w.start, end: w.end, text: w.text })),\n}));\n\n// The alignment leaves a few tens of milliseconds between the last word of one\n// cue and the first word of the next, and the caption band blinks out for that\n// frame and a half, every cue. Hold a cue until its successor starts when the\n// hole is short enough to read as a mistake; a real pause between sentences is\n// left alone.\nfor (let i = 0; i < captions.length - 1; i += 1) {\n  const gap = round(captions[i + 1].start - captions[i].end);\n  if (gap > 0 && gap <= 0.4) {\n    captions[i].end = captions[i + 1].start;\n    // The word-timed modes (karaoke, fill, one-word...) draw ONE subtitle line\n    // per word and close the last word's line at the WORD's end, not the cue's,\n    // so stretching only `end` above left the band blinking out for a frame or\n    // two at every cue boundary — 39 times in a 42-second story. The last word\n    // has to be stretched with it.\n    const last = captions[i].words[captions[i].words.length - 1];\n    if (last) last.end = captions[i + 1].start;\n  }\n}\n\n// ---- audio + watermark ---------------------------------------------------\nconst audios = [{ src: upload.url, volume: 1, enter: 0 }];\nif (music) {\n  audios.push({ src: music.src, volume: Number(cfg.musicVolume == null ? 0.1 : cfg.musicVolume), enter: 0, exit: totalDuration });\n}\n\nconst visuals = [];\nif (cfg.channelHandle) {\n  visuals.push({\n    type: 'TEXT',\n    text: cfg.channelHandle,\n    // x/y are ignored when a `position` preset is set, and TEXT has no\n    // `margin` field — an inset watermark needs explicit coordinates.\n    x: 540,\n    y: 96,\n    anchor: 'top-center',\n    track: 5,\n    // The end card prints the handle at 46 px as its headline, so the small\n    // watermark above it was the same string twice on one frame. It leaves as\n    // the crossfade into the end card starts.\n    ...(outroSeconds > 0 ? { exitEnd: round(totalDuration - outroSeconds) } : {}),\n    opacity: 0.7,\n    style: {\n      fontFamily: cardFont,\n      fontSize: '34px',\n      fontWeight: '700',\n      color: '#FFFFFF',\n      letterSpacing: '2px',\n    },\n  });\n}\n\n// ---- caption styling -----------------------------------------------------\n// In box modes (\"highlight\") the chip behind the spoken word is drawn first\n// and the text outline on top of it, so those modes get a thin outline plus\n// padding; every other mode recolours the spoken word with the brand accent\n// and keeps the heavy outline that stays readable over any footage.\nconst BOX_MODES = ['highlight'];\nconst animation = cfg.captionAnimation || 'karaoke';\nconst usesBox = BOX_MODES.includes(animation);\nconst strokeWidth = Math.max(0, Number(cfg.captionStrokeWidth == null ? 6 : cfg.captionStrokeWidth));\n\nconst subtitle = {\n  captions,\n  animation,\n  activeWord: usesBox\n    ? { color: cfg.captionActiveColor || bg, background: accent }\n    : { color: accent },\n  font: {\n    family: captionFont,\n    size: Number(cfg.captionSize == null ? 60 : cfg.captionSize),\n    color: '#FFFFFF',\n    bold: true,\n    transform: 'uppercase',\n  },\n  stroke: { color: '#000000', width: usesBox ? Math.min(strokeWidth, 2) : strokeWidth },\n  ...(usesBox ? { background: { padding: 14 } } : {}),\n  position: 'bottom',\n  margin: { x: 90, y: 250 },\n  maxWordsPerLine: perCue,\n};\n\n// The render API only allows letters, digits, spaces, _ and - in `name`.\nconst safeName = ('story-' + title).toLowerCase().normalize('NFKD').replace(/[\\u0300-\\u036f]/g, '').replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 60);\n\nconst payload = {\n  name: safeName || 'reddit story',\n  resolution: cfg.resolution || 'tiktok',\n  frameRate: Number(cfg.frameRate == null ? 30 : cfg.frameRate),\n  backgroundColor: bg,\n  outputFormat: 'mp4',\n  scenes,\n  visuals,\n  // NOTE: no `track` on audios — the render API rejects audios[].track.\n  audios,\n  subtitle,\n};\n\nreturn [{\n  json: {\n    payload,\n    meta: {\n      title,\n      hook: script.hook,\n      subreddit,\n      postId: picked.id,\n      postTitle: picked.postTitle,\n      narrationSeconds: round(audioDuration),\n      totalDuration,\n      sceneCount: scenes.length,\n      captionCount: captions.length,\n      cutsAlignedToSpeech: useWordMap,\n      coverSeconds: coverVisible,\n      shotCount: beatScenes.length,\n      // The shot planner in `Parse script` caps this; a single sentence longer\n      // than the cap is the one case it cannot split, so report what shipped.\n      longestShotSeconds: spans.slice(1).reduce((m, s) => Math.max(m, round(s.end - s.start)), 0),\n      maxShotSeconds: Number(script.maxShotSeconds) || null,\n      titleSize,\n      titleLines,\n      musicTrack: music ? (music.description || music.id || music.src) : null,\n      videoClips: sceneMedia.filter((m) => m && m.kind === 'video').length,\n      imageStills: sceneMedia.filter((m) => m && m.kind === 'image').length,\n      missingClips: sceneMedia.filter((m) => !m).length,\n      stockCredits: sceneMedia.filter(Boolean).map((m) => m.credit).filter(Boolean),\n    },\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0020",
+      "name": "Validate project (free)",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "position": [
+        2570,
+        920
+      ],
+      "parameters": {
+        "source": "json",
+        "resource": "render",
+        "operation": "validate",
+        "projectJson": "={{ JSON.stringify(({ payload: $json.payload }).payload) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "zvid-rs-0021",
+      "name": "Check validation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2830,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// The free validate endpoint runs the exact pipeline a render submission runs,\n// so a failure here is a payload bug — surface the field list instead of a\n// generic HTTP error.\nconst res = $input.first().json;\nconst status = res.statusCode ?? (res.valid === true ? 200 : 400);\nconst body = res.body || { ...res, details: res.errors ?? res.details };\n\nif (status !== 200) {\n  const details = Array.isArray(body.details)\n    ? body.details.map((d) => '  - ' + d.field + ': ' + d.message).join('\\n')\n    : JSON.stringify(body).slice(0, 500);\n  throw new Error('Zvid rejected the project (HTTP ' + status + '): ' + (body.message || body.error) + '\\n' + details);\n}\n\nconst build = $('Build project JSON').first().json;\nreturn [{\n  json: {\n    ...build,\n    creditsRequired: body.creditsRequired,\n    warnings: body.warnings || [],\n    schemaVersion: body.schemaVersion,\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0022",
+      "name": "Dry run?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        50,
+        1840
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "dry-run--cond",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Config').first().json.dryRun }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "zvid-rs-0023",
+      "name": "Save draft to editor",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        310,
+        1840
+      ],
+      "parameters": {
+        "resource": "project",
+        "operation": "create",
+        "projectJson": "={{ JSON.stringify(({ name: $json.payload.name, payload: $json.payload }).payload) }}",
+        "projectName": "={{ ({ name: $json.payload.name, payload: $json.payload }).name }}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-rs-0024",
+      "name": "Dry run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        570,
+        1840
+      ],
+      "parameters": {
+        "jsCode": "// Dry run: everything except the paid render. Open editorLink to preview the\n// exact video, then set dryRun to false in Config to go live. Nothing is\n// spent and the used-story list is only kept on production executions.\nconst d = $('Check validation').first().json;\n\n// The draft save is best-effort (onError: continue) so a hiccup there never\n// hides the rest of the dry-run report.\nlet editorLink = null;\nlet draftId = null;\ntry {\n  const project = $('Save draft to editor').first().json.project;\n  if (project && project.id) {\n    draftId = project.id;\n    editorLink = 'https://editor.zvid.io/?project=' + project.id;\n  }\n} catch (e) { /* draft step skipped or failed */ }\n\nreturn [{\n  json: {\n    dryRun: true,\n    title: d.meta.title,\n    hook: d.meta.hook,\n    subreddit: d.meta.subreddit,\n    postId: d.meta.postId,\n    editorLink,\n    draftId,\n    creditsRequired: d.creditsRequired,\n    videoSeconds: d.meta.totalDuration,\n    narrationSeconds: d.meta.narrationSeconds,\n    captions: d.meta.captionCount,\n    cutsAlignedToSpeech: d.meta.cutsAlignedToSpeech,\n    musicTrack: d.meta.musicTrack,\n    warnings: d.warnings,\n    nextStep: editorLink\n      ? 'Open editorLink to preview the draft, then set dryRun to false in Config to render for real.'\n      : 'Set dryRun to false in Config to render this for real.',\n    payload: d.payload,\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0025",
+      "name": "Submit render",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "maxTries": 3,
+      "position": [
+        1050,
+        1840
+      ],
+      "parameters": {
+        "source": "json",
+        "resource": "render",
+        "operation": "create",
+        "renderType": "video",
+        "projectJson": "={{ JSON.stringify(({ payload: $json.payload }).payload) }}",
+        "waitForCompletion": false
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-rs-0026",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1310,
+        1840
+      ],
+      "webhookId": "c7d2f9a1-83e5-4b06-9f2c-5a1d8e3b7c42",
+      "parameters": {
+        "unit": "seconds",
+        "amount": "={{ $('Config').first().json.pollSeconds }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "zvid-rs-0027",
+      "name": "Get render status",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "maxTries": 3,
+      "position": [
+        1570,
+        1840
+      ],
+      "parameters": {
+        "jobId": "={{ $('Submit render').first().json.jobId }}",
+        "resource": "render",
+        "operation": "get",
+        "waitForCompletion": false
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-rs-0028",
+      "name": "Render finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1830,
+        1840
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "render-finished--cond",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.state === 'completed' }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "zvid-rs-0029",
+      "name": "Still rendering?",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1830,
+        2080
+      ],
+      "parameters": {
+        "jsCode": "// Fails fast on a failed render and stops the poll loop from running forever.\nconst cfg = $('Config').first().json;\nconst job = $input.first().json;\n\nif (job.state === 'failed') {\n  throw new Error('Render failed: ' + (job.failedReason || 'no reason given'));\n}\n\nconst maxPolls = Math.ceil((Number(cfg.timeoutMinutes || 20) * 60) / Number(cfg.pollSeconds || 10));\nif ($runIndex + 1 >= maxPolls) {\n  throw new Error('Render did not finish within ' + cfg.timeoutMinutes + ' minutes (job ' + job.id + ', state ' + job.state + ').');\n}\n\nreturn $input.all();\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0030",
+      "name": "Run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2310,
+        1840
+      ],
+      "parameters": {
+        "jsCode": "// Final report for a live run.\nconst cfg = $('Config').first().json;\nconst build = $('Check validation').first().json;\nconst job = $('Get render status').first().json;\nconst url = typeof job.result === 'string' ? job.result : (job.result ? job.result.url : null);\n\n// Record a Reddit story only after successful rendering, so failed runs can retry.\nif (cfg.sourceMode === 'reddit' && url && build.meta.postId) {\n  const store = $getWorkflowStaticData('global');\n  store.usedPostIds = [...new Set([...(store.usedPostIds || []), build.meta.postId])].slice(-200);\n}\nreturn [{\n  json: {\n    rendered: true,\n    videoUrl: url,\n    jobId: job.id,\n    title: build.meta.title,\n    subreddit: build.meta.subreddit,\n    postId: build.meta.postId,\n    postTitle: build.meta.postTitle,\n    videoSeconds: build.meta.totalDuration,\n    narrationSeconds: build.meta.narrationSeconds,\n    cutsAlignedToSpeech: build.meta.cutsAlignedToSpeech,\n    shots: build.meta.shotCount,\n    longestShotSeconds: build.meta.longestShotSeconds,\n    creditsCharged: build.creditsRequired,\n    stockCredits: build.meta.stockCredits,\n    channel: cfg.channelHandle,\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-rs-0031",
+      "name": "▶ Watch video",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2830,
+        1840
+      ],
+      "parameters": {
+        "url": "={{ $json.videoUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-watch-ready",
+      "name": "Video ready to watch?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2570,
+        1840
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "zvid-watch-ready-condition",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ !$json.dryRun && /^https?:\\/\\//i.test(String(($json.videoUrl) || '')) }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "zvid-rs-source-mode",
+      "name": "Manual story?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1050,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "manual-source-condition",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Config').first().json.sourceMode === 'manual' }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "publication-overview-reddit-story-video",
+      "name": "Workflow overview and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        0
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 720,
+        "height": 1160,
+        "content": "## Create Reddit story videos\n\n### How it works\nUse your own story text, or fetch a subreddit’s top posts through approved Reddit OAuth access. Generate narration, timed captions and stock footage, then render a vertical video for review.\n\n### Setup\n1. Install **`@zvid/n8n-nodes-zvid`** from **Settings → Community nodes** before credentials. A workspace owner/admin may need to install it. On n8n Cloud, the owner can install verified **Zvid** from the Nodes panel.\n2. Create a **Zvid API** credential with [your API key](https://app.zvid.io/api-keys) and Base URL `https://api.zvid.io`. Select it on every Zvid node and upload step.\n3. Default sourceMode=manual requires manualStoryTitle and manualStoryText (400–2200 characters) in Config. For sourceMode=reddit, connect an approved Reddit OAuth2 app to Fetch top stories and set subreddit and redditUserAgent.\n4. Set channelHandle and ctaText. Connect OpenRouter to Write script and ElevenLabs Header Auth (xi-api-key) to Generate voiceover.\n5. **dryRun=false** renders and spends Zvid credits. Set it to **true** for an editor draft and quote. AI or transcription charges may still apply.\n6. Test manually and review the output before activating automatic runs.\n\n### Customization\nAdjust branding, media and timing in the configuration node. Multipart upload uses HTTP Request because the published Zvid node lacks that operation. [Zvid installation guide](https://n8n.io/integrations/zvid/)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-configure",
+      "name": "1. Choose settings and an entry point",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 1. Choose settings and an entry point\n\nComplete the overview setup first. Use the manual trigger for a test, then check the trigger settings and workflow timezone before activation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-story",
+      "name": "2. Choose a source story",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 2. Choose a source story\n\nManual mode needs your story text. Reddit mode needs approved OAuth access; HTTP 429 stops before paid steps. Review the source and retain attribution."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-script",
+      "name": "3. Write and check the script",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 520,
+        "content": "## 3. Write and check the script\n\nGenerate concise copy from the supplied source. Review names, claims and attribution before sharing the finished video."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-footage",
+      "name": "4. Choose footage for each scene",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2740,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 4. Choose footage for each scene\n\nSearch Zvid’s stock library and match footage to each scene. Review selected clips for relevance and attribution."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-music",
+      "name": "5. Check the background music",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1140,
+        "height": 760,
+        "content": "## 5. Check the background music\n\nCheck the configured track or stock candidates before use. Follow the guard’s result when music is unavailable."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-voice",
+      "name": "6. Create narration and timings",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 6. Create narration and timings\n\nGenerate voice audio and caption timings. Multipart audio upload uses HTTP Request because the published Zvid node does not expose uploads."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-validate",
+      "name": "7. Build and validate the design",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 7. Build and validate the design\n\nPrepare the media and video design, then validate the payload and credit quote. Resolve validation errors before submitting a render."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-preview",
+      "name": "8. Choose an optional editor preview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1600
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 8. Choose an optional editor preview\n\ndryRun=true returns an editor draft and credit quote. The default false branch renders and spends Zvid credits; upstream AI services may charge separately."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-reddit-story-video-render",
+      "name": "9. Render and wait for completion",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        1600
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1140,
+        "height": 760,
+        "content": "## 9. Render and wait for completion\n\nSubmit the render, then check its status until completion or timeout. Keep each result paired with its source item. Check Zvid before retrying a timed-out job."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "zvid-watch-instructions",
+      "name": "10. Review the finished media",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        1600
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 10. Review the finished media\n\nOpen Watch video → Binary → data → View. Select each output item for batches; image outputs open as images. Empty links and preview results skip the download."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get render status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Manual story?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry run?": {
+      "main": [
+        [
+          {
+            "node": "Save draft to editor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Submit render",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick music": {
+      "main": [
+        [
+          {
+            "node": "Generate voiceover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick story": {
+      "main": [
+        [
+          {
+            "node": "Write script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run summary": {
+      "main": [
+        [
+          {
+            "node": "Video ready to watch?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse script": {
+      "main": [
+        [
+          {
+            "node": "Expand scenes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write script": {
+      "main": [
+        [
+          {
+            "node": "Parse script",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand scenes": {
+      "main": [
+        [
+          {
+            "node": "Search stock clips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual story?": {
+      "main": [
+        [
+          {
+            "node": "Pick story",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch top stories",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Music queries": {
+      "main": [
+        [
+          {
+            "node": "Find background music",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit render": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test manually": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick scene clip": {
+      "main": [
+        [
+          {
+            "node": "Music queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shortlist music": {
+      "main": [
+        [
+          {
+            "node": "Check music asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Voice + timings": {
+      "main": [
+        [
+          {
+            "node": "Upload voiceover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check validation": {
+      "main": [
+        [
+          {
+            "node": "Dry run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every day at 9am": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render finished?": {
+      "main": [
+        [
+          {
+            "node": "Run summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Still rendering?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still rendering?": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload voiceover": {
+      "main": [
+        [
+          {
+            "node": "Build project JSON",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check music asset": {
+      "main": [
+        [
+          {
+            "node": "Pick music",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch top stories": {
+      "main": [
+        [
+          {
+            "node": "Pick story",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get render status": {
+      "main": [
+        [
+          {
+            "node": "Render finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build project JSON": {
+      "main": [
+        [
+          {
+            "node": "Validate project (free)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate voiceover": {
+      "main": [
+        [
+          {
+            "node": "Voice + timings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search stock clips": {
+      "main": [
+        [
+          {
+            "node": "Pick scene clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save draft to editor": {
+      "main": [
+        [
+          {
+            "node": "Dry run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find background music": {
+      "main": [
+        [
+          {
+            "node": "Shortlist music",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video ready to watch?": {
+      "main": [
+        [
+          {
+            "node": "▶ Watch video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Validate project (free)": {
+      "main": [
+        [
+          {
+            "node": "Check validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Create Reddit-style story videos from text or Reddit with OpenRouter, ElevenLabs, and Zvid",
+    "wechat": "youandme10086",
+    "id": 19751,
+    "update_time": "2026-09-27"
+  }
+}

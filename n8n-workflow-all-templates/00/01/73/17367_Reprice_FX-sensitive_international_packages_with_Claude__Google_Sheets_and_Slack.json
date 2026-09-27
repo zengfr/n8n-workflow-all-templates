@@ -1,0 +1,709 @@
+{
+  "id": "32Xb2RqLEyzio5yH",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Reprice FX-sensitive international packages with Claude, Google Sheets and Slack",
+    "wechat": "youandme10086",
+    "id": 17367,
+    "update_time": "2026-09-27"
+  },
+  "name": "FX-Sensitive International Package Repricer",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e22132b4-0c62-41ea-9af8-c2fd9c7bef51",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 1040,
+        "height": 1600,
+        "content": "## FX-Sensitive International Package Repricer\n\nThis workflow runs on a schedule, pulls your international package price book from Google Sheets, checks current FX rates, and works out which package prices need to move to protect your USD margin — before FX drift quietly eats your profit or, in the other direction, before your local prices go stale and uncompetitive.\n\nThe actual reprice math is deliberately NOT left to the AI. FX movement since the rate was locked, the target local price needed to protect the margin target, and a hard cap on how much any single price can move automatically, are all computed with a plain formula in code — so every price change is explainable, reproducible, and bounded. AI is used only where it adds real judgment: reasoning about the packages whose FX swing is too large to auto-apply safely, recommending whether to phase the change, absorb it temporarily, or escalate it, and writing a clear Slack summary of the run.\n\n### Who's it for\n- Travel, tour, and international ecommerce teams who list prices in local currency but price against USD (or another base currency) cost\n- Pricing/RevOps teams who currently reprice FX-exposed SKUs manually in a spreadsheet on a schedule\n- Teams who want guardrails (max auto-adjust %) so a single violent FX move can't blow out a listed price unattended\n- Anyone who wants a daily/weekly FX health-check on their international catalog with a human still approving the big moves\n\n### How it works\n1. A schedule trigger kicks off the run (daily by default)\n2. Current FX rates are fetched, then the live package price book is read from Google Sheets\n3. Code parses the sheet rows and attaches each package's current FX rate by currency code\n4. Code computes, per package: FX movement since the rate was locked, the target local price to protect the margin target, the change capped at that package's max-auto-adjust %, the resulting implied margin, and whether the swing was too large to safely automate\n5. Code aggregates every package into one run summary and counts how many were auto-priced vs. flagged for review\n6. If any packages are flagged, AI reasons over just those — in plain language, per package — on risk level and recommended action (apply the capped price, phase it over several days, hold and escalate)\n7. AI reviews the whole run (auto-priced counts, flagged packages, revenue impact) and writes an executive summary, an overall recommendation, and a Slack-ready message\n8. Every run is logged to Google Sheets regardless of outcome, building a history of repricing decisions over time\n9. A Slack summary posts to the pricing channel every run; if the run needs manual attention, a second, more urgent Slack alert tags the pricing lead with the specific flagged packages\n\n### How to set up\n1. Import this workflow into n8n\n2. Add Anthropic Claude credentials and attach to both Anthropic model nodes\n3. Add Google OAuth2 credentials to both Google Sheets HTTP nodes (or swap them for native Google Sheets nodes)\n4. Replace YOUR_SHEET_ID in both Google Sheets HTTP nodes with your actual Spreadsheet ID\n5. Set up your sheet with a PricingBook tab (input, column layout below) and a RepricingLog tab (output, column layout below)\n6. Replace YOUR_SLACK_BOT_TOKEN in both Slack HTTP nodes, and YOUR_PRICING_CHANNEL_ID / YOUR_PRICING_LEAD_USER_ID with your real Slack IDs\n7. Adjust the schedule trigger to match how often you want FX exposure checked\n8. Activate the workflow, or run it once manually to test against your current price book\n\n### Requirements\n- Anthropic Claude API key (claude-sonnet-4 recommended)\n- Google Sheets with OAuth2 credentials (PricingBook input tab, RepricingLog output tab)\n- Slack bot token with chat:write scope\n- A live FX rate source (this workflow uses the free open.er-api.com endpoint by default — swap for a paid provider if you need intraday or contracted rates)\n\n### How to customize\n- Adjust marginTargetPercent and maxAutoAdjustPercent per package directly in the PricingBook sheet — no code changes needed to change a single package's guardrails\n- Change the manual-review trigger thresholds (raw change exceeds cap, or FX movement >= 15%) in JS - Calculate Deterministic Reprice\n- Swap the FX rate source for a paid/contracted-rate provider if open.er-api.com's freshness or coverage isn't sufficient for your currencies\n- Add a rounding/psychological-pricing rule (e.g. always end in .99) inside the reprice calculation\n- Feed the RepricingLog history back in as a check against realized margin, to see how often capped changes needed a manual follow-up\n\n### Important note\nThis workflow proposes and, for small FX moves, auto-applies price changes to your record of intent (the sheet) — it does not push prices live to a storefront or booking system on its own. Wire the RepricingLog / updated PricingBook values into your actual pricing system as a deliberate, separate step, and keep a human in the loop for anything flagged for manual review.\n\n### Google Sheets Column Layout\n\nPricingBook tab (input) - row 1 headers:\npackageId | packageName | destinationCountry | currencyCode | basePriceUSD | listedLocalPrice | lockedFXRate | marginTargetPercent | maxAutoAdjustPercent | lastRepricedDate\n\nRepricingLog tab (output) - row 1 headers:\nRun Date | Total Packages | Auto-Applied Count | Flagged Count | Total Revenue Impact USD | Overall Recommendation | Executive Summary | Logged At"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "98713f2d-7a21-4085-9e8e-970a6e088e12",
+      "name": "Sticky Note - Stage 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        496
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1540,
+        "height": 760,
+        "content": "## Stage 1: Intake, FX Rates & Deterministic Reprice Calculation\n\nSchedule Trigger starts the run (default: daily). HTTP Request fetches current FX rates against USD, then a second HTTP Request reads every row of the PricingBook tab in Google Sheets.\n\nJS - Parse Sheet Rows & Attach FX Rates is pure code, not AI: it turns the raw sheet values into package objects and attaches each package's current FX rate by matching its currencyCode against the FX response fetched earlier in this same run.\n\nJS - Calculate Deterministic Reprice is also pure code: for every package it computes the FX movement since the rate was locked, the local price needed to hold the margin target at today's rate, caps that change at the package's own max-auto-adjust %, and flags the package for manual review if the raw (uncapped) change exceeds the cap or the FX move itself is unusually large (>= 15%).\n\nJS - Aggregate Repricing Results collapses every package into a single run-level summary: totals, the auto-applied list, and the flagged-for-review list."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d06f1d3-064d-4d85-8f0f-be40b3f34855",
+      "name": "Sticky Note - Stage 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2720,
+        160
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1076,
+        "height": 1108,
+        "content": "## Stage 2: Risk Reasoning & Run Synthesis\n\nIF - Any Packages Flagged For Review checks the aggregated count. If nothing was flagged, the run skips straight past the AI risk-reasoning call (no need to spend a call reasoning about packages that already auto-priced cleanly) and sets an empty risk-reasoning list instead.\n\nWhen packages ARE flagged, the risk-reasoning AI (claude-sonnet-4, temperature 0.4) reviews just those packages — their FX movement, capped vs. raw change, and resulting margin — and recommends, per package, a risk level and a concrete next action (apply the capped price, phase the increase over several days, or hold for manual pricing review).\n\nJS - Parse Risk Reasoning Output extracts that JSON with a conservative fallback: if parsing fails, every flagged package defaults to \"Escalate to pricing lead\" rather than silently proceeding.\n\nJS - Build Final Repricing Report merges the aggregated scores with the risk reasoning (or the empty placeholder) into one report object, and works out whether this run needs an urgent Slack escalation.\n\nThe synthesis AI (claude-sonnet-4, temperature 0.3) then reviews the whole run and writes an executive summary, an overall recommendation, and a ready-to-post Slack message."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d4423071-a309-4eea-9c74-86a30b1da27c",
+      "name": "Sticky Note - Stage 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3824,
+        384
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1788,
+        "height": 940,
+        "content": "## Stage 3: Logging & Slack Delivery\n\nJS - Parse Synthesis Output & Format Log Row extracts the synthesis JSON with a cautious fallback: if parsing fails, the run defaults to \"Hold for Manual Pricing Review\" rather than a silent all-clear.\n\nSave Repricing Run to Google Sheets Log appends the summary row — every run is logged regardless of outcome, building a history of repricing decisions and revenue impact over time.\n\nSend Slack Repricing Summary always posts the run's Slack-ready message to the pricing channel.\n\nIF - Urgent Review Required branches on whether any package was flagged AND the AI's own recommendation is anything other than a clean pass-through:\n- True: Send Slack Urgent Review Alert pings the pricing lead directly with the specific flagged packages and recommended actions.\n- False: the run ends quietly — nothing needed a human today."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ff48aef6-05aa-405c-bb48-d539e3a10fe5",
+      "name": "Schedule Trigger - Daily FX Repricing Run",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1184,
+        928
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 24
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d95ce261-b1c7-4c69-a16d-e3883ce8a486",
+      "name": "HTTP Request - Fetch Current FX Rates",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1408,
+        928
+      ],
+      "parameters": {
+        "url": "https://open.er-api.com/v6/latest/USD",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "05289154-a4c1-4ab5-9bbe-fe2657cb9d9a",
+      "name": "HTTP Request - Read Active International Packages",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1632,
+        928
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/PricingBook!A1:J1000",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "credential-id",
+          "name": "Unnamed credential"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9d3e01cb-cbd6-4d0b-9e6d-d1c94b711d47",
+      "name": "JS - Parse Sheet Rows & Attach FX Rates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1856,
+        928
+      ],
+      "parameters": {
+        "jsCode": "const sheetResponse = $input.first().json;\nconst rows = sheetResponse.values || [];\nconst headers = rows[0] || [];\nconst dataRows = rows.slice(1);\n\nconst packages = dataRows.map(row => {\n  const obj = {};\n  headers.forEach((h, i) => { obj[h] = row[i]; });\n  return {\n    packageId: obj.packageId || '',\n    packageName: obj.packageName || '',\n    destinationCountry: obj.destinationCountry || '',\n    currencyCode: (obj.currencyCode || 'USD').toUpperCase(),\n    basePriceUSD: parseFloat(obj.basePriceUSD) || 0,\n    listedLocalPrice: parseFloat(obj.listedLocalPrice) || 0,\n    lockedFXRate: parseFloat(obj.lockedFXRate) || 1,\n    marginTargetPercent: parseFloat(obj.marginTargetPercent) || 20,\n    maxAutoAdjustPercent: parseFloat(obj.maxAutoAdjustPercent) || 8,\n    lastRepricedDate: obj.lastRepricedDate || ''\n  };\n}).filter(p => p.packageId);\n\nlet fxResponse = {};\ntry {\n  fxResponse = $('HTTP Request - Fetch Current FX Rates').first().json;\n} catch (e) {\n  fxResponse = {};\n}\nconst rates = fxResponse.rates || {};\n\nconst enriched = packages.map(p => ({\n  ...p,\n  currentFXRate: p.currencyCode === 'USD' ? 1 : (rates[p.currencyCode] || p.lockedFXRate),\n  fxRateAvailable: p.currencyCode === 'USD' ? true : Boolean(rates[p.currencyCode])\n}));\n\nreturn enriched.map(p => ({ json: p }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "744ba7b7-8918-470e-b365-5a7abf14a068",
+      "name": "JS - Calculate Deterministic Reprice",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2080,
+        928
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const p = $input.item.json;\n\nconst fxMovementPercent = p.lockedFXRate > 0\n  ? Math.round(((p.currentFXRate - p.lockedFXRate) / p.lockedFXRate) * 10000) / 100\n  : 0;\n\nconst targetLocalPrice = p.basePriceUSD * (1 + p.marginTargetPercent / 100) * p.currentFXRate;\n\nconst rawChangePercent = p.listedLocalPrice > 0\n  ? Math.round(((targetLocalPrice - p.listedLocalPrice) / p.listedLocalPrice) * 10000) / 100\n  : 0;\n\nconst maxAdj = p.maxAutoAdjustPercent;\nconst cappedChangePercent = Math.max(-maxAdj, Math.min(maxAdj, rawChangePercent));\n\nconst newListedLocalPrice = Math.round(p.listedLocalPrice * (1 + cappedChangePercent / 100) * 100) / 100;\n\nconst impliedMarginAfterRepricePercent = (p.currentFXRate > 0 && p.basePriceUSD > 0)\n  ? Math.round((((newListedLocalPrice / p.currentFXRate) / p.basePriceUSD) - 1) * 10000) / 100\n  : 0;\n\nconst needsManualReview = !p.fxRateAvailable\n  || Math.abs(rawChangePercent - cappedChangePercent) > 0.01\n  || Math.abs(fxMovementPercent) >= 15;\n\nconst revenueImpactUSD = p.currentFXRate > 0\n  ? Math.round(((newListedLocalPrice - p.listedLocalPrice) / p.currentFXRate) * 100) / 100\n  : 0;\n\nreturn {\n  json: {\n    ...p,\n    fxMovementPercent,\n    rawChangePercent,\n    cappedChangePercent,\n    newListedLocalPrice,\n    impliedMarginAfterRepricePercent,\n    needsManualReview,\n    revenueImpactUSD\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "70c4b07c-9234-4ffe-a0ad-4df85710ddb8",
+      "name": "JS - Aggregate Repricing Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2304,
+        928
+      ],
+      "parameters": {
+        "jsCode": "const allItems = $input.all().map(i => i.json);\nconst flagged = allItems.filter(p => p.needsManualReview);\nconst autoApplied = allItems.filter(p => !p.needsManualReview);\n\nconst totalRevenueImpactUSD = Math.round(\n  allItems.reduce((sum, p) => sum + (p.revenueImpactUSD || 0), 0) * 100\n) / 100;\n\nreturn [{\n  json: {\n    runDate: new Date().toISOString(),\n    totalPackages: allItems.length,\n    allPackages: allItems,\n    flaggedPackages: flagged,\n    autoAppliedPackages: autoApplied,\n    flaggedCount: flagged.length,\n    autoAppliedCount: autoApplied.length,\n    totalRevenueImpactUSD\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "70dd4523-60d2-4ad3-92b3-72cc8696afa5",
+      "name": "IF - Any Packages Flagged For Review",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2528,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-flagged-count",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.flaggedCount }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "069ebeac-31aa-4adc-810c-dc34dbcffa65",
+      "name": "AI - Generate FX Risk Reasoning For Flagged Packages",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2848,
+        800
+      ],
+      "parameters": {
+        "text": "=You are a pricing risk analyst reviewing international packages whose FX-driven repricing was too large to apply automatically.\n\nFor each package below, the requested price change exceeded that package's own max-auto-adjust cap, its FX rate could not be confirmed, or the underlying FX movement since the rate was locked has been unusually large.\n\nFlagged Packages (JSON):\n{{ JSON.stringify($json.flaggedPackages) }}\n\nFor EACH package, reason about whether it is safe to apply the capped price now, whether the increase/decrease should be phased in over several days instead, or whether it should be held entirely for a human pricing lead to set manually. Ground your reasoning in the actual numbers given (fxMovementPercent, rawChangePercent, cappedChangePercent, impliedMarginAfterRepricePercent) rather than generic caution.\n\nReturn a JSON object with EXACTLY this field:\n{\n  \"riskAssessments\": [\n    {\n      \"packageId\": \"matching packageId above\",\n      \"packageName\": \"matching packageName above\",\n      \"riskLevel\": \"Low|Medium|High\",\n      \"recommendedAction\": \"Apply Capped Price|Phase Increase Over Several Days|Hold For Manual Pricing Review\",\n      \"rationale\": \"One to two sentence, numbers-grounded explanation\",\n      \"requiresManualApproval\": true or false\n    }\n  ]\n}\n\nReturn ONLY the JSON object. No markdown, no explanation.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "e0b126e3-0180-4930-b656-478fe071221b",
+      "name": "Anthropic - Risk Reasoning Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        3056,
+        1024
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "options": {
+          "temperature": 0.4
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account - test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9f24e9ee-16d8-452a-9ea5-3cf212f438ed",
+      "name": "JS - Parse Risk Reasoning Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3200,
+        800
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nlet parsed = {};\ntry {\n  const rawText = item.output || item.text || item.response || '{}';\n  const clean = rawText.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(clean);\n  if (!Array.isArray(parsed.riskAssessments)) throw new Error('missing riskAssessments');\n} catch (e) {\n  const flagged = item.flaggedPackages || [];\n  parsed = {\n    riskAssessments: flagged.map(p => ({\n      packageId: p.packageId,\n      packageName: p.packageName,\n      riskLevel: 'High',\n      recommendedAction: 'Hold For Manual Pricing Review',\n      rationale: 'AI risk reasoning could not be parsed - defaulting to manual review as a precaution.',\n      requiresManualApproval: true\n    }))\n  };\n}\n\nreturn {\n  json: {\n    ...item,\n    riskAssessments: parsed.riskAssessments\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "149c4d53-3274-4ce1-b69a-70912fd2ddf1",
+      "name": "Code - Set Empty Risk Reasoning",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2752,
+        1056
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\n\nreturn {\n  json: {\n    ...item,\n    riskAssessments: []\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f6160d03-989b-4d56-8a43-7752bfe5dd21",
+      "name": "JS - Build Final Repricing Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3424,
+        928
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nconst riskAssessments = item.riskAssessments || [];\n\nconst urgentReviewRequired = riskAssessments.some(r => r.requiresManualApproval === true);\n\nreturn {\n  json: {\n    ...item,\n    urgentReviewRequired\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "087b27be-6e3e-4ac0-962f-d91a3266abc7",
+      "name": "Wait - Before Synthesis AI",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3648,
+        928
+      ],
+      "webhookId": "fx-repricer-wait-0002",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "8e5c21f6-d7ff-4a8f-8310-102c16f120ca",
+      "name": "AI - Generate Slack Repricing Summary & Recommendation",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        3904,
+        928
+      ],
+      "parameters": {
+        "text": "=You are a pricing analyst summarizing a daily FX repricing run for a marketing-ops Slack channel, not making the final call on your own.\n\nRun Date: {{ $json.runDate }}\nTotal Packages Reviewed: {{ $json.totalPackages }}\nAuto-Applied (within cap, no review needed): {{ $json.autoAppliedCount }}\nFlagged For Review: {{ $json.flaggedCount }}\nTotal Revenue Impact (USD, this run): {{ $json.totalRevenueImpactUSD }}\n\nFlagged Package Risk Assessments (JSON):\n{{ JSON.stringify($json.riskAssessments) }}\n\nGuidance: if flaggedCount is 0, the recommendation should be a clean pass-through. If any risk assessment recommends holding for manual review, the overall recommendation should not be a clean pass-through. Always ground your reasoning in the actual numbers above.\n\nReturn a JSON object with EXACTLY these fields:\n{\n  \"overallRecommendation\": \"Proceed - Auto-Applied Prices Are Live|Proceed With Flags - Some Packages Held|Hold For Manual Pricing Review\",\n  \"executiveSummary\": \"Two to four sentence summary of this run's FX exposure and what happened to prices\",\n  \"slackSummaryMessage\": \"A concise, Slack-ready plain-text message (use simple line breaks, no markdown tables) summarizing the run for the pricing channel, including the auto-applied count, flagged count, and revenue impact\",\n  \"recommendationConfidence\": <number 0-100>\n}\n\nReturn ONLY the JSON object. No markdown, no explanation.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "e01914e8-7e7b-403c-b447-07ffaa261293",
+      "name": "Anthropic - Synthesis Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        3952,
+        1152
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account - test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "fe5f7378-f412-4f96-a25a-5d333c898259",
+      "name": "JS - Parse Synthesis Output & Format Log Row",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4288,
+        928
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nlet parsed = {};\ntry {\n  const rawText = item.output || item.text || item.response || '{}';\n  const clean = rawText.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(clean);\n} catch (e) {\n  parsed = {\n    overallRecommendation: 'Hold For Manual Pricing Review',\n    executiveSummary: 'Auto-flagged: could not parse AI synthesis output, defaulting to a cautious hold for manual review.',\n    slackSummaryMessage: 'FX repricing run completed but the summary could not be generated automatically. Please review flagged packages manually in the PricingBook sheet.',\n    recommendationConfidence: 30\n  };\n}\n\nconst loggedAt = new Date().toISOString();\n\nreturn {\n  json: {\n    ...item,\n    ...parsed,\n    loggedAt,\n    logSummaryRow: [\n      item.runDate || '',\n      item.totalPackages || 0,\n      item.autoAppliedCount || 0,\n      item.flaggedCount || 0,\n      item.totalRevenueImpactUSD || 0,\n      parsed.overallRecommendation || '',\n      parsed.executiveSummary || '',\n      loggedAt\n    ]\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b9040204-2251-4fe6-bc10-e664e302eebe",
+      "name": "Save Repricing Run to Google Sheets Log",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4544,
+        928
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/RepricingLog!A1:append?valueInputOption=USER_ENTERED",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"values\": [{{ JSON.stringify($json.logSummaryRow) }}]\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "credential-id",
+          "name": "Unnamed credential"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "78a5ea90-137c-4340-a94b-d29c1258dd98",
+      "name": "Send Slack Repricing Summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4768,
+        928
+      ],
+      "parameters": {
+        "url": "https://slack.com/api/chat.postMessage",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"channel\": \"YOUR_PRICING_CHANNEL_ID\",\n  \"text\": {{ JSON.stringify($json.slackSummaryMessage) }}\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7da62ebe-b590-40a2-8d1a-9e1e0c088741",
+      "name": "IF - Urgent Review Required",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4992,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "cond-urgent-flag",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.urgentReviewRequired }}"
+            },
+            {
+              "id": "cond-hold-recommendation",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.overallRecommendation }}",
+              "rightValue": "Hold For Manual Pricing Review"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e098ea02-46da-4284-acb7-370185e50cc2",
+      "name": "Send Slack Urgent Review Alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5216,
+        832
+      ],
+      "parameters": {
+        "url": "https://slack.com/api/chat.postMessage",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"channel\": \"YOUR_PRICING_CHANNEL_ID\",\n  \"text\": \"<@YOUR_PRICING_LEAD_USER_ID> This FX repricing run needs manual attention.\\n\\nRecommendation: {{ $json.overallRecommendation }}\\nFlagged Packages: {{ $json.flaggedCount }}\\nTotal Revenue Impact (USD): {{ $json.totalRevenueImpactUSD }}\\n\\nRisk Assessments: {{ JSON.stringify($json.riskAssessments) }}\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2d87548a-3316-4755-92d4-231976e56bfe",
+  "connections": {
+    "Wait - Before Synthesis AI": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Slack Repricing Summary & Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic - Synthesis Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Generate Slack Repricing Summary & Recommendation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Urgent Review Required": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Urgent Review Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Send Slack Repricing Summary": {
+      "main": [
+        [
+          {
+            "node": "IF - Urgent Review Required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Set Empty Risk Reasoning": {
+      "main": [
+        [
+          {
+            "node": "JS - Build Final Repricing Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic - Risk Reasoning Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Generate FX Risk Reasoning For Flagged Packages",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Aggregate Repricing Results": {
+      "main": [
+        [
+          {
+            "node": "IF - Any Packages Flagged For Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse Risk Reasoning Output": {
+      "main": [
+        [
+          {
+            "node": "JS - Build Final Repricing Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Build Final Repricing Report": {
+      "main": [
+        [
+          {
+            "node": "Wait - Before Synthesis AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Any Packages Flagged For Review": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate FX Risk Reasoning For Flagged Packages",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Set Empty Risk Reasoning",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Calculate Deterministic Reprice": {
+      "main": [
+        [
+          {
+            "node": "JS - Aggregate Repricing Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Fetch Current FX Rates": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Read Active International Packages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse Sheet Rows & Attach FX Rates": {
+      "main": [
+        [
+          {
+            "node": "JS - Calculate Deterministic Reprice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Repricing Run to Google Sheets Log": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Repricing Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger - Daily FX Repricing Run": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Fetch Current FX Rates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse Synthesis Output & Format Log Row": {
+      "main": [
+        [
+          {
+            "node": "Save Repricing Run to Google Sheets Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Read Active International Packages": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse Sheet Rows & Attach FX Rates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate FX Risk Reasoning For Flagged Packages": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse Risk Reasoning Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Slack Repricing Summary & Recommendation": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse Synthesis Output & Format Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,1147 @@
+{
+  "id": "mv8VaCNpAF2PNvnl",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Score and alert Upwork jobs with OpenAI GPT-4.1-mini and Telegram",
+    "wechat": "youandme10086",
+    "id": 19333,
+    "update_time": "2026-09-27"
+  },
+  "name": "Monitor and score Upwork jobs with OpenAI and Telegram",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e1029af6-7144-45c9-bb51-dd825300f65f",
+      "name": "Manual Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        144,
+        544
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "78dc7824-64d0-4df6-8d14-07a52829285e",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        144,
+        704
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b2fe0c14-359a-47da-bd67-6c206417084d",
+      "name": "Runtime Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        400,
+        624
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e288efc6-ccea-4e7d-81be-c4548d1834b0",
+              "name": "profileUrl",
+              "type": "string",
+              "value": "https://raw.githubusercontent.com/CHANGE_ME/CHANGE_ME/main/profile.md"
+            },
+            {
+              "id": "75c83e0f-a2cd-40ac-b1ea-06436ad85550",
+              "name": "telegramChatId",
+              "type": "string",
+              "value": "CHANGE_ME"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "253b16ea-c6ac-434b-8d6e-a9759cb7c1f1",
+      "name": "Fetch profile.md",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        640,
+        624
+      ],
+      "parameters": {
+        "url": "={{ $json.profileUrl }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "text",
+              "outputPropertyName": "profile_md"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "c5c236bc-5bec-4450-a231-5a4ef8b1a259",
+      "name": "Parse & Validate Profile",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        912,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const md = $json.profile_md;\nif (typeof md !== 'string' || md.trim().length < 20) {\n  throw new Error('profile.md could not be loaded or is empty. Check Runtime Settings.profileUrl.');\n}\nconst match = md.match(/```profile-config\\s*([\\s\\S]*?)```/i);\nif (!match) throw new Error('profile.md is missing the fenced ```profile-config JSON block.');\nlet config;\ntry { config = JSON.parse(match[1]); } catch (e) { throw new Error(`Invalid JSON in profile-config: ${e.message}`); }\nconst required = ['schema_version','profile_id','enabled','job_source','commercial','scoring','notifications','proposal'];\nfor (const key of required) if (config[key] === undefined) throw new Error(`profile-config missing required field: ${key}`);\nif (config.schema_version !== '1.0') throw new Error(`Unsupported profile schema_version ${config.schema_version}; expected 1.0`);\nif (!/^[a-zA-Z0-9._-]+$/.test(config.profile_id)) throw new Error('profile_id may contain only letters, numbers, dot, underscore, and hyphen.');\nif (config.enabled !== true) return [];\nif (config.job_source?.provider !== 'upwork_graphql') throw new Error('Phase 1 supports job_source.provider = upwork_graphql only.');\nif (!Array.isArray(config.job_source?.search_lanes) || !config.job_source.search_lanes.length) throw new Error('At least one job_source.search_lanes entry is required.');\nfor (const [i,lane] of config.job_source.search_lanes.entries()) {\n  if (!lane?.name || !lane?.query) throw new Error(`search_lanes[${i}] requires name and query.`);\n}\nconst dangerousKeys = ['api_key','apikey','access_token','refresh_token','client_secret','password','bot_token','ssh_key'];\nconst flat = JSON.stringify(config).toLowerCase();\nfor (const key of dangerousKeys) {\n  if (flat.includes(`\\\"${key}\\\"`)) throw new Error(`Do not store secrets in profile.md (${key}). Use n8n Credentials.`);\n}\nconst defaults = {\n  first_run_behavior: 'seed',\n  max_job_age_hours: 24,\n  results_per_lane: 10,\n  hard_min_hourly: 0,\n  hard_min_fixed: 0,\n  alert_min_score: 65,\n  high_priority_score: 85\n};\nconfig.first_run_behavior = ['seed','alert'].includes(config.first_run_behavior) ? config.first_run_behavior : defaults.first_run_behavior;\nconfig.job_source.max_job_age_hours = Number(config.job_source.max_job_age_hours ?? defaults.max_job_age_hours);\nconfig.job_source.results_per_lane = Math.max(1, Math.min(50, Number(config.job_source.results_per_lane ?? defaults.results_per_lane)));\nconfig.commercial.hard_min_hourly = Number(config.commercial.hard_min_hourly ?? defaults.hard_min_hourly);\nconfig.commercial.hard_min_fixed = Number(config.commercial.hard_min_fixed ?? defaults.hard_min_fixed);\nconfig.filters = config.filters || {};\nconfig.filters.blocked_keywords = Array.isArray(config.filters.blocked_keywords) ? config.filters.blocked_keywords.filter(Boolean) : [];\nconfig.scoring.alert_min_score = Number(config.scoring.alert_min_score ?? defaults.alert_min_score);\nconfig.scoring.high_priority_score = Number(config.scoring.high_priority_score ?? defaults.high_priority_score);\nreturn [{json:{profile_id:config.profile_id, display_name:config.display_name || config.profile_id, config, profile_md:md}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5d3579db-ef4e-49e3-ace9-ce22569e8d6e",
+      "name": "Get Existing Profile State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1408,
+        624
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "profile_id",
+              "keyValue": "={{ $('Parse & Validate Profile').first().json.profile_id }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "upwork_seen_jobs"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3111ab04-aa27-4c5c-a612-7849da3b55b8",
+      "name": "Build Search Requests",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1648,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const p = $('Parse & Validate Profile').first().json;\nconst state = $input.first().json || {};\nconst isFirstRun = !state.profile_id;\nconst query = `query SearchJobs($filter: MarketplaceJobPostingsSearchFilter) {\n  marketplaceJobPostingsSearch(\n    marketPlaceJobFilter: $filter\n    searchType: USER_JOBS_SEARCH\n    sortAttributes: [{ field: RECENCY }]\n  ) {\n    totalCount\n    edges {\n      node {\n        id title description ciphertext duration durationLabel engagement\n        amount { displayValue currency }\n        experienceLevel category subcategory freelancersToHire enterprise premium totalApplicants applied\n        createdDateTime publishedDateTime renewedDateTime\n        hourlyBudgetMin { displayValue currency }\n        hourlyBudgetMax { displayValue currency }\n        skills { name prettyName highlighted }\n        client {\n          totalHires totalPostedJobs totalSpent { displayValue currency }\n          verificationStatus totalReviews totalFeedback\n          location { city country timezone }\n        }\n      }\n    }\n    pageInfo { hasNextPage endCursor }\n  }\n}`;\nreturn p.config.job_source.search_lanes.map((lane, index) => ({json:{\n  profile_id:p.profile_id,\n  display_name:p.display_name,\n  profile_md:p.profile_md,\n  config:p.config,\n  is_first_run:isFirstRun,\n  first_run_behavior:p.config.first_run_behavior,\n  search_lane:{name:lane.name, query:lane.query, weight:Number(lane.weight ?? 1), index},\n  graphql_query:query,\n  variables:{filter:{searchExpression_eq:lane.query,pagination_eq:{after:'0',first:p.config.job_source.results_per_lane}}}\n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e999df38-5867-40c6-932b-0a0376d92546",
+      "name": "Search Upwork GraphQL",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1904,
+        624
+      ],
+      "parameters": {
+        "url": "https://api.upwork.com/graphql",
+        "method": "POST",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ query: $json.graphql_query, variables: $json.variables }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "b83668eb-cc4a-4e63-98ed-6cb9798fe59b",
+      "name": "Normalize + Deterministic Filter",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2160,
+        624
+      ],
+      "parameters": {
+        "jsCode": "function num(v) {\n  if (v === null || v === undefined || v === '') return null;\n  const n = Number(String(v).replace(/[^0-9.-]/g,''));\n  return Number.isFinite(n) ? n : null;\n}\nfunction clean(s){return String(s ?? '').replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').trim();}\nconst responses = $input.all();\nconst reqs = $('Build Search Requests').all();\nconst out=[];\nfor (let i=0;i<responses.length;i++) {\n  const res=responses[i].json;\n  const req=reqs[i]?.json || reqs[0].json;\n  if (Array.isArray(res?.errors) && res.errors.length) {\n    throw new Error(`Upwork GraphQL error in lane ${req.search_lane?.name}: ${res.errors.map(e=>e.message).join('; ')}`);\n  }\n  const edges=res?.data?.marketplaceJobPostingsSearch?.edges || [];\n  for (const edge of edges) {\n    const j=edge?.node; if (!j?.id) continue;\n    const published=j.publishedDateTime || j.createdDateTime || null;\n    const ageHours=published ? (Date.now()-new Date(published).getTime())/3600000 : null;\n    const hourlyMin=num(j.hourlyBudgetMin?.displayValue);\n    const hourlyMax=num(j.hourlyBudgetMax?.displayValue);\n    const fixedAmount=num(j.amount?.displayValue);\n    const text=`${clean(j.title)} ${clean(j.description)}`.toLowerCase();\n    let pass=true, reason='';\n    if (ageHours !== null && ageHours > req.config.job_source.max_job_age_hours) {pass=false; reason=`older than ${req.config.job_source.max_job_age_hours}h`;}\n    if (pass && hourlyMax !== null && hourlyMax < req.config.commercial.hard_min_hourly) {pass=false; reason=`hourly max ${hourlyMax} below hard floor ${req.config.commercial.hard_min_hourly}`;}\n    const looksHourly = hourlyMin !== null || hourlyMax !== null;\n    if (pass && !looksHourly && fixedAmount !== null && fixedAmount > 0 && fixedAmount < req.config.commercial.hard_min_fixed) {pass=false; reason=`fixed budget ${fixedAmount} below hard floor ${req.config.commercial.hard_min_fixed}`;}\n    if (pass) {\n      const blocked=(req.config.filters?.blocked_keywords || []).find(k=>k && text.includes(String(k).toLowerCase()));\n      if (blocked) {pass=false; reason=`blocked keyword: ${blocked}`;}\n    }\n    const ciphertext=j.ciphertext || '';\n    out.push({json:{\n      dedupe_key:`${req.profile_id}:${j.id}`,\n      profile_id:req.profile_id, display_name:req.display_name, profile_md:req.profile_md, config:req.config,\n      is_first_run:req.is_first_run, first_run_behavior:req.first_run_behavior,\n      search_lane:req.search_lane,\n      pre_filter_pass:pass, pre_filter_reason:reason,\n      job:{\n        id:String(j.id), ciphertext, title:clean(j.title), description:clean(j.description),\n        published_at:published, created_at:j.createdDateTime || null, age_hours:ageHours,\n        experience_level:j.experienceLevel || null, duration:j.durationLabel || j.duration || null,\n        engagement:j.engagement || null, category:j.category || null, subcategory:j.subcategory || null,\n        applicants:j.totalApplicants ?? null, enterprise:!!j.enterprise, premium:!!j.premium, applied:!!j.applied,\n        skills:(j.skills || []).map(s=>s.prettyName || s.name).filter(Boolean),\n        budget:{hourly_min:hourlyMin,hourly_max:hourlyMax,fixed_amount:fixedAmount,currency:j.hourlyBudgetMin?.currency || j.hourlyBudgetMax?.currency || j.amount?.currency || 'USD'},\n        client:{total_hires:j.client?.totalHires ?? null,total_posted_jobs:j.client?.totalPostedJobs ?? null,total_spent:j.client?.totalSpent?.displayValue ?? null,verification_status:j.client?.verificationStatus ?? null,total_reviews:j.client?.totalReviews ?? null,total_feedback:j.client?.totalFeedback ?? null,location:j.client?.location || null},\n        url:ciphertext ? `https://www.upwork.com/jobs/${ciphertext}` : null\n      }\n    }});\n  }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c594f557-287c-4bb8-9d33-33b45c46b3ae",
+      "name": "Deduplicate Current Run",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2400,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const map=new Map();\nfor (const item of $input.all()) {\n  const k=item.json.dedupe_key;\n  const prev=map.get(k);\n  if (!prev || Number(item.json.search_lane?.weight ?? 0) > Number(prev.json.search_lane?.weight ?? 0)) map.set(k,item);\n}\nreturn [...map.values()];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "96e76bfd-42ce-4405-86e6-255d70d41170",
+      "name": "Only Unseen Jobs",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2640,
+        624
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "dedupe_key",
+              "keyValue": "={{ $json.dedupe_key }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "upwork_seen_jobs"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "8f9e5f08-0a67-4218-907c-9b68a2fad942",
+      "name": "Passed Pre-Filter?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2944,
+        624
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "161c8369-8276-4a0a-a23c-28cc3186b748",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.pre_filter_pass }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "9a6796ab-c966-48fb-8cdd-1a5f11d78596",
+      "name": "Seed First Run?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3120,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "74dc046f-f951-426d-89fa-f51f42e4c99d",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_first_run }}",
+              "rightValue": true
+            },
+            {
+              "id": "0b2864b9-a879-49a6-b89f-300ca258bfdb",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.first_run_behavior }}",
+              "rightValue": "seed"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "9aa7166a-fc9e-4edc-a600-f3fd5acf7944",
+      "name": "Build Non-AI Seen Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3360,
+        704
+      ],
+      "parameters": {
+        "jsCode": "const x=$json;\nlet score=0, decision='deterministic_reject', reason=x.pre_filter_reason || 'rejected by deterministic filter', alerted=false;\nif (x.pre_filter_pass && x.is_first_run && x.first_run_behavior==='seed') {score=-1;decision='seeded';reason='first-run seed baseline';}\nreturn [{json:{dedupe_key:x.dedupe_key,profile_id:x.profile_id,job_id:x.job.id,ciphertext:x.job.ciphertext||'',title:x.job.title,published_at:x.job.published_at||new Date().toISOString(),first_seen_at:new Date().toISOString(),score,decision,alerted,search_lane:x.search_lane?.name||'',job_url:x.job.url||'',reason}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "afbb51b1-0677-411f-ae58-1d83c3fc867c",
+      "name": "Build AI Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3360,
+        448
+      ],
+      "parameters": {
+        "jsCode": "const x=$json;\nconst cfg=x.config;\nconst job=x.job;\nconst prompt=`You are scoring an Upwork job for a freelancer using the customer-owned profile below.\nDo not invent experience. Use only evidence in profile.md and the job payload.\nReturn the exact structured fields required by the connected output parser.\n\nSCORING POLICY\nAlert threshold: ${cfg.scoring.alert_min_score}/100\nHigh priority: ${cfg.scoring.high_priority_score}/100\nWeights: ${JSON.stringify(cfg.scoring.weights || {})}\nSearch lane: ${x.search_lane.name} (weight ${x.search_lane.weight})\n\nAssess technical fit, role/scope fit, commercial fit, client quality, recency/competition, and how credibly a tailored proposal can be written.\nDetect any screening instruction such as a required word/phrase and reproduce it exactly in screening_instruction.\nproposal_opening must be concise, specific, and within about ${cfg.proposal?.max_opening_words || 120} words. Avoid generic filler and never claim a project/skill not supported by profile.md.\n\nPROFILE.MD\n---\n${x.profile_md}\n---\n\nUPWORK JOB\n${JSON.stringify(job,null,2)}\n\nReturn score 0-100. decision should be alert, maybe, or reject. match_reason should be one concise sentence.`;\nreturn [{json:{...x,ai_prompt:prompt}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "78186630-670c-4636-9ffd-ccf52ee6dbc0",
+      "name": "AI Score + Proposal",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        3760,
+        448
+      ],
+      "parameters": {
+        "text": "={{ $json.ai_prompt }}",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "Score conservatively. Output only data matching the connected structured schema."
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "70017d7c-b818-4470-b906-523708ca80f3",
+      "name": "OpenAI Chat Model - Replaceable",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        3760,
+        656
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "0lty1ZhvLuKWbFZI",
+          "name": "OpenAI account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c61219b1-81a5-443c-a399-2b70c042707a",
+      "name": "Structured Score Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        3904,
+        656
+      ],
+      "parameters": {},
+      "typeVersion": 1.3
+    },
+    {
+      "id": "e0c18322-8999-4038-b471-8452df4341f5",
+      "name": "Merge AI Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4000,
+        448
+      ],
+      "parameters": {
+        "jsCode": "const source=$('Build AI Prompt').item.json;\nconst ai=$json.output ?? $json;\nconst score=Math.max(0,Math.min(100,Number(ai.score ?? 0)));\nconst telegramPolicy=source.config.notifications?.telegram || {};\nconst threshold=Math.max(Number(source.config.scoring.alert_min_score ?? 65), Number(telegramPolicy.min_score ?? 0));\nconst shouldAlert=telegramPolicy.enabled !== false && score >= threshold;\nconst priority=score >= Number(source.config.scoring.high_priority_score ?? 85) ? 'high' : (shouldAlert ? 'normal' : 'none');\nreturn [{json:{...source,ai:{...ai,score},should_alert:shouldAlert,priority}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "261f2a73-dd4e-45b3-8aec-83d5407bbc51",
+      "name": "Notify Telegram?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4240,
+        448
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "73dbe770-bcd0-4a5c-801d-5d16696c5445",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.should_alert }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e8c7d14a-36ab-417b-9b0b-bbc96053fbba",
+      "name": "Format Telegram Alert",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4480,
+        336
+      ],
+      "parameters": {
+        "jsCode": "function esc(s){return String(s ?? '').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');}\nconst x=$json,j=x.job,a=x.ai;\nconst age=j.age_hours==null?'unknown':j.age_hours<1?`${Math.max(1,Math.round(j.age_hours*60))}m ago`:j.age_hours<24?`${Math.round(j.age_hours)}h ago`:`${Math.round(j.age_hours/24)}d ago`;\nlet budget='Budget not specified';\nif (j.budget.hourly_min!=null || j.budget.hourly_max!=null) budget=`$${j.budget.hourly_min ?? '?'}–$${j.budget.hourly_max ?? '?'}/hr`;\nelse if (j.budget.fixed_amount!=null) budget=`Fixed $${j.budget.fixed_amount}`;\nconst c=j.client||{};\nconst client=[c.verification_status?`Payment: ${c.verification_status}`:null,c.total_feedback!=null?`${c.total_feedback}★ (${c.total_reviews ?? 0})`:null,c.total_hires!=null?`${c.total_hires} hires`:null,c.total_spent?`${c.total_spent} spent`:null,c.location?.country||null].filter(Boolean).join(' · ') || 'Client details limited';\nconst risks=(a.risks||[]).slice(0,3).map(r=>`• ${esc(r)}`).join('\\n') || '• None identified';\nconst screening=a.screening_instruction?`\\n\\n<b>Screening instruction:</b> ${esc(a.screening_instruction)}`:'';\nconst icon=x.priority==='high'?'🔥':'🟢';\nconst titleUrl=j.url?`<a href=\"${esc(j.url)}\">${esc(j.title)}</a>`:esc(j.title);\nconst text=`${icon} <b>${a.score}/100 — ${titleUrl}</b>\\nPosted: ${age} · ${esc(budget)}\\nLane: ${esc(x.search_lane.name)}\\n\\n<b>Why it fits:</b> ${esc(a.match_reason)}\\n\\n<b>Client:</b> ${esc(client)}\\n\\n<b>Risks:</b>\\n${risks}${screening}\\n\\n<b>Suggested opening:</b>\\n${esc(a.proposal_opening)}`;\nreturn [{json:{...x,telegram_html:text}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "857ae07f-583d-47b7-b324-5cb347f81400",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4896,
+        336
+      ],
+      "webhookId": "1ef8a9b2-fe27-4a66-9f71-45fec24f2ffc",
+      "parameters": {
+        "text": "={{ $json.telegram_html }}",
+        "chatId": "={{ $('Runtime Settings').first().json.telegramChatId }}",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false,
+          "disable_web_page_preview": true
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "3R8CNjwwZz4BjyHC",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e7705758-03cc-4a8b-97b6-19f685c7a5b9",
+      "name": "Build Alerted Seen Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5136,
+        336
+      ],
+      "parameters": {
+        "jsCode": "const x=$('Merge AI Result').item.json;\nreturn [{json:{dedupe_key:x.dedupe_key,profile_id:x.profile_id,job_id:x.job.id,ciphertext:x.job.ciphertext||'',title:x.job.title,published_at:x.job.published_at||new Date().toISOString(),first_seen_at:new Date().toISOString(),score:Number(x.ai.score||0),decision:'alerted',alerted:true,search_lane:x.search_lane?.name||'',job_url:x.job.url||'',reason:x.ai.match_reason||''}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "09fba76f-3af1-4213-a800-8f1318c875ef",
+      "name": "Build Below-Threshold Seen Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4480,
+        544
+      ],
+      "parameters": {
+        "jsCode": "const x=$json;\nreturn [{json:{dedupe_key:x.dedupe_key,profile_id:x.profile_id,job_id:x.job.id,ciphertext:x.job.ciphertext||'',title:x.job.title,published_at:x.job.published_at||new Date().toISOString(),first_seen_at:new Date().toISOString(),score:Number(x.ai.score||0),decision:x.ai.decision||'below_threshold',alerted:false,search_lane:x.search_lane?.name||'',job_url:x.job.url||'',reason:x.ai.match_reason||'below alert threshold'}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6eaa6d5b-b4e4-4cd7-855c-7b518d0f7fb5",
+      "name": "Upsert Seen Job",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        5376,
+        560
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "score": "={{ $json.score }}",
+            "title": "={{ $json.title }}",
+            "job_id": "={{ $json.job_id }}",
+            "reason": "={{ $json.reason }}",
+            "alerted": "={{ $json.alerted }}",
+            "job_url": "={{ $json.job_url }}",
+            "decision": "={{ $json.decision }}",
+            "ciphertext": "={{ $json.ciphertext }}",
+            "dedupe_key": "={{ $json.dedupe_key }}",
+            "profile_id": "={{ $json.profile_id }}",
+            "search_lane": "={{ $json.search_lane }}",
+            "published_at": "={{ $json.published_at }}",
+            "first_seen_at": "={{ $json.first_seen_at }}"
+          },
+          "schema": [
+            {
+              "id": "dedupe_key",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "dedupe_key",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "profile_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "profile_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "job_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ciphertext",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "ciphertext",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "published_at",
+              "type": "date",
+              "display": true,
+              "required": false,
+              "displayName": "published_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_seen_at",
+              "type": "date",
+              "display": true,
+              "required": false,
+              "displayName": "first_seen_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "score",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "decision",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "decision",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "alerted",
+              "type": "boolean",
+              "display": true,
+              "required": false,
+              "displayName": "alerted",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "search_lane",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "search_lane",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "job_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "dedupe_key",
+              "keyValue": "={{ $json.dedupe_key }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "upwork_seen_jobs"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "8046a51b-1562-4458-8a53-c5ff7f150171",
+      "name": "Ensure seen-jobs table",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1152,
+        624
+      ],
+      "parameters": {
+        "columns": {
+          "column": [
+            {
+              "name": "dedupe_key"
+            },
+            {
+              "name": "profile_id"
+            },
+            {
+              "name": "job_id"
+            },
+            {
+              "name": "ciphertext"
+            },
+            {
+              "name": "title"
+            },
+            {
+              "name": "published_at",
+              "type": "date"
+            },
+            {
+              "name": "first_seen_at",
+              "type": "date"
+            },
+            {
+              "name": "score",
+              "type": "number"
+            },
+            {
+              "name": "decision"
+            },
+            {
+              "name": "alerted",
+              "type": "boolean"
+            },
+            {
+              "name": "search_lane"
+            },
+            {
+              "name": "job_url"
+            },
+            {
+              "name": "reason"
+            }
+          ]
+        },
+        "options": {
+          "createIfNotExists": true
+        },
+        "resource": "table",
+        "operation": "create",
+        "tableName": "upwork_seen_jobs"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5fe907fb-8c04-4f82-8c5a-536fb8eddc08",
+      "name": "START HERE",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -112
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1120,
+        "height": 420,
+        "content": "# Start here\nThis workflow monitors Upwork jobs, scores them against a **user-owned `profile.md`**, and sends only strong matches to Telegram.\n\n**Before activating:**\n1. In **Runtime Settings**, set the raw/public URL of your `profile.md` and your Telegram chat ID.\n2. Add an **Upwork OAuth2** credential with permission to read marketplace job postings.\n3. Add an **OpenAI** credential to the chat model (or replace the model node with another supported LLM).\n4. Add a **Telegram bot** credential.\n5. Run the workflow manually once, review the results, then activate the 15-minute schedule.\n\nThe workflow automatically creates/reuses the `upwork_seen_jobs` Data Table. Do not place API keys, access tokens, bot tokens, or passwords inside `profile.md`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7b8d057b-6e6d-4a69-a4ba-e438c4c878a5",
+      "name": "1 - Dynamic profile",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1260,
+        "height": 430,
+        "content": "## 1. Load and validate the dynamic profile\n`profile.md` is the customer configuration layer. It defines search lanes, skills, commercial thresholds, blocked keywords, score thresholds, proposal preferences, and notification rules.\n\nThe workflow validates the fenced `profile-config` JSON block, automatically creates the seen-jobs table if needed, and checks whether this profile has run before. No freelancer-specific matching logic is hard-coded in the workflow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "afb406a1-781f-4b04-ae63-ec6455ea56f5",
+      "name": "2 - Search and filter",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1584,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1280,
+        "height": 430,
+        "content": "## 2. Search Upwork and remove obvious mismatches\nOne GraphQL request is generated per search lane in `profile.md`. Results are normalized into a common job object and filtered deterministically before any LLM call.\n\nHard filters can reject jobs that are too old, below configured hourly/fixed-budget floors, or contain blocked keywords. Duplicate jobs returned by multiple search lanes are collapsed, then previously processed jobs are skipped via the Data Table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1a0cdb72-f43f-489a-a7ab-be24e1297487",
+      "name": "3 - First run and routing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2896,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 696,
+        "height": 664,
+        "content": "## 3. First-run protection and routing\nJobs that fail deterministic filters are stored as seen without using AI. If `first_run_behavior` is `seed`, all matching jobs discovered on the very first run are also stored without alerts, preventing a flood of historical notifications.\n\nAfter the baseline exists, only unseen jobs that pass the pre-filter continue to AI scoring."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "632a48f9-869f-4e94-89d3-2a9f80763ade",
+      "name": "5 - Alert and persist",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4704,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 920,
+        "height": 620,
+        "content": "## 5. Alert only qualified jobs and remember every decision\nThe configured score threshold decides whether a job is sent to Telegram. High-priority matches receive a stronger visual marker. The alert includes score, age, budget, client signals, risks, screening instructions, and a suggested opening.\n\nWhether alerted, below threshold, seeded, or rejected, every processed job is upserted into `upwork_seen_jobs` so it is not reprocessed on the next scheduled run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb91f2b3-8a3d-4cc4-a72a-423e7467d897",
+      "name": "4 - AI scoring",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3664,
+        128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 980,
+        "height": 698,
+        "content": "## 4. Score fit and draft a proposal opening\nThe AI receives the complete user-owned `profile.md` plus the normalized Upwork job payload. It must score conservatively, explain the match, flag risks, capture any screening instruction, and draft a concise proposal opening without inventing experience.\n\nThe structured parser enforces a predictable JSON response. Replace the OpenAI model if desired; downstream logic only depends on the structured fields."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "5ca90077-27fb-4ae1-a0d6-bc6da3cbe777",
+  "nodeGroups": [],
+  "connections": {
+    "Manual Test": {
+      "main": [
+        [
+          {
+            "node": "Runtime Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI Prompt": {
+      "main": [
+        [
+          {
+            "node": "AI Score + Proposal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge AI Result": {
+      "main": [
+        [
+          {
+            "node": "Notify Telegram?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Seed First Run?": {
+      "main": [
+        [
+          {
+            "node": "Build Non-AI Seen Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build AI Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Runtime Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch profile.md": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Telegram?": {
+      "main": [
+        [
+          {
+            "node": "Format Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Below-Threshold Seen Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Unseen Jobs": {
+      "main": [
+        [
+          {
+            "node": "Passed Pre-Filter?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Runtime Settings": {
+      "main": [
+        [
+          {
+            "node": "Fetch profile.md",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Passed Pre-Filter?": {
+      "main": [
+        [
+          {
+            "node": "Seed First Run?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Non-AI Seen Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Score + Proposal": {
+      "main": [
+        [
+          {
+            "node": "Merge AI Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Telegram Alert": {
+      "main": [
+        [
+          {
+            "node": "Build Alerted Seen Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Search Requests": {
+      "main": [
+        [
+          {
+            "node": "Search Upwork GraphQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Telegram Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Upwork GraphQL": {
+      "main": [
+        [
+          {
+            "node": "Normalize + Deterministic Filter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure seen-jobs table": {
+      "main": [
+        [
+          {
+            "node": "Get Existing Profile State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deduplicate Current Run": {
+      "main": [
+        [
+          {
+            "node": "Only Unseen Jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Score Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Score + Proposal",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Non-AI Seen Record": {
+      "main": [
+        [
+          {
+            "node": "Upsert Seen Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate Profile": {
+      "main": [
+        [
+          {
+            "node": "Ensure seen-jobs table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Alerted Seen Record": {
+      "main": [
+        [
+          {
+            "node": "Upsert Seen Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Profile State": {
+      "main": [
+        [
+          {
+            "node": "Build Search Requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model - Replaceable": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Score + Proposal",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize + Deterministic Filter": {
+      "main": [
+        [
+          {
+            "node": "Deduplicate Current Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Below-Threshold Seen Record": {
+      "main": [
+        [
+          {
+            "node": "Upsert Seen Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

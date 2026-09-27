@@ -1,4 +1,4 @@
-# item : 13
+# item : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |9146|[9146_AI-Powered_Meeting_Minutes_with_GPT-4__Task_Assignment___Multichannel_Distribution.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9146_AI-Powered_Meeting_Minutes_with_GPT-4__Task_Assignment___Multichannel_Distribution.json)|
 |10286|[10286_AI_Meeting_Summary___Action_Item_Tracker_with_Notion__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10286_AI_Meeting_Summary___Action_Item_Tracker_with_Notion__Slack__and_Gmail.json)|
 |13071|[13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13071_Generate_PDF_invoices_with_line_item_support_from_Airtable_using_Google_Sheets.json)|
+|19499|[19499_Redact_personal_data_from_any_item_with_data_tables__audit_log_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19499_Redact_personal_data_from_any_item_with_data_tables__audit_log_and_Discord.json)|

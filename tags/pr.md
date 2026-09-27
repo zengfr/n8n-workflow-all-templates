@@ -1,4 +1,4 @@
-# pr : 14
+# pr : 19
 
 |id|file|
 |----|----|
@@ -16,3 +16,8 @@
 |10331|[10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10331_Auto-Answer_GitHub_PR_Questions_with_GPT-4o__Notion___Slack_for_Dev_Teams.json)|
 |16068|[16068_Send_daily_stale_PR_review_digest_with_GitHub_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16068_Send_daily_stale_PR_review_digest_with_GitHub_and_Slack.json)|
 |16750|[16750_Review_GitHub_pull_requests_with_Mistral_and_send_decisions_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16750_Review_GitHub_pull_requests_with_Mistral_and_send_decisions_to_Slack.json)|
+|17913|[17913_Review_GitHub_PR_security_with_DeepSeek_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17913_Review_GitHub_PR_security_with_DeepSeek_and_Gmail_alerts.json)|
+|18094|[18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json)|
+|18877|[18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json)|
+|19073|[19073_Post_PR_preview_page_screenshots_to_GitHub_pull_requests_with_Snapshot_Site.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19073_Post_PR_preview_page_screenshots_to_GitHub_pull_requests_with_Snapshot_Site.json)|
+|19175|[19175_Review_Terraform_pull_requests_with_GitHub__GPT-4.1__Postgres_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19175_Review_Terraform_pull_requests_with_GitHub__GPT-4.1__Postgres_and_Slack.json)|

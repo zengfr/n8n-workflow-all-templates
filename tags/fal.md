@@ -1,4 +1,4 @@
-# fal : 39
+# fal : 48
 
 |id|file|
 |----|----|
@@ -41,3 +41,12 @@
 |16114|[16114_Generate_new_video_audio_and_merge_the_final_result_with_Fal.run_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16114_Generate_new_video_audio_and_merge_the_final_result_with_Fal.run_and_Google_Drive.json)|
 |16309|[16309_Create_LinkedIn_carousel_posts_from_RSS_blogs_with_DeepSeek__fal.ai_and_Posta.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16309_Create_LinkedIn_carousel_posts_from_RSS_blogs_with_DeepSeek__fal.ai_and_Posta.json)|
 |16508|[16508_Generate_VEO3_videos_from_form_ideas_with_ChatGPT__fal.ai__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16508_Generate_VEO3_videos_from_form_ideas_with_ChatGPT__fal.ai__Drive_and_Gmail.json)|
+|16892|[16892_Extend_videos_with_audio_using_Fal__OpenAI__and_Upload-Post_for_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16892_Extend_videos_with_audio_using_Fal__OpenAI__and_Upload-Post_for_TikTok.json)|
+|16965|[16965_Send_daily_Bible_devotional_images_to_Telegram_with_Gemini_and_Fal.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16965_Send_daily_Bible_devotional_images_to_Telegram_with_Gemini_and_Fal.ai.json)|
+|17343|[17343_Grow_TikTok_carousels_with_Gemini__GPT-4.1__fal.ai__and_Upload_Post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17343_Grow_TikTok_carousels_with_Gemini__GPT-4.1__fal.ai__and_Upload_Post.json)|
+|17421|[17421_Send_daily_AI_credits_report_with_FAL_AI__OpenRouter__Apify__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17421_Send_daily_AI_credits_report_with_FAL_AI__OpenRouter__Apify__and_Telegram.json)|
+|18326|[18326_Generate_and_approve_UGC_ad_videos_with_OpenRouter__Fal__Replicate__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18326_Generate_and_approve_UGC_ad_videos_with_OpenRouter__Fal__Replicate__and_Discord.json)|
+|18695|[18695_Create_self-improving_TikTok_carousels_with_Gemini__fal.ai__OpenAI__Sheets_and_Upload-Post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18695_Create_self-improving_TikTok_carousels_with_Gemini__fal.ai__OpenAI__Sheets_and_Upload-Post.json)|
+|19349|[19349_Create_studio_product_videos_from_3_photos_with_OpenAI__fal.ai_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19349_Create_studio_product_videos_from_3_photos_with_OpenAI__fal.ai_and_YouTube.json)|
+|19399|[19399_Rebuild_product-focused_reels_shot_by_shot_with_Apify__Gemini__and_fal.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19399_Rebuild_product-focused_reels_shot_by_shot_with_Apify__Gemini__and_fal.ai.json)|
+|19641|[19641_Generate_and_monitor_Fal_LTX_text-to-video_jobs_with_recovery_manifests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19641_Generate_and_monitor_Fal_LTX_text-to-video_jobs_with_recovery_manifests.json)|

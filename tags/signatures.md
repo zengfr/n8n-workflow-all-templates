@@ -1,4 +1,4 @@
-# signatures : 6
+# signatures : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |9925|[9925_Automate_Full_Agreement_Lifecycle_with_JotForm__Approvals__Signwell_E-Signatures___Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9925_Automate_Full_Agreement_Lifecycle_with_JotForm__Approvals__Signwell_E-Signatures___Tracking.json)|
 |11018|[11018_Generate_Professional_Email_Signatures_in_HTML___PDF_with_Gmail_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11018_Generate_Professional_Email_Signatures_in_HTML___PDF_with_Gmail_Delivery.json)|
 |11984|[11984_Automate_end-to-end_contract_signatures_with_Google_Docs__Drive_and_SignNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11984_Automate_end-to-end_contract_signatures_with_Google_Docs__Drive_and_SignNow.json)|
+|17338|[17338_Track_e-signatures_and_deliver_signed_PDFs_with_PDF_Generator_API__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17338_Track_e-signatures_and_deliver_signed_PDFs_with_PDF_Generator_API__Gmail_and_Slack.json)|
+|18592|[18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json)|

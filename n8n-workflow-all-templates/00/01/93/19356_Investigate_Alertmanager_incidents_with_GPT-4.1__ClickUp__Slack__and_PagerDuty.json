@@ -1,0 +1,533 @@
+{
+  "id": "a7ldLty8xYKwUCqw",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Investigate Alertmanager incidents with GPT-4.1, ClickUp, Slack, and PagerDuty",
+    "wechat": "youandme10086",
+    "id": 19356,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Mobile App Incident Response Agent",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7ecbe966-0da4-449b-9110-6a73bbcd8664",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -11824,
+        -1504
+      ],
+      "parameters": {
+        "width": 1408,
+        "height": 1312,
+        "content": "## AI Mobile App Incident Response Agent — Alertmanager-Triggered RCA with Auto-Ticketing\n\nThis is an incident investigation agent, not a static alert-to-ticket forward. Crash monitoring, API monitoring, and synthetic tests all feed metrics into Prometheus, which Grafana visualizes and Alertmanager evaluates; when Alertmanager fires, it webhooks into n8n. From there an LLM AGENT decides for itself how to investigate — it can pull application/crash logs and correlate them against recent deployments (and go back and forth between the two, e.g. \"logs spiked right after deploy X, let me check what changed in that deploy\") — rather than running both as a fixed parallel step. It then synthesizes a Root Cause Analysis, opens a ClickUp issue with the findings, and notifies the DevOps team.\n\n### How it works\n1. Webhook - Alertmanager Alert receives the firing alert (alertname, severity, service/app labels, and the Prometheus annotation/description)\n2. Set - Config normalizes the alert fields and derives a sessionId (alert fingerprint) so a re-fired/updated alert for the same issue continues the same investigation thread\n3. AI Agent - Incident Investigator (GPT-4.1 + session memory) is given two tools — Tool - Analyze Logs and Tool - Analyze Recent Deployments — and decides on its own which to call, in what order, and whether to call either more than once with refined queries, before concluding\n4. Set - Parse Agent Output extracts the agent's structured JSON (rootCause, confidence, evidence, likelyDeployment, severity, recommendedActions)\n5. Postgres - Log Incident Analysis persists every analysis into an incident_analyses table for audit history and pattern-matching against future alerts\n6. ClickUp - Create Incident Issue always opens a ClickUp task with the RCA, evidence, and recommended actions, tagged with severity and affected service\n7. Slack - Notify DevOps Team posts a summary + the ClickUp link to the DevOps channel, with an @here for high/critical severity\n8. IF - Critical Severity additionally pages on-call directly (rather than relying on someone seeing the Slack message) when the agent assessed the incident as critical\n\n### How to set up\n1. Import this workflow into n8n\n2. Point Alertmanager's webhook receiver config at this workflow's Webhook - Alertmanager Alert URL\n3. Add an OpenAI (or compatible) credential on the OpenAI Chat Model\n4. Wire Tool - Analyze Logs to your log store (Loki, ELK, CloudWatch Logs, or a crash-reporting API like Crashlytics/Sentry) via HTTP request\n5. Wire Tool - Analyze Recent Deployments to your CI/CD or release-tracking system's deployment-history endpoint\n6. Add a Postgres credential and create the `incident_analyses` table (columns per the node's sticky note)\n7. Add a ClickUp credential (API token) on the ClickUp node, and set the target List ID for incident tasks\n8. Add Slack credentials on the notification node, and PagerDuty/Opsgenie credentials on the paging node if you want the critical-severity escalation\n9. Fire a test alert (or use Alertmanager's `amtool alert add`) to run end-to-end"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "479525a2-66fb-4b5c-8671-19c919d7fa20",
+      "name": "Sticky Note - Trigger & Investigation Agent",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -10368,
+        -1248
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1056,
+        "height": 848,
+        "content": "## 1. Alertmanager Trigger & Tool-Calling Investigation Agent\n\n- **Webhook - Alertmanager Alert** — receives the firing alert payload from Alertmanager (alertname, severity, service/app labels, annotations).\n- **Set - Config** — normalizes alert fields and derives a sessionId (alert fingerprint) for continuity if the alert re-fires or updates.\n- **Tool - Analyze Logs** — callable tool; the agent decides when to pull application/crash/API logs around the alert's time window for the affected service.\n- **Tool - Analyze Recent Deployments** — callable tool; the agent decides when to check what was deployed to the affected service recently, and can call this again after seeing logs to correlate a specific deploy with the symptom onset.\n- **OpenAI Chat Model** — the LLM powering the agent. 🔑\n- **Window Buffer Memory** — session-keyed memory (by alert fingerprint) so a follow-up on the same alert stays in context.\n- **AI Agent - Incident Investigator** — orchestrates: calls whichever tools it needs, in whatever order it decides (including going back to logs after checking a deployment, or vice versa), then returns a Root Cause Analysis with cited evidence."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "727044e0-0588-4e7b-a38a-1b7acf08a051",
+      "name": "Sticky Note - RCA, Ticketing & Notification",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -9280,
+        -1376
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1664,
+        "height": 944,
+        "content": "## 2. RCA Logging, ClickUp Ticket & DevOps Notification\n\n- **Set - Parse Agent Output** — extracts the agent's structured JSON (rootCause, confidence, evidence, likelyDeployment, severity, recommendedActions).\n- **Postgres - Log Incident Analysis** — inserts every analysis into `incident_analyses` (alertFingerprint, service, rootCause, evidence, severity, createdAt) — audit trail and pattern-matching data for future alerts.\n- **ClickUp - Create Incident Issue** — always opens a ClickUp task with the RCA, evidence, likely deployment, and recommended actions — this happens regardless of severity so every incident is tracked. 🔑\n- **Slack - Notify DevOps Team** — posts a summary + the ClickUp task link to the DevOps channel, tagging @here for high/critical severity.\n- **IF - Critical Severity** — branches only when the agent assessed the incident as critical.\n- **PagerDuty - Page On-Call (critical only)** — pages the on-call engineer directly for critical incidents, rather than relying solely on the Slack notification. 🔑"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2421b539-fe5d-4c72-9c2b-67eb4ba1094f",
+      "name": "Webhook - Alertmanager Alert",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -10288,
+        -768
+      ],
+      "webhookId": "c1d2e3f4-alertmanager-incident-0001",
+      "parameters": {
+        "path": "alertmanager-incident",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "44f98d2f-f9b3-4f86-b549-7add6ed67682",
+      "name": "Set - Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -10064,
+        -768
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "alertName",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.labels?.alertname || $json.body.alertname || 'UnknownAlert' }}"
+            },
+            {
+              "name": "severity",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.labels?.severity || $json.body.severity || 'warning' }}"
+            },
+            {
+              "name": "affectedService",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.labels?.service || $json.body.alerts?.[0]?.labels?.app || 'unknown-service' }}"
+            },
+            {
+              "name": "alertDescription",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.annotations?.description || $json.body.alerts?.[0]?.annotations?.summary || '' }}"
+            },
+            {
+              "name": "alertStartsAt",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.startsAt || $now.toISO() }}"
+            },
+            {
+              "name": "alertFingerprint",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.fingerprint || ($json.body.groupKey || 'no-fingerprint') }}"
+            },
+            {
+              "name": "sessionId",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.fingerprint || ($json.body.groupKey || 'no-fingerprint') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9088cc52-0a02-4168-8b6e-62bd1f32163c",
+      "name": "Tool - Analyze Logs",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        -9576,
+        -552
+      ],
+      "parameters": {
+        "url": "=https://logs.internal.example.com/api/query_range",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {}
+          ]
+        },
+        "toolDescription": "Query application/API logs and crash reports for a service within a time window. Use this to find error messages, stack traces, crash signatures, or anomalous log patterns coinciding with the alert."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "61d7552b-333c-4b6a-812c-039d1434a99d",
+      "name": "Tool - Analyze Recent Deployments",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        -9448,
+        -552
+      ],
+      "parameters": {
+        "url": "=https://cicd.internal.example.com/api/deployments",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {}
+          ]
+        },
+        "toolDescription": "Query the CI/CD/release-tracking system for recent deployments/releases to a service: version, deploy timestamp, author, and changed components. Use this to check whether the incident's onset correlates with a specific deployment."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "bd9b0aee-4ad5-438f-b5c0-0fcf1d4fb79d",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -9832,
+        -552
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "f4bc6137-56ba-401e-87c5-201b08b8608a",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -9704,
+        -552
+      ],
+      "parameters": {
+        "sessionKey": "={{ $json.sessionId }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 16
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c41cd00d-c2d0-47c0-b8c0-71546f49fb1c",
+      "name": "AI Agent - Incident Investigator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -9712,
+        -768
+      ],
+      "parameters": {
+        "text": "=You are a senior mobile/backend reliability engineer investigating a production alert.\n\nAlert: {{ $json.alertName }} (severity: {{ $json.severity }})\nAffected service: {{ $json.affectedService }}\nStarted at: {{ $json.alertStartsAt }}\nDescription: \"{{ $json.alertDescription }}\"\n\nThis alert originated from crash monitoring, API monitoring, or synthetic tests feeding Prometheus/Grafana/Alertmanager. You have two tools: analyze_logs and analyze_recent_deployments. Use whichever is relevant, in whatever order makes sense — for example, check logs first, and if you see a suspicious spike, check deployments around that same time to see if a release caused it, then go back to logs to confirm. Call either tool more than once with refined time windows if needed. Do not guess log content or deployment details; only state what the tools returned.\n\nIf earlier turns exist in this conversation (same alert fingerprint), treat this as an update to the SAME incident and use that context rather than starting over.\n\nAssign a severity to your assessment ('low'|'medium'|'high'|'critical') independent of the raw alert severity label, based on what the evidence actually shows (e.g. a 'critical' alert label with a clearly benign root cause can be downgraded, or vice versa if logs reveal wider impact).\n\nReturn ONLY a JSON object (no markdown fences, no commentary) with keys: summary (2-4 sentences), rootCause (string), confidence ('low'|'medium'|'high'), evidence (array of strings citing what analyze_logs/analyze_recent_deployments returned), likelyDeployment (string, empty if none implicated), severity ('low'|'medium'|'high'|'critical'), recommendedActions (array of strings).",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "333b5739-34ee-44d4-bdf6-eaffcbb7d4c3",
+      "name": "Set - Parse Agent Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -9248,
+        -768
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "parsedOutput",
+              "type": "object",
+              "value": "={{ JSON.parse(String($json.output || $json.text || $json.response || '{}').replace(/```json|```/g, '').trim()) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "eada1458-3a3a-43d2-8c9c-4df554d24c69",
+      "name": "Postgres - Log Incident Analysis",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -9024,
+        -768
+      ],
+      "parameters": {
+        "table": "incident_analyses",
+        "schema": "public",
+        "columns": "alert_fingerprint, alert_name, affected_service, root_cause, confidence, evidence, likely_deployment, severity, recommended_actions, created_at",
+        "options": {}
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "f31e7581-d3fa-4cc5-953a-a733c49f29b4",
+      "name": "ClickUp - Create Incident Issue",
+      "type": "n8n-nodes-base.clickUp",
+      "position": [
+        -8800,
+        -768
+      ],
+      "parameters": {
+        "list": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "name": "=[{{ $json.parsedOutput.severity.toUpperCase() }}] {{ $json.alertName }} — {{ $json.affectedService }}",
+        "additionalFields": {
+          "tags": "={{ ['incident', $json.affectedService, $json.parsedOutput.severity] }}",
+          "priority": "={{ $json.parsedOutput.severity === 'critical' ? 1 : $json.parsedOutput.severity === 'high' ? 2 : 3 }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8be2da0-0cf3-412b-9e3e-8b872c22165f",
+      "name": "Slack - Notify DevOps Team",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -8576,
+        -768
+      ],
+      "webhookId": "2a0386cc-b70f-4a83-b0b7-50ba76c11f52",
+      "parameters": {
+        "text": "={{ ($json.parsedOutput.severity === 'critical' || $json.parsedOutput.severity === 'high') ? '<!here> ' : '' }}🚨 *Incident: {{ $json.alertName }}* ({{ $json.parsedOutput.severity }}) — {{ $json.affectedService }}\n\n*Root cause:* {{ $json.parsedOutput.rootCause }}\n*Confidence:* {{ $json.parsedOutput.confidence }}\n{{ $json.parsedOutput.likelyDeployment ? '*Likely deployment:* ' + $json.parsedOutput.likelyDeployment : '' }}\n\n*Recommended actions:*\n{{ $json.parsedOutput.recommendedActions.join('\\n') }}\n\nClickUp ticket: {{ $json.url || 'see ClickUp list' }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#devops-incidents"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3,
+      "continueOnFail": true
+    },
+    {
+      "id": "a1adb99c-9588-4041-966c-c15e3e0ae5b9",
+      "name": "IF - Critical Severity",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -8352,
+        -768
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.parsedOutput.severity }}",
+              "rightValue": "critical"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e10123e9-bae5-4297-bd3c-b00a62d13a06",
+      "name": "PagerDuty - Page On-Call (critical only)",
+      "type": "n8n-nodes-base.pagerDuty",
+      "position": [
+        -8128,
+        -848
+      ],
+      "parameters": {
+        "email": "",
+        "title": "=[CRITICAL] {{ $json.alertName }} — {{ $json.affectedService }}",
+        "resource": "incident",
+        "operation": "create",
+        "serviceId": "",
+        "authentication": "apiToken",
+        "additionalFields": {
+          "urgency": "high"
+        },
+        "conferenceBridgeUi": {}
+      },
+      "typeVersion": 1,
+      "continueOnFail": true
+    },
+    {
+      "id": "7356956f-da87-4991-ac6a-e7df03898059",
+      "name": "Respond to Webhook - Incident Logged",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -7904,
+        -768
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ alertFingerprint: $json.alertFingerprint, severity: $json.parsedOutput.severity, rootCause: $json.parsedOutput.rootCause }) }}"
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "8a725d5f-9bae-4b57-8853-4d400adaee34",
+  "nodeGroups": [],
+  "connections": {
+    "Set - Config": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Incident Investigator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Incident Investigator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Analyze Logs": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Incident Investigator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Incident Investigator",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Critical Severity": {
+      "main": [
+        [
+          {
+            "node": "PagerDuty - Page On-Call (critical only)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook - Incident Logged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Parse Agent Output": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Log Incident Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Notify DevOps Team": {
+      "main": [
+        [
+          {
+            "node": "IF - Critical Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Alertmanager Alert": {
+      "main": [
+        [
+          {
+            "node": "Set - Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClickUp - Create Incident Issue": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notify DevOps Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Incident Investigator": {
+      "main": [
+        [
+          {
+            "node": "Set - Parse Agent Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Log Incident Analysis": {
+      "main": [
+        [
+          {
+            "node": "ClickUp - Create Incident Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Analyze Recent Deployments": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Incident Investigator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PagerDuty - Page On-Call (critical only)": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - Incident Logged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

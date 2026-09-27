@@ -1,4 +1,4 @@
-# gaps : 17
+# gaps : 26
 
 |id|file|
 |----|----|
@@ -19,3 +19,12 @@
 |16193|[16193_Analyze_skill_gaps_from_LinkedIn_jobs_with_BrowserAct__GPT-4o-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16193_Analyze_skill_gaps_from_LinkedIn_jobs_with_BrowserAct__GPT-4o-mini_and_Gmail.json)|
 |16479|[16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json)|
 |16741|[16741_Monitor_AI_brand_visibility_and_GEO_gaps_with_OpenAI__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16741_Monitor_AI_brand_visibility_and_GEO_gaps_with_OpenAI__Gmail_and_Slack.json)|
+|17398|[17398_Track_competitor_pricing_gaps_with_Google_Sheets__ScrapeUnblocker_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17398_Track_competitor_pricing_gaps_with_Google_Sheets__ScrapeUnblocker_and_Gmail.json)|
+|17826|[17826_Answer_FAQ_questions_from_Google_Sheets_with_Gemini_and_log_unanswered_gaps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17826_Answer_FAQ_questions_from_Google_Sheets_with_Gemini_and_log_unanswered_gaps.json)|
+|18227|[18227_Analyze_Amazon_review_gaps_with_Bright_Data__OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18227_Analyze_Amazon_review_gaps_with_Bright_Data__OpenAI__Google_Sheets__and_Slack.json)|
+|18577|[18577_Monitor_Google_AI_Overview_visibility_and_SEO_alerts_with_Pangolinfo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18577_Monitor_Google_AI_Overview_visibility_and_SEO_alerts_with_Pangolinfo.json)|
+|18808|[18808_Find_competitor_content_gaps_from_sitemaps_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18808_Find_competitor_content_gaps_from_sitemaps_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|18963|[18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json)|
+|19355|[19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json)|
+|19532|[19532_Find_competitor_feature_gaps_from_app_reviews_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19532_Find_competitor_feature_gaps_from_app_reviews_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|
+|19730|[19730_Audit_missing_error_workflows_using_the_n8n_API_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19730_Audit_missing_error_workflows_using_the_n8n_API_and_Slack.json)|

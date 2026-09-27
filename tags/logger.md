@@ -1,4 +1,4 @@
-# logger : 16
+# logger : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |16362|[16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json)|
 |16477|[16477_Summarize_daily_Slack_standups_with_OpenAI__Notion__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16477_Summarize_daily_Slack_standups_with_OpenAI__Notion__and_Google_Sheets.json)|
 |16653|[16653_Capture_and_log_email_trade_instructions_with_Gmail__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16653_Capture_and_log_email_trade_instructions_with_Gmail__OpenAI__and_Google_Sheets.json)|
+|16838|[16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json)|
+|19038|[19038_Review_cannabis_orders_for_compliance_with_GPT-5_Mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19038_Review_cannabis_orders_for_compliance_with_GPT-5_Mini__Gmail_and_Google_Sheets.json)|

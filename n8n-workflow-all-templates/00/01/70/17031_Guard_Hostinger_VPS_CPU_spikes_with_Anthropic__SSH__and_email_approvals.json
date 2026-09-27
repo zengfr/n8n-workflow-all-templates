@@ -1,0 +1,1298 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Guard Hostinger VPS CPU spikes with Anthropic, SSH, and email approvals",
+    "wechat": "youandme10086",
+    "id": 17031,
+    "update_time": "2026-09-27"
+  },
+  "nodes": [
+    {
+      "id": "c84d1f65-44e7-4f68-b659-f5ae853692b5",
+      "name": "Format Process List",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3184,
+        2160
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst output = raw.stdout || raw.data || raw.output || JSON.stringify(raw);\nconst lines = output.split('\\n').filter(Boolean);\nconst header = (lines[0] || '').trim().split(/\\s+/);\nconst rows = lines.slice(1, 11).map(line => {\n  const cols = line.trim().split(/\\s+/);\n  const fixed = cols.slice(0, 10);\n  const cmd = cols.slice(10).join(' ');\n  return fixed.concat([cmd]);\n});\n\nconst topProcesses = rows.map(r => ({\n  user: r[0], pid: r[1], cpu: parseFloat(r[2]), mem: parseFloat(r[3]), command: r[10]\n}));\n\nconst killThreshold = $('Config: Detection Settings').item.json.killCpuThreshold;\nconst flaggedPids = topProcesses.filter(p => p.cpu >= killThreshold).map(p => p.pid);\n\nconst html = `<table style=\"border-collapse:collapse;width:100%;font-family:monospace;font-size:12px;\">` +\n  `<tr>${header.map(h => `<th style=\"text-align:left;padding:2px 8px;border-bottom:1px solid #ccc;\">${h}</th>`).join('')}</tr>` +\n  rows.map(r => `<tr>${r.map(c => `<td style=\"padding:2px 8px;border-bottom:1px solid #eee;\">${c}</td>`).join('')}</tr>`).join('') +\n  `</table>`;\n\nreturn [{ json: { processListHtml: html, topProcesses, flaggedPids, rawProcessList: output } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "684f5478-93e5-4d20-983e-8c4b68732ed4",
+      "name": "Parse AI Analysis",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3680,
+        2160
+      ],
+      "parameters": {
+        "jsCode": "const resp = $input.first().json;\nconst body = resp.response || resp;\nconst content = body.content || [];\nconst text = content.filter(c => c.type === 'text').map(c => c.text).join('\\n') || 'AI analysis unavailable.';\nreturn [{ json: { aiAnalysis: text } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "49114766-c651-4abf-88a1-c0e111a37d32",
+      "name": "Build Log Entry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4256,
+        2320
+      ],
+      "parameters": {
+        "jsCode": "const caseId = 'CPU-' + Date.now();\nconst analysis = $('Parse AI Analysis').item.json.aiAnalysis;\nconst flaggedPids = $('Format Process List').item.json.flaggedPids;\nconst vpsId = $('Config: Detection Settings').item.json.vpsId;\n\nconst entry = {\n  caseId,\n  vpsId,\n  timestamp: new Date().toISOString(),\n  status: 'pending_approval',\n  flaggedPids,\n  analysis: analysis.replace(/\\n/g, ' ').slice(0, 2000)\n};\n\nconst base64 = Buffer.from(JSON.stringify(entry), 'utf-8').toString('base64');\nreturn [{ json: { logLineBase64: base64, caseId, flaggedPids } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "12c45fe7-abb3-4900-a079-06d0048d44ee",
+      "name": "IMAP Trigger: New Reply",
+      "type": "n8n-nodes-base.emailReadImap",
+      "position": [
+        1840,
+        2720
+      ],
+      "parameters": {
+        "format": "resolved",
+        "options": {},
+        "postProcessAction": "nothing"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "43cfb9b5-d0c3-4189-a6a4-2eef28623a7b",
+      "name": "Extract Case ID & Decision",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2064,
+        2720
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst subject = item.subject || '';\nconst bodyText = item.text || '';\nconst caseMatch = subject.match(/(CPU-\\d+)/i);\nconst caseId = caseMatch ? caseMatch[1] : null;\nconst approved = /\\bkill\\b/i.test(bodyText);\nreturn [{ json: { caseId, approved } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "94b712a0-486f-472c-8e09-e46b2f7b95b4",
+      "name": "Case ID Found & Approved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2272,
+        2720
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.caseId }}",
+              "rightValue": ""
+            },
+            {
+              "id": "c2",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.approved }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1813e7c6-964e-460f-8fb9-f0b34ff48767",
+      "name": "No Action (Not Approved)",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2496,
+        2880
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "ba6de643-a607-4007-8d20-1453e43a8e45",
+      "name": "Config (Kill Listener)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2496,
+        2640
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "vpsId",
+              "type": "string",
+              "value": "REPLACE_WITH_VPS_ID"
+            },
+            {
+              "id": "b2",
+              "name": "sshHost",
+              "type": "string",
+              "value": "REPLACE_WITH_VPS_IP_OR_HOSTNAME"
+            },
+            {
+              "id": "b3",
+              "name": "notificationEmail",
+              "type": "string",
+              "value": "REPLACE_WITH_YOUR_EMAIL"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "03de5e42-4433-49e8-920e-0bc36eaed204",
+      "name": "Parse Case",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2944,
+        2640
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst line = (raw.stdout || raw.data || raw.output || '').trim();\nif (!line) return [{ json: { found: false } }];\ntry {\n  const entry = JSON.parse(line);\n  return [{ json: { found: true, ...entry } }];\n} catch (e) {\n  return [{ json: { found: false, parseError: e.message } }];\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "552b7c27-ef99-42b0-808a-8a86cf16a4d9",
+      "name": "Found & Pending?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3152,
+        2640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c3",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true
+            },
+            {
+              "id": "c4",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "pending_approval"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ae4ba809-8860-4e2c-a362-0a5043d3fc44",
+      "name": "Email: Case Not Found",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        3376,
+        2768
+      ],
+      "webhookId": "c4078165-5731-453a-8ce4-d14d2cc19fac",
+      "parameters": {
+        "html": "=<h2>⚠️ Kill request received but case not found or already handled</h2><p>Case ID referenced: {{ $('Extract Case ID & Decision').item.json.caseId }}</p><p>No action was taken. This can happen if the case was already resolved, or if the reply's subject line didn't preserve the original case ID.</p>",
+        "options": {},
+        "subject": "=[CPU-CASE] Kill request could not be processed",
+        "toEmail": "={{ $('Config (Kill Listener)').item.json.notificationEmail }}",
+        "fromEmail": "={{ $('Config (Kill Listener)').item.json.notificationEmail }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "6047ecd6-8043-47de-9270-48327d3568d7",
+      "name": "Create Snapshot",
+      "type": "n8n-nodes-hostinger-api.hostingerApi",
+      "position": [
+        3376,
+        2528
+      ],
+      "parameters": {
+        "resource": "vpsSnapshots",
+        "operation": "createSnapshot",
+        "virtualMachineId": "={{ $('Config (Kill Listener)').item.json.vpsId }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3daecaf5-57e6-4808-94cf-f18d9f695cfe",
+      "name": "Wait (snapshot buffer)",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3600,
+        2528
+      ],
+      "webhookId": "182ccac3-dcc2-4d2c-b216-4eeaa6188fd2",
+      "parameters": {
+        "amount": 45
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2a33ff51-d0c9-483e-ac7a-a67426b3a428",
+      "name": "Build Kill Command",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3824,
+        2528
+      ],
+      "parameters": {
+        "jsCode": "const pids = $json.flaggedPids || [];\nconst killCommand = pids.length ? `kill -TERM ${pids.join(' ')}` : 'echo \"no pids to kill\"';\nreturn [{ json: { killCommand, flaggedPids: pids, caseId: $json.caseId } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3d00b999-5bda-4c78-8261-7a996380a242",
+      "name": "Build Kill Log Entry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4256,
+        2528
+      ],
+      "parameters": {
+        "jsCode": "const caseId = $('Build Kill Command').item.json.caseId;\nconst flaggedPids = $('Build Kill Command').item.json.flaggedPids;\nconst entry = {\n  caseId,\n  timestamp: new Date().toISOString(),\n  status: 'killed',\n  flaggedPids\n};\nconst base64 = Buffer.from(JSON.stringify(entry), 'utf-8').toString('base64');\nreturn [{ json: { logLineBase64: base64, caseId, flaggedPids } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bdd836f3-7128-4256-8b72-551ca9ce0721",
+      "name": "Email: Killed Confirmation",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        4704,
+        2528
+      ],
+      "webhookId": "34e69355-9d9b-46b4-81f0-736a42af0df6",
+      "parameters": {
+        "html": "=<h2>✅ Processes Terminated</h2><p>Case <strong>{{ $json.caseId }}</strong> approved and processed.</p><p>Killed PIDs: {{ $json.flaggedPids.join(', ') }}</p><p>A snapshot of VPS {{ $('Config (Kill Listener)').item.json.vpsId }} was taken before termination.</p>",
+        "options": {},
+        "subject": "=[CPU-CASE-{{ $json.caseId }}] Processes terminated",
+        "toEmail": "={{ $('Config (Kill Listener)').item.json.notificationEmail }}",
+        "fromEmail": "={{ $('Config (Kill Listener)').item.json.notificationEmail }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "3d59e14c-86b5-49e4-b13e-ff32da055d51",
+      "name": "Schedule: Every 15 Min",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1840,
+        2208
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "04adce50-cd4a-402d-b0d1-3c2602d0a6db",
+      "name": "Config: Detection Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2064,
+        2208
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "vpsId",
+              "type": "string",
+              "value": "YOUR_VPS_ID"
+            },
+            {
+              "id": "a2",
+              "name": "notificationEmail",
+              "type": "string",
+              "value": "YOUR_EMAIL"
+            },
+            {
+              "id": "a3",
+              "name": "cpuThreshold",
+              "type": "number",
+              "value": 90
+            },
+            {
+              "id": "a4",
+              "name": "trafficMultiplier",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "a5",
+              "name": "lockdownFirewallName",
+              "type": "string",
+              "value": "n8n-auto-lockdown"
+            },
+            {
+              "id": "a6",
+              "name": "allowedPorts",
+              "type": "string",
+              "value": "22,80,443"
+            },
+            {
+              "id": "a7",
+              "name": "sshHost",
+              "type": "string",
+              "value": "YOUR_VPS_IP"
+            },
+            {
+              "id": "a8",
+              "name": "killCpuThreshold",
+              "type": "number",
+              "value": 20
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b9357081-3c37-4065-bb2b-cd44409bf8e0",
+      "name": "Get VPS Metrics",
+      "type": "n8n-nodes-hostinger-api.hostingerApi",
+      "position": [
+        2272,
+        2208
+      ],
+      "parameters": {
+        "date_to": "={{ $now.toUTC().toFormat(\"yyyy-MM-dd'T'HH:mm:ss'Z'\") }}",
+        "date_from": "={{ $now.minus({ hours: 2 }).toUTC().toFormat(\"yyyy-MM-dd'T'HH:mm:ss'Z'\") }}",
+        "operation": "getVmMetrics",
+        "virtualMachineId": "={{ $json.vpsId }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e44ebb93-ef60-4e1e-965c-91e0c3bca592",
+      "name": "Analyze Metrics",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2496,
+        2208
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst metrics = raw.response || raw;\nconst cpuThreshold = $('Config: Detection Settings').item.json.cpuThreshold;\nconst trafficMultiplier = $('Config: Detection Settings').item.json.trafficMultiplier;\n\nfunction series(obj) {\n  if (!obj || !obj.usage) return [];\n  return Object.entries(obj.usage)\n    .map(([ts, val]) => ({ ts: Number(ts), val: Number(val) }))\n    .sort((a, b) => a.ts - b.ts);\n}\n\nfunction formatBytes(bytes) {\n  if (bytes === null || bytes === undefined || isNaN(bytes)) return 'N/A';\n  const units = ['B', 'KB', 'MB', 'GB', 'TB'];\n  let val = bytes;\n  let i = 0;\n  while (val >= 1024 && i < units.length - 1) { val /= 1024; i++; }\n  return `${val.toFixed(2)} ${units[i]}`;\n}\n\nfunction formatTimestamp(ts) {\n  if (!ts) return 'N/A';\n  const date = new Date(ts * 1000);\n  return date.toLocaleString('en-US', { timeZone: 'UTC', dateStyle: 'medium', timeStyle: 'medium' }) + ' UTC';\n}\n\nconst cpuSeries = series(metrics.cpu_usage);\nconst inSeries = series(metrics.incoming_traffic);\nconst outSeries = series(metrics.outgoing_traffic);\n\nif (cpuSeries.length === 0) {\n  return [{ json: { isCpuSpike: false, isTrafficAnomaly: false, note: 'No metrics data returned for this window' } }];\n}\n\nconst latestCpu = cpuSeries[cpuSeries.length - 1].val;\nconst isCpuSpike = latestCpu > cpuThreshold;\n\nfunction baseline(seriesArr) {\n  const prior = seriesArr.slice(0, -1);\n  if (prior.length === 0) return null;\n  const sum = prior.reduce((a, p) => a + p.val, 0);\n  return sum / prior.length;\n}\n\nconst latestIn = inSeries.length ? inSeries[inSeries.length - 1].val : 0;\nconst latestOut = outSeries.length ? outSeries[outSeries.length - 1].val : 0;\nconst baseIn = baseline(inSeries);\nconst baseOut = baseline(outSeries);\n\nconst inAnomaly = baseIn !== null && baseIn > 0 && latestIn > baseIn * trafficMultiplier;\nconst outAnomaly = baseOut !== null && baseOut > 0 && latestOut > baseOut * trafficMultiplier;\nconst isTrafficAnomaly = inAnomaly || outAnomaly;\n\nconst timestamp = cpuSeries[cpuSeries.length - 1].ts;\n\nreturn [{\n  json: {\n    isCpuSpike, isTrafficAnomaly, latestCpu,\n    latestIncoming: latestIn, latestOutgoing: latestOut,\n    baselineIncoming: baseIn, baselineOutgoing: baseOut,\n    timestamp,\n    formattedCpu: `${latestCpu.toFixed(2)}%`,\n    formattedIncoming: formatBytes(latestIn),\n    formattedOutgoing: formatBytes(latestOut),\n    formattedBaselineIncoming: formatBytes(baseIn),\n    formattedBaselineOutgoing: formatBytes(baseOut),\n    formattedTimestamp: formatTimestamp(timestamp)\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ffd2c2ae-a92e-48d3-9663-50680783380f",
+      "name": "CPU Spike?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2720,
+        2208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isCpuSpike }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1ca60757-1484-49d8-a064-ca6b6c7befdb",
+      "name": "No Action: Below Threshold",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2992,
+        2384
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3d274808-edd3-4ebb-bd04-760f7a99b632",
+      "name": "Traffic-Driven?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4048,
+        2064
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c2",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isTrafficAnomaly }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "62a67b2a-3ad8-4249-85e8-53657bdde19a",
+      "name": "List Firewalls",
+      "type": "n8n-nodes-hostinger-api.hostingerApi",
+      "position": [
+        4272,
+        2048
+      ],
+      "parameters": {
+        "resource": "vpsFirewall",
+        "operation": "listFirewalls"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81d7490a-a0f8-4d06-946d-3fbd5f113f89",
+      "name": "Find Lockdown Firewall",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4496,
+        2048
+      ],
+      "parameters": {
+        "jsCode": "const rawResp = $input.first().json;\nconst resp = rawResp.response || rawResp;\nconst list = Array.isArray(resp.data) ? resp.data : (Array.isArray(resp) ? resp : []);\nconst targetName = $('Config: Detection Settings').item.json.lockdownFirewallName;\nconst found = list.find(f => f.name === targetName);\nreturn [{ json: { firewallId: found ? found.id : null, exists: !!found } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "382f5cc4-087c-4936-be07-ed69cb3e2b5e",
+      "name": "Lockdown Firewall Exists?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4720,
+        2048
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c3",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.exists }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0a7698f6-2537-4957-8acc-cc93b78f9e14",
+      "name": "Create Lockdown Firewall",
+      "type": "n8n-nodes-hostinger-api.hostingerApi",
+      "position": [
+        4944,
+        2144
+      ],
+      "parameters": {
+        "resource": "vpsFirewall",
+        "operation": "createFirewall",
+        "requestBody": "={{ JSON.stringify({ name: $('Config: Detection Settings').item.json.lockdownFirewallName }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4ff343a8-2981-4409-88e5-271724e31082",
+      "name": "Split Allowed Ports",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5152,
+        2144
+      ],
+      "parameters": {
+        "jsCode": "const portsStr = $('Config: Detection Settings').item.json.allowedPorts;\nconst ports = portsStr.split(',').map(p => p.trim()).filter(Boolean);\nconst cf = $('Create Lockdown Firewall').item.json;\nconst firewallId = (cf.response || cf).id;\nreturn ports.map(port => ({ json: { port, firewallId } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "36587c9b-9e7b-4076-aeee-53c833c0f6c4",
+      "name": "Create Firewall Rule",
+      "type": "n8n-nodes-hostinger-api.hostingerApi",
+      "position": [
+        5376,
+        2144
+      ],
+      "parameters": {
+        "resource": "vpsFirewall",
+        "operation": "createFirewallRule",
+        "firewallId": "={{ $json.firewallId }}",
+        "requestBody": "={{ JSON.stringify({ protocol: 'TCP', port: $json.port, source: 'any', source_detail: 'any' }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a83a988-6918-4cc9-b26f-80fadd1df017",
+      "name": "Finalize Lockdown Firewall",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5600,
+        2144
+      ],
+      "parameters": {
+        "jsCode": "const cf = $('Create Lockdown Firewall').item.json;\nreturn [{ json: { firewallId: (cf.response || cf).id } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "40bcc2b0-d87d-4080-80d4-1fe1a766eae1",
+      "name": "Activate Lockdown Firewall",
+      "type": "n8n-nodes-hostinger-api.hostingerApi",
+      "position": [
+        5824,
+        2048
+      ],
+      "parameters": {
+        "resource": "vpsFirewall",
+        "firewallId": "={{ $json.firewallId }}",
+        "virtualMachineId": "={{ $('Config: Detection Settings').item.json.vpsId }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "012c2491-de1b-4da1-b248-eaf4272f1a0c",
+      "name": "Alert: Lockdown Activated",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        6032,
+        2048
+      ],
+      "webhookId": "0d77228b-cc55-4c5b-af5a-0ef90406e907",
+      "parameters": {
+        "html": "=<h2>🔒 Auto-Firewall Lockdown Activated</h2><p>A traffic-driven CPU spike was detected and the lockdown firewall was activated automatically.</p><table style=\"border-collapse: collapse;\"><tr><td style=\"padding:4px 12px 4px 0;\"><strong>VPS</strong></td><td>{{ $('Config: Detection Settings').item.json.vpsId }}</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>CPU Usage</strong></td><td>{{ $('Analyze Metrics').item.json.formattedCpu }}</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>Incoming Traffic</strong></td><td>{{ $('Analyze Metrics').item.json.formattedIncoming }} (baseline {{ $('Analyze Metrics').item.json.formattedBaselineIncoming }})</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>Outgoing Traffic</strong></td><td>{{ $('Analyze Metrics').item.json.formattedOutgoing }} (baseline {{ $('Analyze Metrics').item.json.formattedBaselineOutgoing }})</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>Detected At</strong></td><td>{{ $('Analyze Metrics').item.json.formattedTimestamp }}</td></tr></table><p>Lockdown firewall \"<strong>{{ $('Config: Detection Settings').item.json.lockdownFirewallName }}</strong>\" (allowing only ports {{ $('Config: Detection Settings').item.json.allowedPorts }}) is now active on this VPS.</p><p><em>Review traffic and manually deactivate/revert once the spike clears — auto-revert isn't built yet.</em></p>",
+        "options": {},
+        "subject": "=[Alert] Auto-firewall lockdown activated on VPS {{ $('Config: Detection Settings').item.json.vpsId }}",
+        "toEmail": "={{ $('Config: Detection Settings').item.json.notificationEmail }}",
+        "fromEmail": "={{ $('Config: Detection Settings').item.json.notificationEmail }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "d07ec5a8-011c-4e79-9a62-f63799b37dcc",
+      "name": "Alert: Non-Traffic CPU Spike",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        4704,
+        2320
+      ],
+      "webhookId": "82a2d4b4-b0a2-4ae4-9826-ab1b26a1e4da",
+      "parameters": {
+        "html": "=<h2>⚠️ CPU Spike Detected — Not Traffic-Driven</h2><p>A CPU spike was detected but traffic looks normal, so no firewall action was taken.</p><table style=\"border-collapse: collapse;\"><tr><td style=\"padding:4px 12px 4px 0;\"><strong>VPS</strong></td><td>{{ $('Config: Detection Settings').item.json.vpsId }}</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>CPU Usage</strong></td><td>{{ $('Analyze Metrics').item.json.formattedCpu }}</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>Incoming Traffic</strong></td><td>{{ $('Analyze Metrics').item.json.formattedIncoming }} (baseline {{ $('Analyze Metrics').item.json.formattedBaselineIncoming }})</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>Outgoing Traffic</strong></td><td>{{ $('Analyze Metrics').item.json.formattedOutgoing }} (baseline {{ $('Analyze Metrics').item.json.formattedBaselineOutgoing }})</td></tr><tr><td style=\"padding:4px 12px 4px 0;\"><strong>Detected At</strong></td><td>{{ $('Analyze Metrics').item.json.formattedTimestamp }}</td></tr></table><h3>Top CPU-consuming processes</h3>{{ $('Format Process List').item.json.processListHtml }}<h3>AI Analysis</h3><p>{{ $('Parse AI Analysis').item.json.aiAnalysis }}</p><p><strong>Reply \"KILL\" to this email to terminate the flagged processes</strong> ({{ $('Format Process List').item.json.flaggedPids.join(', ') }}). A snapshot will be taken automatically first.</p><p><em>Case ID: {{ $('Build Log Entry').item.json.caseId }}</em></p>",
+        "options": {},
+        "subject": "=[CPU-CASE-{{ $('Build Log Entry').item.json.caseId }}] CPU spike detected on VPS {{ $('Config: Detection Settings').item.json.vpsId }}",
+        "toEmail": "={{ $('Config: Detection Settings').item.json.notificationEmail }}",
+        "fromEmail": "={{ $('Config: Detection Settings').item.json.notificationEmail }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "4bd84058-79ad-4599-b270-5ce055abbdb6",
+      "name": "Analyze CPU Spike with AI",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "position": [
+        3360,
+        2160
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "claude-sonnet-4-6"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=You are diagnosing a CPU spike on a Linux VPS. CPU: {{ $('Analyze Metrics').item.json.formattedCpu }}. Raw `ps aux --sort=-%cpu` output:\n{{ $json.rawProcessList }}\nIn under 120 words: identify the likely cause (attack, misconfigured app, legitimate load, etc.), name the specific suspicious process(es) if any, and give one clear recommendation."
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b6f3f46-5179-4b11-ab21-eb785a05ee75",
+      "name": "Get CPU Process List",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2992,
+        2160
+      ],
+      "parameters": {
+        "command": "ps aux --sort=-%cpu"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "adb8a98b-0155-4e16-9297-d54fa8663090",
+      "name": "Log CPU use",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        4480,
+        2320
+      ],
+      "parameters": {
+        "command": "=printf '%s\\n' \"$(echo '{{ $json.logLineBase64 }}' | base64 -d)\" >> /var/log/n8n-cpu-guard.log"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f76a7f7-77bb-421f-b999-b50d2d13a3fb",
+      "name": "SSH: Read Case log",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2720,
+        2640
+      ],
+      "parameters": {
+        "command": "=grep '\"caseId\":\"{{ $('Extract Case ID & Decision').item.json.caseId }}\"' /var/log/n8n-cpu-guard.log | tail -n 1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7187a5bd-d1d9-44e1-8153-0acb2c07a110",
+      "name": "SSH: Kill flagged processes",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        4032,
+        2528
+      ],
+      "parameters": {
+        "command": "={{ $json.killCommand }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ace3b223-8243-4232-bedf-c2922a5996a1",
+      "name": "SSH: Log case (killed)",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        4480,
+        2528
+      ],
+      "parameters": {
+        "command": "=printf '%s\\n' \"$(echo '{{ $json.logLineBase64 }}' | base64 -d)\" >> /var/log/n8n-cpu-guard.log"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-main",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        1264
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 780,
+        "height": 268,
+        "content": "## Monitor and throttle CPU spikes on a Hostinger VPS with AI triage\n\nMonitors a Hostinger VPS every 15 minutes for CPU spikes. When CPU exceeds the configured threshold, it collects the process list via SSH, asks an AI model to analyse the cause, and emails you a report with a reply-to-kill option.\n\nTwo parallel branches: (1) detection/analysis/notify loop, and (2) kill-approval listener (IMAP) that waits for an email reply containing 'KILL', takes a snapshot, then terminates flagged processes.\n\n**Requires:** Hostinger API, SSH Password, IMAP, SMTP, and Anthropic credentials."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-step1",
+      "name": "Stage 1: Schedule & Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1824,
+        2032
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 154,
+        "content": "**Stage 1 — Schedule & Config**\n\nFires every 15 minutes. The Config node sets vpsId, SSH host, email, and detection thresholds. Edit the Config node values before activating."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-step2",
+      "name": "Stage 2: Metrics & Detection",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2272,
+        2032
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 138,
+        "content": "**Stage 2 — Metrics & Detection**\n\nFetches 2-hour CPU/traffic metrics from Hostinger API. Code node computes whether CPU has exceeded the threshold and whether traffic is anomalous."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-step3",
+      "name": "Stage 3: Process List & AI",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2976,
+        1968
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 154,
+        "content": "**Stage 3 — Process List & AI Analysis**\n\nRuns 'ps aux --sort=-%cpu' via SSH. Formats top processes into an HTML table. Sends raw output to the Anthropic model to identify the likely cause and give a remediation recommendation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-step4",
+      "name": "Stage 4: Traffic & Non-Traffic Paths",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4032,
+        1792
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 250,
+        "content": "**Stage 4a — Traffic-Driven Path**\n\nIf a traffic anomaly is detected, finds or creates a lockdown firewall allowing only ports 22/80/443 and activates it on the VPS. Sends a lockdown notification email.\n\n**Stage 4b — Non-Traffic Path**\n\nLogs the case to /var/log/n8n-cpu-guard.log and emails a process report with reply-to-kill instructions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-kill",
+      "name": "Kill Approval Branch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1840,
+        2528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 158,
+        "content": "**Kill Approval Branch (IMAP listener)**\n\nRuns in parallel. Watches for email replies containing 'KILL' in the body and a CPU case ID in the subject. Reads the case from the SSH log, takes a VPS snapshot, waits 45 s, then terminates the flagged PIDs via SSH."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-security",
+      "name": "Security Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        1552
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 780,
+        "height": 200,
+        "content": "**Security & Cost Warnings**\n\n- The kill command runs as the SSH user — ensure this account has minimum necessary privileges.\n- The firewall lockdown blocks all non-SSH/HTTP/HTTPS traffic; legitimate services may be disrupted.\n- Anthropic API calls cost tokens per invocation (every 15 min during a spike). Monitor usage.\n- A VPS snapshot is taken on every kill approval and consumes storage quota.\n- IMAP polling interval determines kill-approval latency."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-wf1-community",
+      "name": "Community Node Disclaimer",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        1760
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 780,
+        "height": 130,
+        "content": "**Community Node — Self-Hosted n8n Required**\n\nThis workflow uses n8n-nodes-hostinger-api, a community-maintained node not available on n8n Cloud. Install it on a self-hosted instance via: Settings > Community Nodes > Install > n8n-nodes-hostinger-api."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "CPU Spike?": {
+      "main": [
+        [
+          {
+            "node": "Get CPU Process List",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action: Below Threshold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Case": {
+      "main": [
+        [
+          {
+            "node": "Found & Pending?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log CPU use": {
+      "main": [
+        [
+          {
+            "node": "Alert: Non-Traffic CPU Spike",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Firewalls": {
+      "main": [
+        [
+          {
+            "node": "Find Lockdown Firewall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Metrics": {
+      "main": [
+        [
+          {
+            "node": "CPU Spike?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Log CPU use",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Wait (snapshot buffer)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get VPS Metrics": {
+      "main": [
+        [
+          {
+            "node": "Analyze Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Traffic-Driven?": {
+      "main": [
+        [
+          {
+            "node": "List Firewalls",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found & Pending?": {
+      "main": [
+        [
+          {
+            "node": "Create Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email: Case Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Analysis": {
+      "main": [
+        [
+          {
+            "node": "Traffic-Driven?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Kill Command": {
+      "main": [
+        [
+          {
+            "node": "SSH: Kill flagged processes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SSH: Read Case log": {
+      "main": [
+        [
+          {
+            "node": "Parse Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Process List": {
+      "main": [
+        [
+          {
+            "node": "Analyze CPU Spike with AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Allowed Ports": {
+      "main": [
+        [
+          {
+            "node": "Create Firewall Rule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Kill Log Entry": {
+      "main": [
+        [
+          {
+            "node": "SSH: Log case (killed)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Firewall Rule": {
+      "main": [
+        [
+          {
+            "node": "Finalize Lockdown Firewall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get CPU Process List": {
+      "main": [
+        [
+          {
+            "node": "Format Process List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config (Kill Listener)": {
+      "main": [
+        [
+          {
+            "node": "SSH: Read Case log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Lockdown Firewall": {
+      "main": [
+        [
+          {
+            "node": "Lockdown Firewall Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SSH: Log case (killed)": {
+      "main": [
+        [
+          {
+            "node": "Email: Killed Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule: Every 15 Min": {
+      "main": [
+        [
+          {
+            "node": "Config: Detection Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait (snapshot buffer)": {
+      "main": [
+        [
+          {
+            "node": "Build Kill Command",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IMAP Trigger: New Reply": {
+      "main": [
+        [
+          {
+            "node": "Extract Case ID & Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Lockdown Firewall": {
+      "main": [
+        [
+          {
+            "node": "Split Allowed Ports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze CPU Spike with AI": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Case ID Found & Approved?": {
+      "main": [
+        [
+          {
+            "node": "Config (Kill Listener)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action (Not Approved)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lockdown Firewall Exists?": {
+      "main": [
+        [
+          {
+            "node": "Activate Lockdown Firewall",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Lockdown Firewall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Activate Lockdown Firewall": {
+      "main": [
+        [
+          {
+            "node": "Alert: Lockdown Activated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config: Detection Settings": {
+      "main": [
+        [
+          {
+            "node": "Get VPS Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Case ID & Decision": {
+      "main": [
+        [
+          {
+            "node": "Case ID Found & Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Finalize Lockdown Firewall": {
+      "main": [
+        [
+          {
+            "node": "Activate Lockdown Firewall",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SSH: Kill flagged processes": {
+      "main": [
+        [
+          {
+            "node": "Build Kill Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

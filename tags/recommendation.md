@@ -1,4 +1,4 @@
-# recommendation : 13
+# recommendation : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |11432|[11432_Smart_Break_Recommendation_System_using_Google_Calendar__Weather_Data__and_GPT-4_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11432_Smart_Break_Recommendation_System_using_Google_Calendar__Weather_Data__and_GPT-4_to_Slack.json)|
 |11689|[11689_Generate_Personalized_Deal_Content_Recommendations_with_Zoho_CRM__GPT-4o-mini___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11689_Generate_Personalized_Deal_Content_Recommendations_with_Zoho_CRM__GPT-4o-mini___Gmail.json)|
 |15829|[15829_Recommend_TikTok_sound_and_caption_packs_for_AI_product_videos_with_Wouldliker.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15829_Recommend_TikTok_sound_and_caption_packs_for_AI_product_videos_with_Wouldliker.json)|
+|17079|[17079_Recommend_supplier_consolidation_with_Google_Sheets__Groq__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17079_Recommend_supplier_consolidation_with_Google_Sheets__Groq__Slack_and_Gmail.json)|
+|17262|[17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json)|
+|19287|[19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json)|

@@ -1,4 +1,4 @@
-# campaigns : 30
+# campaigns : 38
 
 |id|file|
 |----|----|
@@ -32,3 +32,11 @@
 |15619|[15619_Send_AI-personalized_WhatsApp_campaigns_with_WhatsApp_Business_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15619_Send_AI-personalized_WhatsApp_campaigns_with_WhatsApp_Business_API_and_Google_Sheets.json)|
 |15864|[15864_Send_SMS_and_RCS_marketing_campaigns_from_Google_Sheets_with_RCSZilla.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15864_Send_SMS_and_RCS_marketing_campaigns_from_Google_Sheets_with_RCSZilla.json)|
 |16361|[16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json)|
+|17468|[17468_Audit_and_auto-restructure_ad_campaigns_with_Spendict__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17468_Audit_and_auto-restructure_ad_campaigns_with_Spendict__OpenAI__and_Google_Sheets.json)|
+|17763|[17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json)|
+|18694|[18694_Create_and_publish_car_campaigns_from_one_photo_with_GPT-5__GPT_Image_2__LTX_2.3_and_Postoria.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18694_Create_and_publish_car_campaigns_from_one_photo_with_GPT-5__GPT_Image_2__LTX_2.3_and_Postoria.json)|
+|18786|[18786_Send_UK_hiring-signal_leads_from_Apify_to_Instantly.ai_campaigns_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18786_Send_UK_hiring-signal_leads_from_Apify_to_Instantly.ai_campaigns_and_Google_Sheets.json)|
+|18994|[18994_Run_real_estate_SMS_campaigns_with_GPT-4.1__Apify__Twilio__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18994_Run_real_estate_SMS_campaigns_with_GPT-4.1__Apify__Twilio__and_Google_Sheets.json)|
+|19413|[19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json)|
+|19775|[19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json)|
+|19787|[19787_Run_win-back_drip_email_campaigns_with_Google_Sheets_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19787_Run_win-back_drip_email_campaigns_with_Google_Sheets_and_SMTP.json)|

@@ -1,4 +1,4 @@
-# docker : 19
+# docker : 22
 
 |id|file|
 |----|----|
@@ -21,3 +21,6 @@
 |16191|[16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json)|
 |16641|[16641_Trigger_Coolify_deployments_from_new_Docker_Hub_and_GHCR_image_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16641_Trigger_Coolify_deployments_from_new_Docker_Hub_and_GHCR_image_digests.json)|
 |16669|[16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json)|
+|17032|[17032_Deploy_curated_Docker_app_stacks_to_a_Hostinger_VPS_via_forms_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17032_Deploy_curated_Docker_app_stacks_to_a_Hostinger_VPS_via_forms_and_email.json)|
+|17731|[17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json)|
+|19504|[19504_Triage_risky_Docker_image_migrations_with_What_s_Up_Docker__OpenAI_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19504_Triage_risky_Docker_image_migrations_with_What_s_Up_Docker__OpenAI_and_Ollama.json)|

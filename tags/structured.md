@@ -1,4 +1,4 @@
-# structured : 48
+# structured : 57
 
 |id|file|
 |----|----|
@@ -50,3 +50,12 @@
 |16261|[16261_Capture_and_log_trade_instructions_from_Gmail_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16261_Capture_and_log_trade_instructions_from_Gmail_with_Gemini_and_Google_Sheets.json)|
 |16331|[16331_Extract_invoice_data_from_Gmail_PDFs_to_Google_Sheets_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16331_Extract_invoice_data_from_Gmail_PDFs_to_Google_Sheets_with_OpenAI_and_Slack.json)|
 |16399|[16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json)|
+|16910|[16910_Generate_structured_drama_scripts_from_webhook_requests_using_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16910_Generate_structured_drama_scripts_from_webhook_requests_using_OpenAI_and_Google_Sheets.json)|
+|16986|[16986_Transform_uploaded_documents_into_structured_data_with_Unstructured_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16986_Transform_uploaded_documents_into_structured_data_with_Unstructured_MCP.json)|
+|17656|[17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json)|
+|17910|[17910_Extract_structured_data_from_webpages_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17910_Extract_structured_data_from_webpages_with_Apify_and_OpenAI.json)|
+|17926|[17926_Scrape_structured_Google_search_results_with_CoreClaw_and_a_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17926_Scrape_structured_Google_search_results_with_CoreClaw_and_a_webhook.json)|
+|17937|[17937_Turn_call__chat__and_email_transcripts_into_sales_records_with_Claude__Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17937_Turn_call__chat__and_email_transcripts_into_sales_records_with_Claude__Sheets__and_Gmail.json)|
+|19052|[19052_Extract_structured_invoice_data_from_text_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19052_Extract_structured_invoice_data_from_text_with_OpenAI.json)|
+|19167|[19167_Turn_forwarded_business_document_images_into_structured_records_with_gpt-5.6-terra_Vision__Postgres__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19167_Turn_forwarded_business_document_images_into_structured_records_with_gpt-5.6-terra_Vision__Postgres__and_Gmail.json)|
+|19710|[19710_Generate_structured_research_reports_with_OpenAI__Wikipedia__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19710_Generate_structured_research_reports_with_OpenAI__Wikipedia__Google_Sheets__and_Slack.json)|

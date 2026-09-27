@@ -1,0 +1,663 @@
+{
+  "name": "Prevent Duplicate Webhook Processing with an Idempotency Guard",
+  "nodes": [
+    {
+      "id": "e24f6a80-9f37-4c21-8199-228121c95f3e",
+      "name": "Overview Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        -520
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 600,
+        "height": 280,
+        "content": "## Webhook Idempotency Guard\n\nPrevent duplicate webhook processing with a reusable idempotency ledger stored in n8n Data Tables.\n\n**Endpoint**\n`POST /webhook/idempotency-guard`\n\nThe response contains `allow_processing`. Continue downstream only when it is `true`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "921769a8-5f51-4bf0-a9f8-403f6989339c",
+      "name": "Input Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        -520
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 400,
+        "height": 340,
+        "content": "## Request\n\n```json\n{\n  \"idempotency_key\": \"provider-event-123\",\n  \"scope\": \"payments\",\n  \"payload\": {\n    \"amount\": 4900\n  }\n}\n```\n\n`scope` is optional and defaults to `default`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "05b172be-ea06-43f4-8571-5ec1852733c0",
+      "name": "Configuration Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -520,
+        -520
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "height": 280,
+        "content": "## Configuration\n\nEdit **Configure Guard**:\n\n- `record_ttl_hours`\n- `default_scope`\n- `max_key_length`\n\nA key becomes processable again after its ledger record expires."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d7689b36-0de4-44d3-83f5-251aef318946",
+      "name": "Data Table Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -520
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 440,
+        "height": 360,
+        "content": "## Required Data Table\n\nCreate **webhook_idempotency** with:\n\n- ledger_key — String\n- scope — String\n- idempotency_key — String\n- status — String\n- first_seen_at — DateTime\n- last_seen_at — DateTime\n- expires_at — DateTime\n- duplicate_count — Number\n\nSelect it in all four Data Table nodes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "566a08f2-e5e8-4e03-ab0f-46a0cf31d659",
+      "name": "Decision Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -520
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 400,
+        "height": 320,
+        "content": "## Decisions\n\n- Missing key → `process_event`\n- Existing unexpired key → `duplicate_ignored`\n- Existing expired key → `process_event`\n\nUse both `scope` and `idempotency_key` to avoid collisions between event sources."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2f2db78b-7a11-4f46-8cb1-dd6d2f6f0071",
+      "name": "Concurrency Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        -520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 260,
+        "content": "## Production note\n\nData Tables provide a simple zero-credential ledger. Very high-concurrency payment systems should use a transactional database with a unique constraint on `ledger_key`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "22bbf615-fe66-4d61-a765-f0543dd29a29",
+      "name": "Receive Webhook Event",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1504,
+        280
+      ],
+      "webhookId": "idempotency-guard-template-v1",
+      "parameters": {
+        "path": "idempotency-guard",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "8ad23c58-a2c9-410f-aab7-443303618812",
+      "name": "Normalize Event",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1264,
+        280
+      ],
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nif (\n  body.idempotency_key === undefined ||\n  body.idempotency_key === null ||\n  String(body.idempotency_key).trim() === ''\n) {\n  throw new Error('idempotency_key is required');\n}\n\nreturn [{\n  json: {\n    idempotency_key: String(body.idempotency_key).trim(),\n    scope: body.scope === undefined || body.scope === null\n      ? ''\n      : String(body.scope).trim(),\n    payload: body.payload ?? null,\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1df3ad1d-a4d7-4267-95f9-e20d5308879b",
+      "name": "Configure Guard",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1024,
+        280
+      ],
+      "parameters": {
+        "jsCode": "const config = {\n  record_ttl_hours: 24,\n  default_scope: 'default',\n  max_key_length: 255\n};\n\nconst input = $json;\nconst scope = input.scope || config.default_scope;\n\nif (!Number.isFinite(config.record_ttl_hours) || config.record_ttl_hours <= 0) {\n  throw new Error('record_ttl_hours must be greater than zero');\n}\n\nif (input.idempotency_key.length > config.max_key_length) {\n  throw new Error(\n    'idempotency_key exceeds max_key_length (' +\n    config.max_key_length +\n    ')'\n  );\n}\n\nreturn [{\n  json: {\n    ...input,\n    scope,\n    ledger_key: scope + ':' + input.idempotency_key,\n    config\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "256135dd-8739-41ca-957c-fce699150c29",
+      "name": "Find Existing Key",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -784,
+        280
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ledger_key",
+              "keyValue": "={{ $('Configure Guard').item.json.ledger_key }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "webhook_idempotency"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "2eb31ea7-c55d-4dd4-93b1-8b9d3ae15d20",
+      "name": "Evaluate Idempotency",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -544,
+        280
+      ],
+      "parameters": {
+        "jsCode": "const input = $('Configure Guard').first().json;\nconst existing = $json;\nconst now = new Date(input.received_at);\nconst expiresAt = existing.expires_at\n  ? new Date(existing.expires_at)\n  : null;\nconst validExpiry =\n  expiresAt && !Number.isNaN(expiresAt.getTime());\nconst nextExpiry = new Date(\n  now.getTime() +\n  Number(input.config.record_ttl_hours) * 60 * 60 * 1000\n).toISOString();\n\nif (!existing.ledger_key) {\n  return [{\n    json: {\n      route: 'create',\n      action: 'process_event',\n      allow_processing: true,\n      ledger_key: input.ledger_key,\n      scope: input.scope,\n      idempotency_key: input.idempotency_key,\n      status: 'accepted',\n      first_seen_at: now.toISOString(),\n      last_seen_at: now.toISOString(),\n      expires_at: nextExpiry,\n      duplicate_count: 0,\n      payload: input.payload\n    }\n  }];\n}\n\nif (validExpiry && expiresAt > now) {\n  return [{\n    json: {\n      route: 'duplicate',\n      action: 'duplicate_ignored',\n      allow_processing: false,\n      ledger_key: existing.ledger_key,\n      scope: existing.scope,\n      idempotency_key: existing.idempotency_key,\n      status: existing.status || 'accepted',\n      first_seen_at: existing.first_seen_at,\n      last_seen_at: now.toISOString(),\n      expires_at: existing.expires_at,\n      duplicate_count: Number(existing.duplicate_count || 0) + 1,\n      payload: input.payload\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    route: 'refresh',\n    action: 'process_event',\n    allow_processing: true,\n    ledger_key: input.ledger_key,\n    scope: input.scope,\n    idempotency_key: input.idempotency_key,\n    status: 'accepted',\n    first_seen_at: now.toISOString(),\n    last_seen_at: now.toISOString(),\n    expires_at: nextExpiry,\n    duplicate_count: 0,\n    payload: input.payload\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "52cc3f94-dfb7-42e4-b18d-0ad8c1ea26b5",
+      "name": "Route Decision",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -304,
+        264
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "New Key",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "36d20294-6467-49d0-b77e-986666efed46",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "create"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Duplicate",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "93f9c909-6288-4d69-b1bd-885be3cc2bdf",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "duplicate"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Expired Key",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "c3f14b22-650c-45c5-8619-16709072c6d6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "refresh"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "fdfafbdd-815d-4666-b514-6d61f65c3771",
+      "name": "Create Ledger Record",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -32,
+        104
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "scope": "={{ $('Evaluate Idempotency').item.json.scope }}",
+            "status": "={{ $('Evaluate Idempotency').item.json.status }}",
+            "expires_at": "={{ $('Evaluate Idempotency').item.json.expires_at }}",
+            "ledger_key": "={{ $('Evaluate Idempotency').item.json.ledger_key }}",
+            "last_seen_at": "={{ $('Evaluate Idempotency').item.json.last_seen_at }}",
+            "first_seen_at": "={{ $('Evaluate Idempotency').item.json.first_seen_at }}",
+            "duplicate_count": "={{ $('Evaluate Idempotency').item.json.duplicate_count }}",
+            "idempotency_key": "={{ $('Evaluate Idempotency').item.json.idempotency_key }}"
+          },
+          "schema": [
+            {
+              "id": "ledger_key",
+              "type": "string",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "ledger_key",
+              "defaultMatch": false
+            },
+            {
+              "id": "scope",
+              "type": "string",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "scope",
+              "defaultMatch": false
+            },
+            {
+              "id": "idempotency_key",
+              "type": "string",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "idempotency_key",
+              "defaultMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false
+            },
+            {
+              "id": "first_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "first_seen_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "last_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "last_seen_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "expires_at",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "expires_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "duplicate_count",
+              "type": "number",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "duplicate_count",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "webhook_idempotency"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "19039764-5297-4591-8e8e-30ba047ee28f",
+      "name": "Record Duplicate",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -32,
+        264
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "last_seen_at": "={{ $('Evaluate Idempotency').item.json.last_seen_at }}",
+            "duplicate_count": "={{ $('Evaluate Idempotency').item.json.duplicate_count }}"
+          },
+          "schema": [
+            {
+              "id": "last_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_seen_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duplicate_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "duplicate_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ledger_key",
+              "keyValue": "={{ $('Evaluate Idempotency').item.json.ledger_key }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "webhook_idempotency"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "03d8552f-edb9-4ceb-a11e-31db5e6f5950",
+      "name": "Refresh Expired Record",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -32,
+        424
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "={{ $('Evaluate Idempotency').item.json.status }}",
+            "expires_at": "={{ $('Evaluate Idempotency').item.json.expires_at }}",
+            "last_seen_at": "={{ $('Evaluate Idempotency').item.json.last_seen_at }}",
+            "first_seen_at": "={{ $('Evaluate Idempotency').item.json.first_seen_at }}",
+            "duplicate_count": "={{ $('Evaluate Idempotency').item.json.duplicate_count }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "first_seen_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_seen_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "expires_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "expires_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "duplicate_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "duplicate_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "ledger_key",
+              "keyValue": "={{ $('Evaluate Idempotency').item.json.ledger_key }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "webhook_idempotency"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "88da9f54-4379-4f96-a290-839ece50f49a",
+      "name": "Build Guard Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        240,
+        264
+      ],
+      "parameters": {
+        "jsCode": "const decision = $('Evaluate Idempotency').first().json;\n\nreturn [{\n  json: {\n    allow_processing: decision.allow_processing,\n    action: decision.action,\n    scope: decision.scope,\n    idempotency_key: decision.idempotency_key,\n    ledger_key: decision.ledger_key,\n    duplicate_count: decision.duplicate_count,\n    first_seen_at: decision.first_seen_at,\n    last_seen_at: decision.last_seen_at,\n    expires_at: decision.expires_at,\n    payload: decision.payload\n  }\n}];"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Route Decision": {
+      "main": [
+        [
+          {
+            "node": "Create Ledger Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Refresh Expired Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Guard": {
+      "main": [
+        [
+          {
+            "node": "Find Existing Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Event": {
+      "main": [
+        [
+          {
+            "node": "Configure Guard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Build Guard Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing Key": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Idempotency",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Ledger Record": {
+      "main": [
+        [
+          {
+            "node": "Build Guard Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Idempotency": {
+      "main": [
+        [
+          {
+            "node": "Route Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Webhook Event": {
+      "main": [
+        [
+          {
+            "node": "Normalize Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refresh Expired Record": {
+      "main": [
+        [
+          {
+            "node": "Build Guard Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Prevent duplicate webhook processing with Data Tables idempotency guard",
+    "wechat": "youandme10086",
+    "id": 18958,
+    "update_time": "2026-09-27"
+  }
+}

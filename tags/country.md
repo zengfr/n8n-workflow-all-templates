@@ -1,4 +1,4 @@
-# country : 4
+# country : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |6108|[6108_Fetch_Country-Specific_Google_Trends_Reports_via_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6108_Fetch_Country-Specific_Google_Trends_Reports_via_Telegram_Bot.json)|
 |7378|[7378_Track_YouTube_Trends_by_Country_and_Language_with_RapidAPI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7378_Track_YouTube_Trends_by_Country_and_Language_with_RapidAPI___Google_Sheets.json)|
 |13239|[13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13239_Enrich_IP_addresses_with_country_attribution_using_IPinfo_and_Slack_alerts.json)|
+|19496|[19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json)|

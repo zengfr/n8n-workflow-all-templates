@@ -1,4 +1,4 @@
-# ia : 6
+# ia : 9
 
 |id|file|
 |----|----|
@@ -8,3 +8,6 @@
 |4414|[4414_Automate_News_Publishing_to_LinkedIn_with_Gemini_AI_and_RSS_Feeds.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/44/4414_Automate_News_Publishing_to_LinkedIn_with_Gemini_AI_and_RSS_Feeds.json)|
 |9347|[9347_Facebook_Messenger_Bot_with_GPT-4_for_Text__Image___Voice_Processing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9347_Facebook_Messenger_Bot_with_GPT-4_for_Text__Image___Voice_Processing.json)|
 |9442|[9442_Enhance_Google_Drive_Images_with_Gemini_2.5_Flash_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9442_Enhance_Google_Drive_Images_with_Gemini_2.5_Flash_AI.json)|
+|18859|[18859_Generate_daily_SEO_optimized_WordPress_article_drafts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18859_Generate_daily_SEO_optimized_WordPress_article_drafts_with_OpenAI.json)|
+|18869|[18869_Create_and_approve_LinkedIn_posts_from_RSS_with_OpenAI__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18869_Create_and_approve_LinkedIn_posts_from_RSS_with_OpenAI__Gmail__and_Sheets.json)|
+|19281|[19281_Gestiona_reservas_de_restaurante_por_WhatsApp_con_Gemini_y_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19281_Gestiona_reservas_de_restaurante_por_WhatsApp_con_Gemini_y_Google_Sheets.json)|

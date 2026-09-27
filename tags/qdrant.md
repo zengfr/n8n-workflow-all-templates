@@ -1,4 +1,4 @@
-# qdrant : 55
+# qdrant : 66
 
 |id|file|
 |----|----|
@@ -57,3 +57,14 @@
 |15855|[15855_Provide_ecommerce_support_with_Qdrant_RAG__WooCommerce__and_human_backup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15855_Provide_ecommerce_support_with_Qdrant_RAG__WooCommerce__and_human_backup.json)|
 |16040|[16040_Build_hybrid_RAG_search_over_PDFs_with_Qdrant_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16040_Build_hybrid_RAG_search_over_PDFs_with_Qdrant_and_Ollama.json)|
 |16635|[16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json)|
+|17328|[17328_Run_a_WhatsApp_customer_support_chatbot_with_OpenWA__OpenAI_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17328_Run_a_WhatsApp_customer_support_chatbot_with_OpenWA__OpenAI_and_Qdrant.json)|
+|17436|[17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json)|
+|17628|[17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json)|
+|17764|[17764_Index_local_documents_for_RAG_using_Ollama_embeddings_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17764_Index_local_documents_for_RAG_using_Ollama_embeddings_and_Qdrant.json)|
+|17780|[17780_Answer_document_questions_with_Ollama_and_Qdrant_retrieval_chat_bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17780_Answer_document_questions_with_Ollama_and_Qdrant_retrieval_chat_bot.json)|
+|18256|[18256_Answer_Instagram_FAQ_DMs_using_Google_Gemini_and_Qdrant_from_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18256_Answer_Instagram_FAQ_DMs_using_Google_Gemini_and_Qdrant_from_Google_Drive.json)|
+|18614|[18614_Sync_documentation_vectors_from_GitHub_with_Ollama_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18614_Sync_documentation_vectors_from_GitHub_with_Ollama_and_Qdrant.json)|
+|18617|[18617_Build_a_multi-tenant_RAG_search_engine_with_Qdrant_and_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18617_Build_a_multi-tenant_RAG_search_engine_with_Qdrant_and_OpenAI_GPT-4o.json)|
+|18825|[18825_Handle_AI_customer_support_chats_via_WhatsApp__web_chat__Ollama__and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18825_Handle_AI_customer_support_chats_via_WhatsApp__web_chat__Ollama__and_Qdrant.json)|
+|19633|[19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json)|
+|19671|[19671_Answer_internal_policy_questions_from_Google_Drive_with_OpenAI_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19671_Answer_internal_policy_questions_from_Google_Drive_with_OpenAI_and_Qdrant.json)|

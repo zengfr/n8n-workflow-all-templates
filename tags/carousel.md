@@ -1,4 +1,4 @@
-# carousel : 18
+# carousel : 26
 
 |id|file|
 |----|----|
@@ -20,3 +20,11 @@
 |15372|[15372_Generate_LinkedIn_carousel_content_from_Reddit_with_Claude_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15372_Generate_LinkedIn_carousel_content_from_Reddit_with_Claude_and_Airtable.json)|
 |15796|[15796_Create_LinkedIn_carousel_PDFs_with_GPT-4o-mini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15796_Create_LinkedIn_carousel_PDFs_with_GPT-4o-mini_and_Google_Drive.json)|
 |16309|[16309_Create_LinkedIn_carousel_posts_from_RSS_blogs_with_DeepSeek__fal.ai_and_Posta.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16309_Create_LinkedIn_carousel_posts_from_RSS_blogs_with_DeepSeek__fal.ai_and_Posta.json)|
+|17027|[17027_Create_TikTok_carousel_posts_with_Upload_Post__Google_Sheets__Gemini__GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17027_Create_TikTok_carousel_posts_with_Upload_Post__Google_Sheets__Gemini__GPT-4.1.json)|
+|17440|[17440_Generate_LinkedIn_carousels_from_articles_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17440_Generate_LinkedIn_carousels_from_articles_with_OpenAI_GPT-4o-mini.json)|
+|17627|[17627_Create_LinkedIn_carousel_drafts_from_RSS_feeds_with_PostNitro_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17627_Create_LinkedIn_carousel_drafts_from_RSS_feeds_with_PostNitro_AI_and_Gmail.json)|
+|17810|[17810_Create_LinkedIn_carousel_post_drafts_from_RSS_articles_with_PostNitro_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17810_Create_LinkedIn_carousel_post_drafts_from_RSS_articles_with_PostNitro_and_Gmail.json)|
+|17813|[17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json)|
+|17814|[17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json)|
+|18746|[18746_Publish_Instagram_carousels_from_Google_Sheets_using_Gemini_and_GCS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18746_Publish_Instagram_carousels_from_Google_Sheets_using_Gemini_and_GCS.json)|
+|19316|[19316_Render_LinkedIn_carousel_slides_with_Google_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19316_Render_LinkedIn_carousel_slides_with_Google_Gemini_and_Google_Drive.json)|

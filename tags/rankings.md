@@ -1,4 +1,4 @@
-# rankings : 17
+# rankings : 29
 
 |id|file|
 |----|----|
@@ -19,3 +19,15 @@
 |13737|[13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13737_Track_daily_Google_SERP_rankings_with_Decodo_and_Google_Sheets.json)|
 |15184|[15184_Track_URL-level_keyword_rankings_in_Google_Sheets_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15184_Track_URL-level_keyword_rankings_in_Google_Sheets_with_DataForSEO.json)|
 |16239|[16239_Track_Google_keyword_rankings_with_ScraperAPI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16239_Track_Google_keyword_rankings_with_ScraperAPI__Google_Sheets__and_Gmail.json)|
+|16970|[16970_Monitor_Google_rankings_and_search_intent_with_SerpAPI__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16970_Monitor_Google_rankings_and_search_intent_with_SerpAPI__OpenAI__Notion__and_Slack.json)|
+|17202|[17202_Track_weekly_Google_keyword_rankings_with_SearchApi_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17202_Track_weekly_Google_keyword_rankings_with_SearchApi_and_Slack.json)|
+|17238|[17238_Track_weekly_Google_SERP_rankings_with_Bright_Data__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17238_Track_weekly_Google_SERP_rankings_with_Bright_Data__Google_Sheets__and_Slack.json)|
+|17313|[17313_Track_Google_keyword_rankings_with_Apify__OpenAI__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17313_Track_Google_keyword_rankings_with_Apify__OpenAI__Google_Sheets_and_Gmail.json)|
+|17523|[17523_Track_Google_local_pack_rankings_in_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17523_Track_Google_local_pack_rankings_in_Google_Sheets_with_Apify.json)|
+|17540|[17540_Scrape_Google_search_rankings_into_Google_Sheets_with_ScrapeUnblocker.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17540_Scrape_Google_search_rankings_into_Google_Sheets_with_ScrapeUnblocker.json)|
+|17610|[17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json)|
+|17907|[17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json)|
+|17909|[17909_Track_weekly_Bing_keyword_rankings_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17909_Track_weekly_Bing_keyword_rankings_with_Apify_and_Google_Sheets.json)|
+|18669|[18669_Monitor_Amazon_keyword_rankings_and_alerts_with_Pangolinfo_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18669_Monitor_Amazon_keyword_rankings_and_alerts_with_Pangolinfo_and_email.json)|
+|18809|[18809_Map_local_pack_rankings_across_a_geo_grid_with_Bright_Data__GPT-5.6__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18809_Map_local_pack_rankings_across_a_geo_grid_with_Bright_Data__GPT-5.6__Slack_and_Gmail.json)|
+|19071|[19071_Track_Amazon_keyword_rankings_and_share_of_shelf_with_Bright_Data_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19071_Track_Amazon_keyword_rankings_and_share_of_shelf_with_Bright_Data_and_Slack.json)|

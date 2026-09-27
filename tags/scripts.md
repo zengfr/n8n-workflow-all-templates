@@ -1,4 +1,4 @@
-# scripts : 25
+# scripts : 28
 
 |id|file|
 |----|----|
@@ -27,3 +27,6 @@
 |15227|[15227_Generate_YouTube_scripts_and_full_SEO_package_with_GPT-4o-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15227_Generate_YouTube_scripts_and_full_SEO_package_with_GPT-4o-mini_and_Gmail.json)|
 |15328|[15328_Generate_YouTube__Reels__and_TikTok_scripts_from_one_topic_with_GPT-4o-mini__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15328_Generate_YouTube__Reels__and_TikTok_scripts_from_one_topic_with_GPT-4o-mini__Google_Sheets__and_Gmail.json)|
 |16105|[16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json)|
+|16910|[16910_Generate_structured_drama_scripts_from_webhook_requests_using_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16910_Generate_structured_drama_scripts_from_webhook_requests_using_OpenAI_and_Google_Sheets.json)|
+|17408|[17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json)|
+|18933|[18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json)|

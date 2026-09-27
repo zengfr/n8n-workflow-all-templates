@@ -1,0 +1,900 @@
+{
+  "id": "uceSnDdwCnZTH2N8",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Triage job applications from Gmail with gpt-5.6-terra, Google Sheets, and Telegram",
+    "wechat": "youandme10086",
+    "id": 19253,
+    "update_time": "2026-09-27"
+  },
+  "name": "ai job application inbox sorter with approval step",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ad55cd76-a60e-42a1-b2c0-48eb0d3d93a2",
+      "name": "New Candidate Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "Label_2862649459238172600"
+          ]
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "575f03f8-78be-4390-b506-a8e250738806",
+      "name": "Extract Email Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        272,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Normalize each Gmail message into predictable fields for the rest of the flow.\nconst items = [];\nfor (const item of $input.all()) {\n  const raw = item.json;\n  const from = raw.from || {};\n  const to = Array.isArray(raw.to) ? raw.to[0] : (raw.to || {});\n  const replyTo = Array.isArray(raw.replyTo) ? raw.replyTo[0] : (raw.replyTo || {});\n  const textOf = (src) => src && (src.text || src.email || src.name || (typeof src === 'string' ? src : ''));\n  const headers = (raw.payload && raw.payload.headers) || [];\n  const fromHeader = headers.find((h) => h.name === 'From');\n  const sender = String(textOf(from) || textOf(replyTo) || textOf(to) || (fromHeader ? fromHeader.value : '') || '');\n  items.push({\n    json: {\n      thread_id: String(raw.threadId || ''),\n      message_id: String(raw.id || ''),\n      sender: sender,\n      subject: String(raw.subject || ''),\n      snippet: String(raw.snippet || ''),\n      label_ids: Array.isArray(raw.labelIds) ? raw.labelIds.join(',') : '',\n      received_at: new Date().toISOString()\n    }\n  });\n}\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d09ecf17-3563-4d2c-a293-e26333560b5a",
+      "name": "Mailbox Automation or Human?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        528,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a46ba955-931c-44f1-bed1-bbbabf0b64a5",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.sender != '' && !$json.sender.toLowerCase().includes('noreply') && !$json.sender.toLowerCase().includes('no-reply') && !$json.sender.toLowerCase().includes('notification') }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b0fc7d46-aa0e-4631-9f02-e1013be2f30c",
+      "name": "Resolve Thread History",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        800,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.thread_id }}",
+              "lookupColumn": "thread_id"
+            }
+          ]
+        },
+        "sheetName": {
+          "mode": "list",
+          "value": "applicant_log"
+        },
+        "documentId": {
+          "mode": "url",
+          "value": "={{ $env.RECRUITMENT_LOG_URL }}"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "26f2afe0-58fc-4140-9e36-af7fe8632c6e",
+      "name": "Thread Already Logged?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1072,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "e8643b70-ed41-49d9-ae77-e5c7b55f4cdc",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.thread_id }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "99f4c6c0-42ba-407e-8627-f2392c94c535",
+      "name": "Classify and Draft Reply",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1376,
+        0
+      ],
+      "parameters": {
+        "text": "=You are the inbox sorter for a busy recruiting team. Read the applicant email below and return only the JSON object described by your output schema. Do not add any text outside that JSON.\n\nRules:\n1. category must be exactly one of: application, question, other.\n   Use application when the sender applies for a role, submits a resume, or shows interest in an open position.\n   Use question when the sender asks about the hiring process, a role, the company, or timelines.\n   Use other for anything else, including newsletters, spam, and internal mail.\n2. sentiment must be exactly one of: neutral, positive, negative, urgent.\n   Use urgent when the sender is time sensitive, frustrated, or demands an immediate follow up.\n3. draft_reply must be a short, polite, professional reply. Greet the sender by name when one is visible.\n   For applications, thank the sender for applying and confirm that the team reviews every submission.\n   For questions that are not about an open application, politely decline to answer and point the sender to the public careers page.\n   Never invent facts, salaries, or timelines. Never include internal details.\n4. suggested_subject must be a reply subject of 8 words or fewer.\n\nEmail details:\nSender: {{ $json.sender }}\nSubject: {{ $json.subject }}\nBody preview: {{ $json.snippet }}\nThread id: {{ $json.thread_id }}",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "72526241-94a9-4a52-bfa0-bad1ce34bbef",
+      "name": "Draft and Category Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1552,
+        -160
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"category\": { \"type\": \"string\", \"description\": \"One of: application, question, other\" },\n    \"sentiment\": { \"type\": \"string\", \"description\": \"One of: neutral, positive, negative, urgent\" },\n    \"draft_reply\": { \"type\": \"string\", \"description\": \"Polite professional reply to the sender\" },\n    \"suggested_subject\": { \"type\": \"string\", \"description\": \"Short reply subject line\" }\n  },\n  \"required\": [\"category\", \"sentiment\", \"draft_reply\", \"suggested_subject\"]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "0b4ec238-043b-4157-8e73-c0db2fb8e9d8",
+      "name": "Draft Came Back Clean?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1632,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "505c85ae-4693-4917-8178-947605afb64a",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.output != null && $json.output.category != null && $json.output.category != '' }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "5c0162ee-6a42-4982-8e37-4712314a8c50",
+      "name": "Generate Approval Token",
+      "type": "n8n-nodes-base.crypto",
+      "position": [
+        1952,
+        -16
+      ],
+      "parameters": {
+        "action": "generate",
+        "dataPropertyName": "approval_id"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6ef7a2ec-2eae-46b4-93d4-2cb1b65f92f3",
+      "name": "Compose Log Entry",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2208,
+        -16
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af1eb475-eec4-4a13-a2aa-2daa38da7158",
+              "name": "status",
+              "type": "string",
+              "value": "={{ $json.output.category === 'application' ? 'awaiting_approval' : 'auto_sent' }}"
+            },
+            {
+              "id": "980a8fcc-3dc0-4c87-a315-05b7622c7137",
+              "name": "approval_link",
+              "type": "string",
+              "value": "={{ $env.APPROVAL_BASE_URL + '/approve?thread=' + $json.thread_id + '&token=' + $json.approval_id }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "af04a7c8-65dd-472c-b933-b648b1323296",
+      "name": "Log Candidate to Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2464,
+        -16
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "sender": "={{ $json.sender }}",
+            "status": "={{ $json.status }}",
+            "subject": "={{ $json.subject }}",
+            "category": "={{ $json.output.category }}",
+            "sentiment": "={{ $json.output.sentiment }}",
+            "thread_id": "={{ $json.thread_id }}",
+            "approval_id": "={{ $json.approval_id }}",
+            "draft_reply": "={{ $json.output.draft_reply }}",
+            "received_at": "={{ $json.received_at }}"
+          },
+          "schema": [
+            {
+              "id": "thread_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "thread_id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sender",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sender",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "subject",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "category",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sentiment",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sentiment",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "draft_reply",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "draft_reply",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "approval_id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "received_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "received_at",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "thread_id"
+          ]
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "mode": "list",
+          "value": "applicant_log"
+        },
+        "documentId": {
+          "mode": "url",
+          "value": "={{ $env.RECRUITMENT_LOG_URL }}"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "70de26fc-c59f-4438-b94b-83f41c6dd952",
+      "name": "Needs Manager Approval?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2736,
+        -16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "b99bda4a-b9e7-4196-893e-d604037ee06e",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.output.category }}",
+              "rightValue": "application"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "4f075c1d-3571-4251-a52c-15e3957c6b8e",
+      "name": "Send Courteous Auto Reply",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        3024,
+        0
+      ],
+      "webhookId": "7042fc26-d1d1-4d5d-9fcd-988a789ea8f8",
+      "parameters": {
+        "text": "={{ $json.output.draft_reply }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.output.suggested_subject }}",
+        "toEmail": "={{ $json.sender }}",
+        "fromEmail": "={{ $env.COMPANY_EMAIL }}",
+        "emailFormat": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "d0a4b567-98ea-438a-80b4-4aea3c36fdb6",
+      "name": "Send Draft for Approval",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        3040,
+        -208
+      ],
+      "webhookId": "2fea34ed-826b-4455-9a28-6c9ce8b41bf1",
+      "parameters": {
+        "text": "={{ 'A new applicant needs your review.\\n\\nSender: ' + $json.sender + '\\nSubject: ' + $json.subject + '\\nCategory: ' + $json.output.category + '\\nSentiment: ' + $json.output.sentiment + '\\n\\nAI draft reply:\\n' + $json.output.draft_reply + '\\n\\nOpen the approval link to send this reply: ' + $json.approval_link }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ 'Approval requested: ' + $json.output.suggested_subject }}",
+        "toEmail": "={{ $env.MANAGER_EMAIL }}",
+        "fromEmail": "={{ $env.COMPANY_EMAIL }}",
+        "emailFormat": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "bde1d83d-921d-4add-ac80-51b8e1309d6f",
+      "name": "Candidate Feeling Urgent?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3296,
+        -208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "9ea779fd-3a38-4330-bc82-34e7d1dae8e1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.output.sentiment }}",
+              "rightValue": "negative"
+            },
+            {
+              "id": "ddd411bd-c1dc-4d03-a67f-f143826888e4",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.output.sentiment }}",
+              "rightValue": "urgent"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "57f14b25-d637-4607-a9d3-0208a09ff4e8",
+      "name": "Urgent Alert on Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3568,
+        -240
+      ],
+      "webhookId": "9e222c93-eeaa-420f-89a1-dc6220e222cd",
+      "parameters": {
+        "text": "={{ 'URGENT: ' + $json.sender + ' sent a ' + $json.output.sentiment + ' message. Draft is waiting at: ' + $json.approval_link }}",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "622824d3-0c84-40dc-b0de-6abf3eaa69d5",
+      "name": "Skip Notification Email",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        704,
+        176
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "166d2af4-da0d-40a1-ab7e-7d3923b42953",
+      "name": "Skip Duplicate Thread",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1008,
+        208
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3dddd241-fdc8-4a8f-b9ec-aa5a6c489677",
+      "name": "Flag Malformed Draft",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1664,
+        192
+      ],
+      "webhookId": "9259d43c-3c6d-47d9-b745-12c691d84e23",
+      "parameters": {
+        "text": "={{ 'AI sorting failed for thread ' + $json.thread_id + '. Raw agent output: ' + JSON.stringify($json.output) }}",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "152a0155-a456-425f-973b-97c7c615837d",
+      "name": "Capture Workflow Errors",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        -16,
+        528
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "42fbc436-0568-4e43-b67d-b03854f0be1f",
+      "name": "Notify Team of Failure",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        288,
+        528
+      ],
+      "webhookId": "aaace7e0-115a-4d12-ad07-3d965b9468a6",
+      "parameters": {
+        "text": "={{ 'Applicant inbox workflow failed. Error: ' + ($json.error && $json.error.message ? $json.error.message : JSON.stringify($json)) }}",
+        "chatId": "={{ $env.TELEGRAM_CHAT_ID }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "035b78fa-f492-42d6-b4c5-1e2d38b8f3d2",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -736
+      ],
+      "parameters": {
+        "width": 544,
+        "height": 976,
+        "content": "## ai job application inbox sorter with approval step\n\n### How it works\n1. A Gmail trigger watches a label for incoming applicant mail and normalizes each message into clean fields.\n2. Validation skips notifications and any thread that was already logged, so no candidate gets answered twice.\n3. An AI agent backed by GPT-4o and a structured output parser sorts each email into application, question, or other, and drafts a reply.\n4. Applications stop at a human approval gate: the draft is emailed to the hiring manager with an approval link, never sent automatically.\n5. Questions and general mail get a polite auto-reply, and every processed email is logged to a Google Sheet for audit.\n6. Sentiment checks and an error trigger alert the team on Telegram when a candidate is upset or a node fails.\n\n### Setup\n1. Create a Google Sheet named applicant_log with columns: thread_id, sender, subject, category, sentiment, draft_reply, status, approval_id, received_at.\n2. Add the sheet URL as the RECRUITMENT_LOG_URL env variable in your n8n instance.\n3. Add a Gmail label for incoming applications and paste its ID into the New Candidate Email trigger.\n4. Set MANAGER_EMAIL, COMPANY_EMAIL, APPROVAL_BASE_URL and TELEGRAM_CHAT_ID env variables before activating.\n5. Connect OpenAI and your SMTP credential on the model, approval send, and auto reply nodes.\n6. Approvals are manual on purpose. Only remove the approval gate if you accept the risk of instant AI replies.\n\n### Customization\n- Swap GPT-4o for a cheaper chat model in the GPT-4o Drafting Model node.\n- Change the trigger label or add filters to watch other mailboxes.\n- Add a Slack channel or a second Telegram chat for the urgent alert lane."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5b70f735-2019-4430-b1ba-57370b5879fe",
+      "name": "Triage Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1332,
+        "height": 570,
+        "content": "## Inbox triage\nNew mail is normalized, automation senders are dropped, and threads already in the log are skipped so candidates are never answered twice."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "700f5cf8-1ab2-47a5-862d-53d902150446",
+      "name": "AI Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        -336
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 528,
+        "height": 714,
+        "content": "## AI sorting brain\nThe agent reads the normalized email and returns a strict schema: category, sentiment, draft reply, and a proposed subject. Malformed output is flagged on Telegram."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8a0274ed-b3de-484c-9f87-900f469cf8ef",
+      "name": "Logging Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1888,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1008,
+        "height": 400,
+        "content": "## Logging and the approval gate\nEvery processed email is appended to the applicant log with its status. Applications wait for a human yes before anything is sent."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c51caa0f-e8e3-4421-80c9-acf08801bbd2",
+      "name": "Delivery Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        -384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 868,
+        "height": 602,
+        "content": "## Delivery lanes\nApprovals go to the manager inbox with a link, urgent or angry applicants ping the team on Telegram, and simple questions get a polite auto-reply."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "047ff539-a5f1-407a-8cc8-978360054f6d",
+      "name": "GPT-5.6 Drafting Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1376,
+        -160
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o",
+          "cachedResultName": "gpt-4o"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "746bde12-c717-411d-890e-aac5a7bcd4ad",
+  "nodeGroups": [],
+  "connections": {
+    "Compose Log Entry": {
+      "main": [
+        [
+          {
+            "node": "Log Candidate to Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Candidate Email": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Context": {
+      "main": [
+        [
+          {
+            "node": "Mailbox Automation or Human?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Came Back Clean?": {
+      "main": [
+        [
+          {
+            "node": "Generate Approval Token",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag Malformed Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GPT-5.6 Drafting Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify and Draft Reply",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Thread History": {
+      "main": [
+        [
+          {
+            "node": "Thread Already Logged?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Thread Already Logged?": {
+      "main": [
+        [
+          {
+            "node": "Skip Duplicate Thread",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify and Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Workflow Errors": {
+      "main": [
+        [
+          {
+            "node": "Notify Team of Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Approval Token": {
+      "main": [
+        [
+          {
+            "node": "Compose Log Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Candidate to Sheets": {
+      "main": [
+        [
+          {
+            "node": "Needs Manager Approval?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Manager Approval?": {
+      "main": [
+        [
+          {
+            "node": "Send Draft for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Courteous Auto Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Draft for Approval": {
+      "main": [
+        [
+          {
+            "node": "Candidate Feeling Urgent?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify and Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Draft Came Back Clean?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidate Feeling Urgent?": {
+      "main": [
+        [
+          {
+            "node": "Urgent Alert on Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft and Category Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify and Draft Reply",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mailbox Automation or Human?": {
+      "main": [
+        [
+          {
+            "node": "Resolve Thread History",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Notification Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

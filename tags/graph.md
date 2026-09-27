@@ -1,4 +1,4 @@
-# graph : 38
+# graph : 50
 
 |id|file|
 |----|----|
@@ -40,3 +40,15 @@
 |16118|[16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json)|
 |16194|[16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json)|
 |16231|[16231_Build_a_Slack_knowledge_graph_with_Claude__Neo4j_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16231_Build_a_Slack_knowledge_graph_with_Claude__Neo4j_and_Google_Sheets.json)|
+|16930|[16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|17011|[17011_Monitor_Meta_CAPI_event_match_quality_with_Meta_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17011_Monitor_Meta_CAPI_event_match_quality_with_Meta_Graph_API_and_Claude.json)|
+|17093|[17093_Flag_Meta_ad_creative_fatigue_with_Facebook_Graph_API_and_send_ranked_reports_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17093_Flag_Meta_ad_creative_fatigue_with_Facebook_Graph_API_and_send_ranked_reports_to_Slack.json)|
+|17195|[17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json)|
+|17482|[17482_Publish_Facebook_Reels_from_a_video_URL_with_a_webhook_and_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17482_Publish_Facebook_Reels_from_a_video_URL_with_a_webhook_and_Graph_API.json)|
+|17708|[17708_Rewrite_legal_time_entry_narratives_with_SharePoint__Microsoft_Graph__and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17708_Rewrite_legal_time_entry_narratives_with_SharePoint__Microsoft_Graph__and_GPT-4o.json)|
+|17900|[17900_Track_Facebook_page_engagement_with_Facebook_Graph_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17900_Track_Facebook_page_engagement_with_Facebook_Graph_API_and_Google_Sheets.json)|
+|18027|[18027_Send_weekly_Microsoft_365_license_waste_reports_via_Microsoft_Graph_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18027_Send_weekly_Microsoft_365_license_waste_reports_via_Microsoft_Graph_and_Gmail.json)|
+|18107|[18107_Build_an_enterprise_deal_knowledge_graph_with_Salesforce__Gmail_and_Neo4j.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18107_Build_an_enterprise_deal_knowledge_graph_with_Salesforce__Gmail_and_Neo4j.json)|
+|18455|[18455_Reply_to_Instagram_comments_and_send_DMs_with_Facebook_Graph_API_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18455_Reply_to_Instagram_comments_and_send_DMs_with_Facebook_Graph_API_and_Gemini.json)|
+|18535|[18535_Build_an_engineering_knowledge_graph_with_ClickUp__GitHub__Claude__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18535_Build_an_engineering_knowledge_graph_with_ClickUp__GitHub__Claude__and_Slack.json)|
+|19848|[19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json)|

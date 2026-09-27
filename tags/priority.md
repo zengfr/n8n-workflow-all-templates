@@ -1,4 +1,4 @@
-# priority : 9
+# priority : 16
 
 |id|file|
 |----|----|
@@ -11,3 +11,10 @@
 |15248|[15248_Automatically_sort_stucco_leads_by_SLA_priority_in_NinjaPipe_with_StuccoOS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15248_Automatically_sort_stucco_leads_by_SLA_priority_in_NinjaPipe_with_StuccoOS.json)|
 |15384|[15384_Send_Jira_high_priority_issue_alerts_to_Slack__Google_Chat_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15384_Send_Jira_high_priority_issue_alerts_to_Slack__Google_Chat_and_email.json)|
 |16032|[16032_Triage_Gmail_and_send_high-priority_alerts_with_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16032_Triage_Gmail_and_send_high-priority_alerts_with_Gemini_and_Telegram.json)|
+|17232|[17232_Triage_Gmail_and_draft_replies_with_GPT-5_Mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17232_Triage_Gmail_and_draft_replies_with_GPT-5_Mini_and_Google_Sheets.json)|
+|17365|[17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json)|
+|17715|[17715_Score_RSS_opportunities_to_Google_Sheets_and_send_priority_digests_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17715_Score_RSS_opportunities_to_Google_Sheets_and_send_priority_digests_with_Gmail.json)|
+|18461|[18461_Send_a_daily_RSS_digest_email_with_GPT-4o-mini_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18461_Send_a_daily_RSS_digest_email_with_GPT-4o-mini_and_SMTP.json)|
+|18647|[18647_Send_daily_case-priority_email_digests_from_Clio_to_firm_attorneys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18647_Send_daily_case-priority_email_digests_from_Clio_to_firm_attorneys.json)|
+|18648|[18648_Send_a_scored_daily_jobs_digest_from_Apify_Hirebase_to_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18648_Send_a_scored_daily_jobs_digest_from_Apify_Hirebase_to_Slack_and_Gmail.json)|
+|19183|[19183_Triage_and_reply_to_Gmail_with_Claude_and_log_priority_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19183_Triage_and_reply_to_Gmail_with_Claude_and_log_priority_alerts_to_Slack.json)|

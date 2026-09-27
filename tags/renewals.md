@@ -1,4 +1,4 @@
-# renewals : 4
+# renewals : 9
 
 |id|file|
 |----|----|
@@ -6,3 +6,8 @@
 |11601|[11601_Handle_Failed_Payment_Renewals_with_AI_Analysis__Jira_Tickets_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11601_Handle_Failed_Payment_Renewals_with_AI_Analysis__Jira_Tickets_and_Slack_Alerts.json)|
 |15230|[15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json)|
 |15496|[15496_Monitor_SaaS_contract_renewals_from_Google_Sheets_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15496_Monitor_SaaS_contract_renewals_from_Google_Sheets_and_send_Slack_alerts.json)|
+|17481|[17481_Track_gym_renewals__inactivity__and_check-in_streaks_with_Supabase_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17481_Track_gym_renewals__inactivity__and_check-in_streaks_with_Supabase_and_WhatsApp.json)|
+|18553|[18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json)|
+|18897|[18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json)|
+|19151|[19151_Sync_GLEIF_LEI_renewals_and_consolidation_relationships_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19151_Sync_GLEIF_LEI_renewals_and_consolidation_relationships_with_Apify_and_Google_Sheets.json)|
+|19487|[19487_Manage_subscription_renewals_with_Supabase__Gmail__and_a_payment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19487_Manage_subscription_renewals_with_Supabase__Gmail__and_a_payment_API.json)|

@@ -1,4 +1,4 @@
-# trade : 11
+# trade : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |15857|[15857_Analyze_failed_trades_in_Google_Sheets_with_Gemini_and_send_Slack__email__and_task_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15857_Analyze_failed_trades_in_Google_Sheets_with_Gemini_and_send_Slack__email__and_task_alerts.json)|
 |16261|[16261_Capture_and_log_trade_instructions_from_Gmail_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16261_Capture_and_log_trade_instructions_from_Gmail_with_Gemini_and_Google_Sheets.json)|
 |16653|[16653_Capture_and_log_email_trade_instructions_with_Gmail__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16653_Capture_and_log_email_trade_instructions_with_Gmail__OpenAI__and_Google_Sheets.json)|
+|17541|[17541_Track_and_alert_congressional_and_insider_trades_via_EDGAR__House.gov__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17541_Track_and_alert_congressional_and_insider_trades_via_EDGAR__House.gov__and_Gmail.json)|
+|17793|[17793_Notify_clients_of_delayed_trade_settlements_with_Google_Sheets__Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17793_Notify_clients_of_delayed_trade_settlements_with_Google_Sheets__Gemini__Slack_and_Gmail.json)|
+|18767|[18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json)|

@@ -1,4 +1,4 @@
-# hours : 8
+# hours : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |13088|[13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json)|
 |14113|[14113_Rerank_PM_priorities_every_2_hours_using_OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14113_Rerank_PM_priorities_every_2_hours_using_OpenAI__Notion__and_Slack.json)|
 |15079|[15079_Delete_Dropbox_PNG_files_older_than_48_hours_on_a_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15079_Delete_Dropbox_PNG_files_older_than_48_hours_on_a_schedule.json)|
+|17763|[17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json)|

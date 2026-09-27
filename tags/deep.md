@@ -1,4 +1,4 @@
-# deep : 18
+# deep : 20
 
 |id|file|
 |----|----|
@@ -20,3 +20,5 @@
 |13835|[13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13835_Generate_B2B_lead_magnet_articles_with_AI_deep_research_and_Google_Docs.json)|
 |15383|[15383_Build_and_enrich_B2B_company_lead_lists_with_CompanyEnrich_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15383_Build_and_enrich_B2B_company_lead_lists_with_CompanyEnrich_and_Data_Tables.json)|
 |16666|[16666_Create_social_posts_from_RSS_with_OpenAI__LinkedIn__X__and_Bluesky.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16666_Create_social_posts_from_RSS_with_OpenAI__LinkedIn__X__and_Bluesky.json)|
+|17074|[17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json)|
+|18693|[18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json)|

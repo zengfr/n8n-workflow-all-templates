@@ -1,4 +1,4 @@
-# seconds : 8
+# seconds : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |6136|[6136_Complete_LAMP_Stack__Linux__Apache__MySQL__PHP__Automated_Server_Setup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6136_Complete_LAMP_Stack__Linux__Apache__MySQL__PHP__Automated_Server_Setup.json)|
 |6140|[6140_Set_DevOps_Infrastructure_with_Docker__K3s__Jenkins___Grafana_for_Linux_Servers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6140_Set_DevOps_Infrastructure_with_Docker__K3s__Jenkins___Grafana_for_Linux_Servers.json)|
 |7300|[7300_Automate_Client_Onboarding_with_GPT-4__Google_Drive__ClickUp___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7300_Automate_Client_Onboarding_with_GPT-4__Google_Drive__ClickUp___Slack.json)|
+|18037|[18037_Reply_to_HubSpot_form_leads_in_seconds_with_Claude__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18037_Reply_to_HubSpot_form_leads_in_seconds_with_Claude__Gmail_and_Slack.json)|
+|18281|[18281_Answer_website_leads_instantly_and_notify_the_owner_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18281_Answer_website_leads_instantly_and_notify_the_owner_via_Telegram.json)|
+|19003|[19003_Reply_to_inbound_form_leads_via_SMS_or_email_with_Twilio__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19003_Reply_to_inbound_form_leads_via_SMS_or_email_with_Twilio__Gmail_and_Sheets.json)|

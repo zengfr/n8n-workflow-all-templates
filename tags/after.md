@@ -1,4 +1,4 @@
-# after : 14
+# after : 24
 
 |id|file|
 |----|----|
@@ -16,3 +16,13 @@
 |15464|[15464_Send_digital_products_after_Stripe_payments_with_Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15464_Send_digital_products_after_Stripe_payments_with_Google_Drive_and_email.json)|
 |15526|[15526_Tailor_your_CV_and_cover_letter_to_each_job_with_easybits_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15526_Tailor_your_CV_and_cover_letter_to_each_job_with_easybits_and_Gemini.json)|
 |16155|[16155_Send_missed_appointment_rescheduling_emails_with_webhook_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16155_Send_missed_appointment_rescheduling_emails_with_webhook_and_Gmail.json)|
+|17161|[17161_Deliver_workflows_after_Stripe_checkout_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17161_Deliver_workflows_after_Stripe_checkout_with_Gmail_and_Google_Sheets.json)|
+|17181|[17181_Create_Instagram_carousels_and_TikTok_slideshows_with_OpenAI_and_PostFast.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17181_Create_Instagram_carousels_and_TikTok_slideshows_with_OpenAI_and_PostFast.json)|
+|17215|[17215_Screen_LinkedIn_jobs_and_send_tailored_applications_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17215_Screen_LinkedIn_jobs_and_send_tailored_applications_with_Apify_and_OpenAI.json)|
+|17368|[17368_Rebook_disrupted_flights_and_notify_passengers_with_Claude__Google_Sheets__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17368_Rebook_disrupted_flights_and_notify_passengers_with_Claude__Google_Sheets__and_Twilio.json)|
+|17989|[17989_Create_and_follow_up_Odoo_CRM_leads_from_webhook_forms_with_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17989_Create_and_follow_up_Odoo_CRM_leads_from_webhook_forms_with_Gmail_and_Slack.json)|
+|18042|[18042_Deliver_digital_products_via_WhatsApp_and_Telegram_after_Stripe_payment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18042_Deliver_digital_products_via_WhatsApp_and_Telegram_after_Stripe_payment.json)|
+|18131|[18131_Deliver_photography_galleries_after_payment_with_Razorpay__Airtable__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18131_Deliver_photography_galleries_after_payment_with_Razorpay__Airtable__and_Gmail.json)|
+|18584|[18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json)|
+|19077|[19077_Send_PDF_payment_receipts_with_Stripe__EmitForge__Gmail__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19077_Send_PDF_payment_receipts_with_Stripe__EmitForge__Gmail__Google_Drive_and_Slack.json)|
+|19389|[19389_Send_CSAT_WhatsApp_surveys_after_qualifying_calls_with_NUACOM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19389_Send_CSAT_WhatsApp_surveys_after_qualifying_calls_with_NUACOM.json)|

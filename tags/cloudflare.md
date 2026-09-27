@@ -1,4 +1,4 @@
-# cloudflare : 13
+# cloudflare : 17
 
 |id|file|
 |----|----|
@@ -15,3 +15,7 @@
 |12086|[12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12086_Monitor_Cloudflare_incidents_and_alert_via_Slack__Telegram__and_Jira.json)|
 |16313|[16313_Generate_and_store_Supabase_images_with_Claude_and_Cloudflare_Workers_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16313_Generate_and_store_Supabase_images_with_Claude_and_Cloudflare_Workers_AI.json)|
 |16528|[16528_Ingest_and_search_Cloudflare_R2_media_with_Gemini__Groq_Whisper__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16528_Ingest_and_search_Cloudflare_R2_media_with_Gemini__Groq_Whisper__and_Supabase.json)|
+|17629|[17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json)|
+|17635|[17635_Send_weekly_AI_crawler_visibility_reports_with_Cloudflare__Claude__and_Telegram_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17635_Send_weekly_AI_crawler_visibility_reports_with_Cloudflare__Claude__and_Telegram_email.json)|
+|18309|[18309_Generate_and_deploy_nginx_configs_with_SSH__web_forms_and_Cloudflare.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18309_Generate_and_deploy_nginx_configs_with_SSH__web_forms_and_Cloudflare.json)|
+|18788|[18788_Validate_email_deliverability_via_webhook_using_Google_and_Cloudflare_DNS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18788_Validate_email_deliverability_via_webhook_using_Google_and_Cloudflare_DNS.json)|

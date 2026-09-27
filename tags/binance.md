@@ -1,4 +1,4 @@
-# binance : 23
+# binance : 24
 
 |id|file|
 |----|----|
@@ -25,3 +25,4 @@
 |15844|[15844_Generate_crypto_trading_signals_from_Binance_data_with_GPT-4o_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15844_Generate_crypto_trading_signals_from_Binance_data_with_GPT-4o_and_Telegram.json)|
 |16085|[16085_Detect_Binance_USDT_volume_spikes_with_GPT-4o__Telegram_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16085_Detect_Binance_USDT_volume_spikes_with_GPT-4o__Telegram_and_Google_Sheets.json)|
 |16341|[16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json)|
+|17363|[17363_Monitor_Binance_futures_open_interest_and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17363_Monitor_Binance_futures_open_interest_and_send_Telegram_alerts.json)|

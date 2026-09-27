@@ -1,4 +1,4 @@
-# transform : 80
+# transform : 81
 
 |id|file|
 |----|----|
@@ -82,3 +82,4 @@
 |13521|[13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13521_Send_employee_leave_alerts_from_Google_Sheets_via_Slack_and_Gmail.json)|
 |13802|[13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13802_Turn_your_website_docs_into_a_GPT-4.1-mini_support_chatbot_with_MrScraper_and_Pinecone.json)|
 |14034|[14034_Transform_and_validate_webhook_records_with_configurable_type_conversion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14034_Transform_and_validate_webhook_records_with_configurable_type_conversion.json)|
+|16986|[16986_Transform_uploaded_documents_into_structured_data_with_Unstructured_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16986_Transform_uploaded_documents_into_structured_data_with_Unstructured_MCP.json)|

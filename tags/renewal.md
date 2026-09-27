@@ -1,4 +1,4 @@
-# renewal : 15
+# renewal : 21
 
 |id|file|
 |----|----|
@@ -17,3 +17,9 @@
 |15494|[15494_Send_PDF_renewal_invoices_for_expiring_domains_with_CraftMyPDF__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15494_Send_PDF_renewal_invoices_for_expiring_domains_with_CraftMyPDF__Gmail__and_Google_Sheets.json)|
 |15498|[15498_Send_multi-stage_SaaS_renewal_alerts_from_Google_Sheets_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15498_Send_multi-stage_SaaS_renewal_alerts_from_Google_Sheets_to_Slack.json)|
 |16270|[16270_Monitor_contract_renewal_risk_with_HubSpot__Asana__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16270_Monitor_contract_renewal_risk_with_HubSpot__Asana__Slack__and_Gmail.json)|
+|16947|[16947_Track_asset_warranty_deadlines_with_Google_Sheets__Gmail__Todoist__Slack__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16947_Track_asset_warranty_deadlines_with_Google_Sheets__Gmail__Todoist__Slack__and_OpenAI.json)|
+|18553|[18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json)|
+|18897|[18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json)|
+|19151|[19151_Sync_GLEIF_LEI_renewals_and_consolidation_relationships_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19151_Sync_GLEIF_LEI_renewals_and_consolidation_relationships_with_Apify_and_Google_Sheets.json)|
+|19285|[19285_Send_dormant_matter_and_renewal_reminders_with_Clio__Google_Sheets__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19285_Send_dormant_matter_and_renewal_reminders_with_Clio__Google_Sheets__and_email.json)|
+|19489|[19489_Triage_contract_auto-renewal_risks_with_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19489_Triage_contract_auto-renewal_risks_with_Google_Sheets__Groq__and_Slack.json)|

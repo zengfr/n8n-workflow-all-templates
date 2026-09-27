@@ -1,4 +1,4 @@
-# scheduler : 26
+# scheduler : 30
 
 |id|file|
 |----|----|
@@ -28,3 +28,7 @@
 |11939|[11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11939_Smart_irrigation_scheduler_with_weather_forecast_and_soil_analysis.json)|
 |12043|[12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12043_Schedule_interviews_and_send_GPT-4_reminders_with_Google_Calendar__Gmail__Slack_and_Recrutei.json)|
 |16784|[16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json)|
+|18434|[18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json)|
+|19043|[19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json)|
+|19099|[19099_Schedule_client_data_retention_reviews_with_Clio_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19099_Schedule_client_data_retention_reviews_with_Clio_and_Google_Sheets.json)|
+|19699|[19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json)|

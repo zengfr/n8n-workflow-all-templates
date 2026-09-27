@@ -1,4 +1,4 @@
-# insight : 13
+# insight : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |15461|[15461_Send_daily_crypto_market_insights_with_Google_Gemini_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15461_Send_daily_crypto_market_insights_with_Google_Gemini_to_Telegram.json)|
 |15669|[15669_Generate_daily_stock_market_insights_with_Alpha_Vantage__Google_Gemini_AI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15669_Generate_daily_stock_market_insights_with_Alpha_Vantage__Google_Gemini_AI_and_Slack.json)|
 |15896|[15896_Extract_meeting_decisions_and_tasks_with_Outlook__GPT-4o__SharePoint__and_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15896_Extract_meeting_decisions_and_tasks_with_Outlook__GPT-4o__SharePoint__and_To_Do.json)|
+|19367|[19367_Send_daily_AI_news_digest_to_Slack_with_OpenAI_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19367_Send_daily_AI_news_digest_to_Slack_with_OpenAI_and_PostgreSQL.json)|

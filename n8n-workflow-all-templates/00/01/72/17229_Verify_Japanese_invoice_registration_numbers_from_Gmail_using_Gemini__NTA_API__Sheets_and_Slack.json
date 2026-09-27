@@ -1,0 +1,735 @@
+{
+  "id": "SuoPqP7XrrCfWeUL",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Verify Japanese invoice registration numbers from Gmail using Gemini, NTA API, Sheets and Slack",
+    "wechat": "youandme10086",
+    "id": 17229,
+    "update_time": "2026-09-27"
+  },
+  "name": "Verify Japanese invoice registration numbers with the NTA API, Gemini and Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "45302404-6aa8-4012-8ebd-681943ee376f",
+      "name": "Fetch Invoice Emails",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        96,
+        48
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "q": "has:attachment invoice",
+          "readStatus": "unread"
+        },
+        "options": {
+          "downloadAttachments": true,
+          "dataPropertyAttachmentsPrefixName": "attachment_"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyHour"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "fd3f9ecd-02f3-432f-ab0c-9f1f23f84da9",
+      "name": "Extract Invoice PDF Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        336,
+        48
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "e48515be-165c-4286-92b4-e6924e3dbde9",
+      "name": "Extract Invoice Fields with Gemini",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        704,
+        48
+      ],
+      "parameters": {
+        "text": "=You are a Japanese accounting assistant. Extract the qualified invoice details from the invoice text below. The registration number starts with T followed by 13 digits. If a value is missing, return an empty string.\n\nInvoice text:\n{{ $json.text }}",
+        "batching": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "07ab11cf-8f10-4875-9a3a-72316f4a3d21",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        624,
+        272
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0.1
+        },
+        "modelName": "models/gemini-3.1-flash-lite"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "SqSj0UBxvATZV3OU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2636ba18-01bf-4cc1-975b-9db7c991e982",
+      "name": "Invoice Fields Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        848,
+        272
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"registration_number\":\"T1234567890123\",\"issuer_name\":\"Acme KK\",\"invoice_date\":\"2026-07-01\",\"total_amount\":11000,\"tax_amount\":1000}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "7966b3f5-9dc7-4562-a47e-21e389de0ee6",
+      "name": "Normalize Registration Number",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        48
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const src = $json.output || $json;\nconst raw = String(src.registration_number || '').toUpperCase().replace(/[^A-Z0-9]/g, '');\nconst m = raw.match(/T(\\d{13})/);\nconst mail = $('Fetch Invoice Emails').item.json;\nreturn {\n  registrationNumber: m ? 'T' + m[1] : '',\n  numberOnly: m ? m[1] : '',\n  formatValid: !!m,\n  issuer: src.issuer_name || '',\n  invoiceDate: src.invoice_date || '',\n  totalAmount: src.total_amount || '',\n  taxAmount: src.tax_amount || '',\n  messageId: mail.id,\n  subject: mail.subject\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "47d27724-da5e-440a-8259-f6db19314b81",
+      "name": "Check Number Format",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1312,
+        48
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.formatValid }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4156249c-0abc-44ec-a30c-6e11a935c7df",
+      "name": "Verify with NTA Invoice API",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1680,
+        32
+      ],
+      "parameters": {
+        "url": "https://web-api.invoice-kohyo.nta.go.jp/1/num",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "number",
+              "value": "={{ $json.numberOnly }}"
+            },
+            {
+              "name": "type",
+              "value": "21"
+            },
+            {
+              "name": "version",
+              "value": "1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "d5b2c9d3-3783-4f13-b971-73b68663b837",
+      "name": "Parse NTA Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1904,
+        16
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const meta = $('Normalize Registration Number').item.json;\nconst res = $json || {};\nlet status = 'notFound';\nlet registeredName = '';\nlet registeredAddress = '';\ntry {\n  const raw = res.announcement || res.announcements || [];\n  const arr = Array.isArray(raw) ? raw : [raw];\n  const a = arr[0];\n  if (a && a.registratedNumber) {\n    registeredName = a.name || a.kanaName || '';\n    registeredAddress = a.address || '';\n    status = String(a.latest) === '0' ? 'invalid' : 'valid';\n  }\n} catch (e) { status = 'notFound'; }\nreturn Object.assign({}, meta, { status: status, registeredName: registeredName, registeredAddress: registeredAddress });"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5a575e9e-30f2-463f-8ea2-157c34821f79",
+      "name": "Log Verification Result",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2224,
+        16
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Invoices"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VBagC67WblkLgsDb",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "371271f8-7903-4b22-877f-358dc545225e",
+      "name": "Route by Verification Result",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2448,
+        -16
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Parse NTA Response\").item.json.status }}",
+                    "rightValue": "valid"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Parse NTA Response\").item.json.status }}",
+                    "rightValue": "invalid"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Parse NTA Response\").item.json.status }}",
+                    "rightValue": "notFound"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Other"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "0c4c3480-4e90-4042-b6a0-12d9b0f0629e",
+      "name": "Mark Invoice Email as Read",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2672,
+        -32
+      ],
+      "webhookId": "dd740f09-8584-48bc-ab14-6e0903215070",
+      "parameters": {
+        "messageId": "={{ $(\"Parse NTA Response\").item.json.messageId }}",
+        "operation": "markAsRead"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "97eedcf9-4e03-49a1-8cd1-2ae11d254f3d",
+      "name": "Alert Deregistered Issuer",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2672,
+        160
+      ],
+      "webhookId": "6ca71961-00fb-4600-9f81-8153621dc91d",
+      "parameters": {
+        "text": "=*:rotating_light: Invoice number is no longer active*\n*Number:* {{ $(\"Parse NTA Response\").item.json.registrationNumber }}\n*Issuer:* {{ $(\"Parse NTA Response\").item.json.issuer }}\nInput tax credit may not apply - contact the supplier.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#accounting"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "0b6bf61d-be7a-4f4b-8f60-a813be712ce0",
+      "name": "Alert Unregistered Number",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2672,
+        336
+      ],
+      "webhookId": "c7f0b402-341e-409c-8046-d54ecbe6095b",
+      "parameters": {
+        "text": "=*:warning: Registration number not found at the NTA*\n*Number:* {{ $(\"Parse NTA Response\").item.json.registrationNumber }}\n*Issuer:* {{ $(\"Parse NTA Response\").item.json.issuer }}\nPlease confirm the number with the supplier.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#accounting"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "210441f3-2ade-400a-9217-4598b5865c30",
+      "name": "Flag for Manual Check",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2672,
+        528
+      ],
+      "webhookId": "0ddd78c0-e448-4570-863b-d1671f1c77ea",
+      "parameters": {
+        "text": "=*:mag: Invoice verification was inconclusive*\n*Subject:* {{ $(\"Parse NTA Response\").item.json.subject }}\nPlease check this invoice manually.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#accounting"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "f6ef9be4-c0eb-44f0-a3e9-92fd0d0fa8c0",
+      "name": "Report Missing Number",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1504,
+        256
+      ],
+      "webhookId": "9d22ef6c-2e8e-41fb-9435-e6a92b58d66d",
+      "parameters": {
+        "text": "=*:warning: No valid invoice registration number found*\n*Email:* {{ $json.subject }}\n*Issuer:* {{ $json.issuer }}\nThis invoice may not qualify for input tax credit - please check manually.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#accounting"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "77b76be0-0690-4faf-84fc-a5111c6d4e27",
+      "name": "Report NTA API Failure",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1904,
+        272
+      ],
+      "webhookId": "f2555528-94bb-4be2-a644-0570914d2ef6",
+      "parameters": {
+        "text": "=*:x: NTA invoice verification API call failed*\n*Number:* {{ $(\"Normalize Registration Number\").item.json.registrationNumber }}\nPlease verify this invoice manually.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#accounting"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "3d1dd279-ec2e-4e49-b22b-f5f78af8d076",
+      "name": "Overview Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -192
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 796,
+        "content": "## Verify Japanese invoice registration numbers with the NTA API, Gemini and Google Sheets\n\n### How it works\nJapan's qualified invoice system only grants input tax credit when the supplier registration number is genuinely registered. This template reads invoice emails, extracts the PDF text, and uses a Basic LLM Chain with Google Gemini to pull out the T-registration number, issuer, date and amounts. The number is validated, then checked live against the National Tax Agency public Web-API. Every result is logged to Google Sheets and a Switch routes the outcome: verified invoices are closed out, deregistered or unknown numbers raise a Slack alert to accounting, and anything inconclusive is flagged for manual review.\n\n### Setup\n1. Connect Gmail, Google Gemini (PaLM) API, Google Sheets and Slack.\n2. Request a free NTA Web-API application ID and store it as a Query Auth credential named id.\n3. Point the Sheets node at your spreadsheet and pick your accounting Slack channel.\n\n### Customization tips\nSwitch the trigger to Google Drive, or block payment runs when a number is invalid."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2099806b-61ab-4f9f-a5b2-520a165e20aa",
+      "name": "S1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 940,
+        "content": "## 1. Fetch invoices & extract text\nPoll Gmail for unread invoice emails with attachments and extract the PDF text."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "34b0cdfc-5ba5-4e9c-80b5-51c098e2463c",
+      "name": "S2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 940,
+        "content": "## 2. AI extraction (Basic LLM Chain)\nGemini extracts the T-registration number, issuer, date and amounts as structured JSON."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d35b641-139e-462d-8d37-02217a80a2dd",
+      "name": "S3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1056,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1116,
+        "height": 940,
+        "content": "## 3. Validate & verify against the NTA\nCheck the T + 13 digit format, then verify the number live with the National Tax Agency Web-API. Missing numbers and API failures are reported to Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57ffb603-317a-433a-a3af-f0daa0408992",
+      "name": "S4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2192,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 940,
+        "content": "## 4. Log & route by result\nLog every check to Sheets, then route: valid closes out, deregistered or not found alerts accounting, anything else goes to manual check."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "5d15c6cb-4ea9-42b8-bf2d-77aee50ce17b",
+  "nodeGroups": [],
+  "connections": {
+    "Parse NTA Response": {
+      "main": [
+        [
+          {
+            "node": "Log Verification Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Number Format": {
+      "main": [
+        [
+          {
+            "node": "Verify with NTA Invoice API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Missing Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Invoice Emails": {
+      "main": [
+        [
+          {
+            "node": "Extract Invoice PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Fields Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract Invoice Fields with Gemini",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Verification Result": {
+      "main": [
+        [
+          {
+            "node": "Route by Verification Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Invoice PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Extract Invoice Fields with Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Invoice Fields with Gemini",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify with NTA Invoice API": {
+      "main": [
+        [
+          {
+            "node": "Parse NTA Response",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report NTA API Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Verification Result": {
+      "main": [
+        [
+          {
+            "node": "Mark Invoice Email as Read",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Deregistered Issuer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Unregistered Number",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag for Manual Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Registration Number": {
+      "main": [
+        [
+          {
+            "node": "Check Number Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Invoice Fields with Gemini": {
+      "main": [
+        [
+          {
+            "node": "Normalize Registration Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

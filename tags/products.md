@@ -1,4 +1,4 @@
-# products : 51
+# products : 65
 
 |id|file|
 |----|----|
@@ -53,3 +53,17 @@
 |15470|[15470_Sell_products_in_Telegram_with_Flutterwave_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15470_Sell_products_in_Telegram_with_Flutterwave_and_Google_Sheets.json)|
 |15843|[15843_Search_Taobao_and_Tmall_products_and_get_the_first_product_detail_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15843_Search_Taobao_and_Tmall_products_and_get_the_first_product_detail_with_JustOneAPI.json)|
 |15867|[15867_Get_Taobao_and_Tmall_shop_products_and_first_product_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15867_Get_Taobao_and_Tmall_shop_products_and_first_product_details_with_JustOneAPI.json)|
+|16896|[16896_Generate_studio_product_photos_for_new_Shopify_products_with_Dreem_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16896_Generate_studio_product_photos_for_new_Shopify_products_with_Dreem_AI.json)|
+|16958|[16958_Create_on-model_Shopify_product_photos_with_Dreem_AI_and_Slack_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16958_Create_on-model_Shopify_product_photos_with_Dreem_AI_and_Slack_approvals.json)|
+|17033|[17033_Generate_studio_and_on-model_product_photos_for_new_Shopify_products_with_Dreem_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17033_Generate_studio_and_on-model_product_photos_for_new_Shopify_products_with_Dreem_AI.json)|
+|17128|[17128_Scrape_and_score_Amazon_products_with_Apify__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17128_Scrape_and_score_Amazon_products_with_Apify__OpenAI__and_Google_Sheets.json)|
+|17272|[17272_Generate_multi-angle_on-model_Shopify_product_photos_with_Dreem.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17272_Generate_multi-angle_on-model_Shopify_product_photos_with_Dreem.ai.json)|
+|17324|[17324_Backfill_Shopify_product_photos_with_Dreem.ai_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17324_Backfill_Shopify_product_photos_with_Dreem.ai_and_Slack.json)|
+|17325|[17325_Refresh_slow-selling_Shopify_product_photos_with_Dreem.ai_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17325_Refresh_slow-selling_Shopify_product_photos_with_Dreem.ai_and_Slack.json)|
+|17774|[17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json)|
+|17991|[17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json)|
+|18042|[18042_Deliver_digital_products_via_WhatsApp_and_Telegram_after_Stripe_payment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18042_Deliver_digital_products_via_WhatsApp_and_Telegram_after_Stripe_payment.json)|
+|18424|[18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json)|
+|18484|[18484_Research_Amazon_product_details_and_reviews_by_ASIN_with_Pangolinfo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18484_Research_Amazon_product_details_and_reviews_by_ASIN_with_Pangolinfo.json)|
+|18532|[18532_Upsert_and_merchandise_Medusa_products_from_a_PIM_via_webhook_and_Admin_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18532_Upsert_and_merchandise_Medusa_products_from_a_PIM_via_webhook_and_Admin_API.json)|
+|19479|[19479_Create_GoHighLevel_product_and_pricebook_records_from_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19479_Create_GoHighLevel_product_and_pricebook_records_from_Google_Sheets.json)|

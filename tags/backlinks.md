@@ -1,4 +1,4 @@
-# backlinks : 10
+# backlinks : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |13689|[13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json)|
 |13694|[13694_Pull_new_backlinks_into_Google_Sheets_with_DataForSEO_and_Gmail_email_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13694_Pull_new_backlinks_into_Google_Sheets_with_DataForSEO_and_Gmail_email_report.json)|
 |13695|[13695_Monitor_lost_backlinks_with_DataForSEO__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13695_Monitor_lost_backlinks_with_DataForSEO__Google_Sheets_and_Gmail.json)|
+|19237|[19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json)|
+|19531|[19531_Recover_lost_backlinks_with_DataForSEO__OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19531_Recover_lost_backlinks_with_DataForSEO__OpenAI__Google_Sheets__and_Slack.json)|

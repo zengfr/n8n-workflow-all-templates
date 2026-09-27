@@ -1,4 +1,4 @@
-# task : 92
+# task : 98
 
 |id|file|
 |----|----|
@@ -94,3 +94,9 @@
 |16522|[16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json)|
 |16765|[16765_Create_daily_ClickUp_task_reports_with_OpenRouter_o3-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16765_Create_daily_ClickUp_task_reports_with_OpenRouter_o3-mini.json)|
 |16785|[16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json)|
+|17206|[17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json)|
+|17268|[17268_Audit_Asana_task_hygiene_with_Google_Sheets_and_Slack_scorecards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17268_Audit_Asana_task_hygiene_with_Google_Sheets_and_Slack_scorecards.json)|
+|17269|[17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json)|
+|17656|[17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json)|
+|19100|[19100_Delegate_and_track_WhatsApp_tasks_with_WhatsApp__Google_Sheets_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19100_Delegate_and_track_WhatsApp_tasks_with_WhatsApp__Google_Sheets_and_OpenAI.json)|
+|19104|[19104_Send_daily_WhatsApp_task_reminders_from_Google_Sheets_via_WAHA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19104_Send_daily_WhatsApp_task_reminders_from_Google_Sheets_via_WAHA.json)|

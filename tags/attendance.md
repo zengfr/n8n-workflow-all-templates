@@ -1,4 +1,4 @@
-# attendance : 14
+# attendance : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |13441|[13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13441_Build_an_OpenAI_HR_assistant_for_Telegram_attendance_and_salary_reports.json)|
 |14068|[14068_Track_student_attendance_from_CSV__email_parents__and_build_an_HTML_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14068_Track_student_attendance_from_CSV__email_parents__and_build_an_HTML_dashboard.json)|
 |14959|[14959_Track_Zoom_attendance_and_create_AI_summaries_with_Google_Sheets__ClickUp_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14959_Track_Zoom_attendance_and_create_AI_summaries_with_Google_Sheets__ClickUp_and_Telegram.json)|
+|16904|[16904_Register_event_attendance_via_webhook_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16904_Register_event_attendance_via_webhook_with_Google_Sheets_and_Gmail.json)|
+|18763|[18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json)|

@@ -1,4 +1,4 @@
-# twelvedata : 8
+# twelvedata : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |14805|[14805_Generate_a_daily_multi-asset_market_report_with_TwelveData__Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14805_Generate_a_daily_multi-asset_market_report_with_TwelveData__Groq_and_Google_Sheets.json)|
 |15649|[15649_Analyze_stocks_via_Telegram_with_GPT_4__TwelveData__NewsAPI_and_chart_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15649_Analyze_stocks_via_Telegram_with_GPT_4__TwelveData__NewsAPI_and_chart_images.json)|
 |15680|[15680_Analyze_stocks_from_Telegram_using_GPT-4__TwelveData__NewsAPI_and_Chart-IMG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15680_Analyze_stocks_from_Telegram_using_GPT-4__TwelveData__NewsAPI_and_Chart-IMG.json)|
+|18815|[18815_Send_daily_XAUUSD_macro_signals_with_TwelveData__GDELT__Groq__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18815_Send_daily_XAUUSD_macro_signals_with_TwelveData__GDELT__Groq__OpenAI_and_Telegram.json)|

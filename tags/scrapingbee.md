@@ -1,4 +1,4 @@
-# scrapingbee : 8
+# scrapingbee : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |7927|[7927_ScrapingBee_and_Google_Sheets_Integration_Template.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7927_ScrapingBee_and_Google_Sheets_Integration_Template.json)|
 |16211|[16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json)|
 |16354|[16354_Extract_ecommerce_product_data_with_Google_Sheets__ScrapingBee_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16354_Extract_ecommerce_product_data_with_Google_Sheets__ScrapingBee_and_Gemini.json)|
+|18048|[18048_Generate_website_security_audit_PDFs_with_ScrapingBee__Claude__Gotenberg_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18048_Generate_website_security_audit_PDFs_with_ScrapingBee__Claude__Gotenberg_and_Outlook.json)|

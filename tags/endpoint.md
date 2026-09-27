@@ -1,4 +1,4 @@
-# endpoint : 10
+# endpoint : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |7022|[7022_Auto_Remediate_Endpoint_Infections_with_Wazuh__ClamAV__and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7022_Auto_Remediate_Endpoint_Infections_with_Wazuh__ClamAV__and_GPT-4.json)|
 |11254|[11254_Create_a_Calendly_Availability_API_Endpoint_for_Real-time_Scheduling_Data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11254_Create_a_Calendly_Availability_API_Endpoint_for_Real-time_Scheduling_Data.json)|
 |13134|[13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13134_Extract_Meta_Ads_detailed_targeting_across_all_endpoints_using_Google_Sheets.json)|
+|17491|[17491_Monitor_scraper_and_endpoint_health_with_Datasource_Pulse_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17491_Monitor_scraper_and_endpoint_health_with_Datasource_Pulse_and_Slack_alerts.json)|
+|17546|[17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json)|
+|17773|[17773_Expose_a_speech-to-text__transcribe_API_with_Palatine_Speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17773_Expose_a_speech-to-text__transcribe_API_with_Palatine_Speech.json)|

@@ -1,0 +1,275 @@
+{
+  "name": "Turn a text prompt into a free AI image and a Ken Burns zoom video clip",
+  "nodes": [
+    {
+      "id": "overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -420
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 660,
+        "height": 1180,
+        "content": "## Turn a text prompt into a free AI image + a Ken Burns zoom video clip\n\nTypes a prompt, gets back a vertical (1080x1920) MP4: a free AI image slowly zoomed in — the motion faceless-video pipelines use so a still image doesn't look static on screen. No API key, no account, no credits anywhere in this workflow.\n\n**Pollinations** generates the image straight from a URL — no signup, no key. **FFmpeg's `zoompan` filter** animates a slow, continuous zoom over however many frames you ask for, turning a single AI image into something that reads as footage.\n\n### How it works\n\n1. A form takes your image prompt and how many seconds the clip should run.\n2. The prompt gets a few cinematic style words appended and is URL-encoded into a Pollinations image request.\n3. `curl` downloads the image to a per-run temp folder.\n4. `ffmpeg` crops it to 1080x1920, applies a continuous zoom sized to your requested duration, and encodes an MP4 — no audio track, since this is the visual half only.\n5. The result is checked for a clean exit code before you get the file paths back.\n\nDrop the MP4 into an editor, or feed it into a bigger pipeline that adds voiceover and captions on top.\n\n### Setup\n\n- `curl` and `ffmpeg` (with `libx264`) on the PATH of the process running n8n.\n- **Self-hosted n8n only.** This uses Execute Command, which n8n Cloud does not allow. n8n v2 also disables it by default — start n8n with `NODES_EXCLUDE=\"[]\"` and `N8N_RESTRICT_FILE_ACCESS_TO=\"/tmp\"` or the file steps fail silently.\n\n### Customization tips\n\nChange the zoom speed or ceiling by editing `zoom+0.0012` / `1.15` in the FFmpeg command. Swap in any other keyless image API by changing the URL built in the first Code node.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---input",
+      "name": "Section - input",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 420,
+        "content": "## 1. Input\nYour image prompt and clip length. Style words are appended automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---fetch",
+      "name": "Section - fetch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        440,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 420,
+        "content": "## 2. Generate the image\nPollinations builds the image straight from the URL. No key, no account."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---render",
+      "name": "Section - render",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 420,
+        "content": "## 3. Ken Burns zoom\nFFmpeg's zoompan animates a slow continuous zoom sized to your duration."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section---check",
+      "name": "Section - check",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1560,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 420,
+        "content": "## 4. Verify\nConfirms FFmpeg exited clean before handing back the file paths."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note---self-hosted-only",
+      "name": "Note - self hosted only",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        280
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 160,
+        "content": "## Self-hosted only\nExecute Command does not exist on n8n Cloud. See Setup in the overview."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "form-trigger",
+      "name": "Image prompt and length form",
+      "type": "n8n-nodes-base.formTrigger",
+      "notes": "Entry point. Everything downstream reads Image Prompt and Clip Length from here.",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "formTitle": "Text prompt to AI image + Ken Burns zoom video",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Image Prompt",
+              "placeholder": "A lighthouse on a cliff at sunset, storm clouds gathering",
+              "requiredField": true
+            },
+            {
+              "fieldType": "number",
+              "fieldLabel": "Clip Length (seconds)",
+              "placeholder": "5",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Describe an image and pick a clip length. You get back a vertical MP4 with a slow zoom-in on a free AI-generated image."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "build-paths",
+      "name": "Build the image prompt and file paths",
+      "type": "n8n-nodes-base.code",
+      "notes": "One /tmp folder per submission so runs never overwrite each other. Appends cinematic style words to the raw prompt.",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// One folder per run so two runs can never overwrite each other.\nconst runId = ($json.submittedAt || String(Date.now())).replace(/[^a-zA-Z0-9]/g, '');\nconst dir = `/tmp/kenburns-${runId}`;\n\nconst rawPrompt = ($json['Image Prompt'] || '').trim();\nif (!rawPrompt) throw new Error('The Image Prompt field is empty - nothing to generate.');\n\n// Pollinations reads the prompt straight from the URL path, so a few style words\n// appended here go a long way for a faceless-video look without any extra node.\nconst prompt = `${rawPrompt}, cinematic, dark moody lighting, vertical 9:16 composition`;\nconst imageUrl = `https://image.pollinations.ai/prompt/${encodeURIComponent(prompt)}?width=1080&height=1920&nologo=true`;\n\nconst seconds = Number($json['Clip Length (seconds)']) || 5;\nconst fps = 25;\n\nreturn {\n  ...$json,\n  dir,\n  prompt,\n  imageUrl,\n  imagePath: `${dir}/image.jpg`,\n  videoPath: `${dir}/clip.mp4`,\n  seconds,\n  fps,\n  zoomFrames: Math.round(seconds * fps),\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "make-folder",
+      "name": "Create the temp folder",
+      "type": "n8n-nodes-base.executeCommand",
+      "notes": "mkdir -p is safe to run again.",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "command": "=mkdir -p \"{{ $json.dir }}\""
+      },
+      "executeOnce": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "download-image",
+      "name": "Download the AI image (Pollinations)",
+      "type": "n8n-nodes-base.executeCommand",
+      "notes": "Free, no account, no key. Retries a few times since Pollinations can be slow under load. Reads paths from the Code node, not $json: an Execute Command node replaces the item with its own stdout/stderr/exitCode.",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "command": "=curl -fsS --retry 3 --retry-delay 5 --retry-all-errors --max-time 120 -o \"{{ $('Build the image prompt and file paths').item.json.imagePath }}\" \"{{ $('Build the image prompt and file paths').item.json.imageUrl }}\""
+      },
+      "executeOnce": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "render-zoom",
+      "name": "Render the Ken Burns zoom video (FFmpeg)",
+      "type": "n8n-nodes-base.executeCommand",
+      "notes": "zoompan's d (frame count) is sized to your requested Clip Length so the zoom always finishes exactly at the end of the clip. Reads paths from the Code node, not $json, for the same reason as the download step.",
+      "position": [
+        1200,
+        0
+      ],
+      "parameters": {
+        "command": "=ffmpeg -y -loop 1 -i \"{{ $('Build the image prompt and file paths').item.json.imagePath }}\" -t {{ $('Build the image prompt and file paths').item.json.seconds }} -vf \"scale=1080:1920:force_original_aspect_ratio=increase,crop=1080:1920,zoompan=z='min(zoom+0.0012,1.15)':d={{ $('Build the image prompt and file paths').item.json.zoomFrames }}:s=1080x1920:fps={{ $('Build the image prompt and file paths').item.json.fps }}\" -c:v libx264 -pix_fmt yuv420p \"{{ $('Build the image prompt and file paths').item.json.videoPath }}\""
+      },
+      "executeOnce": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "check-render",
+      "name": "Verify the render succeeded",
+      "type": "n8n-nodes-base.code",
+      "notes": "Throws with the real FFmpeg stderr if the exit code was not 0, instead of silently returning a broken file path.",
+      "position": [
+        1620,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const cmdResult = $json;\nconst paths = $('Build the image prompt and file paths').item.json;\nif (cmdResult.exitCode !== undefined && cmdResult.exitCode !== 0) {\n  throw new Error('FFmpeg failed: ' + (cmdResult.stderr || '').slice(-500));\n}\nreturn { json: { videoPath: paths.videoPath, imagePath: paths.imagePath, prompt: paths.prompt, seconds: paths.seconds } };\n"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Create the temp folder": {
+      "main": [
+        [
+          {
+            "node": "Download the AI image (Pollinations)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Image prompt and length form": {
+      "main": [
+        [
+          {
+            "node": "Build the image prompt and file paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the AI image (Pollinations)": {
+      "main": [
+        [
+          {
+            "node": "Render the Ken Burns zoom video (FFmpeg)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the image prompt and file paths": {
+      "main": [
+        [
+          {
+            "node": "Create the temp folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render the Ken Burns zoom video (FFmpeg)": {
+      "main": [
+        [
+          {
+            "node": "Verify the render succeeded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Create Ken Burns zoom video clips from text prompts with Pollinations and FFmpeg",
+    "wechat": "youandme10086",
+    "id": 17261,
+    "update_time": "2026-09-27"
+  }
+}

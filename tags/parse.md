@@ -1,4 +1,4 @@
-# parse : 27
+# parse : 30
 
 |id|file|
 |----|----|
@@ -29,3 +29,6 @@
 |16099|[16099_Parse_reference_letters_from_Gmail_with_easybits_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16099_Parse_reference_letters_from_Gmail_with_easybits_and_Google_Sheets.json)|
 |16214|[16214_Parse_WhatsApp_invoice_images_with_Gemini_and_sync_payments_to_HubSpot_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16214_Parse_WhatsApp_invoice_images_with_Gemini_and_sync_payments_to_HubSpot_and_Slack.json)|
 |16399|[16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json)|
+|17631|[17631_Parse_documents_in_real_time_via_webhook_with_Parseur_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17631_Parse_documents_in_real_time_via_webhook_with_Parseur_and_Google_Sheets.json)|
+|17725|[17725_Parse_and_normalize_resume_PDFs_with_Telegram__OpenAI__and_Gotenberg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17725_Parse_and_normalize_resume_PDFs_with_Telegram__OpenAI__and_Gotenberg.json)|
+|19020|[19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json)|

@@ -1,0 +1,688 @@
+{
+  "name": "Track Walmart prices and split deals and marketplace offers into Google Sheets",
+  "nodes": [
+    {
+      "id": "e6f9b87d-0001-4f01-a001-000000000001",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e6f9b87d-0002-4f02-a002-000000000002",
+      "name": "Set the products to watch",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e6f9b87d-0011-4f11-a011-+1234567890",
+              "name": "searches",
+              "type": "array",
+              "value": "[\"coffee maker\"]"
+            },
+            {
+              "id": "e6f9b87d-0012-4f12-a012-+1234567890",
+              "name": "resultsPerSearch",
+              "type": "number",
+              "value": "15"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e6f9b87d-0003-4f03-a003-000000000003",
+      "name": "One search per product",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        520,
+        520
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "searches"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0004-4f04-a004-000000000004",
+      "name": "Search Walmart",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "memory": 128,
+        "actorId": "johnvc~walmart-api",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ search_mode: 'search', query: $json.searches, max_results: $json.resultsPerSearch }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0005-4f05-a005-000000000005",
+      "name": "Keep rows that are real products",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e6f9b87d-0041-4f41-a041-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.resultType }}",
+              "rightValue": "product"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e6f9b87d-0006-4f06-a006-000000000006",
+      "name": "Flag the price cuts",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// One row per product, stamped with the run date and keyed by Walmart's own\n// item ID, so the sheet reads as a price history: the same item at two prices\n// in two different weeks is a price change you can read straight off the sheet.\n// Walmart also publishes a struck-through was price, so a cut the retailer is\n// advertising is flagged the week it appears.\nconst weekOf = $now.toFormat('yyyy-MM-dd');\n\nconst clip = (s, n) => {\n  const v = String(s || '').replace(/\\s+/g, ' ').trim();\n  return v.length > n ? v.slice(0, n - 3) + '...' : v;\n};\n\n// Accept a number or a numeric string, so a \"$49.99\" never blanks the column.\nconst num = (v) => {\n  if (typeof v === 'number' && isFinite(v)) return v;\n  if (typeof v === 'string') {\n    const n = parseFloat(v.replace(/[^0-9.]/g, ''));\n    return isFinite(n) ? n : '';\n  }\n  return '';\n};\n\n// Measured over 60 rows across four different searches: outOfStock, freeShipping\n// and twoDayShipping came back false on every single row, so they are not\n// mapped. A column that can never change is worse than no column.\nreturn $input.all().map((item) => {\n  const p = item.json;\n  const price = num(p.price);\n  const wasPrice = num(p.wasPrice);\n  const onSale = price !== '' && wasPrice !== '' && wasPrice > price;\n  const seller = clip(p.sellerName, 80);\n  return {\n    json: {\n      'Week of': weekOf,\n      Search: p.query || '',\n      Rank: p.position ?? '',\n      Product: clip(p.title, 140),\n      Category: p.productType || '',\n      Price: price,\n      'Was price': wasPrice,\n      'On sale': onSale ? 'YES' : '',\n      'Price cut %': onSale ? Math.round(((wasPrice - price) / wasPrice) * 100) : '',\n      Seller: seller,\n      'Sold by Walmart': seller === 'Walmart.com' ? 'YES' : '',\n      Sponsored: p.sponsored === true ? 'YES' : '',\n      Rating: typeof p.rating === 'number' ? p.rating : '',\n      Reviews: typeof p.reviewCount === 'number' ? p.reviewCount : '',\n      'Item ID': p.usItemId || '',\n      'Product ID': p.productId || '',\n      URL: p.url || '',\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e6f9b87d-0007-4f07-a007-000000000007",
+      "name": "Route by what matters",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1580,
+        360
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Price cut",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "e6f9b87d-0071-4f71-a071-+1234567890",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json['On sale'] }}",
+                    "rightValue": "YES"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Third party seller",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "e6f9b87d-0072-4f72-a072-+1234567890",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json['Sold by Walmart'] }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "allMatchingOutputs": true
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e6f9b87d-0008-4f08-a008-000000000008",
+      "name": "Log this week's deals",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1880,
+        320
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e6f9b87d-0009-4f09-a009-000000000009",
+      "name": "Log the marketplace offers",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1880,
+        480
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e6f9b87d-0010-4f10-a010-000000000010",
+      "name": "Append the full price history",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1580,
+        720
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e6f9b87d-0021-4f21-a021-000000000021",
+      "name": "Optional: only deep discounts",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        400,
+        1470
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e6f9b87d-0081-4f81-a081-+1234567890",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json['Price cut %'] }}",
+              "rightValue": 20
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e6f9b87d-0022-4f22-a022-000000000022",
+      "name": "Optional: post the deal to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        700,
+        1470
+      ],
+      "parameters": {
+        "text": "=:money_with_wings: {{ $json.Product }} is down {{ $json['Price cut %'] }}% to ${{ $json.Price }} (was ${{ $json['Was price'] }})\nSeller: {{ $json.Seller }}\n{{ $json.URL }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": ""
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "e6f9b87d-0023-4f23-a023-000000000023",
+      "name": "Optional: push it to your own endpoint",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1000,
+        1470
+      ],
+      "parameters": {
+        "url": "",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e6f9b87d-0101-4f01-b001-000000000101",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1700,
+        "content": "## Track Walmart prices and split deals from marketplace offers\n\nNo price tracker subscription and no retailer API approval. Every week this searches Walmart for the products you care about, then **routes the rows three ways**: a full price history gets everything, a deals tab gets only the items with an advertised price cut, and a marketplace tab gets the offers that are not sold by Walmart itself.\n\nRows are keyed by Walmart's own item ID, so the same item at two prices in two different weeks is a price change you can read straight off the sheet without a formula.\n\n**Who's it for**\nResellers and buyers watching a shortlist, brands checking what their own products sell for, and anyone who wants to know when a price moves without refreshing a tab.\n\n**How it works**\n1. A schedule trigger fires once a week\n2. One Set node holds the searches you track\n3. The Apify node searches Walmart for each one\n4. A Code node keys each row by item ID and works out the discount\n5. A Switch sends price cuts and third party offers to their own tabs\n\n**Setup**\n1. Create a free Apify account and add your API token to the Apify credential\n2. Connect your Google account in the Sheets nodes and pick a spreadsheet\n3. Replace the example search with your own products\n\n**Make it yours**\nThree optional nodes sit unconnected at the bottom of the canvas. Drag a connection from the **Price cut** output into any of them to filter to deep discounts only, post to Slack, or POST the row to your own endpoint.\n\n**Good to know**\nSearch mode never reported an out of stock item over 60 rows across four different searches, so no stock column is mapped rather than shipping one that is always empty. Sponsored rows are ads and are marked as such, so exclude them before reading rank as organic.\nActor: https://apify.com/johnvc/walmart-api?fpr=9n7kx3&fp_sid=n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0102-4f02-b002-000000000102",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 1. Schedule\nRuns every Monday morning. Change the cadence, or swap in a manual trigger while you test."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0103-4f03-b003-000000000103",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 2. Your input\nThe searches to track and how many results to take from each. This is the only node you edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0104-4f04-b004-000000000104",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 3. Fan out\nTurns your search list into one Walmart search each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0105-4f05-b005-000000000105",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 4. Fetch\nRuns the Walmart API actor in search mode. Add your Apify credential here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0106-4f06-b006-000000000106",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 5. Clean\nKeeps only real product rows, so an upstream error never reaches the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0107-4f07-b007-000000000107",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 6. Shape\nOne row per product, keyed by Walmart's item ID, with the advertised discount worked out as a percentage."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0108-4f08-b008-000000000108",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 260,
+        "height": 240,
+        "content": "### 7. Route\nOne row can leave by more than one output: an item that is discounted **and** sold by a third party lands on both tabs. The history below gets every row regardless."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0109-4f09-b009-000000000109",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1820,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 280,
+        "height": 240,
+        "content": "### 8. Deliver\nThree tabs in one spreadsheet: deals, marketplace offers, and the full history. Columns map automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0110-4f10-b010-000000000110",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Price history is a sheet diff\nEvery run appends a dated snapshot keyed by item ID. The same item at two prices in two weeks is a price change, and the Was price column catches a cut the same week Walmart advertises it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0111-4f11-b011-000000000111",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Sponsored rows are ads\nAcross 60 measured rows, 35 were sponsored placements. Their rank is paid, not organic, so filter the Sponsored column out before you read Rank as a ranking. The same item can also appear twice, once sponsored and once organic."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0112-4f12-b012-000000000112",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1100,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Who is actually selling it\nOnly about two thirds of results are sold by Walmart itself. The rest come from marketplace sellers, where the price is not comparable and returns work differently. That is why they get their own tab instead of being mixed into the history."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0113-4f13-b013-000000000113",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1540,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Prefer a dedicated node?\nThere is a community node for this actor: `n8n-nodes-walmart-api`. Install it from Settings then Community nodes if you would rather configure Walmart with typed fields than a JSON body. This template uses the official verified Apify node so it runs on n8n Cloud with nothing to install."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6f9b87d-0114-4f14-b014-000000000114",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        1180
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1120,
+        "height": 440,
+        "content": "## Optional add-ons, not wired up\n\nThese three are deliberately left unconnected. Pick what fits, drag a connection into it from the **Price cut** output of **Route by what matters**, and delete the rest.\n\n**Only deep discounts** drops anything under a 20 percent cut, so a one dollar move does not page anyone. **Slack** posts the deal into a channel. **HTTP Request** POSTs the row to any endpoint you own, which is the escape hatch if your alerting lives somewhere else. Slack needs its own credential before it will run."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Search Walmart": {
+      "main": [
+        [
+          {
+            "node": "Keep rows that are real products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag the price cuts": {
+      "main": [
+        [
+          {
+            "node": "Route by what matters",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append the full price history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Set the products to watch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by what matters": {
+      "main": [
+        [
+          {
+            "node": "Log this week's deals",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log the marketplace offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One search per product": {
+      "main": [
+        [
+          {
+            "node": "Search Walmart",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set the products to watch": {
+      "main": [
+        [
+          {
+            "node": "One search per product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep rows that are real products": {
+      "main": [
+        [
+          {
+            "node": "Flag the price cuts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track Walmart price drops and marketplace offers with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18052,
+    "update_time": "2026-09-27"
+  }
+}

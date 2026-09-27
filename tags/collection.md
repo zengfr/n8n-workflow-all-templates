@@ -1,4 +1,4 @@
-# collection : 35
+# collection : 37
 
 |id|file|
 |----|----|
@@ -37,3 +37,5 @@
 |12694|[12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12694_Generate_Shopify_collection_blog_posts_with_Perplexity__Gemini_and_Google_Sheets.json)|
 |13504|[13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13504_Process_WhatsApp_PDFs_with_AWS_Textract_OCR_via_S3.json)|
 |16480|[16480_Send_Stripe_payment_invoices_with_Gmail__Google_Drive__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16480_Send_Stripe_payment_invoices_with_Gmail__Google_Drive__and_WhatsApp.json)|
+|17974|[17974_Manage_school_fee_receipts_and_GPT-4o_reminders_with_Razorpay_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17974_Manage_school_fee_receipts_and_GPT-4o_reminders_with_Razorpay_and_Google_Sheets.json)|
+|18136|[18136_Automate_tenant_rent_collection_with_AI_reminders_and_landlord_escalation_via_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18136_Automate_tenant_rent_collection_with_AI_reminders_and_landlord_escalation_via_Sheets__Gmail_and_Telegram.json)|

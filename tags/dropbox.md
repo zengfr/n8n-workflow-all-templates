@@ -1,4 +1,4 @@
-# dropbox : 21
+# dropbox : 22
 
 |id|file|
 |----|----|
@@ -23,3 +23,4 @@
 |13679|[13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json)|
 |14327|[14327_Extract_data_from_Dropbox_documents_with_DocuPipe_and_post_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14327_Extract_data_from_Dropbox_documents_with_DocuPipe_and_post_to_Slack.json)|
 |15079|[15079_Delete_Dropbox_PNG_files_older_than_48_hours_on_a_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15079_Delete_Dropbox_PNG_files_older_than_48_hours_on_a_schedule.json)|
+|17526|[17526_Summarize_Dropbox_notes_with_Groq_and_sync_to_Notion___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17526_Summarize_Dropbox_notes_with_Groq_and_sync_to_Notion___Sheets.json)|

@@ -1,4 +1,4 @@
-# ghl : 6
+# ghl : 13
 
 |id|file|
 |----|----|
@@ -8,3 +8,10 @@
 |10255|[10255_Transcribe___Summarize_GoHighLevel_Call_Recordings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10255_Transcribe___Summarize_GoHighLevel_Call_Recordings.json)|
 |15684|[15684_Fetch_and_enrich_Apollo_leads_and_sync_verified_contacts_to_MeldFlow_GHL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15684_Fetch_and_enrich_Apollo_leads_and_sync_verified_contacts_to_MeldFlow_GHL.json)|
 |16566|[16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json)|
+|17873|[17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json)|
+|18546|[18546_Analyze_lost_deal_reasons_from_GoHighLevel_conversations_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18546_Analyze_lost_deal_reasons_from_GoHighLevel_conversations_with_Google_Gemini.json)|
+|19019|[19019_Sync_warehouse_stock_to_GoHighLevel_via_SFTP__Google_Drive__and_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19019_Sync_warehouse_stock_to_GoHighLevel_via_SFTP__Google_Drive__and_webhook.json)|
+|19120|[19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json)|
+|19202|[19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json)|
+|19309|[19309_Sync_Salesforce_pricebook_entries_to_GoHighLevel_custom_objects_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19309_Sync_Salesforce_pricebook_entries_to_GoHighLevel_custom_objects_with_Google_Sheets.json)|
+|19656|[19656_Sync_dental_leads_from_Apify_Google_Maps_to_HighLevel_CRM_opportunities.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19656_Sync_dental_leads_from_Apify_Google_Maps_to_HighLevel_CRM_opportunities.json)|

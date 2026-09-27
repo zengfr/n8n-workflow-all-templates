@@ -1,4 +1,4 @@
-# flights : 8
+# flights : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |10621|[10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10621_Flight_Deal_Analyzer_with_Weather_Data_using_GPT__Google_Flights___WordPress.json)|
 |12971|[12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12971_Search_flights_with_Gemini_via_Telegram_and_send_SerpAPI_price_alerts.json)|
 |15800|[15800_Monitor_Google_Flights_prices_with_Apify_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15800_Monitor_Google_Flights_prices_with_Apify_and_send_Slack_alerts.json)|
+|17368|[17368_Rebook_disrupted_flights_and_notify_passengers_with_Claude__Google_Sheets__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17368_Rebook_disrupted_flights_and_notify_passengers_with_Claude__Google_Sheets__and_Twilio.json)|
+|17830|[17830_Track_flight_prices_with_Apify_Google_Flights__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17830_Track_flight_prices_with_Apify_Google_Flights__Google_Sheets__and_Telegram.json)|

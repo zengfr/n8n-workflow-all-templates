@@ -1,4 +1,4 @@
-# threats : 7
+# threats : 10
 
 |id|file|
 |----|----|
@@ -9,3 +9,6 @@
 |13692|[13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13692_Monitor_zero-day_threats_with_Anthropic_Claude__Airtable__Slack_and_Jira.json)|
 |14127|[14127_Score_DNS_threats_with_VirusTotal__Abuse.ch__HashiCorp_Vault_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14127_Score_DNS_threats_with_VirusTotal__Abuse.ch__HashiCorp_Vault_and_Gemini.json)|
 |15207|[15207_Scan_incoming_Gmail_attachments_for_threats_with_VirusTotal_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15207_Scan_incoming_Gmail_attachments_for_threats_with_VirusTotal_and_GPT-4o-mini.json)|
+|17360|[17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json)|
+|17629|[17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json)|
+|17948|[17948_Alert_crop_scouts_to_wind-driven_pest_threats_with_GBIF__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17948_Alert_crop_scouts_to_wind-driven_pest_threats_with_GBIF__Gemini__and_Slack.json)|

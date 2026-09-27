@@ -1,4 +1,4 @@
-# description : 16
+# description : 22
 
 |id|file|
 |----|----|
@@ -18,3 +18,9 @@
 |10110|[10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10110_Monitor_Bank_Transactions_with_Multi-Channel_Alerts_for_Accounting_Teams.json)|
 |11830|[11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json)|
 |16720|[16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json)|
+|17300|[17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json)|
+|17317|[17317_Review_resumes_against_job_descriptions_with_Google_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17317_Review_resumes_against_job_descriptions_with_Google_Gemini__Gmail__and_Sheets.json)|
+|17457|[17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json)|
+|17458|[17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|17675|[17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|18308|[18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json)|

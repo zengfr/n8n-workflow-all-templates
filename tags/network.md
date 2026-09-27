@@ -1,4 +1,4 @@
-# network : 9
+# network : 14
 
 |id|file|
 |----|----|
@@ -11,3 +11,8 @@
 |11007|[11007_Network_Vulnerability_Scanner_with_NMAP_and_Automated_CVE_Reporting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11007_Network_Vulnerability_Scanner_with_NMAP_and_Automated_CVE_Reporting.json)|
 |11537|[11537_Convert_CDP_Network_Topology_to_Lucidchart_Prompts_with_AWX_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11537_Convert_CDP_Network_Topology_to_Lucidchart_Prompts_with_AWX_and_Gemini_AI.json)|
 |12276|[12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json)|
+|16934|[16934_Triage_network_read_and_commit_requests_via_Slack_with_Anthropic_and_pyATS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16934_Triage_network_read_and_commit_requests_via_Slack_with_Anthropic_and_pyATS.json)|
+|17364|[17364_Generate_network_audit_reports__GitHub_issues__and_Slack_alerts_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17364_Generate_network_audit_reports__GitHub_issues__and_Slack_alerts_with_Claude.json)|
+|17606|[17606_Flag_Meta_Audience_Network_wasted_spend_with_Meta_Marketing_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17606_Flag_Meta_Audience_Network_wasted_spend_with_Meta_Marketing_API_and_Claude.json)|
+|18576|[18576_Create_native_multi-platform_social_video_posts_with_PostWire.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18576_Create_native_multi-platform_social_video_posts_with_PostWire.json)|
+|18693|[18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json)|

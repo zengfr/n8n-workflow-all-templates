@@ -1,4 +1,4 @@
-# copy : 54
+# copy : 69
 
 |id|file|
 |----|----|
@@ -56,3 +56,18 @@
 |15181|[15181_Turn_podcast_videos_into_TikTok_shorts_using_WayinVideo_and_PostPulse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15181_Turn_podcast_videos_into_TikTok_shorts_using_WayinVideo_and_PostPulse.json)|
 |15222|[15222_Fetch_Telr_payment_reports_to_SQL_and_send_daily_email_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15222_Fetch_Telr_payment_reports_to_SQL_and_send_daily_email_summaries.json)|
 |16096|[16096_Score_and_rank_ad_copy_variants_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16096_Score_and_rank_ad_copy_variants_with_Claude_and_Google_Sheets.json)|
+|16838|[16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json)|
+|16885|[16885_Run_Bunker_Guard_NPC_chat_and_RAG_lore_checks_with_Google_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16885_Run_Bunker_Guard_NPC_chat_and_RAG_lore_checks_with_Google_Gemini_and_Google_Drive.json)|
+|16972|[16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json)|
+|17043|[17043_Predict_Salesforce_deal_escalation_risk_with_Gemini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17043_Predict_Salesforce_deal_escalation_risk_with_Gemini_and_Slack_alerts.json)|
+|17206|[17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json)|
+|17230|[17230_Check_Japanese_ad_copy_compliance_with_Google_Gemini__Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17230_Check_Japanese_ad_copy_compliance_with_Google_Gemini__Sheets__Slack_and_Gmail.json)|
+|17277|[17277_Generate_Pinterest_pin_copy_CSV_from_blog_RSS_with_OpenAI-compatible_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17277_Generate_Pinterest_pin_copy_CSV_from_blog_RSS_with_OpenAI-compatible_chat.json)|
+|17320|[17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json)|
+|17390|[17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json)|
+|17537|[17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json)|
+|17568|[17568_Generate_multi-platform_social_captions_from_blog_posts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17568_Generate_multi-platform_social_captions_from_blog_posts_with_OpenAI.json)|
+|17844|[17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json)|
+|17930|[17930_Generate_spintax_cold_email_copy_per_lead_for_any_email_provider.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17930_Generate_spintax_cold_email_copy_per_lead_for_any_email_provider.json)|
+|18288|[18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json)|
+|19781|[19781_Generate_GoHighLevel_deal_follow-up_actions_with_OpenAI_and_Cognee.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19781_Generate_GoHighLevel_deal_follow-up_actions_with_OpenAI_and_Cognee.json)|

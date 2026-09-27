@@ -1,4 +1,4 @@
-# fraud : 12
+# fraud : 15
 
 |id|file|
 |----|----|
@@ -14,3 +14,6 @@
 |13774|[13774_Filter_fraudulent_leads_with_GPT-4o-mini__AbstractAPI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13774_Filter_fraudulent_leads_with_GPT-4o-mini__AbstractAPI__Google_Sheets_and_Slack.json)|
 |14897|[14897_Detect_WooCommerce_order_fraud_and_send_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14897_Detect_WooCommerce_order_fraud_and_send_alerts_to_Slack.json)|
 |15419|[15419_Detect_fraud_in_user_activity_with_PostgreSQL__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15419_Detect_fraud_in_user_activity_with_PostgreSQL__OpenAI_and_Slack.json)|
+|18294|[18294_Approve_invoices_with_Claude_vision__Google_Drive__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18294_Approve_invoices_with_Claude_vision__Google_Drive__and_Google_Sheets.json)|
+|18454|[18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json)|
+|18919|[18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# software : 7
+# software : 11
 
 |id|file|
 |----|----|
@@ -9,3 +9,7 @@
 |11404|[11404_Track_Software_Vulnerability_Patents_with_ScrapeGraphAI__Matrix__and_Intercom.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11404_Track_Software_Vulnerability_Patents_with_ScrapeGraphAI__Matrix__and_Intercom.json)|
 |11635|[11635_Track_Software_Security_Patents_with_ScrapeGraphAI__Notion__and_Pushover_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11635_Track_Software_Security_Patents_with_ScrapeGraphAI__Notion__and_Pushover_Alerts.json)|
 |14309|[14309_Send_end-of-life_software_alerts_using_NocoDB__endoflife.date__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14309_Send_end-of-life_software_alerts_using_NocoDB__endoflife.date__and_Slack.json)|
+|18388|[18388_Triage_software_risk_using_NVD__EPSS__CISA_KEV__GitHub_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18388_Triage_software_risk_using_NVD__EPSS__CISA_KEV__GitHub_and_Claude.json)|
+|18887|[18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json)|
+|18975|[18975_Monitor_engineering_health_with_ClickUp__GitHub__security_and_APM_APIs__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18975_Monitor_engineering_health_with_ClickUp__GitHub__security_and_APM_APIs__and_WhatsApp.json)|
+|19088|[19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json)|

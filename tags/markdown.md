@@ -1,4 +1,4 @@
-# markdown : 35
+# markdown : 43
 
 |id|file|
 |----|----|
@@ -37,3 +37,11 @@
 |14207|[14207_Proofread_markdown_blog_posts_with_Gemini__Groq_fallback_and_GitHub_auto-commit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14207_Proofread_markdown_blog_posts_with_Gemini__Groq_fallback_and_GitHub_auto-commit.json)|
 |15652|[15652_Convert_Telegram_voice_notes_into_markdown_journals_with_Groq_Whisper_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15652_Convert_Telegram_voice_notes_into_markdown_journals_with_Groq_Whisper_and_Gemini.json)|
 |16370|[16370_Reindex_markdown_RAG_chunks_with_Supabase_pgvector_and_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16370_Reindex_markdown_RAG_chunks_with_Supabase_pgvector_and_webhooks.json)|
+|16926|[16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json)|
+|16955|[16955_Transcribe_Google_Drive_audio_to_markdown_with_Gladia_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16955_Transcribe_Google_Drive_audio_to_markdown_with_Gladia_and_Google_Sheets.json)|
+|17205|[17205_Save_starred_Gmail_emails_as_Markdown_notes_in_an_Obsidian_Google_Drive_folder.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17205_Save_starred_Gmail_emails_as_Markdown_notes_in_an_Obsidian_Google_Drive_folder.json)|
+|17300|[17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json)|
+|18782|[18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json)|
+|19277|[19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json)|
+|19306|[19306_Sync_GitHub_Markdown_docs_with_StudioCMS_pages_and_taxonomy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19306_Sync_GitHub_Markdown_docs_with_StudioCMS_pages_and_taxonomy.json)|
+|19308|[19308_Save_website_content_as_Markdown_in_Google_Drive_using_FetchRelay.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19308_Save_website_content_as_Markdown_in_Google_Drive_using_FetchRelay.json)|

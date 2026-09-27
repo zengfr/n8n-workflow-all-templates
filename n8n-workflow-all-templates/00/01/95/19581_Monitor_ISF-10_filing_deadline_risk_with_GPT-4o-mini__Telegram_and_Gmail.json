@@ -1,0 +1,807 @@
+{
+  "id": "5lz1tWhiziYZlp50",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Monitor ISF-10 filing deadline risk with GPT-4o-mini, Telegram and Gmail",
+    "wechat": "youandme10086",
+    "id": 19581,
+    "update_time": "2026-09-27"
+  },
+  "name": "Customs Broker ISF Filing Deadline & Penalty Risk Watchdog",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7fd511c1-9df6-41ce-81b3-1376f13002f0",
+      "name": "Poll Open Shipments Every 2 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        736,
+        352
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "260e6b60-02d1-4055-a7c1-89d5f5b8994b",
+      "name": "Fetch Open Ocean Shipments",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1024,
+        352
+      ],
+      "parameters": {
+        "url": "https://forwarder.internal.example.com/api/shipments/open",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "31f25a06-73b0-4047-a732-26939ec54279",
+      "name": "Split Shipments by Bill of Lading",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        736,
+        576
+      ],
+      "parameters": {
+        "jsCode": "const feed=$('Fetch Open Ocean Shipments').first().json;const rows=$input.all().map(i=>i.json);if(!Array.isArray(feed.shipments))throw Error('Shipment API must return a shipments array');const seen=new Set();return feed.shipments.map(s=>{if(!s.billOfLading||!s.importerName||typeof s.filedStatus!=='boolean'||typeof s.vesselLoadTime!=='string'||!/(Z|[+-]\\d{2}:\\d{2})$/.test(s.vesselLoadTime)||!Number.isFinite(Date.parse(s.vesselLoadTime)))throw Error('Shipment requires BOL, importer, boolean filedStatus and an ISO load time with timezone');if(seen.has(s.billOfLading))throw Error('Duplicate bill of lading');seen.add(s.billOfLading);const prior=rows.filter(r=>r.billOfLading===s.billOfLading);if(prior.length>1)throw Error('Duplicate filing-state rows');return {json:{...s,priorState:prior[0]||null},pairedItem:{item:0}};});"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "d87370cc-f826-49f9-a231-12ce570abd8d",
+      "name": "Read Prior Filing State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1312,
+        352
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": []
+        },
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_DATA_TABLE_ID"
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "60943e5e-a191-428a-9201-edb1aac6f232",
+      "name": "Diff State & Compute Risk Tier",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1856,
+        352
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((item,index)=>{const s=item.json;const hours=(Date.parse(s.vesselLoadTime)-Date.now())/3600000;if(!Number.isFinite(hours)||typeof s.filedStatus!=='boolean')throw Error('Invalid shipment state');const riskTier=s.filedStatus?'green':hours>48?'green':hours>24?'yellow':'red';const priorTier=s.priorState?.riskTier??null;return {json:{billOfLading:s.billOfLading,importerName:s.importerName,vesselLoadTime:s.vesselLoadTime,hoursUntilLoad:Math.round(hours*10)/10,isfFiled:s.filedStatus,riskTier,priorTier,tierChanged:priorTier!==riskTier},pairedItem:{item:index}};});"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "5fd9464a-4e70-4d33-8b94-1fd81ad41a36",
+      "name": "Has Risk Tier Changed Since Last Check",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2144,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9c9617c9-2883-4772-8bac-1abd4a0c1eb7",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{$json.tierChanged}}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b442614b-63a0-4e0d-bab7-e53e512b8c11",
+      "name": "Is Red-Tier Imminent Penalty Exposure",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2432,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "942346cc-b637-49dc-be46-768a47039f32",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{$json.riskTier}}",
+              "rightValue": "red"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e0b394df-e42f-4e44-8fa3-8b171fc92bcb",
+      "name": "Check Vessel Schedule",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        2976,
+        352
+      ],
+      "parameters": {
+        "url": "https://forwarder.internal.example.com/api/vessel-schedule",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "bol",
+              "value": "={{$json.billOfLading}}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "8cdbe0ea-f4e9-4e7f-add7-af171e8c0609",
+      "name": "Combine Shipment & Schedule Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3264,
+        352
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const s=$('Diff State & Compute Risk Tier').item.json;const t=$json.confirmedLoadTime||s.vesselLoadTime;if(typeof t!=='string'||!/(Z|[+-]\\d{2}:\\d{2})$/.test(t)||!Number.isFinite(Date.parse(t)))throw Error('Invalid confirmed vessel time');return {json:{...s,confirmedVesselLoadTime:t,confirmedHoursUntilLoad:Math.round((Date.parse(t)-Date.now())/360000)/10}};"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "d9eb701c-c996-44ec-bf13-6ba9748d56ce",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        3552,
+        352
+      ],
+      "parameters": {
+        "model": {
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2eafa8ad-9fe0-4a02-817d-357746345510",
+      "name": "Draft CBP Penalty Risk Escalation Memo",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        2976,
+        576
+      ],
+      "parameters": {
+        "text": "=Write a short internal filing-status review memo using only these shipment facts: {{JSON.stringify($json)}}. The polling rule raised this record as red; compare the confirmed schedule and clearly mention any timing change. Ask the compliance team to verify filing status. Do not claim a penalty is payable, quote legal amounts, or invent deadlines.",
+        "promptType": "define"
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.5
+    },
+    {
+      "id": "541e4d23-fac4-46ba-858d-eb629473febf",
+      "name": "Send Urgent Red-Tier Alert",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4096,
+        352
+      ],
+      "webhookId": "075d3575-5de5-4e02-801a-5eabaf15ffe2",
+      "parameters": {
+        "text": "=Filing-status review: {{ $json.billOfLading }}. Confirmed load time: {{ $json.confirmedVesselLoadTime }}. {{ $json.providerResult.text || JSON.stringify($json.providerResult) }}",
+        "chatId": "REPLACE_WITH_COMPLIANCE_CHAT_ID",
+        "additionalFields": {}
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "2ad0d4ae-6b33-4a76-94ec-53c6c1a24bec",
+      "name": "Submit Escalation to Compliance API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4384,
+        352
+      ],
+      "parameters": {
+        "url": "https://compliance.internal.example.com/api/isf-escalations",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "billOfLading",
+              "value": "={{$('Keep Escalation Details').item.json.billOfLading}}"
+            },
+            {
+              "name": "riskTier",
+              "value": "={{$('Keep Escalation Details').item.json.riskTier}}"
+            },
+            {
+              "name": "memo",
+              "value": "={{$('Keep Escalation Details').item.json.providerResult.text || JSON.stringify($('Keep Escalation Details').item.json.providerResult)}}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "83e6d0cb-657a-4506-8b96-6f777a04acbd",
+      "name": "Log Yellow-Tier Change Only",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1856,
+        576
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "12eb4e40-6eda-44dd-8e2c-720a87ba9c8e",
+              "name": "actionTaken",
+              "type": "string",
+              "value": "={{\"logged_\"+$json.riskTier+\"_tier_change\"}}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "retryOnFail": false,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8f702a82-bc57-4e19-9e92-5c22f852aff6",
+      "name": "Reconverge All Paths",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        5216,
+        352
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "retryOnFail": false,
+      "typeVersion": 3.2
+    },
+    {
+      "id": "cecdd0ee-31c2-48a1-b289-b6430911df99",
+      "name": "Update Filing State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        5504,
+        352
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "riskTier": "={{$json.riskTier}}",
+            "filedStatus": "={{$json.isfFiled}}",
+            "lastChecked": "={{$now.toISO()}}",
+            "billOfLading": "={{$json.billOfLading}}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "billOfLading",
+              "keyValue": "={{$json.billOfLading}}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_DATA_TABLE_ID"
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "f61467fd-9723-45d1-851a-00246a58c402",
+      "name": "Aggregate Batch Run Summary",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        5792,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "shipmentResults"
+      },
+      "retryOnFail": false,
+      "typeVersion": 1
+    },
+    {
+      "id": "5d59cd8b-3824-4474-b970-eac8b98bbea1",
+      "name": "Send Batch Watchdog Summary",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        5216,
+        576
+      ],
+      "webhookId": "5e122e93-8a9e-4329-a9f7-7bb85c9cda5b",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=Checked {{$json.shipmentResults.length}} shipment records at {{$now.toISO()}}.\n{{JSON.stringify($json.shipmentResults.map(s=>({billOfLading:s.billOfLading,riskTier:s.riskTier,filedStatus:s.filedStatus})),null,2)}}\nReview execution history for any incomplete runs. No attachment is included.",
+        "options": {},
+        "subject": "=ISF Watchdog run summary: {{$json.shipmentResults.length}} shipments checked",
+        "emailType": "text"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "ca97de5e-bbc6-4939-af69-a4c56857b6c1",
+      "name": "Keep Escalation Details",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3264,
+        576
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const record = $('Combine Shipment & Schedule Context').item.json;\nreturn {json:{...record, providerResult:$json}};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4789d4ee-20c2-422e-a522-79361aab027a",
+      "name": "Restore Escalation Outcome",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4672,
+        352
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return {json:{...$('Keep Escalation Details').item.json,actionTaken:'escalated',complianceResult:$json}};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "298800e1-9a89-486e-bf15-96d2d3132e91",
+      "name": "Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 312,
+        "content": "## Start here\n\nCompare open shipments with the last saved filing state. Changed red records are sent for internal review; unchanged records do not send urgent alerts. A Gmail summary records the completed batch.\n\nFor import operations and compliance teams. This is a monitoring workflow: it does not file an ISF, determine legal liability or calculate a payable penalty."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cefa08c5-ea52-4fde-966b-537495c7f2c7",
+      "name": "Connect and configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        384
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 412,
+        "content": "## Connect and configure\n\n1. Replace the shipment, vessel-schedule and compliance API URLs; select the appropriate Header Auth credentials.\n2. Create a Data Table with billOfLading (string), riskTier (string), filedStatus (boolean) and lastChecked (date). Select its actual ID in both table nodes. Keep billOfLading unique.\n3. The shipment API returns shipments: an array of billOfLading, importerName, vesselLoadTime and boolean filedStatus. Use ISO timestamps with a timezone.\n4. Connect OpenAI, Telegram and Gmail. Set the compliance chat and summary recipient.\n5. Keep the schedule inactive until sandbox tests pass. Configure only one concurrent run to avoid competing state updates."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3bfa057c-4481-4c14-909a-fc94b049a1c5",
+      "name": "Before switching on",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        864
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 560,
+        "height": 388,
+        "content": "## Before switching on\n\nTest an empty state table, an unchanged shipment, a changed green record, a changed red record and a mixed batch. Also test a duplicate BOL and an invalid timestamp.\n\nA failed service call stops the run. Inspect partial writes before retrying; this template does not guarantee exactly-once alerts. GET lookups have three attempts; writes do not retry automatically.\n\nThe prompt receives the importer, BOL and timing. Confirm your data-sharing policy. The 48/24-hour bands are configurable monitoring rules, not a statement of customs law."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a5b737d-e36f-40a4-aa97-eb0e89484bfa",
+      "name": "1. Load the current feed and previous state",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 820,
+        "content": "## 1. Load the current feed and previous state\n\nThe schedule runs every two hours. Fetch the open-shipment list, then read the saved filing table once. The split step pairs each shipment with its prior row.\n\nA new BOL continues without a prior row. Duplicate BOLs, missing filing status and invalid dates stop the run. An empty shipment list ends without a batch email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6659da01-8aa2-4f4e-a351-ed444c1a5a1a",
+      "name": "2. Decide whether this run needs attention",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1040,
+        "height": 820,
+        "content": "## 2. Decide whether this run needs attention\n\nFiled shipments are green. For unfiled shipments, more than 48 hours to loading is green; more than 24 through 48 is yellow; 24 hours or less is red.\n\nOnly a changed tier reaches the second decision. A changed red tier goes to schedule review. Changed green or yellow records are logged without an urgent alert. Unchanged records go directly to the final merge."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7873279c-13ec-4531-a2f4-8c23ccc8d17f",
+      "name": "3. Check the latest vessel timing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 820,
+        "content": "## 3. Check the latest vessel timing\n\nThe vessel API receives the BOL and may return confirmedLoadTime. If it is absent, the original load time is retained. The memo includes both the polling result and the confirmed timing.\n\nA schedule change does not automatically clear the original alert. The memo asks the team to verify the discrepancy and filing status. It must not invent a penalty amount."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "143134a6-9f60-4ef5-b540-1771b3f20376",
+      "name": "4. Notify the team and record the escalation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4000,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1040,
+        "height": 590,
+        "content": "## 4. Notify the team and record the escalation\n\nTelegram sends the review memo first. The compliance API then receives the BOL, tier and memo from the retained shipment record.\n\nIf Telegram succeeds but the case write fails, the execution stops. Check those results before restarting to avoid repeating the alert. Restore Escalation Outcome puts the shipment fields back on the record for the state update."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "648ecef5-f506-4512-84bd-7db47e63ca12",
+      "name": "5. Save the comparison point for the next run",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5120,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 820,
+        "content": "## 5. Save the comparison point for the next run\n\nThe three routes rejoin here. The upsert matches on billOfLading and stores the current tier, filed status and check time. Do not remove the matching condition.\n\nThe aggregate builds the completed-run list. Gmail includes the checked records in the message body; no attachment is sent. Failed executions need a separate review in n8n execution history."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "d6fecadb-2591-48a5-80c3-d3e8f5adac5e",
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft CBP Penalty Risk Escalation Memo",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Filing State": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Batch Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconverge All Paths": {
+      "main": [
+        [
+          {
+            "node": "Update Filing State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Vessel Schedule": {
+      "main": [
+        [
+          {
+            "node": "Combine Shipment & Schedule Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Escalation Details": {
+      "main": [
+        [
+          {
+            "node": "Send Urgent Red-Tier Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Prior Filing State": {
+      "main": [
+        [
+          {
+            "node": "Split Shipments by Bill of Lading",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Open Ocean Shipments": {
+      "main": [
+        [
+          {
+            "node": "Read Prior Filing State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Restore Escalation Outcome": {
+      "main": [
+        [
+          {
+            "node": "Reconverge All Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Urgent Red-Tier Alert": {
+      "main": [
+        [
+          {
+            "node": "Submit Escalation to Compliance API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Batch Run Summary": {
+      "main": [
+        [
+          {
+            "node": "Send Batch Watchdog Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Yellow-Tier Change Only": {
+      "main": [
+        [
+          {
+            "node": "Reconverge All Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Diff State & Compute Risk Tier": {
+      "main": [
+        [
+          {
+            "node": "Has Risk Tier Changed Since Last Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Poll Open Shipments Every 2 Hours": {
+      "main": [
+        [
+          {
+            "node": "Fetch Open Ocean Shipments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Shipments by Bill of Lading": {
+      "main": [
+        [
+          {
+            "node": "Diff State & Compute Risk Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Shipment & Schedule Context": {
+      "main": [
+        [
+          {
+            "node": "Draft CBP Penalty Risk Escalation Memo",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit Escalation to Compliance API": {
+      "main": [
+        [
+          {
+            "node": "Restore Escalation Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Red-Tier Imminent Penalty Exposure": {
+      "main": [
+        [
+          {
+            "node": "Check Vessel Schedule",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Yellow-Tier Change Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft CBP Penalty Risk Escalation Memo": {
+      "main": [
+        [
+          {
+            "node": "Keep Escalation Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Risk Tier Changed Since Last Check": {
+      "main": [
+        [
+          {
+            "node": "Is Red-Tier Imminent Penalty Exposure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reconverge All Paths",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    }
+  }
+}

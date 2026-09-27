@@ -1,4 +1,4 @@
-# analyst : 20
+# analyst : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |12288|[12288_Send_weekly_Google_Ads_performance_reports_with_GPT-5.1_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12288_Send_weekly_Google_Ads_performance_reports_with_GPT-5.1_and_Gmail.json)|
 |13981|[13981_Analyze_stocks_in_Telegram_with_Twelve_Data__GPT-4o_and_o3-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13981_Analyze_stocks_in_Telegram_with_Twelve_Data__GPT-4o_and_o3-mini.json)|
 |14762|[14762_Generate_UK_M_A_research__pitch_decks_and_briefs_from_Slack_using_Anthropic_and_Google_Docs_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14762_Generate_UK_M_A_research__pitch_decks_and_briefs_from_Slack_using_Anthropic_and_Google_Docs_Slides.json)|
+|19199|[19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json)|

@@ -1,4 +1,4 @@
-# bug : 16
+# bug : 19
 
 |id|file|
 |----|----|
@@ -18,3 +18,6 @@
 |12205|[12205_Escalate_product_UAT_critical_bugs_with_OpenAI__Jira_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12205_Escalate_product_UAT_critical_bugs_with_OpenAI__Jira_and_Slack.json)|
 |14553|[14553_Triage_video_bug_support_tickets_using_WayinVideo_and_GPT-4o-mini_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14553_Triage_video_bug_support_tickets_using_WayinVideo_and_GPT-4o-mini_to_Google_Sheets.json)|
 |15876|[15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json)|
+|18622|[18622_Auto-fix_ClickUp_bug_reports_with_OpenAI__Cursor__GitHub_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18622_Auto-fix_ClickUp_bug_reports_with_OpenAI__Cursor__GitHub_and_Slack.json)|
+|18627|[18627_Triage_failing_workflows_with_Bright_Data__OpenAI_GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18627_Triage_failing_workflows_with_Bright_Data__OpenAI_GPT-5.6_and_Slack.json)|
+|19352|[19352_Route_app_store_bug_reviews_to_engineering_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19352_Route_app_store_bug_reviews_to_engineering_with_Claude_and_Slack.json)|

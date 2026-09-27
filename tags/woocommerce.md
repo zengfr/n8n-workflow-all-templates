@@ -1,4 +1,4 @@
-# woocommerce : 78
+# woocommerce : 83
 
 |id|file|
 |----|----|
@@ -80,3 +80,8 @@
 |14897|[14897_Detect_WooCommerce_order_fraud_and_send_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14897_Detect_WooCommerce_order_fraud_and_send_alerts_to_Slack.json)|
 |15617|[15617_Handle_e-commerce_WhatsApp_support_with_Whapi__WooCommerce__RAG_and_Gmail_escalation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15617_Handle_e-commerce_WhatsApp_support_with_Whapi__WooCommerce__RAG_and_Gmail_escalation.json)|
 |15855|[15855_Provide_ecommerce_support_with_Qdrant_RAG__WooCommerce__and_human_backup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15855_Provide_ecommerce_support_with_Qdrant_RAG__WooCommerce__and_human_backup.json)|
+|17026|[17026_Collect_post-purchase_product_reviews_with_WooCommerce__Google_Sheets__and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17026_Collect_post-purchase_product_reviews_with_WooCommerce__Google_Sheets__and_SMTP.json)|
+|17083|[17083_Answer_WooCommerce_order_and_DHL_tracking_questions_with_GPT-4_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17083_Answer_WooCommerce_order_and_DHL_tracking_questions_with_GPT-4_chat.json)|
+|17767|[17767_Handle_e-commerce_WhatsApp_support_with_OpenAI__WooCommerce__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17767_Handle_e-commerce_WhatsApp_support_with_OpenAI__WooCommerce__and_Notion.json)|
+|18424|[18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json)|
+|19348|[19348_Run_a_WooCommerce_store_assistant_with_Telegram__OpenRouter_and_order_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19348_Run_a_WooCommerce_store_assistant_with_Telegram__OpenRouter_and_order_digests.json)|

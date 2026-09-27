@@ -1,0 +1,681 @@
+{
+  "name": "Log App Store reviews and build a weekly rating scorecard in Google Sheets",
+  "nodes": [
+    {
+      "id": "a71c04e2-0001-4a01-c001-000000000001",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a71c04e2-0002-4a02-c002-000000000002",
+      "name": "Set the apps to watch",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a71c04e2-0011-4a11-c011-+1234567890",
+              "name": "apps",
+              "type": "array",
+              "value": "[{\"id\": \"310633997\", \"name\": \"WhatsApp\"}, {\"id\": \"389801252\", \"name\": \"Instagram\"}]"
+            },
+            {
+              "id": "a71c04e2-0012-4a12-c012-+1234567890",
+              "name": "country",
+              "type": "string",
+              "value": "us"
+            },
+            {
+              "id": "a71c04e2-0013-4a13-c013-+1234567890",
+              "name": "reviewsPerApp",
+              "type": "number",
+              "value": "30"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a71c04e2-0003-4a03-c003-000000000003",
+      "name": "One lookup per app",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        520,
+        520
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "apps"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0004-4a04-c004-000000000004",
+      "name": "Fetch the latest reviews",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "memory": 128,
+        "actorId": "johnvc~apple-app-store-reviews-api",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ product_ids: [$json.apps.id], country: $json.country, sort: 'mostrecent', max_reviews: $json.reviewsPerApp }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0005-4a05-c005-000000000005",
+      "name": "Keep rows that are real reviews",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a71c04e2-0041-4a41-c041-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.review_id }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a71c04e2-0006-4a06-c006-000000000006",
+      "name": "One row per review",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// One row per review, stamped with the run date and keyed by review ID, so\n// the sheet reads as a review history: an ID in this week's rows that is\n// missing from last week's is a new review.\n//\n// The source returns product IDs but no app name, so the friendly label comes\n// from the list you set in the input node.\nconst weekOf = $now.toFormat('yyyy-MM-dd');\nconst apps = $('Set the apps to watch').first().json.apps || [];\nconst nameById = Object.fromEntries(apps.map((a) => [String(a.id), a.name]));\n\nconst clip = (s, n) => {\n  const v = String(s || '').replace(/\\s+/g, ' ').trim();\n  return v.length > n ? v.slice(0, n - 3) + '...' : v;\n};\n\n// reviewed_version arrives as \"Version 26.30.78\"; the prefix is noise in a\n// column that is already called App version.\nconst version = (v) => String(v || '').replace(/^Version\\s+/i, '').trim();\n\n// Measured over 60 rows across two apps: reviews_for_current_version is not\n// comparable between apps (19,154,786 for one, 9 for the other), so it is not\n// mapped rather than shipping a number that reads as the same thing twice.\nreturn $input.all().map((item) => {\n  const r = item.json;\n  const rating = typeof r.rating === 'number' ? r.rating : '';\n  return {\n    json: {\n      'Week of': weekOf,\n      App: nameById[String(r.product_id)] || r.product_id || '',\n      'Product ID': r.product_id || '',\n      Store: r.app_country || '',\n      Platform: r.app_platform || '',\n      'Review ID': r.review_id || '',\n      Rank: r.position_global ?? '',\n      Rating: rating,\n      Critical: rating !== '' && rating <= 2 ? 'YES' : '',\n      'Review date': r.review_date_iso || '',\n      'App version': version(r.reviewed_version),\n      Title: clip(r.review_title, 140),\n      Review: clip(r.review_text, 400),\n      Author: clip(r.author_name, 80),\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a71c04e2-0007-4a07-c007-000000000007",
+      "name": "Append every review to the history",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1600,
+        720
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a71c04e2-0008-4a08-c008-000000000008",
+      "name": "Summarize the week per app",
+      "type": "n8n-nodes-base.summarize",
+      "position": [
+        1600,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsToSplitBy": "App",
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "Rating",
+              "aggregation": "average"
+            },
+            {
+              "field": "Review ID",
+              "aggregation": "count"
+            },
+            {
+              "field": "Rating",
+              "aggregation": "min"
+            },
+            {
+              "field": "Rating",
+              "aggregation": "max"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "a71c04e2-0009-4a09-c009-000000000009",
+      "name": "Shape the scorecard",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1860,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// The Summarize node names its outputs after the aggregation and the field\n// (average_Rating and so on). Rather than hard coding those names, each value\n// is found by matching the aggregation prefix, so a rename upstream cannot\n// silently blank a column.\nconst weekOf = $now.toFormat('yyyy-MM-dd');\nconst reviews = $('One row per review').all().map((i) => i.json);\n\nconst pick = (obj, prefix) => {\n  const key = Object.keys(obj).find((k) => k.toLowerCase().startsWith(prefix));\n  return key === undefined ? '' : obj[key];\n};\n\nconst round1 = (v) => {\n  const n = Number(v);\n  return isFinite(n) ? Math.round(n * 10) / 10 : '';\n};\n\nreturn $input.all().map((item) => {\n  const s = item.json;\n  const app = s.App ?? '';\n  const mine = reviews.filter((r) => r.App === app);\n  const critical = mine.filter((r) => r.Critical === 'YES').length;\n  const fiveStar = mine.filter((r) => r.Rating === 5).length;\n  const total = mine.length;\n  const versions = [...new Set(mine.map((r) => r['App version']).filter(Boolean))];\n\n  return {\n    json: {\n      'Week of': weekOf,\n      App: app,\n      'Reviews this week': pick(s, 'count_') || total,\n      'Average rating': round1(pick(s, 'average_')),\n      'Lowest rating': pick(s, 'min_'),\n      'Highest rating': pick(s, 'max_'),\n      'Critical (1-2 star)': critical,\n      'Critical %': total ? Math.round((critical / total) * 100) : '',\n      'Five star': fiveStar,\n      'Five star %': total ? Math.round((fiveStar / total) * 100) : '',\n      'Versions seen': versions.join(', '),\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a71c04e2-0010-4a10-c010-000000000010",
+      "name": "Append the weekly scorecard",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2120,
+        320
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a71c04e2-0021-4a21-c021-000000000021",
+      "name": "Optional: only the critical reviews",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        400,
+        1510
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a71c04e2-0081-4a81-c081-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.Critical }}",
+              "rightValue": "YES"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a71c04e2-0022-4a22-c022-000000000022",
+      "name": "Optional: watch one release only",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        700,
+        1510
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a71c04e2-0082-4a82-c082-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json['App version'] }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a71c04e2-0023-4a23-c023-000000000023",
+      "name": "Optional: post the scorecard to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1000,
+        1510
+      ],
+      "parameters": {
+        "text": "=:star: {{ $json.App }} this week: {{ $json['Average rating'] }} average across {{ $json['Reviews this week'] }} reviews\nCritical: {{ $json['Critical (1-2 star)'] }} ({{ $json['Critical %'] }}%)\nVersions: {{ $json['Versions seen'] }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": ""
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "a71c04e2-0101-4a01-d001-000000000101",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1700,
+        "content": "## Log App Store reviews and build a weekly rating scorecard\n\nNo App Store Connect account and no ASO subscription, and it works for apps you do not own, so a competitor's reviews read the same way your own do.\n\nThe run **ends in two places**. Every review lands in a history tab, one row each, keyed by review ID. The same rows also feed a Summarize node that collapses the week into **one scorecard row per app**: average rating, how many reviews arrived, the share that were critical, and which app versions people were running when they wrote them.\n\nThat second tab is the one you actually read. A rating average is noise at one review and a signal at forty, and the scorecard is what makes a bad release visible the week it ships rather than a month later in the store rating.\n\n**Who's it for**\nApp teams watching a release land, ASO and growth people tracking sentiment against competitors, and support teams who want the critical reviews in a queue.\n\n**How it works**\n1. A schedule trigger fires once a week\n2. One Set node holds the apps you watch, as product ID and a label of your choosing\n3. The Apify node fetches the latest reviews for each app\n4. A Code node writes one clean row per review\n5. A Summarize node rolls those rows up into one line per app\n\n**Setup**\n1. Create a free Apify account and add your API token to the Apify credential\n2. Connect your Google account in both Sheets nodes and pick a spreadsheet\n3. Replace the example apps. The product ID is the number after id in an App Store URL\n\n**Make it yours**\nThree optional nodes sit unconnected at the bottom of the canvas. Drag a connection into them from **One row per review** to filter to critical reviews or a single release, or from **Shape the scorecard** to post the weekly summary into Slack.\n\n**Good to know**\nThe source returns product IDs and no app name, which is why the label comes from your input list. Reviews come back per country store, so watching the same app in five countries means five entries.\nActor: https://apify.com/johnvc/apple-app-store-reviews-api?fpr=9n7kx3&fp_sid=n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0102-4a02-d002-000000000102",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 1. Schedule\nRuns every Monday morning. Change the cadence, or swap in a manual trigger while you test."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0103-4a03-d003-000000000103",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 2. Your input\nThe apps to watch, each as a product ID and the label you want in the sheet, plus the country store. This is the only node you edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0104-4a04-d004-000000000104",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 3. Fan out\nTurns your app list into one review lookup each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0105-4a05-d005-000000000105",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 4. Fetch\nRuns the App Store Reviews actor for one app, newest first. Add your Apify credential here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0106-4a06-d006-000000000106",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 5. Clean\nKeeps only rows that carry a review ID, so an upstream error never reaches the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0107-4a07-d007-000000000107",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 6. Shape\nOne row per review, keyed by review ID, with your app label attached and the critical ones marked."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0108-4a08-d008-000000000108",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 260,
+        "height": 240,
+        "content": "### 7. Two outputs\nThe same rows go two ways: straight down to the full history, and up into the rollup. Nothing is dropped on either path."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0109-4a09-d009-000000000109",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1800,
+        60
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 260,
+        "height": 240,
+        "content": "### 8. Roll it up\nSummarize collapses the week into one row per app. The Code node after it adds the critical share and the app versions people were running."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0110-4a10-d010-000000000110",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 240,
+        "content": "### 9. Deliver\nTwo tabs in one spreadsheet: a scorecard you read, and a review history you search. Columns map automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0111-4a11-d011-000000000111",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 300,
+        "content": "### The scorecard is the point\nOne row per app per week. Average rating on its own moves slowly, so the columns that earn their place are the critical share and the version list: a release that upsets people shows up as the critical percentage jumping in the same week a new version appears."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0112-4a12-d012-000000000112",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        680,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 300,
+        "content": "### Finding a product ID\nOpen the app's App Store page and read the number after id in the URL: a URL ending id310633997 means product ID 310633997. The name beside it in the input node is yours to choose, because the source returns IDs only."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0113-4a13-d013-000000000113",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1140,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 300,
+        "content": "### Reviews are per country store\nThe country field selects one of 50+ App Store fronts and reviews do not cross between them. Watching the same app in the US and Germany means two entries in the input list with different labels, and the scorecard will then carry a row for each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0114-4a14-d014-000000000114",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 300,
+        "content": "### Sorting changes what you measure\nThis runs newest first, so the scorecard describes the week that just happened. Switch the actor's sort to most critical and you get a standing complaints list instead, but the averages stop being representative of the period."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a71c04e2-0115-4a15-d015-000000000115",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        1220
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1120,
+        "height": 440,
+        "content": "## Optional add-ons, not wired up\n\nThese three are deliberately left unconnected. Wire the two filters off **One row per review** and the Slack node off **Shape the scorecard**, then delete whatever you do not use.\n\n**Only the critical reviews** narrows the history to the one and two star rows, which is the support queue. **Watch one release only** does the same for a single app version, which is how you read a rollout. **Slack** posts the weekly scorecard where people will actually see it, and needs its own credential."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "One lookup per app": {
+      "main": [
+        [
+          {
+            "node": "Fetch the latest reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One row per review": {
+      "main": [
+        [
+          {
+            "node": "Summarize the week per app",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Append every review to the history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape the scorecard": {
+      "main": [
+        [
+          {
+            "node": "Append the weekly scorecard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Set the apps to watch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set the apps to watch": {
+      "main": [
+        [
+          {
+            "node": "One lookup per app",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch the latest reviews": {
+      "main": [
+        [
+          {
+            "node": "Keep rows that are real reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize the week per app": {
+      "main": [
+        [
+          {
+            "node": "Shape the scorecard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep rows that are real reviews": {
+      "main": [
+        [
+          {
+            "node": "One row per review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Log App Store reviews and build weekly scorecards with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18069,
+    "update_time": "2026-09-27"
+  }
+}

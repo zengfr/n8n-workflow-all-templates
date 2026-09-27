@@ -1,0 +1,336 @@
+{
+  "name": "Local Business Lead Finder",
+  "nodes": [
+    {
+      "id": "n1",
+      "name": "When clicking 'Execute'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "n2",
+      "name": "⭐ Configure Your Search First",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "business_type",
+              "type": "string",
+              "value": "Dentists"
+            },
+            {
+              "id": "a2",
+              "name": "location",
+              "type": "string",
+              "value": "London"
+            },
+            {
+              "id": "a3",
+              "name": "max_results",
+              "type": "number",
+              "value": 25
+            },
+            {
+              "id": "a4",
+              "name": "industry",
+              "type": "string",
+              "value": "local business"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "n2b",
+      "name": "Apply Result Cap",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Hard safety cap on results per run (cost protection — Apify is paid).\n// Customer may request any number in Search Settings; this enforces a ceiling.\nconst HARD_CAP = 500;      // safety ceiling per run — customer sets max_results freely; only clamps a runaway typo\nconst SAFE_DEFAULT = 25;   // used when the input is blank / invalid\n\nconst s = $input.first().json;\nconst requestedRaw = s.max_results;\nconst n = Number(requestedRaw);\n\nlet applied;\nif (!Number.isFinite(n) || n <= 0) {\n  applied = SAFE_DEFAULT;                          // blank / invalid / zero / negative\n} else {\n  applied = Math.min(Math.floor(n), HARD_CAP);     // clamp anything above the cap\n}\n\nconst requested = (requestedRaw === undefined || requestedRaw === null || requestedRaw === '')\n  ? null : requestedRaw;\n\nreturn [{ json: {\n  business_type: s.business_type,\n  location: s.location,\n  industry: s.industry,\n  requested_max_results: requested,   // what the customer asked for\n  applied_max_results: applied        // what is actually sent to Apify (capped)\n}}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "n3",
+      "name": "Find Businesses (Apify)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        600,
+        300
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/compass~crawler-google-places/run-sync-get-dataset-items",
+        "method": "POST",
+        "options": {
+          "timeout": 300000
+        },
+        "jsonBody": "={{ JSON.stringify({ searchStringsArray: [$json.business_type], locationQuery: $json.location, maxCrawledPlacesPerSearch: $json.applied_max_results, scrapeContacts: true }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "YOUR_HEADER_AUTH_CREDENTIAL_ID",
+          "name": "Apify Token (Header Auth)"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "n4",
+      "name": "Read Prospects",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        800,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "read",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "prospects"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SPREADSHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "n5",
+      "name": "Normalise + Dedup",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1000,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Map Apify Google-Maps results into the EXACT Product 1 prospects schema,\n// drop rows with no email, and append only NEW emails (dedup vs existing prospects).\nconst settings = $('⭐ Configure Your Search First').first().json;\nconst industry = (settings.industry || 'local business').toString();\n\n// gather place records from the Apify response (handle array-in-item or split items)\nlet places = [];\nfor (const item of $('Find Businesses (Apify)').all()) {\n  const j = item.json;\n  if (Array.isArray(j)) places.push(...j);\n  else if (j && Array.isArray(j.data)) places.push(...j.data);\n  else if (j) places.push(j);\n}\n\n// existing prospect emails (this node's main input = Read Prospects)\nconst existing = new Set();\nfor (const it of $input.all()) {\n  const e = (it.json.email || '').toString().trim().toLowerCase();\n  if (e) existing.add(e);\n}\n\n// Email quality: drop obvious system / no-reply / monitoring addresses and malformed emails\n// before a lead enters the pipeline. Conservative by design — keeps genuine business\n// contacts (info@, sales@, office@, accounts@, support@ ...). No domain/disposable list.\n//\n// The shape test below is deliberately stricter than /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/,\n// which means only \"something, one @, something containing a dot\". A Google Maps\n// URL satisfies that — its path becomes the local part and its trailing map\n// coordinate becomes the \"domain\" — and one was stored as an email address in a\n// real customer run. Structure is therefore checked label by label.\nfunction isContactableEmail(e) {\n  if (typeof e !== 'string' || !e) return false;\n  if (/[\\s<>()\\[\\],;:\"\\\\]/.test(e)) return false;                   // whitespace / structural junk\n  if (e.indexOf('/') !== -1) return false;                          // URL-shaped, incl. protocol-relative //host/path\n  const parts = e.split('@');\n  if (parts.length !== 2) return false;                             // exactly one @, never zero or two\n  const local = parts[0], domain = parts[1];\n  if (!local || local.length > 64) return false;\n  if (!/^[a-z0-9._%+'&!#$*=?^`{|}~-]+$/i.test(local)) return false; // legal local-part characters only\n  if (/^\\.|\\.$|\\.\\./.test(local)) return false;                     // no leading, trailing or doubled dot\n  const labels = domain.split('.');\n  if (labels.length < 2) return false;                              // a real domain is dotted\n  if (!labels.every(l => /^[a-z0-9]([a-z0-9-]*[a-z0-9])?$/i.test(l))) return false;\n  if (!/^[a-z]{2,}$/i.test(labels[labels.length - 1])) return false; // alphabetic TLD, never a map coordinate\n  const BLOCK = /^(no-?reply|do-?not-?reply|donotreply|bounce(s)?|mailer-daemon|postmaster|sentry|errors?|monitoring|alerts?|notifications?|cron|automated|wordpress)([._-]|$)/;\n  return !BLOCK.test(local);                                        // system/no-contact local-part\n}\n\nconst seen = new Set();\nconst out = [];\nfor (const pl of places) {\n  const email = ((pl.emails && pl.emails[0]) || pl.email || '').toString().trim().toLowerCase();\n  if (!email) continue;                       // no email -> not usable for outreach, skip\n  if (!isContactableEmail(email)) continue;   // drop system/no-reply/monitoring + malformed\n  if (existing.has(email) || seen.has(email)) continue;  // dedup vs sheet + within batch\n  seen.add(email);\n  const notes = [pl.phone, pl.website, pl.address, pl.categoryName]\n                  .filter(Boolean).join(' | ');\n  out.push({ json: {\n    name: '',                                 // Maps has no contact first name\n    company: (pl.title || '').toString(),\n    email: email,\n    role: '',\n    industry: industry,                       // chosen per search -> picks the P1 template\n    linkedin_url: (pl.linkedIns && pl.linkedIns[0]) || '',\n    notes: notes\n  }});\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "n6",
+      "name": "Append to Prospects",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1200,
+        300
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData"
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "prospects"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SPREADSHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YOUR_GOOGLE_SHEETS_CREDENTIAL_ID",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "lblf-sticky-01",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        76
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 864,
+        "content": "## 🗺️ Local Business Lead Finder\n\nTurn a business type and a town into a reviewable list of local businesses in Google Sheets — using Apify's Google Maps scraper. Built for agencies, freelancers and small sales teams who need a prospect list to work from rather than a spreadsheet they have to fill by hand.\n\n### How it works\n1. **Configure** — set the business type, the location and how many results you want.\n2. **Cap** — a built-in ceiling clamps the request so a typo can never trigger a huge paid run.\n3. **Find** — Apify searches Google Maps and returns matching businesses with their contact details.\n4. **Dedupe** — email addresses already in your sheet are skipped, so your list stays clean.\n5. **Save** — the remaining contact rows are appended to the `prospects` tab.\n\n### Setup steps\n- [ ] Make your own copy of the companion Google Sheet: https://docs.google.com/spreadsheets/d/1nsupXr3uvzcNOjlZuW9Qq92Q6vhXfvekaBnSXT_Ozjs/copy\n- [ ] Create a free Apify account and copy your API token.\n- [ ] Add it as a **Header Auth** credential — Name `Authorization`, Value `Bearer YOUR_TOKEN`.\n- [ ] Select that credential on the **Find Businesses (Apify)** node.\n- [ ] Connect your Google Sheets credential on both Sheets nodes.\n- [ ] Paste your copy's Spreadsheet ID into both Sheets nodes.\n- [ ] Set your business type and location, then click **Test workflow**.\n\n### Customization\nChange `business_type` and `location` for any niche or town. `max_results` sets the size of each run (default 25). Swap the sheet for your own CRM export as long as the column names match."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "lblf-sticky-02",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        124
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 200,
+        "content": "### 1 · Configure your search\nSet the business type, the town and how many results you want. The cap then clamps the request before anything paid happens."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "lblf-sticky-03",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        576,
+        124
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 200,
+        "height": 200,
+        "content": "### 2 · Search Google Maps\nApify runs the search and returns matching\nbusinesses. This is the only paid step."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "lblf-sticky-04",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        124
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 200,
+        "content": "### 3 · Dedupe, then save\nExisting rows are read first, so email addresses already in your sheet are skipped. Only new ones are appended to `prospects`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "lblf-sticky-05",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        540
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 680,
+        "height": 400,
+        "content": "## ⚠️ Apify is a paid service\n\n**You are billed for places scraped and contact enrichment — not for the rows that reach your sheet.** The number you pay for is always larger than the number of rows you get. Read the real figure in **Apify Console → Runs** after your first search.\n\n**Duplicate filtering happens after the search has already run and billed.** Repeating a search keeps your sheet clean, but it is not free. Matching is on the email address, not the business, so the same business listed under a different email will be saved again.\n\n**Expect fewer rows than you asked for.** Only businesses publishing a usable contact email are kept and system addresses such as `noreply@` are dropped, so a 25-place search commonly saves far fewer rows. Phone, website and address are kept in `notes`.\n\n`max_results` sets each search; a hard ceiling of **500 places per run** is built in."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Read Prospects": {
+      "main": [
+        [
+          {
+            "node": "Normalise + Dedup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Result Cap": {
+      "main": [
+        [
+          {
+            "node": "Find Businesses (Apify)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise + Dedup": {
+      "main": [
+        [
+          {
+            "node": "Append to Prospects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Businesses (Apify)": {
+      "main": [
+        [
+          {
+            "node": "Read Prospects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute'": {
+      "main": [
+        [
+          {
+            "node": "⭐ Configure Your Search First",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⭐ Configure Your Search First": {
+      "main": [
+        [
+          {
+            "node": "Apply Result Cap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Find local business email leads with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 17833,
+    "update_time": "2026-09-27"
+  }
+}

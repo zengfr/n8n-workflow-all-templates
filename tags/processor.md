@@ -1,4 +1,4 @@
-# processor : 13
+# processor : 18
 
 |id|file|
 |----|----|
@@ -15,3 +15,8 @@
 |16091|[16091_Extract_and_log_Gmail_invoices_with_Claude_Sonnet__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16091_Extract_and_log_Gmail_invoices_with_Claude_Sonnet__Google_Sheets_and_Slack.json)|
 |16350|[16350_Process_Telegram_invoice_OCR_with_OCR.space__OpenAI__Sheets_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16350_Process_Telegram_invoice_OCR_with_OCR.space__OpenAI__Sheets_and_Drive.json)|
 |16643|[16643_Extract_and_validate_invoice_PDFs_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16643_Extract_and_validate_invoice_PDFs_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|16967|[16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json)|
+|18422|[18422_Process_and_triage_contact_form_leads_with_Webhook__GPT-4.1__SharePoint_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18422_Process_and_triage_contact_form_leads_with_Webhook__GPT-4.1__SharePoint_and_Outlook.json)|
+|18423|[18423_Triage_and_enrich_contact_form_leads__log_to_Sheets__and_notify_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18423_Triage_and_enrich_contact_form_leads__log_to_Sheets__and_notify_via_Gmail.json)|
+|18430|[18430_Process_and_log_Gmail_invoices_with_GPT-4.1-mini__Google_Sheets__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18430_Process_and_log_Gmail_invoices_with_GPT-4.1-mini__Google_Sheets__and_Drive.json)|
+|19338|[19338_Watch_vendor_sub-processor_pages_for_changes_with_Groq__Discord_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19338_Watch_vendor_sub-processor_pages_for_changes_with_Groq__Discord_and_data_tables.json)|

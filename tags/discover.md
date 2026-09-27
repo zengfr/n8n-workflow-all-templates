@@ -1,4 +1,4 @@
-# discover : 37
+# discover : 42
 
 |id|file|
 |----|----|
@@ -39,3 +39,8 @@
 |16211|[16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json)|
 |16287|[16287_Score_Instagram_hashtag_engagement_with_Apify__Telegram__and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16287_Score_Instagram_hashtag_engagement_with_Apify__Telegram__and_Airtable.json)|
 |16549|[16549_Discover_and_score_engineering_candidates_with_Groq__GitHub__LinkedIn__Stack_Overflow__HN_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16549_Discover_and_score_engineering_candidates_with_Groq__GitHub__LinkedIn__Stack_Overflow__HN_and_Supabase.json)|
+|17776|[17776_Discover_and_enrich_B2B_leads_with_Google_Places_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17776_Discover_and_enrich_B2B_leads_with_Google_Places_and_Google_Sheets.json)|
+|18116|[18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json)|
+|19131|[19131_Discover_monetizable_Reddit_problems_with_Apify__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19131_Discover_monetizable_Reddit_problems_with_Apify__Gemini_and_Google_Sheets.json)|
+|19145|[19145_Discover_and_score_local_B2B_leads_with_Serper_Maps_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19145_Discover_and_score_local_B2B_leads_with_Serper_Maps_and_Google_Sheets.json)|
+|19360|[19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json)|

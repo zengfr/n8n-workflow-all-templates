@@ -1,4 +1,4 @@
-# crypto : 52
+# crypto : 58
 
 |id|file|
 |----|----|
@@ -54,3 +54,9 @@
 |15978|[15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json)|
 |16061|[16061_Send_crypto_price_alerts__daily_digests_and__price_replies_with_CoinGecko__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16061_Send_crypto_price_alerts__daily_digests_and__price_replies_with_CoinGecko__Telegram_and_Sheets.json)|
 |16764|[16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json)|
+|17174|[17174_Monitor_crypto_news_risk_with_CoinDesk_RSS__OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17174_Monitor_crypto_news_risk_with_CoinDesk_RSS__OpenAI__Gmail__and_Google_Sheets.json)|
+|17738|[17738_Track_crypto_price_crashes_with_CoinGecko__Marketaux__Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17738_Track_crypto_price_crashes_with_CoinGecko__Marketaux__Google_Gemini_and_Slack.json)|
+|18151|[18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json)|
+|18804|[18804_Send_daily_AI_crypto_morning_brief_with_CoinGecko__Google_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18804_Send_daily_AI_crypto_morning_brief_with_CoinGecko__Google_Gemini_and_Telegram.json)|
+|19448|[19448_Send_new_token_listing_alerts_from_10__crypto_exchanges_to_Telegram__Discord_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19448_Send_new_token_listing_alerts_from_10__crypto_exchanges_to_Telegram__Discord_and_Sheets.json)|
+|19675|[19675_Send_new_token_listing_alerts_from_10_crypto_exchanges_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19675_Send_new_token_listing_alerts_from_10_crypto_exchanges_to_Discord_and_Slack.json)|

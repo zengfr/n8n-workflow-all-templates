@@ -1,4 +1,4 @@
-# ebay : 18
+# ebay : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |5578|[5578_Complete_eBay_Feed_API_Integration_for_AI_Agents_with_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5578_Complete_eBay_Feed_API_Integration_for_AI_Agents_with_MCP_Server.json)|
 |5579|[5579_eBay__Metadata_API_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5579_eBay__Metadata_API_MCP_Server.json)|
 |5580|[5580_eBay__Negotiation_API_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5580_eBay__Negotiation_API_MCP_Server.json)|
+|18259|[18259_Score_eBay_demand_and_price_bands_using_Bright_Data__OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18259_Score_eBay_demand_and_price_bands_using_Bright_Data__OpenAI__Sheets_and_Slack.json)|

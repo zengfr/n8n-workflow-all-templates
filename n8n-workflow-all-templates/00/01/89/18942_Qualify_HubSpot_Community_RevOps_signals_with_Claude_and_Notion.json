@@ -1,0 +1,486 @@
+{
+  "name": "Scout 01 | HubSpot Community Signals",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "122589e6-4226-5398-b34d-a028ae6b6b3a",
+      "name": "Daily Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5b5e0cb6-e53e-5887-a905-d230b56b06d3",
+      "name": "Scout Setup",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "2f6e7e58-6ca6-5ac9-9d3e-da5b908a3c6d",
+              "name": "notionDatabaseId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "e18dcdb2-21bc-51b2-b82c-8d880f50a9da",
+              "name": "anthropicModel",
+              "type": "string",
+              "value": "claude-haiku-4-5-20251001"
+            },
+            {
+              "id": "0306bddc-a8cc-5f0f-a5fd-72fa43c54eaa",
+              "name": "hubspotCommunityFeeds",
+              "type": "array",
+              "value": [
+                "https://community.hubspot.com/c/revops-data-hub/64.rss",
+                "https://community.hubspot.com/c/crm-sales-hub/crm/103.rss",
+                "https://community.hubspot.com/c/marketing-content/61.rss"
+              ]
+            },
+            {
+              "id": "5f4fdd31-4232-5570-aedd-527945c6c2ef",
+              "name": "lookbackHours",
+              "type": "number",
+              "value": 48
+            },
+            {
+              "id": "9d14b065-7e39-57da-b32e-dff7341b98a1",
+              "name": "maxPostsPerFeed",
+              "type": "number",
+              "value": 5
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4a2f67f8-2795-5533-aeae-695df2b54954",
+      "name": "Validate Setup",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Parses an absolute http(s) URL without the `URL` global, which n8n's Code\n// node sandbox does not provide. Returns null for anything it will not vouch\n// for, so every caller can treat null as \"refuse this value\".\nfunction parseHttpUrl(value) {\n  const raw = (value === null || value === undefined ? '' : String(value)).trim();\n  if (!raw) return null;\n\n  // No spaces, tabs, newlines or control characters anywhere. A URL carrying\n  // one is either malformed or an attempt to hide a second value inside the\n  // first, and neither is worth guessing about.\n  for (let i = 0; i < raw.length; i++) {\n    const code = raw.charCodeAt(i);\n    if (code <= 0x20 || code === 0x7f) return null;\n  }\n\n  // Backslashes are rejected rather than normalised. Browsers treat a\n  // backslash as \"/\", so an authority written with one can read as a hostile\n  // host in a browser and a trusted host in a naive parser. Scout refuses the\n  // ambiguity instead of picking a side.\n  if (raw.indexOf('\\\\') !== -1) return null;\n\n  const parts = /^([A-Za-z][A-Za-z0-9+.-]*):\\/\\/([^/?#]*)([^?#]*)(\\?[^#]*)?(#[\\s\\S]*)?$/.exec(raw);\n  if (!parts) return null;\n\n  const protocol = parts[1].toLowerCase() + ':';\n  if (protocol !== 'http:' && protocol !== 'https:') return null;\n\n  const authority = parts[2];\n  if (!authority) return null;\n\n  // Split user information off the authority. Scout never sends credentials in\n  // a URL, but workflow 01 has to be able to see that someone tried.\n  let username = '';\n  let password = '';\n  let hostport = authority;\n  const at = authority.lastIndexOf('@');\n  if (at !== -1) {\n    const userinfo = authority.slice(0, at);\n    if (!userinfo) return null;\n    hostport = authority.slice(at + 1);\n    const sep = userinfo.indexOf(':');\n    username = sep === -1 ? userinfo : userinfo.slice(0, sep);\n    password = sep === -1 ? '' : userinfo.slice(sep + 1);\n  }\n  if (!hostport) return null;\n\n  // Separate an optional port so it can never be mistaken for part of the host.\n  let hostname = hostport;\n  let port = '';\n  if (hostport.charAt(0) === '[') {\n    const close = hostport.indexOf(']');\n    if (close === -1) return null;\n    hostname = hostport.slice(0, close + 1);\n    const rest = hostport.slice(close + 1);\n    if (rest) {\n      if (rest.charAt(0) !== ':') return null;\n      port = rest.slice(1);\n    }\n  } else {\n    const sep = hostport.indexOf(':');\n    if (sep !== -1) {\n      hostname = hostport.slice(0, sep);\n      port = hostport.slice(sep + 1);\n    }\n    // Only ASCII hosts are accepted. An internationalised name would need\n    // punycode conversion to compare safely, and Scout has no need of one.\n    if (!/^[A-Za-z0-9._~%-]+$/.test(hostname)) return null;\n  }\n  if (!hostname) return null;\n  if (port && !/^[0-9]+$/.test(port)) return null;\n\n  const pathname = parts[3] || '/';\n  const search = parts[4] || '';\n  const hash = parts[5] || '';\n  const host = port ? hostname + ':' + port : hostname;\n  const href = protocol + '//' + host + pathname + search + hash;\n\n  return {\n    protocol: protocol,\n    username: username,\n    password: password,\n    hostname: hostname,\n    port: port,\n    host: host,\n    pathname: pathname,\n    search: search,\n    hash: hash,\n    href: href,\n    toString: function () { return href; }\n  };\n}\n\n// VALIDATE SCOUT SETUP\n// Stops the run before any HubSpot, Anthropic or Notion request when the\n// configuration is missing or out of range. Each message names the exact\n// Scout Setup field to fix.\nconst cfg = $('Scout Setup').first().json;\nconst problems = [];\n\nconst databaseId = (cfg.notionDatabaseId || '').toString().trim();\nif (!databaseId) {\n  problems.push('notionDatabaseId is empty. Paste the id of your Notion signal map database.');\n}\n\n// Every feed entry is a URL this workflow will actually fetch, so each one is\n// checked here rather than trusted. Scout reads HubSpot's own public community\n// RSS and nothing else: a typo, a redirect target or a lookalike host is a\n// configuration error, not something to follow. One bad entry fails the run.\nconst FEED_HOST = 'community.hubspot.com';\nconst feeds = Array.isArray(cfg.hubspotCommunityFeeds)\n  ? cfg.hubspotCommunityFeeds.map((f) => (f || '').toString().trim()).filter((f) => f.length > 0)\n  : [];\nif (feeds.length === 0) {\n  problems.push('hubspotCommunityFeeds is empty. Add at least one HubSpot Community RSS URL.');\n}\n\nfor (let i = 0; i < feeds.length; i++) {\n  const label = 'hubspotCommunityFeeds[' + i + ']';\n  const parsed = parseHttpUrl(feeds[i]);\n\n  if (!parsed) {\n    problems.push(label + ' is not an absolute URL.');\n  } else if (parsed.protocol !== 'https:') {\n    problems.push(label + ' must use https.');\n  } else if (parsed.username || parsed.password) {\n    problems.push(label + ' must not embed a username or password.');\n  } else if (parsed.hostname.toLowerCase() !== FEED_HOST) {\n    // Exact hostname match. A subdomain or a suffixed lookalike is not HubSpot.\n    problems.push(label + ' must be hosted on ' + FEED_HOST + '.');\n  } else if (!parsed.pathname.toLowerCase().endsWith('.rss')) {\n    problems.push(label + ' must point at a .rss path.');\n  }\n}\n\nconst model = (cfg.anthropicModel || '').toString().trim();\nif (!model) {\n  problems.push('anthropicModel is empty. Set the Anthropic model id to classify with.');\n}\n\nconst maxPostsPerFeed = Number(cfg.maxPostsPerFeed);\nif (!Number.isInteger(maxPostsPerFeed) || maxPostsPerFeed < 1 || maxPostsPerFeed > 100) {\n  problems.push('maxPostsPerFeed must be a whole number from 1 to 100.');\n}\n\nconst lookbackHours = Number(cfg.lookbackHours);\nif (!Number.isInteger(lookbackHours) || lookbackHours < 1 || lookbackHours > 168) {\n  problems.push('lookbackHours must be a whole number from 1 to 168.');\n}\n\nif (problems.length > 0) {\n  throw new Error('Scout Setup is not configured correctly. ' + problems.join(' '));\n}\n\nreturn [{ json: { validated: true, feedCount: feeds.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "755b9ec7-161e-5e19-82f4-4da83939a4ab",
+      "name": "Feed URLs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// FEED URLS\n// These are public RSS feeds exposed by HubSpot Community. Feed paths can\n// change, so verify them before activation.\n// Add, remove or replace URLs in Scout Setup -> hubspotCommunityFeeds.\n// Scout reads each feed once per scheduled run, without logging in.\nconst cfg = $('Scout Setup').first().json;\n\nconst feeds = (Array.isArray(cfg.hubspotCommunityFeeds) ? cfg.hubspotCommunityFeeds : [])\n  .map((feedUrl) => (feedUrl || '').toString().trim())\n  .filter((feedUrl) => feedUrl.length > 0);\n\nreturn feeds.map((feedUrl) => ({ json: { feedUrl } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1acb6d0f-9611-5158-97f3-2a799670efd7",
+      "name": "Fetch RSS",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $json.feedUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "80d94177-8ffd-599e-ba09-ccbf05b157c3",
+      "name": "Parse XML",
+      "type": "n8n-nodes-base.xml",
+      "position": [
+        1100,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c52c6cfd-e3b0-5627-889b-230e8dac25d6",
+      "name": "Extract Posts",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// EXTRACT POSTS + KEYWORD PRE-FILTER\n// Flattens each feed's <item> list into individual posts, strips HTML, drops\n// anything older than lookbackHours, keeps only posts that mention a RevOps\n// keyword, then caps how many survive per feed. This is a cheap first pass so\n// the model only sees plausible candidates.\nconst cfg = $('Scout Setup').first().json;\nconst lookbackMs = Number(cfg.lookbackHours) * 60 * 60 * 1000;\nconst maxPerFeed = Number(cfg.maxPostsPerFeed);\nconst nowMs = +$now;\n\nconst KEYWORDS = [\n  'lifecycle', 'routing', 'route ', 'duplicate', 'dedup', 'enrich',\n  'data quality', 'data-quality', 'lead scoring', 'lead score',\n  'handoff', 'hand-off', 'hand off', 'sync', 'reporting', 'attribution',\n  'property', 'properties', 'clean up', 'cleanup', 'migrat', 'workflow',\n  'automation', 'deal stage', 'association', 'import', 'mapping'\n];\n\nconst results = [];\n\nfor (const entry of $input.all()) {\n  const d = entry.json || {};\n  const channel = (d.rss && d.rss.channel) ? d.rss.channel : (d.channel || {});\n  const board = (channel.title || 'HubSpot Community').toString().trim();\n\n  let items = channel.item || [];\n  if (!Array.isArray(items)) items = [items];\n\n  const kept = [];\n\n  for (const it of items) {\n    if (!it) continue;\n    if (kept.length >= maxPerFeed) break;\n\n    const title = (it.title || '').toString();\n    const link = (it.link || '').toString();\n    const author = (it['dc:creator'] || it.creator || it.author || '').toString();\n    const descRaw = (it.description || it['content:encoded'] || '').toString();\n    const desc = descRaw\n      .replace(/<[^>]*>/g, ' ')\n      .replace(/&[a-z]+;/gi, ' ')\n      .replace(/\\s+/g, ' ')\n      .trim();\n\n    // Posts with no parseable date are kept rather than dropped. Silently\n    // discarding them would hide every post if a feed changed its date\n    // format. Dedupe Across Runs still stops repeat processing.\n    const published = Date.parse((it.pubDate || it.published || '').toString());\n    if (Number.isFinite(published) && (nowMs - published) > lookbackMs) continue;\n\n    const haystack = (title + ' ' + desc).toLowerCase();\n    if (!KEYWORDS.some((k) => haystack.includes(k))) continue;\n\n    kept.push({ json: {\n      board,\n      postTitle: title,\n      postUrl: link,\n      postAuthor: author,\n      postSnippet: desc.slice(0, 1200)\n    }});\n  }\n\n  results.push(...kept);\n}\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e23b9634-527e-548b-b704-7027e5b52d98",
+      "name": "Dedupe Across Runs",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1540,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.postUrl }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e8205fbc-f703-5467-824a-72b32cb2cdaf",
+      "name": "Build Claude Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// BUILD CLAUDE REQUEST\n// Constructs one Anthropic Messages API body per post. The model id comes from\n// Scout Setup so you can trade cost against depth without editing code.\nconst cfg = $('Scout Setup').first().json;\nconst model = (cfg.anthropicModel || '').toString().trim();\n\nconst SYSTEM = [\n  'You qualify HubSpot Community forum posts as RevOps sales signals for a HubSpot data',\n  'and automation consultancy. That consultancy fixes lead routing, lifecycle stage drift,',\n  'duplicate records, enrichment gaps, data quality, and reporting trust.',\n  'Decide whether the poster is an operator (RevOps, Marketing Ops, Sales Ops, HubSpot',\n  'admin, or founder) describing one of those pains in a HubSpot context.',\n  'Return ONLY valid minified JSON (no markdown, no code fences) with exactly these keys:',\n  'relevant (boolean),',\n  'warmth_tier (one of \"Tier 1 (hot)\",\"Tier 2 (warm)\",\"Tier 3 (cool)\",\"Tier 4 (cold)\"),',\n  'pain_areas (array, subset of [\"Routing\",\"Lifecycle\",\"Dedupe\",\"Enrichment\",\"Data quality\",\"Reporting\"]),',\n  'best_angle (one short diagnostic question under 200 characters),',\n  'draft_comment (a 2 to 3 sentence helpful diagnostic comment, no pitch, no links),',\n  'persona_type (one of \"ICP buyer\",\"ICP practitioner\",\"Partner / consultant\",\"Peer / networker\",\"Unknown\")',\n  '- infer ONLY from role or title cues in the post; use \"Unknown\" if no role is evident,',\n  'track (one of \"Sales (ICP)\",\"Connector\",\"Unknown\")',\n  '- \"Sales (ICP)\" only if they read like a buyer or decision maker, \"Connector\" for consultants,',\n  'agencies and peers worth knowing, otherwise \"Unknown\".',\n  'If the post is a basic how-to question, unrelated, or not a HubSpot ops pain, set relevant to false.'\n].join(' ');\n\nreturn $input.all().map((entry) => {\n  const p = entry.json;\n  const userContent =\n    'BOARD: ' + p.board + '\\n' +\n    'TITLE: ' + p.postTitle + '\\n' +\n    'AUTHOR: ' + p.postAuthor + '\\n' +\n    'BODY: ' + p.postSnippet;\n\n  return { json: { ...p, _anthropicBody: {\n    model: model,\n    max_tokens: 500,\n    system: SYSTEM,\n    messages: [{ role: 'user', content: userContent }]\n  }}};\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c0355134-2f3b-5999-92c4-c79c920dbaf3",
+      "name": "Classify (Claude)",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1980,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json._anthropicBody) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "b2297827-1581-5226-813c-3e453e758077",
+      "name": "Parse + Map to Notion",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// PARSE CLAUDE RESULT + BUILD NOTION PAGE BODY\n// Relevant posts become signal rows. Irrelevant posts are dropped. Malformed\n// model output becomes a \"Needs review\" row so nothing disappears silently.\nconst cfg = $('Scout Setup').first().json;\nconst DATABASE_ID = (cfg.notionDatabaseId || '').toString().trim();\nconst MAX_TEXT = 1900;\n\nconst VALID_TIERS = ['Tier 1 (hot)', 'Tier 2 (warm)', 'Tier 3 (cool)', 'Tier 4 (cold)'];\nconst VALID_PAIN_AREAS = ['Routing', 'Lifecycle', 'Dedupe', 'Enrichment', 'Data quality', 'Reporting'];\nconst VALID_PERSONAS = ['ICP buyer', 'ICP practitioner', 'Partner / consultant', 'Peer / networker', 'Unknown'];\nconst VALID_TRACKS = ['Sales (ICP)', 'Connector', 'Unknown'];\n\nconst cap = (value) => (value === null || value === undefined ? '' : value.toString().slice(0, MAX_TEXT));\n\nconst sources = $('Build Claude Request').all();\nconst inputs = $input.all();\nconst out = [];\n\nfor (let i = 0; i < inputs.length; i++) {\n  const resp = inputs[i].json || {};\n  const src = (sources[i] && sources[i].json) || {};\n\n  let text = '';\n  try {\n    text = (resp.content || []).map((c) => c.text || '').join('');\n  } catch (e) {\n    text = '';\n  }\n\n  let verdict = null;\n  let errorLabel = '';\n\n  if (!text.trim()) {\n    errorLabel = 'Model returned no text content';\n  } else {\n    try {\n      verdict = JSON.parse(text);\n    } catch (e) {\n      const match = text.match(/\\{[\\s\\S]*\\}/);\n      if (match) {\n        try { verdict = JSON.parse(match[0]); } catch (_) { verdict = null; }\n      }\n      if (!verdict) errorLabel = 'Model response was not valid JSON';\n    }\n  }\n\n  if (verdict && typeof verdict.relevant !== 'boolean') {\n    verdict = null;\n    errorLabel = 'Model response was missing the relevant flag';\n  }\n\n  // Malformed output is recorded for a human instead of being dropped. Only\n  // the source title, source URL and a short error label are stored. The raw\n  // model response is deliberately never written to Notion.\n  if (!verdict) {\n    const reviewName = cap(src.postTitle || 'Untitled community post');\n    out.push({ json: {\n      needsReview: true,\n      recordName: reviewName,\n      postUrl: src.postUrl || '',\n      errorLabel: errorLabel,\n      _notionBody: {\n        parent: { database_id: DATABASE_ID },\n        properties: {\n          'Name': { title: [{ text: { content: reviewName } }] },\n          'Signal': { rich_text: [{ text: { content: cap('Automatic classification failed. Review this post manually.') } }] },\n          'Evidence': { rich_text: [{ text: { content: cap('Board: ' + (src.board || 'HubSpot Community') + ' - ' + errorLabel) } }] },\n          'Warmth tier': { select: { name: 'Tier 4 (cold)' } },\n          'Pain area': { multi_select: [] },\n          'Best angle': { rich_text: [{ text: { content: '' } }] },\n          'Draft': { rich_text: [{ text: { content: '' } }] },\n          'Persona type': { select: { name: 'Unknown' } },\n          'Track': { select: { name: 'Unknown' } },\n          'Source': { select: { name: 'HubSpot Community' } },\n          'Source URL': { url: src.postUrl || null },\n          'Next action': { select: { name: 'Monitor' } },\n          'Status': { select: { name: 'Needs review' } },\n          'Replied': { checkbox: false }\n        }\n      }\n    }});\n    continue;\n  }\n\n  if (verdict.relevant !== true) continue;\n\n  const warmth = VALID_TIERS.includes(verdict.warmth_tier) ? verdict.warmth_tier : 'Tier 3 (cool)';\n  const painAreas = Array.isArray(verdict.pain_areas)\n    ? verdict.pain_areas.filter((b) => VALID_PAIN_AREAS.includes(b))\n    : [];\n  const bestAngle = cap(verdict.best_angle);\n  const draft = cap(verdict.draft_comment);\n  const persona = VALID_PERSONAS.includes(verdict.persona_type) ? verdict.persona_type : 'Unknown';\n  const track = VALID_TRACKS.includes(verdict.track) ? verdict.track : 'Unknown';\n  const recordName = cap((src.postAuthor && src.postAuthor.trim()) || src.postTitle || 'Unknown poster');\n\n  out.push({ json: {\n    recordName,\n    warmth,\n    painAreas,\n    postUrl: src.postUrl,\n    _notionBody: {\n      parent: { database_id: DATABASE_ID },\n      properties: {\n        'Name': { title: [{ text: { content: recordName } }] },\n        'Signal': { rich_text: [{ text: { content: cap(src.postTitle + ' - ' + src.postSnippet) } }] },\n        'Evidence': { rich_text: [{ text: { content: cap('Board: ' + src.board) } }] },\n        'Warmth tier': { select: { name: warmth } },\n        'Pain area': { multi_select: painAreas.map((b) => ({ name: b })) },\n        'Best angle': { rich_text: [{ text: { content: bestAngle } }] },\n        'Draft': { rich_text: [{ text: { content: draft } }] },\n        'Persona type': { select: { name: persona } },\n        'Track': { select: { name: track } },\n        'Source': { select: { name: 'HubSpot Community' } },\n        'Source URL': { url: src.postUrl || null },\n        'Next action': { select: { name: 'Comment' } },\n        'Status': { select: { name: 'New' } },\n        'Replied': { checkbox: false }\n      }\n    }\n  }});\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fdc939cc-378e-5813-af33-eecd2f22ebef",
+      "name": "Create Notion Row",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        2420,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.notion.com/v1/pages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json._notionBody) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Notion-Version",
+              "value": "2022-06-28"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "3474c8ea-0389-5cf7-a8f2-5e8c0385f725",
+      "name": "Overview and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -720
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 1000,
+        "height": 500,
+        "content": "## Scout 01 | HubSpot Community Signals\n\n### How it works\n\nScout reads three public HubSpot Community RSS feeds once a day. It validates the source list before the first request, fetches recent posts, keeps those describing a RevOps pain, removes links seen in earlier runs, and asks Claude to qualify each candidate. Qualified posts become Notion rows with a warmth tier, pain area, next action, and draft. Claude never sends anything. You review, edit, approve, or discard every suggestion.\n\n### Setup\n\n1. Open **Scout Setup** and paste your Notion database id.\n2. Bind an Anthropic credential on **Classify (Claude)** and a Notion credential on **Create Notion Row**. Use HTTP Header Auth for both.\n3. Adjust **lookbackHours**, **maxPostsPerFeed**, and **hubspotCommunityFeeds**.\n\nEvery feed must be an https URL on the HubSpot Community host, end in `.rss`, and contain no embedded username or password. **Validate Setup** rejects the run before **Fetch RSS** when a source is invalid.\n\nThe workflow timezone is **UTC**. Change it in workflow settings, run the workflow manually, and inspect what lands in Notion before activating the schedule."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "25688210-c4fc-59ac-8b9e-56a74b59f96d",
+      "name": "1. Configure and validate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 140,
+        "content": "### 1. Configure and validate\n\nSet the database, source list, limits, timezone, and schedule in **Scout Setup**. **Validate Setup** stops the run before any request when required fields or feeds are invalid."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "20f04611-6cd9-5af0-86d5-7dbe0b85a642",
+      "name": "2. Fetch and reduce",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        600,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1000,
+        "height": 140,
+        "content": "### 2. Fetch and reduce\n\nExpand the approved feed list, fetch RSS, parse XML, keep recent RevOps posts, and remove links already seen in earlier runs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57c44fd7-90b8-540b-a0b3-b10b1e5b955f",
+      "name": "3. Qualify with Claude",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1700,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 140,
+        "content": "### 3. Qualify with Claude\n\nBuild one compact request per candidate. Claude returns a classification, warmth tier, pain area, next action, and draft for review."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5fe630e-33ca-5d94-bb72-a8889e9b7b53",
+      "name": "4. Write for review",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2200,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 140,
+        "content": "### 4. Write for review\n\nMap valid model output to the published Notion schema. Store the signal and draft for human review. Nothing here posts, comments, messages, or sends."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "UTC",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Feed URLs": {
+      "main": [
+        [
+          {
+            "node": "Fetch RSS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch RSS": {
+      "main": [
+        [
+          {
+            "node": "Parse XML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse XML": {
+      "main": [
+        [
+          {
+            "node": "Extract Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Scout Setup": {
+      "main": [
+        [
+          {
+            "node": "Validate Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Trigger": {
+      "main": [
+        [
+          {
+            "node": "Scout Setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Posts": {
+      "main": [
+        [
+          {
+            "node": "Dedupe Across Runs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Setup": {
+      "main": [
+        [
+          {
+            "node": "Feed URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify (Claude)": {
+      "main": [
+        [
+          {
+            "node": "Parse + Map to Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe Across Runs": {
+      "main": [
+        [
+          {
+            "node": "Build Claude Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Claude Request": {
+      "main": [
+        [
+          {
+            "node": "Classify (Claude)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse + Map to Notion": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Qualify HubSpot Community RevOps signals with Claude and Notion",
+    "wechat": "youandme10086",
+    "id": 18942,
+    "update_time": "2026-09-27"
+  }
+}

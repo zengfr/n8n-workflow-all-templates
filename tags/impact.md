@@ -1,4 +1,4 @@
-# impact : 9
+# impact : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |15336|[15336_Analyze_corporate_action_impact_from_NSE_RSS_with_Google_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15336_Analyze_corporate_action_impact_from_NSE_RSS_with_Google_Sheets__Gemini__and_Gmail.json)|
 |15671|[15671_Score_macro_news_impact_with_Groq__SerpAPI__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15671_Score_macro_news_impact_with_Groq__SerpAPI__Google_Sheets_and_Gmail.json)|
 |16260|[16260_Send_commodity_investment_briefings_from_CNBC_RSS_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16260_Send_commodity_investment_briefings_from_CNBC_RSS_with_Gemini_and_Slack.json)|
+|18718|[18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json)|
+|19135|[19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json)|
+|19261|[19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json)|

@@ -1,4 +1,4 @@
-# js : 7
+# js : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |7238|[7238_Flight_Data_Visualization_with_Chart.js__QuickChart_API___Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/72/7238_Flight_Data_Visualization_with_Chart.js__QuickChart_API___Telegram_Bot.json)|
 |9983|[9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json)|
 |10801|[10801_Scan_Single_URLs_for_Security_Vulnerabilities_with_GPT-4__JS__PHP__Python.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10801_Scan_Single_URLs_for_Security_Vulnerabilities_with_GPT-4__JS__PHP__Python.json)|
+|19358|[19358_Segment_donors_and_generate_personalized_messages_with_Google_Sheets_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19358_Segment_donors_and_generate_personalized_messages_with_Google_Sheets_and_Ollama.json)|
+|19669|[19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json)|

@@ -1,4 +1,4 @@
-# week : 5
+# week : 11
 
 |id|file|
 |----|----|
@@ -7,3 +7,9 @@
 |7792|[7792_7-Day_Pinterest_Content_Planner_with_Notion_Integration_and_Email_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7792_7-Day_Pinterest_Content_Planner_with_Notion_Integration_and_Email_Delivery.json)|
 |11119|[11119_E-commerce_bestseller_video_generator__Algolia___Google_VEO_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11119_E-commerce_bestseller_video_generator__Algolia___Google_VEO_3.json)|
 |16327|[16327_Send_Outlook_calendar_due_reminders_to_Telegram_for_today__tomorrow_and_week.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16327_Send_Outlook_calendar_due_reminders_to_Telegram_for_today__tomorrow_and_week.json)|
+|16857|[16857_Schedule_weekly_social_media_posts_with_OpenAI_and_PostFast.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16857_Schedule_weekly_social_media_posts_with_OpenAI_and_PostFast.json)|
+|17074|[17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json)|
+|17880|[17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json)|
+|17909|[17909_Track_weekly_Bing_keyword_rankings_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17909_Track_weekly_Bing_keyword_rankings_with_Apify_and_Google_Sheets.json)|
+|18965|[18965_Turn_weekly_competitor_ads_into_one_creative_brief_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18965_Turn_weekly_competitor_ads_into_one_creative_brief_with_Apify_and_Google_Sheets.json)|
+|19031|[19031_Email_a_weekly_Product_Hunt_leaderboard_digest_with_Apify_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19031_Email_a_weekly_Product_Hunt_leaderboard_digest_with_Apify_and_Gmail.json)|

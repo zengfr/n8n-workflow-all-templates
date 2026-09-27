@@ -1,4 +1,4 @@
-# clinic : 9
+# clinic : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |16601|[16601_Log_clinic_chatbot_inquiries_from_a_website_widget_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16601_Log_clinic_chatbot_inquiries_from_a_website_widget_with_OpenAI_and_Google_Sheets.json)|
 |16638|[16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json)|
 |16680|[16680_Book_and_confirm_clinic_appointments_with_WhatsApp__Google_Calendar__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16680_Book_and_confirm_clinic_appointments_with_WhatsApp__Google_Calendar__and_Gmail.json)|
+|16878|[16878_Manage_clinic_appointments_and_prescriptions_with_Telegram__Gmail_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16878_Manage_clinic_appointments_and_prescriptions_with_Telegram__Gmail_and_Google.json)|
+|17419|[17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json)|
+|17603|[17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json)|
+|19622|[19622_Send_dental_clinic_audit_outreach_with_DeepSeek__SerpAPI__Hunter_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19622_Send_dental_clinic_audit_outreach_with_DeepSeek__SerpAPI__Hunter_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# currency : 12
+# currency : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |6520|[6520_Monitor_Egyptian_Gold___Currency_Prices_with_Telegram_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/65/6520_Monitor_Egyptian_Gold___Currency_Prices_with_Telegram_Notifications.json)|
 |8380|[8380_Daily_Currency_Rates_Email_Report_with_USD_EUR_NGN___BTC_ETH_Price_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8380_Daily_Currency_Rates_Email_Report_with_USD_EUR_NGN___BTC_ETH_Price_Tracking.json)|
 |14133|[14133_Track_multi-currency_expenses_from_receipts_with_easybits__Telegram__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14133_Track_multi-currency_expenses_from_receipts_with_easybits__Telegram__and_Google_Sheets.json)|
+|19794|[19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json)|

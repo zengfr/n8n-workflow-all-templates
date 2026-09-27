@@ -1,0 +1,385 @@
+{
+  "id": "OCADyLqockR9vy89",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Qualify Webflow leads and sync high-quality contacts with HubSpot and Gmail",
+    "wechat": "youandme10086",
+    "id": 18444,
+    "update_time": "2026-09-27"
+  },
+  "name": "Qualify Webflow leads and sync them to HubSpot",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "70fda4c5-ce7a-4cb1-a341-438949317c00",
+      "name": "Template overview and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        112
+      ],
+      "parameters": {
+        "width": 760,
+        "height": 516,
+        "content": "# Webflow lead cleaner → HubSpot\n\nAutomatically validates a Webflow form submission and upserts an accepted lead into HubSpot by email. Invalid, honeypot, and disposable-email submissions never reach the CRM.\n\n### How it works\n1. A Webflow form posts its payload to the webhook.\n2. The Code node standardizes common field names and applies a small quality check.\n3. Rejected or quarantined leads receive a clear HTTP response.\n4. Accepted leads are created or updated in HubSpot using email as the unique key.\n5. HubSpot failures return one simple error response and remain visible in the n8n execution log.\n\n### Setup\n1. Add a HubSpot app-token credential to the HubSpot node.\n2. Copy the production webhook URL into your Webflow form integration or custom form script.\n3. Confirm that your submitted fields map to email, name, phone, company, and message.\n4. Test once with a new email and once with an existing HubSpot contact before activating the workflow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e825e571-5d99-4db8-aa58-19e2028ba36b",
+      "name": "Intake section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 94,
+        "content": "## 1. Receive and qualify the lead\nAccept a Webflow payload, normalize its fields, and block low-quality submissions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92d011e9-fef9-48d6-8e0a-ed6becb44962",
+      "name": "HubSpot section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 892,
+        "height": 126,
+        "content": "## 2. Sync, score, and notify\nUpsert accepted contacts in HubSpot, score the lead, and email only high-quality leads. Edit the scoring-node constants to choose `sdr`, `cs`, or `sales`, set each inbox, and attach a Gmail credential to the email node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "334d576e-b76e-485d-8693-bac539657fa2",
+      "name": "Receive Webflow form submission",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        112,
+        1024
+      ],
+      "webhookId": "fbb8d48d-0719-491b-b452-4ac4688be722",
+      "parameters": {
+        "path": "clean-webflow-lead-hubspot",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "79ea041b-fa3f-4f33-920b-45e1e0215698",
+      "name": "Normalize and qualify Webflow lead",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        400,
+        1024
+      ],
+      "parameters": {
+        "jsCode": "const input = $json.body ?? $json.payload ?? $json.data ?? $json;\nconst rawFields = input.fields ?? input.data ?? input;\nconst fields = Array.isArray(rawFields)\n  ? Object.fromEntries(rawFields.map((field) => [String(field.name ?? field.key ?? '').toLowerCase(), field.value]))\n  : Object.fromEntries(Object.entries(rawFields).map(([key, value]) => [key.toLowerCase(), value]));\n\nconst first = (...keys) => {\n  for (const key of keys) {\n    const value = fields[key.toLowerCase()];\n    if (value !== undefined && value !== null && String(value).trim() !== '') return String(value).trim();\n  }\n  return '';\n};\n\nconst fullName = first('name', 'full name', 'fullname');\nconst nameParts = fullName.split(/\\s+/).filter(Boolean);\nconst firstname = first('firstname', 'first name', 'first_name') || nameParts[0] || '';\nconst lastname = first('lastname', 'last name', 'last_name') || nameParts.slice(1).join(' ');\nconst email = first('email', 'email address', 'e-mail').toLowerCase();\nconst phone = first('phone', 'phone number', 'tel', 'telephone').replace(/[^\\d+(). -]/g, '');\nconst company = first('company', 'company name', 'organization');\nconst message = first('message', 'notes', 'details', 'project details');\nconst source = first('source', 'lead source') || 'Webflow form';\nconst honeypot = first('website', 'url', 'honeypot', 'company website');\nconst disposableDomains = new Set(['mailinator.com', 'guerrillamail.com', '10minutemail.com', 'tempmail.com']);\nconst emailDomain = email.includes('@') ? email.split('@').pop() : '';\nconst reasons = [];\n\nif (!email) reasons.push('email_missing');\nelse if (!/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email)) reasons.push('email_invalid');\nif (honeypot) reasons.push('honeypot_filled');\nif (disposableDomains.has(emailDomain)) reasons.push('disposable_email');\n\nlet lead_quality_status = 'accepted';\nif (reasons.includes('email_missing') || reasons.includes('email_invalid')) lead_quality_status = 'rejected';\nelse if (reasons.length) lead_quality_status = 'quarantined';\n\nreturn [{\n  json: {\n    submission_id: String(input.id ?? input._id ?? $execution.id),\n    firstname,\n    lastname,\n    email,\n    phone,\n    company,\n    message,\n    source,\n    lead_quality_status,\n    lead_quality_reasons: reasons\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "50ced982-46bb-47a2-a872-66f2a5c508aa",
+      "name": "Is the lead safe to sync?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        672,
+        1024
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f9790f8f-472d-414c-8a40-17f031782816",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.lead_quality_status }}",
+              "rightValue": "accepted"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a3b9faa9-398c-497a-afb2-e91607c72e51",
+      "name": "Create or update HubSpot contact by email",
+      "type": "n8n-nodes-base.hubspot",
+      "onError": "continueErrorOutput",
+      "maxTries": 2,
+      "position": [
+        960,
+        944
+      ],
+      "parameters": {
+        "email": "={{ $json.email }}",
+        "options": {},
+        "authentication": "appToken",
+        "additionalFields": {
+          "lastName": "={{ $json.lastname || undefined }}",
+          "firstName": "={{ $json.firstname || undefined }}",
+          "companyName": "={{ $json.company || undefined }}",
+          "phoneNumber": "={{ $json.phone || undefined }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "dcdc637c-eb58-433d-9595-3fc39f4ac1a4",
+      "name": "Respond with validation result",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        960,
+        1152
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $json.lead_quality_status === 'rejected' ? 400 : 202 }}"
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, status: $json.lead_quality_status, submission_id: $json.submission_id, reasons: $json.lead_quality_reasons } }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "e37fd252-d52d-4b1a-b2be-537d2d157640",
+      "name": "Score lead and choose SDR, CS, or Sales inbox",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1264,
+        944
+      ],
+      "parameters": {
+        "jsCode": "const lead = $('Normalize and qualify Webflow lead').first().json;\nconst crmRecordId = $json.id || $json.Id || null;\n\n// SETUP: choose 'sdr', 'cs', or 'sales', then replace the example inboxes.\nconst NOTIFICATION_TEAM = 'sales';\nconst TEAM_INBOXES = {\n  sdr: 'user@example.com',\n  cs: 'user@example.com',\n  sales: 'user@example.com'\n};\n\nconst freeDomains = new Set(['gmail.com', 'googlemail.com', 'outlook.com', 'hotmail.com', 'yahoo.com', 'icloud.com', 'proton.me', 'protonmail.com']);\nconst disposableDomains = new Set(['mailinator.com', 'guerrillamail.com', '10minutemail.com', 'tempmail.com', 'yopmail.com']);\nconst emailDomain = lead.email.includes('@') ? lead.email.split('@').pop() : '';\nlet leadScore = 0;\nconst scoreReasons = [];\n\nif (emailDomain && !freeDomains.has(emailDomain) && !disposableDomains.has(emailDomain)) { leadScore += 40; scoreReasons.push('business_email'); }\nif (lead.company) { leadScore += 25; scoreReasons.push('company_provided'); }\nif (lead.phone) { leadScore += 15; scoreReasons.push('phone_provided'); }\nif ((lead.message || '').length >= 40) { leadScore += 20; scoreReasons.push('detailed_message'); }\n\nconst notificationTeam = Object.prototype.hasOwnProperty.call(TEAM_INBOXES, NOTIFICATION_TEAM) ? NOTIFICATION_TEAM : 'sales';\nreturn [{ json: {\n  ...lead,\n  crm_record_id: crmRecordId,\n  lead_score: leadScore,\n  lead_score_reasons: scoreReasons,\n  high_quality: leadScore >= 70,\n  notification_team: notificationTeam,\n  notification_email: TEAM_INBOXES[notificationTeam]\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "340d9a6c-3076-4490-825e-da3867dd34b8",
+      "name": "Is this a high-quality lead?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1536,
+        944
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7cf5cf13-914d-40f6-a965-660e0479598c",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.high_quality }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5cd13f03-108a-49b2-80c7-9bbeba1aec0f",
+      "name": "Email high-quality lead to selected inbox",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        1824,
+        944
+      ],
+      "webhookId": "260df0f5-0de1-4243-9d42-c10b04358b15",
+      "parameters": {
+        "sendTo": "={{ $json.notification_email }}",
+        "message": "=<h2>New high-quality Webflow lead</h2><p><strong>Score:</strong> {{ $json.lead_score }}/100</p><p><strong>Name:</strong> {{ [$json.firstname, $json.lastname].filter(Boolean).join(' ') || 'Not provided' }}</p><p><strong>Email:</strong> {{ $json.email }}</p><p><strong>Phone:</strong> {{ $json.phone || 'Not provided' }}</p><p><strong>Company:</strong> {{ $json.company || 'Not provided' }}</p><p><strong>Message:</strong> {{ $json.message || 'Not provided' }}</p><p><strong>HubSpot record:</strong> {{ $json.crm_record_id || 'Created or updated' }}</p>",
+        "options": {
+          "senderName": "Webflow Lead Qualifier"
+        },
+        "subject": "=High-quality Webflow lead for {{ $json.notification_team.toUpperCase() }}: {{ [$json.firstname, $json.lastname].filter(Boolean).join(' ') || $json.email }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail OAuth2 API"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "3ac917a2-e3e2-43bc-81b2-195f244dd292",
+      "name": "Respond after successful HubSpot sync",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1824,
+        1184
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, status: 'synced', crm: 'hubspot', submission_id: $('Normalize and qualify Webflow lead').first().json.submission_id, crm_record_id: $('Score lead and choose SDR, CS, or Sales inbox').first().json.crm_record_id, high_quality: $('Score lead and choose SDR, CS, or Sales inbox').first().json.high_quality, notification_team: $('Score lead and choose SDR, CS, or Sales inbox').first().json.high_quality ? $('Score lead and choose SDR, CS, or Sales inbox').first().json.notification_team : null } }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "c95044bf-9f2d-420c-9ae0-78b73cfcb884",
+      "name": "Respond when HubSpot sync fails",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1264,
+        1152
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 502
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, status: 'crm_error', crm: 'hubspot', submission_id: $('Normalize and qualify Webflow lead').first().json.submission_id, execution_id: $execution.id, message: 'HubSpot could not sync this lead after two attempts. Check the n8n execution for details.' } }}"
+      },
+      "typeVersion": 1.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "d078461f-a3b0-4577-890a-9336fed7c99d",
+  "nodeGroups": [],
+  "connections": {
+    "Is the lead safe to sync?": {
+      "main": [
+        [
+          {
+            "node": "Create or update HubSpot contact by email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond with validation result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is this a high-quality lead?": {
+      "main": [
+        [
+          {
+            "node": "Email high-quality lead to selected inbox",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond after successful HubSpot sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Webflow form submission": {
+      "main": [
+        [
+          {
+            "node": "Normalize and qualify Webflow lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize and qualify Webflow lead": {
+      "main": [
+        [
+          {
+            "node": "Is the lead safe to sync?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or update HubSpot contact by email": {
+      "main": [
+        [
+          {
+            "node": "Score lead and choose SDR, CS, or Sales inbox",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond when HubSpot sync fails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email high-quality lead to selected inbox": {
+      "main": [
+        [
+          {
+            "node": "Respond after successful HubSpot sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score lead and choose SDR, CS, or Sales inbox": {
+      "main": [
+        [
+          {
+            "node": "Is this a high-quality lead?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

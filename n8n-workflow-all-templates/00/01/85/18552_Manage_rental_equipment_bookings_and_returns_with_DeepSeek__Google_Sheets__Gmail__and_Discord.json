@@ -1,0 +1,2496 @@
+{
+  "id": "qakUjwLc6T21jUXQ",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Manage rental equipment bookings and returns with DeepSeek, Google Sheets, Gmail, and Discord",
+    "wechat": "youandme10086",
+    "id": 18552,
+    "update_time": "2026-09-27"
+  },
+  "name": "manage rental equipment checkouts and returns with AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a47a7025-ecce-4a28-a0aa-786bb60867ee",
+      "name": "Daily Ops Sweep Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        1117.5
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3af7a54f-cce4-48fb-8647-1edb18d839c3",
+      "name": "Read Bookings for Sweep",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        224,
+        1117.5
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Bookings"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "b751cc5e-bdaf-42c3-afd0-b2b2b1740854",
+      "name": "Compute Due Actions",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        448,
+        1117.5
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json);\nconst today = new Date();\nconst dayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())).getTime();\nconst MS = 86400000;\nfunction dayDiff(dateStr) {\n  if (!dateStr) return null;\n  const d = new Date(String(dateStr).slice(0,10) + 'T00:00:00Z').getTime();\n  return Math.round((d - dayStart) / MS);\n}\nconst due = [];\nfor (const r of rows) {\n  if (String(r.status || '') !== 'confirmed') continue;\n  const s = dayDiff(r.start_date);\n  const e = dayDiff(r.end_date);\n  let action = 'none';\n  if (s === 1) action = 'pickup';\n  else if (e === 0) action = 'return';\n  else if (e !== null && e < 0) action = 'late';\n  if (action === 'none') continue;\n  due.push({\n    booking_id: String(r.booking_id || ''),\n    renter_name: String(r.renter_name || ''),\n    renter_email: String(r.renter_email || ''),\n    items: String(r.items || ''),\n    start_date: String(r.start_date || ''),\n    end_date: String(r.end_date || ''),\n    action: action,\n  });\n}\nreturn [{ json: { due: due, due_count: due.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f021fcf1-8b3f-42bc-aed3-ecca40bdddcd",
+      "name": "If Any Due Actions",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        672,
+        1117.5
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.due_count }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d737daf6-e69f-4add-84ad-8e4e9a4a8a55",
+      "name": "Split Out Due Items",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        896,
+        1213.5
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "due"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0e8b322-f9ab-4389-807f-64f7c06304dc",
+      "name": "Build Reminder Emails",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        1213.5
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nconst out = [];\nfor (const r of items) {\n  const action = String(r.action || '');\n  let subject = 'Your rental confirmation';\n  let body = '';\n  if (action === 'pickup') {\n    subject = 'Your rental pickup is tomorrow';\n    body = 'Hi ' + (r.renter_name || 'there') + ',\\n\\nThis is a reminder that your rental pickup is scheduled for tomorrow, ' + (r.start_date || '') + '. Items: ' + (r.items || '') + '.\\n\\nOur team will have everything ready at the agreed time. Please bring a valid ID.\\n\\nThanks,\\nRental Team';\n  } else if (action === 'return') {\n    subject = 'Please return your rental today';\n    body = 'Hi ' + (r.renter_name || 'there') + ',\\n\\nYour rental is due back today, ' + (r.end_date || '') + '. Items: ' + (r.items || '') + '.\\n\\nPlease return everything to our location before closing time.\\n\\nThanks,\\nRental Team';\n  } else if (action === 'late') {\n    subject = 'Your rental items are overdue';\n    body = 'Hi ' + (r.renter_name || 'there') + ',\\n\\nIt looks like your rental items are overdue. They were due back on ' + (r.end_date || '') + '. Please arrange to return them as soon as possible to avoid late fees.\\n\\nThanks,\\nRental Team';\n  }\n  out.push({ json: { to: r.renter_email || '', subject: subject, body: body, booking_id: r.booking_id || '', action: action } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f4ba23a7-e283-4a1b-82ad-71c10f17ee39",
+      "name": "Send Booking Reminders",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1344,
+        1213.5
+      ],
+      "webhookId": "b3aedd2f-9aeb-4903-8d48-390ecb380271",
+      "parameters": {
+        "sendTo": "={{ $json.to }}",
+        "message": "={{ $json.body }}",
+        "options": {},
+        "subject": "={{ $json.subject }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2d408014-e154-466b-aa65-e0b5d2b22dec",
+      "name": "Build Reminder Stats",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1568,
+        1213.5
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all().map(i => i.json);\nlet pickups = 0, returns = 0, late = 0;\nfor (const r of items) {\n  if (r.action === 'pickup') pickups++;\n  else if (r.action === 'return') returns++;\n  else if (r.action === 'late') late++;\n}\nreturn [{ json: { reminder_count: items.length, pickups: pickups, returns: returns, late: late,\n  summary: pickups + ' pickup reminders, ' + returns + ' return reminders, ' + late + ' late notices' } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9f549698-3e61-407c-8ef3-c9beb9984bb1",
+      "name": "Post Sweep Summary on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1792,
+        1213.5
+      ],
+      "webhookId": "70b1f985-1751-4797-a217-d34a9719fece",
+      "parameters": {
+        "content": "={{ 'Daily rental sweep: ' + $json.summary + ' (total ' + $json.reminder_count + ' reminder emails sent).' }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "becaac05-e086-4b8c-a9b0-117e631ca008",
+      "name": "Post All Clear on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        896,
+        1021.5
+      ],
+      "webhookId": "62198d0c-062c-427a-abf7-f1419707d736",
+      "parameters": {
+        "content": "Daily rental sweep: no pickups, returns or late items due today. All clear.",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "79a4c738-8111-419e-997d-1a38fb43d60a",
+      "name": "When Booking Request Received",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        -288
+      ],
+      "webhookId": "e0a1515e-c1f8-4b00-89b7-496b790b308a",
+      "parameters": {
+        "path": "rental/intake",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "63bb12e9-a1bd-4424-be9f-540f1d072ef4",
+      "name": "Normalize Booking Request",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        -288
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "booking_id",
+              "type": "string",
+              "value": "={{ 'RB-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,6).toUpperCase() }}"
+            },
+            {
+              "id": "b2",
+              "name": "renter_name",
+              "type": "string",
+              "value": "={{ ($json.body.renter_name || '').trim() }}"
+            },
+            {
+              "id": "b3",
+              "name": "renter_email",
+              "type": "string",
+              "value": "={{ ($json.body.renter_email || '').trim().toLowerCase() }}"
+            },
+            {
+              "id": "b4",
+              "name": "items",
+              "type": "string",
+              "value": "={{ ($json.body.items || '').split(',').map(i=>i.trim()).filter(i=>i).join(', ') }}"
+            },
+            {
+              "id": "b5",
+              "name": "start_date",
+              "type": "string",
+              "value": "={{ ($json.body.start_date || '').trim() }}"
+            },
+            {
+              "id": "b6",
+              "name": "end_date",
+              "type": "string",
+              "value": "={{ ($json.body.end_date || '').trim() }}"
+            },
+            {
+              "id": "b7",
+              "name": "notes",
+              "type": "string",
+              "value": "={{ $json.body.notes || '' }}"
+            },
+            {
+              "id": "b8",
+              "name": "total_qty",
+              "type": "number",
+              "value": "={{ ($json.body.items || '').split(',').map(i=>i.trim()).filter(i=>i).length }}"
+            },
+            {
+              "id": "b9",
+              "name": "created_at",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "b10",
+              "name": "status",
+              "type": "string",
+              "value": "pending"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "edf9a3ac-43c8-43f4-8e4f-0fcf43c264c2",
+      "name": "Validate Booking Request",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        448,
+        -288
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "v1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.renter_name }}",
+              "rightValue": ""
+            },
+            {
+              "id": "v2",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.renter_email }}",
+              "rightValue": ""
+            },
+            {
+              "id": "v3",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.items }}",
+              "rightValue": ""
+            },
+            {
+              "id": "v4",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.start_date }}",
+              "rightValue": ""
+            },
+            {
+              "id": "v5",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.end_date }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ae5164a-528a-4b9d-a95c-224775e67fdd",
+      "name": "Alert Invalid Booking on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        736,
+        -144
+      ],
+      "webhookId": "dc948849-95c0-4832-bc5a-d841c1f1adb4",
+      "parameters": {
+        "content": "={{ 'Invalid rental booking request rejected. Renter: ' + $json.renter_name + ' | Email: ' + $json.renter_email + '. Required fields are missing, check the webhook payload.' }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "08a89d43-c6f9-43ad-a2a4-675310e2533f",
+      "name": "Email Invalid Booking Notice",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1024,
+        -144
+      ],
+      "webhookId": "6acbd1bd-4753-45eb-91e6-8b083a19014b",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ 'A rental booking request could not be processed because required fields are missing.\\n\\nRenter: ' + $('Normalize Booking Request').item.json.renter_name + '\\nEmail: ' + $('Normalize Booking Request').item.json.renter_email + '\\nItems: ' + $('Normalize Booking Request').item.json.items + '\\nStart: ' + $('Normalize Booking Request').item.json.start_date + '\\nEnd: ' + $('Normalize Booking Request').item.json.end_date + '\\nReceived: ' + $('Normalize Booking Request').item.json.created_at }}",
+        "options": {},
+        "subject": "Invalid rental booking request",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ba209a28-ce27-4173-bf57-813290f54898",
+      "name": "AI Availability Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        672,
+        -544
+      ],
+      "parameters": {
+        "text": "={{ 'Check availability for this rental request. Renter: ' + $json.renter_name + '. Items requested: ' + $json.items + '. Rental period: ' + $json.start_date + ' to ' + $json.end_date + '. Use the Rental Inventory Tool to read the inventory sheet with columns item_name, category, total_qty, booked_qty, daily_rate, condition. For each requested item find its row and compute available_qty = total_qty - booked_qty. Assume one unit per item unless a quantity is written like DSLR Camera Kit x2. Decide: all requested items available -> availability available; some available -> partial; none available -> conflict. Then draft a short friendly message to the renter and a one line staff summary. Return ONLY valid JSON with no code fences: {availability: string, message: string, summary: string}' }}",
+        "options": {
+          "systemMessage": "You are a rental operations assistant for an equipment rental company that rents cameras, audio gear and event equipment. Be clear, practical and friendly. Dates are ISO dates. Keep the renter message under 120 words. No markdown, no emojis."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "d1ef0456-113d-4799-9bda-694eff43b0b0",
+      "name": "DeepSeek Booking Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        680,
+        -312
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "deepseek-v4-flash",
+          "cachedResultName": "deepseek-v4-flash"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "opencode km@gm"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "32e3b08c-0969-4df8-8e05-4566694e7e76",
+      "name": "Rental Inventory Tool",
+      "type": "n8n-nodes-base.googleSheetsTool",
+      "position": [
+        808,
+        -312
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Inventory"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        },
+        "descriptionType": "manual",
+        "toolDescription": "Rental equipment inventory with item name, category, total quantity, booked quantity, daily rate and condition. Use this to check availability for rental requests."
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "45af0d65-a04d-47ec-aba4-a51b23a8cf32",
+      "name": "Parse Availability Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1024,
+        -432
+      ],
+      "parameters": {
+        "jsCode": "const inp = $('Normalize Booking Request').item.json;\nconst agentOut = $input.first().json;\nlet out = {};\ntry {\n  out = JSON.parse(String(agentOut.output || '{}').replace(/```json\\s*/g, '').replace(/```/g, ''));\n} catch (e) { out = {}; }\nconst availability = String(out.availability || 'conflict');\nreturn [{ json: {\n  booking_id: inp.booking_id || '',\n  renter_name: inp.renter_name || '',\n  renter_email: inp.renter_email || '',\n  items: inp.items || '',\n  start_date: inp.start_date || '',\n  end_date: inp.end_date || '',\n  total_qty: inp.total_qty || 0,\n  created_at: inp.created_at || '',\n  availability: availability,\n  status: availability === 'available' ? 'confirmed' : 'conflict',\n  message: String(out.message || 'We will review your rental request and get back to you.'),\n  summary: String(out.summary || 'Booking request received.'),\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b19b71b0-eb47-406b-a63e-888dcd240774",
+      "name": "If Booking Available",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1248,
+        -432
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.availability }}",
+              "rightValue": "available"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d17ae348-4bde-45d0-9668-d9e78278227d",
+      "name": "Append Booking to Bookings",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1472,
+        -528
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "items": "={{ $json.items }}",
+            "status": "={{ $json.status }}",
+            "end_date": "={{ $json.end_date }}",
+            "total_qty": "={{ $json.total_qty }}",
+            "booking_id": "={{ $json.booking_id }}",
+            "created_at": "={{ $json.created_at }}",
+            "start_date": "={{ $json.start_date }}",
+            "renter_name": "={{ $json.renter_name }}",
+            "availability": "={{ $json.availability }}",
+            "renter_email": "={{ $json.renter_email }}"
+          },
+          "schema": [
+            {
+              "id": "booking_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "booking_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "renter_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "renter_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "renter_email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "renter_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "items",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "items",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "start_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "end_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_qty",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "total_qty",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "availability",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "availability",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Bookings"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "b7d268ec-1e0f-4abf-a5d4-ff237389066d",
+      "name": "Alert New Rental on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1696,
+        -528
+      ],
+      "webhookId": "1040fe6e-cb0f-4616-a10f-8e3583db4322",
+      "parameters": {
+        "content": "={{ 'New rental confirmed: ' + $('Parse Availability Result').item.json.renter_name + ' | ' + $('Parse Availability Result').item.json.items + ' | ' + $('Parse Availability Result').item.json.start_date + ' to ' + $('Parse Availability Result').item.json.end_date + ' | ' + $('Parse Availability Result').item.json.summary }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0a151eab-e015-4ba3-aef6-61df3974adec",
+      "name": "Email Confirmation to Renter",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1920,
+        -528
+      ],
+      "webhookId": "e783af28-89d6-4012-ba82-be23bd856450",
+      "parameters": {
+        "sendTo": "={{ $('Parse Availability Result').item.json.renter_email }}",
+        "message": "={{ $('Parse Availability Result').item.json.message + '\\n\\nBooking ID: ' + $('Parse Availability Result').item.json.booking_id + '\\nRental period: ' + $('Parse Availability Result').item.json.start_date + ' to ' + $('Parse Availability Result').item.json.end_date }}",
+        "options": {},
+        "subject": "={{ 'Rental confirmed: ' + $('Parse Availability Result').item.json.items }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "295cc297-efaa-4aae-bea9-e5b8110b5085",
+      "name": "Append Conflict to Bookings",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1472,
+        -336
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "items": "={{ $json.items }}",
+            "status": "conflict",
+            "end_date": "={{ $json.end_date }}",
+            "total_qty": "={{ $json.total_qty }}",
+            "booking_id": "={{ $json.booking_id }}",
+            "created_at": "={{ $json.created_at }}",
+            "start_date": "={{ $json.start_date }}",
+            "renter_name": "={{ $json.renter_name }}",
+            "availability": "={{ $json.availability }}",
+            "renter_email": "={{ $json.renter_email }}"
+          },
+          "schema": [
+            {
+              "id": "booking_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "booking_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "renter_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "renter_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "renter_email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "renter_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "items",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "items",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "start_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "start_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "end_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "end_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_qty",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "total_qty",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "availability",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "availability",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Bookings"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "58e4c971-e0f8-4163-932b-226ba565def0",
+      "name": "Email Availability Update to Renter",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1696,
+        -336
+      ],
+      "webhookId": "e0e889e1-2041-4f3b-9e22-b2f837179448",
+      "parameters": {
+        "sendTo": "={{ $('Parse Availability Result').item.json.renter_email }}",
+        "message": "={{ $('Parse Availability Result').item.json.message + '\\n\\nBooking ID: ' + $('Parse Availability Result').item.json.booking_id }}",
+        "options": {},
+        "subject": "={{ 'Rental availability update: ' + $('Parse Availability Result').item.json.items }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "35e1ff44-33f6-49ca-be19-c0a7af4a04c5",
+      "name": "Alert Booking Conflict on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1920,
+        -336
+      ],
+      "webhookId": "ea9abe0a-2d66-4fb7-a6eb-821f72ebb6bf",
+      "parameters": {
+        "content": "={{ 'Rental availability conflict for ' + $('Parse Availability Result').item.json.renter_name + ' | ' + $('Parse Availability Result').item.json.items + ' | ' + $('Parse Availability Result').item.json.summary + ' Call the renter to arrange alternatives.' }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6a78e6ba-1a7c-44cd-8c9b-bac043f54c5c",
+      "name": "When Return Reported",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        526.75
+      ],
+      "webhookId": "2bad03c1-c2c6-4d3c-8ce1-2b21c02afc10",
+      "parameters": {
+        "path": "rental/return",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "653a0f65-aec0-4234-a9b8-ce84a796c793",
+      "name": "Normalize Return",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        526.75
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "r1",
+              "name": "return_id",
+              "type": "string",
+              "value": "={{ 'RT-' + Date.now().toString(36).toUpperCase() + Math.random().toString(36).slice(2,6).toUpperCase() }}"
+            },
+            {
+              "id": "r2",
+              "name": "booking_id",
+              "type": "string",
+              "value": "={{ ($json.body.booking_id || '').trim() }}"
+            },
+            {
+              "id": "r3",
+              "name": "renter_email",
+              "type": "string",
+              "value": "={{ ($json.body.renter_email || '').trim().toLowerCase() }}"
+            },
+            {
+              "id": "r4",
+              "name": "item_name",
+              "type": "string",
+              "value": "={{ ($json.body.item_name || '').trim() }}"
+            },
+            {
+              "id": "r5",
+              "name": "condition",
+              "type": "string",
+              "value": "={{ ($json.body.condition || 'good').trim().toLowerCase() }}"
+            },
+            {
+              "id": "r6",
+              "name": "notes",
+              "type": "string",
+              "value": "={{ $json.body.notes || '' }}"
+            },
+            {
+              "id": "r7",
+              "name": "returned_date",
+              "type": "string",
+              "value": "={{ $now.toISO().slice(0,10) }}"
+            },
+            {
+              "id": "r8",
+              "name": "status",
+              "type": "string",
+              "value": "logged"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "cbee3dac-899f-4850-b768-95ebd50a720d",
+      "name": "Validate Return",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        448,
+        526.75
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "vr1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.booking_id }}",
+              "rightValue": ""
+            },
+            {
+              "id": "vr2",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.item_name }}",
+              "rightValue": ""
+            },
+            {
+              "id": "vr3",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.renter_email }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b97e21e1-f9ec-4d50-8f38-ce3188acff54",
+      "name": "Alert Invalid Return on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        672,
+        622.75
+      ],
+      "webhookId": "cf4cf9c8-8b8e-4252-baa5-8a3293f4061b",
+      "parameters": {
+        "content": "={{ 'Invalid return report rejected. Booking: ' + $json.booking_id + ' | Item: ' + $json.item_name + '. Required fields are missing, check the webhook payload.' }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e70459d6-4abd-46ca-98b2-1b739b590b93",
+      "name": "Email Invalid Return Notice",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        896,
+        622.75
+      ],
+      "webhookId": "0812d5b8-e245-4867-b5fb-f98d1f85c381",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ 'A return report could not be processed because required fields are missing.\\n\\nBooking: ' + $('Normalize Return').item.json.booking_id + '\\nItem: ' + $('Normalize Return').item.json.item_name + '\\nRenter email: ' + $('Normalize Return').item.json.renter_email + '\\nReceived: ' + $('Normalize Return').item.json.returned_date }}",
+        "options": {},
+        "subject": "Invalid rental return report",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "afdc792b-ab63-4d19-8dc0-c9bc8430de42",
+      "name": "Log Return to ReturnsLog",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        672,
+        430.75
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "logged",
+            "condition": "={{ $json.condition }}",
+            "item_name": "={{ $json.item_name }}",
+            "return_id": "={{ $json.return_id }}",
+            "booking_id": "={{ $json.booking_id }}",
+            "deposit_note": "",
+            "returned_date": "={{ $json.returned_date }}"
+          },
+          "schema": [
+            {
+              "id": "return_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "return_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "booking_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "booking_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "item_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "item_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "returned_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "returned_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "condition",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "condition",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "deposit_note",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "deposit_note",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "ReturnsLog"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "c675fd3f-4755-41e9-8571-7e47651bb85e",
+      "name": "Read Inventory All",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        896,
+        430.75
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Inventory"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "01ce6bed-f75d-4283-8aea-f2d5f24e1fa8",
+      "name": "Match Inventory Item",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        430.75
+      ],
+      "parameters": {
+        "jsCode": "const ret = $('Normalize Return').item.json;\nconst rows = $input.all().map(i => i.json);\nconst wanted = String(ret.item_name || '').trim().toLowerCase();\nlet match = null;\nfor (const r of rows) {\n  if (String(r.item_name || '').trim().toLowerCase() === wanted) { match = r; break; }\n}\nif (match) {\n  const booked = Number(match.booked_qty || 0);\n  const condition = String(ret.condition || 'good');\n  return [{ json: {\n    return_id: ret.return_id || '',\n    booking_id: ret.booking_id || '',\n    renter_email: ret.renter_email || '',\n    item_name: String(match.item_name || ''),\n    returned_date: ret.returned_date || '',\n    notes: String(ret.notes || ''),\n    condition: condition,\n    deposit_note: (condition !== 'good' && condition !== '') ? ('Deposit review needed for ' + match.item_name + ' (' + condition + ')') : '',\n    damage_alert: (condition === 'damaged' || condition === 'missing'),\n    booked_qty: booked,\n    new_booked_qty: Math.max(0, booked - 1),\n    found: true,\n  } }];\n}\nreturn [{ json: {\n  return_id: ret.return_id || '',\n  booking_id: ret.booking_id || '',\n  renter_email: ret.renter_email || '',\n  item_name: ret.item_name || '',\n  returned_date: ret.returned_date || '',\n  notes: ret.notes || '',\n  condition: String(ret.condition || ''),\n  found: false,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "64752b96-5b24-4c58-889d-2e28360da0df",
+      "name": "If Inventory Item Found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1344,
+        430.75
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e2801893-02a4-48e8-aa8f-0c595eb67127",
+      "name": "Prepare Inventory Update",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1568,
+        334.75
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "u1",
+              "name": "item_name",
+              "type": "string",
+              "value": "={{ $json.item_name }}"
+            },
+            {
+              "id": "u2",
+              "name": "booked_qty",
+              "type": "number",
+              "value": "={{ $json.new_booked_qty }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.3
+    },
+    {
+      "id": "4b6f9a18-45bb-4305-ba41-37714cf903ec",
+      "name": "Update Booked Quantity",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1792,
+        334.75
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "item_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "item_name",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "booked_qty",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "booked_qty",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "item_name"
+          ]
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Inventory"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "0202c531-5d2d-4da4-98fe-b9350750c54e",
+      "name": "If Item Damaged",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2016,
+        334.75
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "dm1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('Match Inventory Item').item.json.damage_alert }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c9557ab2-e422-4ccd-a01c-9cac2b4d7291",
+      "name": "Alert Damaged Item on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        2240,
+        254.75
+      ],
+      "webhookId": "8e021797-8926-4fd2-ac13-8bf54f491935",
+      "parameters": {
+        "content": "={{ 'Damaged or missing rental item: ' + $('Match Inventory Item').item.json.item_name + ' | Booking: ' + $('Match Inventory Item').item.json.booking_id + ' | Condition: ' + $('Match Inventory Item').item.json.condition + ' | ' + $('Match Inventory Item').item.json.deposit_note }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "69318436-e75b-48f3-9db7-394ff7223b39",
+      "name": "Email Damage Report",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2464,
+        254.75
+      ],
+      "webhookId": "af0474b1-df96-417d-9756-cdf4a4d09413",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ 'A rental item came back damaged or missing.\\n\\nItem: ' + $('Match Inventory Item').item.json.item_name + '\\nBooking: ' + $('Match Inventory Item').item.json.booking_id + '\\nCondition: ' + $('Match Inventory Item').item.json.condition + '\\nNotes: ' + $('Match Inventory Item').item.json.notes + '\\n\\n' + $('Match Inventory Item').item.json.deposit_note }}",
+        "options": {},
+        "subject": "={{ 'Damaged rental item: ' + $('Match Inventory Item').item.json.item_name }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ea8baa93-7b83-4d1c-b6ea-805cc98dc5d1",
+      "name": "Email Return Confirmation",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2688,
+        334.75
+      ],
+      "webhookId": "020d3ec0-1f1b-4c05-884e-9cc2b38d902f",
+      "parameters": {
+        "sendTo": "={{ $('Match Inventory Item').item.json.renter_email }}",
+        "message": "={{ 'Hi there,\\n\\nThanks for returning your rental item. It is logged as returned.\\n\\nItem: ' + $('Match Inventory Item').item.json.item_name + '\\nBooking: ' + $('Match Inventory Item').item.json.booking_id + '\\nCondition: ' + $('Match Inventory Item').item.json.condition + ($('Match Inventory Item').item.json.deposit_note ? ('\\n\\n' + $('Match Inventory Item').item.json.deposit_note) : '\\n\\nAll looks good.\\n\\nThanks,\\nRental Team') }}",
+        "options": {},
+        "subject": "={{ 'Return confirmed: ' + $('Match Inventory Item').item.json.item_name }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "130b21d9-0686-4f03-aac9-97684a4197c5",
+      "name": "Alert Return Logged on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        2912,
+        334.75
+      ],
+      "webhookId": "9c36d51d-2473-45b2-9e3e-c0c753ab523a",
+      "parameters": {
+        "content": "={{ 'Rental return logged: ' + $('Match Inventory Item').item.json.item_name + ' | Booking: ' + $('Match Inventory Item').item.json.booking_id + ' | Condition: ' + $('Match Inventory Item').item.json.condition }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "524bc1a9-9827-4b1d-8b7d-9ef9c40c797d",
+      "name": "Alert Unknown Item on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1568,
+        526.75
+      ],
+      "webhookId": "01e98606-d27f-460f-ba42-838362897276",
+      "parameters": {
+        "content": "={{ 'Return report references an item not in the Inventory sheet: ' + $json.item_name + ' | Booking: ' + $json.booking_id }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "162ee485-c668-4ac1-85ec-5f00a39c277f",
+      "name": "Email Unknown Item Notice",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1792,
+        526.75
+      ],
+      "webhookId": "6d4b05af-8331-4400-9a2a-bec3b6eef28f",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ 'A return report references an item that is not in the Inventory sheet.\\n\\nItem: ' + $('Match Inventory Item').item.json.item_name + '\\nBooking: ' + $('Match Inventory Item').item.json.booking_id + '\\nRenter email: ' + $('Match Inventory Item').item.json.renter_email + '\\nReturned: ' + $('Match Inventory Item').item.json.returned_date }}",
+        "options": {},
+        "subject": "Unknown item in rental return report",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0043e18c-fc0a-4b06-9d3a-d6644528bd4e",
+      "name": "Weekly Digest Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        1612.25
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4d3f7d8c-1b05-47cb-a50e-0ece4b579d43",
+      "name": "Read Bookings for Digest",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        224,
+        1612.25
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Bookings"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "1eaac3d0-000b-4fa8-8cc2-c606198da64d",
+      "name": "Read Returns for Digest",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        448,
+        1612.25
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "ReturnsLog"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1dgL7nvpf0Lexunlu_GoEm5XDNsUhZoWXeKjpYAJQRyg"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Feedback Analyzer Sheets"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "498b3946-7f5e-48c0-a67e-7991c7b5e789",
+      "name": "Compute Digest Stats",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        672,
+        1612.25
+      ],
+      "parameters": {
+        "jsCode": "const bookings = $('Read Bookings for Digest').all().map(i => i.json);\nconst returns = $('Read Returns for Digest').all().map(i => i.json);\nconst today = new Date();\nconst dayStart = new Date(Date.UTC(today.getUTCFullYear(), today.getUTCMonth(), today.getUTCDate())).getTime();\nconst MS = 86400000;\nfunction dayDiff(dateStr) {\n  if (!dateStr) return null;\n  const d = new Date(String(dateStr).slice(0,10) + 'T00:00:00Z').getTime();\n  return Math.round((d - dayStart) / MS);\n}\nconst active = bookings.filter(r => String(r.status || '') === 'confirmed');\nconst conflicts = bookings.filter(r => String(r.status || '') === 'conflict');\nconst late = active.filter(r => { const e = dayDiff(r.end_date); return e !== null && e < 0; });\nconst upcoming = active.filter(r => { const s = dayDiff(r.start_date); return s !== null && s >= 0 && s <= 7; });\nconst itemCounts = {};\nfor (const b of bookings) {\n  const parts = String(b.items || '').split(',').map(s => s.trim()).filter(Boolean);\n  for (const p of parts) { itemCounts[p] = (itemCounts[p] || 0) + 1; }\n}\nconst topItems = Object.entries(itemCounts).sort((a, b) => b[1] - a[1]).slice(0, 3).map(e => e[0] + ' x' + e[1]).join(', ') || 'none';\nreturn [{ json: {\n  total_bookings: bookings.length,\n  active_count: active.length,\n  conflict_count: conflicts.length,\n  returned_count: returns.length,\n  late_count: late.length,\n  upcoming_count: upcoming.length,\n  top_items: topItems,\n  digest_date: new Date().toISOString().slice(0, 10),\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e21c02d5-8a71-448d-9363-549afecf4a02",
+      "name": "AI Digest Writer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        896,
+        1612.25
+      ],
+      "parameters": {
+        "text": "={{ 'Write a short weekly digest for the owner of a rental equipment business. Stats: total bookings ' + $json.total_bookings + ', active rentals ' + $json.active_count + ', booking conflicts ' + $json.conflict_count + ', items returned ' + $json.returned_count + ', late rentals ' + $json.late_count + ', upcoming pickups in 7 days ' + $json.upcoming_count + ', most booked items ' + $json.top_items + '. Start with one summary line, then 2 to 4 bullets on what needs attention, then one next step. Plain text only, no markdown.' }}",
+        "options": {
+          "systemMessage": "You are a rental operations assistant writing a short weekly digest for a small equipment rental company. Be concise, practical and specific. Plain text only, no markdown, no emojis."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "4d012188-bcbd-41b5-85ec-22159bb82516",
+      "name": "DeepSeek Digest Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        968,
+        1844.25
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "deepseek-v4-flash",
+          "cachedResultName": "deepseek-v4-flash"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "opencode km@gm"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "f02fdd79-b67c-42fb-aa5e-4ffcef254096",
+      "name": "Parse Digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1248,
+        1612.25
+      ],
+      "parameters": {
+        "jsCode": "const inp = $input.first().json;\nconst stats = $('Compute Digest Stats').item.json;\nlet digest = String(inp.output || '');\ndigest = digest.replace(/```\\w*\\s*/g, '').trim();\nreturn [{ json: Object.assign({}, stats, { digest: digest }) }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "55527021-9c45-4994-b8a6-c604feb70fe2",
+      "name": "Email Weekly Digest",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1472,
+        1612.25
+      ],
+      "webhookId": "018eebb9-0412-4300-a758-b61f12be0b84",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ 'Weekly rental equipment digest\\n\\nTotal bookings: ' + $json.total_bookings + '\\nActive rentals: ' + $json.active_count + '\\nBooking conflicts: ' + $json.conflict_count + '\\nItems returned: ' + $json.returned_count + '\\nLate rentals: ' + $json.late_count + '\\nUpcoming pickups in 7 days: ' + $json.upcoming_count + '\\nMost booked items: ' + $json.top_items + '\\n\\n' + $json.digest }}",
+        "options": {},
+        "subject": "Weekly rental equipment digest",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1c3c85d9-3070-41ae-9fc0-5719bbbbfd31",
+      "name": "Post Weekly Digest on Discord",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1696,
+        1612.25
+      ],
+      "webhookId": "ad313343-627e-4b4e-bb74-f5cbbbe6328e",
+      "parameters": {
+        "content": "={{ 'Weekly rental digest | Bookings: ' + $json.total_bookings + ' | Active: ' + $json.active_count + ' | Conflicts: ' + $json.conflict_count + ' | Late: ' + $json.late_count + '\\n\\n' + $json.digest }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061244454965312",
+          "cachedResultName": "Jakserver"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1409061827827994645",
+          "cachedResultName": "form-contact"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Brands Bot"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sn-552-0",
+      "name": "Sticky Note: Booking requests",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -692.75
+      ],
+      "parameters": {
+        "color": "7",
+        "width": 2240,
+        "height": 728.75,
+        "content": "## Booking requests and AI availability check\n\nA webhook request is validated, then a DeepSeek agent checks the inventory sheet for the requested dates. Confirmed and conflicting bookings are logged, emailed to the renter and posted on Discord."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sn-552-1",
+      "name": "Sticky Note: Returns",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        106
+      ],
+      "parameters": {
+        "color": "7",
+        "width": 3232,
+        "height": 696.75,
+        "content": "## Returns and inventory updates\n\nA return is logged to the ReturnsLog tab, the item is matched in the Inventory tab and its booked quantity is released. Damaged, missing or unknown items alert the team and the owner."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sn-552-2",
+      "name": "Sticky Note: Daily sweep",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        872.75
+      ],
+      "parameters": {
+        "color": "7",
+        "width": 2112,
+        "height": 520.75,
+        "content": "## Daily operations sweep\n\nEvery morning confirmed bookings are checked for pickups due tomorrow, returns due today and late rentals, then reminders are emailed and a summary or all clear is posted on Discord."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sn-552-3",
+      "name": "Sticky Note: Weekly digest",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        1463.5
+      ],
+      "parameters": {
+        "color": "7",
+        "width": 2016,
+        "height": 560.75,
+        "content": "## Weekly operations digest\n\nEvery Monday booking, conflict, return and late stats are computed, DeepSeek drafts the digest, and it is emailed and posted on Discord."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sn-main-552",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -710,
+        -692.75
+      ],
+      "parameters": {
+        "width": 590,
+        "height": 700,
+        "content": "## Manage rental equipment bookings and returns with DeepSeek, Google Sheets, Gmail and Discord\n\n### How it works\n\n1. A booking request arrives on a webhook and is validated.\n2. A DeepSeek agent reads the Inventory sheet and checks what is free for the requested dates, then drafts the renter message.\n3. Confirmed and conflicting bookings are written to the Bookings tab, the renter is emailed and the team is alerted on Discord.\n4. A return report arrives on a webhook, is logged to the ReturnsLog tab, and the item's booked quantity is released in the Inventory tab.\n5. Damaged, missing or unknown items raise a Discord alert and an email to the owner.\n6. Every morning a sweep emails pickup and return reminders, and every Monday a digest with booking, conflict, return and late stats is emailed and posted on Discord.\n\n### Setup steps\n\n- [ ] Create a Google Sheet with Inventory, Bookings and ReturnsLog tabs using the column headers from the workflow nodes\n- [ ] Connect Google Sheets, Gmail and Discord credentials\n- [ ] Replace the placeholder owner and staff email addresses with your own\n- [ ] Point the rental/intake and rental/return webhooks at your booking form or app\n- [ ] Set the daily sweep and Monday digest schedules to times that fit your operation\n\n### Customization\n\nAdd fields such as a deposit or storage location to the Inventory tab, change the reminder wording, or route the alerts to Slack or Telegram instead of Discord."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "Asia/Jakarta",
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "b08ce0c3-04d1-487b-ae51-90a6857b2508",
+  "nodeGroups": [],
+  "connections": {
+    "Parse Digest": {
+      "main": [
+        [
+          {
+            "node": "Email Weekly Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Item Damaged": {
+      "main": [
+        [
+          {
+            "node": "Alert Damaged Item on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Return Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Return": {
+      "main": [
+        [
+          {
+            "node": "Log Return to ReturnsLog",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Invalid Return on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Digest Writer": {
+      "main": [
+        [
+          {
+            "node": "Parse Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Return": {
+      "main": [
+        [
+          {
+            "node": "Validate Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Any Due Actions": {
+      "main": [
+        [
+          {
+            "node": "Split Out Due Items",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post All Clear on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Inventory All": {
+      "main": [
+        [
+          {
+            "node": "Match Inventory Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Due Actions": {
+      "main": [
+        [
+          {
+            "node": "If Any Due Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Damage Report": {
+      "main": [
+        [
+          {
+            "node": "Email Return Confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Weekly Digest": {
+      "main": [
+        [
+          {
+            "node": "Post Weekly Digest on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Due Items": {
+      "main": [
+        [
+          {
+            "node": "Build Reminder Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reminder Stats": {
+      "main": [
+        [
+          {
+            "node": "Post Sweep Summary on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Digest Stats": {
+      "main": [
+        [
+          {
+            "node": "AI Digest Writer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Booking Available": {
+      "main": [
+        [
+          {
+            "node": "Append Booking to Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append Conflict to Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Inventory Item": {
+      "main": [
+        [
+          {
+            "node": "If Inventory Item Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Return Reported": {
+      "main": [
+        [
+          {
+            "node": "Normalize Return",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Availability Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse Availability Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Reminder Emails": {
+      "main": [
+        [
+          {
+            "node": "Send Booking Reminders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Digest Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Digest Writer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rental Inventory Tool": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Availability Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Digest Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Bookings for Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Booking Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Availability Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Booking Reminders": {
+      "main": [
+        [
+          {
+            "node": "Build Reminder Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Booked Quantity": {
+      "main": [
+        [
+          {
+            "node": "If Item Damaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Ops Sweep Trigger": {
+      "main": [
+        [
+          {
+            "node": "Read Bookings for Sweep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Inventory Item Found": {
+      "main": [
+        [
+          {
+            "node": "Prepare Inventory Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Unknown Item on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Bookings for Sweep": {
+      "main": [
+        [
+          {
+            "node": "Compute Due Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Returns for Digest": {
+      "main": [
+        [
+          {
+            "node": "Compute Digest Stats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Return to ReturnsLog": {
+      "main": [
+        [
+          {
+            "node": "Read Inventory All",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Inventory Update": {
+      "main": [
+        [
+          {
+            "node": "Update Booked Quantity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Bookings for Digest": {
+      "main": [
+        [
+          {
+            "node": "Read Returns for Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Booking Request": {
+      "main": [
+        [
+          {
+            "node": "AI Availability Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Invalid Booking on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Return Confirmation": {
+      "main": [
+        [
+          {
+            "node": "Alert Return Logged on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Booking Request": {
+      "main": [
+        [
+          {
+            "node": "Validate Booking Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Availability Result": {
+      "main": [
+        [
+          {
+            "node": "If Booking Available",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Booking to Bookings": {
+      "main": [
+        [
+          {
+            "node": "Alert New Rental on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert New Rental on Discord": {
+      "main": [
+        [
+          {
+            "node": "Email Confirmation to Renter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Conflict to Bookings": {
+      "main": [
+        [
+          {
+            "node": "Email Availability Update to Renter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Damaged Item on Discord": {
+      "main": [
+        [
+          {
+            "node": "Email Damage Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Unknown Item on Discord": {
+      "main": [
+        [
+          {
+            "node": "Email Unknown Item Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Booking Request Received": {
+      "main": [
+        [
+          {
+            "node": "Normalize Booking Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Invalid Return on Discord": {
+      "main": [
+        [
+          {
+            "node": "Email Invalid Return Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Invalid Booking on Discord": {
+      "main": [
+        [
+          {
+            "node": "Email Invalid Booking Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Availability Update to Renter": {
+      "main": [
+        [
+          {
+            "node": "Alert Booking Conflict on Discord",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

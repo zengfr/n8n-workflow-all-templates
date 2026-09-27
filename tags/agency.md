@@ -1,4 +1,4 @@
-# agency : 7
+# agency : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |12302|[12302_Generate_LinkedIn_agency_content_with_GPT_4o__Claude_4.5_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12302_Generate_LinkedIn_agency_content_with_GPT_4o__Claude_4.5_and_Gemini.json)|
 |13368|[13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13368_Monitor_agency_profitability_with_Facebook_Ads__Shopify__Stripe__Clockify__Google_Sheets__Slack_and_Gemini.json)|
 |16161|[16161_Create_and_approve_social_posts_with_Google_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16161_Create_and_approve_social_posts_with_Google_Sheets__Slack_and_Gemini.json)|
+|19470|[19470_Draft_and_track_regulatory_digests_from_RSS_feeds_with_Google_Sheets_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19470_Draft_and_track_regulatory_digests_from_RSS_feeds_with_Google_Sheets_and_email.json)|

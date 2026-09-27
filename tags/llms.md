@@ -1,4 +1,4 @@
-# llms : 18
+# llms : 23
 
 |id|file|
 |----|----|
@@ -20,3 +20,8 @@
 |15525|[15525_Generate___Upload_llms.txt_for_websites_GEO_optimization_____with_ScrapegraphAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15525_Generate___Upload_llms.txt_for_websites_GEO_optimization_____with_ScrapegraphAI.json)|
 |16159|[16159_Generate_and_score_MVP_ideas_from_Reddit_with_OpenRouter_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16159_Generate_and_score_MVP_ideas_from_Reddit_with_OpenRouter_LLMs.json)|
 |16554|[16554_Draft_and_review_SEO_WordPress_articles_with_multi-agent_LLMs_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16554_Draft_and_review_SEO_WordPress_articles_with_multi-agent_LLMs_and_Slack.json)|
+|16972|[16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json)|
+|17522|[17522_Triage_Telegram_voice_and_text_support_with_Groq_LLMs_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17522_Triage_Telegram_voice_and_text_support_with_Groq_LLMs_and_Google_Sheets.json)|
+|17685|[17685_Triage_Telegram_voice_and_text_support_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17685_Triage_Telegram_voice_and_text_support_with_Groq_and_Google_Sheets.json)|
+|17744|[17744_Classify_Plex_music_into_smart_playlists_using_Ollama_and_local_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17744_Classify_Plex_music_into_smart_playlists_using_Ollama_and_local_LLMs.json)|
+|18203|[18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json)|

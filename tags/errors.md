@@ -1,4 +1,4 @@
-# errors : 20
+# errors : 24
 
 |id|file|
 |----|----|
@@ -22,3 +22,7 @@
 |15347|[15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json)|
 |15484|[15484_Diagnose_n8n_workflow_errors_with_Claude_AI__Supabase_and_Resend_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15484_Diagnose_n8n_workflow_errors_with_Claude_AI__Supabase_and_Resend_email_alerts.json)|
 |16646|[16646_Classify_workflow_errors_with_Claude_and_deduplicate_Jira_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16646_Classify_workflow_errors_with_Claude_and_deduplicate_Jira_and_Slack_alerts.json)|
+|16862|[16862_Route_workflow_error_incidents_to_Slack_alerts_with_a_Notion_incident_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16862_Route_workflow_error_incidents_to_Slack_alerts_with_a_Notion_incident_log.json)|
+|17041|[17041_Monitor_ride_surge_events_and_analyze_ride_errors_with_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17041_Monitor_ride_surge_events_and_analyze_ride_errors_with_Sheets__Slack_and_Gemini.json)|
+|17183|[17183_Report_workflow_errors_to_Asana_tasks_with_Google_Chat_and_Grok_4.5_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17183_Report_workflow_errors_to_Asana_tasks_with_Google_Chat_and_Grok_4.5_analysis.json)|
+|18122|[18122_Notify_on_workflow_errors_via_Slack_with_Discord_fallback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18122_Notify_on_workflow_errors_via_Slack_with_Discord_fallback.json)|

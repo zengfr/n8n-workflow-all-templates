@@ -1,4 +1,4 @@
-# enrichment : 96
+# enrichment : 107
 
 |id|file|
 |----|----|
@@ -98,3 +98,14 @@
 |16577|[16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json)|
 |16637|[16637_Enrich_CRM_contacts_in_Google_Sheets_with_Tomba_firmographic_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16637_Enrich_CRM_contacts_in_Google_Sheets_with_Tomba_firmographic_data.json)|
 |16723|[16723_Enrich_KlickTipp_contact_fields_using_OpenAI_GPT-5.5_and_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16723_Enrich_KlickTipp_contact_fields_using_OpenAI_GPT-5.5_and_context.json)|
+|16943|[16943_Enrich_Google_Maps_business_leads_with_Scrapeer_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16943_Enrich_Google_Maps_business_leads_with_Scrapeer_and_Google_Sheets.json)|
+|17362|[17362_Enrich_Google_Maps_business_and_lead_data_with_CoreClaw_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17362_Enrich_Google_Maps_business_and_lead_data_with_CoreClaw_and_Google_Sheets.json)|
+|17755|[17755_Enrich_company_data_from_website_URLs_using_TinyFish_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17755_Enrich_company_data_from_website_URLs_using_TinyFish_AI_and_Google_Sheets.json)|
+|18628|[18628_Serve_a_company_enrichment_API_with_Bright_Data_and_OpenAI_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18628_Serve_a_company_enrichment_API_with_Bright_Data_and_OpenAI_GPT-5.6.json)|
+|18735|[18735_Triage_security_alerts_with_AbuseIPDB__VirusTotal__ipinfo.io__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18735_Triage_security_alerts_with_AbuseIPDB__VirusTotal__ipinfo.io__OpenAI__and_Slack.json)|
+|18814|[18814_Qualify_and_route_inbound_leads_with_GPT-5__Google_Sheets__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18814_Qualify_and_route_inbound_leads_with_GPT-5__Google_Sheets__Gmail__and_Slack.json)|
+|18925|[18925_Score_and_route_B2B_leads_with_Google_Gemini__Google_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18925_Score_and_route_B2B_leads_with_Google_Gemini__Google_Sheets__Slack__and_Gmail.json)|
+|19097|[19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json)|
+|19102|[19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json)|
+|19359|[19359_Qualify_Google_Maps_leads_with_ScrapeHero__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19359_Qualify_Google_Maps_leads_with_ScrapeHero__OpenAI__and_Google_Sheets.json)|
+|19377|[19377_Enrich_legal_leads_and_send_attorney_briefings_with_webhooks_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19377_Enrich_legal_leads_and_send_attorney_briefings_with_webhooks_and_Google_Sheets.json)|

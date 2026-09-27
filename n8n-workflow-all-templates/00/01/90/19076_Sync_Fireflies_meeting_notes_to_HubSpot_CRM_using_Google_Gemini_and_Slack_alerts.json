@@ -1,0 +1,986 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Sync Fireflies meeting notes to HubSpot CRM using Google Gemini and Slack alerts",
+    "wechat": "youandme10086",
+    "id": 19076,
+    "update_time": "2026-09-27"
+  },
+  "name": "Sync Fireflies meeting notes to HubSpot CRM with AI",
+  "nodes": [
+    {
+      "id": "df150c0f-b9a5-4aba-95e6-d690e90d6145",
+      "name": "Fireflies Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        32,
+        320
+      ],
+      "parameters": {
+        "path": "fireflies-meeting-completed",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a1b2c3d4-config-set-node-0001",
+      "name": "Workflow Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        144,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-internal-domains",
+              "name": "INTERNAL_EMAIL_DOMAINS",
+              "type": "string",
+              "value": "yourcompany.com"
+            },
+            {
+              "id": "cfg-unknown-action",
+              "name": "UNKNOWN_CONTACT_ACTION",
+              "type": "string",
+              "value": "skip"
+            },
+            {
+              "id": "cfg-slack-channel",
+              "name": "SLACK_CHANNEL",
+              "type": "string",
+              "value": "general"
+            },
+            {
+              "id": "cfg-ai-model",
+              "name": "AI_MODEL",
+              "type": "string",
+              "value": "gemini-3.1-flash-lite"
+            },
+            {
+              "id": "cfg-company-update",
+              "name": "CREATE_COMPANY_UPDATE",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "cfg-deal-update",
+              "name": "CREATE_DEAL_UPDATE",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "cfg-followup-task",
+              "name": "CREATE_FOLLOWUP_TASK",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "cfg-slack-alert",
+              "name": "SEND_SLACK_ALERT",
+              "type": "boolean",
+              "value": false
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "11141a7a-2124-4a0f-94a1-69f077c3973e",
+      "name": "Get Meeting Details",
+      "type": "n8n-nodes-base.graphql",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        272,
+        320
+      ],
+      "parameters": {
+        "query": "query Transcript($transcriptId: String!) { transcript(id: $transcriptId) { id title date duration transcript_url meeting_link meeting_attendees { displayName email name } sentences { speaker_name text } } }",
+        "endpoint": "https://api.fireflies.ai/graphql",
+        "variables": "={{ JSON.stringify({ transcriptId: $json.body?.meetingId ?? $json.body?.meeting_id ?? $json.meetingId ?? $json.meeting_id ?? $json.id ?? '' }) }}",
+        "operationName": "Transcript",
+        "authentication": "headerAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.1,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "ae8a6c5c-b9bb-4068-86a8-f792919447d4",
+      "name": "Validate & Normalize Meeting",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        448,
+        320
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData(\"global\");\nif (!staticData.processedMeetings) { staticData.processedMeetings = {}; }\nif (!staticData.skipLog) { staticData.skipLog = []; }\nif (!staticData.metrics) { staticData.metrics = {}; }\nstaticData.crmWritesAttempted = false;\nstaticData.crmWriteFailed = false;\nstaticData.artifactOnce = {};\nstaticData.analysisCache = staticData.analysisCache || {};\nstaticData.participantsCompleted = 0;\nstaticData.expectedExternalParticipants = 0;\n\nfunction record(reason, meetingId) {\n  const row = { meeting_id: meetingId || \"\", reason: reason, source: \"fireflies\", recorded_at: $now.toISO() };\n  staticData.lastSkip = row;\n  staticData.skipLog.push(row);\n  if (reason === \"duplicate_meeting\" || reason === \"no_transcript\") {\n    return [{ json: {\n      _ingestion_skip: true,\n      meeting_id: meetingId || \"\",\n      skip_reason: reason,\n      slack_alert_type: \"ingestion_skip\",\n      slack_text: [\n        \"ℹ️ *Fireflies Meeting Ingestion Notice*\",\n        \"• *Meeting ID*: `\" + String(meetingId || \"\") + \"`\",\n        \"• *Status*: Skipped (`\" + reason + \"`)\"\n      ].join(\"\\n\")\n    } }];\n  }\n  return [];\n}\n\nconst wfConfig = $('Workflow Configuration').first().json;\nconst config = {\n  SOURCE: \"fireflies\",\n  AI_MODEL: String(wfConfig.AI_MODEL || \"gemini-3.1-flash-lite\"),\n  UNKNOWN_CONTACT_ACTION: String(wfConfig.UNKNOWN_CONTACT_ACTION || \"skip\"),\n  INTERNAL_EMAIL_DOMAINS: String(wfConfig.INTERNAL_EMAIL_DOMAINS || \"yourcompany.com\"),\n  CREATE_COMPANY_UPDATE: wfConfig.CREATE_COMPANY_UPDATE !== false,\n  CREATE_DEAL_UPDATE: wfConfig.CREATE_DEAL_UPDATE !== false,\n  CREATE_FOLLOWUP_TASK: wfConfig.CREATE_FOLLOWUP_TASK !== false,\n  SEND_SLACK_ALERT: Boolean(wfConfig.SEND_SLACK_ALERT)\n};\n\nconst payload = items[0].json || {};\nlet triggerPayload = {};\ntry { triggerPayload = $(\"Fireflies Trigger\").first().json || {}; } catch (e) { triggerPayload = {}; }\n\nfunction extractTranscript(src) {\n  if (!src || typeof src !== \"object\") { return null; }\n  return (\n    (src.body && src.body.data && src.body.data.transcript) ||\n    (src.data && src.data.transcript) ||\n    (src.body && src.body.transcript) ||\n    ((src.id || src.sentences || src.meeting_attendees) ? src : null)\n  );\n}\n\nconst incomingBody = (payload.body && typeof payload.body === \"object\") ? payload.body : payload;\nconst triggerBody = (triggerPayload.body && typeof triggerPayload.body === \"object\") ? triggerPayload.body : triggerPayload;\nlet transcript = (\n  extractTranscript(incomingBody) ||\n  extractTranscript(payload) ||\n  extractTranscript(triggerBody) ||\n  extractTranscript(triggerPayload)\n);\n\nif (payload.errors && payload.errors.length && !(transcript && transcript.id)) {\n  return record(\"fireflies_error\", payload.data && payload.data.transcript ? payload.data.transcript.id : \"\");\n}\n\nif (!transcript || !String(transcript.id || \"\").trim()) {\n  return record(\"missing_meeting_id\", \"\");\n}\n\nconst sentences = Array.isArray(transcript.sentences) ? transcript.sentences : [];\nconst attendeesRaw = Array.isArray(transcript.meeting_attendees) ? transcript.meeting_attendees : [];\nconst text = sentences.map((row) => String(row.text || \"\").trim()).filter(Boolean).join(\" \");\nif (!text) {\n  return record(\"no_transcript\", String(transcript.id));\n}\nif (!attendeesRaw.length && !sentences.length) {\n  return record(\"invalid_payload\", String(transcript.id));\n}\n\nif (staticData.processedMeetings[transcript.id]) {\n  staticData.metrics.duplicate_meeting = (staticData.metrics.duplicate_meeting || 0) + 1;\n  return record(\"duplicate_meeting\", String(transcript.id));\n}\n\nstaticData.processedMeetings[String(transcript.id)] = {\n  processed_at: $now.toISO(),\n  source: \"fireflies\",\n  status: \"in_progress\"\n};\nstaticData.currentMeetingId = String(transcript.id);\nstaticData.currentSource = \"fireflies\";\ndelete staticData.analysisCache[String(transcript.id)];\n\nconst attendees = attendeesRaw.map((person) => ({\n  name: String(person.displayName || person.name || \"\").trim(),\n  email: String(person.email || person.emailAddress || person.mail || (person.metadata && (person.metadata.email || person.metadata.emailAddress)) || \"\").trim().toLowerCase(),\n  role: \"\"\n}));\n\nconst transcriptText = sentences\n  .map((row) => String(row.speaker_name || \"Speaker\").trim() + \": \" + String(row.text || \"\").trim())\n  .join(\"\\n\");\n\nconst meetingId = String(transcript.id || \"\");\nconst title = String(transcript.title || \"\");\nconst dateIso = transcript.date ? new Date(transcript.date).toISOString() : $now.toISO();\nconst duration = Number(transcript.duration || 0);\nconst transcriptUrl = String(transcript.transcript_url || \"\");\nconst meetingLink = String(transcript.meeting_link || \"\");\n\nconst meeting = {\n  ...config,\n  meeting_id: meetingId,\n  meetingId: meetingId,\n  meeting_title: title,\n  title: title,\n  meeting_date: dateIso,\n  date: dateIso,\n  duration_minutes: duration,\n  duration: duration,\n  transcript_url: transcriptUrl,\n  meeting_link: meetingLink,\n  meeting_url: transcriptUrl || meetingLink,\n  attendees: attendees,\n  participants: attendees,\n  transcript: transcriptText,\n  source: \"fireflies\"\n};\n\nreturn [\"contacts\", \"companies\", \"deals\"].map((objectType) => ({\n  json: { ...meeting, _schemaObject: objectType }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f0191f5f-2322-4344-82dd-1497adeee560",
+      "name": "If Ingestion Skip",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        624,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ing-skip-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._ingestion_skip }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "73d69aa5-7ab0-4d2b-ac7a-7563bb480990",
+      "name": "Slack Ingestion Notice",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        640,
+        544
+      ],
+      "parameters": {
+        "text": "={{ $json.slack_text }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Workflow Configuration').first().json.SLACK_CHANNEL || 'general' }}"
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": true
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "8eec27a7-6198-4c0b-a8cf-ddd6b190af3a",
+      "name": "Fetch HubSpot Properties",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        928,
+        336
+      ],
+      "parameters": {
+        "url": "=https://api.hubapi.com/crm/v3/properties/{{ $json._schemaObject }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3925bb68-8e5b-488d-94cc-b09a3773f740",
+      "name": "Filter Properties & Extract Attendees",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1168,
+        336
+      ],
+      "parameters": {
+        "jsCode": "const base = $(\"Validate & Normalize Meeting\").first().json || {};\nconst meetingBase = Object.assign({}, base);\ndelete meetingBase._schemaObject;\n\nfunction asResults(payload) {\n  if (!payload) { return []; }\n  if (Array.isArray(payload.results)) { return payload.results; }\n  if (Array.isArray(payload)) { return payload; }\n  return [];\n}\n\nconst ALLOWED_GROUPS = {\n  contacts: { contactinformation: true },\n  companies: { companyinformation: true },\n  deals: { dealinformation: true }\n};\n\nfunction isWritable(prop) {\n  if (!prop || !prop.name) { return false; }\n  if (prop.calculated === true) { return false; }\n  if (prop.hidden === true) { return false; }\n  if (prop.archived === true) { return false; }\n  const meta = prop.modificationMetadata || {};\n  if (meta.readOnlyValue === true) { return false; }\n  if (meta.readOnlyDefinition === true && prop.hubspotDefined === true && String(prop.name).indexOf(\"hs_\") === 0) {\n    return false;\n  }\n  const blocked = {\n    hs_object_id: true,\n    hs_all_owner_ids: true,\n    hs_all_team_ids: true,\n    hs_all_accessible_team_ids: true,\n    hs_merged_object_ids: true,\n    associations: true\n  };\n  if (blocked[prop.name]) { return false; }\n  return true;\n}\n\nfunction simplify(prop) {\n  return {\n    name: String(prop.name),\n    label: String(prop.label || prop.name),\n    description: String(prop.description || \"\"),\n    type: String(prop.type || prop.fieldType || \"string\"),\n    groupName: String(prop.groupName || \"\"),\n    hubspotDefined: Boolean(prop.hubspotDefined)\n  };\n}\n\nfunction filterObjectProps(results, objectKey) {\n  const allowedGroups = ALLOWED_GROUPS[objectKey] || {};\n  const writable = results.filter(isWritable).map(simplify);\n  const custom = [];\n  const groupMatched = [];\n  const otherWritable = [];\n  for (const prop of writable) {\n    if (!prop.hubspotDefined) {\n      custom.push(prop);\n    } else if (allowedGroups[prop.groupName]) {\n      groupMatched.push(prop);\n    } else {\n      otherWritable.push(prop);\n    }\n  }\n  const MAX = 80;\n  const ranked = custom.concat(groupMatched).concat(otherWritable);\n  const seen = {};\n  const out = [];\n  for (const prop of ranked) {\n    if (seen[prop.name]) { continue; }\n    seen[prop.name] = true;\n    out.push({\n      name: prop.name,\n      label: prop.label,\n      description: prop.description,\n      type: prop.type\n    });\n    if (out.length >= MAX) { break; }\n  }\n  return out;\n}\n\nfunction inferByPropertyNames(results) {\n  const names = {};\n  for (const prop of results) {\n    if (prop && prop.name) {\n      names[String(prop.name)] = true;\n    }\n  }\n  if (names.email || names.firstname || names.lastname || names.lifecyclestage) {\n    return \"contacts\";\n  }\n  if (names.domain || names.industry || names.numberofemployees || names.annualrevenue) {\n    return \"companies\";\n  }\n  if (names.dealname || names.amount || names.closedate || names.dealstage || names.pipeline) {\n    return \"deals\";\n  }\n  return \"\";\n}\n\nfunction resolveObjectKey(item, index) {\n  if (item && item.json && item.json._schemaObject) {\n    return String(item.json._schemaObject);\n  }\n  try {\n    const p = item && item.pairedItem;\n    const sourceIdx = p && typeof p.item === \"number\" ? p.item : (typeof index === \"number\" ? index : null);\n    if (sourceIdx !== null) {\n      const sourceItems = $(\"Validate & Normalize Meeting\").all();\n      if (sourceItems[sourceIdx] && sourceItems[sourceIdx].json && sourceItems[sourceIdx].json._schemaObject) {\n        return String(sourceItems[sourceIdx].json._schemaObject);\n      }\n    }\n  } catch (e) {}\n  const inferred = inferByPropertyNames(asResults(item && item.json));\n  if (inferred) { return inferred; }\n  return \"\";\n}\n\nconst schemas = { contacts: [], companies: [], deals: [] };\nfor (let i = 0; i < items.length; i++) {\n  const key = resolveObjectKey(items[i], i);\n  if (!key || !schemas[key]) { continue; }\n  schemas[key] = filterObjectProps(asResults(items[i].json), key);\n}\n\nconst meeting = {\n  ...meetingBase,\n  hubspot_schemas: schemas,\n  hubspot_schema_counts: {\n    contacts: schemas.contacts.length,\n    companies: schemas.companies.length,\n    deals: schemas.deals.length\n  }\n};\n\nconst staticData = $getWorkflowStaticData(\"global\");\nif (!staticData.skipLog) { staticData.skipLog = []; }\nconst domains = String(meeting.INTERNAL_EMAIL_DOMAINS || \"\").split(\",\").map((d) => d.trim().toLowerCase()).filter(Boolean);\nconst seenEmail = {};\nconst out = [];\nconst people = Array.isArray(meeting.participants) ? meeting.participants : [];\nfor (const person of people) {\n  const name = String(person.name || \"\").trim();\n  const email = String(person.email || \"\").trim().toLowerCase();\n  if (!email) {\n    staticData.skipLog.push({ meeting_id: meeting.meeting_id, reason: \"no_email\", name: name, recorded_at: $now.toISO() });\n    continue;\n  }\n  if (seenEmail[email]) { continue; }\n  seenEmail[email] = true;\n  const domain = email.split(\"@\")[1] || \"\";\n  if (domains.indexOf(domain) !== -1) {\n    staticData.skipLog.push({ meeting_id: meeting.meeting_id, reason: \"internal_domain\", email: email, recorded_at: $now.toISO() });\n    continue;\n  }\n  out.push({ json: { ...meeting, participant_name: name, participant_email: email } });\n}\nstaticData.expectedExternalParticipants = out.length;\nif (!out.length) {\n  staticData.lastSkip = { meeting_id: meeting.meeting_id, reason: \"no_external_emails\", recorded_at: $now.toISO() };\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ed0e961c-3ac7-4e70-b57f-9d1003333526",
+      "name": "Loop Participants",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1488,
+        336
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "9ea36eb5-fe7f-47cb-a08d-61c575487e24",
+      "name": "Search HubSpot Contact",
+      "type": "n8n-nodes-base.hubspot",
+      "maxTries": 3,
+      "position": [
+        1760,
+        352
+      ],
+      "parameters": {
+        "limit": 1,
+        "operation": "search",
+        "authentication": "appToken",
+        "filterGroupsUi": {
+          "filterGroupsValues": [
+            {
+              "filtersUi": {
+                "filterValues": [
+                  {
+                    "value": "={{ $json.participant_email }}",
+                    "propertyName": "email|string"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "properties": [
+            "firstname",
+            "lastname",
+            "email",
+            "jobtitle",
+            "lifecyclestage",
+            "company",
+            "industry",
+            "website",
+            "hubspot_owner_id",
+            "associatedcompanyid",
+            "hs_object_id"
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "fddd51ca-4e82-4556-8fa3-cf3a1caeeb0d",
+      "name": "Lookup Contact Deal Associations",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2032,
+        352
+      ],
+      "parameters": {
+        "url": "=https://api.hubspot.com/crm/v4/objects/contacts/{{ $('Search HubSpot Contact').item.json.id || $('Search HubSpot Contact').item.json.properties?.hs_object_id || '0' }}/associations/deals",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "1"
+            }
+          ]
+        },
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "373d2303-c95d-453d-8c06-1c3c5b65c664",
+      "name": "Prepare AI Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2320,
+        352
+      ],
+      "parameters": {
+        "jsCode": "const meeting = $(\"Loop Participants\").item.json;\nconst staticData = $getWorkflowStaticData(\"global\");\nif (!staticData.skipLog) { staticData.skipLog = []; }\nif (!staticData.analysisCache) { staticData.analysisCache = {}; }\nstaticData.currentMeetingId = meeting.meeting_id;\nstaticData.currentSource = meeting.source || \"fireflies\";\n\nfunction firstAssocId(hit, keys) {\n  const a = hit.associations || hit.associationResults || {};\n  for (const key of keys) {\n    const bucket = a[key];\n    if (!bucket) { continue; }\n    const results = Array.isArray(bucket) ? bucket : (bucket.results || bucket.data || []);\n    if (results[0]) {\n      return String(results[0].id || results[0].toObjectId || results[0].to || results[0]);\n    }\n  }\n  if (Array.isArray(hit.associatedDeals) && hit.associatedDeals[0]) {\n    return String(hit.associatedDeals[0].id || hit.associatedDeals[0]);\n  }\n  if (Array.isArray(hit.associatedCompanies) && hit.associatedCompanies[0]) {\n    return String(hit.associatedCompanies[0].id || hit.associatedCompanies[0]);\n  }\n  return \"\";\n}\n\nfunction resolveCompanyId(hit, props) {\n  const fromProperty = sanitizeId(props.associatedcompanyid || \"\");\n  if (fromProperty) { return fromProperty; }\n  const fromAssociations = sanitizeId(firstAssocId(hit, [\"companies\", \"company\", \"Companies\", \"companyIds\"]) || \"\");\n  if (fromAssociations) { return fromAssociations; }\n  if (Array.isArray(hit.associatedCompanies) && hit.associatedCompanies[0]) {\n    return sanitizeId(hit.associatedCompanies[0].id || hit.associatedCompanies[0].toObjectId || hit.associatedCompanies[0]);\n  }\n  return \"\";\n}\n\nfunction resolveDealId(hit, props, assocHit) {\n  let dealId = sanitizeId(\n    firstAssocId(hit, [\"deals\", \"deal\", \"Deals\", \"dealIds\"]) ||\n    props.associateddealid ||\n    props.hs_associated_deal_id ||\n    \"\"\n  );\n  if (!dealId && Array.isArray(assocHit.results) && assocHit.results[0]) {\n    dealId = sanitizeId(assocHit.results[0].toObjectId || assocHit.results[0].id || \"\");\n  }\n  return dealId;\n}\n\nfunction splitName(full) {\n  const parts = String(full || \"\").trim().split(/\\s+/).filter(Boolean);\n  return { first: parts[0] || \"\", last: parts.length > 1 ? parts.slice(1).join(\" \") : \"\" };\n}\n\nfunction sanitizeId(value) {\n  const id = value === null || value === undefined ? \"\" : String(value).trim();\n  if (!id || id === \"0\" || id === \"null\" || id === \"undefined\") { return \"\"; }\n  return id;\n}\n\nconst searchRaw = $(\"Search HubSpot Contact\").item.json || {};\nconst hit = (Array.isArray(searchRaw.results) && searchRaw.results[0])\n  ? searchRaw.results[0]\n  : searchRaw;\nconst assocHit = $(\"Lookup Contact Deal Associations\").item.json || {};\nconst props = hit.properties || {};\nconst contactId = sanitizeId(hit.id || props.hs_object_id || \"\");\nconst found = Boolean(contactId);\nconst policy = String(meeting.UNKNOWN_CONTACT_ACTION || \"skip\").toLowerCase();\nconst names = splitName(meeting.participant_name);\n\nlet row;\nif (!found && (policy === \"skip\" || policy === \"notify\")) {\n  staticData.skipLog.push({ meeting_id: meeting.meeting_id, reason: \"unknown_contact\", email: meeting.participant_email, policy: policy, recorded_at: $now.toISO() });\n  staticData.lastSkip = { meeting_id: meeting.meeting_id, reason: \"unknown_contact\", email: meeting.participant_email, policy: policy };\n  row = {\n    ...meeting,\n    contact_found: false,\n    skip_crm: true,\n    skip_reason: \"unknown_contact\",\n    notify_unknown: policy === \"notify\",\n    contact: { id: \"\", email: meeting.participant_email, firstname: names.first || meeting.participant_name, lastname: names.last, jobtitle: \"\", lifecyclestage: \"\", company: \"\", owner_id: \"\" },\n    company: { id: \"\", name: \"\", industry: \"\", website: \"\", owner_id: \"\" },\n    deal: { id: \"\", name: \"\", stage: \"\", amount: \"\", close_date: \"\", owner_id: \"\" }\n  };\n} else {\n  const companyId = resolveCompanyId(hit, props);\n  const dealId = resolveDealId(hit, props, assocHit);\n  row = {\n    ...meeting,\n    contact_found: found,\n    skip_crm: false,\n    skip_reason: \"\",\n    notify_unknown: false,\n    create_unknown_contact: !found && policy === \"create\",\n    contact: {\n      id: contactId,\n      email: props.email || meeting.participant_email,\n      firstname: props.firstname || names.first || meeting.participant_name || \"\",\n      lastname: props.lastname || names.last || \"\",\n      jobtitle: props.jobtitle || \"\",\n      lifecyclestage: props.lifecyclestage || \"\",\n      company: props.company || \"\",\n      owner_id: sanitizeId(props.hubspot_owner_id || \"\")\n    },\n    company: {\n      id: companyId,\n      name: String(props.company || \"\"),\n      industry: String(props.industry || \"\"),\n      website: String(props.website || \"\"),\n      owner_id: sanitizeId(props.hubspot_owner_id || \"\")\n    },\n    deal: {\n      id: dealId,\n      name: String(props.dealname || \"\"),\n      stage: String(props.dealstage || \"\"),\n      amount: String(props.amount || \"\"),\n      close_date: String(props.closedate || \"\"),\n      owner_id: sanitizeId(props.hubspot_owner_id || \"\")\n    }\n  };\n}\n\nif (row.skip_crm) {\n  return [{ json: {\n    ...row,\n    reuse_cached_analysis: false,\n    ai_input_text: \"Skipped CRM path for \" + (row.participant_email || \"unknown\") + \". Reason: \" + (row.skip_reason || \"skip_crm\")\n  } }];\n}\n\nconst cached = staticData.analysisCache[row.meeting_id];\nif (cached) {\n  return [{ json: { ...row, reuse_cached_analysis: true, analysis: cached, ai_input_text: \"Reuse cached meeting analysis for \" + row.meeting_id } }];\n}\n\nconst schemas = row.hubspot_schemas || { contacts: [], companies: [], deals: [] };\nconst text = [\n  \"You are analyzing a sales/customer meeting transcript to produce a CRM update payload.\",\n  \"Map insights ONLY to property names that appear in the HubSpot schemas below. Do not invent property names.\",\n  \"If no suitable property exists for an insight, omit it from the updates objects (use {}).\",\n  \"\",\n  \"Meeting title: \" + row.meeting_title,\n  \"Meeting date: \" + row.meeting_date,\n  \"Contact: \" + JSON.stringify(row.contact || {}),\n  \"Company: \" + JSON.stringify(row.company || {}),\n  \"Deal: \" + JSON.stringify(row.deal || {}),\n  \"\",\n  \"HubSpot Contact properties (writable):\",\n  JSON.stringify(schemas.contacts || []),\n  \"\",\n  \"HubSpot Company properties (writable):\",\n  JSON.stringify(schemas.companies || []),\n  \"\",\n  \"HubSpot Deal properties (writable):\",\n  JSON.stringify(schemas.deals || []),\n  \"\",\n  \"Transcript:\",\n  row.transcript || \"\"\n].join(\"\\n\");\n\nreturn [{ json: { ...row, reuse_cached_analysis: false, ai_input_text: text } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c6273c22-11c4-4cf8-8d39-521592bc0d40",
+      "name": "AI Meeting Analysis",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        2560,
+        352
+      ],
+      "parameters": {
+        "text": "={{ $json.ai_input_text }}",
+        "options": {
+          "systemPromptTemplate": "You extract CRM facts from a sales or customer meeting transcript and map them onto the HubSpot property schemas provided in the input.\n\nRules:\n1. Produce summary_markdown as a clear Markdown meeting summary that includes summary, sentiment, intent, and actionable next steps.\n2. sentiment must be one of: positive, neutral, negative.\n3. intent must be one of: low, medium, high.\n4. Map extracted insights ONLY to property names that appear in the provided HubSpot Contact, Company, and Deal property lists. Never invent property names.\n5. contact_updates, company_updates, and deal_updates must be objects whose keys are exact HubSpot property names and whose values are extracted strings/numbers. Use {} when nothing maps.\n6. Never infer facts that are not supported by the transcript. Use empty objects/strings/false when information was not discussed.\n7. task.create_task should be true only when there is a concrete follow-up with a title."
+        },
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\"summary_markdown\": \"## Summary\\nCustomer is evaluating a CRM migration.\\n\\n### Intent\\nhigh\\n\\n### Sentiment\\npositive\\n\\n### Next Steps\\n- send proposal\", \"sentiment\": \"positive\", \"intent\": \"high\", \"task\": {\"create_task\": true, \"title\": \"Send implementation proposal\", \"due_date\": \"2026-09-02\", \"notes\": \"Include WhatsApp integration scope\"}, \"contact_updates\": {\"last_ai_meeting_summary\": \"Evaluating CRM migration\"}, \"company_updates\": {\"last_meeting_requirements\": \"WhatsApp integration\"}, \"deal_updates\": {\"last_meeting_budget\": \"50000 USD\"}}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "928d9b1b-895c-49ed-a6b7-acbf3e672871",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        2560,
+        576
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "={{ $('Workflow Configuration').first().json.AI_MODEL || 'gemini-3.1-flash-lite' }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "10c6bba9-9721-4bd1-b572-15f6d02d2834",
+      "name": "Process AI & Build CRM Sync",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2896,
+        352
+      ],
+      "parameters": {
+        "jsCode": "const meetingIn = $(\"Prepare AI Context\").item.json;\nconst staticData = $getWorkflowStaticData(\"global\");\nif (!staticData.analysisCache) { staticData.analysisCache = {}; }\nif (!staticData.skipLog) { staticData.skipLog = []; }\nif (!staticData.processedMeetings) { staticData.processedMeetings = {}; }\nif (!staticData.artifactOnce) { staticData.artifactOnce = {}; }\n\nlet meeting = meetingIn;\n\nif (meeting.skip_crm) {\n  meeting = { ...meeting, ai_output_valid: false, analysis: { summary_markdown: \"\" } };\n} else if (meeting.reuse_cached_analysis && meeting.analysis && (meeting.analysis.summary_markdown || meeting.analysis.summary)) {\n  meeting = { ...meeting, ai_output_valid: true };\n} else {\n  const raw = items[0].json.output || items[0].json;\n  const schemas = meeting.hubspot_schemas || { contacts: [], companies: [], deals: [] };\n\n  function allowedNames(list) {\n    const set = {};\n    for (const row of (list || [])) {\n      if (row && row.name) { set[String(row.name)] = true; }\n    }\n    return set;\n  }\n\n  function sanitizeUpdates(obj, allowed) {\n    const out = {};\n    if (!obj || typeof obj !== \"object\" || Array.isArray(obj)) { return out; }\n    for (const [key, value] of Object.entries(obj)) {\n      if (!allowed[key]) { continue; }\n      if (value === null || value === undefined) { continue; }\n      const asString = typeof value === \"string\" ? value.trim() : String(value).trim();\n      if (!asString) { continue; }\n      out[key] = typeof value === \"string\" ? asString : value;\n    }\n    return out;\n  }\n\n  const summary = String(raw.summary_markdown || raw.summary || \"\").trim();\n  if (!summary) {\n    staticData.lastSkip = { meeting_id: meeting.meeting_id, reason: \"invalid_ai_output\", recorded_at: $now.toISO() };\n    staticData.skipLog.push(staticData.lastSkip);\n    return [];\n  }\n\n  const intent = String(raw.intent || raw.opportunity_signal || \"low\").toLowerCase();\n  const sentiment = String(raw.sentiment || raw.customer_sentiment || \"neutral\").toLowerCase();\n  const taskRaw = raw.task && typeof raw.task === \"object\" ? raw.task : {};\n\n  const analysis = {\n    summary_markdown: summary,\n    summary: summary,\n    intent: [\"low\", \"medium\", \"high\"].indexOf(intent) === -1 ? \"low\" : intent,\n    sentiment: [\"positive\", \"neutral\", \"negative\"].indexOf(sentiment) === -1 ? \"neutral\" : sentiment,\n    opportunity_signal: [\"low\", \"medium\", \"high\"].indexOf(intent) === -1 ? \"low\" : intent,\n    customer_sentiment: [\"positive\", \"neutral\", \"negative\"].indexOf(sentiment) === -1 ? \"neutral\" : sentiment,\n    task: {\n      create_task: Boolean(taskRaw.create_task),\n      title: String(taskRaw.title || \"\").trim(),\n      due_date: String(taskRaw.due_date || \"\").trim(),\n      notes: String(taskRaw.notes || \"\").trim()\n    },\n    contact_updates: sanitizeUpdates(raw.contact_updates, allowedNames(schemas.contacts)),\n    company_updates: sanitizeUpdates(raw.company_updates, allowedNames(schemas.companies)),\n    deal_updates: sanitizeUpdates(raw.deal_updates, allowedNames(schemas.deals))\n  };\n\n  staticData.analysisCache[meeting.meeting_id] = analysis;\n  meeting = { ...meeting, ai_output_valid: true, analysis: analysis };\n}\n\nlet decision;\n\nif (meeting.skip_crm) {\n  const policy = String(meeting.UNKNOWN_CONTACT_ACTION || \"skip\").toLowerCase();\n  const unknownAlert = policy === \"skip\" || policy === \"notify\" || Boolean(meeting.notify_unknown);\n  if (!staticData.crmWritesAttempted) {\n    staticData.skipOnlyMeeting = true;\n  }\n  if (unknownAlert) {\n    staticData.skipLog.push({\n      meeting_id: meeting.meeting_id,\n      reason: \"unknown_contact_alert\",\n      email: meeting.participant_email,\n      policy: policy,\n      recorded_at: $now.toISO()\n    });\n  }\n  const notifyMessage = [\n    \"⚠️ *HubSpot Sync Skipped — Unknown Contact*\",\n    \"• *Meeting*: `\" + String(meeting.meeting_title || \"\") + \"` (`\" + String(meeting.meeting_id || \"\") + \"`)\",\n    \"• *Attendee*: `\" + String(meeting.participant_name || \"\") + \"` (`\" + String(meeting.participant_email || \"\") + \"`)\",\n    \"• *Reason*: Contact does not exist in HubSpot CRM. No notes or tasks were logged.\"\n  ].join(\"\\n\");\n  decision = {\n    update_contact: false,\n    update_company: false,\n    update_deal: false,\n    create_note: false,\n    create_task: false,\n    send_slack: unknownAlert,\n    note_markdown: \"\",\n    task_title: \"\",\n    task_due_date: $now.toFormat(\"yyyy-MM-dd\"),\n    task_owner_id: \"\",\n    task_notes: \"\",\n    contact_updates: {},\n    company_updates: {},\n    deal_updates: {},\n    contact_summary: \"\",\n    contact_intent: \"\",\n    notify_message: unknownAlert ? notifyMessage : \"\"\n  };\n} else if (!meeting.ai_output_valid) {\n  return [];\n} else {\n  const analysis = meeting.analysis || {};\n  const contactUpdates = (analysis.contact_updates && typeof analysis.contact_updates === \"object\") ? analysis.contact_updates : {};\n  const companyUpdates = (analysis.company_updates && typeof analysis.company_updates === \"object\") ? analysis.company_updates : {};\n  const dealUpdates = (analysis.deal_updates && typeof analysis.deal_updates === \"object\") ? analysis.deal_updates : {};\n\n  const hasContactUpdates = Object.keys(contactUpdates).length > 0;\n  const hasCompanyUpdates = Object.keys(companyUpdates).length > 0;\n  const hasDealUpdates = Object.keys(dealUpdates).length > 0;\n\n  const firstArtifact = !staticData.artifactOnce[meeting.meeting_id];\n  if (firstArtifact) { staticData.artifactOnce[meeting.meeting_id] = true; }\n\n  const noteMarkdown = String(analysis.summary_markdown || analysis.summary || \"\").trim();\n  const createNote = Boolean(noteMarkdown);\n  const task = analysis.task || {};\n  const createTask = Boolean(\n    firstArtifact &&\n    meeting.CREATE_FOLLOWUP_TASK &&\n    task.create_task &&\n    String(task.title || \"\").trim()\n  );\n\n  const taskOwner = (meeting.deal && meeting.deal.id && meeting.deal.owner_id) ? meeting.deal.owner_id : ((meeting.contact && meeting.contact.owner_id) || \"\");\n\n  const updateContact = Boolean(\n    (hasContactUpdates || meeting.create_unknown_contact) &&\n    meeting.contact &&\n    meeting.contact.email\n  );\n  const updateCompany = Boolean(\n    meeting.CREATE_COMPANY_UPDATE &&\n    hasCompanyUpdates &&\n    meeting.company &&\n    meeting.company.id\n  );\n  const updateDeal = Boolean(\n    meeting.CREATE_DEAL_UPDATE &&\n    hasDealUpdates &&\n    meeting.deal &&\n    meeting.deal.id\n  );\n\n  const finalContactUpdates = Object.assign({}, contactUpdates);\n  if (meeting.create_unknown_contact) {\n    if (meeting.contact.firstname) { finalContactUpdates.firstname = meeting.contact.firstname; }\n    if (meeting.contact.lastname) { finalContactUpdates.lastname = meeting.contact.lastname; }\n    finalContactUpdates.email = meeting.contact.email;\n  }\n\n  staticData.crmWritesAttempted = true;\n  staticData.skipOnlyMeeting = false;\n  staticData.currentMeetingId = meeting.meeting_id;\n  staticData.currentSource = meeting.source || \"fireflies\";\n\n  const sendHighIntentSlack = Boolean(meeting.SEND_SLACK_ALERT) && analysis.intent === \"high\" && firstArtifact;\n  const contactName = [meeting.contact && meeting.contact.firstname, meeting.contact && meeting.contact.lastname].filter(Boolean).join(\" \").trim();\n  const highIntentMessage = [\n    \"🎯 *High-Intent Meeting Alert*\",\n    \"• *Meeting*: `\" + String(meeting.meeting_title || \"\") + \"` (`\" + String(meeting.meeting_id || \"\") + \"`)\",\n    \"• *Contact*: `\" + String(contactName || meeting.participant_name || \"\") + \"` (`\" + String((meeting.contact && meeting.contact.email) || meeting.participant_email || \"\") + \"`)\",\n    \"• *Company*: `\" + String((meeting.company && meeting.company.name) || \"\") + \"`\",\n    \"• *Intent*: `\" + String(analysis.intent || \"high\") + \"`\",\n    \"• *Summary*: \" + String(noteMarkdown || analysis.summary || \"No summary\").slice(0, 500)\n  ].join(\"\\n\");\n\n  decision = {\n    update_contact: updateContact,\n    update_company: updateCompany,\n    update_deal: updateDeal,\n    create_note: createNote,\n    create_task: createTask,\n    send_slack: sendHighIntentSlack,\n    note_markdown: noteMarkdown,\n    task_title: String(task.title || \"Follow up after meeting\"),\n    task_due_date: String(task.due_date || $now.plus({ days: 2 }).toFormat(\"yyyy-MM-dd\")),\n    task_owner_id: String(taskOwner || \"\"),\n    task_notes: String(task.notes || \"\"),\n    contact_updates: finalContactUpdates,\n    company_updates: companyUpdates,\n    deal_updates: dealUpdates,\n    contact_summary: noteMarkdown,\n    contact_intent: analysis.intent || \"low\",\n    notify_message: sendHighIntentSlack ? highIntentMessage : \"\"\n  };\n}\n\nconst row = { ...meeting, decision };\n\nconst ops = [];\n\nfunction numId(value) {\n  const n = Number(value);\n  return Number.isFinite(n) && n > 0 ? n : null;\n}\n\nfunction isValidAssociationId(value) {\n  const id = value === null || value === undefined ? \"\" : String(value).trim();\n  if (!id || id === \"0\" || id === \"null\" || id === \"undefined\") { return null; }\n  return id;\n}\n\nfunction toHubSpotTimestamp(ms) {\n  const n = Number(ms);\n  if (Number.isFinite(n) && n > 0) {\n    return Math.trunc(n);\n  }\n  return Date.now();\n}\n\n// NOTE: Standard default HubSpot-defined v3 association type IDs:\n// Note associations: 202 (Note -> Contact), 190 (Note -> Company), 214 (Note -> Deal)\n// Task associations: 204 (Task -> Contact), 192 (Task -> Company), 216 (Task -> Deal)\nfunction buildAssociations(contactTypeId, companyTypeId, dealTypeId) {\n  const out = [];\n  const contactId = isValidAssociationId(row.contact && row.contact.id);\n  const companyId = isValidAssociationId(row.company && row.company.id);\n  const dealId = isValidAssociationId(row.deal && row.deal.id);\n\n  if (contactId) {\n    out.push({\n      to: { id: contactId },\n      types: [{ associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: contactTypeId }]\n    });\n  }\n  if (companyId) {\n    out.push({\n      to: { id: companyId },\n      types: [{ associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: companyTypeId }]\n    });\n  }\n  if (dealId) {\n    out.push({\n      to: { id: dealId },\n      types: [{ associationCategory: \"HUBSPOT_DEFINED\", associationTypeId: dealTypeId }]\n    });\n  }\n\n  return out;\n}\n\nif (decision.update_contact) {\n  ops.push({\n    name: \"contact_upsert\",\n    method: \"POST\",\n    url: \"https://api.hubapi.com/crm/v3/objects/contacts/batch/upsert\",\n    body: {\n      inputs: [{\n        idProperty: \"email\",\n        id: row.contact.email,\n        properties: decision.contact_updates || {}\n      }]\n    }\n  });\n}\n\nif (decision.update_company && isValidAssociationId(row.company && row.company.id)) {\n  ops.push({\n    name: \"company_patch\",\n    method: \"PATCH\",\n    url: \"https://api.hubapi.com/crm/v3/objects/companies/\" + String(row.company.id).trim(),\n    body: { properties: decision.company_updates || {} }\n  });\n}\n\nif (decision.update_deal && isValidAssociationId(row.deal && row.deal.id)) {\n  ops.push({\n    name: \"deal_patch\",\n    method: \"PATCH\",\n    url: \"https://api.hubapi.com/crm/v3/objects/deals/\" + String(row.deal.id).trim(),\n    body: { properties: decision.deal_updates || {} }\n  });\n}\n\nif (decision.create_note) {\n  let startMs = Date.now();\n  try {\n    const dt = DateTime.fromISO(String(row.meeting_date || \"\"));\n    if (dt.isValid) { startMs = dt.toMillis(); }\n  } catch (e) {}\n\n  ops.push({\n    name: \"create_note\",\n    method: \"POST\",\n    url: \"https://api.hubapi.com/crm/v3/objects/notes\",\n    body: {\n      properties: {\n        hs_timestamp: toHubSpotTimestamp(startMs),\n        hs_note_body: String(decision.note_markdown || \"\")\n      },\n      associations: buildAssociations(202, 190, 214)\n    }\n  });\n}\n\nif (decision.create_task) {\n  let dueMs = Date.now();\n  try {\n    const due = DateTime.fromISO(String(decision.task_due_date || \"\"));\n    if (due.isValid) { dueMs = due.toMillis(); }\n  } catch (e) {}\n\n  const taskProps = {\n    hs_timestamp: toHubSpotTimestamp(dueMs),\n    hs_task_subject: String(decision.task_title || \"Follow up after meeting\"),\n    hs_task_body: String(decision.task_notes || decision.contact_summary || \"\"),\n    hs_task_status: \"NOT_STARTED\"\n  };\n  const ownerId = numId(decision.task_owner_id);\n  if (ownerId && ownerId > 0) {\n    taskProps.hubspot_owner_id = String(ownerId);\n  }\n\n  ops.push({\n    name: \"create_task\",\n    method: \"POST\",\n    url: \"https://api.hubapi.com/crm/v3/objects/tasks\",\n    body: {\n      properties: taskProps,\n      associations: buildAssociations(204, 192, 216)\n    }\n  });\n}\n\nstaticData._lastSyncContext = {\n  meeting_id: row.meeting_id,\n  participant_email: row.participant_email,\n  decision: decision,\n  op_count: ops.length\n};\n\nif (!ops.length) {\n  return [{ json: {\n    ...row,\n    decision: decision,\n    _no_hubspot_ops: true,\n    _trigger_slack: Boolean(decision.send_slack)\n  } }];\n}\n\nreturn ops.map((op, idx) => ({\n  json: {\n    ...row,\n    _hubspot_op: op,\n    _trigger_slack: Boolean(decision.send_slack && idx === ops.length - 1)\n  }\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "route-crm-output-node-0001",
+      "name": "Route CRM Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3088,
+        352
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData(\"global\");\nconst ctx = staticData._lastSyncContext || {};\n\nif (!items.length) {\n  const decision = ctx.decision || {};\n  return [{ json: {\n    meeting_id: ctx.meeting_id || staticData.currentMeetingId || \"\",\n    participant_email: ctx.participant_email || \"\",\n    decision: decision,\n    _no_hubspot_ops: true,\n    _trigger_slack: Boolean(decision.send_slack)\n  } }];\n}\n\nreturn items.map((item) => ({ json: item.json }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-has-hubspot-ops-0001",
+      "name": "If Has HubSpot Ops",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3280,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-op-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ Boolean($json._hubspot_op && !$json._no_hubspot_ops) }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "4b1e6b0b-9216-4781-843e-51e489c0fb0c",
+      "name": "Execute HubSpot Sync",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3472,
+        240
+      ],
+      "parameters": {
+        "url": "={{ $json._hubspot_op.url }}",
+        "method": "={{ $json._hubspot_op.method }}",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json._hubspot_op.body ? JSON.stringify($json._hubspot_op.body) : '' }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "270a477d-193c-48ae-bb85-3563e504b7bd",
+      "name": "If Send Slack",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3664,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "send-slack-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ Boolean($('Route CRM Output').item.json._trigger_slack) }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "2c6febef-7455-4ee5-bd84-523f3137ead2",
+      "name": "Optional Slack Notification",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        3888,
+        368
+      ],
+      "parameters": {
+        "text": "={{ $('Route CRM Output').item.json.decision.notify_message }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Workflow Configuration').first().json.SLACK_CHANNEL || 'general' }}"
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": true
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "0caaab95-f211-48c0-8930-049b2efe7880",
+      "name": "Count Loop Back",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3504,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData(\"global\");\nstaticData.participantsCompleted = Number(staticData.participantsCompleted || 0) + 1;\nreturn items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "828f1eeb-eecd-4f69-a199-e7c1f20c30c9",
+      "name": "Gate Loop Done",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1728,
+        576
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData(\"global\");\nconst completed = Number(staticData.participantsCompleted || 0);\nconst expected = Number(staticData.expectedExternalParticipants || 0);\nif (expected > 0 && completed >= expected) {\n  return items;\n}\nreturn [];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4ae92d3d-4fd7-47af-8dd5-a4e2ffcce3f6",
+      "name": "Finalize Meeting",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1504,
+        576
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData(\"global\");\nif (!staticData.processedMeetings) { staticData.processedMeetings = {}; }\nconst meetingId = String(staticData.currentMeetingId || \"\");\n\nlet loopDone = false;\ntry {\n  loopDone = Boolean($('Loop Participants').context.noItemsLeft);\n} catch (e) {\n  loopDone = true;\n}\nif (!loopDone) {\n  return [];\n}\n\nlet hardFail = false;\nlet contactSuccess = false;\n\nfunction isContactUpsertSuccess(data) {\n  if (!data || typeof data !== \"object\") { return false; }\n  if (data.id || data.vid !== undefined) { return true; }\n  if (Array.isArray(data.results) && data.results[0] && (data.results[0].id || data.results[0].vid !== undefined)) {\n    return true;\n  }\n  return false;\n}\n\ntry {\n  const syncItems = $(\"Execute HubSpot Sync\").all();\n  const opItems = $(\"Route CRM Output\").all().filter((row) => row.json && row.json._hubspot_op && !row.json._no_hubspot_ops);\n\n  for (let i = 0; i < syncItems.length; i++) {\n    const data = syncItems[i].json || {};\n    const status = Number(data.statusCode || data.status || 0);\n    const opName = String((opItems[i] && opItems[i].json && opItems[i].json._hubspot_op && opItems[i].json._hubspot_op.name) || \"\");\n\n    if (data.status === \"error\" || data.error || (status >= 400)) {\n      hardFail = true;\n      staticData.crmWriteFailed = true;\n    }\n\n    if (opName === \"contact_upsert\" && isContactUpsertSuccess(data)) {\n      contactSuccess = true;\n    }\n  }\n} catch (e) {\n  // Execute HubSpot Sync may not have run (skip-only / empty-op paths).\n}\n\nif (meetingId && !hardFail && !staticData.crmWriteFailed) {\n  let canComplete = false;\n  if (!staticData.crmWritesAttempted || staticData.skipOnlyMeeting) {\n    canComplete = true;\n  } else if (contactSuccess) {\n    canComplete = true;\n  }\n  if (canComplete) {\n    staticData.processedMeetings[meetingId] = {\n      processed_at: $now.toISO(),\n      source: staticData.currentSource || \"fireflies\",\n      status: \"completed\"\n    };\n  }\n}\n\nreturn [];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c828af6e-bad3-477e-ae2b-d335e73bfd8b",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        96,
+        960
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "17317f82-2a2d-4f67-808e-684fa525118b",
+      "name": "Slack Execution Error",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        368,
+        960
+      ],
+      "parameters": {
+        "text": "=🚨 *n8n Workflow Execution Failure*\n• *Workflow*: Sync Fireflies meeting notes to HubSpot CRM with AI\n• *Execution ID*: `{{ $json.execution.id || $execution.id }}`\n• *Error Node*: `{{ $json.execution.error.node.name || $json.execution.lastNodeExecuted || \"unknown\" }}`\n• *Error Message*: `{{ $json.execution.error.message || $json.message || \"Unknown error\" }}`",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Workflow Configuration').first().json.SLACK_CHANNEL || 'general' }}"
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": true
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3ecb32bf-f233-467c-85ea-ae89c30e4c8c",
+      "name": "OVERVIEW",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        80
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 844,
+        "content": "## Sync Fireflies meeting notes to HubSpot CRM with AI\n\nSyncs Fireflies.ai meeting notes directly into HubSpot CRM using Google Gemini. It dynamically discovers writable fields, logs call notes and follow-up tasks, updates records, and routes alerts to Slack.\n\n### How it works\n1. **Ingest & Validate**: Receives Fireflies webhook, fetches the transcript via GraphQL, and blocks duplicates.\n2. **Dynamic Schemas**: Fetches top 80 writable properties for Contacts, Companies, and Deals.\n3. **Filter & Match**: Excludes internal domains, searches HubSpot contacts, and retrieves associated deals.\n4. **AI Extraction**: Gemini maps conversation insights onto real CRM properties to generate summaries, intent, and tasks.\n5. **CRM Execution**: Batch upserts contacts, patches companies/deals, and logs activity notes and tasks.\n6. **Alerts & Monitoring**: Sends Slack alerts for high-intent deals, unknown contacts, and runtime errors.\n\n### Setup\n- [ ] Connect **Fireflies Header Auth**\n- [ ] Connect **HubSpot App Token**\n- [ ] Connect **Google Gemini API**\n- [ ] Connect **Slack OAuth2**\n- [ ] Configure **Workflow Configuration** node (domains, AI model, Slack channel, toggles)\n\n### Customize\n- Change `UNKNOWN_CONTACT_ACTION` to `\"skip\"`, `\"notify\"`, or `\"create\"` in **Workflow Configuration**.\n- Toggle `SEND_SLACK_ALERT` to enable notifications on high-intent calls."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b72bf9df-efb7-4253-a593-64f0cf7ea6e9",
+      "name": "1. INGEST & VALIDATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 836,
+        "height": 732,
+        "content": "## 1. INGEST & VALIDATION\nWebhook ingestion, transcript retrieval, idempotency deduplication, and attendee extraction."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06fe97b7-05b9-4df5-85a0-00233c8e68c3",
+      "name": "2. DYNAMIC SCHEMAS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 532,
+        "height": 732,
+        "content": "## 2. DYNAMIC SCHEMAS\nFetches writable Contact, Company, and Deal properties (top 80) dynamically from HubSpot API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b4fb4ac-e6a8-46ff-b0d5-6cb776f1262f",
+      "name": "3. PARTICIPANTS & CRM LOOKUP",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1408,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 772,
+        "height": 732,
+        "content": "## 3. PARTICIPANTS & CRM LOOKUP\nIsolates external attendees, searches HubSpot contact records, and resolves deal associations."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d19d8f38-3ff4-4d0c-96f8-660cfd409e5d",
+      "name": "4. AI ANALYSIS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 732,
+        "content": "## 4. AI ANALYSIS\nGemini maps transcript insights strictly to discovered CRM property schemas and generates structured actions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1a11926a-c701-4a0f-bdf7-9c3188fbc931",
+      "name": "5. CRM SYNC & FOLLOW-UP",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3088,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 964,
+        "height": 732,
+        "content": "## 5. CRM SYNC & FOLLOW-UP\nExecutes batch upserts, object PATCHes, timeline notes, task assignments, and optional alerts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d41df2cf-59f1-4016-98d7-3e5f4f3d75ef",
+      "name": "6. ERROR MONITORING",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 692,
+        "height": 332,
+        "content": "## 6. ERROR MONITORING\nCatches workflow runtime execution failures and routes diagnostic alerts to Slack."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Slack Execution Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Send Slack": {
+      "main": [
+        [
+          {
+            "node": "Optional Slack Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Count Loop Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gate Loop Done": {
+      "main": [
+        [
+          {
+            "node": "Finalize Meeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Loop Back": {
+      "main": [
+        [
+          {
+            "node": "Loop Participants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route CRM Output": {
+      "main": [
+        [
+          {
+            "node": "If Has HubSpot Ops",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fireflies Trigger": {
+      "main": [
+        [
+          {
+            "node": "Workflow Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Ingestion Skip": {
+      "main": [
+        [
+          {
+            "node": "Slack Ingestion Notice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch HubSpot Properties",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Participants": {
+      "main": [
+        [
+          {
+            "node": "Gate Loop Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Search HubSpot Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Has HubSpot Ops": {
+      "main": [
+        [
+          {
+            "node": "Execute HubSpot Sync",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "If Send Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare AI Context": {
+      "main": [
+        [
+          {
+            "node": "AI Meeting Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Meeting Analysis": {
+      "main": [
+        [
+          {
+            "node": "Process AI & Build CRM Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Meeting Details": {
+      "main": [
+        [
+          {
+            "node": "Validate & Normalize Meeting",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute HubSpot Sync": {
+      "main": [
+        [
+          {
+            "node": "If Send Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search HubSpot Contact": {
+      "main": [
+        [
+          {
+            "node": "Lookup Contact Deal Associations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get Meeting Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch HubSpot Properties": {
+      "main": [
+        [
+          {
+            "node": "Filter Properties & Extract Attendees",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Meeting Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Optional Slack Notification": {
+      "main": [
+        [
+          {
+            "node": "Count Loop Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process AI & Build CRM Sync": {
+      "main": [
+        [
+          {
+            "node": "Route CRM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Normalize Meeting": {
+      "main": [
+        [
+          {
+            "node": "If Ingestion Skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Contact Deal Associations": {
+      "main": [
+        [
+          {
+            "node": "Prepare AI Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Properties & Extract Attendees": {
+      "main": [
+        [
+          {
+            "node": "Loop Participants",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

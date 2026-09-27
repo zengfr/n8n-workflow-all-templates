@@ -1,4 +1,4 @@
-# reputation : 15
+# reputation : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |14127|[14127_Score_DNS_threats_with_VirusTotal__Abuse.ch__HashiCorp_Vault_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14127_Score_DNS_threats_with_VirusTotal__Abuse.ch__HashiCorp_Vault_and_Gemini.json)|
 |14275|[14275_Send_bulk_email_campaigns_with_Gmail_SMTP_and_Postgres_reputation-safe_timing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14275_Send_bulk_email_campaigns_with_Gmail_SMTP_and_Postgres_reputation-safe_timing.json)|
 |15516|[15516_Monitor_restaurant_ratings_with_Google_Places__Gemini__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15516_Monitor_restaurant_ratings_with_Google_Places__Gemini__Sheets__and_Slack.json)|
+|17054|[17054_Manage_Google_and_Trustpilot_reviews_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17054_Manage_Google_and_Trustpilot_reviews_with_OpenAI_and_Slack.json)|
+|17602|[17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json)|
+|17962|[17962_Generate_online_reputation_reports_with_SearchAPI__GPT-4o__SharePoint_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17962_Generate_online_reputation_reports_with_SearchAPI__GPT-4o__SharePoint_and_Outlook.json)|
+|18482|[18482_Triage_social_crisis_mentions_with_Google_Gemini_and_webhook_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18482_Triage_social_crisis_mentions_with_Google_Gemini_and_webhook_routing.json)|
+|18822|[18822_Send_weekly_multi-platform_review_reports_from_Apify_to_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18822_Send_weekly_multi-platform_review_reports_from_Apify_to_Gmail.json)|

@@ -1,0 +1,599 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Send appointment confirmations, reminders and reviews with Sheets, Gmail & Twilio",
+    "wechat": "youandme10086",
+    "id": 17123,
+    "update_time": "2026-09-27"
+  },
+  "name": "Appointment Lifecycle Automation PRO — Email + SMS reminders, win-backs & reviews",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "trg",
+      "name": "Every 3 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        40,
+        220
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "man",
+      "name": "Test Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        40,
+        380
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cfg",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ── APPOINTMENT LIFECYCLE PRO v1.1 — edit everything here ──\nreturn [{ json: {\n  businessName: 'Bright Smile Dental',\n  timezone:    'America/New_York',   // IMPORTANT: your business timezone (fixes wrong-day reminders)\n  bookingUrl:  'https://YOUR-BOOKING-LINK',\n  reviewUrl:   'https://YOUR-GOOGLE-REVIEW-LINK',\n  feedbackUrl: 'https://YOUR-PRIVATE-FEEDBACK-FORM', // unhappy clients go here, not Google\n  channels: 'email',\n  defaultCountryCode: '1',      // country code for phones stored WITHOUT +  (US=1, UK=44, IN=91)           // 'email' | 'sms' | 'both'  (or a Channel column per row)\n  reminderDaysBefore: [3, 1],   // reminder N days before (0 = same-day). Multi-touch.\n  sendOnWeekends: true,         // set false to hold reminders/reviews on Sat & Sun\n  twilioFrom: '+1234567890',   // your Twilio number (only if using SMS)\n  ownerEmail: 'user@example.com',\n  ownerSlackChannel: 'YOUR_SLACK_CHANNEL_ID',\n  templates: {\n    confirm: { subject: 'Your appointment with {business} is confirmed',\n      body: '<p>Hi {name},</p><p>Your appointment with <b>{business}</b> on <b>{date}</b> is confirmed.</p><p>Need to change it? <a href=\"{booking}\">Manage your booking</a>.</p>',\n      sms: 'Hi {name}, your {business} appointment on {date} is confirmed. Reschedule: {booking}' },\n    remind: { subject: 'Reminder: your appointment with {business}',\n      body: '<p>Hi {name},</p><p>A reminder of your appointment with <b>{business}</b> on <b>{date}</b>.</p><p>Cant make it? <a href=\"{booking}\">Reschedule here</a> so we can offer the slot to someone else.</p>',\n      sms: 'Reminder: {business} appointment on {date}. Reschedule: {booking}' },\n    winback: { subject: 'We missed you at {business}',\n      body: '<p>Hi {name},</p><p>Sorry we missed you on <b>{date}</b> — it happens! We would love to rebook you: <a href=\"{booking}\">pick a new time</a>.</p>',\n      sms: 'Hi {name}, we missed you at {business}. Rebook: {booking}' },\n    review: { subject: 'How was your visit to {business}?',\n      body: '<p>Hi {name},</p><p>Thanks for visiting <b>{business}</b>! If you enjoyed your visit, would you leave us a quick review? <a href=\"{review}\">Leave a review</a>.</p><p>If anything was not perfect, please <a href=\"{feedback}\">tell us privately here</a> — we read every message and want to make it right.</p>',\n      sms: 'Thanks for visiting {business}! Enjoyed it? Review us: {review}  Not perfect? Tell us: {feedback}' }\n  }\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "get",
+      "name": "Get Appointments",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        540,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "sheet",
+        "operation": "read",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "bld",
+      "name": "Build Messages",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        780,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// Classify each appointment (timezone-aware) and build the right message.\nconst cfg = $('Configuration').first().json;\nconst tz = cfg.timezone || 'UTC';\nconst cc = String(cfg.defaultCountryCode||'').replace(/\\D/g,'');\nconst today = DateTime.now().setZone(tz).startOf('day');\nconst todayStr = today.toISODate();\nconst remindDays = cfg.reminderDaysBefore || [1];\nconst sendWeekends = cfg.sendOnWeekends !== false;\nconst isWeekend = today.weekday >= 6; // 6=Sat,7=Sun\nconst fill = (t, c) => String(t||'').replace(/\\{(\\w+)\\}/g, (m,k)=> (c[k] ?? ''));\nconst validEmail = (e) => /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(String(e||'').trim());\nconst normPhone = (p) => {\n  const raw = String(p||'').trim();\n  const hasPlus = raw.startsWith('+');\n  let d = raw.replace(/\\D/g,'');\n  if (hasPlus) return d.length>=8 ? '+'+d : '';\n  if (d.startsWith('0')) d = d.slice(1);\n  if (cc && !d.startsWith(cc)) d = cc + d;\n  return d.length>=10 ? '+'+d : '';\n};\nconst parseDate = (s) => {\n  s = String(s||'').trim();\n  let d = DateTime.fromISO(s, {zone: tz});\n  if (!d.isValid) d = DateTime.fromFormat(s, 'M/d/yyyy', {zone: tz});\n  if (!d.isValid) d = DateTime.fromFormat(s.slice(0,10), 'yyyy-MM-dd', {zone: tz});\n  return d;\n};\nconst out = [];\nfor (const row of $input.all()) {\n  const j = row.json;\n  const id = String(j.AppointmentID || '').trim();\n  if (!id) continue;                          // require a unique ID (never append junk rows)\n  const status = String(j.Status || '').trim().toLowerCase();\n  const appt = parseDate(j.AppointmentDate);\n  if (!appt.isValid) continue;                // skip unparseable dates\n  const days = Math.round(appt.startOf('day').diff(today, 'days').days);\n  const lastToday = String(j.LastContacted || '').slice(0,10) === todayStr;\n\n  let action = 'skip', newStatus = status;\n  if (status === 'new')                                              { action='confirm';  newStatus='confirmed'; }\n  else if (status === 'confirmed' && remindDays.includes(days) && !lastToday) { action='remind'; newStatus='confirmed'; }\n  else if (status === 'no-show')                                     { action='winback';  newStatus='winback-sent'; }\n  else if (status === 'completed')                                   { action='review';   newStatus='review-requested'; }\n  if (action === 'skip') continue;\n  if (isWeekend && !sendWeekends && (action === 'remind' || action === 'review')) continue;\n\n  const t = (cfg.templates || {})[action] || {};\n  const c = { name: j.Name || 'there', business: cfg.businessName, date: appt.toFormat('cccc, LLL d'),\n              booking: cfg.bookingUrl, review: cfg.reviewUrl, feedback: cfg.feedbackUrl };\n  // work out which channels we can actually send on\n  let want = String(j.Channel || cfg.channels || 'email').toLowerCase();\n  if (want === 'both') want = 'email,sms';\n  const email = validEmail(j.Email) ? String(j.Email).trim() : '';\n  const phone = normPhone(j.Phone);\n  const chans = want.split(',').map(s=>s.trim()).filter(ch => ch==='email' ? email : ch==='sms' ? phone : false);\n  if (chans.length === 0) continue;           // nothing we can reach them on — skip cleanly\n\n  out.push({ json: {\n    AppointmentID: id, Name: c.name, to: email, phone, channel: chans.join(','),\n    AppointmentDate: j.AppointmentDate, action, newStatus, todayStr,\n    emailSubject: fill(t.subject, c), emailBody: fill(t.body, c), smsBody: fill(t.sms, c),\n    ownerEmail: cfg.ownerEmail, businessName: cfg.businessName\n  }});\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fem",
+      "name": "Only Email Channel",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1120,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.channel }}",
+              "rightValue": "email"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "fsm",
+      "name": "Only SMS Channel",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1120,
+        440
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.channel }}",
+              "rightValue": "sms"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "sem",
+      "name": "Send Email",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        1360,
+        240
+      ],
+      "parameters": {
+        "sendTo": "={{ $json.to }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.emailSubject }}",
+        "resource": "message",
+        "emailType": "html",
+        "operation": "send"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "ssm",
+      "name": "Send SMS",
+      "type": "n8n-nodes-base.twilio",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        1360,
+        440
+      ],
+      "parameters": {
+        "to": "={{ $json.phone }}",
+        "from": "={{ $('Configuration').first().json.twilioFrom }}",
+        "message": "={{ $json.smsBody }}",
+        "options": {},
+        "resource": "sms",
+        "operation": "send",
+        "toWhatsapp": false
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "upd",
+      "name": "Update Appointment Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 3,
+      "position": [
+        1720,
+        240
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "={{ $json.newStatus }}",
+            "AppointmentID": "={{ $json.AppointmentID }}",
+            "LastContacted": "={{ $json.todayStr }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "AppointmentID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "resource": "sheet",
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Appointments"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "alt",
+      "name": "Alert Owner: Send Failed",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1720,
+        440
+      ],
+      "parameters": {
+        "sendTo": "={{ $json.ownerEmail }}",
+        "message": "={{ '<p>A message could not be sent after retries.</p><ul><li>Appointment: ' + ($json.AppointmentID||'') + '</li><li>Stage: ' + ($json.action||'') + '</li><li>To: ' + ($json.to || $json.phone || '') + '</li><li>Error: ' + ($json.error?.message || 'unknown') + '</li></ul><p>Please follow up manually.</p>' }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ '⚠️ Appointment message FAILED to send — ' + ($json.AppointmentID || '') }}",
+        "resource": "message",
+        "emailType": "html",
+        "operation": "send"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dig",
+      "name": "Build Owner Digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        760
+      ],
+      "parameters": {
+        "jsCode": "// One-line daily summary of what was sent.\nconst items = $input.all();\nconst cfg = $('Configuration').first().json;\nconst c = {confirm:0, remind:0, winback:0, review:0};\nfor (const it of items) c[it.json.action] = (c[it.json.action]||0)+1;\nconst line = `Confirmations: ${c.confirm} · Reminders: ${c.remind} · No-show win-backs: ${c.winback} · Review requests: ${c.review}`;\nreturn [{ json: {\n  total: items.length,\n  digestHtml: `<h3>${cfg.businessName} — appointment run</h3><p>${items.length} messages sent.</p><p>${line}</p>`,\n  digestText: `*${cfg.businessName}* appointment run\\n${items.length} messages sent.\\n${line}`,\n  ownerEmail: cfg.ownerEmail\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "oem",
+      "name": "Email Owner Summary",
+      "type": "n8n-nodes-base.gmail",
+      "maxTries": 3,
+      "position": [
+        1360,
+        720
+      ],
+      "parameters": {
+        "sendTo": "={{ $json.ownerEmail }}",
+        "message": "={{ $json.digestHtml }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ 'Appointment run: ' + $json.total + ' messages sent' }}",
+        "resource": "message",
+        "emailType": "html",
+        "operation": "send"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "osl",
+      "name": "Notify Owner on Slack",
+      "type": "n8n-nodes-base.slack",
+      "maxTries": 3,
+      "position": [
+        1360,
+        880
+      ],
+      "parameters": {
+        "text": "={{ $json.digestText }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Configuration').first().json.ownerSlackChannel }}"
+        },
+        "operation": "post",
+        "messageType": "text",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.4,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "sec0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        150
+      ],
+      "parameters": {
+        "color": "color4",
+        "width": 1020,
+        "height": 390,
+        "content": "## 1. Read & build messages\nEvery few hours (or Test Manually): load settings, read the sheet, classify each row and fill the message templates."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sec1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        170
+      ],
+      "parameters": {
+        "color": "color5",
+        "width": 520,
+        "height": 430,
+        "content": "## 2. Send by email & SMS\nSends on whichever channel it can reach; skips invalid contacts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sec2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        170
+      ],
+      "parameters": {
+        "color": "color6",
+        "width": 280,
+        "height": 430,
+        "content": "## 3. Log & handle failures\nWrite status back; alert the owner if a send fails."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sec3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        650
+      ],
+      "parameters": {
+        "color": "color3",
+        "width": 520,
+        "height": 390,
+        "content": "## 4. Daily owner digest\nSummary of everything sent, by email and Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sk",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -545
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 675,
+        "content": "## Appointment Lifecycle — PRO (Email + SMS)\n\nRuns through the day, reads your appointments from Google Sheets, and sends the right message at the right time — confirmations, multi-touch reminders, no-show win-backs and review requests — by email and/or SMS. Timezone-aware, validates contacts, routes unhappy clients to private feedback, alerts you if a message fails, and emails you a summary of every run.\n\n**Who's it for:** dental, salon, clinic, spa and other appointment businesses (and their agencies).\n\n## How it works\n1. Runs every few hours (near-instant confirmations) — or Test Manually.\n2. Reads appointments, timezone-aware, and works out each row's stage.\n3. Sends your editable message by email and/or SMS (skips anyone it can't reach).\n4. Writes status back so nothing repeats, and emails/Slacks you a summary.\n\n## Setup\n1. Connect Google Sheets + Gmail (Twilio and Slack optional).\n2. Create a Sheet named 'Appointments' with columns: AppointmentID (unique), Name, Email, Phone, AppointmentDate (YYYY-MM-DD), Status, Channel, LastContacted.\n3. Status values: new, confirmed, completed, no-show, cancelled.\n4. In Configuration set your timezone, business info, links, reminder days and message templates.\n5. Pick your sheet in both Google Sheets nodes, run Test Manually, then activate.\nNot using SMS or Slack? Delete those nodes."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Send SMS": {
+      "main": [
+        [
+          {
+            "node": "Update Appointment Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Owner: Send Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Email": {
+      "main": [
+        [
+          {
+            "node": "Update Appointment Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Owner: Send Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get Appointments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 3 Hours": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Manually": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Messages": {
+      "main": [
+        [
+          {
+            "node": "Only Email Channel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Only SMS Channel",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Owner Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Appointments": {
+      "main": [
+        [
+          {
+            "node": "Build Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only SMS Channel": {
+      "main": [
+        [
+          {
+            "node": "Send SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Owner Digest": {
+      "main": [
+        [
+          {
+            "node": "Email Owner Summary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Owner on Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Email Channel": {
+      "main": [
+        [
+          {
+            "node": "Send Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

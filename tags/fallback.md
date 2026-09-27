@@ -1,4 +1,4 @@
-# fallback : 10
+# fallback : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |13965|[13965_Route_AI_tasks_between_OpenAI_agents_with_confidence-based_email_fallback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13965_Route_AI_tasks_between_OpenAI_agents_with_confidence-based_email_fallback.json)|
 |14207|[14207_Proofread_markdown_blog_posts_with_Gemini__Groq_fallback_and_GitHub_auto-commit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14207_Proofread_markdown_blog_posts_with_Gemini__Groq_fallback_and_GitHub_auto-commit.json)|
 |14683|[14683_Route_AI_tasks_with_OpenAI_GPT_4.1_mini_and_confidence_based_email_fallback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14683_Route_AI_tasks_with_OpenAI_GPT_4.1_mini_and_confidence_based_email_fallback.json)|
+|18012|[18012_Route_LLM_prompts_with_Claude_as_primary_and_OpenAI_as_fallback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18012_Route_LLM_prompts_with_Claude_as_primary_and_OpenAI_as_fallback.json)|
+|18122|[18122_Notify_on_workflow_errors_via_Slack_with_Discord_fallback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18122_Notify_on_workflow_errors_via_Slack_with_Discord_fallback.json)|

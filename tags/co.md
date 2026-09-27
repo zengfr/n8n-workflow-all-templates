@@ -1,4 +1,4 @@
-# co : 14
+# co : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |12779|[12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12779_Classify_job_applicants_from_CVs_using_Claude__PDF.co__Google_Docs_and_Gmail.json)|
 |13659|[13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13659_Generate_an_AI_YouTube_trend_report_with_GPT-4o__Google_Sheets_and_PDF.co.json)|
 |14099|[14099_Track_new_complementary-tool_adopters_with_PredictLeads__Google_Sheets__OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14099_Track_new_complementary-tool_adopters_with_PredictLeads__Google_Sheets__OpenAI_and_Gmail.json)|
+|16978|[16978_Audit_digital_identities_with_Apify_BreachHound_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16978_Audit_digital_identities_with_Apify_BreachHound_and_PDF.co.json)|
+|19662|[19662_Create_weekly_research_brief_PDFs_with_Brave_Search__Firecrawl__Claude__PDF.co__Gmail_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19662_Create_weekly_research_brief_PDFs_with_Brave_Search__Firecrawl__Claude__PDF.co__Gmail_and_Google_Drive.json)|

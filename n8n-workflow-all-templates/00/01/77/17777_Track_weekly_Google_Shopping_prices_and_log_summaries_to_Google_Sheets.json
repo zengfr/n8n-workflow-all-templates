@@ -1,0 +1,410 @@
+{
+  "name": "Automate price tracking on Google Shopping into Google Sheets",
+  "nodes": [
+    {
+      "id": "c8f1a205-0001-4d01-8001-000000000001",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c8f1a205-0002-4d02-8002-000000000002",
+      "name": "Set the products to track",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c8f1a205-0011-4d11-8011-+1234567890",
+              "name": "products",
+              "type": "array",
+              "value": "[\"sony wh-1000xm5\", \"bose quietcomfort ultra headphones\"]"
+            },
+            {
+              "id": "c8f1a205-0012-4d12-8012-+1234567890",
+              "name": "country",
+              "type": "string",
+              "value": "us"
+            },
+            {
+              "id": "c8f1a205-0013-4d13-8013-+1234567890",
+              "name": "language",
+              "type": "string",
+              "value": "en"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c8f1a205-0003-4d03-8003-000000000003",
+      "name": "One search per product",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        520,
+        520
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "products"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0004-4d04-8004-000000000004",
+      "name": "Search Google Shopping",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "johnvc~google-shopping-api-google-shopping-products-prices-deals",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ q: $json.products, gl: $json.country, hl: $json.language, max_pages: 1 }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0005-4d05-8005-000000000005",
+      "name": "Keep products that returned offers",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c8f1a205-0041-4d41-8041-+1234567890",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.shopping_results }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c8f1a205-0006-4d06-8006-000000000006",
+      "name": "Summarize this week's prices",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// One summary row per product per week, not forty listing rows.\n// Google Shopping matches on TEXT, so a search for a $350 pair of headphones\n// also returns cases, cables and knockoffs for $20. Taking a naive minimum\n// would report a $36 \"lowest price\" for the Sony WH-1000XM5 and fire a price\n// drop alert every single week. So the floor is trimmed against the median\n// before anything is reported.\nconst weekOf = $now.toFormat('yyyy-MM-dd');\n\nconst median = (nums) => {\n  const s = [...nums].sort((a, b) => a - b);\n  const m = Math.floor(s.length / 2);\n  return s.length % 2 ? s[m] : Math.round(((s[m - 1] + s[m]) / 2) * 100) / 100;\n};\n\n// Anything under half the median is almost never the product you searched for.\nconst OUTLIER_FLOOR = 0.5;\n\nreturn $input.all().map((item) => {\n  const params = item.json.search_parameters || {};\n  const priced = (item.json.shopping_results || []).filter(\n    (o) => typeof o.extracted_price === 'number' && o.extracted_price > 0,\n  );\n\n  if (!priced.length) {\n    return { json: { 'Week of': weekOf, Product: params.q || '', 'Offers compared': 0 } };\n  }\n\n  const rough = median(priced.map((o) => o.extracted_price));\n  let offers = priced.filter((o) => o.extracted_price >= rough * OUTLIER_FLOOR);\n  if (!offers.length) offers = priced;\n\n  const prices = offers.map((o) => o.extracted_price);\n  const cheapest = offers.reduce((a, b) => (b.extracted_price < a.extracted_price ? b : a));\n\n  // A real discount needs a struck-through price higher than the current one.\n  const discounted = offers.filter(\n    (o) => typeof o.extracted_old_price === 'number' && o.extracted_old_price > o.extracted_price,\n  );\n  const bestCut = discounted.length\n    ? Math.max(\n        ...discounted.map((o) =>\n          Math.round(((o.extracted_old_price - o.extracted_price) / o.extracted_old_price) * 100),\n        ),\n      )\n    : '';\n\n  return {\n    json: {\n      'Week of': weekOf,\n      Product: params.q || '',\n      'Lowest price': Math.min(...prices),\n      'Cheapest seller': cheapest.source || '',\n      'Median price': median(prices),\n      'Highest price': Math.max(...prices),\n      'Offers compared': offers.length,\n      'Cheap outliers ignored': priced.length - offers.length,\n      'Sellers discounting': discounted.length,\n      'Best discount %': bestCut,\n      'Cheapest listing': cheapest.product_link || '',\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c8f1a205-0007-4d07-8007-000000000007",
+      "name": "Append prices to sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1560,
+        520
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "c8f1a205-0090-4d90-8090-000000000090",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1240,
+        "content": "## Automate price tracking on Google Shopping into Google Sheets\n\nNo price tracker subscription and no scraping vendor account. Every week this searches Google Shopping for each product on your list and appends one summary row per product: the lowest credible price, which seller is holding it, the median and highest price, how many sellers are discounting, and the deepest discount on offer.\n\nOne row per product per week, not forty listing rows. After a month the sheet is a price history you can chart, which is the thing a single lookup can never give you.\n\n**Who's it for**\nEcommerce sellers watching where their price sits in the market, buyers waiting for a real drop, and anyone tired of a browser extension that only tells them about today.\n\n**How it works**\n1. A schedule trigger fires once a week\n2. One Set node holds the products you want to track\n3. The Apify node runs one Google Shopping search per product\n4. A Code node reduces about 40 offers per product down to one summary row\n\n**Setup**\n1. Create a free Apify account and add your API token to the Apify credential\n2. Connect your Google account in the Sheets node and pick a spreadsheet\n3. Replace the example products in the config node with the ones you care about\n\n**Good to know**\nAbout 4 cents per product per week, so a three product watchlist is roughly 12 cents a week.\nPrices are what Google Shopping shows for your chosen country, before tax and shipping.\nGoogle Shopping matches on text, so a search for headphones also returns cases and cables. Anything priced under half the median is treated as a different product and counted in the Cheap outliers ignored column rather than reported as a price drop.\nActor: https://apify.com/johnvc/google-shopping-api-google-shopping-products-prices-deals?fpr=9n7kx3&fp_sid=n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0091-4d91-8091-000000000091",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 1. Schedule\nRuns every Monday morning. Change the cadence, or swap in a manual trigger while you test."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0092-4d92-8092-000000000092",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 2. Your input\nThe products to track, and the country and language to price them in. This is the only node you edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0093-4d93-8093-000000000093",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 3. Fan out\nTurns your product list into one Google Shopping search each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0094-4d94-8094-000000000094",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 4. Search\nRuns the Google Shopping API actor for one product. Add your Apify credential here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0095-4d95-8095-000000000095",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 5. Clean\nSkips any product that came back with no offers, so blank rows never reach the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0096-4d96-8096-000000000096",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 6. Summarize\nReduces about 40 offers into one row, trimming accessory and knockoff listings before taking the floor."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0097-4d97-8097-000000000097",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 7. Deliver\nPick your spreadsheet and tab. Columns map automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0080-4d80-8080-000000000080",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        860
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 240,
+        "content": "### Be specific with product names\nGoogle Shopping matches on text, so `sony wh-1000xm5` tracks a real price and `headphones` tracks noise. Use the model number wherever one exists."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8f1a205-0081-4d81-8081-000000000081",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        860
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 240,
+        "content": "### Self-hosting n8n?\nThere is also a dedicated community node for this actor: `n8n-nodes-google-shopping-api` on npm."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Set the products to track",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One search per product": {
+      "main": [
+        [
+          {
+            "node": "Search Google Shopping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Google Shopping": {
+      "main": [
+        [
+          {
+            "node": "Keep products that returned offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set the products to track": {
+      "main": [
+        [
+          {
+            "node": "One search per product",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize this week's prices": {
+      "main": [
+        [
+          {
+            "node": "Append prices to sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep products that returned offers": {
+      "main": [
+        [
+          {
+            "node": "Summarize this week's prices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Track weekly Google Shopping prices and log summaries to Google Sheets",
+    "wechat": "youandme10086",
+    "id": 17777,
+    "update_time": "2026-09-27"
+  }
+}

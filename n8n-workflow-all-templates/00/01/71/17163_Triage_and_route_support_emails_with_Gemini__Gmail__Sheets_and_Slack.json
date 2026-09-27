@@ -1,0 +1,653 @@
+{
+  "id": "daPM9kpX3vinFIZP",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Triage and route support emails with Gemini, Gmail, Sheets and Slack",
+    "wechat": "youandme10086",
+    "id": 17163,
+    "update_time": "2026-09-27"
+  },
+  "name": "Triage and route support emails with Gemini, Gmail, Sheets and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "efc608e4-078a-4dbf-8f3a-0761588e63b7",
+      "name": "Fetch New Support Emails",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        48,
+        48
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "readStatus": "unread"
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "bd0b6d92-c910-4a52-9a80-77c3c49a37fd",
+      "name": "Set Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        272,
+        48
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b",
+              "name": "brandName",
+              "type": "string",
+              "value": "Acme Inc."
+            },
+            {
+              "id": "g",
+              "name": "supportGuidelines",
+              "type": "string",
+              "value": "Be friendly and concise. Never promise refunds."
+            },
+            {
+              "id": "u",
+              "name": "urgentKeywords",
+              "type": "string",
+              "value": "outage, refund, legal, cancel, urgent"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fbacc3e2-8ad3-4f3b-9591-74940edcba48",
+      "name": "Build Analysis Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        624,
+        48
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const cfg = $('Set Configuration').item.json;\nconst email = $json;\nconst body = email.text || email.snippet || email.html || '';\nconst prompt = [\n  'You are a senior support agent for ' + cfg.brandName + '.',\n  cfg.supportGuidelines || '',\n  'Mark priority high if it mentions: ' + (cfg.urgentKeywords || 'outage, refund, legal'),\n  '',\n  'Respond ONLY with minified JSON:',\n  '{\"category\":\"billing\"|\"technical\"|\"account\"|\"general\",\"priority\":\"high\"|\"medium\"|\"low\",\"sentiment\":\"positive\"|\"neutral\"|\"negative\",\"reasoning\":string,\"summary\":string,\"suggested_reply\":string}',\n  '',\n  'Example -> {\"category\":\"technical\",\"priority\":\"high\",\"sentiment\":\"negative\",\"reasoning\":\"Outage reported\",\"summary\":\"Customer cannot access dashboard\",\"suggested_reply\":\"Hi, thanks for flagging this...\"}',\n  '',\n  'From: ' + (email.from||''),\n  'Subject: ' + (email.subject||''),\n  'Body:',\n  body\n].join('\\n');\nreturn { prompt, from: email.from, subject: email.subject, threadId: email.threadId, messageId: email.id };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6123f132-4e4b-47df-a7ef-b81ba77f7e22",
+      "name": "Analyze Email with Gemini",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        848,
+        48
+      ],
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-2.0-flash:generateContent",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ { \"contents\": [ { \"parts\": [ { \"text\": $json.prompt } ] } ], \"generationConfig\": { \"temperature\": 0.1, \"responseMimeType\": \"application/json\" } } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "SqSj0UBxvATZV3OU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "8c7bf65c-a35e-4aa3-8954-486ee9457b7d",
+      "name": "Parse AI Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1136,
+        32
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const meta = $('Build Analysis Prompt').item.json;\nlet text = '';\ntry { text = $json.candidates[0].content.parts[0].text; } catch (e) { text = ''; }\nlet d = {};\ntry { d = JSON.parse(text); } catch (e) { d = { category:'general', priority:'medium', sentiment:'neutral', reasoning:'Parse failed', summary:(text||'').slice(0,200), suggested_reply:'' }; }\nreturn { from: meta.from, subject: meta.subject, threadId: meta.threadId, messageId: meta.messageId, category: String(d.category||'general').toLowerCase(), priority: String(d.priority||'medium').toLowerCase(), sentiment: String(d.sentiment||'neutral').toLowerCase(), reasoning: d.reasoning||'', summary: d.summary||'', suggested_reply: d.suggested_reply||'' };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9648bf39-88cb-4295-9424-9ddc31cf2fd4",
+      "name": "Log Ticket to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1424,
+        32
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Tickets"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VBagC67WblkLgsDb",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "740207f7-f46d-46b2-a91f-2c3ff9ad45c0",
+      "name": "Mark Email as Read",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1648,
+        32
+      ],
+      "webhookId": "d9800304-e492-4413-a4b0-effa18873686",
+      "parameters": {
+        "messageId": "={{ $(\"Parse AI Result\").item.json.messageId }}",
+        "operation": "markAsRead"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "24f8a3dc-746b-45c0-ae61-8bf4fca64f26",
+      "name": "Route by Priority",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2000,
+        0
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Parse AI Result\").item.json.priority }}",
+                    "rightValue": "high"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Parse AI Result\").item.json.priority }}",
+                    "rightValue": "medium"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Parse AI Result\").item.json.priority }}",
+                    "rightValue": "low"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Other"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "f1fc3b89-3298-47df-8b4e-c3e64b84d06a",
+      "name": "Draft Priority Reply",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2240,
+        -16
+      ],
+      "webhookId": "d8068978-fbbc-4cba-a476-a0ec00467239",
+      "parameters": {
+        "message": "={{ $(\"Parse AI Result\").item.json.suggested_reply }}",
+        "options": {
+          "sendTo": "={{ $(\"Parse AI Result\").item.json.from }}",
+          "threadId": "={{ $(\"Parse AI Result\").item.json.threadId }}"
+        },
+        "subject": "={{ \"Re: \" + $(\"Parse AI Result\").item.json.subject }}",
+        "resource": "draft"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5a6cae0f-fb23-48aa-a25a-ccb142e04c68",
+      "name": "Escalate to On-call",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2464,
+        -16
+      ],
+      "webhookId": "8fe70f67-a87d-40a9-9278-73786d4160e8",
+      "parameters": {
+        "text": "=*:rotating_light: HIGH priority ticket*\n*From:* {{ $(\"Parse AI Result\").item.json.from }}\n*Subject:* {{ $(\"Parse AI Result\").item.json.subject }}\n*Category:* {{ $(\"Parse AI Result\").item.json.category }}\n*Summary:* {{ $(\"Parse AI Result\").item.json.summary }}\nA draft reply is ready in Gmail.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#support-urgent"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "dbd1eb88-d6bc-4c74-896d-377fd67a280d",
+      "name": "Draft Standard Reply",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2240,
+        128
+      ],
+      "webhookId": "692323a8-ccbb-483f-be38-2b96caf0f4ed",
+      "parameters": {
+        "message": "={{ $(\"Parse AI Result\").item.json.suggested_reply }}",
+        "options": {
+          "sendTo": "={{ $(\"Parse AI Result\").item.json.from }}",
+          "threadId": "={{ $(\"Parse AI Result\").item.json.threadId }}"
+        },
+        "subject": "={{ \"Re: \" + $(\"Parse AI Result\").item.json.subject }}",
+        "resource": "draft"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fcec7b83-25c6-40a4-8f0f-a3d79b0e112f",
+      "name": "Draft Acknowledgement",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2240,
+        304
+      ],
+      "webhookId": "d64f6a48-4366-4c63-9846-5b428251e689",
+      "parameters": {
+        "message": "={{ \"Hi,\\n\\nThanks for reaching out - we have received your message and will get back to you shortly.\\n\\n\" + $(\"Parse AI Result\").item.json.suggested_reply }}",
+        "options": {
+          "sendTo": "={{ $(\"Parse AI Result\").item.json.from }}",
+          "threadId": "={{ $(\"Parse AI Result\").item.json.threadId }}"
+        },
+        "subject": "={{ \"Re: \" + $(\"Parse AI Result\").item.json.subject }}",
+        "resource": "draft"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "55c41233-49ec-48ac-a7df-aad979641b0f",
+      "name": "Flag for Manual Review",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2240,
+        496
+      ],
+      "webhookId": "4f81abfe-98d9-4a7d-9835-7e31ba25dfea",
+      "parameters": {
+        "text": "=*:mag: Ticket needs manual review (unclassified priority)*\n*From:* {{ $(\"Parse AI Result\").item.json.from }}\n*Subject:* {{ $(\"Parse AI Result\").item.json.subject }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#support-inbox"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "eba6a6ad-d466-4a7c-abab-52b128f1837d",
+      "name": "Report Analysis Failure",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1136,
+        208
+      ],
+      "webhookId": "491ddf8e-2ca1-4f2f-b948-9543ed960dfa",
+      "parameters": {
+        "text": "=*:x: Gemini analysis failed for a support email*\n*Subject:* {{ $(\"Build Analysis Prompt\").item.json.subject }}\nPlease review it manually.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#support-alerts"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "IsgRCDddo09B9Bus",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "b51a0edf-8324-4554-bb6b-135898341ae0",
+      "name": "Overview Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -240
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 744,
+        "content": "## Triage & route support emails with Gemini, Gmail, Sheets and Slack\n\n### How it works\nEvery new support email is analysed by Google Gemini for category, priority, sentiment and a drafted reply. The ticket is logged to Google Sheets and marked as read (so it is never processed twice). A Switch then routes each email by priority: high-priority tickets get an urgent draft plus an on-call Slack escalation, medium tickets get a standard draft, low tickets get an acknowledgement draft, and anything unclassified is flagged for manual review. If the AI call fails, the email is reported to Slack instead of being lost.\n\n### Setup\n1. Connect Gmail, Google Gemini (PaLM) API, Google Sheets and Slack.\n2. In **Set Configuration**, set your brand, guidelines and urgent keywords.\n3. Point **Log Ticket to Sheet** at your spreadsheet and pick your Slack channels.\n\n### Customization tips\nAdd categories, change the escalation channel, or auto-send low-priority acknowledgements."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dbb25bb2-7128-47c1-8c94-79691ff74343",
+      "name": "S1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 920,
+        "content": "## 1. Trigger & configure\nFetch new unread support emails and set brand context + urgent keywords."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b8fa467-9fea-4953-85eb-f443f31c34be",
+      "name": "S2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 864,
+        "height": 920,
+        "content": "## 2. AI analysis + error handling\nGemini classifies, prioritises and drafts a reply. If the call fails, Slack is notified instead of dropping the email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b07e5096-daee-408d-9b6e-6199f15e965c",
+      "name": "S3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1392,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 920,
+        "content": "## 3. Log & de-duplicate\nAppend the ticket to Sheets and mark the email as read so it is never processed twice."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fb2f6b8-b6ed-4c30-b946-6c5b52b29854",
+      "name": "S4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1904,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 740,
+        "height": 920,
+        "content": "## 4. Route by priority & act\nHigh -> urgent draft + on-call escalation. Medium -> standard draft. Low -> acknowledgement draft. Unclassified -> manual review."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "f88ef9e7-175a-43c8-ab0b-609f6611ddc7",
+  "nodeGroups": [],
+  "connections": {
+    "Parse AI Result": {
+      "main": [
+        [
+          {
+            "node": "Log Ticket to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Priority": {
+      "main": [
+        [
+          {
+            "node": "Draft Priority Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft Standard Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft Acknowledgement",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag for Manual Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Configuration": {
+      "main": [
+        [
+          {
+            "node": "Build Analysis Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Email as Read": {
+      "main": [
+        [
+          {
+            "node": "Route by Priority",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Ticket to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Mark Email as Read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Priority Reply": {
+      "main": [
+        [
+          {
+            "node": "Escalate to On-call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Analysis Prompt": {
+      "main": [
+        [
+          {
+            "node": "Analyze Email with Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch New Support Emails": {
+      "main": [
+        [
+          {
+            "node": "Set Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Email with Gemini": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Analysis Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

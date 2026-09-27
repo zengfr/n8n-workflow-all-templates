@@ -1,0 +1,1066 @@
+{
+  "id": "kGQM3SqYqjH2nc8Y",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Prioritize and report Wazuh vulnerabilities with EPSS and CISA KEV",
+    "wechat": "youandme10086",
+    "id": 17782,
+    "update_time": "2026-09-27"
+  },
+  "name": "Track and prioritize Wazuh vulnerabilities with EPSS and CISA KEV",
+  "tags": [
+    {
+      "id": "vBzAMZ5eKvESpFXV",
+      "name": "cybersecurity",
+      "createdAt": "2026-08-03T19:17:53.250Z",
+      "updatedAt": "2026-08-03T19:17:53.250Z"
+    },
+    {
+      "id": "pad3X1JZMW21RUnx",
+      "name": "wazuh",
+      "createdAt": "2026-08-03T19:17:53.258Z",
+      "updatedAt": "2026-08-03T19:17:53.258Z"
+    },
+    {
+      "id": "QeU5aSFbaSbv65vq",
+      "name": "vulnerability management",
+      "createdAt": "2026-08-03T19:17:53.260Z",
+      "updatedAt": "2026-08-03T19:17:53.260Z"
+    },
+    {
+      "id": "Ii2AvPDqzLclC1Tc",
+      "name": "daily report",
+      "createdAt": "2026-08-03T19:17:53.262Z",
+      "updatedAt": "2026-08-03T19:17:53.262Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "a6cf187d-4050-4d12-875b-cf305c36b05b",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e876b6f7-9ee0-4cd5-a4fe-db1ae9272c4c",
+      "name": "Query Wazuh Vulnerability Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        480,
+        144
+      ],
+      "parameters": {
+        "url": "={{ $('Configure workflow').first().json.wazuhIndexerUrl.replace(/\\/$/, '') + '/wazuh-states-vulnerabilities*/_search' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "search_after",
+                    "type": "body",
+                    "value": "={{ $response.body.hits.hits[$response.body.hits.hits.length - 1].sort }}"
+                  }
+                ]
+              },
+              "maxRequests": 1000,
+              "limitPagesFetched": true,
+              "completeExpression": "={{ $response.body.hits.hits.length < 1000 }}",
+              "paginationCompleteWhen": "other"
+            }
+          },
+          "allowUnauthorizedCerts": false
+        },
+        "jsonBody": {
+          "size": 1000,
+          "sort": [
+            {
+              "agent.id": "asc"
+            },
+            {
+              "vulnerability.id": "asc"
+            },
+            {
+              "_id": "asc"
+            }
+          ],
+          "query": {
+            "match_all": {}
+          },
+          "track_total_hits": true
+        },
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "credentials": {
+        "httpBasicAuth": {
+          "id": "credential-id",
+          "name": "Wazuh Indexer - Read Only"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "6fdc5122-3cdc-48cf-9fd1-fb2e50c5a48a",
+      "name": "Normalize Vulnerabilities",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        720,
+        144
+      ],
+      "parameters": {
+        "jsCode": "const hits = $input.all().flatMap(item => item.json.hits?.hits ?? []);\nreturn hits.map((hit) => {\n  const s = hit._source ?? {};\n  const v = s.vulnerability ?? {};\n  const p = s.package ?? {};\n  const a = s.agent ?? {};\n  return { json: {\n    finding_key: hit._id ?? [a.id, v.id, p.name, p.version].join('|'),\n    cve: v.id ?? '',\n    agent_id: a.id ?? '',\n    agent_name: a.name ?? '',\n    package_name: p.name ?? '',\n    package_version: p.version ?? '',\n    severity: v.severity ?? 'Unknown',\n    cvss_score: Number(v.score?.base ?? 0),\n    lifecycle_status: 'active',\n    first_seen_at: s['@timestamp'] ?? new Date().toISOString(),\n    last_seen_at: new Date().toISOString(),\n    resolved_at: null,\n    detection_count: 1,\n    cisa_kev: false,\n    epss_score: 0,\n    priority_score: Number(v.score?.base ?? 0),\n    context_object: JSON.stringify({ source_index: hit._index, status: v.status ?? 'Active' })\n  }};\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ecb11343-fc40-41fd-891d-6aabb3e9bafb",
+      "name": "Run daily at 07:00 UTC",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "953afd61-a37e-4017-ae51-369f923ef037",
+      "name": "Load Lifecycle History",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1952,
+        144
+      ],
+      "parameters": {
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "wazuh_vulnerability_lifecycle",
+          "cachedResultName": "wazuh_vulnerability_lifecycle"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "52d2bf49-90c7-49b5-b352-16d77b343d54",
+      "name": "Compute Lifecycle Changes",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2192,
+        144
+      ],
+      "parameters": {
+        "jsCode": "const current = $('Apply Threat Intelligence').all().map(i => i.json);\nconst history = $input.all().map(i => i.json).filter(r => r.finding_key);\nconst now = new Date().toISOString();\nconst previous = new Map(history.map(r => [r.finding_key, r]));\nconst seen = new Set();\nconst changes = current.map(row => {\n  const old = previous.get(row.finding_key);\n  seen.add(row.finding_key);\n  return { json: {\n    ...row,\n    lifecycle_status: !old ? 'new' : old.lifecycle_status === 'resolved' ? 'reopened' : 'ongoing',\n    first_seen_at: old?.first_seen_at ?? row.first_seen_at ?? now,\n    last_seen_at: now,\n    resolved_at: null,\n    detection_count: Number(old?.detection_count ?? 0) + 1\n  }};\n});\nfor (const old of history) {\n  if (!seen.has(old.finding_key) && old.lifecycle_status !== 'resolved') {\n    changes.push({ json: { ...old, lifecycle_status: 'resolved', last_seen_at: old.last_seen_at ?? now, resolved_at: now } });\n  }\n}\nreturn changes;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0c5fd426-bd7c-4b79-87e8-c0e77dead309",
+      "name": "Upsert Lifecycle Records",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2432,
+        144
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "cve": "={{ $json.cve }}",
+            "agent_id": "={{ $json.agent_id }}",
+            "cisa_kev": "={{ $json.cisa_kev }}",
+            "severity": "={{ $json.severity }}",
+            "agent_name": "={{ $json.agent_name }}",
+            "cvss_score": "={{ $json.cvss_score }}",
+            "epss_score": "={{ $json.epss_score }}",
+            "finding_key": "={{ $json.finding_key }}",
+            "resolved_at": "={{ $json.resolved_at }}",
+            "last_seen_at": "={{ $json.last_seen_at }}",
+            "package_name": "={{ $json.package_name }}",
+            "first_seen_at": "={{ $json.first_seen_at }}",
+            "context_object": "={{ $json.context_object }}",
+            "priority_score": "={{ $json.priority_score }}",
+            "detection_count": "={{ $json.detection_count }}",
+            "package_version": "={{ $json.package_version }}",
+            "lifecycle_status": "={{ $json.lifecycle_status }}"
+          },
+          "schema": [
+            {
+              "id": "finding_key",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "finding_key",
+              "defaultMatch": false
+            },
+            {
+              "id": "cve",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "cve",
+              "defaultMatch": false
+            },
+            {
+              "id": "agent_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "agent_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "agent_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "agent_name",
+              "defaultMatch": false
+            },
+            {
+              "id": "package_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "package_name",
+              "defaultMatch": false
+            },
+            {
+              "id": "package_version",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "package_version",
+              "defaultMatch": false
+            },
+            {
+              "id": "severity",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "severity",
+              "defaultMatch": false
+            },
+            {
+              "id": "cvss_score",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "cvss_score",
+              "defaultMatch": false
+            },
+            {
+              "id": "lifecycle_status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "lifecycle_status",
+              "defaultMatch": false
+            },
+            {
+              "id": "first_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "first_seen_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "last_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "last_seen_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "resolved_at",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "resolved_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "detection_count",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "detection_count",
+              "defaultMatch": false
+            },
+            {
+              "id": "cisa_kev",
+              "type": "boolean",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "cisa_kev",
+              "defaultMatch": false
+            },
+            {
+              "id": "epss_score",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "epss_score",
+              "defaultMatch": false
+            },
+            {
+              "id": "priority_score",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "priority_score",
+              "defaultMatch": false
+            },
+            {
+              "id": "context_object",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "context_object",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "finding_key",
+              "keyValue": "={{ $json.finding_key }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "wazuh_vulnerability_lifecycle",
+          "cachedResultName": "wazuh_vulnerability_lifecycle"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "df2d9b9e-7c54-48f9-80a3-2491c3917fcc",
+      "name": "Build Run Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2752,
+        256
+      ],
+      "parameters": {
+        "jsCode": "const rows = $('Compute Lifecycle Changes').all().map(i => i.json);\nconst config = $('Configure workflow').first().json;\nconst active = rows.filter(r => r.lifecycle_status !== 'resolved');\nconst count = status => rows.filter(r => r.lifecycle_status === status).length;\nconst severity = level => active.filter(r => String(r.severity).toLowerCase() === level).length;\nconst now = new Date().toISOString();\nconst epssThreshold = Number(config.epssHighThreshold ?? 0.5);\nconst priorityThreshold = Number(config.criticalPriorityThreshold ?? 80);\nreturn [{ json: {\n  run_id: `wazuh-${Date.now()}`,\n  started_at: now,\n  completed_at: now,\n  run_status: 'completed',\n  total_active: active.length,\n  new_count: count('new'),\n  ongoing_count: count('ongoing') + count('reopened'),\n  resolved_count: count('resolved'),\n  critical_count: severity('critical'),\n  high_count: severity('high'),\n  summary_object: JSON.stringify({\n    reopened: count('reopened'),\n    cisa_kev_count: active.filter(r => r.cisa_kev).length,\n    epss_high_probability_count: active.filter(r => Number(r.epss_score ?? 0) >= epssThreshold).length,\n    priority_threshold_count: active.filter(r => Number(r.priority_score ?? 0) >= priorityThreshold).length,\n    epss_threshold: epssThreshold,\n    priority_threshold: priorityThreshold,\n    generatedAt: now\n  })\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "347d7fa9-0764-4288-9b28-2c8e56c88f33",
+      "name": "Log Workflow Run",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2992,
+        352
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "run_id": "={{ $json.run_id }}",
+            "new_count": "={{ $json.new_count }}",
+            "high_count": "={{ $json.high_count }}",
+            "run_status": "={{ $json.run_status }}",
+            "started_at": "={{ $json.started_at }}",
+            "completed_at": "={{ $json.completed_at }}",
+            "total_active": "={{ $json.total_active }}",
+            "ongoing_count": "={{ $json.ongoing_count }}",
+            "critical_count": "={{ $json.critical_count }}",
+            "resolved_count": "={{ $json.resolved_count }}",
+            "summary_object": "={{ $json.summary_object }}"
+          },
+          "schema": [
+            {
+              "id": "run_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "run_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "started_at",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "started_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "completed_at",
+              "type": "dateTime",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "completed_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "run_status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "run_status",
+              "defaultMatch": false
+            },
+            {
+              "id": "total_active",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "total_active",
+              "defaultMatch": false
+            },
+            {
+              "id": "new_count",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "new_count",
+              "defaultMatch": false
+            },
+            {
+              "id": "ongoing_count",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "ongoing_count",
+              "defaultMatch": false
+            },
+            {
+              "id": "resolved_count",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "resolved_count",
+              "defaultMatch": false
+            },
+            {
+              "id": "critical_count",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "critical_count",
+              "defaultMatch": false
+            },
+            {
+              "id": "high_count",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "high_count",
+              "defaultMatch": false
+            },
+            {
+              "id": "summary_object",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "summary_object",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "wazuh_vulnerability_runs",
+          "cachedResultName": "wazuh_vulnerability_runs"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b6314f68-20c8-4f95-8f5d-263f7a8f6c31",
+      "name": "Build EPSS Batches",
+      "type": "n8n-nodes-base.code",
+      "notes": "Reduce los hallazgos a CVE únicos y los agrupa en lotes para evitar una llamada por vulnerabilidad.",
+      "position": [
+        976,
+        144
+      ],
+      "parameters": {
+        "jsCode": "const uniqueCves = [...new Set(\n  $input.all()\n    .map(item => String(item.json.cve ?? '').trim().toUpperCase())\n    .filter(cve => /^CVE-\\d{4}-\\d{4,}$/.test(cve))\n)];\nconst batchSize = 100;\nconst batches = [];\nfor (let index = 0; index < uniqueCves.length; index += batchSize) {\n  const cves = uniqueCves.slice(index, index + batchSize);\n  batches.push({\n    json: {\n      batch_number: Math.floor(index / batchSize) + 1,\n      cve_count: cves.length,\n      cves: cves.join(',')\n    }\n  });\n}\nreturn batches;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "460e4926-9642-4714-8650-fef10361945c",
+      "name": "Fetch EPSS in Batches",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Envía únicamente identificadores CVE a FIRST EPSS, con autorización explícita del usuario; no transmite activos, paquetes ni credenciales.",
+      "maxTries": 3,
+      "position": [
+        1200,
+        144
+      ],
+      "parameters": {
+        "url": "https://api.first.org/data/v1/epss",
+        "options": {
+          "timeout": 30000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 250
+            }
+          },
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "cve",
+              "value": "={{ $json.cves }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "e553a516-f596-426e-9501-6f64a96c4681",
+      "name": "Fetch CISA KEV Catalog",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Descarga una sola vez por ejecución el catálogo oficial CISA Known Exploited Vulnerabilities.",
+      "maxTries": 3,
+      "position": [
+        1424,
+        144
+      ],
+      "parameters": {
+        "url": "https://www.cisa.gov/sites/default/files/feeds/known_exploited_vulnerabilities.json",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "b6136f58-dd4c-4bd8-b314-01aa15acec8c",
+      "name": "Apply Threat Intelligence",
+      "type": "n8n-nodes-base.code",
+      "notes": "Cruza Wazuh, EPSS y CISA KEV y calcula un puntaje explicable de 0 a 100.",
+      "position": [
+        1648,
+        144
+      ],
+      "parameters": {
+        "jsCode": "const current = $('Normalize Vulnerabilities').all().map(item => item.json);\nconst epssResponses = $('Fetch EPSS in Batches').all().map(item => item.json);\nconst kevResponse = $input.first().json;\nconst config = $('Configure workflow').first().json;\n\nconst epssByCve = new Map();\nfor (const response of epssResponses) {\n  for (const entry of response.data ?? []) {\n    const cve = String(entry.cve ?? '').toUpperCase();\n    if (cve) epssByCve.set(cve, entry);\n  }\n}\n\nconst kevByCve = new Map();\nfor (const entry of kevResponse.vulnerabilities ?? []) {\n  const cve = String(entry.cveID ?? '').toUpperCase();\n  if (cve) kevByCve.set(cve, entry);\n}\n\nconst cvssWeight = Number(config.cvssWeight ?? 5);\nconst epssWeight = Number(config.epssWeight ?? 30);\nconst kevWeight = Number(config.kevWeight ?? 20);\n\nreturn current.map(row => {\n  const cve = String(row.cve ?? '').toUpperCase();\n  const epss = epssByCve.get(cve);\n  const kev = kevByCve.get(cve);\n  const epssScore = Number(epss?.epss ?? 0);\n  const cvssScore = Number(row.cvss_score ?? 0);\n  const priorityScore = Math.min(100, Math.round((cvssScore * cvssWeight + epssScore * epssWeight + (kev ? kevWeight : 0)) * 10) / 10);\n\n  let baseContext = {};\n  try { baseContext = JSON.parse(row.context_object || '{}'); } catch {}\n\n  return { json: {\n    ...row,\n    cisa_kev: Boolean(kev),\n    epss_score: epssScore,\n    priority_score: priorityScore,\n    context_object: JSON.stringify({\n      ...baseContext,\n      epss_percentile: Number(epss?.percentile ?? 0),\n      epss_date: epss?.date ?? null,\n      cisa_kev: kev ? {\n        vendor: kev.vendorProject ?? null,\n        product: kev.product ?? null,\n        vulnerability_name: kev.vulnerabilityName ?? null,\n        date_added: kev.dateAdded ?? null,\n        due_date: kev.dueDate ?? null,\n        known_ransomware_use: kev.knownRansomwareCampaignUse ?? null,\n        required_action: kev.requiredAction ?? null\n      } : null,\n      priority_formula: `CVSS×${cvssWeight} + EPSS×${epssWeight} + KEV×${kevWeight}`\n    })\n  }};\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fe3e2226-1d87-4ad8-a089-42111db91eb7",
+      "name": "Send Executive Security Report",
+      "type": "n8n-nodes-base.emailSend",
+      "maxTries": 3,
+      "position": [
+        2992,
+        160
+      ],
+      "webhookId": "18bc5c80-ac79-4e08-bc73-f50094d8c144",
+      "parameters": {
+        "html": "={{ (() => {\n  const summary = $('Build Run Summary').first().json;\n  const details = JSON.parse(summary.summary_object || '{}');\n  const config = $('Configure workflow').first().json;\n  const topLimit = Number(config.topFindingsLimit || 10);\n  const rows = $('Compute Lifecycle Changes').all()\n    .map(item => item.json)\n    .filter(row => row.lifecycle_status !== 'resolved')\n    .sort((a, b) => Number(b.priority_score || 0) - Number(a.priority_score || 0))\n    .slice(0, topLimit);\n\n  const escapeHtml = value => String(value ?? '')\n    .replaceAll('&', '&amp;')\n    .replaceAll('<', '&lt;')\n    .replaceAll('>', '&gt;')\n    .replaceAll('\"', '&quot;')\n    .replaceAll(\"'\", '&#039;');\n\n  const topRows = rows.map(row => `\n    <tr>\n      <td style=\"padding:8px;border-bottom:1px solid #e5e7eb;\">${escapeHtml(row.cve)}</td>\n      <td style=\"padding:8px;border-bottom:1px solid #e5e7eb;\">${escapeHtml(row.agent_name)}</td>\n      <td style=\"padding:8px;border-bottom:1px solid #e5e7eb;\">${escapeHtml(row.severity)}</td>\n      <td style=\"padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;\">${Number(row.cvss_score || 0).toFixed(1)}</td>\n      <td style=\"padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;\">${(Number(row.epss_score || 0) * 100).toFixed(2)}%</td>\n      <td style=\"padding:8px;border-bottom:1px solid #e5e7eb;text-align:center;\">${row.cisa_kev ? 'Yes' : 'No'}</td>\n      <td style=\"padding:8px;border-bottom:1px solid #e5e7eb;text-align:right;font-weight:700;\">${Number(row.priority_score || 0).toFixed(1)}</td>\n    </tr>\n  `).join('');\n\n  return `\n  <div style=\"font-family:Arial,sans-serif;color:#111827;max-width:900px;margin:auto;\">\n    <div style=\"background:#111827;color:#fff;padding:24px;border-radius:10px 10px 0 0;\">\n      <h1 style=\"margin:0;font-size:24px;\">${escapeHtml(config.organizationName)} Cybersecurity Daily Brief</h1>\n      <p style=\"margin:8px 0 0;color:#d1d5db;\">Wazuh Vulnerability Intelligence & Lifecycle</p>\n    </div>\n    <div style=\"padding:24px;border:1px solid #e5e7eb;\">\n      <p>Generated at: <strong>${escapeHtml(summary.completed_at)}</strong></p>\n      <table style=\"width:100%;border-collapse:collapse;margin:20px 0;\">\n        <tr>\n          <td style=\"padding:12px;background:#f3f4f6;\"><strong>Active</strong><br>${summary.total_active}</td>\n          <td style=\"padding:12px;background:#fee2e2;\"><strong>Critical</strong><br>${summary.critical_count}</td>\n          <td style=\"padding:12px;background:#ffedd5;\"><strong>High</strong><br>${summary.high_count}</td>\n          <td style=\"padding:12px;background:#fef3c7;\"><strong>CISA KEV</strong><br>${details.cisa_kev_count || 0}</td>\n          <td style=\"padding:12px;background:#dbeafe;\"><strong>EPSS ≥ ${(Number(details.epss_threshold || 0.5) * 100).toFixed(0)}%</strong><br>${details.epss_high_probability_count || 0}</td>\n        </tr>\n      </table>\n      <p><strong>Lifecycle changes:</strong> ${summary.new_count} new, ${summary.ongoing_count} ongoing, ${summary.resolved_count} resolved and ${details.reopened || 0} reopened.</p>\n      <h2 style=\"margin-top:28px;\">Top ${topLimit} findings by priority</h2>\n      <table style=\"width:100%;border-collapse:collapse;font-size:13px;\">\n        <thead>\n          <tr style=\"background:#111827;color:#fff;\">\n            <th style=\"padding:8px;text-align:left;\">CVE</th>\n            <th style=\"padding:8px;text-align:left;\">Agent</th>\n            <th style=\"padding:8px;text-align:left;\">Severity</th>\n            <th style=\"padding:8px;\">CVSS</th>\n            <th style=\"padding:8px;\">EPSS</th>\n            <th style=\"padding:8px;\">KEV</th>\n            <th style=\"padding:8px;\">Priority</th>\n          </tr>\n        </thead>\n        <tbody>${topRows}</tbody>\n      </table>\n      <p style=\"margin-top:24px;color:#6b7280;font-size:12px;\">Priority = CVSS×${config.cvssWeight} + EPSS×${config.epssWeight} + CISA KEV×${config.kevWeight}. Maximum score: 100. Sources: Wazuh, FIRST EPSS and CISA KEV.</p>\n    </div>\n  </div>`;\n})() }}",
+        "options": {
+          "replyTo": "={{ $('Configure workflow').first().json.senderEmail }}",
+          "appendAttribution": false
+        },
+        "subject": "={{ '[' + $('Configure workflow').first().json.organizationName + '] Cybersecurity Daily Brief - ' + $('Build Run Summary').first().json.completed_at.slice(0, 10) }}",
+        "toEmail": "={{ $('Configure workflow').first().json.reportRecipient }}",
+        "fromEmail": "={{ $('Configure workflow').first().json.senderName + ' <' + $('Configure workflow').first().json.senderEmail + '>' }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "credential-id",
+          "name": "SMTP account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "1d8ccf14-9580-4a07-87ae-5db7723d3b01",
+      "name": "Workflow overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -864,
+        -912
+      ],
+      "parameters": {
+        "color": "#FFE770",
+        "width": 620,
+        "height": 1096,
+        "content": "## Track and prioritize Wazuh vulnerabilities\n\n**Wazuh** is an open-source cybersecurity platform that provides SIEM and XDR capabilities. It collects and analyzes security telemetry to support use cases such as threat detection, compliance monitoring, incident investigation, and vulnerability detection.\n\nWazuh can identify software vulnerabilities across monitored endpoints, but security teams may still need clearer historical reporting, lifecycle tracking, and context for deciding which findings require action first. This workflow addresses those gaps by preserving findings over time and turning raw vulnerability data into a prioritized security report.\n\n### How it works\n\nThe workflow reads Wazuh's complete vulnerability inventory with a read-only account, validated TLS, and search-after pagination. It tracks whether each finding is **new**, **ongoing**, **resolved**, or **reopened** and enriches CVEs with:\n\n→ **FIRST EPSS**, which estimates the probability that a vulnerability will be exploited in the next 30 days.\n\n→ **CISA KEV**, a catalog of vulnerabilities known to have been exploited in real-world attacks.\n\nIt combines this context with CVSS severity to calculate an explainable priority score, sends an executive email report, and records run metrics for auditing.\n\n### Setup\n\n→ Create the two Data Tables described in the section notes.\n\n→ Add read-only Wazuh/OpenSearch Basic Auth credentials and trust the Wazuh Indexer CA in the n8n host or container.\n\n→ Add SMTP credentials to the email node.\n\n→ Replace every placeholder in **Configure workflow**.\n\n→ Run it manually, review the results, and then activate the schedule.\n\n### Customization\n\nAdjust the schedule, recipients, report size, risk thresholds, and scoring weights in **Configure workflow**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a1c2d40-3843-4b69-9093-63f5599067a2",
+      "name": "Collection and least privilege",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 520,
+        "content": "### 1 - Configure, collect, and normalize\nSet deployment-specific values in **Configure workflow**. The Wazuh request validates TLS, uses read-only Basic Auth, retrieves the full inventory with search-after pagination, and creates a stable finding key for lifecycle tracking."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "36006bbd-e045-4996-8632-1c2315473a03",
+      "name": "Threat intelligence methodology",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        912,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 928,
+        "height": 520,
+        "content": "### 2 - Enrich and prioritize\nCVEs are deduplicated and queried in EPSS batches. The CISA KEV catalog is downloaded once, then configurable CVSS, EPSS, and KEV weights produce an explainable score."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "45c9818b-b526-4732-a4ce-789c142d05c4",
+      "name": "Lifecycle state model",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1872,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 520,
+        "content": "### 3 - Track lifecycle changes\nCreate a Data Table named `wazuh_vulnerability_lifecycle` using the schema described in the submission guide. Current findings are classified as new, ongoing, resolved, or reopened and then upserted."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5fda1a54-9a12-4d59-8464-ed6d15236955",
+      "name": "Outputs and audit trail",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2656,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 744,
+        "content": "### 4 - Report and audit\nThe summary fans out to email and a terminal audit branch. Create `wazuh_vulnerability_runs` using the documented schema. The log node is intentionally terminal; it is connected and stores one row per run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "caa697ae-b48b-4ce1-a1b6-6fde5db0717d",
+      "name": "Configure workflow",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        144
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "organization-name",
+              "name": "organizationName",
+              "type": "string",
+              "value": "Your Organization"
+            },
+            {
+              "id": "wazuh-indexer-url",
+              "name": "wazuhIndexerUrl",
+              "type": "string",
+              "value": "https://YOUR_WAZUH_INDEXER:9200"
+            },
+            {
+              "id": "report-recipient",
+              "name": "reportRecipient",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "sender-name",
+              "name": "senderName",
+              "type": "string",
+              "value": "Security Automation"
+            },
+            {
+              "id": "sender-email",
+              "name": "senderEmail",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "top-findings-limit",
+              "name": "topFindingsLimit",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "epss-high-threshold",
+              "name": "epssHighThreshold",
+              "type": "number",
+              "value": 0.5
+            },
+            {
+              "id": "critical-priority-threshold",
+              "name": "criticalPriorityThreshold",
+              "type": "number",
+              "value": 80
+            },
+            {
+              "id": "cvss-weight",
+              "name": "cvssWeight",
+              "type": "number",
+              "value": 5
+            },
+            {
+              "id": "epss-weight",
+              "name": "epssWeight",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "id": "kev-weight",
+              "name": "kevWeight",
+              "type": "number",
+              "value": 20
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "UTC",
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "2f6acb5b-72cf-4774-9705-674e6d61db75",
+  "nodeGroups": [
+    {
+      "id": "configuration-collection",
+      "name": "Configure, collect, and normalize Wazuh findings",
+      "nodeIds": [
+        "caa697ae-b48b-4ce1-a1b6-6fde5db0717d",
+        "e876b6f7-9ee0-4cd5-a4fe-db1ae9272c4c",
+        "6fdc5122-3cdc-48cf-9fd1-fb2e50c5a48a"
+      ]
+    },
+    {
+      "id": "threat-intel-enrichment",
+      "name": "Enrich and prioritize vulnerabilities",
+      "nodeIds": [
+        "b6314f68-20c8-4f95-8f5d-263f7a8f6c31",
+        "460e4926-9642-4714-8650-fef10361945c",
+        "e553a516-f596-426e-9501-6f64a96c4681",
+        "b6136f58-dd4c-4bd8-b314-01aa15acec8c"
+      ]
+    },
+    {
+      "id": "track-lifecycle",
+      "name": "Track vulnerability lifecycle",
+      "nodeIds": [
+        "953afd61-a37e-4017-ae51-369f923ef037",
+        "52d2bf49-90c7-49b5-b352-16d77b343d54",
+        "0c5fd426-bd7c-4b79-87e8-c0e77dead309"
+      ]
+    },
+    {
+      "id": "report-audit",
+      "name": "Report results and log each run",
+      "nodeIds": [
+        "df2d9b9e-7c54-48f9-80a3-2491c3917fcc",
+        "fe3e2226-1d87-4ad8-a089-42111db91eb7",
+        "347d7fa9-0764-4288-9b28-2c8e56c88f33"
+      ]
+    }
+  ],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Configure workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Run Summary": {
+      "main": [
+        [
+          {
+            "node": "Log Workflow Run",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Executive Security Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build EPSS Batches": {
+      "main": [
+        [
+          {
+            "node": "Fetch EPSS in Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure workflow": {
+      "main": [
+        [
+          {
+            "node": "Query Wazuh Vulnerability Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch EPSS in Batches": {
+      "main": [
+        [
+          {
+            "node": "Fetch CISA KEV Catalog",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch CISA KEV Catalog": {
+      "main": [
+        [
+          {
+            "node": "Apply Threat Intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Lifecycle History": {
+      "main": [
+        [
+          {
+            "node": "Compute Lifecycle Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run daily at 07:00 UTC": {
+      "main": [
+        [
+          {
+            "node": "Configure workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Lifecycle Records": {
+      "main": [
+        [
+          {
+            "node": "Build Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Threat Intelligence": {
+      "main": [
+        [
+          {
+            "node": "Load Lifecycle History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Lifecycle Changes": {
+      "main": [
+        [
+          {
+            "node": "Upsert Lifecycle Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Vulnerabilities": {
+      "main": [
+        [
+          {
+            "node": "Build EPSS Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Wazuh Vulnerability Inventory": {
+      "main": [
+        [
+          {
+            "node": "Normalize Vulnerabilities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

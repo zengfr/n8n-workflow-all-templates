@@ -1,4 +1,4 @@
-# top : 39
+# top : 44
 
 |id|file|
 |----|----|
@@ -41,3 +41,8 @@
 |15193|[15193_Analyze_keywords_from_top_Upwork_talent_profiles_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15193_Analyze_keywords_from_top_Upwork_talent_profiles_with_Apify_and_Google_Sheets.json)|
 |15669|[15669_Generate_daily_stock_market_insights_with_Alpha_Vantage__Google_Gemini_AI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15669_Generate_daily_stock_market_insights_with_Alpha_Vantage__Google_Gemini_AI_and_Slack.json)|
 |16056|[16056_Score_BizQuest_listings_and_alert_top_deals_with_Apify__Claude__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16056_Score_BizQuest_listings_and_alert_top_deals_with_Apify__Claude__Sheets_and_Slack.json)|
+|17612|[17612_Score_Meta_ad_account_health_weekly_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17612_Score_Meta_ad_account_health_weekly_with_Claude_and_Gmail.json)|
+|18830|[18830_Detect_and_email_top_job_matches_with_RemoteOK__Arbeitnow__OpenAI__Gmail_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18830_Detect_and_email_top_job_matches_with_RemoteOK__Arbeitnow__OpenAI__Gmail_and_PostgreSQL.json)|
+|19153|[19153_Transcribe_TikTok_Creative_Center_top_ads_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19153_Transcribe_TikTok_Creative_Center_top_ads_with_Apify_and_Google_Sheets.json)|
+|19283|[19283_Search_and_outreach_to_top-fit_jobs_with_LinkedIn__RemoteOK__WWR__Claude_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19283_Search_and_outreach_to_top-fit_jobs_with_LinkedIn__RemoteOK__WWR__Claude_and_Sheets.json)|
+|19775|[19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json)|

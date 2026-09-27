@@ -1,4 +1,4 @@
-# reporting : 81
+# reporting : 90
 
 |id|file|
 |----|----|
@@ -83,3 +83,12 @@
 |15693|[15693_Summarize_daily_Shopify_orders_with_Gemini__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15693_Summarize_daily_Shopify_orders_with_Gemini__Google_Sheets__Gmail_and_Slack.json)|
 |15696|[15696_Monitor_daily_traffic_spikes_with_Databox__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15696_Monitor_daily_traffic_spikes_with_Databox__OpenAI_and_Slack.json)|
 |15806|[15806_Analyze_YouTube_comments_with_OpenAI_and_send_reports_via_email_and_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15806_Analyze_YouTube_comments_with_OpenAI_and_send_reports_via_email_and_chat.json)|
+|17055|[17055_Send_weekly_blended_ad_performance_reports_with_Meta__Google_Ads__GA4_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17055_Send_weekly_blended_ad_performance_reports_with_Meta__Google_Ads__GA4_and_OpenAI.json)|
+|17080|[17080_Send_weekly_blended_ad_performance_reports_with_Meta_Ads__Google_Ads__GA4_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17080_Send_weekly_blended_ad_performance_reports_with_Meta_Ads__Google_Ads__GA4_and_OpenAI.json)|
+|17561|[17561_Send_weekly_SEO_and_competitor_intelligence_reports_with_SEMrush__GA4__OpenAI__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17561_Send_weekly_SEO_and_competitor_intelligence_reports_with_SEMrush__GA4__OpenAI__Gmail_and_Slack.json)|
+|17783|[17783_Analyze_event_feedback_with_Google_Gemini__Discord__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17783_Analyze_event_feedback_with_Google_Gemini__Discord__and_Gmail.json)|
+|18167|[18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json)|
+|18245|[18245_Generate_carbon_emissions_reports_with_OpenAI__Slack_and_an_ESG_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18245_Generate_carbon_emissions_reports_with_OpenAI__Slack_and_an_ESG_dashboard.json)|
+|18620|[18620_Generate_carbon_emission_reports_with_GPT-4.1-mini__Slack__and_ESG_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18620_Generate_carbon_emission_reports_with_GPT-4.1-mini__Slack__and_ESG_APIs.json)|
+|19244|[19244_Generate_legal_ops_briefings_with_Claude__Clio__Plaid__AppFolio___Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19244_Generate_legal_ops_briefings_with_Claude__Clio__Plaid__AppFolio___Google.json)|
+|19568|[19568_Track_grant_deadlines_and_spend_down_with_OpenAI__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19568_Track_grant_deadlines_and_spend_down_with_OpenAI__Google_Sheets__Gmail_and_Telegram.json)|

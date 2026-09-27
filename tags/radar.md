@@ -1,4 +1,4 @@
-# radar : 6
+# radar : 17
 
 |id|file|
 |----|----|
@@ -8,3 +8,14 @@
 |13818|[13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json)|
 |16243|[16243_Score_sales_outreach_opportunities_from_RSS_feeds_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16243_Score_sales_outreach_opportunities_from_RSS_feeds_with_Claude_and_Gmail.json)|
 |16479|[16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json)|
+|17552|[17552_Score_customer_churn_risk_and_send_save-play_emails_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17552_Score_customer_churn_risk_and_send_save-play_emails_with_Claude_and_Gmail.json)|
+|17574|[17574_Monitor_competitor_funding_with_Apify__Google_Gemini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17574_Monitor_competitor_funding_with_Apify__Google_Gemini__Google_Sheets_and_Slack.json)|
+|18127|[18127_Track_alumni_job_changes_with_Coresignal__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18127_Track_alumni_job_changes_with_Coresignal__Google_Sheets_and_Slack.json)|
+|18509|[18509_Log_Telegram_client_updates_to_Notion_and_Google_Sheets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18509_Log_Telegram_client_updates_to_Notion_and_Google_Sheets_with_Gemini.json)|
+|18779|[18779_Score_and_summarize_new_arXiv_AI_papers_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18779_Score_and_summarize_new_arXiv_AI_papers_with_Claude_and_Gmail.json)|
+|18897|[18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json)|
+|18973|[18973_Score_generic_drug_opportunities_with_Claude__Airtable__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18973_Score_generic_drug_opportunities_with_Claude__Airtable__and_WhatsApp.json)|
+|19088|[19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json)|
+|19131|[19131_Discover_monetizable_Reddit_problems_with_Apify__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19131_Discover_monetizable_Reddit_problems_with_Apify__Gemini_and_Google_Sheets.json)|
+|19185|[19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json)|
+|19322|[19322_Log_new_hiring_leads_from_Apify_to_Sheets_with_GPT-4o-mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19322_Log_new_hiring_leads_from_Apify_to_Sheets_with_GPT-4o-mini_and_Slack_alerts.json)|

@@ -1,4 +1,4 @@
-# airtop : 48
+# airtop : 51
 
 |id|file|
 |----|----|
@@ -50,3 +50,6 @@
 |12248|[12248_Track_Udemy_course_discounts_with_Airtop__Google_Sheets_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12248_Track_Udemy_course_discounts_with_Airtop__Google_Sheets_and_Telegram_alerts.json)|
 |14009|[14009_Find_leads_from_LinkedIn_posts_using_Airtop_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14009_Find_leads_from_LinkedIn_posts_using_Airtop_agents.json)|
 |14285|[14285_Track_buying_signals_with_Airtop_and_log_them_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14285_Track_buying_signals_with_Airtop_and_log_them_to_Google_Sheets.json)|
+|18618|[18618_Extract_Amazon_invoice_links_nightly_with_Airtop__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18618_Extract_Amazon_invoice_links_nightly_with_Airtop__OpenAI__and_Google_Sheets.json)|
+|18623|[18623_Extract_Amazon_invoice_data_with_Airtop__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18623_Extract_Amazon_invoice_data_with_Airtop__OpenAI__and_Google_Sheets.json)|
+|19229|[19229_Research_competitor_negative_reviews_with_Genspark__Airtop__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19229_Research_competitor_negative_reviews_with_Genspark__Airtop__OpenAI_and_Google_Sheets.json)|

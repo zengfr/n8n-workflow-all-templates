@@ -1,4 +1,4 @@
-# error : 51
+# error : 61
 
 |id|file|
 |----|----|
@@ -53,3 +53,13 @@
 |15347|[15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json)|
 |15484|[15484_Diagnose_n8n_workflow_errors_with_Claude_AI__Supabase_and_Resend_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15484_Diagnose_n8n_workflow_errors_with_Claude_AI__Supabase_and_Resend_email_alerts.json)|
 |16392|[16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json)|
+|16862|[16862_Route_workflow_error_incidents_to_Slack_alerts_with_a_Notion_incident_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16862_Route_workflow_error_incidents_to_Slack_alerts_with_a_Notion_incident_log.json)|
+|16874|[16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json)|
+|17475|[17475_Send_workflow_failure_alerts_via_email_and_Telegram_using_error_triggers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17475_Send_workflow_failure_alerts_via_email_and_Telegram_using_error_triggers.json)|
+|17693|[17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json)|
+|17929|[17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json)|
+|18868|[18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json)|
+|18927|[18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json)|
+|19018|[19018_Log_missed_EDI_sales_from_Gmail_CSVs_into_GoHighLevel_with_Slack_error_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19018_Log_missed_EDI_sales_from_Gmail_CSVs_into_GoHighLevel_with_Slack_error_alerts.json)|
+|19141|[19141_Catch_soft_404_and_error_pages_from_sitemaps_with_Snapshot_Site__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19141_Catch_soft_404_and_error_pages_from_sitemaps_with_Snapshot_Site__Slack__and_Google_Sheets.json)|
+|19730|[19730_Audit_missing_error_workflows_using_the_n8n_API_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19730_Audit_missing_error_workflows_using_the_n8n_API_and_Slack.json)|

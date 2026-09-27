@@ -1,0 +1,1588 @@
+{
+  "name": "Reconcile CRM and invoicing owner fields with conditional API writes",
+  "nodes": [
+    {
+      "id": "a1d40c27-01f7-472a-ae2d-1662c2f427da",
+      "name": "Overview — Reconcile CRM and invoicing fields",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1024,
+        0
+      ],
+      "parameters": {
+        "width": 896,
+        "height": 896,
+        "content": "## Reconcile CRM and invoicing fields\n\n### How it works\n1. Accepts an authenticated entity reference; separate source credentials determine which system owns the change.\n2. Reads the current CRM and invoice records through your normalized REST adapters and compares only the source-owned fields.\n3. Stops on missing records, tombstones or unresolved journal entries; unchanged fields need no write.\n4. Verifies a minimal durable intent, rechecks the source, and applies a conditional per-field PATCH to the existing target.\n5. Confirms the provider write marker and reads the target again before recording the applied result.\n\n### Setup steps\n- [ ] Create Reconciliation_Journal with the documented column schema and select it in all three Data Table nodes.\n- [ ] Configure distinct CRM and invoice source tokens and HTTPS adapter base URLs in n8n Variables.\n- [ ] Attach each adapter's Header Auth credential to its four HTTP nodes.\n- [ ] Implement the documented snapshot, strong ETag, conditional PATCH and idempotency contract in both adapters.\n- [ ] Serialize this lane and test both directions, unchanged replay, conflict and uncertain writes before activation.\n\n### Customization\nMap your provider fields to the fixed ownership policy and call the webhook from source-system events or your scheduler. The workflow does not create invoices or revive deleted records. Unknown write outcomes require manual reconciliation; raw business values are excluded from the journal."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b67fcc8-866e-49e8-ab50-c4cc526af53a",
+      "name": "Section 1 — Authenticate the source event",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1792,
+        "height": 688,
+        "content": "## Authenticate the source event\nBinds the source role to its token and accepts only an opaque entity reference."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06836500-d48c-4102-a6da-dc055aa84b81",
+      "name": "Section 2 — Compare authoritative fields",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2112,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2048,
+        "height": 432,
+        "content": "## Compare authoritative fields\nChecks unresolved history and current provider snapshots before planning a bounded patch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec71ae1c-1045-4364-a62f-5c030e030c6d",
+      "name": "Section 3 — Persist intent and recheck source",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4480,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1792,
+        "height": 688,
+        "content": "## Persist intent and recheck source\nVerifies the metadata journal insert and rejects a changed or unavailable source before writing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "92ae297f-7f26-45fe-ac5f-fd3628d2a679",
+      "name": "Section 4 — Apply a conditional field patch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1024
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1280,
+        "height": 688,
+        "content": "## Apply a conditional field patch\nUses the target revision and write key, retaining conflicts and uncertain outcomes for review."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "89b67a06-4e53-4289-a30f-01b6a051ba7e",
+      "name": "Section 5 — Verify provider state independently",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2112,
+        1024
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1024,
+        "height": 688,
+        "content": "## Verify provider state independently\nReads the target again and requires its fields, revision and write marker to match the acknowledgement."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "655e85b3-b1f4-4e5c-a421-75be524cecc1",
+      "name": "Section 6 — Record and return the outcome",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4480,
+        1024
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1280,
+        "height": 432,
+        "content": "## Record and return the outcome\nPersists only result metadata and confirms that write before returning a verified response."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1498a3a9-8d96-e609-79cc-deb2e411d12c",
+      "name": "Reconciliation Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        64,
+        192
+      ],
+      "parameters": {
+        "path": "crm-invoicing-reconcile",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "cf5a6066-a901-abbd-1e3f-cb3d466777f1",
+      "name": "Authenticate Reconciliation Source",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst root=$input.all()[0]?.json || {};\nconst tokens=[$vars.RECON_CRM_TOKEN,$vars.RECON_INVOICE_TOKEN];\nconst configured=tokens.every(t=>typeof t==='string' && /^[A-Za-z0-9._~-]{24,256}$/.test(t)) && tokens[0]!==tokens[1];\nconst h=obj(root.headers)?Object.entries(root.headers).filter(([k])=>k.toLowerCase()==='authorization'):[];\nconst provided=h.length===1 && typeof h[0][1]==='string' && /^Bearer [A-Za-z0-9._~-]{24,256}$/.test(h[0][1]) ? h[0][1].slice(7) : '';\nconst i=configured && provided ? tokens.indexOf(provided) : -1;\nreturn i<0 ? out({auth_ok:false,ok:false,status:'unauthorized',reason:'invalid_source_authentication',http_status:401}) : out({auth_ok:true,body:root.body,source_side:i===0?'crm':'invoice'});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2063aab4-a6af-efcf-c699-d4874c70941a",
+      "name": "Source Authorized?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        576,
+        192
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.auth_ok }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "2d7c2e14-3ce0-d046-a0f7-361e9cd07295",
+      "name": "Reject Source Authentication",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        576,
+        448
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $json.http_status }}"
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: $json.ok === true, status: $json.status, reason: $json.reason || '', event_key: $json.event_key || '', entity_hash: $json.entity_hash || '', changed_fields: Array.isArray($json.changed_fields) ? $json.changed_fields : [] } }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "8e2ec385-c6e4-5485-e26b-2243cb501f81",
+      "name": "Validate Reconciliation Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        832,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst a=$input.all()[0].json,b=a.body;\nif(!obj(b) || Object.keys(b).length!==1 || !ref(b.entity_key))return out({valid:false,ok:false,status:'invalid_request',reason:'expected_only_entity_key',http_status:400});\nconst bases=[$vars.RECON_CRM_BASE_URL,$vars.RECON_INVOICE_BASE_URL];\n// Administrator configuration only; the caller cannot choose a URL or path.\nconst validBase=s=>typeof s==='string' && s.length<=512 && /^https:\\/\\/(?:[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?\\.)+[A-Za-z]{2,63}(?::443)?(?:\\/[A-Za-z0-9_-]+)*$/.test(s) && !/\\.(?:localhost|local|internal|test)(?::443)?(?:\\/|$)/i.test(s);\nif(!bases.every(validBase) || bases[0]===bases[1])return out({valid:false,ok:false,status:'configuration_required',reason:'distinct_https_adapter_bases_required',http_status:503});\nreturn out({valid:true,entity_key:b.entity_key,entity_hash:hash('crm-invoice-recon.v1\\n'+b.entity_key),source_side:a.source_side,crm_url:bases[0]+'/'+encodeURIComponent(b.entity_key),invoice_url:bases[1]+'/'+encodeURIComponent(b.entity_key)});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d9de139c-be25-0b4c-ea37-cbe7ea7eaab3",
+      "name": "Reconciliation Request Valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1088,
+        192
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0c03a2af-5b17-e337-b5b8-9b383fd04367",
+      "name": "Respond Reconciliation Decision",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1344,
+        448
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $json.http_status }}"
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: $json.ok === true, status: $json.status, reason: $json.reason || '', event_key: $json.event_key || '', entity_hash: $json.entity_hash || '', changed_fields: Array.isArray($json.changed_fields) ? $json.changed_fields : [] } }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "a6fe38d3-76e1-fa71-87e2-43e4a3a0e9a1",
+      "name": "Find Entity Reconciliation Journal",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2176,
+        192
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "entity_hash",
+              "keyValue": "={{ $json.entity_hash }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "resource": "row",
+        "matchType": "allConditions",
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_RECONCILIATION_JOURNAL_TABLE_ID",
+          "cachedResultName": "Reconciliation_Journal"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "04a898ad-347d-68d7-2bdd-242a8d95ae86",
+      "name": "Check Reconciliation Journal",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2432,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$('Validate Reconciliation Request').first().json;\nconst input=$input.all().map(i=>i.json);\nconst rows=input.length===1 && obj(input[0]) && Object.keys(input[0]).length===0 ? [] : input;\nconst seen=new Set(),ids=new Set();\nfor(const r of rows){\n const fields=typeof r.changed_fields==='string'?r.changed_fields.split(','):[];\n const permitted=r.source_side==='crm'?crmFields:invoiceFields;\n if(!obj(r)||r.error||!Number.isSafeInteger(r.id)||r.id<1||ids.has(r.id)||!hex(r.event_key)||seen.has(r.event_key)||r.entity_hash!==p.entity_hash||!['crm','invoice'].includes(r.source_side)||!ref(r.source_revision)||!ref(r.target_revision)||!['intent','applied','conflict','reconcile_required'].includes(r.status)||!fields.length||new Set(fields).size!==fields.length||!fields.every(k=>permitted.includes(k))||r.sync_write_id!==r.event_key||!date(r.created_at_utc)||!date(r.updated_at_utc)||Date.parse(r.updated_at_utc)<Date.parse(r.created_at_utc)||typeof r.reason!=='string'||!['','source_changed','source_unavailable','target_conflict','provider_result_uncertain','readback_mismatch'].includes(r.reason)|| (r.result_revision!==''&&!ref(r.result_revision)) || (r.status==='applied'&&(!ref(r.result_revision)||r.reason!=='')) || (r.status==='intent'&&(r.result_revision!==''||r.reason!=='')))return out({...p,clear:false,ok:false,status:'journal_reconcile_required',reason:'invalid_or_duplicate_journal',http_status:409});\n seen.add(r.event_key);ids.add(r.id);\n if(['intent','reconcile_required'].includes(r.status))return out({...p,clear:false,ok:false,status:'reconcile_required',reason:'unresolved_prior_write',event_key:r.event_key,http_status:409});\n}\nreturn out({...p,clear:true,history:rows.map(r=>({event_key:r.event_key,status:r.status}))});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ae3686d3-775c-2775-3429-f282eaf44f1e",
+      "name": "Journal Clear?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2688,
+        192
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.clear }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "cf2d8b19-3552-0e21-866e-a3e3fd0b4bad",
+      "name": "Read Current CRM Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2944,
+        192
+      ],
+      "parameters": {
+        "url": "={{ $('Check Reconciliation Journal').first().json.crm_url }}",
+        "method": "GET",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "e2a4d346-2800-99c1-0a44-0225148398e2",
+      "name": "Read Current Invoice Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        3200,
+        192
+      ],
+      "parameters": {
+        "url": "={{ $('Check Reconciliation Journal').first().json.invoice_url }}",
+        "method": "GET",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3f027b75-fa88-4e60-9f55-86c9c35a733c",
+      "name": "Plan Owner Field Patch",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3456,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$('Check Reconciliation Journal').first().json;\nconst c=snapshot($('Read Current CRM Record').first().json,p.entity_key),i=snapshot($('Read Current Invoice Record').first().json,p.entity_key);\nconst stop=reason=>out({...p,needs_patch:false,ok:false,status:'held',reason,http_status:409});\nif(!c||!i)return stop('missing_or_invalid_provider_record');\nif(c.deleted||i.deleted)return stop('tombstone_no_write');\nconst source=p.source_side==='crm'?c:i,target=p.source_side==='crm'?i:c;\nconst fields=p.source_side==='crm'?crmFields:invoiceFields;\nconst patch={};for(const k of fields)if(!same(source.fields[k],target.fields[k]))patch[k]=source.fields[k];\nif(!Object.keys(patch).length)return out({...p,needs_patch:false,ok:true,status:'unchanged',reason:'',http_status:200});\nconst event_key=hash(JSON.stringify(['crm-invoice-recon.v1',p.entity_hash,p.source_side,source.revision,target.revision,patch]));\nif(p.history.some(r=>r.event_key===event_key))return out({...p,needs_patch:false,ok:false,status:'prior_plan_requires_review',reason:'journaled_plan_still_differs',event_key,http_status:409});\nconst now=new Date().toISOString();\nconst intent={event_key,entity_hash:p.entity_hash,source_side:p.source_side,source_revision:source.revision,target_revision:target.revision,status:'intent',changed_fields:Object.keys(patch).join(','),sync_write_id:event_key,result_revision:'',reason:'',created_at_utc:now,updated_at_utc:now};\nreturn out({...p,...intent,needs_patch:true,source,target,patch,intent,target_side:p.source_side==='crm'?'invoice':'crm'});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "acbbab57-711f-065a-ba83-589127114ac1",
+      "name": "Owner Fields Differ?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3712,
+        192
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.needs_patch }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "098adcf9-51ca-5263-80f2-3d3872b7e4ea",
+      "name": "Insert Reconciliation Intent",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        4544,
+        192
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "reason": "={{ $json.reason }}",
+            "status": "={{ $json.status }}",
+            "event_key": "={{ $json.event_key }}",
+            "entity_hash": "={{ $json.entity_hash }}",
+            "source_side": "={{ $json.source_side }}",
+            "sync_write_id": "={{ $json.sync_write_id }}",
+            "changed_fields": "={{ $json.changed_fields }}",
+            "created_at_utc": "={{ $json.created_at_utc }}",
+            "updated_at_utc": "={{ $json.updated_at_utc }}",
+            "result_revision": "={{ $json.result_revision }}",
+            "source_revision": "={{ $json.source_revision }}",
+            "target_revision": "={{ $json.target_revision }}"
+          },
+          "schema": [
+            {
+              "id": "event_key",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_key",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "entity_hash",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "entity_hash",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_side",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "source_side",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source_revision",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "source_revision",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_revision",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "target_revision",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "changed_fields",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "changed_fields",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "sync_write_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "sync_write_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result_revision",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "result_revision",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at_utc",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "created_at_utc",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at_utc",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "updated_at_utc",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_RECONCILIATION_JOURNAL_TABLE_ID",
+          "cachedResultName": "Reconciliation_Journal"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "c0071643-edc6-17f6-6806-4a4938f5a625",
+      "name": "Verify Reconciliation Intent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4800,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$('Plan Owner Field Patch').first().json, rows=$input.all().map(i=>i.json);\nif(rows.length!==1||!journalEqual(rows[0],p.intent))throw new Error('reconciliation_intent_persistence_unconfirmed_no_provider_write');\nreturn out({...p,journal_row_id:rows[0].id});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5323c3fa-e8da-ff13-c0b9-2c307883e2ce",
+      "name": "Recheck CRM Source?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5056,
+        192
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.source_side === 'crm' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "7e899cdc-ef58-b069-c26c-81007afa1ec0",
+      "name": "Recheck CRM Source",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        5312,
+        192
+      ],
+      "parameters": {
+        "url": "={{ $('Verify Reconciliation Intent').first().json.crm_url }}",
+        "method": "GET",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "c5156cd1-44f7-4d35-4202-b859b8ca476f",
+      "name": "Recheck Invoice Source",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        5312,
+        448
+      ],
+      "parameters": {
+        "url": "={{ $('Verify Reconciliation Intent').first().json.invoice_url }}",
+        "method": "GET",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "720afcc4-3103-8957-89b8-06bd11278ea6",
+      "name": "Verify Source Is Still Current",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5568,
+        192
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$('Verify Reconciliation Intent').first().json;\nconst s=snapshot($input.all()[0]?.json,p.entity_key);\nconst valid=s && same(s,p.source);\nreturn out({...p,source_current:Boolean(valid),status:valid?'intent':'conflict',reason:valid?'':s?'source_changed':'source_unavailable',result_revision:'',updated_at_utc:new Date().toISOString(),http_status:valid?200:409,ok:false});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a64cf4b9-188c-ec9a-c650-25d13d71ef1c",
+      "name": "Source Still Current?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5824,
+        192
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.source_current }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "5de1c324-1b00-661a-540a-2bbe846c2ed9",
+      "name": "Patch Invoice Target?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        64,
+        1216
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.target_side === 'invoice' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b4e95ed3-cfbf-4dc2-7c3e-9ad049c57071",
+      "name": "Patch Invoice Owner Fields",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        320,
+        1216
+      ],
+      "parameters": {
+        "url": "={{ $('Verify Source Is Still Current').first().json.invoice_url }}",
+        "method": "PATCH",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ { entity_key: $('Verify Source Is Still Current').first().json.entity_key, source_side: $('Verify Source Is Still Current').first().json.source_side, source_revision: $('Verify Source Is Still Current').first().json.source_revision, sync_write_id: $('Verify Source Is Still Current').first().json.event_key, patch: $('Verify Source Is Still Current').first().json.patch } }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "If-Match",
+              "value": "={{ JSON.stringify($('Verify Source Is Still Current').first().json.target_revision) }}"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Verify Source Is Still Current').first().json.event_key }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "aec50c9a-9a14-3b07-b39e-dea036d24398",
+      "name": "Patch CRM Owner Fields",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        320,
+        1472
+      ],
+      "parameters": {
+        "url": "={{ $('Verify Source Is Still Current').first().json.crm_url }}",
+        "method": "PATCH",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ { entity_key: $('Verify Source Is Still Current').first().json.entity_key, source_side: $('Verify Source Is Still Current').first().json.source_side, source_revision: $('Verify Source Is Still Current').first().json.source_revision, sync_write_id: $('Verify Source Is Still Current').first().json.event_key, patch: $('Verify Source Is Still Current').first().json.patch } }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "If-Match",
+              "value": "={{ JSON.stringify($('Verify Source Is Still Current').first().json.target_revision) }}"
+            },
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Verify Source Is Still Current').first().json.event_key }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "70125855-e572-8922-e893-cff85c6de427",
+      "name": "Inspect Conditional Patch Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        576,
+        1216
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$('Verify Source Is Still Current').first().json,raw=$input.all()[0]?.json;\n// A 409/412 is a proven non-write only under the documented adapter contract.\nconst conflict=obj(raw)&&!raw.error&&[409,412].includes(raw.statusCode)&&obj(raw.body)&&raw.body.code==='revision_conflict';\nconst s=snapshot(raw,p.entity_key);\nconst expectedFields={...p.target.fields,...p.patch};\nconst acknowledged=s && !s.deleted && s.record_id===p.target.record_id && s.revision!==p.target.revision && s.last_sync_write_id===p.event_key && allFields.every(k=>same(s.fields[k],expectedFields[k]));\nreturn out({...p,patch_acknowledged:Boolean(acknowledged),status:conflict?'conflict':'reconcile_required',reason:conflict?'target_conflict':'provider_result_uncertain',result_revision:acknowledged?s.revision:'',updated_at_utc:new Date().toISOString(),http_status:conflict?409:503,ok:false,acknowledged_snapshot:acknowledged?s:null});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ade8e926-3def-2df7-99ce-4ba83d589351",
+      "name": "Provider Write Acknowledged?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        832,
+        1216
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.patch_acknowledged }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "d0e8436c-3426-9124-e721-762332dfdc37",
+      "name": "Read Invoice Target?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2176,
+        1216
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.target_side === 'invoice' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "404fd6e8-4967-0f9f-d045-1ded51ca17d4",
+      "name": "Read Invoice After Patch",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2432,
+        1216
+      ],
+      "parameters": {
+        "url": "={{ $('Inspect Conditional Patch Result').first().json.invoice_url }}",
+        "method": "GET",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "99071725-ca5b-f584-5b1f-60c5eb6e841c",
+      "name": "Read CRM After Patch",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2432,
+        1472
+      ],
+      "parameters": {
+        "url": "={{ $('Inspect Conditional Patch Result').first().json.crm_url }}",
+        "method": "GET",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "07c48b3b-e0a3-f7bb-52d6-b186e182a4f8",
+      "name": "Verify Applied Provider State",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2688,
+        1216
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$('Inspect Conditional Patch Result').first().json,s=snapshot($input.all()[0]?.json,p.entity_key);\nconst proven=s && same(s,p.acknowledged_snapshot);\nreturn out({...p,ok:Boolean(proven),status:proven?'applied':'reconcile_required',reason:proven?'':'readback_mismatch',result_revision:proven?s.revision:'',updated_at_utc:new Date().toISOString(),http_status:proven?200:503});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7d5d3f4f-35bc-0e6b-6c12-2cd58d1d3712",
+      "name": "Prepare Journal Outcome",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4544,
+        1216
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$input.all()[0].json;\nif(!['applied','conflict','reconcile_required'].includes(p.status))throw new Error('invalid_reconciliation_outcome');\nconst result={...p.intent,status:p.status,reason:p.reason,result_revision:p.result_revision,updated_at_utc:p.updated_at_utc};\nreturn out({...result,journal_row_id:p.journal_row_id,expected:result,http_status:p.http_status,ok:p.ok});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "555dbb29-3a0e-adf0-af72-693144c5b5d3",
+      "name": "Persist Reconciliation Outcome",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        4800,
+        1216
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "reason": "={{ $json.reason }}",
+            "status": "={{ $json.status }}",
+            "updated_at_utc": "={{ $json.updated_at_utc }}",
+            "result_revision": "={{ $json.result_revision }}"
+          },
+          "schema": [
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "result_revision",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "result_revision",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "updated_at_utc",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "updated_at_utc",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "id",
+              "keyValue": "={{ $json.journal_row_id }}",
+              "condition": "eq"
+            },
+            {
+              "keyName": "event_key",
+              "keyValue": "={{ $json.event_key }}",
+              "condition": "eq"
+            },
+            {
+              "keyName": "status",
+              "keyValue": "intent",
+              "condition": "eq"
+            }
+          ]
+        },
+        "resource": "row",
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_RECONCILIATION_JOURNAL_TABLE_ID",
+          "cachedResultName": "Reconciliation_Journal"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "006ecc7a-9ff5-1e1d-f0e7-c2390b9b3a7a",
+      "name": "Verify Journal Outcome",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5056,
+        1216
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "\nconst crypto = require('crypto');\nconst hash = x => crypto.createHash('sha256').update(x).digest('hex');\nconst out = x => [{json:x}];\nconst ref = x => typeof x === 'string' && /^[A-Za-z0-9][A-Za-z0-9._:-]{0,127}$/.test(x);\nconst hex = x => typeof x === 'string' && /^[a-f0-9]{64}$/.test(x);\nconst obj = x => x !== null && typeof x === 'object' && !Array.isArray(x);\nconst own = (x, k) => Object.prototype.hasOwnProperty.call(x,k);\nconst same = (a,b) => JSON.stringify(a) === JSON.stringify(b);\nconst crmFields = ['client_name','billing_email','billing_address','tax_id','deal_stage'];\nconst invoiceFields = ['invoice_number','invoice_status','paid_at_utc','balance_due_minor','currency','invoice_due_at_utc'];\nconst allFields = [...crmFields,...invoiceFields];\nconst fail = (status, reason, http_status=409, extra={}) => out({ok:false,status,reason,http_status,...extra});\nconst date = x => {\n if(typeof x !== 'string' || !/^\\d{4}-\\d{2}-\\d{2}T\\d{2}:\\d{2}:\\d{2}(?:\\.\\d{1,3})?Z$/.test(x)) return false;\n const t=Date.parse(x); if(!Number.isFinite(t))return false;\n return new Date(t).toISOString().slice(0,19) === x.slice(0,19);\n};\nfunction snapshot(raw, entity) {\n if(!obj(raw) || raw.error || raw.statusCode !== 200 || !obj(raw.body)) return null;\n const b=raw.body;\n if(Object.keys(b).some(k=>!['entity_key','record_id','revision','deleted','last_sync_write_id','fields'].includes(k)))return null;\n if(b.entity_key !== entity || !ref(b.record_id) || !ref(b.revision) || typeof b.deleted !== 'boolean')return null;\n if(b.last_sync_write_id !== '' && !hex(b.last_sync_write_id))return null;\n const etags=Object.entries(raw.headers || {}).filter(([k])=>k.toLowerCase()==='etag');\n if(etags.length!==1 || etags[0][1] !== '\"'+b.revision+'\"')return null;\n if(b.deleted) return b.fields === null ? {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:true,last_sync_write_id:b.last_sync_write_id,fields:null} : null;\n const f=b.fields;\n if(!obj(f) || Object.keys(f).length !== allFields.length || !allFields.every(k=>own(f,k)))return null;\n const bounded=(v,n)=>typeof v==='string' && v.length<=n && !/[\\u0000-\\u0008\\u000b\\u000c\\u000e-\\u001f\\u007f]/.test(v);\n if(!bounded(f.client_name,200) || !f.client_name.trim() || !bounded(f.billing_address,1000) || !bounded(f.tax_id,64) || !bounded(f.deal_stage,80))return null;\n if(!bounded(f.billing_email,254) || (f.billing_email !== '' && !/^[^\\s@<>]+@[^\\s@<>]+\\.[^\\s@<>]+$/.test(f.billing_email)))return null;\n if(!bounded(f.invoice_number,100) || !['draft','issued','partially_paid','paid','overdue','void'].includes(f.invoice_status))return null;\n if(!Number.isSafeInteger(f.balance_due_minor) || f.balance_due_minor<0 || typeof f.currency!=='string' || !/^[A-Z]{3}$/.test(f.currency))return null;\n if(f.paid_at_utc!==null && !date(f.paid_at_utc))return null;\n if(f.invoice_due_at_utc!==null && !date(f.invoice_due_at_utc))return null;\n if(f.invoice_status==='paid' && (f.balance_due_minor!==0 || f.paid_at_utc===null))return null;\n const fields={}; for(const k of allFields)fields[k]=f[k];\n return {entity_key:entity,record_id:b.record_id,revision:b.revision,deleted:false,last_sync_write_id:b.last_sync_write_id,fields};\n}\nconst journalFields=['event_key','entity_hash','source_side','source_revision','target_revision','status','changed_fields','sync_write_id','result_revision','reason','created_at_utc','updated_at_utc'];\nfunction journalEqual(row, expected) {\n if(!obj(row) || !Number.isSafeInteger(row.id) || row.id<1 || row.error)return false;\n return journalFields.every(k=>k.endsWith('_at_utc') ? date(row[k]) && date(expected[k]) && Date.parse(row[k])===Date.parse(expected[k]) : row[k]===expected[k]);\n}\n\nconst p=$('Prepare Journal Outcome').first().json,rows=$input.all().map(i=>i.json);\nif(rows.length!==1||rows[0].id!==p.journal_row_id||!journalEqual(rows[0],p.expected))throw new Error('reconciliation_result_persistence_unconfirmed_manual_reconcile_required');\nreturn out({ok:p.ok,status:p.status,reason:p.reason,event_key:p.event_key,entity_hash:p.entity_hash,changed_fields:p.changed_fields.split(','),http_status:p.http_status});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "87f051c6-533d-f304-e501-dc953a5eb1c8",
+      "name": "Respond Verified Reconciliation",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        5312,
+        1216
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $json.http_status }}"
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: $json.ok === true, status: $json.status, reason: $json.reason || '', event_key: $json.event_key || '', entity_hash: $json.entity_hash || '', changed_fields: Array.isArray($json.changed_fields) ? $json.changed_fields : [] } }}"
+      },
+      "typeVersion": 1.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "UTC",
+    "executionOrder": "v1",
+    "saveManualExecutions": false,
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none"
+  },
+  "connections": {
+    "Journal Clear?": {
+      "main": [
+        [
+          {
+            "node": "Read Current CRM Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Reconciliation Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recheck CRM Source": {
+      "main": [
+        [
+          {
+            "node": "Verify Source Is Still Current",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Source Authorized?": {
+      "main": [
+        [
+          {
+            "node": "Validate Reconciliation Request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Reject Source Authentication",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recheck CRM Source?": {
+      "main": [
+        [
+          {
+            "node": "Recheck CRM Source",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Recheck Invoice Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Owner Fields Differ?": {
+      "main": [
+        [
+          {
+            "node": "Insert Reconciliation Intent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Reconciliation Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read CRM After Patch": {
+      "main": [
+        [
+          {
+            "node": "Verify Applied Provider State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Invoice Target?": {
+      "main": [
+        [
+          {
+            "node": "Read Invoice After Patch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read CRM After Patch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Patch Invoice Target?": {
+      "main": [
+        [
+          {
+            "node": "Patch Invoice Owner Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Patch CRM Owner Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Source Still Current?": {
+      "main": [
+        [
+          {
+            "node": "Patch Invoice Target?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Journal Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Patch CRM Owner Fields": {
+      "main": [
+        [
+          {
+            "node": "Inspect Conditional Patch Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan Owner Field Patch": {
+      "main": [
+        [
+          {
+            "node": "Owner Fields Differ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recheck Invoice Source": {
+      "main": [
+        [
+          {
+            "node": "Verify Source Is Still Current",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconciliation Webhook": {
+      "main": [
+        [
+          {
+            "node": "Authenticate Reconciliation Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Journal Outcome": {
+      "main": [
+        [
+          {
+            "node": "Respond Verified Reconciliation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Journal Outcome": {
+      "main": [
+        [
+          {
+            "node": "Persist Reconciliation Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Current CRM Record": {
+      "main": [
+        [
+          {
+            "node": "Read Current Invoice Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Invoice After Patch": {
+      "main": [
+        [
+          {
+            "node": "Verify Applied Provider State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Patch Invoice Owner Fields": {
+      "main": [
+        [
+          {
+            "node": "Inspect Conditional Patch Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Current Invoice Record": {
+      "main": [
+        [
+          {
+            "node": "Plan Owner Field Patch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Reconciliation Journal": {
+      "main": [
+        [
+          {
+            "node": "Journal Clear?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Insert Reconciliation Intent": {
+      "main": [
+        [
+          {
+            "node": "Verify Reconciliation Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Provider Write Acknowledged?": {
+      "main": [
+        [
+          {
+            "node": "Read Invoice Target?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Journal Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Reconciliation Intent": {
+      "main": [
+        [
+          {
+            "node": "Recheck CRM Source?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconciliation Request Valid?": {
+      "main": [
+        [
+          {
+            "node": "Find Entity Reconciliation Journal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Reconciliation Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Applied Provider State": {
+      "main": [
+        [
+          {
+            "node": "Prepare Journal Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persist Reconciliation Outcome": {
+      "main": [
+        [
+          {
+            "node": "Verify Journal Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Source Is Still Current": {
+      "main": [
+        [
+          {
+            "node": "Source Still Current?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Reconciliation Request": {
+      "main": [
+        [
+          {
+            "node": "Reconciliation Request Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inspect Conditional Patch Result": {
+      "main": [
+        [
+          {
+            "node": "Provider Write Acknowledged?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Authenticate Reconciliation Source": {
+      "main": [
+        [
+          {
+            "node": "Source Authorized?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Entity Reconciliation Journal": {
+      "main": [
+        [
+          {
+            "node": "Check Reconciliation Journal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Reconcile CRM and invoicing owner fields with HTTPS APIs and Data Tables",
+    "wechat": "youandme10086",
+    "id": 19412,
+    "update_time": "2026-09-27"
+  }
+}

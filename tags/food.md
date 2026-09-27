@@ -1,4 +1,4 @@
-# food : 18
+# food : 21
 
 |id|file|
 |----|----|
@@ -20,3 +20,6 @@
 |10277|[10277_Snap___Track_Nutrition__Telegram_Food_Photos___Gemini_Vision_AI___Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10277_Snap___Track_Nutrition__Telegram_Food_Photos___Gemini_Vision_AI___Google_Sheets.json)|
 |11159|[11159_Analyze_food_ingredients_from_Telegram_photos_using_Gemini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11159_Analyze_food_ingredients_from_Telegram_photos_using_Gemini_and_Airtable.json)|
 |15309|[15309_Log_meal_nutrition_from_LINE_food_photos_to_Google_Sheets_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15309_Log_meal_nutrition_from_LINE_food_photos_to_Google_Sheets_with_Gemini_AI.json)|
+|18188|[18188_Log_food_safety_temperatures_with_DeepSeek_and_GPT_email_reports_to_Sheets__Telegram_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18188_Log_food_safety_temperatures_with_DeepSeek_and_GPT_email_reports_to_Sheets__Telegram_and_Discord.json)|
+|18662|[18662_Handle_voice_food_orders_with_Google_Sheets_and_WhatsApp_Cloud_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18662_Handle_voice_food_orders_with_Google_Sheets_and_WhatsApp_Cloud_API.json)|
+|19291|[19291_Generate_recipe_PDFs_from_food_photos_with_OpenRouter__Apify_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19291_Generate_recipe_PDFs_from_food_photos_with_OpenRouter__Apify_and_Google_Drive.json)|

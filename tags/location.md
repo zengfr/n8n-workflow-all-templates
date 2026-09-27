@@ -1,4 +1,4 @@
-# location : 15
+# location : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |11707|[11707_Generate_B2B_Leads_by_Industry___Location_with_Google_Places_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11707_Generate_B2B_Leads_by_Industry___Location_with_Google_Places_API_and_Google_Sheets.json)|
 |13411|[13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13411_Get_enriched_location__weather__and_timezone_data_using_free_APIs.json)|
 |14126|[14126_Find_local_GMB_leads_with_1-star_reviews_using_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14126_Find_local_GMB_leads_with_1-star_reviews_using_Apify_and_Google_Sheets.json)|
+|18599|[18599_Sync_multi-location_inventory_to_Medusa_from_any_WMS_or_ERP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18599_Sync_multi-location_inventory_to_Medusa_from_any_WMS_or_ERP.json)|
+|19836|[19836_Find_relevant_US_job_listings_by_role_and_location_with_Jobright_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19836_Find_relevant_US_job_listings_by_role_and_location_with_Jobright_forms.json)|

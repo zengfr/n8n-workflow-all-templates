@@ -1,4 +1,4 @@
-# trip : 10
+# trip : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |14264|[14264_Generate_personalized_trip_recommendations_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14264_Generate_personalized_trip_recommendations_with_Claude_AI_and_Google_Sheets.json)|
 |14912|[14912_Create_post_trip_journals_and_review_drafts_with_Claude_Sonnet_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14912_Create_post_trip_journals_and_review_drafts_with_Claude_Sonnet_Vision.json)|
 |15015|[15015_Search_your_travel_memories_with_Gmail__Google_Photos__GPT-4_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15015_Search_your_travel_memories_with_Gmail__Google_Photos__GPT-4_and_Claude.json)|
+|17412|[17412_Build_a_trip_itinerary_from_Gmail_booking_emails_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17412_Build_a_trip_itinerary_from_Gmail_booking_emails_with_Gemini_and_Google_Sheets.json)|
+|18585|[18585_Plan_Telegram_trip_itineraries_with_Google_Gemini_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18585_Plan_Telegram_trip_itineraries_with_Google_Gemini_and_SerpAPI.json)|
+|18889|[18889_Route_airline_disruption_recovery_with_OpenAI__Slack__Twilio__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18889_Route_airline_disruption_recovery_with_OpenAI__Slack__Twilio__and_Google_Sheets.json)|

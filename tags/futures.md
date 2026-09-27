@@ -1,4 +1,4 @@
-# futures : 7
+# futures : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |15947|[15947_Track_WTI_crude_futures_from_Oilprice.com_and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15947_Track_WTI_crude_futures_from_Oilprice.com_and_send_Telegram_alerts.json)|
 |15954|[15954_Send_Murban_crude_futures_price_alerts_with_HTTP_request_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15954_Send_Murban_crude_futures_price_alerts_with_HTTP_request_and_Telegram.json)|
 |16341|[16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json)|
+|17363|[17363_Monitor_Binance_futures_open_interest_and_send_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17363_Monitor_Binance_futures_open_interest_and_send_Telegram_alerts.json)|

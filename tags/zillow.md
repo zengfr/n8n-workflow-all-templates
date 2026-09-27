@@ -1,4 +1,4 @@
-# zillow : 10
+# zillow : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |11130|[11130_Scrape_Property_Listings_from_Zillow_with_Olostep_API_and_Store_in_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11130_Scrape_Property_Listings_from_Zillow_with_Olostep_API_and_Store_in_Data_Tables.json)|
 |15472|[15472_Compare_rental_estimates_from_Zillow__HUD_FMR_and_Rentometer_with_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15472_Compare_rental_estimates_from_Zillow__HUD_FMR_and_Rentometer_with_GPT-4.1.json)|
 |15477|[15477_Average_property_value_estimates_from_Zillow__Redfin__and_Realtor.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15477_Average_property_value_estimates_from_Zillow__Redfin__and_Realtor.com.json)|
+|17030|[17030_Send_daily_Zillow_new-listing_digests_to_Gmail_with_ScraperAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17030_Send_daily_Zillow_new-listing_digests_to_Gmail_with_ScraperAPI.json)|
+|17347|[17347_Score_Zillow_investment_properties_with_ScrapeUnblocker__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17347_Score_Zillow_investment_properties_with_ScrapeUnblocker__Gemini__and_Google_Sheets.json)|
+|18467|[18467_Find_and_score_Zillow_price_cuts_with_Bright_Data__GPT-5.6__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18467_Find_and_score_Zillow_price_cuts_with_Bright_Data__GPT-5.6__Sheets_and_Slack.json)|
+|18833|[18833_Monitor_Zillow_deals_by_ZIP_with_APIllow__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18833_Monitor_Zillow_deals_by_ZIP_with_APIllow__Google_Sheets__and_Slack.json)|

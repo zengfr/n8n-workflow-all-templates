@@ -1,4 +1,4 @@
-# demo : 30
+# demo : 39
 
 |id|file|
 |----|----|
@@ -32,3 +32,12 @@
 |13347|[13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13347_Enrich_chatbot_and_demo_request_leads_with_Lusha__HubSpot__and_Slack.json)|
 |14712|[14712_Generate_product_demo_highlight_reels_using_WayinVideo_Find_Moments_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14712_Generate_product_demo_highlight_reels_using_WayinVideo_Find_Moments_API.json)|
 |16597|[16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json)|
+|17034|[17034_Draft_personalized_pre-demo_messages_from_demo_bookings_with_Twain__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17034_Draft_personalized_pre-demo_messages_from_demo_bookings_with_Twain__Gmail__and_Slack.json)|
+|17117|[17117_Triage_and_route_inbound_emails_with_OpenAI__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17117_Triage_and_route_inbound_emails_with_OpenAI__Slack__Gmail__and_Sheets.json)|
+|17149|[17149_Generate_AI_captions_and_auto-post_random_images_to_Nimply_channels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17149_Generate_AI_captions_and_auto-post_random_images_to_Nimply_channels.json)|
+|17751|[17751_Process_demo_Stripe_orders_with_Lovable__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17751_Process_demo_Stripe_orders_with_Lovable__Gmail__Slack__and_Google_Sheets.json)|
+|18353|[18353_Manage_HR_offboarding_and_archival_with_Odoo__Google_Calendar__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18353_Manage_HR_offboarding_and_archival_with_Odoo__Google_Calendar__Gmail__and_Slack.json)|
+|18528|[18528_Score_and_route_B2B_website_leads_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18528_Score_and_route_B2B_website_leads_with_Google_Sheets_and_Gmail.json)|
+|18681|[18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json)|
+|19000|[19000_Run_a_Telegram_hotel_search_bot_with_OpenAI_and_WinWin_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19000_Run_a_Telegram_hotel_search_bot_with_OpenAI_and_WinWin_MCP.json)|
+|19542|[19542_Reconcile_Google_Calendar_demo_attendees_with_HubSpot__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19542_Reconcile_Google_Calendar_demo_attendees_with_HubSpot__Google_Sheets_and_Slack.json)|

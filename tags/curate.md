@@ -1,4 +1,4 @@
-# curate : 10
+# curate : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |12634|[12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json)|
 |12714|[12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12714_Curate_and_send_weekly_AI_newsletters_with_Tavily__Gemini__and_Gmail.json)|
 |14702|[14702_Curate_tech_news_from_RSS_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14702_Curate_tech_news_from_RSS_with_OpenAI__Google_Sheets_and_Slack.json)|
+|19570|[19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json)|

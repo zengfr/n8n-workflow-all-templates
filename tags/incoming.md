@@ -1,4 +1,4 @@
-# incoming : 16
+# incoming : 22
 
 |id|file|
 |----|----|
@@ -18,3 +18,9 @@
 |15571|[15571_Classify_sentiment_of_incoming_text_using_Hugging_Face__Google_Sheets__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15571_Classify_sentiment_of_incoming_text_using_Hugging_Face__Google_Sheets__and_Jira.json)|
 |15775|[15775_Receive_and_process_incoming_direct_messages_in_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15775_Receive_and_process_incoming_direct_messages_in_Rocket.Chat.json)|
 |16448|[16448_Create_work4all_incoming_invoices_from_Microsoft_Outlook_supplier_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16448_Create_work4all_incoming_invoices_from_Microsoft_Outlook_supplier_emails.json)|
+|17477|[17477_Draft_Gmail_reply_suggestions_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17477_Draft_Gmail_reply_suggestions_with_Groq_Llama_3.3.json)|
+|17489|[17489_Label_incoming_Gmail_emails_with_GPT-5_and_Gmail_labels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17489_Label_incoming_Gmail_emails_with_GPT-5_and_Gmail_labels.json)|
+|17591|[17591_Draft_Gmail_reply_suggestions_with_OpenAI_for_inbound_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17591_Draft_Gmail_reply_suggestions_with_OpenAI_for_inbound_emails.json)|
+|17864|[17864_Validate_incoming_XRechnung_invoices_from_IMAP_and_archive_them_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17864_Validate_incoming_XRechnung_invoices_from_IMAP_and_archive_them_with_Data_Tables.json)|
+|17953|[17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|18894|[18894_Create_Teable_records_from_incoming_webhook_requests_using_a_REST_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18894_Create_Teable_records_from_incoming_webhook_requests_using_a_REST_API.json)|

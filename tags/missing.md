@@ -1,4 +1,4 @@
-# missing : 5
+# missing : 11
 
 |id|file|
 |----|----|
@@ -7,3 +7,9 @@
 |14257|[14257_Track_AI_search_winners_and_uncover_topic_gaps_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14257_Track_AI_search_winners_and_uncover_topic_gaps_with_SE_Ranking_and_Google_Sheets.json)|
 |15992|[15992_Send_Prey_missing-device_alerts_with_Claude_and_Slack_and_log_events_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15992_Send_Prey_missing-device_alerts_with_Claude_and_Slack_and_log_events_to_Sheets.json)|
 |16701|[16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json)|
+|17984|[17984_Chase_missing_onboarding_documents_daily_with_Google_Drive__Gmail__Slack__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17984_Chase_missing_onboarding_documents_daily_with_Google_Drive__Gmail__Slack__and_Data_Tables.json)|
+|19227|[19227_Chase_missing_tax_documents_with_Airtable__gpt-5.6-terra__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19227_Chase_missing_tax_documents_with_Airtable__gpt-5.6-terra__Gmail_and_Telegram.json)|
+|19276|[19276_Detect_missing_alcohol_test_records_with_Gemini__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19276_Detect_missing_alcohol_test_records_with_Gemini__Gmail__Slack_and_Google_Sheets.json)|
+|19685|[19685_Fill_missing_Wix_SEO_titles_and_meta_descriptions_in_Wix_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19685_Fill_missing_Wix_SEO_titles_and_meta_descriptions_in_Wix_with_Gemini.json)|
+|19687|[19687_Find_missing_client_assets_with_Google_Sheets__Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19687_Find_missing_client_assets_with_Google_Sheets__Drive__and_Gmail.json)|
+|19730|[19730_Audit_missing_error_workflows_using_the_n8n_API_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19730_Audit_missing_error_workflows_using_the_n8n_API_and_Slack.json)|

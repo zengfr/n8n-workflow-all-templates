@@ -1,4 +1,4 @@
-# cross : 17
+# cross : 21
 
 |id|file|
 |----|----|
@@ -19,3 +19,7 @@
 |13227|[13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13227_Enrich_creator_handles_with_cross-platform_social_data_from_influencers.club.json)|
 |13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|
 |13323|[13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13323_Cross-post_social_content_from_Google_Sheets_to_5_platforms_with_OpenAI_images.json)|
+|17921|[17921_Cross-post_RSS_feed_articles_to_X__LinkedIn_and_Facebook_with_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17921_Cross-post_RSS_feed_articles_to_X__LinkedIn_and_Facebook_with_PostgreSQL.json)|
+|18044|[18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json)|
+|19688|[19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json)|
+|19760|[19760_Triage_backflow_compliance_notices_with_Google_Sheets__Gmail__Slack__OpenAI__and_a_state_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19760_Triage_backflow_compliance_notices_with_Google_Sheets__Gmail__Slack__OpenAI__and_a_state_API.json)|

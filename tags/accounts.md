@@ -1,4 +1,4 @@
-# accounts : 18
+# accounts : 28
 
 |id|file|
 |----|----|
@@ -20,3 +20,13 @@
 |16041|[16041_Govern_stale_Entra_ID_guest_accounts_with_SharePoint_and_Microsoft_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16041_Govern_stale_Entra_ID_guest_accounts_with_SharePoint_and_Microsoft_Teams.json)|
 |16118|[16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json)|
 |16268|[16268_Provision_new_hire_IT_accounts_with_Google_Workspace__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16268_Provision_new_hire_IT_accounts_with_Google_Workspace__Slack__and_Gmail.json)|
+|17255|[17255_Check_new-hire_identity_risk_and_provision_Google_Workspace_accounts_with_RelayShield.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17255_Check_new-hire_identity_risk_and_provision_Google_Workspace_accounts_with_RelayShield.json)|
+|17608|[17608_Audit_forgotten_online_accounts_from_Gmail_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17608_Audit_forgotten_online_accounts_from_Gmail_with_OpenAI_and_Google_Sheets.json)|
+|18257|[18257_Qualify_B2B_accounts_and_contacts_for_human-reviewed_outreach_with_OpenAI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18257_Qualify_B2B_accounts_and_contacts_for_human-reviewed_outreach_with_OpenAI_and_Airtable.json)|
+|18264|[18264_Process_AP_invoices_from_Gmail_and_Drive_with_Gemini__Sheets_and_QuickBooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18264_Process_AP_invoices_from_Gmail_and_Drive_with_Gemini__Sheets_and_QuickBooks.json)|
+|19112|[19112_Send_weekly_AR_ageing_reports_with_Invoice_Ninja__PDFMint_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19112_Send_weekly_AR_ageing_reports_with_Invoice_Ninja__PDFMint_and_Gmail.json)|
+|19200|[19200_Migrate_Salesforce_accounts_to_GoHighLevel_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19200_Migrate_Salesforce_accounts_to_GoHighLevel_using_Google_Sheets.json)|
+|19245|[19245_Follow_up_on_overdue_invoices_with_OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19245_Follow_up_on_overdue_invoices_with_OpenAI__Gmail_and_Google_Sheets.json)|
+|19256|[19256_Monitor_viral_competitor_Instagram_posts_with_Apify__Groq__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19256_Monitor_viral_competitor_Instagram_posts_with_Apify__Groq__Google_Sheets_and_Slack.json)|
+|19392|[19392_Process_and_forecast_AP_invoices_from_Gmail_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19392_Process_and_forecast_AP_invoices_from_Gmail_with_OpenAI_and_Google_Sheets.json)|
+|19413|[19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json)|

@@ -1,0 +1,767 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Monitor competitor prices from Google Shopping via SearchApi with Google Sheets and Slack",
+    "wechat": "youandme10086",
+    "id": 17821,
+    "update_time": "2026-09-27"
+  },
+  "name": "Monitor Competitor Prices on Google Shopping with SearchApi (Google Sheets + Slack)",
+  "nodes": [
+    {
+      "id": "sched",
+      "name": "Schedule Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "Runs every day at 08:00. Change to hourly or weekly to check prices more or less often.",
+      "position": [
+        0,
+        288
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "notes": "The only node you normally edit. products = comma-separated list; add your own price per item with =PRICE (e.g. sony wh-1000xm5=300) to get undercut alerts. alert_pct / alert_abs = only alert when the typical price moves at least this % or $.",
+      "position": [
+        224,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "products",
+              "type": "string",
+              "value": "dyson v15 detect=800, ninja af101 air fryer=90, logitech mx master 3s=110, sony wh-1000xm5=300"
+            },
+            {
+              "id": "a2",
+              "name": "location",
+              "type": "string",
+              "value": "United States"
+            },
+            {
+              "id": "a3",
+              "name": "alert_pct",
+              "type": "number",
+              "value": 6
+            },
+            {
+              "id": "a4",
+              "name": "alert_abs",
+              "type": "number",
+              "value": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "history",
+      "name": "Get Price History",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Reads the Latest tab (one row per product = last run's price and undercut state) so movement and new-undercut can be computed. Empty on the very first run (baseline).",
+      "onError": "continueRegularOutput",
+      "position": [
+        448,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Latest"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "split",
+      "name": "Split Products",
+      "type": "n8n-nodes-base.code",
+      "notes": "Turns the product list into one item per product (name=PRICE lets you set your own price for undercut alerts).",
+      "position": [
+        672,
+        288
+      ],
+      "parameters": {
+        "jsCode": "// Turn the product list into one item per product. Each entry can optionally\n// carry your own price after an '=' (e.g. \"sony wh-1000xm5=300\") so we can flag\n// when a competitor undercuts you.\nconst cfg = $('Settings').first().json;\nconst location = (cfg.location || 'United States').trim();\n\nconst entries = String(cfg.products || '')\n  .split(',').map(s => s.trim()).filter(s => s.length);\n\nif (!entries.length) {\n  throw new Error('No products found. Add a comma-separated list in the Settings node.');\n}\n\nreturn entries.map(entry => {\n  let product = entry;\n  let your_price = null;\n  const eq = entry.lastIndexOf('=');\n  if (eq > 0) {\n    const p = parseFloat(entry.slice(eq + 1).replace(/[^0-9.]/g, ''));\n    if (!isNaN(p)) { product = entry.slice(0, eq).trim(); your_price = p; }\n  }\n  return { json: { product, location, your_price } };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "searchapi",
+      "name": "Search Google Shopping",
+      "type": "@searchapi/n8n-nodes-searchapi.searchApi",
+      "notes": "Live Google Shopping offers via SearchApi.io. Runs once per product. condition=new asks SearchApi to return only new items (used/refurbished are also filtered downstream as a backstop).",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        896,
+        288
+      ],
+      "parameters": {
+        "q": "={{ $json.product }}",
+        "resource": "google_shopping",
+        "operation": "search",
+        "priceFilters": {
+          "condition": "new"
+        },
+        "locationSettings": {
+          "location": "={{ $json.location }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "lowest",
+      "name": "Find Market Price",
+      "type": "n8n-nodes-base.code",
+      "notes": "Per product: median NEW price = typical_price, lowest legit offer = low_price/seller. Compares typical vs the last run, and if you set your own price (name=PRICE) flags undercut and how far below you the cheapest offer is.",
+      "position": [
+        1120,
+        288
+      ],
+      "parameters": {
+        "jsCode": "// For each product: typical (median) NEW price + lowest legit offer, compared to\n// the last run. If you set your own price (Settings: name=PRICE), also flag when\n// a competitor undercuts you and whether that undercut is new this run.\n\nconst MIN_RATIO = 0.5;      // for the lowest price, ignore offers below 50% of the typical price\nconst EXCLUDE_USED = true;  // ignore used / refurbished listings (backstop to condition=new)\n\nfunction num(v) {\n  if (typeof v === 'number') return v;\n  if (v == null) return null;\n  const m = String(v).replace(/[^0-9.]/g, '');\n  return m ? parseFloat(m) : null;\n}\nfunction isUsed(c) { return /refurb|renew|pre.?owned|used|open.?box|second/i.test(String(c || '')); }\nfunction median(a) {\n  if (!a.length) return null;\n  const s = [...a].sort((x, y) => x - y);\n  const m = Math.floor(s.length / 2);\n  return s.length % 2 ? s[m] : (s[m - 1] + s[m]) / 2;\n}\nfunction round2(n) { return Math.round(n * 100) / 100; }\n\n// Your price per product, from Split Products (entries like \"name=300\").\nconst yourPrice = {};\ntry {\n  for (const it of $('Split Products').all()) {\n    const j = it.json || {};\n    if (j.product) yourPrice[String(j.product).trim()] = (typeof j.your_price === 'number') ? j.your_price : null;\n  }\n} catch (e) {}\n\n// Previous typical price + undercut state per product, from the Latest tab.\nconst previous = {};\nlet history = [];\ntry { history = $('Get Price History').all(); } catch (e) { history = []; }\nfor (const row of history) {\n  const r = row.json || {};\n  const p = String(r.product || '').trim();\n  if (!p) continue;\n  previous[p] = {\n    price: num(r.typical_price != null ? r.typical_price : r.price),\n    undercut: String(r.undercut).toLowerCase() === 'true'\n  };\n}\n\nconst now = new Date().toISOString();\nconst results = [];\n\nfor (const item of $input.all()) {\n  const resp = item.json || {};\n  const sp = resp.search_parameters || {};\n  const product = String(sp.q || resp.product || '').trim();\n  if (!product) continue;\n\n  let offers = (Array.isArray(resp.shopping_results) ? resp.shopping_results : [])\n    .map(o => ({\n      price: num(o.extracted_price != null ? o.extracted_price : o.price),\n      seller: o.seller || o.merchant || o.source || '',\n      link: o.product_link || o.link || '',\n      condition: o.condition\n    }))\n    .filter(o => o.price != null && o.price > 0);\n  if (EXCLUDE_USED) offers = offers.filter(o => !isUsed(o.condition));\n\n  const typical = median(offers.map(o => o.price));\n  const floor = typical != null ? typical * MIN_RATIO : 0;\n  const legit = offers.filter(o => o.price >= floor);\n  let low = null;\n  for (const o of (legit.length ? legit : offers)) {\n    if (!low || o.price < low.price) low = o;\n  }\n\n  const typicalPrice = typical != null ? round2(typical) : null;\n  const lowPrice = low ? round2(low.price) : null;\n\n  const yp = yourPrice[product];\n  const your_price = (typeof yp === 'number') ? yp : null;\n  const undercut = (your_price != null && lowPrice != null) ? lowPrice < your_price : false;\n  const gap_to_you = (your_price != null && lowPrice != null) ? round2(lowPrice - your_price) : null;\n\n  const prev = previous[product];\n  const hasPrev = prev && typeof prev.price === 'number';\n  const prevUndercut = prev ? !!prev.undercut : false;\n  const newly_undercut = undercut && !prevUndercut;\n\n  let change = null, pct = null, movement = '';\n  if (typicalPrice == null) movement = 'No offers found';\n  else if (!hasPrev) movement = 'New';\n  else {\n    change = round2(typicalPrice - prev.price);\n    pct = prev.price ? Math.round((change / prev.price) * 1000) / 10 : null;\n    movement = change < 0 ? 'Down' : (change > 0 ? 'Up' : 'No change');\n  }\n\n  results.push({ json: {\n    product,\n    typical_price: typicalPrice,\n    low_price: lowPrice,\n    low_seller: low ? low.seller : '',\n    offers_count: offers.length,\n    your_price,\n    undercut,\n    gap_to_you,\n    prev_price: hasPrev ? prev.price : null,\n    change, pct, movement,\n    newly_undercut,\n    is_new: !hasPrev && typicalPrice != null,\n    url: low ? low.link : '',\n    checked_at: now\n  }});\n}\n\nresults.sort((a, b) => {\n  const av = a.json.change == null ? -1 : Math.abs(a.json.change);\n  const bv = b.json.change == null ? -1 : Math.abs(b.json.change);\n  return bv - av;\n});\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "format",
+      "name": "Format Price Alert",
+      "type": "n8n-nodes-base.code",
+      "notes": "Builds the Slack Block Kit alert. Shows only products that moved beyond the threshold, were newly undercut, or are first-seen, and sets a notable flag so the Alert Gate can mute quiet days.",
+      "position": [
+        1344,
+        288
+      ],
+      "parameters": {
+        "jsCode": "// Build a Slack alert. Only \"notable\" items are shown: the typical price moved\n// beyond the alert threshold, a competitor newly undercut you, or the product is\n// first-seen. The notable flag lets the Alert Gate mute days with no news.\nconst rows = $input.all().map(i => i.json);\nconst cfg = $('Settings').first().json;\nconst ALERT_PCT = Number(cfg.alert_pct) || 0;\nconst ALERT_ABS = Number(cfg.alert_abs) || 0;\nconst date = new Date().toISOString().slice(0, 10);\n\nfunction money(v) { return v == null ? '-' : '$' + Number(v).toFixed(2); }\nfunction moved(r) {\n  if (r.change == null) return false;\n  return Math.abs(r.change) >= ALERT_ABS || (r.pct != null && Math.abs(r.pct) >= ALERT_PCT);\n}\nfunction isNotable(r) { return moved(r) || r.newly_undercut || r.is_new; }\n\nfunction icon(r) {\n  if (r.newly_undercut) return ':rotating_light:';\n  if (r.typical_price == null) return ':warning:';\n  if (r.is_new) return ':new:';\n  if (r.change < 0) return ':small_red_triangle_down:';\n  if (r.change > 0) return ':small_red_triangle:';\n  return ':white_circle:';\n}\nfunction detail(r) {\n  if (r.typical_price == null) return 'no offers found';\n  let s = '*' + money(r.typical_price) + '* typical';\n  if (r.prev_price == null) s += '  (new)';\n  else if (r.change === 0) s += '  (no change)';\n  else {\n    const sign = r.change < 0 ? '-' : '+';\n    const pctStr = r.pct == null ? '' : ' / ' + (r.pct > 0 ? '+' : '') + r.pct + '%';\n    s += '  (' + sign + '$' + Math.abs(r.change).toFixed(2) + pctStr + ')';\n  }\n  if (r.low_price != null) s += '  ·  low ' + money(r.low_price) + (r.low_seller ? ' @ ' + r.low_seller : '');\n  if (r.undercut) s += '  ·  :rotating_light: under your ' + money(r.your_price);\n  return s;\n}\n\nconst shown = rows.filter(isNotable);\nconst notable = shown.length > 0;\n\nshown.sort((a, b) => {\n  const d = (b.newly_undercut ? 1 : 0) - (a.newly_undercut ? 1 : 0);\n  if (d) return d;\n  const av = a.change == null ? -1 : Math.abs(a.change);\n  const bv = b.change == null ? -1 : Math.abs(b.change);\n  return bv - av;\n});\n\nconst lines = shown.map(r => icon(r) + '  *' + r.product + '*  -  ' + detail(r));\nconst undercutNow = rows.filter(r => r.undercut).length;\n\nlet summary = shown.length + ' of ' + rows.length + ' products flagged';\nif (undercutNow) summary += '  ·  ' + undercutNow + ' undercutting you';\n\nconst body = lines.length ? lines.join('\\n') : 'No notable price changes.';\nconst text = 'Competitor Price Monitor (' + date + ')\\n' + body + '\\n' + summary;\n\nconst blocks = [\n  { type: 'header', text: { type: 'plain_text', text: ':shopping_trolley: Competitor Price Monitor', emoji: true } },\n  { type: 'context', elements: [ { type: 'mrkdwn', text: 'Google Shopping  ·  ' + date } ] },\n  { type: 'divider' },\n  { type: 'section', text: { type: 'mrkdwn', text: body } },\n  { type: 'divider' },\n  { type: 'context', elements: [ { type: 'mrkdwn', text: summary } ] }\n];\n\nreturn [{ json: { notable, text, blocks: JSON.stringify({ blocks }) } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gate",
+      "name": "Alert Gate",
+      "type": "n8n-nodes-base.filter",
+      "notes": "Only lets the Slack alert through when at least one product moved beyond the threshold or was newly undercut. On a quiet day nothing is posted.",
+      "position": [
+        1456,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "g1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.notable }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "slack",
+      "name": "Send to Slack",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Posts the Block Kit summary to a Slack channel. Connect your Slack credential and pick a channel. No Slack? Delete this node and read the Format Price Alert output.",
+      "position": [
+        1568,
+        288
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "select": "channel",
+        "blocksUi": "={{ $json.blocks }}",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": ""
+        },
+        "messageType": "block",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "haspx",
+      "name": "Only With Price",
+      "type": "n8n-nodes-base.filter",
+      "notes": "Only products that returned at least one priced offer get written to the sheet, keeping the history clean.",
+      "position": [
+        1344,
+        96
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.typical_price }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "save",
+      "name": "Append to History",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Appends this run's prices as new rows to the History tab (the growing log).",
+      "position": [
+        1568,
+        96
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "pct": "={{ $json.pct }}",
+            "url": "={{ $json.url }}",
+            "change": "={{ $json.change }}",
+            "product": "={{ $json.product }}",
+            "movement": "={{ $json.movement }}",
+            "undercut": "={{ $json.undercut }}",
+            "low_price": "={{ $json.low_price }}",
+            "checked_at": "={{ $json.checked_at }}",
+            "gap_to_you": "={{ $json.gap_to_you }}",
+            "low_seller": "={{ $json.low_seller }}",
+            "prev_price": "={{ $json.prev_price }}",
+            "your_price": "={{ $json.your_price }}",
+            "offers_count": "={{ $json.offers_count }}",
+            "typical_price": "={{ $json.typical_price }}"
+          },
+          "schema": [
+            {
+              "id": "product",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "product",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "typical_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "typical_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "low_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "low_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "low_seller",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "low_seller",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "offers_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "offers_count",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "your_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "your_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "undercut",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "undercut",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gap_to_you",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "gap_to_you",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prev_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "prev_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "change",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "change",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pct",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "pct",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "movement",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "movement",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "url",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "checked_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "checked_at",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "History"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "uplatest",
+      "name": "Update Latest",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Upserts one row per product (matched on product) into the Latest tab, so Latest is always the current-state dashboard.",
+      "position": [
+        1568,
+        -80
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "pct": "={{ $json.pct }}",
+            "url": "={{ $json.url }}",
+            "change": "={{ $json.change }}",
+            "product": "={{ $json.product }}",
+            "movement": "={{ $json.movement }}",
+            "undercut": "={{ $json.undercut }}",
+            "low_price": "={{ $json.low_price }}",
+            "checked_at": "={{ $json.checked_at }}",
+            "gap_to_you": "={{ $json.gap_to_you }}",
+            "low_seller": "={{ $json.low_seller }}",
+            "prev_price": "={{ $json.prev_price }}",
+            "your_price": "={{ $json.your_price }}",
+            "offers_count": "={{ $json.offers_count }}",
+            "typical_price": "={{ $json.typical_price }}"
+          },
+          "schema": [
+            {
+              "id": "product",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "product",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "typical_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "typical_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "low_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "low_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "low_seller",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "low_seller",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "offers_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "offers_count",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "your_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "your_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "undercut",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "undercut",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gap_to_you",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "gap_to_you",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "prev_price",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "prev_price",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "change",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "change",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "pct",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "pct",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "movement",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "movement",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "url",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "checked_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "checked_at",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "product"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Latest"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "note_header",
+      "name": "Note Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -400
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 900,
+        "content": "## Competitor Price Monitor (Google Shopping)\n\nTrack what the market charges for your products every day, and get pinged only when it matters: a competitor undercuts your price, or the going rate moves. Prices come from Google Shopping via SearchApi, history is logged to Google Sheets (Latest + History tabs), and a threshold-gated summary posts to Slack.\n\n### How it works\n1. Runs daily; reads products (with your optional price) and alert thresholds from Settings.\n2. Loads last run's prices + undercut state from the Latest sheet tab.\n3. Searches Google Shopping (new items only) for each product via SearchApi.\n4. Takes the typical (median) new price and the lowest legit offer, computes the move vs last run, and flags competitor undercuts.\n5. Posts to Slack only when something crosses your threshold or is newly undercut, and writes to the History (log) and Latest (dashboard) tabs.\n\n### Setup\n- [ ] Add your SearchApi credential to \"Search Google Shopping\" (free key at searchapi.io).\n- [ ] In your Google Sheet, create two tabs, \"History\" and \"Latest\", each with headers: product, typical_price, low_price, low_seller, offers_count, your_price, undercut, gap_to_you, prev_price, change, pct, movement, url, checked_at. Select the sheet in \"Get Price History\" (reads Latest), \"Append to History\", and \"Update Latest\".\n- [ ] Connect Slack in \"Send to Slack\" and pick a channel. No Slack? Delete that node.\n- [ ] Edit Settings: products (use name=PRICE to track undercuts, e.g. sony wh-1000xm5=300), location, and alert_pct / alert_abs.\n- [ ] Activate. The first run is a baseline; changes show from the second run.\n\n### Customization tips\nTune alert_pct / alert_abs in Settings to change sensitivity. Used/refurbished are excluded (condition=new plus a code backstop). Latest is your at-a-glance dashboard; History is the full log."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_s1",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 700,
+        "content": "## 1. Schedule & settings\nRuns daily, then loads your products, prices and alert thresholds from the Settings node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_s2",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        416,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 700,
+        "content": "## 2. Read history & search Shopping\nReads last run's prices from the Latest tab, then searches Google Shopping (new items only) for each product via SearchApi."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_s3",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 700,
+        "content": "## 3. Compare, alert & save\nFind Market Price computes the typical price, the lowest offer, and undercut vs your price. Format + Alert Gate post to Slack only on notable moves. Prices are appended to History and upserted to Latest."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get Price History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Gate": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Daily": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Products": {
+      "main": [
+        [
+          {
+            "node": "Search Google Shopping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only With Price": {
+      "main": [
+        [
+          {
+            "node": "Append to History",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Latest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Market Price": {
+      "main": [
+        [
+          {
+            "node": "Format Price Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Only With Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Price History": {
+      "main": [
+        [
+          {
+            "node": "Split Products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Price Alert": {
+      "main": [
+        [
+          {
+            "node": "Alert Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Google Shopping": {
+      "main": [
+        [
+          {
+            "node": "Find Market Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

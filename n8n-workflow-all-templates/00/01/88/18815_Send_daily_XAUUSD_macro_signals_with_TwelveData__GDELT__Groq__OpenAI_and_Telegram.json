@@ -1,0 +1,576 @@
+{
+  "nodes": [
+    {
+      "id": "533d7e34-25a8-4d70-9b15-880a2fdefb7f",
+      "name": "Macro - DXY (Stooq CSV)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -850,
+        620
+      ],
+      "parameters": {
+        "url": "https://stooq.com/q/l/?s=dx.f&i=d",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "cad715d5-6081-4718-9581-a516a552cf40",
+      "name": "Parse DXY1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -500,
+        620
+      ],
+      "parameters": {
+        "jsCode": "const csv = $json;\nconst body = typeof $json === 'string' ? $json : ($json.body ?? '');\nconst text = body || '';\n\nconst lines = text.trim().split(/\\r?\\n/);\nlet close = null;\nif (lines.length >= 2) {\n  const cols = lines[1].split(',');\n  if (cols.length >= 7) close = Number(cols[6]);\n}\nreturn [{ json: { macro_source: 'stooq', dxy_close: close } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "374c4269-320f-42ca-a341-d583510371cd",
+      "name": "Macro - US10Y (Stooq CSV)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -850,
+        420
+      ],
+      "parameters": {
+        "url": "https://stooq.com/q/l/?s=us10y&i=d",
+        "options": {
+          "timeout": 30000
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "fcaae698-c698-4459-bdc8-a30817569cfc",
+      "name": "GDELT - Web News",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -850,
+        1020
+      ],
+      "parameters": {
+        "url": "https://api.gdeltproject.org/api/v2/doc/doc?query=(XAUUSD%20OR%20gold%20OR%20bullion%20OR%20Federal%20Reserve%20OR%20FOMC%20OR%20CPI%20OR%20NFP%20OR%20yields%20OR%20dollar%20OR%20DXY)%20sourceCountry:US&mode=ArtList&format=json&maxrecords=25&sort=HybridRel",
+        "options": {
+          "timeout": 30000,
+          "response": {}
+        }
+      },
+      "executeOnce": false,
+      "retryOnFail": true,
+      "typeVersion": 4
+    },
+    {
+      "id": "c6a7b4fb-4cf2-445c-a07b-5878e12c9248",
+      "name": "RSS - CNBC Top News",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        -850,
+        1220
+      ],
+      "parameters": {
+        "url": "https://www.cnbc.com/id/1+1234567890/device/rss/rss.html",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "845bc5c0-0f80-4995-88c0-b315cb0c25bc",
+      "name": "RSS - Yahoo Finance US",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        -850,
+        1420
+      ],
+      "parameters": {
+        "url": "https://feeds.finance.yahoo.com/rss/2.0/headline?s=%5EGSPC&region=US&lang=en-US",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b953bd6c-3d8a-4c91-a269-5d30b4f2ecc1",
+      "name": "Prep GDELT",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -500,
+        1020
+      ],
+      "parameters": {
+        "jsCode": "const articles = ($json.articles || []).slice(0, 15).map(a => ({\n  title: a.title,\n  url: a.url,\n  source: a.domain || a.sourceCountry || a.source,\n  date: a.seendate\n}));\nreturn [{ json: { source: 'GDELT', items: articles } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2ad28baf-83d8-4855-bed4-bfde9a1e0b46",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueRegularOutput",
+      "position": [
+        650,
+        900
+      ],
+      "parameters": {
+        "text": "Tu es un analyste macro + trading Gold (XAUUSD).\n\nTu reçois:\n- un prix (xau.price) parfois null\n- dxy_close (proxy USD) parfois null\n- us10y_close (taux US 10 ans) parfois null\n- highImpactDetected (bool)\n- des news (gdeltItems + rssItems)\n\nRègles:\n1) Si highImpactDetected=true -> SIGNAL=WAIT (sauf si tu expliques que l'event est déjà passé et volatilité retombée).\n2) Si dxy_close monte et us10y_close monte -> biais SELL/WAIT sur XAUUSD.\n3) Si dxy_close baisse et us10y_close baisse -> biais BUY/WAIT sur XAUUSD.\n4) Si stress géopolitique / risk-off -> biais BUY/WAIT.\n5) Si xau.price est null -> prudence et évite BUY/SELL agressif.\n\nFORMAT STRICT:\n\n1) NEWS USA (5 bullets)\n2) NEWS GOLD/XAUUSD (5 bullets)\n3) BIAIS MACRO: USD=?, TAUX=?, RISK=? (une ligne)\n4) SIGNAL INDICATIF: [BUY / SELL / WAIT]\n5) PROBABILITÉS:\n   - BUY: X%\n   - SELL: Y%\n   - WAIT: Z%\n   (Les 3 doivent additionner à 100%)\n6) CONFIANCE: nombre entre 0 et 100\n7) RAISONNEMENT: 6 lignes max\n8) RISQUE: (invalidation + prudence news)\n\nIMPORTANT pour les PROBABILITÉS:\n- Si macro penche BUY -> BUY > 50%, SELL < WAIT\n- Si macro penche SELL -> SELL > 50%, BUY < WAIT\n- Si high impact news ou incertitude -> WAIT > 40%\n- Les % reflètent ta conviction basée sur DXY, US10Y, prix, news et volatilité\n\nUtilise les valeurs macro si présentes (prix, dxy, us10y) et cite-les dans le raisonnement.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "81da1416-6080-491a-a4a8-a5f7de4b7e06",
+      "name": "Format Telegram Message",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1050,
+        900
+      ],
+      "parameters": {
+        "jsCode": "const agentOutput = $json?.agent_output || $json?.output || $json?.text || JSON.stringify($json);\nconst outputStr = typeof agentOutput === 'string' ? agentOutput : JSON.stringify(agentOutput, null, 2);\n\nconst buyMatch = outputStr.match(/BUY:\\s*(\\d+)%/i);\nconst sellMatch = outputStr.match(/SELL:\\s*(\\d+)%/i);\nconst waitMatch = outputStr.match(/WAIT:\\s*(\\d+)%/i);\n\nconst buyPct = buyMatch ? parseInt(buyMatch[1]) : null;\nconst sellPct = sellMatch ? parseInt(sellMatch[1]) : null;\nconst waitPct = waitMatch ? parseInt(waitMatch[1]) : null;\n\nconst createBar = (pct, max = 100, width = 20) => {\n  if (pct === null) return '';\n  const filled = Math.round((pct / max) * width);\n  const empty = width - filled;\n  return '█'.repeat(filled) + '░'.repeat(empty) + ` ${pct}%`;\n};\n\nconst header = `🟡 XAUUSD - SIGNAL & BRIEF\\n⏱ ${new Date().toLocaleString()}\\n━━━━━━━━━━━━━━━━━━━━\\n`;\n\nlet probBox = '';\nif (buyPct !== null || sellPct !== null || waitPct !== null) {\n  probBox = `\\n📊 PROBABILITÉS:\\n`;\n  if (buyPct !== null) probBox += `🟢 BUY:  ${createBar(buyPct)}\\n`;\n  if (sellPct !== null) probBox += `🔴 SELL: ${createBar(sellPct)}\\n`;\n  if (waitPct !== null) probBox += `🟡 WAIT: ${createBar(waitPct)}\\n`;\n  probBox += `\\n`;\n}\n\nconst message = header + probBox + outputStr;\n\nreturn [{ json: { text: message } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b99343e3-81dd-4757-9389-05000a7cd228",
+      "name": "Telegram Send",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1400,
+        900
+      ],
+      "parameters": {
+        "text": "={{$json.text}}",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "additionalFields": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "69802443-c607-4ac0-bf20-9b538a6e1b1d",
+      "name": "Get XAUUSD Price (TwelveData)1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -850,
+        820
+      ],
+      "parameters": {
+        "url": "https://api.twelvedata.com/quote?symbol=XAU/USD&apikey=YOUR_TOKEN_HERE",
+        "options": {
+          "timeout": 20000
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "a3f645b9-2181-4100-aeec-0ddef77c65ec",
+      "name": "Parse Price",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -500,
+        820
+      ],
+      "parameters": {
+        "jsCode": "const j = $json;\n\nconst price = Number(j.price);\nconst symbol = j.symbol || 'XAU/USD';\nconst dt = j.datetime || new Date().toISOString();\n\nif (!Number.isFinite(price)) {\n  return [{ json: { ok: false, error: 'Price missing', raw: j } }];\n}\n\nreturn [{\n  json: {\n    ok: true,\n    symbol,\n    price,\n    datetime: dt,\n    change: j.change ?? null,\n    percent_change: j.percent_change ?? null,\n    open: j.open ?? null,\n    high: j.high ?? null,\n    low: j.low ?? null,\n    prev_close: j.previous_close ?? null\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "22697576-9e40-4eb2-b31f-d8a45bb55438",
+      "name": "Merge1",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -100,
+        900
+      ],
+      "parameters": {
+        "numberInputs": 6
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "3580bc35-0bf0-4cbb-9cf0-ad5eeedc6209",
+      "name": "Code in JavaScript1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        250,
+        900
+      ],
+      "parameters": {
+        "jsCode": "const inputs = $input.all().map(i => i.json || {});\n\nconst toNumber = (v) => {\n  if (v === null || v === undefined) return null;\n  const n = Number(v);\n  return Number.isFinite(n) ? n : null;\n};\n\nconst pickFirst = (getterList) => {\n  for (const fn of getterList) {\n    try {\n      const v = fn();\n      if (v !== undefined && v !== null) return v;\n    } catch (e) {}\n  }\n  return null;\n};\n\nconst flattenNews = (arr) => {\n  if (!Array.isArray(arr)) return [];\n  return arr\n    .filter(x => x && typeof x === 'object')\n    .map(x => ({\n      title: x.title ?? x.headline ?? x.name ?? null,\n      url: x.url ?? x.link ?? null,\n      source: x.source ?? x.domain ?? null,\n      date: x.date ?? x.pubDate ?? x.seendate ?? null\n    }))\n    .filter(x => x.title);\n};\n\nconst bestContext = inputs.find(j =>\n  j.gdeltItems || j.rssItems || j.xau || j.macro\n) || {};\n\nlet xauPrice = pickFirst([\n  () => bestContext?.xau?.price,\n  () => bestContext?.xau?.close,\n  () => bestContext?.price,\n  () => bestContext?.xauusd_price,\n  () => bestContext?.xauusd_proxy_price\n]);\nxauPrice = toNumber(xauPrice);\n\nlet dxy = pickFirst([\n  () => bestContext?.macro?.dxy_close,\n  () => bestContext?.dxy_close,\n  () => bestContext?.macro?.dxy,\n]);\ndxy = toNumber(dxy);\n\nlet us10y = pickFirst([\n  () => bestContext?.macro?.us10y_close,\n  () => bestContext?.us10y_close,\n  () => bestContext?.macro?.us10y,\n]);\nus10y = toNumber(us10y);\n\nlet gdeltItems = [];\nlet rssItems = [];\n\ngdeltItems = gdeltItems.concat(flattenNews(bestContext?.gdeltItems));\nrssItems = rssItems.concat(flattenNews(bestContext?.rssItems));\n\nfor (const j of inputs) {\n  if (j?.source === 'GDELT' && Array.isArray(j?.items)) {\n    gdeltItems = gdeltItems.concat(flattenNews(j.items));\n  }\n  if (Array.isArray(j?.gdeltItems)) gdeltItems = gdeltItems.concat(flattenNews(j.gdeltItems));\n  if (Array.isArray(j?.rssItems)) rssItems = rssItems.concat(flattenNews(j.rssItems));\n\n  if (j?.title && (j?.link || j?.url)) {\n    rssItems.push({ title: j.title, url: j.link ?? j.url, date: j.pubDate ?? j.date ?? null, source: j.source ?? null });\n  }\n}\n\nconst uniqByTitle = (arr) => {\n  const seen = new Set();\n  const out = [];\n  for (const it of arr) {\n    const key = (it.title || '').trim().toLowerCase();\n    if (!key || seen.has(key)) continue;\n    seen.add(key);\n    out.push(it);\n  }\n  return out;\n};\n\ngdeltItems = uniqByTitle(gdeltItems).slice(0, 20);\nrssItems = uniqByTitle(rssItems).slice(0, 20);\n\nconst headlines = [\n  ...gdeltItems.map(x => `GDELT: ${x.title}`),\n  ...rssItems.map(x => `RSS: ${x.title}`)\n].slice(0, 25);\n\nconst newsText = headlines.join('\\n');\n\nconst blob = newsText.toLowerCase();\nconst highImpactKeywords = [\n  'cpi', 'inflation', 'pce', 'nfp', 'nonfarm', 'payroll',\n  'fomc', 'fed', 'powell', 'rate decision', 'interest rate decision',\n  'jobless claims', 'gdp'\n];\nconst highImpactDetected = highImpactKeywords.some(k => blob.includes(k));\n\nconst context = {\n  generatedAt: new Date().toISOString(),\n  xau: {\n    symbol: (bestContext?.xau?.symbol ?? 'XAUUSD'),\n    price: xauPrice\n  },\n  macro: {\n    dxy_close: dxy,\n    us10y_close: us10y,\n    highImpactDetected\n  },\n  news: {\n    gdeltItems,\n    rssItems,\n    newsText\n  }\n};\n\nreturn [{ json: context }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7ecd1b9f-77bd-4c7e-a426-618213a76c05",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        650,
+        1180
+      ],
+      "parameters": {
+        "options": {
+          "reasoningEffort": "medium"
+        },
+        "modelName": "gpt-5.6-terra"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a7e320fb-e098-48c0-ba9d-c81606749004",
+      "name": "Cron (every day 12h)",
+      "type": "n8n-nodes-base.cron",
+      "position": [
+        -1200,
+        900
+      ],
+      "parameters": {
+        "triggerTimes": {
+          "item": [
+            {
+              "hour": 12
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3736b42-e3fb-48f8-a447-9994e147f2d0",
+      "name": "Error Trigger",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        1050,
+        1450
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "dc80a43c-6c04-43ca-9ada-4d3011905ee2",
+      "name": "Send a text message",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1400,
+        1450
+      ],
+      "parameters": {
+        "text": "={{ $json.execution.id }}{{ $json.execution.error.message }}{{ $json.workflow.name }}",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "472f66ff-3977-4a9b-bf0a-0f5a161f68e3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        500
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 220,
+        "content": "## 1. Déclenchement\n\nLance automatiquement l'analyse à l'heure définie dans le Cron.\nModifiez l'horaire si nécessaire."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2c5b2200-c423-4b71-b444-7718ca5b525a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -850,
+        50
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 300,
+        "content": "## 2. Données marché & actualités\n\nRécupère DXY, US10Y, XAU/USD et les actualités financières depuis Stooq, TwelveData, GDELT, CNBC et Yahoo Finance.\n\nÀ configurer : `YOUR_TWELVEDATA_API_KEY`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9d696aa0-8fbf-408c-9ddd-ae31ba6c1a5e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        550,
+        500
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 280,
+        "content": "## 3. Analyse IA\n\nFusionne les données et produit un brief macro avec un signal BUY / SELL / WAIT, des probabilités et un niveau de confiance.\n\nÀ configurer : votre credential OpenAI."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e8ec340a-abb8-40a8-aa1b-19b973e7101f",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1050,
+        500
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 400,
+        "height": 250,
+        "content": "## 4. Sortie Telegram\n\nMet en forme le rapport puis l'envoie sur Telegram.\n\nÀ configurer : bot Telegram + `YOUR_TELEGRAM_CHAT_ID`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "094bb469-1540-4ac4-95bd-10aae7c7c7b6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1050,
+        1200
+      ],
+      "parameters": {
+        "width": 400,
+        "height": 200,
+        "content": "## Gestion des erreurs\n\nEn cas d'échec d'exécution, envoie le message d'erreur sur Telegram."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "public-readme-xauusd-template",
+      "name": "README - Installation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        -1000
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 900,
+        "height": 900,
+        "content": "## Comment utiliser ce template — Analyse Gold / XAUUSD\n\nCe workflow crée automatiquement un brief macro et un signal indicatif sur l'or (XAUUSD).\n\n### Fonctionnement\n1. Le Cron déclenche le workflow.\n2. Les données DXY, US10Y et XAU/USD sont récupérées.\n3. Les actualités financières sont collectées via GDELT, CNBC et Yahoo Finance.\n4. Les données sont regroupées et préparées.\n5. Un agent IA analyse le contexte macro et les news.\n6. Il produit un signal BUY / SELL / WAIT avec probabilités et confiance.\n7. Le résultat est formaté puis envoyé sur Telegram.\n\n### Prérequis\n- Un compte n8n\n- Une clé API TwelveData\n- Un compte OpenAI avec accès API\n- Un bot Telegram\n\n### Configuration\n1. Remplacez `YOUR_TWELVEDATA_API_KEY` dans le nœud `Get XAUUSD Price (TwelveData)1`.\n2. Connectez votre compte OpenAI dans `OpenAI Chat Model`.\n3. Connectez votre bot Telegram dans les nœuds Telegram.\n4. Remplacez `YOUR_TELEGRAM_CHAT_ID` par votre Chat ID.\n5. Ajustez l'heure du Cron si nécessaire.\n6. Testez le workflow avant de l'activer.\n\n### Important\nLes signaux BUY / SELL / WAIT sont indicatifs et ne constituent pas un conseil financier.\nLa qualité du résultat dépend de la disponibilité et de la fraîcheur des sources de données.\n\n### Sécurité\nCette version publique ne contient plus la clé TwelveData d'origine, les IDs de credentials, les Chat IDs privés, les webhook IDs, les données d'exécution ni l'identifiant de l'instance n8n.\n\n### Modèle IA recommandé\n`gpt-5.6-terra` est utilisé ici pour obtenir un bon équilibre entre qualité d'analyse, raisonnement et coût sur un workflow exécuté environ une fois par jour. Pour privilégier uniquement la qualité maximale, vous pouvez passer à `gpt-5.6`.\n\n### Layout review\nThe workflow has been manually spaced for recent n8n versions. Documentation notes are positioned separately from executable nodes so text and nodes remain fully visible."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "connections": {
+    "Merge1": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Format Telegram Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse DXY1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Prep GDELT": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Parse Price": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Error Trigger": {
+      "main": [
+        [
+          {
+            "node": "Send a text message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GDELT - Web News": {
+      "main": [
+        [
+          {
+            "node": "Prep GDELT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS - CNBC Top News": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 4
+          }
+        ]
+      ]
+    },
+    "Cron (every day 12h)": {
+      "main": [
+        [
+          {
+            "node": "GDELT - Web News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS - CNBC Top News",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RSS - Yahoo Finance US",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Macro - DXY (Stooq CSV)1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Macro - US10Y (Stooq CSV)1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Get XAUUSD Price (TwelveData)1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RSS - Yahoo Finance US": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 5
+          }
+        ]
+      ]
+    },
+    "Format Telegram Message": {
+      "main": [
+        [
+          {
+            "node": "Telegram Send",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Macro - DXY (Stooq CSV)1": {
+      "main": [
+        [
+          {
+            "node": "Parse DXY1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Macro - US10Y (Stooq CSV)1": {
+      "main": [
+        [
+          {
+            "node": "Merge1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get XAUUSD Price (TwelveData)1": {
+      "main": [
+        [
+          {
+            "node": "Parse Price",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Send daily XAUUSD macro signals with TwelveData, GDELT, Groq, OpenAI and Telegram",
+    "wechat": "youandme10086",
+    "id": 18815,
+    "update_time": "2026-09-27"
+  }
+}

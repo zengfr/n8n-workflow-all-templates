@@ -1,4 +1,4 @@
-# budget : 20
+# budget : 24
 
 |id|file|
 |----|----|
@@ -22,3 +22,7 @@
 |16167|[16167_Monitor_GitHub_Actions_budget_and_send_usage_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16167_Monitor_GitHub_Actions_budget_and_send_usage_alerts_to_Slack.json)|
 |16404|[16404_Route_purchase_order_approvals_and_budget_alerts_with_Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16404_Route_purchase_order_approvals_and_budget_alerts_with_Gmail__Slack_and_Sheets.json)|
 |16583|[16583_Monitor_budget_variance_with_Google_Sheets__Gemini__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16583_Monitor_budget_variance_with_Google_Sheets__Gemini__Slack__and_Gmail.json)|
+|17319|[17319_Review_your_budget_from_bank_statement_CSV_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17319_Review_your_budget_from_bank_statement_CSV_with_Google_Gemini_and_Gmail.json)|
+|17673|[17673_Find_scalable_Meta_Ads_winners_with_Claude_and_email_the_budget_plan_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17673_Find_scalable_Meta_Ads_winners_with_Claude_and_email_the_budget_plan_via_Gmail.json)|
+|18078|[18078_Generate_legal_tech_project_proposals_with_Google_Sheets__GPT-4o__SerpApi_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18078_Generate_legal_tech_project_proposals_with_Google_Sheets__GPT-4o__SerpApi_and_Gmail.json)|
+|19332|[19332_Route_purchase_requisition_approvals_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19332_Route_purchase_requisition_approvals_with_Google_Sheets_and_Gmail.json)|

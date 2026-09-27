@@ -1,4 +1,4 @@
-# without : 18
+# without : 25
 
 |id|file|
 |----|----|
@@ -20,3 +20,10 @@
 |7458|[7458_Automate_JotForm_Submissions_via_HTTP_without_API_Keys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/74/7458_Automate_JotForm_Submissions_via_HTTP_without_API_Keys.json)|
 |7681|[7681_Sync_New_Subscribers_from_Google_Sheets_to_MailerLite_without_Duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7681_Sync_New_Subscribers_from_Google_Sheets_to_MailerLite_without_Duplicates.json)|
 |10001|[10001_Download_TikTok_Videos_Without_Watermarks_via_Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10001_Download_TikTok_Videos_Without_Watermarks_via_Telegram_Bot.json)|
+|17749|[17749_Capture_and_deduplicate_website_leads_in_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17749_Capture_and_deduplicate_website_leads_in_Google_Sheets_with_Slack_alerts.json)|
+|18375|[18375_Find_local_businesses_without_websites_from_Google_Maps_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18375_Find_local_businesses_without_websites_from_Google_Maps_with_BasedOnBusiness_and_Google_Sheets.json)|
+|18562|[18562_Create_de-duplicated_HubSpot_companies_from_Google_Maps_with_BasedOnBusiness.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18562_Create_de-duplicated_HubSpot_companies_from_Google_Maps_with_BasedOnBusiness.json)|
+|18696|[18696_Capture_and_qualify_website_leads_with_n8n_Forms_and_Twenty_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18696_Capture_and_qualify_website_leads_with_n8n_Forms_and_Twenty_CRM.json)|
+|19351|[19351_Route_AI_voice_call_webhooks_to_WhatsApp_and_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19351_Route_AI_voice_call_webhooks_to_WhatsApp_and_Google_Sheets_with_OpenAI.json)|
+|19684|[19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json)|
+|19825|[19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json)|

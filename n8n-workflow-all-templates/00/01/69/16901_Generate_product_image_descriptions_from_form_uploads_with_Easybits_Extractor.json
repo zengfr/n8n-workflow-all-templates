@@ -1,0 +1,287 @@
+{
+  "name": "Product Image Describer powered by easybits",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ace9edef-bba9-408d-9f97-d0ff35d49b4c",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        190,
+        377
+      ],
+      "parameters": {
+        "options": {},
+        "formTitle": "Product Image Description Generator",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Product Image",
+              "requiredField": true,
+              "acceptFileTypes": ".jpg,.jpeg,.png"
+            },
+            {
+              "fieldLabel": "Product Name"
+            }
+          ]
+        },
+        "formDescription": "Upload a product photo and get a ready-to-use description back."
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "506f3f43-9d9f-40e3-b0f8-6869d82cc8cb",
+      "name": "Code: Expand images into items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        750,
+        377
+      ],
+      "parameters": {
+        "jsCode": "// Fan out one item per uploaded image, rename its binary to \"data\",\n// and carry a base64 data URI so we can show the image on the result screen\nconst out = [];\nconst inputItems = $input.all();\nlet counter = 0;\n\nfor (let itemIndex = 0; itemIndex < inputItems.length; itemIndex++) {\n  const item = inputItems[itemIndex];\n  const binaries = item.binary || {};\n  const productName = item.json['Product Name'] || item.json.productName || '';\n  const keys = Object.keys(binaries);\n\n  for (let i = 0; i < keys.length; i++) {\n    const key = keys[i];\n    const bin = binaries[key];\n    counter += 1;\n\n    const buffer = await this.helpers.getBinaryDataBuffer(itemIndex, key);\n    const mimeType = bin.mimeType || 'image/jpeg';\n    const dataUri = `data:${mimeType};base64,${buffer.toString('base64')}`;\n\n    out.push({\n      json: {\n        productName,\n        imageIndex: counter,\n        fileName: bin.fileName || `image_${counter}`,\n        mimeType,\n        dataUri,\n      },\n      binary: { data: bin },\n      pairedItem: { item: 0 },\n    });\n  }\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5ee27abc-14d5-496a-9c5d-ecd46f09cb11",
+      "name": "Loop: Over each image",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1310,
+        377
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "e3ec54ba-6bb9-4d9d-8d5a-695e7cf335bb",
+      "name": "Describe: Product image",
+      "type": "@easybits/n8n-nodes-extractor.easybitsExtractor",
+      "position": [
+        1310,
+        919
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "73b8494a-0f4d-478e-9c97-41c58a5445bc",
+      "name": "Code: Combine descriptions",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1870,
+        377
+      ],
+      "parameters": {
+        "jsCode": "const results = $input.all();\nconst inputs  = $('Code: Expand images into items').all();\n\nconst isMissing = (v) => {\n  if (v === null || v === undefined) return true;\n  const s = String(v).trim().toLowerCase();\n  return s === '' || s === 'null';\n};\nconst esc = (s) => String(s)\n  .replace(/&/g,'&amp;').replace(/</g,'&lt;')\n  .replace(/>/g,'&gt;').replace(/\"/g,'&quot;');\n\nconst blocks = [];\nresults.forEach((res, i) => {\n  const d = res.json.data || res.json || {};\n  const meta = (inputs[i] && inputs[i].json) || {};\n\n  const fileName = isMissing(meta.fileName) ? `Image ${i+1}` : String(meta.fileName).trim();\n  const dataUri  = isMissing(meta.dataUri) ? '' : meta.dataUri;\n  const rawDesc  = isMissing(d.description) ? '' : String(d.description).trim();\n\n  const unclear = (rawDesc === '' || rawDesc.toUpperCase() === 'UNCLEAR');\n  const body = unclear\n    ? 'We could not generate a description for this image. Try a clearer, well-lit photo of a single product.'\n    : rawDesc;\n\n  const img = dataUri\n    ? `<img src=\"${dataUri}\" alt=\"${esc(fileName)}\" style=\"width:120px;height:120px;object-fit:cover;border-radius:8px;flex-shrink:0;border:1px solid #eee;\" />`\n    : '';\n\n  const copyBtn = unclear ? '' :\n    `<button type=\"button\"\n       onclick=\"(function(b){navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function(){var t=b.innerText;b.innerText='Copied';setTimeout(function(){b.innerText=t;},1500);});})(this)\"\n       data-copy=\"${esc(body)}\"\n       style=\"margin-top:10px;padding:6px 14px;font-size:13px;font-weight:600;color:#111;background:#fff;border:1px solid #111;border-radius:6px;cursor:pointer;\">\n       Copy description\n     </button>`;\n\n  blocks.push(\n    `<div style=\"display:flex;gap:16px;align-items:flex-start;flex-wrap:wrap;margin:0 0 20px 0;padding:0 0 20px 0;border-bottom:1px solid #ececec;\">\n       ${img}\n       <div style=\"flex:1;min-width:220px;\">\n         <p style=\"margin:0 0 6px 0;font-weight:600;color:#111;\">${esc(fileName)}</p>\n         <p style=\"margin:0;line-height:1.55;color:${unclear ? '#b00' : '#333'};\">${esc(body)}</p>\n         ${copyBtn}\n       </div>\n     </div>`\n  );\n});\n\nconst heading = results.length === 1 ? 'Your image description is ready' : 'Your image descriptions are ready';\n\nconst html =\n  `<div style=\"max-width:680px;margin:0 auto;padding:32px 20px 48px 20px;text-align:left;font-family:inherit;\">\n     <h2 style=\"margin:0 0 16px 0;font-size:22px;font-weight:700;color:#111;\">${heading}</h2>\n     ${blocks.join('\\n')}\n   </div>`;\n\nreturn [{ json: { imageCount: results.length, combinedDescription: html } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b8eeb52-ad4d-4680-a78c-cae3bd4e3717",
+      "name": "Show: Result",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        2430,
+        377
+      ],
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "={{ $json.combinedDescription }}"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "7402039f-7b7e-426c-8b68-e8a0b1633e78",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 422,
+        "content": "### Step 1 – Form intake\nCollects one or more product images (JPG/PNG) and an optional product name. This node's URL is the public form users open."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b1e5b542-4494-4525-b9f4-682bbffa469a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 422,
+        "content": "### Step 2 – Split images into items\nFans each uploaded file out into its own item, renames the binary to `data` for the Extractor, and stores a base64 copy so the image can be shown on the result screen."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13f2867d-e89f-4e90-b3c4-c4cee0eef686",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 422,
+        "content": "### Step 3 – Loop per image\nBatch size **1**, so the Extractor runs once per image instead of bundling them into a single call. The `loop` output feeds the Extractor; the `done` output continues once every image is processed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e05245b4-363b-495d-aeb5-789a2d7bd5ff",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        642
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 422,
+        "content": "### Step 4 – Describe with the easybits Extractor\nRuns each image through the Extractor pipeline and returns structured fields (`product_type`, `description`) under a `data` envelope. Reads the image from the `data` binary property set in Step 2."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cddce8e4-6d37-49e3-a376-50046e1fe303",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 422,
+        "content": "### Step 5 – Build the result\nReads every per-image result from the loop's done branch, pairs each with its filename and thumbnail, and builds the HTML for the result page. Images the model can't read come back as `UNCLEAR` and get a fallback message."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4e2d121e-9d6f-4ea1-a199-6344e99ad46d",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        100
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 422,
+        "content": "### Step 6 – Show the result\nDisplays the descriptions in the browser with a copy button per image, using the Form completion screen (Show Text renders the HTML)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f7de45f9-a155-4184-a3af-8d2ce58ffa31",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -764,
+        100
+      ],
+      "parameters": {
+        "width": 704,
+        "height": 1068,
+        "content": "## 🖼️ Product Image Describer (powered by easybits)\n\nUpload one or more product photos and get back a clean, ready-to-use\ndescription for each – with a copy button to paste straight into your shop.\n\n## How it works\n1. **Form intake** – the user uploads product images (JPG/PNG) and an optional product name.\n2. **Split** – each image becomes its own item and is prepped for the Extractor.\n3. **Loop** – images are processed one at a time, so each gets its own description.\n4. **Describe** – the easybits Extractor reads each image and returns structured fields (product type + description).\n5. **Build & show** – results are combined into a styled page with a thumbnail, filename and copy button per image.\n\n## Set up steps\n1. **Add the Extractor node** (`Describe: Product image`):\n   - **n8n Cloud:** verified node – just search \"easybits Extractor\" in the node panel. Nothing to install.\n   - **Self-hosted:** Settings → Community Nodes → Install → `@easybits/n8n-nodes-extractor`\n2. **Create an Extractor pipeline** at extractor.easybits.tech with two String fields:\n   - `product_type`\n   - `description`\n   Then paste the Pipeline ID + API key into the node's credential.\n3. The Extractor **free plan includes 50 API requests / month** – enough to test this end to end.\n4. **Activate** the workflow and open the form URL to try it.\n\n\n**Good to know:** in the `description` field, tell the model not to guess at\nbrand, price or size, and to return `UNCLEAR` if it can't read the image –\nthe workflow shows a friendly fallback line for those. ~2 seconds per image."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Code: Expand images into items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop: Over each image": {
+      "main": [
+        [
+          {
+            "node": "Code: Combine descriptions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Describe: Product image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Describe: Product image": {
+      "main": [
+        [
+          {
+            "node": "Loop: Over each image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Combine descriptions": {
+      "main": [
+        [
+          {
+            "node": "Show: Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code: Expand images into items": {
+      "main": [
+        [
+          {
+            "node": "Loop: Over each image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Generate product image descriptions from form uploads with Easybits Extractor",
+    "wechat": "youandme10086",
+    "id": 16901,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# restaurant : 29
+# restaurant : 36
 
 |id|file|
 |----|----|
@@ -31,3 +31,10 @@
 |15516|[15516_Monitor_restaurant_ratings_with_Google_Places__Gemini__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15516_Monitor_restaurant_ratings_with_Google_Places__Gemini__Sheets__and_Slack.json)|
 |16247|[16247_Confirm_restaurant_orders_by_phone_with_Supabase__Claude_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16247_Confirm_restaurant_orders_by_phone_with_Supabase__Claude_and_Twilio.json)|
 |16770|[16770_Manage_restaurant_orders__upsells__and_payments_with_Telegram__OpenAI__Razorpay__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16770_Manage_restaurant_orders__upsells__and_payments_with_Telegram__OpenAI__Razorpay__and_Google_Sheets.json)|
+|17044|[17044_Confirm_and_log_WhatsApp_restaurant_orders_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17044_Confirm_and_log_WhatsApp_restaurant_orders_with_Groq_and_Google_Sheets.json)|
+|17436|[17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json)|
+|17509|[17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json)|
+|17739|[17739_Handle_restaurant_bookings_via_Telegram_with_DeepSeek__Airtable__and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17739_Handle_restaurant_bookings_via_Telegram_with_DeepSeek__Airtable__and_Google_Calendar.json)|
+|17768|[17768_Run_a_restaurant_concierge_chatbot_on_Telegram_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17768_Run_a_restaurant_concierge_chatbot_on_Telegram_with_OpenAI_and_Google_Sheets.json)|
+|18357|[18357_Plan_daily_restaurant_prep_lists_with_DeepSeek__Google_Sheets__Telegram_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18357_Plan_daily_restaurant_prep_lists_with_DeepSeek__Google_Sheets__Telegram_and_Gmail.json)|
+|19500|[19500_Handle_restaurant_reservations_and_orders_with_ElevenLabs__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19500_Handle_restaurant_reservations_and_orders_with_ElevenLabs__Sheets_and_Gmail.json)|

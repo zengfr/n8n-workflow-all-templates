@@ -1,4 +1,4 @@
-# funding : 9
+# funding : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |14102|[14102_Generate_weekly_Seed___Series_A_scouting_reports_with_PredictLeads_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14102_Generate_weekly_Seed___Series_A_scouting_reports_with_PredictLeads_and_OpenAI.json)|
 |16341|[16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json)|
 |16743|[16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json)|
+|16855|[16855_Draft_funding-based_cold_email_openers_with_Datahyena_and_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16855_Draft_funding-based_cold_email_openers_with_Datahyena_and_OpenAI_GPT-4o.json)|
+|17353|[17353_Collect_Crunchbase_funding_data_into_Google_Sheets_using_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17353_Collect_Crunchbase_funding_data_into_Google_Sheets_using_Apify.json)|
+|17574|[17574_Monitor_competitor_funding_with_Apify__Google_Gemini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17574_Monitor_competitor_funding_with_Apify__Google_Gemini__Google_Sheets_and_Slack.json)|
+|18876|[18876_Score_funding_newsletter_leads_from_Gmail_with_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18876_Score_funding_newsletter_leads_from_Gmail_with_Bright_Data_and_GPT-5.6.json)|

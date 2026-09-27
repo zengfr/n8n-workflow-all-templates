@@ -1,0 +1,555 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Investigate phishing emails from Google Sheets with MCP server and Telegram",
+    "wechat": "youandme10086",
+    "id": 18899,
+    "update_time": "2026-09-27"
+  },
+  "name": "Phishing Email Analysis",
+  "tags": [],
+  "nodes": [
+    {
+      "name": "Google Sheets Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        -960,
+        -192
+      ],
+      "parameters": {
+        "event": "rowAdded",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyX",
+              "unit": "minutes",
+              "value": 5
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_YOUR_SHEET_TAB_NAME"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Download file",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        -736,
+        -192
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json[\"Upload Phishing Email\"].match(/id=([^&]+)/)[1] }}"
+        },
+        "options": {
+          "binaryPropertyName": "submitted_file"
+        },
+        "operation": "download"
+      },
+      "typeVersion": 3
+    },
+    {
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -512,
+        -192
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const binaryData = $input.item.binary.submitted_file;\nconst fileName = binaryData.fileName.toLowerCase();\nconst mimeType = binaryData.mimeType;\n\nconst allowedExtensions = ['.eml', '.msg'];\nconst hasValidExt = allowedExtensions.some(ext => fileName.endsWith(ext));\n\n// Google Drive assigns specific mimetypes to uploaded files, or octet-stream\nconst isAcceptedMime = mimeType.includes('message/rfc822') || \n                       mimeType.includes('application/vnd.ms-outlook') || \n                       mimeType.includes('octet-stream');\n\nif (!hasValidExt && !isAcceptedMime) {\n  throw new Error(`Security Exception: Unauthorized file type submitted (${fileName})`);\n}\n\nreturn $input.item;"
+      },
+      "notesInFlow": false,
+      "typeVersion": 2
+    },
+    {
+      "name": "Code in Python",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -288,
+        -192
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "language": "pythonNative",
+        "pythonCode": "import io\nimport re\nimport hashlib\nfrom email import policy\nfrom email.parser import BytesParser\nimport extract_msg\nfrom bs4 import BeautifulSoup\n\n# 1. Retrieve the file buffer directly from N8N's binary memory\nbinary_item = _input.binary['submitted_file']\nfile_bytes = binary_item.get_bytes()\nfile_name = binary_item.file_name.lower()\n\n# Security: File size check (5MB)\nif len(file_bytes) > 5 * 1024 * 1024:\n    raise ValueError(\"File size exceeds 5MB security limit\")\n\n# Security: Calculate SHA-256 hash for audit trail (of the email itself)\nsha256_hash = hashlib.sha256(file_bytes).hexdigest()\n\n# Hyperlink extraction: catch <a href>, bare http(s) links, and defanged variants\nURL_RE = re.compile(r'https?://[^\\s\"\\'<>)\\]\\}]+', re.IGNORECASE)\n\ndef extract_urls(text):\n    if not text:\n        return []\n    found = set()\n    for m in URL_RE.finditer(text):\n        # strip trailing punctuation that is almost never part of the URL\n        u = m.group(0).rstrip('.,;:!?)\\']}>\"')\n        found.add(u)\n    return sorted(found)\n\ndef sanitize_html(html):\n    soup = BeautifulSoup(html, 'html.parser')\n    for tag in ['script', 'iframe', 'object', 'embed']:\n        for element in soup.find_all(tag):\n            element.decompose()\n    return soup.get_text(separator='\\n', strip=True)\n\ndef links_from_html(html):\n    \"\"\"Pull both href attributes AND text URLs from HTML bodies.\"\"\"\n    urls = set()\n    if not html:\n        return urls\n    try:\n        soup = BeautifulSoup(html, 'html.parser')\n        for a in soup.find_all('a', href=True):\n            href = a['href'].strip()\n            if re.match(r'^https?://', href, re.IGNORECASE):\n                urls.add(href.split('#')[0])\n        # also any URL appearing in the raw HTML (img src, style url(), etc.)\n        for u in extract_urls(html):\n            urls.add(u)\n    except Exception:\n        pass\n    return urls\n\n# 2. Process based on byte streams instead of local files\nresult = {}\n\nif file_name.endswith('.msg'):\n    msg = extract_msg.Message(file_bytes)\n\n    body_html = getattr(msg, 'htmlBody', None) or ''\n    body_text = msg.body or ''\n    all_urls = set(links_from_html(body_html)) | set(extract_urls(body_text))\n\n    safe_attachments = []\n    for att in msg.attachments:\n        fn = att.longFilename or att.shortFilename or 'unnamed'\n        raw = att.data or b''\n        att_sha = hashlib.sha256(raw).hexdigest() if raw else None\n        safe_attachments.append({\n            'filename': re.sub(r'[^a-zA-Z0-9._-]', '', fn),\n            'content_type': att.mimetype,\n            'size': len(raw),\n            'sha256': att_sha,\n            'ext': ('.' + fn.rsplit('.', 1)[-1].lower()) if '.' in fn else '',\n            # first 500 chars of text content only (never executed); non-text = null\n            'content_preview': (str(raw[:500]) if att_sha and att.mimetype.startswith('text') else None),\n        })\n        # attachments can carry their own URLs (e.g. html attachments)\n        if att.mimetype and 'html' in att.mimetype:\n            all_urls |= links_from_html(raw.decode('utf-8', 'ignore'))\n\n    result = {\n        'headers': {'From': msg.sender, 'To': msg.to, 'Subject': msg.subject, 'Date': msg.date,\n                    'Cc': getattr(msg, 'cc', None), 'ReplyTo': getattr(msg, 'reply_to', None)},\n        'body': sanitize_html(body_html) if body_html else sanitize_html(body_text),\n        'attachments': safe_attachments,\n        'urls': sorted(all_urls),\n        'metadata': {'sender': msg.sender, 'subject': msg.subject, 'date': msg.date,\n                     'sha256': sha256_hash, 'format': 'msg', 'attachment_count': len(safe_attachments)},\n    }\nelse:\n    parsed_email = BytesParser(policy=policy.default).parsebytes(file_bytes)\n\n    body_part = parsed_email.get_body(preferencelist=('html', 'plain'))\n    body_content = body_part.get_content() if body_part else \"\"\n    content_type = body_part.get_content_type() if body_part else \"text/plain\"\n    all_urls = links_from_html(body_content) if 'html' in content_type else extract_urls(body_content)\n\n    safe_attachments = []\n    for part in parsed_email.iter_attachments():\n        fn = part.get_filename() or 'unnamed'\n        raw = part.get_payload(decode=True) or b''\n        att_sha = hashlib.sha256(raw).hexdigest() if raw else None\n        ctype = part.get_content_type()\n        safe_attachments.append({\n            'filename': re.sub(r'[^a-zA-Z0-9._-]', '', fn),\n            'content_type': ctype,\n            'size': len(raw),\n            'sha256': att_sha,\n            'ext': ('.' + fn.rsplit('.', 1)[-1].lower()) if '.' in fn else '',\n            'content_preview': (str(raw[:500]) if att_sha and ctype.startswith('text') else None),\n        })\n        if 'html' in ctype:\n            all_urls |= links_from_html(raw.decode('utf-8', 'ignore'))\n\n    result = {\n        'headers': dict(parsed_email),\n        'body': sanitize_html(body_content) if 'html' in content_type else sanitize_html(body_content),\n        'attachments': safe_attachments,\n        'urls': sorted(all_urls),\n        'metadata': {'sender': parsed_email['From'], 'subject': parsed_email['Subject'],\n                     'date': parsed_email['Date'], 'sha256': sha256_hash, 'format': 'eml',\n                     'attachment_count': len(safe_attachments)},\n    }\n\n# Return structured JSON back to the N8N workflow (feeds the MCP Client investigation)\nreturn result\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "MCP Client",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        -64,
+        -192
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "check_email_headers",
+          "cachedResultName": "check_email_headers"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "={{ $json }}",
+        "endpointUrl": "REPLACE_WITH_YOUR_MCP_SERVER_URL"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "name": "Split IOCs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        160,
+        -368
+      ],
+      "parameters": {
+        "jsCode": "const parsed=$('Code in Python').item.json;const hdr=$json;const items=[];(parsed.urls||[]).forEach(u=>items.push({json:{ioc_type:'url',value:u}}));(parsed.attachments||[]).forEach(a=>{if(a.sha256)items.push({json:{ioc_type:'hash',value:a.sha256,filename:a.filename}});});(hdr.received_chain||[]).forEach(hop=>{(hop.lookups||[]).forEach(l=>{if(l.ip&&l.ip!=='127.0.0.1'&&l.ip!=='0.0.0.0')items.push({json:{ioc_type:'ip',value:l.ip}});});});return items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Switch IOC Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        384,
+        -384
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.ioc_type }}",
+                    "rightValue": "url"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.ioc_type }}",
+                    "rightValue": "hash"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.ioc_type }}",
+                    "rightValue": "ip"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "name": "Check URL",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        608,
+        -560
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "check_url",
+          "cachedResultName": "check_url"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "={{ { \"url\": $json.value } }}",
+        "endpointUrl": "REPLACE_WITH_YOUR_MCP_SERVER_URL"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "name": "Check Hash",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        608,
+        -368
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "file_hash",
+          "cachedResultName": "file_hash"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "={{ { \"sha256\": $json.value } }}",
+        "endpointUrl": "REPLACE_WITH_YOUR_MCP_SERVER_URL"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "name": "Check IP",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        608,
+        -176
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "list",
+          "value": "lookup_ip",
+          "cachedResultName": "lookup_ip"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "={{ { \"ip\": $json.value } }}",
+        "endpointUrl": "REPLACE_WITH_YOUR_MCP_SERVER_URL"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "name": "Merge Results",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        832,
+        -304
+      ],
+      "parameters": {
+        "numberInputs": 4
+      },
+      "typeVersion": 3
+    },
+    {
+      "name": "Build Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1056,
+        -272
+      ],
+      "parameters": {
+        "jsCode": "const header=$('MCP Client').first().json;const merged=$('Merge').all().map(i=>i.json);const urlRes=merged.filter(m=>m.url!==undefined);const hashRes=merged.filter(m=>m.sha256!==undefined&&m.url===undefined);const ipRes=merged.filter(m=>m.ip!==undefined&&m.sha256===undefined&&m.url===undefined);let malicious=0,suspicious=0,unknown=0;const tally=v=>{if(v==='malicious')malicious++;else if(v==='suspicious')suspicious++;else unknown++;};urlRes.forEach(r=>tally(r.verdict));hashRes.forEach(r=>tally(r.verdict));ipRes.forEach(r=>tally(r.verdict));const authVerdict=header&&header.auth_verdict?header.auth_verdict:'unknown';let overall='LIKELY BENIGN / INCONCLUSIVE';if(malicious>0)overall='MALICIOUS';else if(authVerdict==='suspicious'||suspicious>0||authVerdict==='unauthenticated')overall='SUSPICIOUS';const L=[];L.push('*Phishing Analysis Report*');L.push('Overall verdict: *'+overall+'*');L.push('From: '+(header&&header.from_raw?header.from_raw:'n/a')+'  (domain: '+(header&&header.from_domain?header.from_domain:'n/a')+')');L.push('Auth: SPF '+(header&&header.spf?header.spf.status:'n/a')+' / DKIM '+(header&&header.dkim&&header.dkim[0]?header.dkim[0].status:'n/a')+' / DMARC '+(header&&header.dmarc?header.dmarc.status:'n/a')+'  -> '+authVerdict);L.push('URLs checked: '+urlRes.length+'  (malicious '+urlRes.filter(r=>r.verdict==='malicious').length+')');L.push('Attachments hashed: '+hashRes.length+'  (malicious '+hashRes.filter(r=>r.verdict==='malicious').length+')');L.push('Relay IPs checked: '+ipRes.length+'  (malicious '+ipRes.filter(r=>r.verdict==='malicious').length+')');const badUrls=urlRes.filter(r=>r.verdict==='malicious');if(badUrls.length){L.push('');L.push('Malicious URLs:');badUrls.forEach(r=>L.push(' - '+r.url));}const badHashes=hashRes.filter(r=>r.verdict==='malicious');if(badHashes.length){L.push('');L.push('Malicious attachment hashes:');badHashes.forEach(r=>L.push(' - '+r.sha256+' ('+(r.filename||'?')+')'));}return [{json:{report:L.join(String.fromCharCode(10)),verdict:overall,from_domain:header&&header.from_domain,auth_verdict:authVerdict,counts:{malicious,suspicious,unknown,urls:urlRes.length,hashes:hashRes.length,ips:ipRes.length},header,url_results:urlRes,hash_results:hashRes,ip_results:ipRes}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Notify Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1280,
+        -272
+      ],
+      "parameters": {
+        "chatId": "REPLACE_WITH_YOUR_TELEGRAM_CHAT_ID",
+        "resource": "chat"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1728,
+        -784
+      ],
+      "parameters": {
+        "color": "#FFEA00",
+        "width": 716,
+        "height": 632,
+        "content": "## Phishing Email Analysis\n\nAutomatically investigate a suspected phishing email and get a plain-language verdict in Telegram. Submit a flagged `.eml` / `.msg` (via a linked Google Sheet / Form) and the workflow parses it, checks the mail authentication, scans every link and attachment, and reports the result.\n\n### How it works\n1. A new sheet row supplies a Google Drive link to the email; it is downloaded and validated.\n2. A Python node extracts headers, the body, every URL (including inside HTML attachments), and a SHA-256 of each attachment.\n3. An MCP server checks SPF / DKIM / DMARC and the Received chain, then fans out every URL, attachment hash, and relay IP to reputation lookups (URLhaus, ThreatFox, urlscan).\n4. Results are merged, scored, and posted to Telegram as a MALICIOUS / SUSPICIOUS / BENIGN verdict.\n\n### Setup\n- Deploy the bundled MCP server (Node.js) and note its URL.\n- Import the workflow and add Google Sheets, Google Drive, and Telegram credentials.\n- Point the four MCP Client nodes at your server URL and pick the matching tool.\n- Set the sheet column and your Telegram chat ID, then run a test with the sample email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "1. Intake & Parse",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -912,
+        -368
+      ],
+      "parameters": {
+        "color": "#F9F5F5",
+        "width": 640,
+        "height": 220,
+        "content": "## 1. Intake & Parse\nGoogle Sheets Trigger pulls a flagged email; Download file fetches it from Drive. Code (JS) rejects non-`.eml`/`.msg`; Code (Python) extracts headers, URLs, and attachment hashes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "2. Header check",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -656
+      ],
+      "parameters": {
+        "color": "#FFFAFA",
+        "width": 548,
+        "height": 232,
+        "content": "## 2. Header check\nMCP Client runs check_email_headers: SPF / DKIM / DMARC and the Received chain. Returns an auth verdict and the relay IPs to investigate."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "3. IOC investigation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        -624
+      ],
+      "parameters": {
+        "color": "#F8F7F7",
+        "width": 276,
+        "height": 264,
+        "content": "## 3. IOC investigation\nSplit IOCs fans each URL / hash / IP into its own item; Switch routes by type. Three MCP Clients check reputation: check_url, file_hash, lookup_ip."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "4. Reporting",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1056,
+        -96
+      ],
+      "parameters": {
+        "color": "#FBF9F9",
+        "width": 340,
+        "height": 180,
+        "content": "## 4. Reporting\nMerge gathers all results; Build Report scores them and writes the verdict; Notify Telegram sends the report to your chat."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "WARNING: server + chat id",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1568,
+        -560
+      ],
+      "parameters": {
+        "color": "#FCF8F8",
+        "width": 320,
+        "height": 200,
+        "content": "## Before you run\nSet the MCP server URL on all four MCP Client nodes and your Telegram chat ID on Notify Telegram — the workflow errors without them."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Check IP": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Check URL": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Hash": {
+      "main": [
+        [
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "MCP Client": {
+      "main": [
+        [
+          {
+            "node": "Split IOCs",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Results",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Split IOCs": {
+      "main": [
+        [
+          {
+            "node": "Switch IOC Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Report": {
+      "main": [
+        [
+          {
+            "node": "Notify Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download file": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Results": {
+      "main": [
+        [
+          {
+            "node": "Build Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in Python": {
+      "main": [
+        [
+          {
+            "node": "MCP Client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch IOC Type": {
+      "main": [
+        [
+          {
+            "node": "Check URL",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check Hash",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check IP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Code in Python",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Sheets Trigger": {
+      "main": [
+        [
+          {
+            "node": "Download file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "Automatically investigate a suspected phishing email and post a verdict (MALICIOUS / SUSPICIOUS / BENIGN) to Telegram. Parses the email, checks SPF/DKIM/DMARC and the Received chain, scans every URL and attachment hash, and looks up relay IPs against threat-intel feeds via a local MCP server."
+}

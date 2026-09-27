@@ -1,0 +1,523 @@
+{
+  "id": "32Xb2RqLEyzio5yH",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Reprice tour packages dynamically with Claude, Google Sheets and Slack",
+    "wechat": "youandme10086",
+    "id": 17359,
+    "update_time": "2026-09-27"
+  },
+  "name": "Dynamic Tour Package Repricing Engine",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "450119d4-4934-45af-8363-906bc171092b",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 1020,
+        "height": 1176,
+        "content": "## Dynamic Tour Package Repricing Engine\n\nAirline-style yield management for tour packages. This workflow continuously pulls live booking/demand signals and competitor pricing, scores each package's demand momentum and seasonality, checks price positioning against the market, and lets AI finalize a margin-protecting price - live, without a revenue manager repricing by hand.\n\n### Who's it for\n- Tour operators and OTAs running multiple departures per package across a season\n- Revenue management teams that want airline-style dynamic pricing without building it from scratch\n- Anyone whose current process is a person periodically eyeballing a spreadsheet of bookings and competitor prices\n\n### How it works\n1. A schedule trigger polls a live booking/demand API and a competitor pricing API for every active package\n2. JS - Calculate Demand Score, Seasonality & Competitor Position scores each package's booking velocity and occupancy, applies a seasonality/urgency curve based on days-to-departure, and compares list price against competitor average to compute a total recommended price adjustment\n3. Packages whose recommended adjustment is 3% or more are filtered through for repricing\n4. AI finalizes the price - applying sane rounding and a sanity cap - and writes a short reasoning note with a confidence level\n5. The new price and reasoning are appended to a PriceUpdates log for downstream systems and audit\n6. The revenue management team gets a Slack alert summarizing what changed and why\n\n### How to set up\n1. Import this workflow into n8n\n2. Add Anthropic Claude credentials and attach to the Anthropic model node\n3. Point Fetch Live Demand & Booking Data at your real booking system/API and add its auth header\n4. Point Fetch Competitor Pricing Data at your real competitor-pricing feed/API and add its auth header\n5. Switch the Google Sheets HTTP node to the native Google Sheets node with OAuth2, or add OAuth2 credentials directly\n6. Replace YOUR_SHEET_ID with your actual Spreadsheet ID\n7. Add Slack credentials and replace YOUR_SLACK_CHANNEL_ID\n8. Set the schedule interval to match how often demand/competitor data should be checked (default: every 30 minutes)\n9. Activate the workflow\n\n### Requirements\n- Anthropic Claude API key (claude-sonnet-4 recommended)\n- A booking/demand data API and a competitor pricing API\n- Google Sheets with OAuth2 credentials (PriceUpdates tab)\n- Slack workspace access for the revenue management alert\n\n### How to customize\n- Adjust the seasonality curve and competitor-adjustment thresholds in JS - Calculate Demand Score, Seasonality & Competitor Position\n- Change the 3% needsReprice threshold to reprice more or less frequently\n- Add a maximum single-run price-change cap so no departure jumps too far in one cycle\n- Add per-cabin/per-room-type tiers if your packages have multiple sellable fare classes\n\n### Google Sheets Column Layout\n\nPriceUpdates tab - row 1 headers:\nRepriced At | Package ID | Package Name | Base Price USD | Final Price USD | Price Change % | Demand Score | Seasonality Adj % | Competitor Adj % | Confidence | Reasoning"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fd5f155-b06e-4787-b0ab-e709e66df65a",
+      "name": "Sticky Note - Stage 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        64
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1280,
+        "height": 860,
+        "content": "## Stage 1: Demand, Seasonality & Competitor Scoring\n\nSchedule Trigger polls on a fixed interval (default every 30 minutes). Two API calls run in parallel: Fetch Live Demand & Booking Data (API 1) pulls booking velocity, occupancy, and capacity per package; Fetch Competitor Pricing Data (API 2) pulls the current market average price per package.\n\nMerge - Combine Demand & Competitor Data joins both datasets into a single item by position.\n\nJS - Calculate Demand Score, Seasonality & Competitor Position (Code Node 1) computes days-to-departure and occupancy, a 0-100 demandScore from booking velocity, a seasonality/urgency adjustment based on how close departure is, and a competitor adjustment based on how far list price sits from the market average - combining all three into a single recommended price and a needsReprice flag.\n\nSplit Out - Packages turns that single array into one item per package so the rest of the workflow can evaluate each package independently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab5872c1-a127-4b66-9bc7-916f9e41ea91",
+      "name": "Sticky Note - Stage 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2544,
+        64
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1108,
+        "height": 900,
+        "content": "## Stage 2: AI Yield Repricing Decision\n\nFilter - Packages Needing Reprice lets through only packages whose combined demand/seasonality/competitor adjustment is 3% or more, so stable packages are never touched.\n\nWait - API Rate Limit (Wait Node 1) respects API rate limits, then the yield-management AI (claude-sonnet-4, temperature 0.2 for consistent, conservative pricing) finalizes the price - applying sensible rounding and a sanity cap - and writes a one-line reasoning note plus a confidence level.\n\nJS - Parse AI Repricing Output (Code Node 2) extracts the structured JSON safely, with a fallback that uses the raw calculated recommendation if AI parsing fails.\n\nWait - Sheets Write Rate Limit (Wait Node 2) paces the write-back before it hits Google Sheets."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aead6ba3-926f-4459-adb3-39ae3aa57d62",
+      "name": "Sticky Note - Stage 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3728,
+        208
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 716,
+        "height": 620,
+        "content": "## Stage 3: Price Log & Alert\n\nJS - Format Repricing Update & Log Row (Code Node 3) builds the audit row: base price, final price, price change %, and the demand/seasonality/competitor factors that drove the decision.\n\nLog New Price to Google Sheets PriceUpdates appends that row - the living source of truth downstream systems can read to sync the live price.\n\nSend Slack Alert to Revenue Management Team posts a short summary so the revenue team has visibility into every autonomous price change as it happens."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a1b3de0-8da5-4c86-86b5-f7087515c3c9",
+      "name": "Schedule Trigger - Poll Demand & Competitor Data",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1200,
+        592
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c21ae811-3d7d-44bd-b128-8d0a73a26d5c",
+      "name": "Fetch Live Demand & Booking Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1424,
+        464
+      ],
+      "parameters": {
+        "url": "https://api.yourbookingsystem.example.com/v1/demand-snapshot",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ab48aad8-8602-43d9-bca1-696441cf8248",
+      "name": "Fetch Competitor Pricing Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1424,
+        720
+      ],
+      "parameters": {
+        "url": "https://api.competitor-price-tracker.example.com/v1/prices",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6cab03ce-987e-4257-829c-7d4faa100e0d",
+      "name": "Merge - Combine Demand & Competitor Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1648,
+        592
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "3e07351d-c0ae-4aa4-ba0e-28fd0c261aba",
+      "name": "JS - Calculate Demand Score, Seasonality & Competitor Position",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1872,
+        592
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nconst packages = item.packages || []; // from demand API: [{ packageId, packageName, bookingsLast7Days, bookingsLast30Days, capacityRemaining, totalCapacity, departureDate, basePriceUSD, targetMarginPct }]\nconst competitors = item.competitors || []; // from competitor API: [{ packageId, competitorAvgPriceUSD, competitorMinPriceUSD, competitorCount }]\n\nconst competitorByPackage = {};\ncompetitors.forEach(c => { competitorByPackage[c.packageId] = c; });\n\nconst today = new Date();\n\nconst results = packages.map(p => {\n  const departureDate = new Date(p.departureDate);\n  const daysToDeparture = Math.max(0, Math.round((departureDate - today) / (1000 * 60 * 60 * 24)));\n\n  const totalCapacity = p.totalCapacity || 0;\n  const capacityRemaining = p.capacityRemaining || 0;\n  const bookedCapacity = totalCapacity - capacityRemaining;\n  const occupancyRate = totalCapacity > 0 ? Math.round((bookedCapacity / totalCapacity) * 100) : 0;\n\n  const bookingVelocity = p.bookingsLast7Days || 0;\n  const demandScore = Math.min(100, Math.round((bookingVelocity * 10) + (occupancyRate * 0.5)));\n\n  // Seasonality / urgency curve based on days-to-departure and current occupancy\n  let seasonalityFactor = 0;\n  if (daysToDeparture <= 14) {\n    seasonalityFactor = occupancyRate >= 80 ? 8 : -10;\n  } else if (daysToDeparture <= 45) {\n    seasonalityFactor = occupancyRate >= 70 ? 5 : -4;\n  } else {\n    seasonalityFactor = occupancyRate >= 60 ? 3 : 0;\n  }\n\n  const competitor = competitorByPackage[p.packageId] || null;\n  const competitorAvgPriceUSD = competitor ? competitor.competitorAvgPriceUSD : null;\n  const competitorPriceIndex = (competitorAvgPriceUSD && p.basePriceUSD)\n    ? Math.round(((p.basePriceUSD - competitorAvgPriceUSD) / competitorAvgPriceUSD) * 1000) / 10\n    : null; // positive = priced above market, negative = priced below market\n\n  let competitorAdjustmentPct = 0;\n  if (competitorPriceIndex !== null) {\n    if (competitorPriceIndex > 8) competitorAdjustmentPct = -5;\n    else if (competitorPriceIndex < -8) competitorAdjustmentPct = 4;\n  }\n\n  const totalAdjustmentPct = Math.round((seasonalityFactor + competitorAdjustmentPct + (demandScore - 50) * 0.1) * 10) / 10;\n  const recommendedPriceUSD = p.basePriceUSD ? Math.round(p.basePriceUSD * (1 + totalAdjustmentPct / 100) * 100) / 100 : null;\n  const needsReprice = Math.abs(totalAdjustmentPct) >= 3;\n\n  return {\n    packageId: p.packageId || '',\n    packageName: p.packageName || '',\n    departureDate: p.departureDate || '',\n    daysToDeparture,\n    totalCapacity,\n    capacityRemaining,\n    occupancyRate,\n    bookingsLast7Days: p.bookingsLast7Days || 0,\n    bookingsLast30Days: p.bookingsLast30Days || 0,\n    basePriceUSD: p.basePriceUSD || 0,\n    targetMarginPct: p.targetMarginPct || 0,\n    demandScore,\n    seasonalityFactor,\n    competitorAvgPriceUSD,\n    competitorPriceIndex,\n    competitorAdjustmentPct,\n    totalAdjustmentPct,\n    recommendedPriceUSD,\n    needsReprice\n  };\n});\n\nreturn { json: { results, checkedAt: new Date().toISOString() } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "431dcdf8-d26d-4471-be9a-646f0ce6d0ad",
+      "name": "Split Out - Packages",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        2096,
+        592
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "results"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1b64ede4-7cb4-4a6a-9fee-ceb91be625e1",
+      "name": "Filter - Packages Needing Reprice",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        2320,
+        592
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.needsReprice === true }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "21498f36-0d65-4161-ad89-ba97f5bae927",
+      "name": "AI - Generate Yield Repricing Decision",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2912,
+        592
+      ],
+      "parameters": {
+        "text": "=You are a revenue management analyst applying airline-style yield management to tour packages.\n\nPackage: {{ $json.packageName }} ({{ $json.packageId }})\nDeparture: {{ $json.departureDate }} ({{ $json.daysToDeparture }} days out)\nOccupancy: {{ $json.occupancyRate }}% ({{ $json.capacityRemaining }} of {{ $json.totalCapacity }} seats remaining)\nBooking Velocity: {{ $json.bookingsLast7Days }} bookings in last 7 days\nDemand Score: {{ $json.demandScore }}/100\nSeasonality/Urgency Adjustment: {{ $json.seasonalityFactor }}%\nCompetitor Avg Price: {{ $json.competitorAvgPriceUSD }} USD (we are {{ $json.competitorPriceIndex }}% vs market)\nCompetitor Adjustment: {{ $json.competitorAdjustmentPct }}%\nCurrent Base Price: {{ $json.basePriceUSD }} USD\nTarget Margin: {{ $json.targetMarginPct }}%\nCalculated Total Adjustment: {{ $json.totalAdjustmentPct }}% -> Recommended Price: {{ $json.recommendedPriceUSD }} USD\n\nFinalize the price. Apply sensible psychological rounding (e.g. end in .00 or .99) and never move price more than 15% from the current base price in a single cycle, even if the calculated adjustment suggests more. Write one short sentence explaining the decision and a confidence level.\n\nReturn a JSON object with EXACTLY these fields:\n{\n  \"finalPriceUSD\": number,\n  \"priceChangePct\": number,\n  \"reasoning\": \"One short sentence for internal audit\",\n  \"confidence\": \"High, Medium, or Low\"\n}\n\nReturn ONLY the JSON. No markdown, no explanation.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "9ddb594f-797d-4a68-943e-831ebb6323f0",
+      "name": "Anthropic - Yield Repricing Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        2768,
+        800
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account - test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "d6e4a012-47ff-4123-bb07-a626089b5800",
+      "name": "JS - Parse AI Repricing Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3248,
+        592
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nlet parsed = {};\ntry {\n  const rawText = item.output || item.text || item.response || '{}';\n  const clean = rawText.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(clean);\n} catch (e) {\n  parsed = {\n    finalPriceUSD: item.recommendedPriceUSD,\n    priceChangePct: item.totalAdjustmentPct,\n    reasoning: `Auto-adjusted from demand score ${item.demandScore}, seasonality ${item.seasonalityFactor}%, competitor index ${item.competitorPriceIndex}%.`,\n    confidence: 'Medium'\n  };\n}\nreturn {\n  json: {\n    ...item,\n    ...parsed\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a315d200-6053-481a-a97c-0e5b3eeff5ce",
+      "name": "JS - Format Repricing Update & Log Row",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3808,
+        592
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nconst repricedAt = new Date().toISOString();\n\nconst finalPriceUSD = (item.finalPriceUSD !== undefined && item.finalPriceUSD !== null) ? item.finalPriceUSD : item.recommendedPriceUSD;\nconst priceChangePct = (item.priceChangePct !== undefined && item.priceChangePct !== null) ? item.priceChangePct : item.totalAdjustmentPct;\n\nreturn {\n  json: {\n    ...item,\n    finalPriceUSD,\n    priceChangePct,\n    repricedAt,\n    repricingLogRow: [\n      repricedAt,\n      item.packageId || '',\n      item.packageName || '',\n      item.basePriceUSD || 0,\n      finalPriceUSD,\n      priceChangePct,\n      item.demandScore || 0,\n      item.seasonalityFactor || 0,\n      item.competitorAdjustmentPct || 0,\n      item.confidence || '',\n      item.reasoning || ''\n    ]\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "010f6bba-5d4d-480d-99ce-dcbad30fe51e",
+      "name": "Log New Price to Google Sheets PriceUpdates",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4032,
+        592
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/PriceUpdates!A1:append?valueInputOption=USER_ENTERED",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"values\": [{{ JSON.stringify($json.repricingLogRow) }}]\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "credential-id",
+          "name": "Unnamed credential"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "442c25c0-fb3b-46ca-a3e5-16095f192a53",
+      "name": "Send Slack Alert to Revenue Management Team",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4256,
+        592
+      ],
+      "webhookId": "1a1b89f9-41bf-4fb5-9942-1dfdefe25072",
+      "parameters": {
+        "text": "=:chart_with_upwards_trend: *Repriced* {{ $json.packageName }} ({{ $json.packageId }})\nDeparture in {{ $json.daysToDeparture }} days, {{ $json.occupancyRate }}% occupied\nPrice: {{ $json.basePriceUSD }} USD -> {{ $json.finalPriceUSD }} USD ({{ $json.priceChangePct }}%)\nConfidence: {{ $json.confidence }}\nReason: {{ $json.reasoning }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "=YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack account - test "
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2af41452-05f4-4cf3-966e-c64de57f3aa7",
+      "name": "Wait For Limit",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2624,
+        592
+      ],
+      "webhookId": "f4a5b6c7-8901-4def-9012-fedcba987607",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b6745b4b-976e-4fb6-a2d6-7216fb1b439d",
+      "name": "Wait For Write Rate Limit",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3472,
+        592
+      ],
+      "webhookId": "f4a5b6c7-8901-4def-9012-fedcba987608",
+      "parameters": {},
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "2f3d5598-9867-4a52-9801-05c53e4f8f72",
+  "connections": {
+    "Wait For Limit": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Yield Repricing Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out - Packages": {
+      "main": [
+        [
+          {
+            "node": "Filter - Packages Needing Reprice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Write Rate Limit": {
+      "main": [
+        [
+          {
+            "node": "JS - Format Repricing Update & Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Competitor Pricing Data": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combine Demand & Competitor Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "JS - Parse AI Repricing Output": {
+      "main": [
+        [
+          {
+            "node": "Wait For Write Rate Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Live Demand & Booking Data": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combine Demand & Competitor Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic - Yield Repricing Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Generate Yield Repricing Decision",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter - Packages Needing Reprice": {
+      "main": [
+        [
+          {
+            "node": "Wait For Limit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Yield Repricing Decision": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse AI Repricing Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Format Repricing Update & Log Row": {
+      "main": [
+        [
+          {
+            "node": "Log New Price to Google Sheets PriceUpdates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Combine Demand & Competitor Data": {
+      "main": [
+        [
+          {
+            "node": "JS - Calculate Demand Score, Seasonality & Competitor Position",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log New Price to Google Sheets PriceUpdates": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Alert to Revenue Management Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger - Poll Demand & Competitor Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Live Demand & Booking Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Competitor Pricing Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Calculate Demand Score, Seasonality & Competitor Position": {
+      "main": [
+        [
+          {
+            "node": "Split Out - Packages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

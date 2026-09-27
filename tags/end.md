@@ -1,4 +1,4 @@
-# end : 22
+# end : 27
 
 |id|file|
 |----|----|
@@ -24,3 +24,8 @@
 |14309|[14309_Send_end-of-life_software_alerts_using_NocoDB__endoflife.date__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14309_Send_end-of-life_software_alerts_using_NocoDB__endoflife.date__and_Slack.json)|
 |14500|[14500_Generate_and_email_event_e-tickets_with_QR_codes_using_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14500_Generate_and_email_event_e-tickets_with_QR_codes_using_Google_Workspace.json)|
 |16433|[16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json)|
+|17419|[17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json)|
+|17603|[17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json)|
+|19002|[19002_Manage_end-to-end_RMA_and_warranty_returns_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19002_Manage_end-to-end_RMA_and_warranty_returns_with_GPT-4.1-mini_and_Google_Sheets.json)|
+|19026|[19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json)|
+|19122|[19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json)|

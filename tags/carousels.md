@@ -1,4 +1,4 @@
-# carousels : 17
+# carousels : 27
 
 |id|file|
 |----|----|
@@ -19,3 +19,13 @@
 |13526|[13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13526_Generate_AI_videos_and_carousels_with_Blotato_for_Instagram_and_TikTok.json)|
 |13605|[13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13605_Create_AI_social_media_carousels_from_Google_Sheet_and_auto-publish_with_Blotato.json)|
 |14656|[14656_Create_event_recap_Instagram_carousels_from_photo_dumps_using_Upload_to_URL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14656_Create_event_recap_Instagram_carousels_from_photo_dumps_using_Upload_to_URL.json)|
+|17181|[17181_Create_Instagram_carousels_and_TikTok_slideshows_with_OpenAI_and_PostFast.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17181_Create_Instagram_carousels_and_TikTok_slideshows_with_OpenAI_and_PostFast.json)|
+|17343|[17343_Grow_TikTok_carousels_with_Gemini__GPT-4.1__fal.ai__and_Upload_Post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17343_Grow_TikTok_carousels_with_Gemini__GPT-4.1__fal.ai__and_Upload_Post.json)|
+|17440|[17440_Generate_LinkedIn_carousels_from_articles_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17440_Generate_LinkedIn_carousels_from_articles_with_OpenAI_GPT-4o-mini.json)|
+|17813|[17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json)|
+|17814|[17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json)|
+|18679|[18679_Classify_AI_news_from_RSS_and_create_LinkedIn_carousels_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18679_Classify_AI_news_from_RSS_and_create_LinkedIn_carousels_with_Gemini_and_PostNitro.json)|
+|18689|[18689_Publish_approved_LinkedIn_carousels_with_Claude__Gemini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18689_Publish_approved_LinkedIn_carousels_with_Claude__Gemini__Gmail_and_Google_Sheets.json)|
+|18695|[18695_Create_self-improving_TikTok_carousels_with_Gemini__fal.ai__OpenAI__Sheets_and_Upload-Post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18695_Create_self-improving_TikTok_carousels_with_Gemini__fal.ai__OpenAI__Sheets_and_Upload-Post.json)|
+|18746|[18746_Publish_Instagram_carousels_from_Google_Sheets_using_Gemini_and_GCS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18746_Publish_Instagram_carousels_from_Google_Sheets_using_Gemini_and_GCS.json)|
+|19486|[19486_Generate_Instagram_GTA_6_news_carousels_with_Gemini__Gotenberg_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19486_Generate_Instagram_GTA_6_news_carousels_with_Gemini__Gotenberg_and_Google_Drive.json)|

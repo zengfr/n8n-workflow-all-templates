@@ -1,4 +1,4 @@
-# word : 9
+# word : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |9406|[9406_Generate___Email_Custom_NDA_Documents_from_Web_Form_Submissions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9406_Generate___Email_Custom_NDA_Documents_from_Web_Form_Submissions.json)|
 |11370|[11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11370_Generate_Branded_Word_Documents_with_Claude_AI_and_Json2Doc__up_to_20_Pages.json)|
 |16058|[16058_Send_daily_AI_vocabulary_lessons_with_GPT-4o-mini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16058_Send_daily_AI_vocabulary_lessons_with_GPT-4o-mini__Google_Sheets_and_Gmail.json)|
+|18386|[18386_Generate_SharePoint_Word_documents_from_Outlook_emails_with_OpenAI_and_Pandoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18386_Generate_SharePoint_Word_documents_from_Outlook_emails_with_OpenAI_and_Pandoc.json)|
+|18486|[18486_Burn_word-highlighted_karaoke_captions_onto_videos_with_FFmpeg_and_FFprobe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18486_Burn_word-highlighted_karaoke_captions_onto_videos_with_FFmpeg_and_FFprobe.json)|
+|18717|[18717_Create_AI-written_Word_docs_from_Google_Sheets_with_Groq_and_Pandoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18717_Create_AI-written_Word_docs_from_Google_Sheets_with_Groq_and_Pandoc.json)|
+|19481|[19481_Log_vocabulary_and_email_a_daily_word_of_the_day_with_Gemini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19481_Log_vocabulary_and_email_a_daily_word_of_the_day_with_Gemini__Google_Sheets_and_Gmail.json)|

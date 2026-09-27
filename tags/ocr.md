@@ -1,4 +1,4 @@
-# ocr : 88
+# ocr : 97
 
 |id|file|
 |----|----|
@@ -90,3 +90,12 @@
 |16172|[16172_Extract_purchase_order_data_to_Excel_via_Telegram_using_OCR_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16172_Extract_purchase_order_data_to_Excel_via_Telegram_using_OCR_and_Google_Gemini.json)|
 |16350|[16350_Process_Telegram_invoice_OCR_with_OCR.space__OpenAI__Sheets_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16350_Process_Telegram_invoice_OCR_with_OCR.space__OpenAI__Sheets_and_Drive.json)|
 |16394|[16394_Extract_tracking_numbers_from_Gmail_PDF_attachments_to_Google_Sheets_with_okraPDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16394_Extract_tracking_numbers_from_Gmail_PDF_attachments_to_Google_Sheets_with_okraPDF.json)|
+|16879|[16879_Rename_Japan_e-bookkeeping_receipts_and_invoices_with_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16879_Rename_Japan_e-bookkeeping_receipts_and_invoices_with_Gemini_and_Google_Drive.json)|
+|17003|[17003_Extract_text_from_images_with_Apify_Google_Lens_OCR_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17003_Extract_text_from_images_with_Apify_Google_Lens_OCR_and_Google_Sheets.json)|
+|17077|[17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json)|
+|17143|[17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json)|
+|17198|[17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json)|
+|18254|[18254_Extract_invoice_data_and_send_payment_reminders_with_Google_Drive__Mistral__Groq_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18254_Extract_invoice_data_and_send_payment_reminders_with_Google_Drive__Mistral__Groq_and_Gmail.json)|
+|19130|[19130_Track_and_classify_expenses_with_Mindee_OCR__GPT-4o__PostgreSQL_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19130_Track_and_classify_expenses_with_Mindee_OCR__GPT-4o__PostgreSQL_and_Google_Drive.json)|
+|19292|[19292_Create_Gmail_drafts_from_business_cards_with_Google_Drive__Gemini__Slack_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19292_Create_Gmail_drafts_from_business_cards_with_Google_Drive__Gemini__Slack_and_Discord.json)|
+|19444|[19444_Extract_invoice_data_from_Google_Drive_PDFs_with_Mistral_OCR_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19444_Extract_invoice_data_from_Google_Drive_PDFs_with_Mistral_OCR_and_Sheets.json)|

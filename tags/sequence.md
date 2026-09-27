@@ -1,4 +1,4 @@
-# sequence : 15
+# sequence : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |13346|[13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13346_Enrich_HubSpot_sales_sequence_contacts_with_Lusha_and_route_to_outreach.json)|
 |14803|[14803_Send_AI-personalized_deal_follow-ups_from_Zoho_CRM_via_email__Slack_and_WhatsApp_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14803_Send_AI-personalized_deal_follow-ups_from_Zoho_CRM_via_email__Slack_and_WhatsApp_with_Gemini.json)|
 |16077|[16077_Re-engage_stalled_HubSpot_deals_with_OpenAI__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16077_Re-engage_stalled_HubSpot_deals_with_OpenAI__Gmail__Slack__and_Google_Sheets.json)|
+|18686|[18686_Send_staged_client_onboarding_emails_with_Clio_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18686_Send_staged_client_onboarding_emails_with_Clio_and_SMTP.json)|
+|19680|[19680_Manage_lead_follow-ups_with_Google_Sheets__SMTP__and_IMAP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19680_Manage_lead_follow-ups_with_Google_Sheets__SMTP__and_IMAP_email.json)|

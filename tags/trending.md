@@ -1,4 +1,4 @@
-# trending : 26
+# trending : 33
 
 |id|file|
 |----|----|
@@ -28,3 +28,10 @@
 |15555|[15555_Send_a_daily_GitHub_Trending_digest_to_Telegram_using_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15555_Send_a_daily_GitHub_Trending_digest_to_Telegram_using_Google_Gemini.json)|
 |15656|[15656_Find_daily_Amazon_India_bestsellers_with_Apify_and_Google_Sheets__4___commission.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15656_Find_daily_Amazon_India_bestsellers_with_Apify_and_Google_Sheets__4___commission.json)|
 |15988|[15988_Track_monthly_trending_topics_with_Exploding_Topics_and_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15988_Track_monthly_trending_topics_with_Exploding_Topics_and_n8n_Data_Tables.json)|
+|17009|[17009_Track_and_analyze_TikTok_videos_with_Apify__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17009_Track_and_analyze_TikTok_videos_with_Apify__OpenAI__and_Google_Sheets.json)|
+|17133|[17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json)|
+|17572|[17572_Send_daily_GitHub_trending_repo_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17572_Send_daily_GitHub_trending_repo_alerts_to_Slack.json)|
+|17634|[17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json)|
+|18406|[18406_Send_a_daily_Sleeper_NFL_trending_adds_and_drops_digest_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18406_Send_a_daily_Sleeper_NFL_trending_adds_and_drops_digest_to_Discord.json)|
+|18961|[18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json)|
+|19007|[19007_Ingest_and_sync_trending_video_data_with_webhooks_and_SkipPlay_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19007_Ingest_and_sync_trending_video_data_with_webhooks_and_SkipPlay_API.json)|

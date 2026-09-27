@@ -1,4 +1,4 @@
-# cache : 6
+# cache : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |10887|[10887_Reduce_LLM_Costs_with_Semantic_Caching_using_Redis_Vector_Store_and_HuggingFace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10887_Reduce_LLM_Costs_with_Semantic_Caching_using_Redis_Vector_Store_and_HuggingFace.json)|
 |12400|[12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12400_Handle_customer_support_queries_with_cache-first_RAG_using_Redis__LangCache_and_OpenAI.json)|
 |13195|[13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json)|
+|18630|[18630_Fetch_and_cache_web_pages_with_Bright_Data_Web_Unlocker_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18630_Fetch_and_cache_web_pages_with_Bright_Data_Web_Unlocker_and_data_tables.json)|

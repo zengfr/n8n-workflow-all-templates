@@ -1,4 +1,4 @@
-# demand : 12
+# demand : 18
 
 |id|file|
 |----|----|
@@ -14,3 +14,9 @@
 |13899|[13899_Analyze_and_modernize_university_curricula_with_GPT-4o_and_employment_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13899_Analyze_and_modernize_university_curricula_with_GPT-4o_and_employment_data.json)|
 |13961|[13961_Monitor_D2C_inventory__forecast_demand_with_GPT-4o__and_send_POs_via_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13961_Monitor_D2C_inventory__forecast_demand_with_GPT-4o__and_send_POs_via_Google_Sheets_and_Gmail.json)|
 |16479|[16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json)|
+|18234|[18234_Track_job_skill_demand_and_pay_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18234_Track_job_skill_demand_and_pay_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|
+|18259|[18259_Score_eBay_demand_and_price_bands_using_Bright_Data__OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18259_Score_eBay_demand_and_price_bands_using_Bright_Data__OpenAI__Sheets_and_Slack.json)|
+|18398|[18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json)|
+|18488|[18488_Tear_down_proven_Meta_ads_with_Bright_Data__GPT-5.6_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18488_Tear_down_proven_Meta_ads_with_Bright_Data__GPT-5.6_and_Gmail.json)|
+|19030|[19030_Enrich_domain_snapshots_on_demand_with_Apify__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19030_Enrich_domain_snapshots_on_demand_with_Apify__Slack__and_Google_Sheets.json)|
+|19527|[19527_Send_on-demand_CSV_report_summaries_from_Google_Sheets_forms_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19527_Send_on-demand_CSV_report_summaries_from_Google_Sheets_forms_via_Gmail.json)|

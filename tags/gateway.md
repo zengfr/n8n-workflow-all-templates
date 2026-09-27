@@ -1,4 +1,4 @@
-# gateway : 8
+# gateway : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |13590|[13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13590_Route_MCP_tool_calls_through_an_intelligent_gateway_with_Claude_AI.json)|
 |15920|[15920_Email_weekly_AI_agent_cost_and_token_reports_with_Alephant_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15920_Email_weekly_AI_agent_cost_and_token_reports_with_Alephant_and_Gmail.json)|
 |16006|[16006_Send_AI_budget_overspend_alerts_with_Alephant_AI_Gateway_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16006_Send_AI_budget_overspend_alerts_with_Alephant_AI_Gateway_and_Gmail.json)|
+|19649|[19649_Probe_AISIX_model_aliases_and_generate_health_reports_for_SRE_teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19649_Probe_AISIX_model_aliases_and_generate_health_reports_for_SRE_teams.json)|
+|19668|[19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json)|

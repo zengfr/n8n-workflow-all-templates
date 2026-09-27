@@ -1,4 +1,4 @@
-# forex : 12
+# forex : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |14235|[14235_Execute_forex_trading_signals_from_Telegram_on_MetaTrader_5_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14235_Execute_forex_trading_signals_from_Telegram_on_MetaTrader_5_with_Claude.json)|
 |14862|[14862_AI_Forex_Trader_using_claude_gpt__MT5___News_Sentiment_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14862_AI_Forex_Trader_using_claude_gpt__MT5___News_Sentiment_Analysis.json)|
 |16715|[16715_Send_prioritized_forex_risk_alerts_from_ForexLive_RSS_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16715_Send_prioritized_forex_risk_alerts_from_ForexLive_RSS_with_OpenAI_and_Slack.json)|
+|18767|[18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json)|

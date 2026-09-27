@@ -1,4 +1,4 @@
-# export : 79
+# export : 85
 
 |id|file|
 |----|----|
@@ -81,3 +81,9 @@
 |15742|[15742_Export_Mirakl_KPIs_to_CSV_and_send_by_email_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15742_Export_Mirakl_KPIs_to_CSV_and_send_by_email_with_Gmail.json)|
 |15756|[15756_Analyze_up_to_100_URLs_for_on-page_SEO_and_export_results_to_CSV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15756_Analyze_up_to_100_URLs_for_on-page_SEO_and_export_results_to_CSV.json)|
 |16356|[16356_Export_WordPress_data_to_a_CSV_file.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16356_Export_WordPress_data_to_a_CSV_file.json)|
+|17188|[17188_Export_Google_Sheets_data_to_CSV_or_Excel_and_send_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17188_Export_Google_Sheets_data_to_CSV_or_Excel_and_send_via_Gmail.json)|
+|17189|[17189_Export_Google_Sheets_to_CSV_or_Excel_and_email_files_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17189_Export_Google_Sheets_to_CSV_or_Excel_and_email_files_with_Gmail.json)|
+|17485|[17485_Scrape_Google_Maps_leads_with_Apify_and_export_them_to_CSV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17485_Scrape_Google_Maps_leads_with_Apify_and_export_them_to_CSV.json)|
+|17676|[17676_Export_TikTok_profiles_to_Google_Sheets_with_the_Apify_FetchCat_scraper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17676_Export_TikTok_profiles_to_Google_Sheets_with_the_Apify_FetchCat_scraper.json)|
+|17733|[17733_Export_Telegram_channel_posts_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17733_Export_Telegram_channel_posts_to_Google_Sheets_with_Apify.json)|
+|18787|[18787_Generate_regional_sales_reports_from_CRM_exports_with_DocMint_and_Excel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18787_Generate_regional_sales_reports_from_CRM_exports_with_DocMint_and_Excel.json)|

@@ -1,4 +1,4 @@
-# student : 19
+# student : 28
 
 |id|file|
 |----|----|
@@ -21,3 +21,12 @@
 |15092|[15092_Automate_new_student_onboarding_from_Close_CRM_to_Airtable__Mighty_Networks__Intercom_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15092_Automate_new_student_onboarding_from_Close_CRM_to_Airtable__Mighty_Networks__Intercom_and_Slack.json)|
 |15311|[15311_Auto-reply_to_Udemy_student_Q_A_with_Mistral_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15311_Auto-reply_to_Udemy_student_Q_A_with_Mistral_AI_and_Google_Sheets.json)|
 |16146|[16146_Analyze_skill_gaps_for_target_jobs_with_BrowserAct__LinkedIn_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16146_Analyze_skill_gaps_for_target_jobs_with_BrowserAct__LinkedIn_and_GPT-4o-mini.json)|
+|17211|[17211_Generate_weekly_student_progress_reports_with_Gemini__Supabase__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17211_Generate_weekly_student_progress_reports_with_Gemini__Supabase__and_WhatsApp.json)|
+|18302|[18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json)|
+|18323|[18323_Run_an_AI_student_helpdesk_with_OpenAI__Google_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18323_Run_an_AI_student_helpdesk_with_OpenAI__Google_Sheets__Slack__and_Gmail.json)|
+|18476|[18476_Monitor_at-risk_students_with_Google_Sheets__GPT-4o__Gmail__Slack_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18476_Monitor_at-risk_students_with_Google_Sheets__GPT-4o__Gmail__Slack_and_Telegram.json)|
+|18480|[18480_Qualify_student_leads_from_Google_Sheets_with_OpenAI__Twilio__Telegram_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18480_Qualify_student_leads_from_Google_Sheets_with_OpenAI__Twilio__Telegram_and_Gmail.json)|
+|18986|[18986_Plan_study_sessions_from_syllabus_PDFs_with_Gemini__Google_Calendar__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18986_Plan_study_sessions_from_syllabus_PDFs_with_Gemini__Google_Calendar__and_Sheets.json)|
+|19049|[19049_Manage_student_lifecycle_and_AI_exam_grading_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19049_Manage_student_lifecycle_and_AI_exam_grading_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|19067|[19067_Reconcile_LMS_student_access_with_Google_Sheets_payment_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19067_Reconcile_LMS_student_access_with_Google_Sheets_payment_records.json)|
+|19812|[19812_Collect_student_absence_reasons_via_WhatsApp__Google_Sheets__Gemini__and_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19812_Collect_student_absence_reasons_via_WhatsApp__Google_Sheets__Gemini__and_Redis.json)|

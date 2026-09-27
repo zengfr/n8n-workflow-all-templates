@@ -1,4 +1,4 @@
-# buying : 6
+# buying : 9
 
 |id|file|
 |----|----|
@@ -8,3 +8,6 @@
 |12600|[12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json)|
 |14285|[14285_Track_buying_signals_with_Airtop_and_log_them_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14285_Track_buying_signals_with_Airtop_and_log_them_to_Google_Sheets.json)|
 |14348|[14348_Score_multi-signal_buying_intent_and_prioritize_leads_with_PredictLeads__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14348_Score_multi-signal_buying_intent_and_prioritize_leads_with_PredictLeads__Google_Sheets__and_Slack.json)|
+|17193|[17193_Draft_personalized_LinkedIn_outreach_from_buying_signals_with_Twain_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17193_Draft_personalized_LinkedIn_outreach_from_buying_signals_with_Twain_and_Slack.json)|
+|18497|[18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json)|
+|18882|[18882_Turn_LinkedIn_job_posts_into_sales_signals_with_Apify__OpenAI__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18882_Turn_LinkedIn_job_posts_into_sales_signals_with_Apify__OpenAI__and_Notion.json)|

@@ -1,4 +1,4 @@
-# typeform : 37
+# typeform : 38
 
 |id|file|
 |----|----|
@@ -39,3 +39,4 @@
 |15237|[15237_Send_post-delivery_CSAT_surveys_and_log_responses_with_Gmail__Google_Sheets_and_Typeform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15237_Send_post-delivery_CSAT_surveys_and_log_responses_with_Gmail__Google_Sheets_and_Typeform.json)|
 |15536|[15536_Qualify_and_nurture_Typeform_leads_in_GoHighLevel_with_OpenAI__Calendly__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15536_Qualify_and_nurture_Typeform_leads_in_GoHighLevel_with_OpenAI__Calendly__Gmail_and_Slack.json)|
 |16757|[16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json)|
+|19473|[19473_Capture_and_reply_to_real_estate_leads_with_Typeform__Groq__Airtable__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19473_Capture_and_reply_to_real_estate_leads_with_Typeform__Groq__Airtable__Gmail_and_Slack.json)|

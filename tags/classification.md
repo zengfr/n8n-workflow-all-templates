@@ -1,4 +1,4 @@
-# classification : 46
+# classification : 54
 
 |id|file|
 |----|----|
@@ -48,3 +48,11 @@
 |15230|[15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json)|
 |15927|[15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json)|
 |16718|[16718_Classify_Salesforce_deal_complexity_and_notify_sales_with_Groq_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16718_Classify_Salesforce_deal_complexity_and_notify_sales_with_Groq_and_Slack.json)|
+|16818|[16818_Route_farmer_SMS_intents_using_OpenAI_GPT-4.1-mini_classification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16818_Route_farmer_SMS_intents_using_OpenAI_GPT-4.1-mini_classification.json)|
+|17236|[17236_Sort_Gmail_leads__meetings__and_trash_with_OpenAI_classification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17236_Sort_Gmail_leads__meetings__and_trash_with_OpenAI_classification.json)|
+|17365|[17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json)|
+|17949|[17949_Classify_Gmail_with_Google_Gemini__label_messages__and_log_triage_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17949_Classify_Gmail_with_Google_Gemini__label_messages__and_log_triage_to_Sheets.json)|
+|18351|[18351_Classify_and_file_inbound_documents_with_GPT-4o-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18351_Classify_and_file_inbound_documents_with_GPT-4o-mini_and_Gmail.json)|
+|18505|[18505_Screen_AI_systems_for_EU_AI_Act_high-risk_tiers_with_Groq_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18505_Screen_AI_systems_for_EU_AI_Act_high-risk_tiers_with_Groq_and_data_tables.json)|
+|18620|[18620_Generate_carbon_emission_reports_with_GPT-4.1-mini__Slack__and_ESG_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18620_Generate_carbon_emission_reports_with_GPT-4.1-mini__Slack__and_ESG_APIs.json)|
+|18939|[18939_Classify_Ivanti_Neurons_ITSM_incidents_with_OpenAI_and_attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18939_Classify_Ivanti_Neurons_ITSM_incidents_with_OpenAI_and_attachments.json)|

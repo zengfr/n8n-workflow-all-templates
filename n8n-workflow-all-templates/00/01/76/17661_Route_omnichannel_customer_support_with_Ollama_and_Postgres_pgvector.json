@@ -1,0 +1,833 @@
+{
+  "id": "DYvDIJz8Q1qUDf6p",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Route omnichannel customer support with Ollama and Postgres pgvector",
+    "wechat": "youandme10086",
+    "id": 17661,
+    "update_time": "2026-09-27"
+  },
+  "name": "Customer Service — Omnichannel Agent (Ollama + pgvector)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "13667d96-9c9c-4c16-910a-05423ae56422",
+      "name": "Chat inbound",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        2064,
+        848
+      ],
+      "webhookId": "28ff00a7-4ab6-458c-b020-24fe60e86e0b",
+      "parameters": {
+        "path": "customer-service/chat",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "602c4386-6976-4d3a-ac93-8290270675ad",
+      "name": "Email inbound",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        2064,
+        1024
+      ],
+      "webhookId": "6c372966-44a9-4af0-8733-ae017f334b1c",
+      "parameters": {
+        "path": "customer-service/email",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e95ae73b-a834-4fe8-9090-49413084e814",
+      "name": "Social inbound",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        2064,
+        1216
+      ],
+      "webhookId": "9f48d57c-0c8f-4319-8bc5-8ee19b4866a6",
+      "parameters": {
+        "path": "customer-service/social",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "86839603-729a-4697-879c-3a5de2ec3728",
+      "name": "Normalize and validate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2304,
+        1024
+      ],
+      "parameters": {
+        "jsCode": "// Adapters must verify provider signatures before invoking this webhook.\nconst body = $json.body ?? $json;\nconst header = $json.headers ?? {};\nconst supplied = header['x-cs-secret'] ?? header['X-Cs-Secret'];\nif (!$env.CS_TENANT_SECRET || supplied !== $env.CS_TENANT_SECRET) return [{json:{stop:true,status:401,error:'unauthorized'}}];\nconst channel = $input.first().json.webhookUrl?.includes('/email') ? 'email' : $input.first().json.webhookUrl?.includes('/social') ? 'social' : 'chat';\nconst text = String(body.message ?? body.text ?? body.subject ?? '').trim();\nconst event_id = String(body.event_id ?? body.id ?? '');\nconst tenant_id = String(body.tenant_id ?? 'default');\nconst customer_id = String(body.customer_id ?? body.from ?? body.sender_id ?? '').trim();\nif (!event_id || !customer_id || !text || text.length > 12000) return [{json:{stop:true,status:400,error:'event_id, customer_id and non-empty message (max 12000 chars) are required'}}];\nreturn [{json:{tenant_id,channel,event_id,customer_id,message:text,metadata:body.metadata ?? {},received_at:new Date().toISOString()}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "899639ed-0d5e-472c-bddd-f1d96e78ea1b",
+      "name": "Invalid request?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2512,
+        1024
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{$json.stop}}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "772b4eb5-023c-470e-9954-7e8d316683dd",
+      "name": "Reject inbound",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2736,
+        896
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": "={{$json.status}}"
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok:false, error:$json.error } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "42117bae-bd62-4074-8907-500b59d14861",
+      "name": "Persist and fetch memory",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        2736,
+        1104
+      ],
+      "parameters": {
+        "query": "WITH c AS (INSERT INTO cs_conversations(tenant_id,conversation_id,customer_id,last_channel) VALUES ($1,gen_random_uuid(),$2,$3) ON CONFLICT (tenant_id,customer_id) DO UPDATE SET last_channel=EXCLUDED.last_channel,updated_at=now() RETURNING conversation_id,status,summary), m AS (INSERT INTO cs_messages(tenant_id,provider_event_id,conversation_id,channel,direction,body,metadata) SELECT $1,$4,conversation_id,$3,'inbound',$5,$6::jsonb FROM c ON CONFLICT (tenant_id,provider_event_id) DO NOTHING RETURNING provider_event_id), h AS (SELECT jsonb_agg(x ORDER BY created_at DESC) history FROM (SELECT direction,body,channel,created_at FROM cs_messages WHERE conversation_id=(SELECT conversation_id FROM c) ORDER BY created_at DESC LIMIT 12) x) SELECT c.*,COALESCE((SELECT provider_event_id FROM m),'') inserted_event,COALESCE(h.history,'[]'::jsonb) history FROM c,h;",
+        "options": {
+          "queryReplacement": "={{ [$json.tenant_id,$json.customer_id,$json.channel,$json.event_id,$json.message,JSON.stringify($json.metadata)] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "05924412-2c9b-4f80-b4df-9f8a9421bfce",
+      "name": "Duplicate event?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2976,
+        1104
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "empty",
+                "singleValue": true
+              },
+              "leftValue": "={{$json.inserted_event}}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0072cb07-c324-41cc-8aa7-0c386a56ee23",
+      "name": "Acknowledge duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3200,
+        1008
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={{ {ok:true, duplicate:true} }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "29ebc0e9-ee48-49ec-ab45-999d586ca3ee",
+      "name": "Embed question",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3200,
+        1200
+      ],
+      "parameters": {
+        "url": "={{ $env.CS_OLLAMA_URL + '/api/embeddings' }}",
+        "body": "={{ JSON.stringify({model:$env.CS_OLLAMA_EMBED_MODEL || 'nomic-embed-text',prompt:$node['Normalize and validate'].json.message}) }}",
+        "options": {
+          "timeout": 30000
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "201ea494-1d46-40ad-98e2-b675667a3c95",
+      "name": "Retrieve approved knowledge",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3472,
+        1072
+      ],
+      "parameters": {
+        "query": "SELECT content,source,1-(embedding <=> $1::vector) AS score FROM cs_kb_chunks WHERE tenant_id=$2 AND published=true AND (expires_at IS NULL OR expires_at>now()) ORDER BY embedding <=> $1::vector LIMIT 5;",
+        "options": {
+          "queryReplacement": "={{ [JSON.stringify($json.embedding),$node['Normalize and validate'].json.tenant_id] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "2595a6e1-5f4a-42be-a278-e2fd8540b9a3",
+      "name": "Classify and draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3712,
+        1072
+      ],
+      "parameters": {
+        "url": "={{ $env.CS_OLLAMA_URL + '/api/chat' }}",
+        "body": "={{ JSON.stringify({model:$env.CS_OLLAMA_MODEL || 'llama3.1:8b',stream:false,format:'json',messages:[{role:'system',content:'You are a cautious customer-service router. Return JSON only: {intent:faq|order|complaint|other,confidence:0..1,reply:string,order_id:string|null,complaint_category:string|null,needs_human:boolean,reason:string,citations:string[]}. Never invent policy or order status. FAQs must cite supplied sources. Orders involving payment, refund, cancellation, address change, account access or any mutation need human. Escalate threats, legal/privacy/safety requests, unclear identity, abusive harassment, unknown facts, or confidence below .78.'},{role:'user',content:JSON.stringify({message:$node['Normalize and validate'].json.message,history:$node['Persist and fetch memory'].json.history,knowledge:$input.all().map(i=>({content:i.json.content,source:i.json.source,score:i.json.score}))})}]}) }}",
+        "options": {
+          "timeout": 60000
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "85bb08a4-24dd-4a2d-bbec-21c020095ec7",
+      "name": "Route and guardrail",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3952,
+        1072
+      ],
+      "parameters": {
+        "jsCode": "const request=$node['Normalize and validate'].json; const raw=$json.message?.content ?? $json.response?.message?.content ?? ''; let a; try { a=JSON.parse(raw); } catch { a={intent:'other',confidence:0,reply:'I’m connecting you with a specialist.',needs_human:true,reason:'invalid_model_output',citations:[]}; }\nconst allowed=['faq','order','complaint','other']; if(!allowed.includes(a.intent)) a.intent='other';\nconst risky=/(password|card|cvv|refund|cancel|chargeback|change.{0,25}address|legal|lawyer|police|suicide|harm|gdpr|delete my data)/i.test(request.message);\nconst sources=$node['Retrieve approved knowledge'].all().map(i=>i.json.source).filter(Boolean);\nconst badFaq=a.intent==='faq' && (!Array.isArray(a.citations)||!a.citations.some(x=>sources.includes(x)));\na.needs_human=Boolean(a.needs_human)||Number(a.confidence)<0.78||risky||badFaq||$node['Persist and fetch memory'].json.status==='waiting_human';\na.reason=a.reason || (badFaq?'missing_approved_citation':risky?'sensitive_request':a.needs_human?'low_confidence':'');\na.reply=String(a.reply||'I’m connecting you with a specialist.').slice(0,3000);\nreturn [{json:{...request,conversation_id:$node['Persist and fetch memory'].json.conversation_id,decision:a,approved_sources:sources}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ac9fc790-c861-462f-8c53-3ad8936e8005",
+      "name": "Human handoff?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4176,
+        1072
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{$json.decision.needs_human}}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "86216ca9-c0ec-4f83-a730-456b59fe7c03",
+      "name": "Create handoff",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        4400,
+        944
+      ],
+      "parameters": {
+        "query": "INSERT INTO cs_handoffs(id,tenant_id,conversation_id,reason,priority,transcript) VALUES (gen_random_uuid(),$1,$2,$3,CASE WHEN $3 ~* 'legal|safety|payment' THEN 'urgent' ELSE 'normal' END,$4::jsonb); UPDATE cs_conversations SET status='waiting_human',updated_at=now() WHERE conversation_id=$2;",
+        "options": {
+          "queryReplacement": "={{ [$json.tenant_id,$json.conversation_id,$json.decision.reason,JSON.stringify({message:$json.message,decision:$json.decision})] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "14d39bb6-e1b9-40cf-ba41-fd33c0d7831f",
+      "name": "Notify human queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4592,
+        944
+      ],
+      "parameters": {
+        "url": "={{$env.CS_HUMAN_WEBHOOK}}",
+        "body": "={{ JSON.stringify({tenant_id:$node['Route and guardrail'].json.tenant_id,conversation_id:$node['Route and guardrail'].json.conversation_id,reason:$node['Route and guardrail'].json.decision.reason,message:$node['Route and guardrail'].json.message}) }}",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "8a709e6d-8f0a-4238-93b7-2ecc2b267e7d",
+      "name": "Record outgoing reply",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        4400,
+        1184
+      ],
+      "parameters": {
+        "query": "INSERT INTO cs_messages(tenant_id,provider_event_id,conversation_id,channel,direction,body,metadata) VALUES ($1,$2,$3,$4,'outbound',$5,$6::jsonb);",
+        "options": {
+          "queryReplacement": "={{ [$node['Route and guardrail'].json.tenant_id,$node['Route and guardrail'].json.event_id + ':reply',$node['Route and guardrail'].json.conversation_id,$node['Route and guardrail'].json.channel,$node['Route and guardrail'].json.decision.reply,JSON.stringify($node['Route and guardrail'].json.decision)] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "e855cc8f-840d-4881-8204-6c01b75cd18f",
+      "name": "Send through channel adapter",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4608,
+        1184
+      ],
+      "parameters": {
+        "url": "={{$env.CS_REPLY_WEBHOOK}}",
+        "body": "={{ JSON.stringify({channel:$node['Route and guardrail'].json.channel,conversation_id:$node['Route and guardrail'].json.conversation_id,message_id:$node['Route and guardrail'].json.event_id + ':reply',reply:$node['Route and guardrail'].json.decision.reply,metadata:{intent:$node['Route and guardrail'].json.decision.intent,human:$node['Route and guardrail'].json.decision.needs_human,citations:$node['Route and guardrail'].json.decision.citations}}) }}",
+        "method": "POST",
+        "options": {
+          "timeout": 15000
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "48d1e04d-9619-4c7e-b0f3-6da0586dc960",
+      "name": "Acknowledge provider",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        4832,
+        1184
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={{ {ok:true, conversation_id:$node['Route and guardrail'].json.conversation_id, intent:$node['Route and guardrail'].json.decision.intent, human:$node['Route and guardrail'].json.decision.needs_human} }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "72a875be-1f2b-4cc0-b07e-bf1581147a3a",
+      "name": "Configure template variables",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4112,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "config-1",
+              "name": "ollama_url",
+              "type": "string",
+              "value": "http://ollama:11434"
+            },
+            {
+              "id": "config-2",
+              "name": "ollama_model",
+              "type": "string",
+              "value": "llama3.1:8b"
+            },
+            {
+              "id": "config-3",
+              "name": "embedding_model",
+              "type": "string",
+              "value": "nomic-embed-text"
+            },
+            {
+              "id": "config-4",
+              "name": "setup_note",
+              "type": "string",
+              "value": "Set CS_OLLAMA_URL, CS_OLLAMA_MODEL, CS_TENANT_SECRET, CS_HUMAN_WEBHOOK and CS_REPLY_WEBHOOK as n8n variables. Never enter secrets here."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "dc2bcc78-286c-41d4-bfca-a80a65e72255",
+      "name": "About this template",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -96
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 780,
+        "height": 460,
+        "content": "## Route customer-service messages across chat, email and social DMs\n\n**Who is this for:** support teams that need one AI-assisted experience across website chat, email, and social direct messages.\n\n**What it does:** Three webhooks normalize verified inbound events into a shared customer conversation. The workflow de-duplicates events, saves cross-channel memory in PostgreSQL, retrieves approved knowledge with pgvector, and uses Ollama to classify requests as FAQ, order, complaint, or other. It records replies and sends a channel-neutral reply envelope to an outbound adapter.\n\n**Safety:** It hands off low-confidence, unsupported, uncited, payment, refund, cancellation, address-change, legal, privacy, safety, abusive, or unclear-identity cases.\n\n**Setup:** Configure n8n variables, assign the PostgreSQL credential, load approved embedded knowledge, and connect verified channel adapters to the three webhook paths. Keep provider credentials and signature validation in adapters, not this export.\n\n**Customize:** Add intents in Route and guardrail, update its prompt and fixtures, and connect your helpdesk and channel APIs to the generic handoff and reply webhooks."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "34194bdc-714c-483f-9bed-35e9ab5409cd",
+      "name": "Inbound setup note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1984,
+        1392
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 948,
+        "height": 170,
+        "content": "### 1. Inbound setup\n\nConfigure your verified chat, email, and DM adapters to call the matching webhook. Use the Set Fields node as a configuration checklist; keep real secrets in n8n variables."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2fcc2f49-7a93-483c-91b6-ad343e308f72",
+      "name": "Knowledge setup note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        1392
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1130,
+        "height": 170,
+        "content": "### 2. Knowledge and memory\n\nUse PostgreSQL + pgvector. Re-embed approved revisions, retain sources, and unpublish obsolete chunks. Memory is shared through the stable customer ID."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cb2946a2-542e-444b-b9a1-0eadd36bc240",
+      "name": "Output setup note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4096,
+        1392
+      ],
+      "parameters": {
+        "color": "#CECACA",
+        "width": 1138,
+        "height": 170,
+        "content": "### 3. Human handoff and delivery\n\nThis path fails closed for risk and uncertainty. Connect generic handoff and reply endpoints to your helpdesk and provider-specific sending service."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e5b0fd5b-5e17-477e-9ed2-68c89bd76105",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1984,
+        -176
+      ],
+      "parameters": {
+        "width": 992,
+        "height": 928,
+        "content": "# AI Customer Support Across Chat, Email & Social Media\n\n## Who is this template for?\n\nThis template is designed for businesses that want to automate customer support across multiple communication channels using AI.\n\nIt works with:\n\n- Website Chat\n- Email\n- Facebook Messenger\n- Instagram DM\n- WhatsApp (via adapter)\n- Any custom messaging platform\n\nThe workflow automatically classifies incoming customer messages, retrieves answers from your approved knowledge base, maintains conversation history, and safely escalates complex requests to a human support agent.\n\n---\n\n## What this workflow does\n\n✔ Receives customer messages\n\n✔ Validates incoming requests\n\n✔ Stores conversation history\n\n✔ Retrieves relevant knowledge using pgvector\n\n✔ Uses Ollama to classify customer intent\n\n✔ Detects risky or sensitive conversations\n\n✔ Automatically escalates when necessary\n\n✔ Sends responses back through the correct communication channel\n\n---"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "511a07d1-a4a3-4215-8088-60be84ab0b11",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3584,
+        0
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 448,
+        "height": 672,
+        "content": "## Configuration\n## Configure Before Running\n\nUpdate the variables inside the **Configure Template Variables** node.\n\nRequired Variables\n\n- CS_OLLAMA_URL\n- CS_OLLAMA_MODEL\n- CS_OLLAMA_EMBED_MODEL\n- CS_TENANT_SECRET\n- CS_HUMAN_WEBHOOK\n- CS_REPLY_WEBHOOK\n\nDo **not** hardcode API keys or secrets in HTTP Request nodes.\n\nUse n8n Credentials and Environment Variables whenever possible."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2b13f3a6-7f5c-4b1c-a6b3-b343c6f1369c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4304,
+        176
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 288,
+        "height": 416,
+        "content": "## AI Model\n\nThis workflow uses Ollama for local inference.\n\nDefault models\n\n• llama3.1:8b\n\n• nomic-embed-text\n\nYou can replace these with any compatible local or hosted LLM by updating the HTTP Request nodes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "89bef1b8-7947-48e0-ac84-913171f5481b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1984,
+        800
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 944,
+        "height": 576,
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "52dd283f-7c52-445b-b0a3-ee0d805607a7",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        800
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1136,
+        "height": 576,
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5634d245-65a4-44ad-a2ec-49bafb98b1a1",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4096,
+        800
+      ],
+      "parameters": {
+        "color": "#D4D3D3",
+        "width": 1136,
+        "height": 576,
+        "content": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "50d2eb13-f7c2-4927-82e3-b22d999a2659",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2976,
+        -176
+      ],
+      "parameters": {
+        "width": 544,
+        "height": 928,
+        "content": "## Requirements\n\n- n8n\n- PostgreSQL + pgvector\n- Ollama\n- Customer Support Database\n- Verified Chat/Email/Social adapters\n\n---\n\n## Before you start\n\nConfigure the following variables inside the **Configure Template Variables** node.\n\n- CS_OLLAMA_URL\n- CS_OLLAMA_MODEL\n- CS_OLLAMA_EMBED_MODEL\n- CS_TENANT_SECRET\n- CS_HUMAN_WEBHOOK\n- CS_REPLY_WEBHOOK\n\nNever store secrets directly inside HTTP Request nodes.\n\n---\n\n## How to customize\n\nYou can easily customize:\n\n- Supported intents\n- AI prompt\n- Human escalation rules\n- Knowledge Base\n- Supported communication channels\n- Outbound integrations\n\nThis template is completely modular and each section can be replaced independently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e7a409e-e8e3-4ad4-997d-26e3a9435b13",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4608,
+        176
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 288,
+        "height": 416,
+        "content": "## Database\n\nThis template stores:\n\n• Conversation history\n• Customer messages\n• AI responses\n• Human handoff records\n\nKnowledge search uses PostgreSQL with pgvector.\n\nRebuild embeddings whenever knowledge articles are updated."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "b0e1e7b4-9924-4be6-91dc-5662c8a7ebe3",
+  "nodeGroups": [],
+  "connections": {
+    "Chat inbound": {
+      "main": [
+        [
+          {
+            "node": "Normalize and validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email inbound": {
+      "main": [
+        [
+          {
+            "node": "Normalize and validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create handoff": {
+      "main": [
+        [
+          {
+            "node": "Notify human queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed question": {
+      "main": [
+        [
+          {
+            "node": "Retrieve approved knowledge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human handoff?": {
+      "main": [
+        [
+          {
+            "node": "Create handoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record outgoing reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Social inbound": {
+      "main": [
+        [
+          {
+            "node": "Normalize and validate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate event?": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Embed question",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invalid request?": {
+      "main": [
+        [
+          {
+            "node": "Reject inbound",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Persist and fetch memory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify and draft": {
+      "main": [
+        [
+          {
+            "node": "Route and guardrail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify human queue": {
+      "main": [
+        [
+          {
+            "node": "Record outgoing reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route and guardrail": {
+      "main": [
+        [
+          {
+            "node": "Human handoff?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record outgoing reply": {
+      "main": [
+        [
+          {
+            "node": "Send through channel adapter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize and validate": {
+      "main": [
+        [
+          {
+            "node": "Invalid request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persist and fetch memory": {
+      "main": [
+        [
+          {
+            "node": "Duplicate event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve approved knowledge": {
+      "main": [
+        [
+          {
+            "node": "Classify and draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send through channel adapter": {
+      "main": [
+        [
+          {
+            "node": "Acknowledge provider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

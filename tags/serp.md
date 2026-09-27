@@ -1,4 +1,4 @@
-# serp : 24
+# serp : 27
 
 |id|file|
 |----|----|
@@ -26,3 +26,6 @@
 |16335|[16335_Generate_SEO_content_briefs_from_keywords_with_SerpAPI__OpenAI__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16335_Generate_SEO_content_briefs_from_keywords_with_SerpAPI__OpenAI__Google_Docs_and_Sheets.json)|
 |16413|[16413_Analyze_Google_Ads_competitors_with_Bright_Data__OpenRouter_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16413_Analyze_Google_Ads_competitors_with_Bright_Data__OpenRouter_and_OpenAI.json)|
 |16668|[16668_Monitor_AI_search_visibility_with_Talordata_SERP__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16668_Monitor_AI_search_visibility_with_Talordata_SERP__OpenAI__and_Google_Sheets.json)|
+|17238|[17238_Track_weekly_Google_SERP_rankings_with_Bright_Data__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17238_Track_weekly_Google_SERP_rankings_with_Bright_Data__Google_Sheets__and_Slack.json)|
+|18205|[18205_Track_SERP_layout_changes_with_Snapshot_Site__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18205_Track_SERP_layout_changes_with_Snapshot_Site__Google_Sheets__and_Slack.json)|
+|18870|[18870_Track_SERP_and_AI_visibility_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18870_Track_SERP_and_AI_visibility_with_Apify_and_Google_Sheets.json)|

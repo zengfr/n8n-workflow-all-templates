@@ -1,4 +1,4 @@
-# direct : 7
+# direct : 12
 
 |id|file|
 |----|----|
@@ -9,3 +9,8 @@
 |10299|[10299_Upload_Files_to_Dropbox_and_Generate_Direct_Download_Links.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10299_Upload_Files_to_Dropbox_and_Generate_Direct_Download_Links.json)|
 |11672|[11672_Transform_Airbnb_Listings_into_Custom_Direct_Booking_Sites_with_Netlify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11672_Transform_Airbnb_Listings_into_Custom_Direct_Booking_Sites_with_Netlify.json)|
 |15775|[15775_Receive_and_process_incoming_direct_messages_in_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15775_Receive_and_process_incoming_direct_messages_in_Rocket.Chat.json)|
+|18564|[18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json)|
+|18845|[18845_Send_daily_competitor_intel_briefs_to_Slack_with_API_Direct_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18845_Send_daily_competitor_intel_briefs_to_Slack_with_API_Direct_and_OpenAI.json)|
+|18880|[18880_Send_Slack_alerts_for_negative_Google_Maps_reviews_with_API_Direct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18880_Send_Slack_alerts_for_negative_Google_Maps_reviews_with_API_Direct.json)|
+|18956|[18956_Track_TikTok_keyword_trends_with_API_Direct__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18956_Track_TikTok_keyword_trends_with_API_Direct__Google_Sheets_and_Slack.json)|
+|18979|[18979_Qualify_Reddit_leads_with_API_Direct_and_OpenAI_and_send_a_daily_Gmail_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18979_Qualify_Reddit_leads_with_API_Direct_and_OpenAI_and_send_a_daily_Gmail_digest.json)|

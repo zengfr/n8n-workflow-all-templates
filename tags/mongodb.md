@@ -1,4 +1,4 @@
-# mongodb : 24
+# mongodb : 26
 
 |id|file|
 |----|----|
@@ -26,3 +26,5 @@
 |12760|[12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12760_Send_meeting_summaries_with_Mailchimp_and_MongoDB.json)|
 |13782|[13782_Generate_LinkedIn_posts_using_Google_Gemini__MongoDB_Atlas__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13782_Generate_LinkedIn_posts_using_Google_Gemini__MongoDB_Atlas__Google_Drive_and_Sheets.json)|
 |14356|[14356_Send_SaaS_trial_follow-up_emails_with_MongoDB_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14356_Send_SaaS_trial_follow-up_emails_with_MongoDB_and_Gmail.json)|
+|17555|[17555_Generate_business_strategy_canvases_with_GPT-4o__Tavily__MongoDB_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17555_Generate_business_strategy_canvases_with_GPT-4o__Tavily__MongoDB_and_Gmail.json)|
+|18721|[18721_Monitor_supplier_risk_with_Notion__NewsAPI__Groq__MongoDB__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18721_Monitor_supplier_risk_with_Notion__NewsAPI__Groq__MongoDB__Gmail_and_Slack.json)|

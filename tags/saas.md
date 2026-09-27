@@ -1,4 +1,4 @@
-# saas : 12
+# saas : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |15496|[15496_Monitor_SaaS_contract_renewals_from_Google_Sheets_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15496_Monitor_SaaS_contract_renewals_from_Google_Sheets_and_send_Slack_alerts.json)|
 |15498|[15498_Send_multi-stage_SaaS_renewal_alerts_from_Google_Sheets_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15498_Send_multi-stage_SaaS_renewal_alerts_from_Google_Sheets_to_Slack.json)|
 |15945|[15945_Audit_SaaS_subscription_waste_from_Gmail_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15945_Audit_SaaS_subscription_waste_from_Gmail_with_GPT-4.1-mini_and_Google_Sheets.json)|
+|17386|[17386_Gate_SaaS_and_AI_tool_approvals_with_RelayShield__Notion__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17386_Gate_SaaS_and_AI_tool_approvals_with_RelayShield__Notion__Slack__and_Gmail.json)|
+|18503|[18503_Assess_SaaS_vendor_risk_with_OpenAI_and_Probo_and_notify_security_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18503_Assess_SaaS_vendor_risk_with_OpenAI_and_Probo_and_notify_security_in_Slack.json)|
+|18937|[18937_Audit_and_cancel_unused_SaaS_seats_with_Google_Sheets__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18937_Audit_and_cancel_unused_SaaS_seats_with_Google_Sheets__OpenAI_and_Slack.json)|
+|19670|[19670_Generate_AI_text_and_images_with_Claude_and_Stripe_metered_billing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19670_Generate_AI_text_and_images_with_Claude_and_Stripe_metered_billing.json)|

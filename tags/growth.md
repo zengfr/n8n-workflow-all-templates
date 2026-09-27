@@ -1,4 +1,4 @@
-# growth : 7
+# growth : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |13349|[13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13349_Detect_account_and_contact_growth_signals_with_Lusha_bulk_enrichment.json)|
 |13374|[13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json)|
 |15221|[15221_Instagram_AI_Tracker___Automate_Reels_Analysis___Growth.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15221_Instagram_AI_Tracker___Automate_Reels_Analysis___Growth.json)|
+|17027|[17027_Create_TikTok_carousel_posts_with_Upload_Post__Google_Sheets__Gemini__GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17027_Create_TikTok_carousel_posts_with_Upload_Post__Google_Sheets__Gemini__GPT-4.1.json)|
+|17343|[17343_Grow_TikTok_carousels_with_Gemini__GPT-4.1__fal.ai__and_Upload_Post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17343_Grow_TikTok_carousels_with_Gemini__GPT-4.1__fal.ai__and_Upload_Post.json)|
+|17718|[17718_Monitor_TikTok_creator_growth_with_Apify__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17718_Monitor_TikTok_creator_growth_with_Apify__Google_Sheets__and_Telegram.json)|
+|17855|[17855_Create_sales_and_growth_hiring_leads_CSV_from_careers_pages_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17855_Create_sales_and_growth_hiring_leads_CSV_from_careers_pages_with_Apify.json)|
+|17946|[17946_Send_AI-powered_inbound_LinkedIn_replies_with_La_Growth_Machine_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17946_Send_AI-powered_inbound_LinkedIn_replies_with_La_Growth_Machine_and_OpenAI.json)|
+|18036|[18036_Send_weekly_newsletter_growth_reports_to_Slack_and_Telegram_with_Kit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18036_Send_weekly_newsletter_growth_reports_to_Slack_and_Telegram_with_Kit.json)|

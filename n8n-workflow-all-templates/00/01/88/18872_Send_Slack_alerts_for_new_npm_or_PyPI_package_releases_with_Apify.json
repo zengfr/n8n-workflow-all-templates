@@ -1,0 +1,574 @@
+{
+  "name": "Send Slack alerts for new npm package releases with Apify",
+  "nodes": [
+    {
+      "id": "042bfd34-9aa8-505e-960d-9195d17edb88",
+      "name": "Every 12 hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        460
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 12
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a01b509a-2b32-594a-8fcc-97570983685a",
+      "name": "Packages to watch",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "adac1d2c-76e0-5e8e-bf99-e623e255053f",
+              "name": "registry",
+              "type": "string",
+              "value": "npm"
+            },
+            {
+              "id": "de246c1c-e350-5ed7-84b9-f9ce447e3640",
+              "name": "packageNames",
+              "type": "array",
+              "value": "[\"express\", \"zod\", \"@types/node\"]"
+            },
+            {
+              "id": "fb46cc37-c12d-5a3f-b65c-37089920a0a0",
+              "name": "includeDownloads",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "cfg-watchBumps",
+              "name": "watchBumps",
+              "type": "string",
+              "value": "major,minor"
+            },
+            {
+              "id": "cfg-minDownloads",
+              "name": "minMonthlyDownloads",
+              "type": "number",
+              "value": 0
+            },
+            {
+              "id": "cfg-discordWebhook",
+              "name": "discordWebhook",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "cfg-digestEmail",
+              "name": "digestEmail",
+              "type": "string",
+              "value": "you@example.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4eead52f-071f-57c0-9c02-10424a3d6abc",
+      "name": "Check the registry",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        460
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~package-registry-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ registry: $json.registry, packageNames: $json.packageNames, includeDownloads: $json.includeDownloads }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "553d02b1-b31c-572c-9088-26072ce2172e",
+      "name": "Keep real packages",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        780,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7deadbd2-2d37-5576-9724-e163e3149101",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e5bdf5f2-d9ae-5ebe-b32b-634d4ce09482",
+      "name": "Only new versions",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1040,
+        460
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 100000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.name + '@' + $json.version }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "classify-release",
+      "name": "Classify the release",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        460
+      ],
+      "parameters": {
+        "jsCode": "// Work out whether each release is a major, a minor or a patch, straight from the version\n// string. A version ending .0.0 is a major, x.y.0 a minor, anything else a patch. Pre-releases\n// (1.0.0-rc.1) are called out separately so they never look like a stable major.\n// No model and no API key — edit the rules here if your registry versions differently.\nconst out = [];\n\nfor (const item of $input.all()) {\n  const p = item.json;\n  const version = String(p.version || '');\n  const core = version.split('-')[0];\n  const parts = core.split('.').map((n) => parseInt(n, 10));\n  const [major, minor, patch] = [parts[0] || 0, parts[1] || 0, parts[2] || 0];\n\n  let bumpType = 'patch';\n  if (version.includes('-')) bumpType = 'prerelease';\n  else if (minor === 0 && patch === 0) bumpType = 'major';\n  else if (patch === 0) bumpType = 'minor';\n\n  // 0.x releases are not stable, whatever the numbers say, and treating a 0.3.0 as a \"minor\"\n  // oversells it. Say so rather than letting it through as routine.\n  const preStable = major === 0;\n\n  const label = { major: 'Major release', minor: 'New features', patch: 'Fix release', prerelease: 'Pre-release' }[bumpType];\n\n  out.push({\n    json: {\n      ...p,\n      bumpType,\n      preStable,\n      releaseLabel: preStable && bumpType !== 'prerelease' ? label + ' (pre-1.0, expect breakage)' : label,\n      monthlyDownloads: Number(p.monthlyDownloads) || 0,\n    },\n  });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gate-bumps",
+      "name": "Only the releases you asked for",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1560,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "gate-bump-type",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Packages to watch').first().json.watchBumps.split(',').map(s => s.trim()).includes($json.bumpType) }}",
+              "rightValue": ""
+            },
+            {
+              "id": "gate-downloads",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.monthlyDownloads }}",
+              "rightValue": "={{ $('Packages to watch').first().json.minMonthlyDownloads }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "08a4ac23-67bd-5332-9158-a867a5ffa41c",
+      "name": "Post the release to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1820,
+        460
+      ],
+      "webhookId": "70d88ac9-2c8a-596b-9222-da858165a9f6",
+      "parameters": {
+        "text": "=:package: *{{ $json.name }}* {{ $json.version }} is out on {{ $json.registry }}\n\n{{ $json.description || 'No description published.' }}\n\nLicence: {{ $json.license || 'not stated' }}{{ $json.monthlyDownloads ? '  |  ' + Number($json.monthlyDownloads).toLocaleString() + ' downloads last month' : '' }}\n{{ $json.url }}{{ $json.repository ? '\\n' + $json.repository : '' }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "1c8fae5c-2aab-52bd-85ce-2c0f8a3da877",
+      "name": "Sticky Note t11/desc",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -600,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 2306,
+        "content": "## Send Slack alerts for new npm and PyPI releases with Apify\n\nWatches the packages you depend on and tells you when one ships — but only the releases you actually care about, not every patch bump on every dependency.\n\n**Who is this for?**\nAnyone maintaining a project whose dependencies move faster than they can read release notes.\n\n**What problem is this workflow solving?**\nWatching a repo on GitHub gets you everything or nothing. A five-package watchlist can fire twenty times a week, almost all of it patch releases nobody needs to read, and the one breaking major gets lost in the noise.\n\n**What this workflow does**\n- Checks your watchlist on npm or PyPI every 12 hours.\n- Skips versions already seen in an earlier run.\n- Reads the version number and decides whether it is a major, a minor, a patch or a pre-release.\n- Keeps only the bump types you listed and anything above your download floor.\n- Posts what is left to Slack.\n\n**Setup**\n1. Add an Apify credential and a Slack credential.\n2. Put your packages in \"Packages to watch\" and set `registry` to `npm` or `pypi`.\n3. Set `watchBumps` — `major` alone for breaking changes only, `major,minor` to also hear about new features.\n4. Set `minMonthlyDownloads` if you only care about widely-used packages. 0 watches everything.\n\n**Requirements**\nAn Apify account and API token, and a Slack workspace you can post to. No GitHub token and no registry account — the release data is public.\n\n**How to customize this workflow to your needs**\n\nFour nodes sit under the main row, wired to nothing on purpose. Connect the filter to whichever you want and delete the rest:\n\n- **Discord** — post to a channel instead of Slack, or as well as.\n- **Gmail** — mail releases to yourself.\n- **Notion** — keep a changelog page of everything that shipped.\n- **HTTP Request** — send the release to your own endpoint.\n\nThe classifier is a Code node, not a model, so the rules are readable and yours to change. Registries that do not follow semver are the obvious reason to edit it.\n\n**Good to know**\nThe bump type comes from the version number alone, which is what the registry publishes and all it publishes. A project that ships a breaking change in a patch release will be labelled a patch, because nothing in the version says otherwise. Anything below 1.0.0 is flagged pre-stable for the same reason — the numbers there promise nothing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6161f692-0119-5776-a819-230d6d02ed7a",
+      "name": "Sticky Note s0/### 1. Sched",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 1. Schedule\nEvery 12 hours. Daily is cheaper and usually fast enough; hourly is for a dependency you are actively waiting on."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7e784d0-5b09-5444-8b45-cb54ea027225",
+      "name": "Sticky Note s1/### 2. Your ",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 2. Your input\nThe packages to watch and which registry they live in. This is the only node you have to edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a529576b-8e3b-5bcc-9133-0bfa436e866a",
+      "name": "Sticky Note s2/### 3. Check",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 3. Check\nLooks up the current version of each package. Add your Apify credential here. Max cost per run is capped at $1."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "482d3b12-e8c4-5262-ad1f-fd759a074697",
+      "name": "Sticky Note s3/### 4. Clean",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 4. Clean\nDrops the uncharged diagnostic row returned when a package name does not exist."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ac7be43a-4df2-58d1-be37-1d2d14d574f4",
+      "name": "Sticky Note s4/### 5. Dedup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 5. Dedupe\nKeyed on name plus version, so an unchanged package is silent and only a real release gets through."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1082acf7-5a5a-5d43-82bb-efca32b12474",
+      "name": "Sticky Note s5/### 6. Deliv",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1780,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 8. Deliver\n\nSlack gets the releases that made it through. Swap in one of the nodes below if Slack is not where you want them."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "opt-discord",
+      "name": "Optional: post it to Discord instead",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        260,
+        1020
+      ],
+      "parameters": {
+        "content": "=**{{ $json.name }} {{ $json.version }}** — {{ $json.releaseLabel }}\n{{ $json.description || 'No description published.' }}\n{{ $json.url }}",
+        "options": {}
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "opt-gmail",
+      "name": "Optional: email yourself the release",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        580,
+        1020
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Packages to watch').first().json.digestEmail }}",
+        "message": "={{ $json.description || 'No description published.' }}\n\nRegistry: {{ $json.registry }}\nLicence: {{ $json.license || 'not stated' }}\n{{ $json.url }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.name }} {{ $json.version }} — {{ $json.releaseLabel }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "opt-notion",
+      "name": "Optional: keep a changelog page in Notion",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        900,
+        1020
+      ],
+      "parameters": {
+        "title": "={{ $json.name }} {{ $json.version }}",
+        "options": {},
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Type|rich_text",
+              "textContent": "={{ $json.releaseLabel }}"
+            },
+            {
+              "key": "Registry|rich_text",
+              "textContent": "={{ $json.registry }}"
+            },
+            {
+              "key": "URL|url",
+              "urlValue": "={{ $json.url }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "opt-http",
+      "name": "Optional: send it to your own webhook",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1220,
+        1020
+      ],
+      "parameters": {
+        "url": "https://example.com/your-webhook",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ JSON.stringify($json) }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "sticky-classify",
+      "name": "Sticky Note 7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 280,
+        "content": "### 6. Classify it\n\nReads the version number and decides whether it is a major, a minor, a patch or a pre-release. Plain JavaScript you can edit — no model, no API key."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-gate",
+      "name": "Sticky Note 8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 280,
+        "content": "### 7. Only what you asked for\n\nKeeps the bump types listed in `watchBumps` and anything at or above your download floor. Majors only, on popular packages, is one edit away."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-optional",
+      "name": "Sticky Note 9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        860
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1280,
+        "height": 151,
+        "content": "## Optional — drag a connection into any of these\n\nThey are wired to nothing on purpose. Connect the filter above to whichever ones you want and delete the rest. Discord and Slack both work; so does keeping a Notion changelog and posting to your own webhook at the same time."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Every 12 hours": {
+      "main": [
+        [
+          {
+            "node": "Packages to watch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only new versions": {
+      "main": [
+        [
+          {
+            "node": "Classify the release",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Packages to watch": {
+      "main": [
+        [
+          {
+            "node": "Check the registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the registry": {
+      "main": [
+        [
+          {
+            "node": "Keep real packages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep real packages": {
+      "main": [
+        [
+          {
+            "node": "Only new versions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify the release": {
+      "main": [
+        [
+          {
+            "node": "Only the releases you asked for",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only the releases you asked for": {
+      "main": [
+        [
+          {
+            "node": "Post the release to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Send Slack alerts for new npm or PyPI package releases with Apify",
+    "wechat": "youandme10086",
+    "id": 18872,
+    "update_time": "2026-09-27"
+  }
+}

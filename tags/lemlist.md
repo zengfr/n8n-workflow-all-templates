@@ -1,4 +1,4 @@
-# lemlist : 8
+# lemlist : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |5233|[5233_AI_Agents_can_Create__Enrich_leads_with_this_Lemlist_Tool_MCP_Server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/52/5233_AI_Agents_can_Create__Enrich_leads_with_this_Lemlist_Tool_MCP_Server.json)|
 |12920|[12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12920_Generate_scheduled_B2B_leads_from_Google_Maps_with_Lemlist__Claude__and_Pitchlane.json)|
 |15297|[15297_Sync_and_score_PLG_leads_between_Segment__Attio__Intercom__Lemlist_and_ActiveCampaign_with_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15297_Sync_and_score_PLG_leads_between_Segment__Attio__Intercom__Lemlist_and_ActiveCampaign_with_Claude_and_OpenAI.json)|
+|18754|[18754_Research_and_score_crowdfunding_leads_with_Google_Sheets__DeepSeek__Lemlist__and_more.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18754_Research_and_score_crowdfunding_leads_with_Google_Sheets__DeepSeek__Lemlist__and_more.json)|

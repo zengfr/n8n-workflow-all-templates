@@ -1,4 +1,4 @@
-# secure : 19
+# secure : 22
 
 |id|file|
 |----|----|
@@ -21,3 +21,6 @@
 |12661|[12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12661_Secure_and_classify_legal_documents_with_OpenAI__Airtable_and_HTML_to_PDF.json)|
 |14486|[14486_Secure_AI_agent_webhook_with_HMAC__replay_protection__and_OpenAI_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14486_Secure_AI_agent_webhook_with_HMAC__replay_protection__and_OpenAI_GPT-5.json)|
 |15797|[15797_Convert_Outlook_emails_to_Planner_tasks_and_monitor_Secure_Score_with_Teams_alerts_in_M365.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15797_Convert_Outlook_emails_to_Planner_tasks_and_monitor_Secure_Score_with_Teams_alerts_in_M365.json)|
+|17175|[17175_Capture_and_clean_inbound_web_form_leads_with_an_authenticated_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17175_Capture_and_clean_inbound_web_form_leads_with_an_authenticated_webhook.json)|
+|17806|[17806_Process_invoices_securely_with_OpenAI__Slack__and_ERP_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17806_Process_invoices_securely_with_OpenAI__Slack__and_ERP_webhooks.json)|
+|18823|[18823_Track_secure_order_status_and_email_alerts_with_webhooks__Gmail__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18823_Track_secure_order_status_and_email_alerts_with_webhooks__Gmail__and_Data_Tables.json)|

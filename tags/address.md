@@ -1,4 +1,4 @@
-# address : 10
+# address : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |4750|[4750_fetch_the_public_IP_addresses_of_your_n8n_instance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/47/4750_fetch_the_public_IP_addresses_of_your_n8n_instance.json)|
 |7693|[7693_Bulk_Lead_Email_Validation_with_Google_Sheets___Anymail_Finder.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7693_Bulk_Lead_Email_Validation_with_Google_Sheets___Anymail_Finder.json)|
 |14568|[14568_Validate_addresses_and_generate_Street_View_images_with_Google_Maps_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14568_Validate_addresses_and_generate_Street_View_images_with_Google_Maps_and_Drive.json)|
+|18068|[18068_Look_up_contact_details_with_Searchbug_NAP_E_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18068_Look_up_contact_details_with_Searchbug_NAP_E_and_Google_Sheets.json)|
+|18712|[18712_Trace_people_and_address_history_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18712_Trace_people_and_address_history_with_Searchbug_and_Google_Sheets.json)|

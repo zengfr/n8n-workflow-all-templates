@@ -1,0 +1,178 @@
+{
+  "id": "I3BQPKtEkDntl0Qp",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Provide normalized weather forecasts with WeatherAPI and Open-Meteo",
+    "wechat": "youandme10086",
+    "id": 19714,
+    "update_time": "2026-09-27"
+  },
+  "name": "天気情報プロキシAPI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "sticky-weather-main",
+      "name": "セットアップ手順",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        864,
+        -520
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 620,
+        "content": "## 🌦️ 天気情報プロキシAPI\n\n**誰向け:** 自分のワークフローやWebアプリから、天気予報・過去天気データを1本のWebhook URLでまとめて取得したい人向け。\n\n**何をするか:**\n1. Webhookで `lat`(緯度)・`lon`(経度)・`start_date`(日付)をクエリで受け取る\n2. 出発日が14日以内なら WeatherAPI.com の予報API、14日より先なら Open-Meteo の過去気候データAPI(前年同月の平均)を自動で使い分け\n3. 気温・降水確率・天候カテゴリ(hot/cold/snow/rain/mild)に整形してJSONで返す\n\n**セットアップ方法:**\n1. [WeatherAPI.com](https://www.weatherapi.com/) で無料アカウントを作成しAPIキーを取得\n2. 「天気API1」ノードの Credential(Query Auth)に、Name=`key`、Value=取得したAPIキーを設定\n3. Webhookを有効化し、`?lat=35.68&lon=139.76&start_date=2026-10-01` のようにクエリを付けて呼び出す\n\n**必要なもの:** WeatherAPI.com の無料APIキー(Open-Meteoはキー不要)\n\n**カスタマイズ:** 天候カテゴリ判定のしきい値(気温・降水確率)はコードノード内で調整可能"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a5e6563-eeed-4c87-8c12-8f1bc92daf4d",
+      "name": "レスポンス整形",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1536,
+        128
+      ],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\nconst params = $('パラメータ構築1').first().json;\nconst isHistorical = params.isHistorical;\n\nlet result;\n\nif (!isHistorical) {\n  const day = data.forecast?.forecastday?.[0]?.day;\n  const condition = day?.condition;\n  if (!day) return [{ json: { error: 'No forecast data' } }];\n\n  const tmax = Math.round(day.maxtemp_c);\n  const tmin = Math.round(day.mintemp_c);\n  const rainChance = day.daily_chance_of_rain || 0;\n  const condText = condition?.text || '';\n  const condCode = condition?.code || 1000;\n\n  let cond = 'mild';\n  if (tmax >= 30) cond = 'hot';\n  else if ([1066,1114,1117,1210,1213,1216,1219,1222,1225,1255,1258].includes(condCode)) cond = 'snow';\n  else if (tmax <= 5) cond = tmin <= 0 ? 'snow' : 'cold';\n  else if (rainChance >= 60) cond = 'rain';\n\n  result = { isHistorical: false, tmax, tmin, condText, rainChance, cond };\n} else {\n  const daily = data.daily;\n  if (!daily) return [{ json: { error: 'No historical data' } }];\n\n  const allMax = daily.temperature_2m_max.filter(v => v != null);\n  const allMin = daily.temperature_2m_min.filter(v => v != null);\n  const precip = daily.precipitation_sum.filter(v => v != null);\n\n  const avgMax = allMax.length ? Math.round(allMax.reduce((a,b)=>a+b,0)/allMax.length) : 0;\n  const avgMin = allMin.length ? Math.round(allMin.reduce((a,b)=>a+b,0)/allMin.length) : 0;\n  const rainPct = precip.length ? Math.round(precip.filter(v=>v>1).length/precip.length*100) : 0;\n\n  let cond = 'mild';\n  if (avgMax >= 30) cond = 'hot';\n  else if (avgMax <= 5 && avgMin <= 0) cond = 'snow';\n  else if (avgMax <= 8) cond = 'cold';\n  else if (rainPct >= 50) cond = 'rain';\n\n  result = { isHistorical: true, tmax: avgMax, tmin: avgMin, rainPct, cond };\n}\n\nreturn [{ json: result }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c69d2bba-cfcc-4521-a5af-6ee5a63e1074",
+      "name": "Webhook1",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        864,
+        128
+      ],
+      "webhookId": "982617bf-53d8-4fdc-935a-64f3add63060",
+      "parameters": {
+        "path": "weather-proxy",
+        "options": {
+          "allowedOrigins": "*"
+        },
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3728e74c-1cb8-4fe6-9ec1-889e4482c822",
+      "name": "パラメータ構築1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1088,
+        128
+      ],
+      "parameters": {
+        "jsCode": "const query = $input.first().json.query;\nconst lat = query.lat || '35.68';\nconst lon = query.lon || '139.76';\nconst date = query.start_date || '';\nconst today = new Date();\ntoday.setHours(0,0,0,0);\nconst dep = new Date(date);\nconst diffDays = Math.round((dep - today) / (1000 * 60 * 60 * 24));\n\nlet apiUrl;\nlet isHistorical = false;\n\nif (diffDays <= 14) {\n  // APIキーはHTTPリクエストノード側のCredential(Query Auth)で自動付与されるため、ここには含めない\n  apiUrl = `https://api.weatherapi.com/v1/forecast.json?q=${lat},${lon}&dt=${date}&lang=ja`;\n} else {\n  isHistorical = true;\n  const d = new Date(date);\n  const month = String(d.getMonth() + 1).padStart(2, '0');\n  const lastDay = new Date(d.getFullYear(), d.getMonth() + 1, 0).getDate();\n  const prevYear = new Date().getFullYear() - 1;\n  apiUrl = `https://archive-api.open-meteo.com/v1/archive?latitude=${lat}&longitude=${lon}&daily=temperature_2m_max,temperature_2m_min,precipitation_sum&timezone=Asia%2FTokyo&start_date=${prevYear}-${month}-01&end_date=${prevYear}-${month}-${lastDay}`;\n}\n\nreturn [{ json: { apiUrl, isHistorical } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4a60a36d-1368-4542-8611-f7773e369216",
+      "name": "天気API1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1312,
+        128
+      ],
+      "parameters": {
+        "url": "={{ $json.apiUrl }}",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth"
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "WeatherAPI Key (Query Auth)"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "27c7b43b-1289-422c-9ad7-13c854fdadf7",
+      "name": "レスポンス返却1",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1760,
+        128
+      ],
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              },
+              {
+                "name": "Content-Type",
+                "value": "application/json"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "6b85b3cb-50d5-4879-9949-3e473571e7a4",
+  "connections": {
+    "Webhook1": {
+      "main": [
+        [
+          {
+            "node": "パラメータ構築1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "天気API1": {
+      "main": [
+        [
+          {
+            "node": "レスポンス整形",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "レスポンス整形": {
+      "main": [
+        [
+          {
+            "node": "レスポンス返却1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "パラメータ構築1": {
+      "main": [
+        [
+          {
+            "node": "天気API1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

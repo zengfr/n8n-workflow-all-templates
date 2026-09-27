@@ -1,4 +1,4 @@
-# gotenberg : 5
+# gotenberg : 11
 
 |id|file|
 |----|----|
@@ -7,3 +7,9 @@
 |13758|[13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13758_Generate_an_SEO_PDF_report_from_HTML_with_Gotenberg_and_Claude_Opus_4.6.json)|
 |14982|[14982_Generate_PDF_pricing_proposals_from_Excel_with_Gotenberg_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14982_Generate_PDF_pricing_proposals_from_Excel_with_Gotenberg_and_Outlook.json)|
 |15922|[15922_Generate_AI_governance_policy_PDFs_with_OpenAI__SerpAPI__Gotenberg_and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15922_Generate_AI_governance_policy_PDFs_with_OpenAI__SerpAPI__Gotenberg_and_SharePoint.json)|
+|17725|[17725_Parse_and_normalize_resume_PDFs_with_Telegram__OpenAI__and_Gotenberg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17725_Parse_and_normalize_resume_PDFs_with_Telegram__OpenAI__and_Gotenberg.json)|
+|17867|[17867_Send_regulatory_incident_emails_from_webhook_payloads_and_Gotenberg_PDF_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17867_Send_regulatory_incident_emails_from_webhook_payloads_and_Gotenberg_PDF_reports.json)|
+|17933|[17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json)|
+|18048|[18048_Generate_website_security_audit_PDFs_with_ScrapingBee__Claude__Gotenberg_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18048_Generate_website_security_audit_PDFs_with_ScrapingBee__Claude__Gotenberg_and_Outlook.json)|
+|18366|[18366_Send_website_security_audit_reports_with_OpenAI__Gotenberg__and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18366_Send_website_security_audit_reports_with_OpenAI__Gotenberg__and_Outlook.json)|
+|19486|[19486_Generate_Instagram_GTA_6_news_carousels_with_Gemini__Gotenberg_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19486_Generate_Instagram_GTA_6_news_carousels_with_Gemini__Gotenberg_and_Google_Drive.json)|

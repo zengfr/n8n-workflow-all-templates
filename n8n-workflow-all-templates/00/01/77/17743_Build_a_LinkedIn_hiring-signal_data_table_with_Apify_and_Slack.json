@@ -1,0 +1,563 @@
+{
+  "name": "Build a LinkedIn hiring-signal database by company with Apify and n8n",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "fd901634-80ec-48a4-8664-abee237ab62f",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1072,
+        -448
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 704,
+        "height": 480,
+        "content": "# Build a reusable hiring-signal database\n\nThis workflow monitors selected companies for newly published LinkedIn jobs and stores every unseen job as structured data.\n\nThe database is the primary outcome. It can later feed lead scoring, CRM updates, dashboards, enrichment, outreach, or notifications. Slack is included only as an optional delivery branch.\n\n### Before the first run\n- Install n8n's verified **Apify** node if prompted.\n- Connect an Apify credential.\n- Create the `curly_hiring_signals` Data Table described in the storage card.\n- Select that table in both Data Table nodes.\n- Replace the sample companies and test manually.\n- Activate the schedule only after reviewing the stored rows."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "44f6651a-fd25-48c7-903d-ab7a6dc64443",
+      "name": "Every 12 Hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1040,
+        80
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 12
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "35f07eec-bfe1-4e0f-817f-e1293bc8da67",
+      "name": "Test Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -1040,
+        272
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a2699803-85e9-4523-886f-066f2fc565cf",
+      "name": "Configure Target Accounts",
+      "type": "n8n-nodes-base.set",
+      "notes": "Enter LinkedIn company slugs or company-page URLs. Optional locations and job titles narrow the signal set.",
+      "position": [
+        -816,
+        176
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"companies\": [\"openai\", \"microsoft\"],\n  \"locations\": [],\n  \"jobTitles\": [],\n  \"maxResultsPerUrl\": 25,\n  \"postedLimit\": \"24h\",\n  \"sortBy\": \"date\",\n  \"includeDetails\": false\n}"
+      },
+      "notesInFlow": true,
+      "typeVersion": 3.4
+    },
+    {
+      "id": "93166171-0efd-43cc-836c-0e38aa23bb56",
+      "name": "Collection Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -336,
+        -448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 480,
+        "content": "## 1. Collect focused company data\n\nUnlike broad job-search workflows, this template starts with companies you already care about.\n\n- `companies` accepts LinkedIn company URLs or slugs.\n- `jobTitles` and `locations` are optional filters.\n- `postedLimit: 24h` overlaps safely with a 12-hour schedule.\n- `includeDetails: false` keeps recurring monitoring fast and economical.\n- Increase `maxResultsPerUrl` for employers publishing many roles per day."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a24cd425-0832-46e8-ab38-f61c6d7a0dc9",
+      "name": "Run Curly LinkedIn Jobs Scraper",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "notes": "Runs curly/linkedin-jobs-scraper and returns the resulting dataset items.",
+      "maxTries": 2,
+      "position": [
+        -592,
+        176
+      ],
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "4oeeqRK8vuZLdESiY",
+          "cachedResultUrl": "https://console.apify.com/actors/4oeeqRK8vuZLdESiY/input",
+          "cachedResultName": "LinkedIn Jobs Scraper (No Cookies or Login Required) (curly/linkedin-jobs-scraper)"
+        },
+        "timeout": 180,
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify($json) }}"
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "7d45ac83-759b-429f-8e2b-f0bc8c28b540",
+      "name": "Normalize Hiring Signals",
+      "type": "n8n-nodes-base.code",
+      "notes": "Creates a stable, storage-friendly schema independent of optional Actor fields.",
+      "position": [
+        -368,
+        176
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.all().map((item) => item.json);\nconst jobs = raw.flatMap((value) => Array.isArray(value) ? value : [value]);\nconst firstSeenAt = new Date().toISOString();\n\nreturn jobs\n  .filter((job) => job && job.job_id)\n  .map((job) => ({\n    json: {\n      job_id: String(job.job_id),\n      company_name: job.company_name ?? '',\n      company_slug: job.company_slug ?? '',\n      company_url: job.company_url ?? '',\n      title: job.title ?? '',\n      location: job.location ?? '',\n      published_at: job.published_at ?? null,\n      job_url: job.job_url ?? '',\n      search_keyword: job.search_keyword ?? '',\n      search_location: job.search_location ?? '',\n      details_status: job.details_status ?? 'not_requested',\n      source: job.source ?? 'linkedin',\n      scraped_at: job.scraped_at ?? firstSeenAt,\n      first_seen_at: firstSeenAt,\n      signal_status: 'new'\n    }\n  }));"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "0cc4198f-dd23-4513-bb03-a738be697824",
+      "name": "Remove Same-Run Duplicates",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "notes": "Layer 1: removes repeated job IDs returned within the current Actor run.",
+      "position": [
+        -144,
+        176
+      ],
+      "parameters": {
+        "compare": "selectedFields",
+        "options": {},
+        "fieldsToCompare": "job_id"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "3286f432-4065-4410-bb41-89c349f3ccfb",
+      "name": "Keep Jobs Not Yet Stored",
+      "type": "n8n-nodes-base.dataTable",
+      "notes": "Layer 2: checks job_id against persistent history in curly_hiring_signals.",
+      "position": [
+        80,
+        176
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_id",
+              "keyValue": "={{ $json.job_id }}"
+            }
+          ]
+        },
+        "operation": "rowNotExists",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.1
+    },
+    {
+      "id": "01968c4c-b96d-4b04-b3ca-2600e6411444",
+      "name": "Store New Hiring Signals",
+      "type": "n8n-nodes-base.dataTable",
+      "notes": "Writes the complete normalized record, not only the deduplication key.",
+      "position": [
+        304,
+        176
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "title": "={{ $json.title }}",
+            "job_id": "={{ $json.job_id }}",
+            "source": "={{ $json.source }}",
+            "job_url": "={{ $json.job_url }}",
+            "location": "={{ $json.location }}",
+            "scraped_at": "={{ $json.scraped_at }}",
+            "company_url": "={{ $json.company_url }}",
+            "company_name": "={{ $json.company_name }}",
+            "company_slug": "={{ $json.company_slug }}",
+            "published_at": "={{ $json.published_at }}",
+            "first_seen_at": "={{ $json.first_seen_at }}",
+            "signal_status": "={{ $json.signal_status }}",
+            "details_status": "={{ $json.details_status }}",
+            "search_keyword": "={{ $json.search_keyword }}",
+            "search_location": "={{ $json.search_location }}"
+          },
+          "schema": [
+            {
+              "id": "job_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "job_id",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "company_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_slug",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "company_slug",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "company_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "company_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "location",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "published_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "published_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "job_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "job_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "search_keyword",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "search_keyword",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "search_location",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "search_location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "details_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "details_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "source",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "source",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "scraped_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "scraped_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "first_seen_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "first_seen_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "signal_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "signal_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "job_id"
+          ]
+        },
+        "options": {
+          "optimizeBulk": true
+        },
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3a1e8af9-aedc-45c0-bb4b-f24ac750d031",
+      "name": "Persistence Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        -448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 776,
+        "height": 480,
+        "content": "## 2. Deduplicate and persist\n\nThe workflow uses two layers:\n\n1. **Remove Same-Run Duplicates** prevents repeated job IDs inside one scrape.\n2. **Keep Jobs Not Yet Stored** checks persistent history across all runs.\n\nCreate an n8n Data Table named `curly_hiring_signals` with these columns:\n\n`job_id`, `company_name`, `company_slug`, `company_url`, `title`, `location`, `job_url`, `search_keyword`, `search_location`, `details_status`, `source`, `signal_status` → string\n\n`published_at`, `scraped_at`, `first_seen_at` → date\n\nSelect this table in both Data Table nodes. The full record is stored so downstream workflows can query and enrich it later."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9bd3cfa-82e1-4f39-aab0-9f501b9ad2ca",
+      "name": "Build Optional Company Digests",
+      "type": "n8n-nodes-base.code",
+      "notes": "Optional: creates one digest per company from the newly stored records.",
+      "position": [
+        528,
+        176
+      ],
+      "parameters": {
+        "jsCode": "const jobs = $('Keep Jobs Not Yet Stored').all().map((item) => item.json);\nconst grouped = new Map();\nconst maxJobsPerCompany = 20;\n\nfor (const job of jobs) {\n  const company = job.company_name || job.company_slug || 'Unknown company';\n  if (!grouped.has(company)) grouped.set(company, []);\n  grouped.get(company).push(job);\n}\n\nreturn [...grouped.entries()].map(([company, companyJobs]) => {\n  const visibleJobs = companyJobs.slice(0, maxJobsPerCompany);\n  const lines = visibleJobs.map((job) => {\n    const location = job.location ? ` — ${job.location}` : '';\n    const published = job.published_at ? ` — ${job.published_at}` : '';\n    return `• <${job.job_url}|${job.title}>${location}${published}`;\n  });\n  const remaining = companyJobs.length - visibleJobs.length;\n  if (remaining > 0) lines.push(`• _${remaining} additional new job${remaining === 1 ? '' : 's'} stored in the database_`);\n\n  return {\n    json: {\n      company_name: company,\n      new_jobs_count: companyJobs.length,\n      slack_message: `*${company}: ${companyJobs.length} new LinkedIn job${companyJobs.length === 1 ? '' : 's'}*\\n\\n${lines.join('\\n')}\\n\\n_<https://apify.com/curly/linkedin-jobs-scraper|Collected with Curly's LinkedIn Jobs Scraper>_`\n    }\n  };\n});"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "15cd5ac3-3efd-4556-baad-0b33acbbd21a",
+      "name": "Optional Slack Digest",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Optional branch. Connect Slack, choose a channel, and enable this node only if notifications are useful.",
+      "disabled": true,
+      "position": [
+        752,
+        176
+      ],
+      "parameters": {
+        "text": "={{ $json.slack_message }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 2.3
+    },
+    {
+      "id": "a0652b01-b3e4-46b1-b358-bb8f0bd8a98e",
+      "name": "Delivery Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        976,
+        -448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 480,
+        "content": "## 3. Deliver only where useful\n\nThe database is complete without a notification channel.\n\nThe Slack branch is disabled by default. Enable it when a team wants immediate awareness of newly stored signals. It sends one digest per company rather than one message per job.\n\nYou can replace Slack with Gmail, Microsoft Teams, Telegram, or a CRM task without changing the collection and storage layers."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5466f2c0-edab-418b-83c8-41f6311203fd",
+      "name": "Extension Ideas",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        432,
+        512
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 680,
+        "height": 420,
+        "content": "## Build larger workflows from the table\n\nThe stored dataset can become the input for separate workflows:\n\n- Count hiring by department or company over time\n- Detect sudden hiring spikes\n- Enrich companies and decision-makers\n- Score target accounts by role relevance\n- Sync qualified signals to HubSpot, Salesforce, Airtable, or a warehouse\n- Generate weekly market-intelligence summaries\n- Trigger outreach only after human review\n\nFor very large volumes, keep this workflow's schema and replace the two Data Table nodes with Postgres, Supabase, or your warehouse. The collection and normalization layers remain reusable."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "connections": {
+    "Test Manually": {
+      "main": [
+        [
+          {
+            "node": "Configure Target Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 12 Hours": {
+      "main": [
+        [
+          {
+            "node": "Configure Target Accounts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Jobs Not Yet Stored": {
+      "main": [
+        [
+          {
+            "node": "Store New Hiring Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Hiring Signals": {
+      "main": [
+        [
+          {
+            "node": "Remove Same-Run Duplicates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store New Hiring Signals": {
+      "main": [
+        [
+          {
+            "node": "Build Optional Company Digests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Target Accounts": {
+      "main": [
+        [
+          {
+            "node": "Run Curly LinkedIn Jobs Scraper",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Same-Run Duplicates": {
+      "main": [
+        [
+          {
+            "node": "Keep Jobs Not Yet Stored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Optional Company Digests": {
+      "main": [
+        [
+          {
+            "node": "Optional Slack Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Curly LinkedIn Jobs Scraper": {
+      "main": [
+        [
+          {
+            "node": "Normalize Hiring Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Build a LinkedIn hiring-signal data table with Apify and Slack",
+    "wechat": "youandme10086",
+    "id": 17743,
+    "update_time": "2026-09-27"
+  }
+}

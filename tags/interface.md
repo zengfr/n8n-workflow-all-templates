@@ -1,4 +1,4 @@
-# interface : 20
+# interface : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |8234|[8234_AI-Powered_Gmail_and_Calendar_Assistant_with_Gemini_Chat_Interface.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8234_AI-Powered_Gmail_and_Calendar_Assistant_with_Gemini_Chat_Interface.json)|
 |8334|[8334_Generate_Viral_LinkedIn_Content_with_GPT_and_Images_using_Telegram_Bot_Interface.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8334_Generate_Viral_LinkedIn_Content_with_GPT_and_Images_using_Telegram_Bot_Interface.json)|
 |8510|[8510_Generate_AWS_IAM_Policies_via_Chat_Interface_with_GPT-4_Assistant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8510_Generate_AWS_IAM_Policies_via_Chat_Interface_with_GPT-4_Assistant.json)|
+|19242|[19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json)|

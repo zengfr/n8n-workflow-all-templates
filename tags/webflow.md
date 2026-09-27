@@ -1,4 +1,4 @@
-# webflow : 18
+# webflow : 22
 
 |id|file|
 |----|----|
@@ -20,3 +20,7 @@
 |14975|[14975_Convert_Supabase_support_FAQs_to_audio_with_Google_Cloud_TTS_and_Webflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14975_Convert_Supabase_support_FAQs_to_audio_with_Google_Cloud_TTS_and_Webflow.json)|
 |15280|[15280_Generate_and_publish_SEO_blog_posts_from_Google_Sheets_to_Webflow_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15280_Generate_and_publish_SEO_blog_posts_from_Google_Sheets_to_Webflow_with_OpenAI.json)|
 |15349|[15349_Send_Webflow_form_leads_to_Google_Sheets_with_email_and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15349_Send_Webflow_form_leads_to_Google_Sheets_with_email_and_WhatsApp_alerts.json)|
+|18426|[18426_Refresh_Webflow_directory_listings_from_Google_Maps_with_Bright_Data_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18426_Refresh_Webflow_directory_listings_from_Google_Maps_with_Bright_Data_and_OpenAI.json)|
+|18444|[18444_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_HubSpot_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18444_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_HubSpot_and_Gmail.json)|
+|18715|[18715_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_Salesforce_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18715_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_Salesforce_and_Gmail.json)|
+|19102|[19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# faqs : 8
+# faqs : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |16175|[16175_Handle_WhatsApp_orders__FAQs__and_tracking_with_GPT-4o__Pinecone__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16175_Handle_WhatsApp_orders__FAQs__and_tracking_with_GPT-4o__Pinecone__and_Sheets.json)|
 |16182|[16182_Answer_business_FAQs_with_Claude__Supabase_pgvector_and_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16182_Answer_business_FAQs_with_Claude__Supabase_pgvector_and_OpenAI_embeddings.json)|
 |16352|[16352_Sync_website_FAQs_to_Pinecone_weekly_with_GPT-4o_and_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16352_Sync_website_FAQs_to_Pinecone_weekly_with_GPT-4o_and_OpenAI_embeddings.json)|
+|16974|[16974_Answer_support_FAQs_with_Google_Gemini__Supabase__Google_Sheets_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16974_Answer_support_FAQs_with_Google_Gemini__Supabase__Google_Sheets_and_WhatsApp.json)|
+|17341|[17341_Answer_WhatsApp_keyword_FAQs_with_Twilio_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17341_Answer_WhatsApp_keyword_FAQs_with_Twilio_and_Google_Sheets.json)|
+|17565|[17565_Route_website_chat_visitors_to_Calendly_booking__FAQs__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17565_Route_website_chat_visitors_to_Calendly_booking__FAQs__and_Gmail.json)|
+|18521|[18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json)|

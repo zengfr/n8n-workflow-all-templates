@@ -1,4 +1,4 @@
-# prediction : 12
+# prediction : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |12195|[12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12195_Predict_disaster_damage_and_coordinate_property_response_with_GPT-4__Google_Sheets__Calendar_and_Gmail.json)|
 |12197|[12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12197_Predict_tenant_default_risk_with_GPT-4o__Gmail__Slack_and_collections_APIs.json)|
 |14414|[14414_Segment_players_and_predict_churn_with_GPT-4o_and_reward_pricing_simulations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14414_Segment_players_and_predict_churn_with_GPT-4o_and_reward_pricing_simulations.json)|
+|16871|[16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json)|
+|17601|[17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json)|
+|18248|[18248_Predict_transformer_overload_risk_and_send_alerts_via_HTTP_APIs__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18248_Predict_transformer_overload_risk_and_send_alerts_via_HTTP_APIs__email__and_Slack.json)|
+|19502|[19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json)|

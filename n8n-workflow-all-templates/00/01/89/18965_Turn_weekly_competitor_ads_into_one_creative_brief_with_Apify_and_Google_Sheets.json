@@ -1,0 +1,567 @@
+{
+  "name": "Turn a week of competitor ads into one creative brief with Apify",
+  "nodes": [
+    {
+      "id": "manual",
+      "name": "Manual Test",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        760
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sched",
+      "name": "Every Monday at 9",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        460
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfg",
+      "name": "Who you are watching",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "searchTerms",
+              "type": "string",
+              "value": "meal kit delivery"
+            },
+            {
+              "id": "a2",
+              "name": "country",
+              "type": "string",
+              "value": "US"
+            },
+            {
+              "id": "a3",
+              "name": "maxResults",
+              "type": "number",
+              "value": 40
+            },
+            {
+              "id": "a4",
+              "name": "minRepeats",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "a5",
+              "name": "hashtags",
+              "type": "string",
+              "value": "mealprep"
+            },
+            {
+              "id": "a6",
+              "name": "slackChannel",
+              "type": "string",
+              "value": "#competitive"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "apify",
+      "name": "Read the ad library",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        460
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~meta-ads-library-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ searchTerms: $json.searchTerms.split(',').map(s => s.trim()), country: $json.country, maxResults: $json.maxResults, activeStatus: 'active' }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "flt",
+      "name": "Keep ads with copy to read",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        780,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ (($json.adBody || $json.body || $json.text || \"\").toString().length) > 60 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "dedupe",
+      "name": "Skip ads already read",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1040,
+        460
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 100000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.adArchiveId || $json.id || ($json.adBody || \"\").toString().slice(0, 80) }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sample",
+      "name": "Sample ads for testing",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        760
+      ],
+      "parameters": {
+        "jsCode": "// Five real-shaped ads so \"Manual Test\" produces a finished brief before you connect anything.\n// Delete this node once the scheduled path works, or keep it to re-test after editing the rules.\nreturn [\n  { json: { adBody: 'Get 60% off your first box. Free delivery, cancel anytime. Chef-designed meals in 15 minutes.' } },\n  { json: { adBody: 'Limited time: 50% off your first 2 boxes. No commitment, skip any week. Ready in 20 minutes.' } },\n  { json: { adBody: 'Save $90 across your first month. Free shipping on every box. Dinner done in under 15 minutes.' } },\n  { json: { adBody: 'Tired of deciding what to cook? 40% off to start. Cancel whenever. Meals in 15 minutes flat.' } },\n  { json: { adBody: 'Your first box is free. Just pay shipping. Skip a week anytime, no questions, no commitment.' } },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "analyse",
+      "name": "Count what repeats",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// What forty advertisers keep saying is a fact you can count. No model needed, and no API key.\n// Three passes: the offer shapes (regex), the phrases that recur, and the promises they make.\nconst STOP = new Set(['the','and','you','your','for','with','get','our','are','all','new','now','from','that','this','out','off','has','have','can','will','was','not','but','how','why','who','its','it\\'s','a','i','to','in','of','on','is','at','be','or','we','us','my','me','do','if','so','up','no','yes','more','most','just','only','than','then','into','over','when','what','they','their','them','there','here','also','any','one','two']);\n\nconst ads = [];\nfor (const item of $input.all()) {\n  const copy = String(item.json.adBody || item.json.body || item.json.text || item.json.description || '').replace(/\\s+/g, ' ').trim();\n  if (copy) ads.push(copy);\n}\nif (!ads.length) return [];\n\n// 1. Offer shapes — the concrete thing being given away.\nconst OFFERS = [\n  ['percentage discount', /\\b(\\d{1,2})\\s*%\\s*(off|discount)/gi],\n  ['money off', /\\b(save|off)\\s*[$£€]\\s?\\d+/gi],\n  ['free item', /\\bfree\\s+(box|trial|delivery|shipping|month|week|gift|sample)/gi],\n  ['first-order hook', /\\bfirst\\s+(box|order|month|week|purchase)/gi],\n  ['no commitment', /\\b(cancel anytime|no commitment|skip any|cancel whenever|no contract)/gi],\n  ['speed claim', /\\b\\d{1,3}\\s*(minute|min|second)s?\\b/gi],\n  ['urgency', /\\b(limited time|today only|ends (soon|tonight|friday)|last chance|while stocks)/gi],\n];\nconst offers = [];\nfor (const [label, re] of OFFERS) {\n  let n = 0;\n  const examples = [];\n  for (const ad of ads) {\n    const m = ad.match(re);\n    if (m) { n += 1; if (examples.length < 2) examples.push(m[0]); }\n  }\n  if (n) offers.push({ offer: label, adsUsingIt: n, share: Math.round((n / ads.length) * 100), examples });\n}\noffers.sort((a, b) => b.adsUsingIt - a.adsUsingIt);\n\n// 2. Phrases that recur across DIFFERENT ads — two- and three-word runs, counted once per ad so one\n// repetitive advertiser cannot manufacture a trend on its own.\nconst phraseAds = new Map();\nfor (const ad of ads) {\n  const words = ad.toLowerCase().replace(/[^a-z0-9$%\\s]/g, ' ').split(/\\s+/).filter(Boolean);\n  const seen = new Set();\n  for (let n = 2; n <= 3; n += 1) {\n    for (let i = 0; i + n <= words.length; i += 1) {\n      const run = words.slice(i, i + n);\n      if (run.every((w) => STOP.has(w))) continue;\n      seen.add(run.join(' '));\n    }\n  }\n  for (const p of seen) phraseAds.set(p, (phraseAds.get(p) || 0) + 1);\n}\nconst cfg = $('Who you are watching').first()?.json || {};\nconst floor = Math.max(2, Number(cfg.minRepeats) || 3);\nconst phrases = [...phraseAds.entries()]\n  .filter(([, n]) => n >= floor)\n  .sort((a, b) => b[1] - a[1] || b[0].length - a[0].length)\n  .slice(0, 12)\n  .map(([phrase, n]) => ({ phrase, adsUsingIt: n }));\n\nreturn [{ json: { adsRead: ads.length, offers, phrases, openingLines: ads.map((a) => a.split(/[.!?]/)[0].trim()).filter(Boolean).slice(0, 8) } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "brief",
+      "name": "Write the brief row",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1560,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// One flat row per week, so a year of these is a readable sheet rather than nested JSON.\nconst d = $json;\nconst pct = (o) => o.offer + ' (' + o.share + '% of ads)';\nreturn [{\n  json: {\n    week: new Date().toISOString().slice(0, 10),\n    ads_read: d.adsRead,\n    top_offers: (d.offers || []).slice(0, 4).map(pct).join(' · ') || 'none detected',\n    offer_examples: (d.offers || []).slice(0, 4).flatMap((o) => o.examples).join(' | '),\n    recurring_phrases: (d.phrases || []).map((p) => p.phrase + ' (' + p.adsUsingIt + ')').join(' · ') || 'nothing repeated above the floor',\n    opening_lines: (d.openingLines || []).join('\\n'),\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "out",
+      "name": "Save the weekly brief",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1820,
+        560
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "opt-tt",
+      "name": "Optional: read TikTok hooks instead",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        1220
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~tiktok-hashtag-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ hashtags: $json.hashtags.split(',').map(s => s.trim()), resultsPerPage: $json.maxResults }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "opt-slack",
+      "name": "Optional: post the brief to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        900,
+        1220
+      ],
+      "parameters": {
+        "text": "=*Creative brief — {{ $json.week }}*\n{{ $json.ads_read }} ads read\n\n*Offers:* {{ $json.top_offers }}\n*Phrases:* {{ $json.recurring_phrases }}",
+        "select": "channel",
+        "channelId": "={{ $('Who you are watching').first().json.slackChannel }}",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "opt-notion",
+      "name": "Optional: file the brief in Notion",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        1280,
+        1220
+      ],
+      "parameters": {
+        "title": "=Creative brief {{ $json.week }}",
+        "options": {},
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Offers|rich_text",
+              "textContent": "={{ $json.top_offers }}"
+            },
+            {
+              "key": "Phrases|rich_text",
+              "textContent": "={{ $json.recurring_phrases }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "st0",
+      "name": "Sticky Note s0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 1. Two ways in\n\nManual Test runs the sample ads below so you see a finished brief before connecting anything. The schedule is the real weekly run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st1",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 2. Who you are watching\n\nSearch terms, country, and `minRepeats` — how many different ads must share a phrase before it counts as a pattern."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st2",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 3. Read the ads\n\nCurrently-running ads for those terms. Swap in TikTok below to study organic hooks instead."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st3",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 4. Drop the thin ones\n\nUnder 60 characters of copy has nothing to take apart."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st4",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 5. Skip repeats\n\nAds read in an earlier week never come round again."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st5",
+      "name": "Sticky Note s5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 6. Count what repeats\n\nOffer shapes by pattern, and the two- and three-word phrases that appear across different ads. Counted once per ad, so one repetitive advertiser cannot fake a trend."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st6",
+      "name": "Sticky Note s6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 7. Write the row\n\nFlattens the counts into one row, so a year of briefs stays a readable sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st7",
+      "name": "Sticky Note s7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1780,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 8. Save it\n\nOne row per week. The drift over a quarter is the useful part, not any single week."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-opt",
+      "name": "Sticky Note optional",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        1040
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1080,
+        "height": 151,
+        "content": "## Optional — swap the source, or add a destination\n\nWired to nothing on purpose. Put **TikTok** in place of \"Read the ad library\" to study organic hooks rather than paid ads, or hang **Slack** and **Notion** off the last step."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-desc",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        40
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1560,
+        "content": "## Turn a week of competitor ads into one creative brief with Apify and Google Sheets\n\nReads the ads your competitors are running, counts the offers and phrases that keep coming back, and writes one row a week. No AI model and no OpenAI key — what forty advertisers keep saying is something you count, not something you ask about.\n\n**Who is this for?**\nAnyone writing ads or landing pages who has opened the Meta ad library, scrolled forty ads, and closed it again none the wiser.\n\n**What problem is this workflow solving?**\nLooking at competitor ads one at a time tells you nothing, and forty in a spreadsheet is worse — it looks like research and never gets read. The pattern is what is useful: six lead with a percentage discount, nine promise \"cancel anytime\", four use the phrase \"in 15 minutes\".\n\n**What this workflow does**\n- Pulls the ads currently running for your search terms.\n- Skips anything with too little copy, and anything read in an earlier week.\n- Detects offer shapes by pattern: discounts, free items, first-order hooks, no-commitment, speed claims, urgency.\n- Counts two- and three-word phrases that appear across *different* ads, so one repetitive advertiser cannot manufacture a trend.\n- Writes one flat row per week.\n\n**Setup**\n1. Add an Apify credential and a Google Sheets credential.\n2. Click **Manual Test** first — it runs the sample ads and produces a brief with nothing configured.\n3. Set `searchTerms` and `country`, then pick your sheet in the last node.\n4. Tune `minRepeats`: 3 is a sensible floor, 2 on a small market, 5 on a noisy one.\n\n**Requirements**\nAn Apify account and API token, and a Google Sheet you can append to. No OpenAI key.\n\n**How to customize this workflow to your needs**\n\nThree nodes sit below the main row, wired to nothing on purpose — **TikTok** in place of the ad library to study organic hooks, **Slack** or **Notion** hung off the end if a spreadsheet is not where your team looks.\n\nThe offer patterns live in \"Count what repeats\" as a plain list of regexes. That is the part worth your time: a market that sells on guarantees rather than discounts needs its own rules, and adding one is a single line.\n\n**Good to know**\nThis finds what advertisers *say*, not what works — the library shows no spend or performance, so a phrase used by nine advertisers may be nine people copying each other. It also only sees ads running now, so a brief built in January says nothing about Black Friday. Run it weekly; the archive is the useful part."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Manual Test": {
+      "main": [
+        [
+          {
+            "node": "Sample ads for testing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday at 9": {
+      "main": [
+        [
+          {
+            "node": "Who you are watching",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count what repeats": {
+      "main": [
+        [
+          {
+            "node": "Write the brief row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the ad library": {
+      "main": [
+        [
+          {
+            "node": "Keep ads with copy to read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the brief row": {
+      "main": [
+        [
+          {
+            "node": "Save the weekly brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Who you are watching": {
+      "main": [
+        [
+          {
+            "node": "Read the ad library",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip ads already read": {
+      "main": [
+        [
+          {
+            "node": "Count what repeats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sample ads for testing": {
+      "main": [
+        [
+          {
+            "node": "Count what repeats",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep ads with copy to read": {
+      "main": [
+        [
+          {
+            "node": "Skip ads already read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Turn weekly competitor ads into one creative brief with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18965,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# addresses : 16
+# addresses : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |13929|[13929_Look_up_contact_details_and_addresses_from_names_using_ScraperCity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13929_Look_up_contact_details_and_addresses_from_names_using_ScraperCity.json)|
 |14568|[14568_Validate_addresses_and_generate_Street_View_images_with_Google_Maps_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14568_Validate_addresses_and_generate_Street_View_images_with_Google_Maps_and_Drive.json)|
 |15344|[15344_Validate_bulk_email_addresses_in_Google_Sheets_with_Verify_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15344_Validate_bulk_email_addresses_in_Google_Sheets_with_Verify_Email.json)|
+|18978|[18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json)|

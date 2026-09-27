@@ -1,4 +1,4 @@
-# folder : 27
+# folder : 31
 
 |id|file|
 |----|----|
@@ -29,3 +29,7 @@
 |13896|[13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json)|
 |15249|[15249_Watermark_images_between_Google_Drive_source_and_destination_folders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15249_Watermark_images_between_Google_Drive_source_and_destination_folders.json)|
 |15456|[15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json)|
+|17205|[17205_Save_starred_Gmail_emails_as_Markdown_notes_in_an_Obsidian_Google_Drive_folder.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17205_Save_starred_Gmail_emails_as_Markdown_notes_in_an_Obsidian_Google_Drive_folder.json)|
+|17680|[17680_Bulk_import_local_PDF_and_text_files_into_an_Open_Notebook_notebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17680_Bulk_import_local_PDF_and_text_files_into_an_Open_Notebook_notebook.json)|
+|17710|[17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json)|
+|19415|[19415_Create_client_folders_from_n8n_form_submissions_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19415_Create_client_folders_from_n8n_form_submissions_in_Google_Drive.json)|

@@ -1,4 +1,4 @@
-# tips : 5
+# tips : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |9714|[9714_Send_Weekly_Personalized_Pet_Health_Tips_with_GPT-4o-mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9714_Send_Weekly_Personalized_Pet_Health_Tips_with_GPT-4o-mini__Gmail_and_Google_Sheets.json)|
 |13195|[13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13195_Search_Slack_for_n8n_templates_with_OpenAI_tips__Google_Sheets_cache_and_weekly_analytics.json)|
 |13564|[13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13564_Analyze_YouTube_video_SEO_and_get_optimization_tips_with_Gemini_AI__Sheets__Slack__and_Gmail.json)|
+|16968|[16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json)|
+|17087|[17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json)|

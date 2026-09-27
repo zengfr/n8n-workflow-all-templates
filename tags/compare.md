@@ -1,4 +1,4 @@
-# compare : 30
+# compare : 34
 
 |id|file|
 |----|----|
@@ -32,3 +32,7 @@
 |15039|[15039_Compare_physical_vs_digital_24K_gold_costs_and_returns_with_GoldAPI__IBJA__Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15039_Compare_physical_vs_digital_24K_gold_costs_and_returns_with_GoldAPI__IBJA__Groq_and_Google_Sheets.json)|
 |15072|[15072_Compare_proposals_and_analyze_gaps_for_Salesforce_CRM_with_Groq_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15072_Compare_proposals_and_analyze_gaps_for_Salesforce_CRM_with_Groq_AI.json)|
 |15472|[15472_Compare_rental_estimates_from_Zillow__HUD_FMR_and_Rentometer_with_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15472_Compare_rental_estimates_from_Zillow__HUD_FMR_and_Rentometer_with_GPT-4.1.json)|
+|17283|[17283_Generate_and_compare_marketing_content_with_GPT__Claude__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17283_Generate_and_compare_marketing_content_with_GPT__Claude__Gemini__and_Google_Sheets.json)|
+|18152|[18152_Compare_Amazon_prices_with_Google_Shopping_using_Bright_Data__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18152_Compare_Amazon_prices_with_Google_Shopping_using_Bright_Data__OpenAI_and_Slack.json)|
+|18665|[18665_Track_weekly_Pinterest_keyword_trends_with_Apify__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18665_Track_weekly_Pinterest_keyword_trends_with_Apify__Google_Sheets__and_Slack.json)|
+|19091|[19091_Compare_iOS_and_Android_review_complaints_with_Apify__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19091_Compare_iOS_and_Android_review_complaints_with_Apify__OpenAI_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# qualified : 17
+# qualified : 23
 
 |id|file|
 |----|----|
@@ -19,3 +19,9 @@
 |15279|[15279_Score_and_route_BANT-qualified_leads_using_Gemini__Gmail__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15279_Score_and_route_BANT-qualified_leads_using_Gemini__Gmail__Google_Sheets_and_Telegram.json)|
 |15378|[15378_Scrape_LinkedIn_hiring_posts_with_Apify_and_save_qualified_leads_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15378_Scrape_LinkedIn_hiring_posts_with_Apify_and_save_qualified_leads_to_Google_Sheets.json)|
 |16672|[16672_Qualify_open_house_leads_and_send_AI_follow-ups_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16672_Qualify_open_house_leads_and_send_AI_follow-ups_with_Google_Sheets_and_Gmail.json)|
+|17081|[17081_Qualify_voicemail_leads_with_Twilio__Google_Gemini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17081_Qualify_voicemail_leads_with_Twilio__Google_Gemini__Gmail_and_Google_Sheets.json)|
+|17104|[17104_Send_purchase_conversions_from_Bitrix24_deals_to_Google_Ads_using_offline_click_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17104_Send_purchase_conversions_from_Bitrix24_deals_to_Google_Ads_using_offline_click_tracking.json)|
+|17258|[17258_Qualify_Facebook_lead_ads_and_send_follow-ups_with_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17258_Qualify_Facebook_lead_ads_and_send_follow-ups_with_Gemini__Gmail__and_Sheets.json)|
+|17487|[17487_Upload_qualified_Bitrix24_lead_conversions_to_Google_Ads.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17487_Upload_qualified_Bitrix24_lead_conversions_to_Google_Ads.json)|
+|18123|[18123_Capture_social_DMs_with_purchase_intent_using_FanBase__Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18123_Capture_social_DMs_with_purchase_intent_using_FanBase__Apify_and_Google_Sheets.json)|
+|18314|[18314_Qualify_Lusha_leads_and_send_AI_emails_with_Google_Sheets_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18314_Qualify_Lusha_leads_and_send_AI_emails_with_Google_Sheets_and_Claude.json)|

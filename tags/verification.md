@@ -1,4 +1,4 @@
-# verification : 54
+# verification : 62
 
 |id|file|
 |----|----|
@@ -56,3 +56,11 @@
 |14694|[14694_Orchestrate_credit_onboarding_checks_with_GPT-4o__KYC_APIs__Gmail__Slack_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14694_Orchestrate_credit_onboarding_checks_with_GPT-4o__KYC_APIs__Gmail__Slack_and_Airtable.json)|
 |16241|[16241_Verify_Australian_supplier_ABNs_with_ABR__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16241_Verify_Australian_supplier_ABNs_with_ABR__Google_Sheets_and_Gmail.json)|
 |16389|[16389_Verify_receipts_and_invoices_with_OpenAI_vision__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16389_Verify_receipts_and_invoices_with_OpenAI_vision__Slack_and_Google_Sheets.json)|
+|16877|[16877_Verify_customs_shipping_documents_with_GPT-4o-mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16877_Verify_customs_shipping_documents_with_GPT-4o-mini__Gmail_and_Slack.json)|
+|17435|[17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json)|
+|17492|[17492_Notify_new_Zivvy_CRM_leads_in_Slack_with_HMAC_signature_verification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17492_Notify_new_Zivvy_CRM_leads_in_Slack_with_HMAC_signature_verification.json)|
+|17605|[17605_Verify_onboarding_compliance_documents_with_OpenAI__Google_Sheets__Telegram__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17605_Verify_onboarding_compliance_documents_with_OpenAI__Google_Sheets__Telegram__and_Slack.json)|
+|17695|[17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json)|
+|17894|[17894_Verify_tax_IDs_in_PDF_uploads_with_Groq__Google_Sheets__Lovable__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17894_Verify_tax_IDs_in_PDF_uploads_with_Groq__Google_Sheets__Lovable__and_Gmail.json)|
+|18436|[18436_Verify_single_or_bulk_emails_with_Searchbug__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18436_Verify_single_or_bulk_emails_with_Searchbug__Google_Sheets__and_Slack.json)|
+|19674|[19674_Track_tenant_reference_requests_with_forms__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19674_Track_tenant_reference_requests_with_forms__Gmail__and_Google_Sheets.json)|

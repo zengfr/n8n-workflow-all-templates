@@ -1,0 +1,440 @@
+{
+  "name": "Monitor contractor licences and alert 30 days before expiry",
+  "nodes": [
+    {
+      "id": "b2000000-0000-4000-8000-000000000001",
+      "name": "Every Monday 06:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -760,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000002",
+      "name": "Your roster",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -520,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Your book of contractors. Replace with Google Sheets -> Get rows, Airtable, Postgres, a CRM.\n//\n// `known_status` is what you recorded last time. Leave it blank on the first run - everything\n// simply reads as new information rather than as a change.\n//\n// These five rows are real licences, chosen so one lands in each outcome.\nreturn [\n  { json: { company: 'BENITEZ, MICHAEL', state: 'FL', license_number: 'CGC1522906',\n            known_status: 'Current,Active' } },\n  { json: { company: 'CONSTRUCTION SERVICES', state: 'CA', license_number: '691876',\n            known_status: 'This license is current and active.' } },\n  { json: { company: 'SMITH PLUMBING SERVICE', state: 'CA', license_number: '1111665',\n            known_status: 'This license is current and active.' } },\n  { json: { company: 'CONSTRUCTION', state: 'NV', license_number: '',\n            known_status: 'Active' } },\n  { json: { company: 'ACME BUILDERS', state: 'ND', license_number: '',\n            known_status: '' } },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000003",
+      "name": "Route by state",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// state -> { actor, field }\n// `field` matters: these actors do NOT share one input name.\nconst ACTORS = {\n  AL: { actor: 'scrapebench~alabama-contractor-license-lookup',        field: 'query' },\n  AR: { actor: 'scrapebench~arkansas-contractor-license-lookup',       field: 'query' },\n  CA: { actor: 'scrapebench~california-contractor-license-lookup',     field: 'query' },\n  CT: { actor: 'scrapebench~multistate-contractor-license-lookup',     field: 'query', extra: { states: ['CT'] } },\n  FL: { actor: 'scrapebench~florida-contractor-license-lookup',        field: 'query' },\n  MA: { actor: 'scrapebench~massachusetts-construction-license-lookup', field: 'query' },\n  MI: { actor: 'scrapebench~michigan-contractor-license-lookup',       field: 'query' },\n  MN: { actor: 'scrapebench~minnesota-contractor-license-lookup',      field: 'query' },\n  NC: { actor: 'scrapebench~north-carolina-contractor-license-lookup', field: 'query' },\n  NM: { actor: 'scrapebench~new-mexico-contractor-license-lookup',     field: 'businessName' },\n  NV: { actor: 'scrapebench~nevada-contractor-license-lookup',         field: 'query' },\n  OR: { actor: 'scrapebench~oregon-contractor-license-lookup',         field: 'query' },\n  SC: { actor: 'scrapebench~south-carolina-contractor-license-lookup', field: 'lastName' },\n  TN: { actor: 'scrapebench~tennessee-contractor-license-lookup',      field: 'query' },\n  TX: { actor: 'scrapebench~texas-contractor-license-lookup',          field: 'query' },\n  VA: { actor: 'scrapebench~virginia-contractor-license-lookup',       field: 'nameFilter' },\n  WA: { actor: 'scrapebench~washington-contractor-license-lookup',     field: 'query' },\n};\n\nreturn $input.all().map((item) => {\n  const lead = item.json;\n  const state = String(lead.state || '').trim().toUpperCase();\n  const cfg = ACTORS[state];\n\n  if (!cfg) {\n    // Not covered. Pass it through labelled - never drop it, never call it unlicensed.\n    return { json: { ...lead, covered: false, verification_status: 'unverifiable - state not covered' } };\n  }\n\n  // Prefer an exact licence number when the row has one; otherwise search the name.\n  // `includeDetails` matters here: expiry lives on the detail tier, not the summary row.\n  const term = String(lead.license_number || '').trim() || String(lead.company || '').trim();\n  const input = { [cfg.field]: term, maxResults: 5, includeDetails: true, ...(cfg.extra || {}) };\n\n  return { json: { ...lead, covered: true, actorId: cfg.actor, actorInput: JSON.stringify(input) } };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000004",
+      "name": "Covered state?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -40,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.covered }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000005",
+      "name": "Look up the licence",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "onError": "continueRegularOutput",
+      "position": [
+        200,
+        -120
+      ],
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.actorId }}"
+        },
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ $json.actorInput }}"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000006",
+      "name": "Not covered - keep the row",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        200,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "u1",
+              "name": "alert_tier",
+              "type": "string",
+              "value": "not-covered"
+            },
+            {
+              "id": "u2",
+              "name": "headline",
+              "type": "string",
+              "value": "State not covered - checked nothing"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000007",
+      "name": "Classify each licence",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        -120
+      ],
+      "parameters": {
+        "jsCode": "// Pair each returned licence back to the roster row that asked for it, then decide whether\n// anything changed that a human needs to see.\n//\n// Tiers, worst first. `check-failed` is the one that matters most: a monitor that goes quiet\n// when the lookup breaks is worse than no monitor, because silence reads as \"all fine\".\nconst WARN_DAYS = 30;\n\nconst norm = (s) => String(s || '').toLowerCase().replace(/[^a-z0-9]/g, '');\n\n// State portals publish dates in whatever format they like. Accept the common ones and, when a\n// date can't be read, say so rather than silently treating it as \"not expiring\".\nfunction parseDate(v) {\n  const s = String(v || '').trim();\n  if (!s) return null;\n  let m = s.match(/^(\\d{1,2})[\\/\\-](\\d{1,2})[\\/\\-](\\d{4})$/);      // 10/17/2026\n  if (m) return new Date(Date.UTC(+m[3], +m[1] - 1, +m[2]));\n  m = s.match(/^(\\d{4})-(\\d{2})-(\\d{2})/);                          // 2026-10-17\n  if (m) return new Date(Date.UTC(+m[1], +m[2] - 1, +m[3]));\n  const d = new Date(s);\n  return isNaN(d.getTime()) ? null : d;\n}\n\nconst today = new Date();\nconst roster = $('Route by state').all().map((i) => i.json).filter((r) => r.covered);\n\n// Group the returned rows by the roster row that asked for them, using n8n's paired-item link\n// rather than re-matching on name. Matching on name alone silently loses states whose summary\n// row carries no name at all - Nevada returns a licence with `business_name` and `person_name`\n// both null, which read as \"no match at the portal\" while a revoked licence sat in the result.\nconst byRow = {};\nfor (const item of $input.all()) {\n  const p = item.pairedItem;\n  const idx = typeof p === 'number' ? p : Array.isArray(p) ? p[0]?.item : p?.item;\n  (byRow[idx ?? 0] = byRow[idx ?? 0] || []).push(item.json);\n}\n\nconst out = [];\nfor (let i = 0; i < roster.length; i++) {\n  const row = roster[i];\n  const returned = byRow[i] || [];\n  // The Apify node continues on error, so a failed lookup arrives as a row carrying `error`\n  // instead of licence data. \"We could not check\" is not \"the portal has no record\".\n  const failureNote = returned.find((r) => r.error) ? String(returned.find((r) => r.error).error) : null;\n  const rows = returned.filter((r) => !r.error && (r.license_number || r.status));\n\n  const wanted = String(row.license_number || '').trim();\n  let hits = [];\n  if (wanted) {\n    hits = rows.filter((r) => String(r.license_number || '').trim().toUpperCase() === wanted.toUpperCase());\n  } else {\n    const a = norm(row.company);\n    hits = rows.filter((r) => {\n      const b = norm(r.business_name || r.company_name || r.person_name);\n      return a && b && (a === b || b.includes(a) || a.includes(b));\n    });\n    // Nothing name-matched, but the portal did answer this row. One answer is that row's answer;\n    // several is genuinely ambiguous and goes to a human rather than being guessed at.\n    if (!hits.length && rows.length === 1) hits = rows;\n  }\n\n  const base = { company: row.company, state: row.state, license_number: row.license_number || null };\n\n  if (!hits.length && rows.length > 1) {\n    out.push({ json: { ...base, alert_tier: 'ambiguous',\n                       headline: `${rows.length} licences matched that name - pick one by hand`,\n                       detail: 'Add the licence number to this roster row to make the check exact.' } });\n    continue;\n  }\n\n  if (!hits.length) {\n    if (failureNote) {\n      // The lookup itself broke - bad token, actor failure, timeout. We know nothing about this\n      // licence. Never let this pass as fine, and never dress it up as a portal result.\n      out.push({ json: { ...base, alert_tier: 'check-failed',\n                         headline: 'Lookup failed - this licence was NOT checked',\n                         detail: failureNote } });\n    } else {\n      // The lookup ran fine and the portal had no match. Different thing, different message.\n      out.push({ json: { ...base, alert_tier: 'not-found',\n                         headline: 'No match at the state portal',\n                         detail: 'Not proof of anything: contractors are routinely licensed under a legal name that differs from the name on your roster.' } });\n    }\n    continue;\n  }\n\n  const hit = hits[0];\n  const status = hit.status ?? null;\n  const expiry = hit.expiration_date ?? null;\n  const exp = parseDate(expiry);\n  const days = exp ? Math.ceil((exp - today) / 86400000) : null;\n  // Order matters: the negative list is checked FIRST. \"This license is inactive\" contains the\n  // substring \"active\", so a naive /active|current/ test reports a dead licence as healthy.\n  const st = String(status || '').toLowerCase();\n  const bad = /(inactive|expired|suspend|revoked|cancel|void|delinquent|lapsed|not renewed)/.test(st);\n  const active = !bad && /(active|current|valid|good standing)/.test(st);\n\n  const known = String(row.known_status || '').trim();\n  const statusChanged = known && norm(known) !== norm(status);\n\n  let tier, headline;\n  if (exp && days < 0) {\n    tier = 'expired';\n    headline = `Licence expired ${Math.abs(days)} day(s) ago (${expiry})`;\n  } else if (statusChanged || !active) {\n    tier = 'status-change';\n    headline = known ? `Status changed: ${known} -> ${status}` : `Status is ${status || 'unknown'}`;\n  } else if (exp && days <= WARN_DAYS) {\n    tier = 'expiring';\n    headline = `Expires in ${days} day(s) (${expiry})`;\n  } else if (!exp) {\n    // Not every state publishes an expiry. Say that plainly instead of implying \"no expiry = fine\".\n    tier = 'no-expiry-published';\n    headline = 'This state does not publish an expiry date for this licence';\n  } else {\n    tier = 'ok';\n    headline = `Active, expires ${expiry} (${days} days)`;\n  }\n\n  out.push({ json: { ...base, alert_tier: tier, headline,\n                     license_status: status, license_expiry: expiry, days_to_expiry: days,\n                     matched_name: hit.business_name ?? hit.person_name ?? null,\n                     source_url: hit.source_url ?? null } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000008",
+      "name": "Anything to report?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        680,
+        -120
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a1",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.alert_tier }}",
+              "rightValue": "ok"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000009",
+      "name": "Build the digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        920,
+        -220
+      ],
+      "parameters": {
+        "jsCode": "// One message, grouped worst-first. A monitor that sends one alert per row trains people to\n// mute it, and a muted monitor is the same as no monitor.\nconst ORDER = ['expired', 'status-change', 'expiring', 'check-failed', 'ambiguous', 'not-found', 'no-expiry-published'];\nconst LABEL = {\n  'expired': ':red_circle: EXPIRED',\n  'status-change': ':large_orange_circle: STATUS CHANGED',\n  'expiring': ':warning: EXPIRING WITHIN 30 DAYS',\n  'check-failed': ':rotating_light: COULD NOT CHECK (lookup failed)',\n  'ambiguous': ':grey_question: SEVERAL LICENCES MATCH',\n  'not-found': ':grey_question: NO MATCH AT THE PORTAL',\n  'no-expiry-published': ':information_source: NO EXPIRY PUBLISHED',\n};\n\nconst rows = $input.all().map((i) => i.json);\nconst lines = [`*Contractor licence check* - ${rows.length} item(s) need attention`];\n\nfor (const tier of ORDER) {\n  const group = rows.filter((r) => r.alert_tier === tier);\n  if (!group.length) continue;\n  lines.push('', `${LABEL[tier]}  (${group.length})`);\n  for (const r of group) {\n    const where = r.source_url ? ` <${r.source_url}|portal>` : '';\n    lines.push(`- *${r.company}* (${r.state}) - ${r.headline}${where}`);\n  }\n}\n\nreturn [{ json: { text: lines.join('\\n'), alert_count: rows.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000010",
+      "name": "Send the digest to Slack",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Disabled so the template runs on import without a Slack credential. Add your Slack account, pick a channel, then enable.",
+      "disabled": true,
+      "position": [
+        1160,
+        -220
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#compliance"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000011",
+      "name": "Nothing to report",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        920,
+        -20
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000101",
+      "name": "Sticky: overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1660,
+        -640
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 680,
+        "height": 2040,
+        "content": "## Monitor contractor licences and get a Slack alert 30 days before one expires\n\n![Workflow overview](https://scrapebench.dev/img/n8n/license-expiration-monitor/canvas.png)\n\n> **Self-hosted only.** This template uses the `@apify/n8n-nodes-apify` community node, which cannot be installed on n8n Cloud.\n\n### Who's it for\nAnyone who keeps a standing list of contractors rather than a one-off list: insurance agents with a book of contractor clients, general contractors managing an approved-sub list, property managers with a vendor roster, marketplace ops teams admitting trade accounts.\n\nThe failure mode this fixes is finding out about a lapsed licence at the worst possible moment - at claim time, at audit, or when a sub is already on site.\n\n### What it does\nEvery Monday it re-checks each contractor on your roster against that state's licensing board and sends **one** Slack digest, grouped worst-first:\n\n- `EXPIRED` - the licence lapsed\n- `STATUS CHANGED` - it is no longer what you recorded (revoked, suspended, inactive)\n- `EXPIRING` - it lapses within 30 days\n- `COULD NOT CHECK` - the lookup itself failed, so that licence was **not** checked\n- `SEVERAL LICENCES MATCH` - the name hit more than one licence, so nothing is guessed\n- `NO MATCH AT THE PORTAL` - the lookup ran and the board had no record for that name\n- `NO EXPIRY PUBLISHED` - that state does not publish an expiry for this licence\n\nRows that are active and not expiring produce no message at all. `COULD NOT CHECK` exists on purpose: a monitor that goes quiet when a lookup breaks is worse than no monitor, because silence reads as \"everything is fine\".\n\nCovers 17 states: AL, AR, CA, CT, FL, MA, MI, MN, NC, NM, NV, OR, SC, TN, TX, VA, WA. Contractors in the other 33 are passed through labelled, never dropped and never reported as unlicensed.\n\n### How to set up\n1. Install the `@apify/n8n-nodes-apify` community node.\n2. Add your Apify API key as an Apify credential on the **Look up the licence** node.\n3. Replace the **Your roster** node with your own source - Google Sheets, Airtable, Postgres, a CRM. Each row needs `company` and a 2-letter `state`; `license_number` is optional and makes the lookup exact.\n4. Add your Slack credential to **Send the digest to Slack**, pick a channel, and enable the node. It ships disabled so the workflow runs on import without one.\n\n### Requirements\n- An Apify account and API token (the lookups cost about $0.004 each)\n- A Slack credential, if you want the digest delivered\n- Self-hosted n8n (community node)\n\n### How to customize\n- **Change the warning window:** `WARN_DAYS` at the top of **Classify each licence**.\n- **Change the cadence:** the Schedule Trigger. Daily costs seven times as much as weekly; the data changes slowly, so weekly is usually the right trade.\n- **Add a state:** one row in the `ACTORS` map in **Route by state**.\n- **Send it somewhere else:** swap the Slack node for email, Teams, or a webhook - it is handed one preformatted `text` field.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000102",
+      "name": "Sticky: roster",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 340,
+        "height": 500,
+        "content": "## 1. Your roster\nSwap this for **Google Sheets -> Get rows**, Airtable, Postgres, or your CRM.\n\nEach row needs:\n- `company` - the business or licensee name\n- `state` - 2-letter code\n\n`license_number` is optional and makes the lookup exact.\n\n`known_status` is what you recorded last time. Blank on the first run is fine - it just means nothing reads as *changed* yet.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000103",
+      "name": "Sticky: routing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -460,
+        -700
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 480,
+        "content": "## 2. Route each row to its state's board\nOne Code node instead of a 17-way Switch. It maps the state to the right Apify actor **and** to that actor's own input field - they are not uniform:\n\n- most take `query`\n- New Mexico takes `businessName`\n- South Carolina takes `lastName`\n- Virginia takes `nameFilter`\n- Connecticut goes through the multi-state actor\n\nIt also asks for `includeDetails`, because the expiry date lives on the detail record, not the summary row.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000104",
+      "name": "Sticky: uncovered",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 320,
+        "content": "## 3. Uncovered states pass through\nA contractor outside the 17 covered states is labelled and kept.\n\nNever dropped, never reported as unlicensed. \"We didn't look\" is not the same as \"they aren't licensed\".\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000105",
+      "name": "Sticky: classify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -760
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 560,
+        "content": "## 4. What changed since last time\nSeven outcomes, worst first. Two of them are the point of the template:\n\n**COULD NOT CHECK** - the lookup itself failed, so nothing was verified. Kept separate from **NO MATCH AT THE PORTAL**, where the lookup worked and the board simply had no record. A monitor that goes silent when it breaks is worse than no monitor, and one that reports a breakage as a portal result is worse still.\n\n**NO EXPIRY PUBLISHED** - not every state publishes one. That is stated plainly instead of being treated as \"not expiring\".\n\n`WARN_DAYS` sets the 30-day window.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2000000-0000-4000-8000-000000000106",
+      "name": "Sticky: digest",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        -580
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 340,
+        "content": "## 5. One message, not twenty\nRows that are active and not expiring never reach here - a quiet week is silence, not an empty digest.\n\nThe Slack node ships **disabled** so this template runs on import without a Slack credential. Add yours, pick a channel, enable it.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Your roster": {
+      "main": [
+        [
+          {
+            "node": "Route by state",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Covered state?": {
+      "main": [
+        [
+          {
+            "node": "Look up the licence",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Not covered - keep the row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by state": {
+      "main": [
+        [
+          {
+            "node": "Covered state?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the digest": {
+      "main": [
+        [
+          {
+            "node": "Send the digest to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 06:00": {
+      "main": [
+        [
+          {
+            "node": "Your roster",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything to report?": {
+      "main": [
+        [
+          {
+            "node": "Build the digest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nothing to report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look up the licence": {
+      "main": [
+        [
+          {
+            "node": "Classify each licence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify each licence": {
+      "main": [
+        [
+          {
+            "node": "Anything to report?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Monitor contractor licences weekly and send Slack digests with Apify",
+    "wechat": "youandme10086",
+    "id": 17393,
+    "update_time": "2026-09-27"
+  }
+}

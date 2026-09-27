@@ -1,4 +1,4 @@
-# extraction : 61
+# extraction : 71
 
 |id|file|
 |----|----|
@@ -63,3 +63,13 @@
 |15460|[15460_Turn_ecommerce_product_URLs_into_leads_with_Google_Sheets_and_MrScraper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15460_Turn_ecommerce_product_URLs_into_leads_with_Google_Sheets_and_MrScraper.json)|
 |15896|[15896_Extract_meeting_decisions_and_tasks_with_Outlook__GPT-4o__SharePoint__and_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15896_Extract_meeting_decisions_and_tasks_with_Outlook__GPT-4o__SharePoint__and_To_Do.json)|
 |15995|[15995_Extract_and_self-correct_meeting_action_items_with_OpenRouter_and_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15995_Extract_and_self-correct_meeting_action_items_with_OpenRouter_and_webhooks.json)|
+|16870|[16870_Review_contract_risk_and_rewrite_clauses_with_Groq__Google_Drive__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16870_Review_contract_risk_and_rewrite_clauses_with_Groq__Google_Drive__Notion__and_Slack.json)|
+|17065|[17065_Extract_Twilio_voice_donation_details_with_Groq__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17065_Extract_Twilio_voice_donation_details_with_Groq__Gemini__and_Google_Sheets.json)|
+|17599|[17599_Triage_RFQ_emails_and_draft_quote_replies_with_Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17599_Triage_RFQ_emails_and_draft_quote_replies_with_Gmail_and_OpenAI.json)|
+|17919|[17919_Extract_invoice_data_from_PDFs_with_Claude_and_a_Google_Sheets_review_queue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17919_Extract_invoice_data_from_PDFs_with_Claude_and_a_Google_Sheets_review_queue.json)|
+|18294|[18294_Approve_invoices_with_Claude_vision__Google_Drive__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18294_Approve_invoices_with_Claude_vision__Google_Drive__and_Google_Sheets.json)|
+|18432|[18432_Monitor_competitor_prices_with_OpenAI__Google_Sheets__Slack__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18432_Monitor_competitor_prices_with_OpenAI__Google_Sheets__Slack__and_Notion.json)|
+|18862|[18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json)|
+|18863|[18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json)|
+|18984|[18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json)|
+|19722|[19722_Verify_contract_extraction_and_flag_hallucinated_fields_with_Judgment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19722_Verify_contract_extraction_and_flag_hallucinated_fields_with_Judgment_API.json)|

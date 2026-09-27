@@ -1,4 +1,4 @@
-# assets : 12
+# assets : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |15278|[15278_Manage_portfolio_assets_via_webhook_with_Google_Sheets_and_real-time_totals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15278_Manage_portfolio_assets_via_webhook_with_Google_Sheets_and_real-time_totals.json)|
 |15327|[15327_Generate_monthly_AI_SEO_content_with_Gemini_for_WordPress__LinkedIn_and_socials.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15327_Generate_monthly_AI_SEO_content_with_Gemini_for_WordPress__LinkedIn_and_socials.json)|
 |16400|[16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json)|
+|17025|[17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json)|
+|17320|[17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json)|
+|19645|[19645_Generate_catalog_concept_PNGs_with_OpenAI_gpt-image-1_and_CSV_manifests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19645_Generate_catalog_concept_PNGs_with_OpenAI_gpt-image-1_and_CSV_manifests.json)|
+|19687|[19687_Find_missing_client_assets_with_Google_Sheets__Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19687_Find_missing_client_assets_with_Google_Sheets__Drive__and_Gmail.json)|

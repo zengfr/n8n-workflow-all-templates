@@ -1,4 +1,4 @@
-# categorize : 23
+# categorize : 24
 
 |id|file|
 |----|----|
@@ -25,3 +25,4 @@
 |12671|[12671_Route_and_categorize_Gmail_emails_to_Slack_with_Llama_3_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12671_Route_and_categorize_Gmail_emails_to_Slack_with_Llama_3_via_OpenRouter.json)|
 |15094|[15094_Categorize_meetings_and_log_time_with_Fireflies__GPT-4o-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15094_Categorize_meetings_and_log_time_with_Fireflies__GPT-4o-mini__and_Google_Sheets.json)|
 |16592|[16592_Categorize_emails_and_draft_Gmail_replies_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16592_Categorize_emails_and_draft_Gmail_replies_with_Groq_and_Google_Sheets.json)|
+|19392|[19392_Process_and_forecast_AP_invoices_from_Gmail_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19392_Process_and_forecast_AP_invoices_from_Gmail_with_OpenAI_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# triggered : 6
+# triggered : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |8364|[8364_Form-Triggered_Instagram_Video_Downloads_to_Google_Drive_with_Sheets_Logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8364_Form-Triggered_Instagram_Video_Downloads_to_Google_Drive_with_Sheets_Logging.json)|
 |12056|[12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12056_Automate_Odoo-triggered_Redmine___GitLab_account_creation_with_Slack_notifications.json)|
 |12159|[12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json)|
+|19066|[19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json)|

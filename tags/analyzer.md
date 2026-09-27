@@ -1,4 +1,4 @@
-# analyzer : 65
+# analyzer : 71
 
 |id|file|
 |----|----|
@@ -67,3 +67,9 @@
 |16443|[16443_Send_portfolio_risk_reports_with_Google_Sheets__GPT-4o-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16443_Send_portfolio_risk_reports_with_Google_Sheets__GPT-4o-mini_and_Gmail.json)|
 |16566|[16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json)|
 |16622|[16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json)|
+|16869|[16869_Send_weekly_Salesforce_sales_behavior_coaching_reports_with_Groq_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16869_Send_weekly_Salesforce_sales_behavior_coaching_reports_with_Groq_and_Gmail.json)|
+|17114|[17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json)|
+|17452|[17452_Analyze_contract_risk_and_red_flags_with_OpenAI_from_a_web_form.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17452_Analyze_contract_risk_and_red_flags_with_OpenAI_from_a_web_form.json)|
+|18347|[18347_Analyze_pentest_reports_and_create_remediation_tickets_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18347_Analyze_pentest_reports_and_create_remediation_tickets_with_OpenAI_and_Slack.json)|
+|19135|[19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json)|
+|19259|[19259_Manage_mobile_canary_rollouts_with_Anthropic_Claude_and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19259_Manage_mobile_canary_rollouts_with_Anthropic_Claude_and_WhatsApp_alerts.json)|

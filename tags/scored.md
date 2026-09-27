@@ -1,4 +1,4 @@
-# scored : 5
+# scored : 13
 
 |id|file|
 |----|----|
@@ -7,3 +7,11 @@
 |11924|[11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11924_Generate_scored_B2B_leads_from_Google_Maps_websites_to_Google_Sheets.json)|
 |13466|[13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13466_Run_AI-scored_cold_email_outreach_and_follow-ups_with_Ollama_and_Gmail.json)|
 |16296|[16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json)|
+|17257|[17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json)|
+|17303|[17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json)|
+|17346|[17346_Qualify_inbound_leads_with_Gemini_and_send_scored_summaries_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17346_Qualify_inbound_leads_with_Gemini_and_send_scored_summaries_to_Telegram.json)|
+|17912|[17912_Audit_landing_page_SEO_with_GPT-5_and_send_Gmail_reports_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17912_Audit_landing_page_SEO_with_GPT-5_and_send_Gmail_reports_to_Google_Sheets.json)|
+|18428|[18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json)|
+|18648|[18648_Send_a_scored_daily_jobs_digest_from_Apify_Hirebase_to_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18648_Send_a_scored_daily_jobs_digest_from_Apify_Hirebase_to_Slack_and_Gmail.json)|
+|18660|[18660_Score_ATS_job_postings_with_OpenAI_and_send_alerts_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18660_Score_ATS_job_postings_with_OpenAI_and_send_alerts_to_Slack_and_Google_Sheets.json)|
+|18876|[18876_Score_funding_newsletter_leads_from_Gmail_with_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18876_Score_funding_newsletter_leads_from_Gmail_with_Bright_Data_and_GPT-5.6.json)|

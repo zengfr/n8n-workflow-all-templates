@@ -1,0 +1,951 @@
+{
+  "name": "Protect APIs with a Circuit Breaker and Data Tables",
+  "nodes": [
+    {
+      "id": "20e71ff7-5825-4262-a42f-cf4118754c74",
+      "name": "Overview Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2200,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 896,
+        "content": "## Protect downstream APIs with a circuit breaker using Data Tables\n\n### How it works\n\nThis workflow implements a reusable circuit breaker for downstream APIs. A check webhook loads the current service state and decides whether a request is allowed. Closed circuits allow traffic, open circuits block calls during a cooldown, and an elapsed cooldown allows one half-open trial. A second webhook records each allowed call as a success or failure. Consecutive failures open the circuit, while a successful call resets the failure counter and closes it.\n\n### Setup steps\n\n- Create an n8n Data Table named `service_circuits`.\n- Add the fields listed in the **Persist circuit state** section.\n- Select that table in all five Data Table nodes.\n- Set `failure_threshold` and `cooldown_minutes` in **Configure Circuit Breaker**.\n- Publish the workflow.\n- Call `/webhook/circuit-breaker-check` before the downstream API.\n- Continue only when `allow_request` is `true`.\n- Report the outcome to `/webhook/circuit-breaker-result`.\n\n### Requirements\n\nn8n with Data Tables enabled. No external credentials or paid services are required."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9e98050d-1acc-44ea-b1e1-10c4329d94bf",
+      "name": "Check API Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 336,
+        "content": "## Check circuit availability\n\nReceives a service key and normalizes the request before evaluating whether the downstream API call should be allowed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c37cb65-63ec-4418-9d93-9790084efb2c",
+      "name": "Result API Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 336,
+        "content": "## Report the API outcome\n\nReceives the result of an allowed downstream call and normalizes its success flag and optional error message."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "63153fc5-f485-4981-9e3f-867bd8508f83",
+      "name": "Configuration Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1152,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 352,
+        "content": "## Configure and route requests\n\nLoads the shared failure threshold and cooldown settings, then routes check and result requests to the correct processing branch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4df8b79f-a7fe-4a4a-8b77-b6887d10488d",
+      "name": "Data Table Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -704,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 480,
+        "content": "## Evaluate circuit state\n\nLoads the service record, evaluates closed, open, and half-open states, and decides whether to allow, block, or start a trial request."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe0f84a5-6279-4229-aa87-aab33ed85b87",
+      "name": "State Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 672,
+        "height": 688,
+        "content": "## Persist check decisions\n\nCreates new circuit records, stores the transition to half-open for a recovery trial, and formats the final allow-or-block response."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d294ff67-d824-4b20-92a6-13729d55cc89",
+      "name": "Check Circuit Request",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1552,
+        304
+      ],
+      "webhookId": "circuit-breaker-check-v1",
+      "parameters": {
+        "path": "circuit-breaker-check",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a5b3d099-fc4e-45e9-bc32-823161e7b90f",
+      "name": "Report Service Result",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1552,
+        960
+      ],
+      "webhookId": "circuit-breaker-result-v1",
+      "parameters": {
+        "path": "circuit-breaker-result",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "6a328555-c393-427f-b960-91ed361557ce",
+      "name": "Normalize Check",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1328,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nif (!body.service_key || String(body.service_key).trim() === '') {\n  throw new Error('service_key is required');\n}\n\nreturn [{\n  json: {\n    request_type: 'check',\n    service_key: String(body.service_key).trim(),\n    now: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "71614ddd-8cab-44af-8c19-2877409800a1",
+      "name": "Normalize Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1328,
+        960
+      ],
+      "parameters": {
+        "jsCode": "const body = $json.body ?? $json;\n\nif (!body.service_key || String(body.service_key).trim() === '') {\n  throw new Error('service_key is required');\n}\n\nconst validBoolean =\n  body.success === true ||\n  body.success === false ||\n  body.success === 'true' ||\n  body.success === 'false';\n\nif (!validBoolean) {\n  throw new Error('success must be true or false');\n}\n\nreturn [{\n  json: {\n    request_type: 'result',\n    service_key: String(body.service_key).trim(),\n    success: body.success === true || body.success === 'true',\n    error: body.error ? String(body.error) : '',\n    now: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bf6ca4ba-8c46-461c-98d3-0fa06ec5b2fc",
+      "name": "Configure Circuit Breaker",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1104,
+        608
+      ],
+      "parameters": {
+        "jsCode": "const config = {\n  failure_threshold: 3,\n  cooldown_minutes: 5\n};\n\nif (\n  !Number.isInteger(config.failure_threshold) ||\n  config.failure_threshold < 1\n) {\n  throw new Error('failure_threshold must be a positive integer');\n}\n\nif (\n  !Number.isFinite(config.cooldown_minutes) ||\n  config.cooldown_minutes <= 0\n) {\n  throw new Error('cooldown_minutes must be greater than zero');\n}\n\nreturn [{ json: { ...$json, config } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4df3118-d14b-44dc-af51-70003d8796de",
+      "name": "Route Circuit Request",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -880,
+        608
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Check",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "21f87214-273b-457e-a775-c6965177df67",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "check"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Result",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "8aa8a8ec-3f20-4f45-8f3d-c5f8f3760ba6",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.request_type }}",
+                    "rightValue": "result"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "1623395c-7aaa-4665-8624-a1d4e9caa82f",
+      "name": "Get Circuit for Check",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -656,
+        336
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "service_key",
+              "keyValue": "={{ $('Configure Circuit Breaker').item.json.service_key }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "service_circuits"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "1862f674-eb7a-4891-a6f6-106484138ae4",
+      "name": "Get Circuit for Result",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -656,
+        976
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "service_key",
+              "keyValue": "={{ $('Configure Circuit Breaker').item.json.service_key }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "service_circuits"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "fc692b83-07ff-4588-98c5-2bf91899250b",
+      "name": "Evaluate Circuit",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -432,
+        336
+      ],
+      "parameters": {
+        "jsCode": "const input = $('Configure Circuit Breaker').first().json;\nconst circuit = $json;\nconst now = new Date(input.now);\nconst threshold = Number(\n  circuit.failure_threshold || input.config.failure_threshold\n);\n\nif (!circuit.service_key) {\n  return [{\n    json: {\n      route: 'create',\n      service_key: input.service_key,\n      state: 'closed',\n      allow_request: true,\n      action: 'allow_request',\n      failure_count: 0,\n      failure_threshold: threshold,\n      opened_at: null,\n      open_until: null,\n      last_checked_at: now.toISOString(),\n      last_success_at: null,\n      last_failure_at: null,\n      last_error: '',\n      retry_after_seconds: 0\n    }\n  }];\n}\n\nconst state = circuit.state || 'closed';\n\nif (state === 'closed') {\n  return [{\n    json: {\n      route: 'respond',\n      ...circuit,\n      state: 'closed',\n      allow_request: true,\n      action: 'allow_request',\n      retry_after_seconds: 0\n    }\n  }];\n}\n\nif (state === 'half_open') {\n  return [{\n    json: {\n      route: 'respond',\n      ...circuit,\n      state: 'half_open',\n      allow_request: false,\n      action: 'trial_in_progress',\n      retry_after_seconds: 0\n    }\n  }];\n}\n\nif (state !== 'open') {\n  throw new Error('Unsupported circuit state: ' + state);\n}\n\nconst openUntil = circuit.open_until\n  ? new Date(circuit.open_until)\n  : null;\nconst validOpenUntil =\n  openUntil && !Number.isNaN(openUntil.getTime());\n\nif (validOpenUntil && openUntil > now) {\n  return [{\n    json: {\n      route: 'respond',\n      ...circuit,\n      state: 'open',\n      allow_request: false,\n      action: 'circuit_open',\n      retry_after_seconds: Math.ceil(\n        (openUntil.getTime() - now.getTime()) / 1000\n      )\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    route: 'half_open',\n    ...circuit,\n    state: 'half_open',\n    allow_request: true,\n    action: 'trial_request',\n    last_checked_at: now.toISOString(),\n    retry_after_seconds: 0\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "22fc504f-d604-4f78-af0b-ddd6865fd19b",
+      "name": "Route Check Decision",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -208,
+        336
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "New Circuit",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "97d00112-d599-4ecb-8064-6a409be8886c",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "create"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Start Trial",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "bcb21ad6-6d89-450e-8ad3-a70ebccfab61",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "half_open"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Respond",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "cf1c7a67-a288-4b1b-9094-92f87ec7c093",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.route }}",
+                    "rightValue": "respond"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "e1d8ddb2-2482-47a6-82e0-5496a44783e0",
+      "name": "Create Circuit Record",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        16,
+        176
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "state": "={{ $('Evaluate Circuit').item.json.state }}",
+            "opened_at": "={{ $('Evaluate Circuit').item.json.opened_at }}",
+            "last_error": "={{ $('Evaluate Circuit').item.json.last_error }}",
+            "open_until": "={{ $('Evaluate Circuit').item.json.open_until }}",
+            "service_key": "={{ $('Evaluate Circuit').item.json.service_key }}",
+            "failure_count": "={{ $('Evaluate Circuit').item.json.failure_count }}",
+            "last_checked_at": "={{ $('Evaluate Circuit').item.json.last_checked_at }}",
+            "last_failure_at": "={{ $('Evaluate Circuit').item.json.last_failure_at }}",
+            "last_success_at": "={{ $('Evaluate Circuit').item.json.last_success_at }}",
+            "failure_threshold": "={{ $('Evaluate Circuit').item.json.failure_threshold }}"
+          },
+          "schema": [
+            {
+              "id": "service_key",
+              "type": "string",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "service_key",
+              "defaultMatch": false
+            },
+            {
+              "id": "state",
+              "type": "string",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "state",
+              "defaultMatch": false
+            },
+            {
+              "id": "failure_count",
+              "type": "number",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "failure_count",
+              "defaultMatch": false
+            },
+            {
+              "id": "failure_threshold",
+              "type": "number",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "failure_threshold",
+              "defaultMatch": false
+            },
+            {
+              "id": "opened_at",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "opened_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "open_until",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "open_until",
+              "defaultMatch": false
+            },
+            {
+              "id": "last_checked_at",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "last_checked_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "last_success_at",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "last_success_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "last_failure_at",
+              "type": "dateTime",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "last_failure_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "last_error",
+              "type": "string",
+              "display": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "last_error",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "service_circuits"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3bb81f11-634c-4f0f-839f-e0787039ee98",
+      "name": "Start Half Open Trial",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        16,
+        368
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "state": "={{ $('Evaluate Circuit').item.json.state }}",
+            "last_checked_at": "={{ $('Evaluate Circuit').item.json.last_checked_at }}"
+          },
+          "schema": [
+            {
+              "id": "state",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "state",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_checked_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_checked_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "service_key",
+              "keyValue": "={{ $('Evaluate Circuit').item.json.service_key }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "service_circuits"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6a44b912-7df7-487f-bfd4-2a5e95592275",
+      "name": "Build Check Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        288,
+        368
+      ],
+      "parameters": {
+        "jsCode": "const decision = $('Evaluate Circuit').first().json;\n\nreturn [{\n  json: {\n    service_key: decision.service_key,\n    state: decision.state,\n    allow_request: decision.allow_request,\n    action: decision.action,\n    failure_count: Number(decision.failure_count || 0),\n    failure_threshold: Number(decision.failure_threshold || 0),\n    open_until: decision.open_until ?? null,\n    retry_after_seconds: Number(\n      decision.retry_after_seconds || 0\n    )\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e6782b87-888b-4f08-99bb-84ba20ac01e6",
+      "name": "Apply Service Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -432,
+        976
+      ],
+      "parameters": {
+        "jsCode": "const input = $('Configure Circuit Breaker').first().json;\nconst circuit = $json;\n\nif (!circuit.service_key) {\n  throw new Error(\n    'No circuit found. Call the check endpoint before reporting a result.'\n  );\n}\n\nconst now = new Date(input.now);\nconst threshold = Number(\n  circuit.failure_threshold || input.config.failure_threshold\n);\n\nif (input.success) {\n  return [{\n    json: {\n      service_key: circuit.service_key,\n      action: 'circuit_closed',\n      state: 'closed',\n      failure_count: 0,\n      failure_threshold: threshold,\n      opened_at: null,\n      open_until: null,\n      last_checked_at: circuit.last_checked_at ?? now.toISOString(),\n      last_success_at: now.toISOString(),\n      last_failure_at: circuit.last_failure_at ?? null,\n      last_error: ''\n    }\n  }];\n}\n\nconst failureCount = Number(circuit.failure_count || 0) + 1;\nconst shouldOpen =\n  circuit.state === 'half_open' ||\n  failureCount >= threshold;\n\nreturn [{\n  json: {\n    service_key: circuit.service_key,\n    action: shouldOpen ? 'circuit_opened' : 'failure_recorded',\n    state: shouldOpen ? 'open' : 'closed',\n    failure_count: failureCount,\n    failure_threshold: threshold,\n    opened_at: shouldOpen ? now.toISOString() : null,\n    open_until: shouldOpen\n      ? new Date(\n          now.getTime() +\n          Number(input.config.cooldown_minutes) * 60 * 1000\n        ).toISOString()\n      : null,\n    last_checked_at: circuit.last_checked_at ?? now.toISOString(),\n    last_success_at: circuit.last_success_at ?? null,\n    last_failure_at: now.toISOString(),\n    last_error: input.error\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c24ef758-a44b-4d12-a85a-b3aed6c1b714",
+      "name": "Update Circuit State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -208,
+        976
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "state": "={{ $('Apply Service Result').item.json.state }}",
+            "opened_at": "={{ $('Apply Service Result').item.json.opened_at }}",
+            "last_error": "={{ $('Apply Service Result').item.json.last_error }}",
+            "open_until": "={{ $('Apply Service Result').item.json.open_until }}",
+            "failure_count": "={{ $('Apply Service Result').item.json.failure_count }}",
+            "last_checked_at": "={{ $('Apply Service Result').item.json.last_checked_at }}",
+            "last_failure_at": "={{ $('Apply Service Result').item.json.last_failure_at }}",
+            "last_success_at": "={{ $('Apply Service Result').item.json.last_success_at }}",
+            "failure_threshold": "={{ $('Apply Service Result').item.json.failure_threshold }}"
+          },
+          "schema": [
+            {
+              "id": "state",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "state",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "failure_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "failure_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "failure_threshold",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "failure_threshold",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "opened_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "opened_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "open_until",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "open_until",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_checked_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_checked_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_success_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_success_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_failure_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_failure_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_error",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_error",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "service_key",
+              "keyValue": "={{ $('Apply Service Result').item.json.service_key }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "service_circuits"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ec68e71b-de3b-4226-ad78-381f0faedc8e",
+      "name": "Build Result Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        16,
+        976
+      ],
+      "parameters": {
+        "jsCode": "const state = $('Apply Service Result').first().json;\n\nreturn [{\n  json: {\n    ok: true,\n    service_key: state.service_key,\n    state: state.state,\n    action: state.action,\n    failure_count: state.failure_count,\n    failure_threshold: state.failure_threshold,\n    open_until: state.open_until,\n    last_error: state.last_error\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4184f468-976e-486b-a242-f53517c54772",
+      "name": "Apply Results Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -704,
+        832
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 896,
+        "height": 304,
+        "content": "## Apply service results\n\nLoads the circuit for a reported API result, applies success or failure rules, persists the updated counters and state, and returns the new circuit status."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Normalize Check": {
+      "main": [
+        [
+          {
+            "node": "Configure Circuit Breaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Circuit": {
+      "main": [
+        [
+          {
+            "node": "Route Check Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Result": {
+      "main": [
+        [
+          {
+            "node": "Configure Circuit Breaker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Service Result": {
+      "main": [
+        [
+          {
+            "node": "Update Circuit State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Check Decision": {
+      "main": [
+        [
+          {
+            "node": "Create Circuit Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start Half Open Trial",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Check Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Circuit State": {
+      "main": [
+        [
+          {
+            "node": "Build Result Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Circuit Request": {
+      "main": [
+        [
+          {
+            "node": "Normalize Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Circuit Record": {
+      "main": [
+        [
+          {
+            "node": "Build Check Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Circuit for Check": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Circuit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report Service Result": {
+      "main": [
+        [
+          {
+            "node": "Normalize Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Circuit Request": {
+      "main": [
+        [
+          {
+            "node": "Get Circuit for Check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Circuit for Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Half Open Trial": {
+      "main": [
+        [
+          {
+            "node": "Build Check Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Circuit for Result": {
+      "main": [
+        [
+          {
+            "node": "Apply Service Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure Circuit Breaker": {
+      "main": [
+        [
+          {
+            "node": "Route Circuit Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Protect downstream APIs with a circuit breaker using Data Tables",
+    "wechat": "youandme10086",
+    "id": 19163,
+    "update_time": "2026-09-27"
+  }
+}

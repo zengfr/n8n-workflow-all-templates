@@ -1,4 +1,4 @@
-# reusable : 7
+# reusable : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |14863|[14863_Upload_images_to_Webflow_via_API_as_a_reusable_sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14863_Upload_images_to_Webflow_via_API_as_a_reusable_sub-workflow.json)|
 |15347|[15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json)|
 |15459|[15459_Handle_API_retries_with_exponential_backoff__jitter__Slack_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15459_Handle_API_retries_with_exponential_backoff__jitter__Slack_and_email_alerts.json)|
+|18120|[18120_Summarise_reusable_text_blocks_with_Google_Gemini_from_any_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18120_Summarise_reusable_text_blocks_with_Google_Gemini_from_any_workflow.json)|
+|19499|[19499_Redact_personal_data_from_any_item_with_data_tables__audit_log_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19499_Redact_personal_data_from_any_item_with_data_tables__audit_log_and_Discord.json)|

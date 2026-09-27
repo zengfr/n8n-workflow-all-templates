@@ -1,4 +1,4 @@
-# dates : 9
+# dates : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |13211|[13211_Track_domain_expiry_dates_with_Google_Sheets_and_WHOIS_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13211_Track_domain_expiry_dates_with_Google_Sheets_and_WHOIS_API.json)|
 |15073|[15073_Predict_deal_close_dates_and_update_Salesforce_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15073_Predict_deal_close_dates_and_update_Salesforce_with_Groq_and_Google_Sheets.json)|
 |16474|[16474_Sync_check_due_dates_from_Google_Sheets_to_Google_Calendar_with_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16474_Sync_check_due_dates_from_Google_Sheets_to_Google_Calendar_with_Telegram_alerts.json)|
+|17269|[17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json)|
+|17983|[17983_Validate_staff_certifications_for_upcoming_sessions_with_Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17983_Validate_staff_certifications_for_upcoming_sessions_with_Google_Calendar_and_Slack.json)|
+|18832|[18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json)|
+|18927|[18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json)|

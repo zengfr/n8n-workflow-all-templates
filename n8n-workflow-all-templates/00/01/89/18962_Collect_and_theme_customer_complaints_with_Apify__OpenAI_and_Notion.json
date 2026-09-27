@@ -1,0 +1,589 @@
+{
+  "name": "Collect public customer complaints into one themed Notion board with Apify and OpenAI",
+  "nodes": [
+    {
+      "id": "trig",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfg",
+      "name": "What to listen for",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "product",
+              "type": "string",
+              "value": "project management tools"
+            },
+            {
+              "id": "c2",
+              "name": "query",
+              "type": "string",
+              "value": "switching away from"
+            },
+            {
+              "id": "c3",
+              "name": "subreddit",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "c4",
+              "name": "maxItems",
+              "type": "number",
+              "value": 60
+            },
+            {
+              "id": "c5",
+              "name": "minSeverity",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "c6",
+              "name": "productUrls",
+              "type": "string",
+              "value": "https://www.g2.com/products/asana/reviews"
+            },
+            {
+              "id": "c7",
+              "name": "appIds",
+              "type": "string",
+              "value": "com.spotify.music"
+            },
+            {
+              "id": "c8",
+              "name": "slackChannel",
+              "type": "string",
+              "value": "#voice-of-customer"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "src",
+      "name": "Read Reddit",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        520
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~reddit-search-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ query: $json.query, subreddit: $json.subreddit || undefined, sort: 'top', time: 'month', maxItems: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "flt",
+      "name": "Keep posts with something to read",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ (($json.text || $json.body || $json.content || $json.title || \"\").toString().length) > 80 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "dedupe",
+      "name": "Skip ones already logged",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 100000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.id || $json.url || $json.reviewId || ($json.title || \"\").toString().slice(0, 80) }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "llm",
+      "name": "Pull the complaint out",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1300,
+        520
+      ],
+      "parameters": {
+        "text": "=Someone works on: {{ $('What to listen for').item.json.product }}\n\nBelow is one public post or review. Decide whether it contains a real complaint about a product in that space.\n\nText: {{ ($json.text || $json.body || $json.content || $json.title || '').toString().slice(0, 3000) }}\n\nReturn ONLY valid JSON, no code fence, with these keys:\n\"is_complaint\": true or false. False for praise, questions, and anything that is not about a product.\n\"theme\": two or three words naming what they are unhappy with, lower case, e.g. \"mobile app speed\", \"pricing changes\", \"support response time\". Use \"none\" when is_complaint is false.\n\"quote\": the sentence that carries the complaint, copied verbatim from the text, or \"\" when there is none. Do not paraphrase.\n\"severity\": 1 to 5. 1 is a passing grumble, 5 is \"we are leaving because of this\".\n\"switching\": true only if they say they are leaving or have already left.",
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "model",
+      "name": "OpenAI chat model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1300,
+        740
+      ],
+      "parameters": {
+        "model": {
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "norm",
+      "name": "Normalise and drop the noise",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1560,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// The model returns a theme in whatever words it chose. Left alone that gives you forty themes\n// for the same eight problems, which is the reason \"listen to customers\" boards get abandoned.\n// This lower-cases, trims, folds a few obvious synonyms, and drops anything that is not a\n// complaint or is below the severity you set. Edit the synonym map — it is the part that has to\n// match your product's vocabulary.\nconst cfg = $('What to listen for').first().json;\nconst SYNONYMS = {\n  'app speed': 'performance', 'slow app': 'performance', 'lag': 'performance',\n  'price': 'pricing', 'cost': 'pricing', 'expensive': 'pricing', 'price increase': 'pricing',\n  'support': 'support', 'customer service': 'support', 'help desk': 'support',\n  'bugs': 'reliability', 'crashes': 'reliability', 'downtime': 'reliability',\n};\n\nconst out = [];\nfor (const item of $input.all()) {\n  let parsed;\n  try { parsed = JSON.parse(item.json.text); }\n  catch (e) { continue; }            // a model that returned prose is skipped, not guessed at\n\n  if (!parsed.is_complaint) continue;\n  const severity = Number(parsed.severity) || 0;\n  if (severity < Number(cfg.minSeverity || 0)) continue;\n\n  let theme = String(parsed.theme || '').toLowerCase().trim();\n  for (const [needle, canonical] of Object.entries(SYNONYMS)) {\n    if (theme.includes(needle)) { theme = canonical; break; }\n  }\n\n  out.push({\n    json: {\n      theme,\n      severity,\n      switching: parsed.switching === true,\n      quote: String(parsed.quote || '').trim(),\n      source: 'reddit',\n      product: cfg.product,\n    },\n  });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "notion",
+      "name": "Add it to the complaints board",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        1820,
+        520
+      ],
+      "parameters": {
+        "title": "={{ $json.theme }}",
+        "options": {},
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Quote|rich_text",
+              "textContent": "={{ $json.quote }}"
+            },
+            {
+              "key": "Severity|number",
+              "numberValue": "={{ $json.severity }}"
+            },
+            {
+              "key": "Source|rich_text",
+              "textContent": "={{ $json.source }}"
+            },
+            {
+              "key": "Leaving|checkbox",
+              "checkboxValue": "={{ $json.switching }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "opt-g2",
+      "name": "Optional: read G2 reviews instead",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        1120
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~g2-reviews-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ productUrls: $json.productUrls.split(',').map(s => s.trim()), maxReviewsPerProduct: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "opt-play",
+      "name": "Optional: read Google Play reviews instead",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        820,
+        1120
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~google-play-reviews-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ appIds: $json.appIds.split(',').map(s => s.trim()), country: 'us', sort: 'newest', maxReviewsPerApp: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "opt-slack",
+      "name": "Optional: shout about the severe ones",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1180,
+        1120
+      ],
+      "parameters": {
+        "text": "=*{{ $json.theme }}* — severity {{ $json.severity }}/5{{ $json.switching ? \" · they are leaving\" : \"\" }}\n\n> {{ $json.quote }}\n\nSeen on {{ $json.source }}",
+        "select": "channel",
+        "channelId": "={{ $('What to listen for').first().json.slackChannel }}",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "opt-sheets",
+      "name": "Optional: log to Google Sheets instead",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1480,
+        1120
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "st0",
+      "name": "Sticky Note s0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 1. Schedule\n\nWeekly on Monday morning. Complaints are a trend, not an alert — daily just gives you noise."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st1",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 2. What to listen for\n\nThe product space, the phrase to search, and the severity floor. `minSeverity` 3 keeps real problems; 1 keeps every grumble."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st2",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 3. Read the source\n\nReddit by default. Two other sources sit below, ready to swap in."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st3",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 4. Drop the thin ones\n\nAnything under 80 characters cannot carry a complaint worth logging."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st4",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 5. Skip repeats\n\nPosts already logged in an earlier run never come round again."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st5",
+      "name": "Sticky Note s5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 6. Pull the complaint out\n\nAsks for the theme, a verbatim quote, a severity and whether they are leaving. It is told to copy the sentence, not paraphrase it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st6",
+      "name": "Sticky Note s6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 7. Tidy the themes\n\nFolds \"app speed\" and \"lag\" into one theme so the board groups. The synonym list is plain JavaScript — make it match your vocabulary."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st7",
+      "name": "Sticky Note s7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1780,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 8. File it\n\nOne row per complaint on a Notion board. Swap in Sheets below if you would rather."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-opt",
+      "name": "Sticky Note optional",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        940
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1240,
+        "height": 151,
+        "content": "## Optional — swap the source, or add a destination\n\nThese are wired to nothing on purpose. Put **G2** or **Google Play** in place of \"Read Reddit\" to watch a different place your customers complain, or hang **Slack** and **Sheets** off the end. Change the `source` field in the Code node to match whichever you connect."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-desc",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        40
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1702,
+        "content": "## Turn public complaints into one themed board with Apify, OpenAI and Notion\n\nYour customers already say what is wrong with your product. They just say it on Reddit, on G2 and in app store reviews rather than to you. This reads one of those places, pulls the complaint out of each post, folds the wording into consistent themes, and files it.\n\n**Who is this for?**\nAnyone who owns a product and has no idea what the recurring complaints actually are, because the evidence is spread over three sites nobody reads on a Monday.\n\n**What problem is this workflow solving?**\nSentiment scores tell you people are unhappy, not what about. And a raw feed of reviews is unreadable within a week: the same eight problems arrive worded forty different ways, so nothing groups and the board gets abandoned.\n\n**What this workflow does**\n- Searches the place you pick for people talking about your product space.\n- Drops posts too short to carry a complaint, and anything already logged.\n- Asks a model whether there is a real complaint, and for a verbatim quote rather than a summary.\n- Folds the theme wording into consistent buckets and drops anything below your severity floor.\n- Writes one row per complaint, with the quote, the theme, the severity and whether they said they are leaving.\n\n**Setup**\n1. Add an Apify credential, an OpenAI credential and a Notion credential.\n2. Make a Notion database with Quote, Severity, Source and Leaving columns, and pick it in the last node.\n3. Set `product` and `query` in \"What to listen for\". The query is the phrase people use when they complain, not your brand name — \"switching away from\" finds more than your own product name does.\n4. Set `minSeverity`. 3 keeps real problems, 1 keeps every grumble.\n\n**Requirements**\nAn Apify account and API token, an OpenAI API key, and a Notion database you can add pages to.\n\n**How to customize this workflow to your needs**\n\nFour nodes sit below the main row, wired to nothing on purpose:\n\n- **G2 reviews** — put this in place of \"Read Reddit\" to watch review-site complaints instead.\n- **Google Play reviews** — same swap, for a mobile product.\n- **Slack** — hang it off the end to shout about anything severe.\n- **Google Sheets** — use it instead of Notion.\n\nThe synonym map in \"Tidy the themes\" is the part worth your time. It ships with generic buckets — performance, pricing, support, reliability — and it will not know your product's vocabulary until you tell it.\n\n**Good to know**\nThe model is asked to copy the complaining sentence verbatim and to return \"none\" when a post is praise or a question. It still gets it wrong sometimes, and a quote that reads oddly is usually a post that was never a complaint. The severity floor is the lever for that — raise it and the board gets shorter and truer."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Read Reddit": {
+      "main": [
+        [
+          {
+            "node": "Keep posts with something to read",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI chat model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Pull the complaint out",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "What to listen for": {
+      "main": [
+        [
+          {
+            "node": "Read Reddit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "What to listen for",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull the complaint out": {
+      "main": [
+        [
+          {
+            "node": "Normalise and drop the noise",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip ones already logged": {
+      "main": [
+        [
+          {
+            "node": "Pull the complaint out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise and drop the noise": {
+      "main": [
+        [
+          {
+            "node": "Add it to the complaints board",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep posts with something to read": {
+      "main": [
+        [
+          {
+            "node": "Skip ones already logged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Collect and theme customer complaints with Apify, OpenAI and Notion",
+    "wechat": "youandme10086",
+    "id": 18962,
+    "update_time": "2026-09-27"
+  }
+}

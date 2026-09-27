@@ -1,4 +1,4 @@
-# tally : 17
+# tally : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |15058|[15058_Generate_blog_drafts_from_Tally_content_briefs_with_OpenAI_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15058_Generate_blog_drafts_from_Tally_content_briefs_with_OpenAI_and_Google_Docs.json)|
 |15059|[15059_Score_inbound_B2B_leads_with_OpenAI_GPT-5.4_using_Tally_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15059_Score_inbound_B2B_leads_with_OpenAI_GPT-5.4_using_Tally_and_Google_Sheets.json)|
 |16170|[16170_Generate_freelance_proposal_PDFs_from_Tally_with_GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16170_Generate_freelance_proposal_PDFs_from_Tally_with_GPT-4o_and_Gmail.json)|
+|17649|[17649_Review_Discord_community_applications_with_Tally__OpenAI_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17649_Review_Discord_community_applications_with_Tally__OpenAI_and_Discord.json)|
+|19433|[19433_Capture_and_follow_up_on_Tally_inquiries_with_Salesforce__Sent__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19433_Capture_and_follow_up_on_Tally_inquiries_with_Salesforce__Sent__and_OpenAI.json)|

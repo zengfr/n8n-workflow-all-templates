@@ -1,4 +1,4 @@
-# selection : 6
+# selection : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |9225|[9225_Generate_Professional_Emails_with_Custom_Tones_using_OpenAI_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9225_Generate_Professional_Emails_with_Custom_Tones_using_OpenAI_GPT.json)|
 |11838|[11838_Slack_Workflow_Router__AI-Powered_Workflow_Selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11838_Slack_Workflow_Router__AI-Powered_Workflow_Selection.json)|
 |12158|[12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json)|
+|17705|[17705_Score_and_route_job_candidates_with_Mistral__Gemini__Google_Sheets__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17705_Score_and_route_job_candidates_with_Mistral__Gemini__Google_Sheets__and_Drive.json)|

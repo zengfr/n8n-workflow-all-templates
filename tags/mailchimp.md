@@ -1,4 +1,4 @@
-# mailchimp : 20
+# mailchimp : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |13225|[13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13225_Sync_CRM_contacts_with_Mailchimp_and_Pipedrive.json)|
 |13293|[13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13293_Enrich_newsletter_subscribers_with_cross-platform_social_data_and_tag_in_Mailchimp.json)|
 |15875|[15875_Sync_Mailchimp_unsubscribes_with_HubSpot_CRM__Slack__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15875_Sync_Mailchimp_unsubscribes_with_HubSpot_CRM__Slack__Google_Sheets_and_Gmail.json)|
+|18036|[18036_Send_weekly_newsletter_growth_reports_to_Slack_and_Telegram_with_Kit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18036_Send_weekly_newsletter_growth_reports_to_Slack_and_Telegram_with_Kit.json)|

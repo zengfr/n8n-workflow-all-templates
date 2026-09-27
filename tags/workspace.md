@@ -1,4 +1,4 @@
-# workspace : 47
+# workspace : 54
 
 |id|file|
 |----|----|
@@ -49,3 +49,10 @@
 |16268|[16268_Provision_new_hire_IT_accounts_with_Google_Workspace__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16268_Provision_new_hire_IT_accounts_with_Google_Workspace__Slack__and_Gmail.json)|
 |16403|[16403_Manage_employee_offboarding_with_Google_Workspace__Slack__HubSpot_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16403_Manage_employee_offboarding_with_Google_Workspace__Slack__HubSpot_and_Notion.json)|
 |16707|[16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json)|
+|17255|[17255_Check_new-hire_identity_risk_and_provision_Google_Workspace_accounts_with_RelayShield.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17255_Check_new-hire_identity_risk_and_provision_Google_Workspace_accounts_with_RelayShield.json)|
+|17260|[17260_Run_AI_employee_onboarding_with_Groq__Google_Workspace__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17260_Run_AI_employee_onboarding_with_Groq__Google_Workspace__and_Gemini.json)|
+|17560|[17560_Generate_multi-quarter_earnings_reports_with_Google_Workspace__Gemini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17560_Generate_multi-quarter_earnings_reports_with_Google_Workspace__Gemini_and_Pinecone.json)|
+|18447|[18447_Validate_supplier_onboarding_documents_with_Gemini__Gmail_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18447_Validate_supplier_onboarding_documents_with_Gemini__Gmail_and_Google_Workspace.json)|
+|18949|[18949_Route_missed_roofing_calls_to_a_Retell_AI_agent_with_Twilio_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18949_Route_missed_roofing_calls_to_a_Retell_AI_agent_with_Twilio_and_Google_Workspace.json)|
+|19472|[19472_Onboard_new_hires_with_Google_Workspace__Google_Calendar__Google_Sheets__and_Clio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19472_Onboard_new_hires_with_Google_Workspace__Google_Calendar__Google_Sheets__and_Clio.json)|
+|19476|[19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json)|

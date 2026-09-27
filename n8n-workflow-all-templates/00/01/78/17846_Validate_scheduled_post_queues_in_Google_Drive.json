@@ -1,0 +1,367 @@
+{
+  "id": "z2ti97KDxvJ7MKo9",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Validate scheduled post queues in Google Drive",
+    "wechat": "youandme10086",
+    "id": 17846,
+    "update_time": "2026-09-27"
+  },
+  "name": "Validate a Google Drive Post Queue",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "18984e36-decb-4d3e-ac4a-2fd33ac01ed2",
+      "name": "Run Validation",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "Run this manually after completing the setup steps in the yellow Start Here note.",
+      "position": [
+        1008,
+        448
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "82aba633-59b5-463f-9797-f17997519ecf",
+      "name": "List Folders in Queue",
+      "type": "n8n-nodes-base.googleDrive",
+      "notes": "Connect your Google Drive credential and select the root folder that contains the scheduled post folders.",
+      "position": [
+        1552,
+        448
+      ],
+      "parameters": {
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "list",
+            "value": "",
+            "cachedResultName": "Select your queue root folder"
+          },
+          "whatToSearch": "folders"
+        },
+        "options": {
+          "fields": [
+            "id",
+            "name"
+          ]
+        },
+        "resource": "fileFolder",
+        "returnAll": true,
+        "searchMethod": "query"
+      },
+      "notesInFlow": true,
+      "typeVersion": 3
+    },
+    {
+      "id": "8c6aab3f-1049-4241-b85b-e0d2a243a7af",
+      "name": "Parse & Validate Folder Names",
+      "type": "n8n-nodes-base.code",
+      "notes": "Checks naming format, real dates, future times, and duplicate scheduled times.",
+      "position": [
+        1984,
+        448
+      ],
+      "parameters": {
+        "jsCode": "// Reset the per-run accumulator used by the loop body.\nconst sd = $getWorkflowStaticData('global');\nsd.queueResults = [];\n\nconst cfg = $('Set Validation Rules').first().json;\nconst expectedPattern = 'yyyy-MM-dd_HHmm__label';\nconst utcOffsetMinutes = Number(cfg.utcOffsetMinutes || 0);\n\nconst folders = $input.all().map(function (item) {\n  return item.json;\n}).filter(function (folder) {\n  return folder && folder.id;\n});\n\nconst nameRe = /^(\\d{4})-(\\d{2})-(\\d{2})_(\\d{2})(\\d{2})__(.+)$/;\nconst now = Date.now();\n\nfunction isRealDate(y, mo, d, hh, mm) {\n  if (mo < 1 || mo > 12) return false;\n  if (d < 1 || d > 31) return false;\n  if (hh < 0 || hh > 23) return false;\n  if (mm < 0 || mm > 59) return false;\n\n  const dt = new Date(Date.UTC(y, mo - 1, d, hh, mm));\n  return dt.getUTCFullYear() === y\n    && dt.getUTCMonth() + 1 === mo\n    && dt.getUTCDate() === d;\n}\n\nconst parsed = folders.map(function (folder) {\n  const match = nameRe.exec(folder.name || '');\n  const record = {\n    id: folder.id,\n    name: folder.name,\n    scheduleKey: null,\n    scheduledAtUtc: null,\n    dateValid: false,\n    isFuture: false,\n    isDuplicate: false,\n    nameReasons: [],\n    warnings: [],\n  };\n\n  if (!match) {\n    record.nameReasons.push('folder name must match ' + expectedPattern);\n    return record;\n  }\n\n  const y = parseInt(match[1], 10);\n  const mo = parseInt(match[2], 10);\n  const d = parseInt(match[3], 10);\n  const hh = parseInt(match[4], 10);\n  const mm = parseInt(match[5], 10);\n\n  if (!isRealDate(y, mo, d, hh, mm)) {\n    record.nameReasons.push('folder name contains an invalid date or time');\n    return record;\n  }\n\n  record.dateValid = true;\n  record.scheduleKey = match[1] + '-' + match[2] + '-' + match[3] + '_' + match[4] + match[5];\n\n  // Convert the local time encoded in the folder name to UTC.\n  const timestamp = Date.UTC(y, mo - 1, d, hh, mm) - (utcOffsetMinutes * 60 * 1000);\n  record.scheduledAtUtc = new Date(timestamp).toISOString();\n  record.isFuture = timestamp > now;\n\n  if (!record.isFuture) {\n    record.nameReasons.push('scheduled time is not in the future');\n  }\n\n  return record;\n});\n\n// A duplicate time is a warning, not a hard failure.\nconst counts = {};\nparsed.forEach(function (record) {\n  if (record.scheduleKey) {\n    counts[record.scheduleKey] = (counts[record.scheduleKey] || 0) + 1;\n  }\n});\n\nparsed.forEach(function (record) {\n  if (record.scheduleKey && counts[record.scheduleKey] > 1) {\n    record.isDuplicate = true;\n    record.warnings.push('shares its scheduled time with another folder');\n  }\n});\n\nreturn parsed.map(function (record) {\n  return { json: record };\n});"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "70a05aca-aecc-465d-b3c7-d984c2d43b0b",
+      "name": "Generate Validation Report",
+      "type": "n8n-nodes-base.code",
+      "notes": "Produces a readable report plus structured JSON results. This workflow does not modify Drive.",
+      "position": [
+        3488,
+        448
+      ],
+      "parameters": {
+        "jsCode": "const LF = String.fromCharCode(10);\nconst sd = $getWorkflowStaticData('global');\nconst results = (sd.queueResults || []).slice();\n\nconst valid = results.filter(function (record) {\n  return record.status === 'valid';\n});\nconst warnings = results.filter(function (record) {\n  return record.status === 'warning';\n});\nconst invalid = results.filter(function (record) {\n  return record.status === 'invalid';\n});\n\nconst lines = [];\nlines.push('GOOGLE DRIVE QUEUE VALIDATION');\nlines.push('');\nlines.push('Total: ' + results.length);\nlines.push('Valid: ' + valid.length);\nlines.push('Warnings: ' + warnings.length);\nlines.push('Invalid: ' + invalid.length);\n\nif (results.length === 0) {\n  lines.push('');\n  lines.push('No queue folders were found.');\n}\n\nif (invalid.length > 0) {\n  lines.push('');\n  lines.push('INVALID');\n  invalid.forEach(function (record) {\n    lines.push(record.name);\n    lines.push('Reason: ' + record.reasons.join('; '));\n    lines.push('');\n  });\n}\n\nif (warnings.length > 0) {\n  lines.push('WARNINGS');\n  warnings.forEach(function (record) {\n    lines.push(record.name);\n    lines.push('Reason: ' + record.warnings.join('; '));\n    lines.push('');\n  });\n}\n\nif (valid.length > 0) {\n  lines.push('VALID');\n  valid.forEach(function (record) {\n    lines.push(record.name + ' (' + record.imageCount + ' image(s))');\n  });\n}\n\nreturn [{\n  json: {\n    generatedAt: new Date().toISOString(),\n    summary: {\n      valid: valid.length,\n      warnings: warnings.length,\n      invalid: invalid.length,\n      total: results.length,\n    },\n    report: lines.join(LF),\n    results: results,\n  },\n}];"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "26f093ee-b458-4a39-8c3a-918115f70a1b",
+      "name": "List Folder Contents",
+      "type": "n8n-nodes-base.googleDrive",
+      "notes": "Reads the files inside the current scheduled post folder.",
+      "position": [
+        2544,
+        448
+      ],
+      "parameters": {
+        "filter": {
+          "folderId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.id }}"
+          },
+          "whatToSearch": "all"
+        },
+        "options": {
+          "fields": [
+            "id",
+            "name",
+            "mimeType"
+          ]
+        },
+        "resource": "fileFolder",
+        "returnAll": true,
+        "searchMethod": "query"
+      },
+      "notesInFlow": true,
+      "typeVersion": 3,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6049e502-7ecd-463c-bfae-73ae6b318bf1",
+      "name": "Validate Folder Contents",
+      "type": "n8n-nodes-base.code",
+      "notes": "Checks tweet.txt, image count and formats, nested folders, and processed-marker files.",
+      "position": [
+        2848,
+        448
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Set Validation Rules').first().json;\nconst supported = (cfg.supportedExtensions || []).map(function (extension) {\n  return String(extension).toLowerCase();\n});\nconst maxImages = Number(cfg.maxImages || 4);\nconst minImages = Number(cfg.minImages || 1);\n\nconst folder = $('Loop Through Folders').item.json;\n\n// An empty folder arrives as an empty item because \"Always Output Data\" is enabled.\nconst children = $input.all().map(function (item) {\n  return item.json;\n}).filter(function (child) {\n  return child && child.id;\n});\n\nconst reasons = (folder.nameReasons || []).slice();\nconst warnings = (folder.warnings || []).slice();\n\nlet tweetCount = 0;\nlet imageCount = 0;\nconst unsupported = [];\nconst markers = [];\nconst nestedFolders = [];\n\nchildren.forEach(function (child) {\n  const name = String(child.name || '');\n  const lowerName = name.toLowerCase();\n  const isFolder = child.mimeType === 'application/vnd.google-apps.folder';\n\n  if (isFolder) {\n    nestedFolders.push(name);\n    return;\n  }\n\n  if (lowerName === 'tweet.txt') {\n    tweetCount++;\n    return;\n  }\n\n  const isMarker = lowerName.indexOf('receipt') !== -1\n    || lowerName.indexOf('posted') !== -1\n    || lowerName.indexOf('tweet_id') !== -1\n    || lowerName.slice(-5) === '.json';\n\n  if (isMarker) {\n    markers.push(name);\n    return;\n  }\n\n  const extension = lowerName.indexOf('.') !== -1\n    ? lowerName.split('.').pop()\n    : '';\n\n  if (supported.indexOf(extension) !== -1) {\n    imageCount++;\n    return;\n  }\n\n  unsupported.push(name);\n});\n\nif (tweetCount === 0) {\n  reasons.push('tweet.txt is missing');\n}\nif (tweetCount > 1) {\n  reasons.push(tweetCount + ' tweet.txt files found; expected exactly 1');\n}\nif (imageCount < minImages) {\n  reasons.push(imageCount + ' images found; minimum is ' + minImages);\n}\nif (imageCount > maxImages) {\n  reasons.push(imageCount + ' images found; maximum is ' + maxImages);\n}\nif (unsupported.length > 0) {\n  reasons.push('unsupported files: ' + unsupported.join(', '));\n}\nif (nestedFolders.length > 0) {\n  reasons.push('nested folders are not allowed: ' + nestedFolders.join(', '));\n}\nif (markers.length > 0) {\n  reasons.push('folder appears already processed: ' + markers.join(', '));\n}\n\nlet status = 'valid';\nif (reasons.length > 0) {\n  status = 'invalid';\n} else if (warnings.length > 0) {\n  status = 'warning';\n}\n\nconst record = {\n  name: folder.name,\n  id: folder.id,\n  scheduledAtUtc: folder.scheduledAtUtc || null,\n  status: status,\n  reasons: reasons,\n  warnings: warnings,\n  tweetCount: tweetCount,\n  imageCount: imageCount,\n};\n\nconst sd = $getWorkflowStaticData('global');\nif (!sd.queueResults) {\n  sd.queueResults = [];\n}\nsd.queueResults.push(record);\n\nreturn [{ json: record }];"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "759cc25e-063b-4e6c-a9c7-72d037bc6ba8",
+      "name": "Loop Through Folders",
+      "type": "n8n-nodes-base.splitInBatches",
+      "notes": "Processes one scheduled post folder at a time.",
+      "position": [
+        2272,
+        448
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "notesInFlow": true,
+      "typeVersion": 3
+    },
+    {
+      "id": "a6bf978f-3931-404d-9aed-514d1cd6ad5f",
+      "name": "Start Here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 1072,
+        "content": "# Validate a Google Drive Post Queue\n\nUse this workflow to check scheduled-post folders before a publishing workflow reads them.\n\n## What it checks\n\n- Folder name and scheduled date/time\n- Past schedules and duplicate times\n- Exactly one `tweet.txt`\n- Allowed image count and file extensions\n- Unsupported files, nested folders, and processed markers\n\n## Setup\n\n1. Open **Set Validation Rules** and review the limits.\n2. Set `utcOffsetMinutes` for the timezone used in folder names.\n   - UTC: `0`\n   - UTC+8: `480`\n   - UTC-5: `-300`\n   - For daylight-saving regions, update this when the UTC offset changes\n3. Open **List Folders in Queue**.\n4. Connect your Google Drive credential.\n5. Select the root folder that contains your scheduled-post folders.\n6. Select **Test workflow** or run **Run Validation**.\n\n## Safety\n\nThis workflow is read-only. It does not rename, move, delete, post, or edit files.\n\n## Area for User Notes"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c34d2357-e11c-4a9e-988f-6dd0d8f1735c",
+      "name": "Step 1 - Configure and Load",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 900,
+        "height": 720,
+        "content": "## 1. Configure and load the queue\n\nThe first three nodes start the workflow, load your validation settings, and list every folder inside the selected Google Drive queue.\n\n**You must configure:**\n\n- Your own Google Drive credential\n- The queue root folder\n- The timezone offset used by folder names\n\nLeave the workflow inactive. It uses a manual trigger."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2f06c8a-c712-409b-8c19-17211ac2590f",
+      "name": "Step 2 - Validate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1872,
+        0
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1280,
+        "height": 720,
+        "content": "## 2. Validate each scheduled post\n\nThis section first checks every folder name, then loops through the folders and checks their contents.\n\nA folder becomes:\n\n- **Valid** when every required rule passes\n- **Warning** when it shares a scheduled time with another folder\n- **Invalid** when its name, schedule, or contents fail a required rule\n\nThe loop reads one folder at a time to keep each result paired with the correct Google Drive folder."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1a40040-ed58-41d0-8a90-063538e56d2f",
+      "name": "Queue Folder Rules",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1872,
+        784
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1280,
+        "height": 430,
+        "content": "## Queue folder format\n\nUse one folder per scheduled post:\n\n`yyyy-MM-dd_HHmm__label`\n\nExample:\n\n`2026-08-08_1830__evening-post`\n\nEach scheduled-post folder should contain:\n\n- Exactly one `tweet.txt`\n- Between `minImages` and `maxImages` images\n- Only extensions listed in `supportedExtensions`\n\nBy default, images may be `jpg`, `jpeg`, `png`, or `webp`.\n\nDo not include nested folders, unsupported files, JSON files, receipts, posted markers, or tweet ID markers."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5838c880-3cd0-4b22-95ea-5b4992def726",
+      "name": "Step 3 - Read the Report",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3248,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 760,
+        "height": 720,
+        "content": "## 3. Read the validation report\n\nAfter the loop finishes, open **Generate Validation Report** and inspect its output.\n\nThe node returns:\n\n- `summary`: total valid, warning, and invalid folders\n- `report`: a human-readable text report\n- `results`: structured details for every folder\n- `generatedAt`: report timestamp in UTC\n\nFix invalid folders in Google Drive, then run the workflow again.\n\nA warning does not block a folder, but duplicate scheduled times may cause two posts to be processed together by a later uploader."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a529e80d-862a-4298-88e6-1a8b4a610b78",
+      "name": "Set Validation Rules",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1280,
+        448
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9cf9aa4f-4d18-4db9-8810-05f80284226b",
+              "name": "maxImages",
+              "type": "number",
+              "value": 4
+            },
+            {
+              "id": "401d5644-dfb4-4710-b996-db02587ae488",
+              "name": "minImages",
+              "type": "number",
+              "value": 1
+            },
+            {
+              "id": "3dbd9eea-d482-4bde-9960-c617e49f831e",
+              "name": "supportedExtensions",
+              "type": "array",
+              "value": "={{ [\"jpg\",\"jpeg\",\"png\",\"webp\"] }}"
+            },
+            {
+              "id": "f3878123-12cb-4cb7-ba36-9c16b6ed8867",
+              "name": "dateFormat",
+              "type": "string",
+              "value": "yyyy-MM-dd_HHmm__label"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "3ac96f43-f002-475a-8262-86c3e71eaa6f",
+  "nodeGroups": [],
+  "connections": {
+    "Run Validation": {
+      "main": [
+        [
+          {
+            "node": "Set Validation Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Folder Contents": {
+      "main": [
+        [
+          {
+            "node": "Validate Folder Contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Through Folders": {
+      "main": [
+        [
+          {
+            "node": "Generate Validation Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "List Folder Contents",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Validation Rules": {
+      "main": [
+        [
+          {
+            "node": "List Folders in Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Folders in Queue": {
+      "main": [
+        [
+          {
+            "node": "Parse & Validate Folder Names",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Folder Contents": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse & Validate Folder Names": {
+      "main": [
+        [
+          {
+            "node": "Loop Through Folders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

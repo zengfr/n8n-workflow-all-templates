@@ -1,4 +1,4 @@
-# ingestion : 7
+# ingestion : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |8860|[8860_PDF_RAG_Agent_with_Telegram_Chat___Auto-Ingestion_from_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8860_PDF_RAG_Agent_with_Telegram_Chat___Auto-Ingestion_from_Google_Drive.json)|
 |12731|[12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12731_Grade_and_deliver_multi-course_assignment_feedback_with_GPT-4o__Google_Drive__Slack__and_Gmail.json)|
 |13264|[13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13264_Ingest_Excel_data_into_Oracle_and_chat_with_it_using_Select_AI_and_Azure_OpenAI.json)|
+|16974|[16974_Answer_support_FAQs_with_Google_Gemini__Supabase__Google_Sheets_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16974_Answer_support_FAQs_with_Google_Gemini__Supabase__Google_Sheets_and_WhatsApp.json)|
+|19554|[19554_Ingest_LinkedIn_posts_from_Google_Drive_into_Pinecone_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19554_Ingest_LinkedIn_posts_from_Google_Drive_into_Pinecone_with_Gemini_and_Supabase.json)|

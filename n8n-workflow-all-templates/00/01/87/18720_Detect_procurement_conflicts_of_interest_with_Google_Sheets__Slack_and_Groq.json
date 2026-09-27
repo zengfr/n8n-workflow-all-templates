@@ -1,0 +1,757 @@
+{
+  "id": "by0903Do3Ps69yh2",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Detect procurement conflicts of interest with Google Sheets, Slack and Groq",
+    "wechat": "youandme10086",
+    "id": 18720,
+    "update_time": "2026-09-27"
+  },
+  "name": "Conflict of Interest Detection Workflow",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "492518dd-0be2-4cfb-b6c2-a7d727fab780",
+      "name": "Fetch Employee Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        736,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit#gid=0",
+          "cachedResultName": "Employees"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit?usp=drivesdk",
+          "cachedResultName": "Conflict_Of_Interest_Audit"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "8f25fda2-02c6-438c-84ce-48a682eda5cb",
+      "name": "Start Weekly Conflict Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        480,
+        304
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "10d5ab02-b47c-41ca-ade3-4175ce84980b",
+      "name": "Combine Employee and Supplier Inputs",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1008,
+        304
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "ea92ef98-603b-476b-bf65-aba804c19461",
+      "name": "Find Potential Conflict Matches",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1328,
+        304
+      ],
+      "parameters": {
+        "jsCode": "// Read directly from the source nodes so the logic stays dynamic\nconst employees = $items(\"Fetch Employee Data\").map(item => item.json);\nconst suppliers = $items(\"Fetch Supplier Data\").map(item => item.json);\n\nconst results = [];\nconst seenPairs = new Set();\n\n// ---------- Helpers ----------\nfunction normalizeText(value) {\n  return String(value ?? '')\n    .toLowerCase()\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction normalizePhone(value) {\n  return String(value ?? '').replace(/\\D/g, '');\n}\n\nfunction normalizeEmail(value) {\n  return String(value ?? '').toLowerCase().trim();\n}\n\nfunction getLastName(fullName) {\n  const parts = normalizeText(fullName).split(' ').filter(Boolean);\n  return parts.length ? parts[parts.length - 1] : '';\n}\n\nfunction safeNumber(value) {\n  const n = Number(value ?? 0);\n  return Number.isFinite(n) ? n : 0;\n}\n\nfunction getCity(address) {\n  const text = normalizeText(address);\n  if (!text) return '';\n  return text.split(',')[0].trim();\n}\n\n// ---------- Matching ----------\nfor (const emp of employees) {\n  const empId = String(emp.EmployeeID ?? '').trim();\n  const empName = normalizeText(emp.EmployeeName);\n  const empEmail = normalizeEmail(emp.EmployeeEmail);\n  const empPhone = normalizePhone(emp.EmployeePhone);\n  const empAddress = normalizeText(emp.EmployeeAddress);\n  const empCity = getCity(emp.EmployeeAddress);\n  const empLastName = getLastName(emp.EmployeeName);\n\n  for (const sup of suppliers) {\n    const supId = String(sup.SupplierID ?? '').trim();\n    const pairKey = `${empId}__${supId}`;\n    if (seenPairs.has(pairKey)) continue;\n    seenPairs.add(pairKey);\n\n    let score = 0;\n    const reasons = [];\n    const matchDetails = [];\n\n    const ownerName = normalizeText(sup.OwnerName);\n    const supEmail = normalizeEmail(sup.SupplierEmail);\n    const supPhone = normalizePhone(sup.SupplierPhone);\n    const supAddress = normalizeText(sup.SupplierAddress);\n    const supCity = getCity(sup.SupplierAddress);\n    const supLastName = getLastName(sup.OwnerName);\n\n    const txCount = safeNumber(sup.TransactionCount);\n    const totalSpend = safeNumber(sup.TotalSpend);\n\n    // 1. Strong direct signals\n    if (empName && ownerName && empName === ownerName) {\n      score += 50;\n      reasons.push('Employee full name matches supplier owner name');\n      matchDetails.push('full_name_exact');\n    }\n\n    if (empEmail && supEmail && empEmail === supEmail) {\n      score += 40;\n      reasons.push('Employee email matches supplier email');\n      matchDetails.push('email_exact');\n    }\n\n    if (empPhone && supPhone && empPhone === supPhone) {\n      score += 30;\n      reasons.push('Employee phone matches supplier phone');\n      matchDetails.push('phone_exact');\n    }\n\n    if (empAddress && supAddress && empAddress === supAddress) {\n      score += 25;\n      reasons.push('Employee address matches supplier address');\n      matchDetails.push('address_exact');\n    }\n\n    // 2. Medium / indirect signals\n    if (empLastName && supLastName && empLastName === supLastName && empName !== ownerName) {\n      score += 15;\n      reasons.push('Employee last name matches supplier owner last name');\n      matchDetails.push('last_name_match');\n    }\n\n    if (empCity && supCity && empCity === supCity && empAddress !== supAddress) {\n      score += 10;\n      reasons.push('Employee city matches supplier city');\n      matchDetails.push('city_match');\n    }\n\n    // 3. Transaction risk signals\n    if (txCount > 10 && totalSpend > 50000) {\n      score += 15;\n      reasons.push('Supplier has unusually high transaction activity');\n      matchDetails.push('high_transaction_activity');\n    } else if (txCount >= 5 && totalSpend >= 20000) {\n      score += 5;\n      reasons.push('Supplier has moderate transaction activity');\n      matchDetails.push('moderate_transaction_activity');\n    }\n\n    // 4. Decide risk level\n    let riskLevel = 'Low';\n    if (score >= 70) {\n      riskLevel = 'High';\n    } else if (score >= 40) {\n      riskLevel = 'Medium';\n    } else if (score >= 30) {\n      riskLevel = 'Low Review';\n    }\n\n    // 5. Output only cases worth reviewing\n    // Keep 30+ so medium and near-medium cases are visible for analysis\n    if (score >= 30) {\n      results.push({\n        json: {\n          Date: new Date().toISOString().split('T')[0],\n          EmployeeID: emp.EmployeeID ?? '',\n          EmployeeName: emp.EmployeeName ?? '',\n          EmployeeEmail: emp.EmployeeEmail ?? '',\n          EmployeePhone: emp.EmployeePhone ?? '',\n          EmployeeAddress: emp.EmployeeAddress ?? '',\n          Department: emp.Department ?? '',\n          SupplierID: sup.SupplierID ?? '',\n          SupplierName: sup.SupplierName ?? '',\n          OwnerName: sup.OwnerName ?? '',\n          SupplierEmail: sup.SupplierEmail ?? '',\n          SupplierPhone: sup.SupplierPhone ?? '',\n          SupplierAddress: sup.SupplierAddress ?? '',\n          TransactionCount: txCount,\n          TotalSpend: totalSpend,\n          RiskScore: score,\n          RiskLevel: riskLevel,\n          Reasons: reasons.join('; '),\n          MatchDetails: matchDetails.join(', '),\n          Status: 'Open'\n        }\n      });\n    }\n  }\n}\n\n// Optional: sort highest risk first\nresults.sort((a, b) => b.json.RiskScore - a.json.RiskScore);\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e3666dd9-3496-47c6-bad6-f0c4d83b1ec9",
+      "name": "Create AI Risk Explanation",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1552,
+        304
+      ],
+      "parameters": {
+        "text": "=You are a procurement compliance assistant.\n\nReview this potential conflict-of-interest case and write a short neutral explanation.\n\nEmployee: {{$json.EmployeeName}}\nSupplier: {{$json.SupplierName}}\nRisk Score: {{$json.RiskScore}}\nRisk Level: {{$json.RiskLevel}}\nReasons: {{$json.Reasons}}\n\nWrite in 3 short parts:\n1. Summary\n2. Why review is needed\n3. Recommended next step\n\nRules:\n- Do not accuse anyone of misconduct\n- Keep the tone neutral and professional\n- Keep the response concise",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "acb80255-f824-42a6-9435-6b9fbce2cfa3",
+      "name": "AI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        1552,
+        544
+      ],
+      "parameters": {
+        "model": "openai/gpt-oss-safeguard-20b",
+        "options": {}
+      },
+      "credentials": {
+        "groqApi": {
+          "id": "AnindwaoyRCy8KlP",
+          "name": "Groq (Mihir-Gmail)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f50b9768-ed6b-4487-8690-66b8a748e4c6",
+      "name": "Prepare Final Case Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1888,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "41aa4f06-324c-4ef3-93cd-d30c2997944c",
+              "name": "Date",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.Date }}"
+            },
+            {
+              "id": "42077f88-2e28-4515-aa2f-ad5064cd6a30",
+              "name": "EmployeeID",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.EmployeeID }}"
+            },
+            {
+              "id": "0aba29cf-838f-4147-9a79-52ebf67dccef",
+              "name": "EmployeeName",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.EmployeeName }}"
+            },
+            {
+              "id": "087e1e57-ab01-4dcd-8ab2-45cef726e304",
+              "name": "SupplierID",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.SupplierID }}"
+            },
+            {
+              "id": "aedc5c53-16c0-4fad-8516-fe0f317379e5",
+              "name": "SupplierName",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.SupplierName }}"
+            },
+            {
+              "id": "55669acc-9519-4b77-8408-73a5dba39a20",
+              "name": "RiskScore",
+              "type": "number",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.RiskScore }}"
+            },
+            {
+              "id": "034dd8fc-a457-43a8-a231-fc7aef469c68",
+              "name": "RiskLevel",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.RiskLevel }}"
+            },
+            {
+              "id": "dd3f8718-7340-439d-9acc-8acd0188749e",
+              "name": "Reasons",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.Reasons }}"
+            },
+            {
+              "id": "124fcac1-0435-4643-9bbb-c8f24ab840b3",
+              "name": "output",
+              "type": "string",
+              "value": "={{ $json.output }}"
+            },
+            {
+              "id": "50558959-263b-48f7-bcaf-799b4b16cd59",
+              "name": "Status",
+              "type": "string",
+              "value": "={{ $('Find Potential Conflict Matches').item.json.Status }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2e8fe2b2-aef1-4a89-baba-c3da1116ee3a",
+      "name": "Is This a High-Risk Conflict?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a0e0ccbe-d93d-4b98-b5ff-19f5e3baa711",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{$json.RiskScore}}",
+              "rightValue": 70
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3b1b4c22-37a6-4415-a4bf-54f5dabc3149",
+      "name": "Send Compliance Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2512,
+        176
+      ],
+      "webhookId": "6b3e519c-e064-43ee-ae07-0a51081a41b9",
+      "parameters": {
+        "text": "= Conflict of Interest Alert  \nEmployee: {{$json.EmployeeName}} \nSupplier: {{$json.SupplierName}} \nRisk Score: {{$json.RiskScore}} ({{$json.RiskLevel}})  \nReasons: {{$json.Reasons}}  \nAI Summary: {{$json.output}}  \nStatus: {{$json.Status}}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0AURLWLS5Q",
+          "cachedResultName": "conflict-of-interest"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "dbb9b772-9afc-40ef-a0d6-49dfa67a43fa",
+      "name": "Save High-Risk Case",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2768,
+        176
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $('Is This a High-Risk Conflict?').item.json.Date }}",
+            "Status": "={{ $('Is This a High-Risk Conflict?').item.json.Status }}",
+            "Reasons": "={{ $('Is This a High-Risk Conflict?').item.json.Reasons }}",
+            "AISummary": "={{ $('Is This a High-Risk Conflict?').item.json.output }}",
+            "RiskLevel": "={{ $('Is This a High-Risk Conflict?').item.json.RiskLevel }}",
+            "RiskScore": "={{ $('Is This a High-Risk Conflict?').item.json.RiskScore }}",
+            "EmployeeID": "={{ $('Is This a High-Risk Conflict?').item.json.EmployeeID }}",
+            "SupplierID": "={{ $('Is This a High-Risk Conflict?').item.json.SupplierID }}",
+            "EmployeeName": "={{ $('Is This a High-Risk Conflict?').item.json.EmployeeName }}",
+            "SupplierName": "={{ $('Is This a High-Risk Conflict?').item.json.SupplierName }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "EmployeeID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeName",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "EmployeeName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SupplierID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SupplierID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SupplierName",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SupplierName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RiskScore",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "RiskScore",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RiskLevel",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "RiskLevel",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasons",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Reasons",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AISummary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "AISummary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 21983293,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit#gid=21983293",
+          "cachedResultName": "ConflictCases"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit?usp=drivesdk",
+          "cachedResultName": "Conflict_Of_Interest_Audit"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "c4de7e90-ab5b-4044-9b7c-79ad9bc19c39",
+      "name": "Save Medium-Risk Case",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2512,
+        464
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $json.Date }}",
+            "Status": "={{ $json.Status }}",
+            "Reasons": "={{ $json.Reasons }}",
+            "AISummary": "={{ $json.output }}",
+            "RiskLevel": "={{ $json.RiskLevel }}",
+            "RiskScore": "={{ $json.RiskScore }}",
+            "EmployeeID": "={{ $json.EmployeeID }}",
+            "SupplierID": "={{ $json.SupplierID }}",
+            "EmployeeName": "={{ $json.EmployeeName }}",
+            "SupplierName": "={{ $json.SupplierName }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "EmployeeID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeName",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "EmployeeName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SupplierID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SupplierID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "SupplierName",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "SupplierName",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RiskScore",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "RiskScore",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RiskLevel",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "RiskLevel",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasons",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Reasons",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AISummary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "AISummary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 21983293,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit#gid=21983293",
+          "cachedResultName": "ConflictCases"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit?usp=drivesdk",
+          "cachedResultName": "Conflict_Of_Interest_Audit"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "df7e2648-b49e-4dd1-a3f9-69355fdf3916",
+      "name": "Fetch Supplier Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        720,
+        432
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1387973454,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit#gid=1387973454",
+          "cachedResultName": "Suppliers"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LAMIxwJBpLlEQ_Dg-Li49p2K7R9IuSpyYJmWxcO73sw/edit?usp=drivesdk",
+          "cachedResultName": "Conflict_Of_Interest_Audit"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "a5945ffa-d758-4410-bb0f-3c98cd4f381b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -32
+      ],
+      "parameters": {
+        "width": 928,
+        "height": 736,
+        "content": "# Conflict of Interest Detection Workflow  \n\n## How it works:  \n\nThis workflow automatically identifies potential conflicts of interest by comparing employee records with supplier ownership details and transaction activity. It evaluates direct matches such as names, emails, and phone numbers, along with indirect signals like shared addresses, last names, and unusual transaction patterns to detect hidden relationships. A scoring-based logic determines the risk level of each case. AI then generates a clear and professional explanation to support compliance review. High-risk conflicts trigger Slack alerts for immediate attention, while all detected cases are logged in Google Sheets for tracking and audit purposes. This helps organizations proactively detect risks, ensure transparency, and strengthen procurement governance.  \n\n## Setup Steps:  \n\n1. Scheduled Trigger  \nRun workflow weekly.  \n\n2. Data Collection  \nFetch employee and supplier data from Google Sheets.  \n\n3. Relationship Analysis  \nCompare records and calculate conflict risk score.  \n\n4. AI Insights  \nGenerate explanation and compliance summary.  \n\n5. Decision Logic  \nIdentify high-risk conflicts using IF node.  \n\n6. Action & Storage  \nSend Slack alerts and store all cases in Google Sheets.  "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1cef6c01-ef3c-449a-b818-e4a2923cd0e4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 784,
+        "height": 688,
+        "content": "## Employee & Supplier Data Preparation\n\nTrigger the workflow on schedule, fetch employee and supplier records from Google Sheets, and combine them to create a unified dataset for conflict detection analysis."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6266cadc-491e-4f5d-92a7-3e92fbcec3d3",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1264,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 784,
+        "height": 688,
+        "content": "## Conflict Analysis & Case Preparation\n\nAnalyze employee–supplier relationships using scoring logic to detect potential conflicts, generate AI-based explanations for each case, and structure the final data for decision-making and logging."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21b70257-d311-4dcb-a782-383ff1702171",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2128,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 688,
+        "content": "## Risk Evaluation & Action Handling\n\nEvaluate conflict risk using IF logic, send Slack alerts for high-risk cases, and store both high and medium-risk cases in Google Sheets for tracking and compliance review."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "0831a8db-d4d1-461d-82d9-51ac8087302a",
+  "nodeGroups": [],
+  "connections": {
+    "AI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Create AI Risk Explanation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Employee Data": {
+      "main": [
+        [
+          {
+            "node": "Combine Employee and Supplier Inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Supplier Data": {
+      "main": [
+        [
+          {
+            "node": "Combine Employee and Supplier Inputs",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Send Compliance Alert": {
+      "main": [
+        [
+          {
+            "node": "Save High-Risk Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Final Case Data": {
+      "main": [
+        [
+          {
+            "node": "Is This a High-Risk Conflict?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create AI Risk Explanation": {
+      "main": [
+        [
+          {
+            "node": "Prepare Final Case Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Weekly Conflict Check": {
+      "main": [
+        [
+          {
+            "node": "Fetch Employee Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Supplier Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is This a High-Risk Conflict?": {
+      "main": [
+        [
+          {
+            "node": "Send Compliance Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Save Medium-Risk Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Potential Conflict Matches": {
+      "main": [
+        [
+          {
+            "node": "Create AI Risk Explanation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Employee and Supplier Inputs": {
+      "main": [
+        [
+          {
+            "node": "Find Potential Conflict Matches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# traffic : 9
+# traffic : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |11401|[11401_Auto-Audit_SEO_Traffic_Drops_with_AI___Google_Search_Console_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11401_Auto-Audit_SEO_Traffic_Drops_with_AI___Google_Search_Console_to_Slack.json)|
 |13386|[13386_Wake_up_on_time_using_Google_Maps_traffic__Twilio_SMS__and_iOS_Shortcuts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13386_Wake_up_on_time_using_Google_Maps_traffic__Twilio_SMS__and_iOS_Shortcuts.json)|
 |15696|[15696_Monitor_daily_traffic_spikes_with_Databox__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15696_Monitor_daily_traffic_spikes_with_Databox__OpenAI_and_Slack.json)|
+|19668|[19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json)|

@@ -1,4 +1,4 @@
-# yahoo : 8
+# yahoo : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |15066|[15066_Generate_daily_investment_ideas_with_Yahoo_Finance_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15066_Generate_daily_investment_ideas_with_Yahoo_Finance_and_Google_Gemini.json)|
 |15068|[15068_Track_equity_sector_rotation_with_Google_Sheets__Yahoo_Finance__Groq_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15068_Track_equity_sector_rotation_with_Google_Sheets__Yahoo_Finance__Groq_and_Gmail.json)|
 |15679|[15679_Generate_SENSEX_trading_signals_using_Gemini__Yahoo_Finance_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15679_Generate_SENSEX_trading_signals_using_Gemini__Yahoo_Finance_and_Google_Sheets.json)|
+|18548|[18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json)|
+|19199|[19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json)|

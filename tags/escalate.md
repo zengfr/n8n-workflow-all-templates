@@ -1,4 +1,4 @@
-# escalate : 16
+# escalate : 23
 
 |id|file|
 |----|----|
@@ -18,3 +18,10 @@
 |16235|[16235_Triage_support_emails_with_EmailConnect__Notion_KB__and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16235_Triage_support_emails_with_EmailConnect__Notion_KB__and_OpenRouter.json)|
 |16315|[16315_Route_chatbot_requests_to_humans_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16315_Route_chatbot_requests_to_humans_with_OpenAI_and_Google_Sheets.json)|
 |16522|[16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json)|
+|18111|[18111_Detect_and_escalate_Salesforce_bottlenecks_with_Gemini__Slack__Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18111_Detect_and_escalate_Salesforce_bottlenecks_with_Gemini__Slack__Gmail.json)|
+|18462|[18462_Summarize_multi-channel_Slack_standups_with_OpenAI_and_post_and_escalate_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18462_Summarize_multi-channel_Slack_standups_with_OpenAI_and_post_and_escalate_digests.json)|
+|18528|[18528_Score_and_route_B2B_website_leads_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18528_Score_and_route_B2B_website_leads_with_Google_Sheets_and_Gmail.json)|
+|18697|[18697_Triage_and_escalate_Twenty_CRM_support_cases_with_owner_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18697_Triage_and_escalate_Twenty_CRM_support_cases_with_owner_tasks.json)|
+|18739|[18739_Triage_and_escalate_support_tickets_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18739_Triage_and_escalate_support_tickets_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|18860|[18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json)|
+|18959|[18959_Log__audit_and_escalate_AI_agent_tool_calls_with_Groq__Discord_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18959_Log__audit_and_escalate_AI_agent_tool_calls_with_Groq__Discord_and_data_tables.json)|

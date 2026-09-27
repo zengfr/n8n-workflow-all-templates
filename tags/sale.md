@@ -1,4 +1,4 @@
-# sale : 7
+# sale : 10
 
 |id|file|
 |----|----|
@@ -9,3 +9,6 @@
 |6163|[6163_Multi-Channel_AI_Appointment_Confirmation_with_GPT-4__ElevenLabs___Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6163_Multi-Channel_AI_Appointment_Confirmation_with_GPT-4__ElevenLabs___Twilio.json)|
 |6649|[6649_Generate_Sales_Leads___Personalized_Outreach_Emails_using_Jina_AI_and_OpenAI_Agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/66/6649_Generate_Sales_Leads___Personalized_Outreach_Emails_using_Jina_AI_and_OpenAI_Agents.json)|
 |8182|[8182_Generate_and_Research_Sales_Leads_with_Jina_AI___OpenAI_Email_Automation_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8182_Generate_and_Research_Sales_Leads_with_Jina_AI___OpenAI_Email_Automation_via_Gmail.json)|
+|17161|[17161_Deliver_workflows_after_Stripe_checkout_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17161_Deliver_workflows_after_Stripe_checkout_with_Gmail_and_Google_Sheets.json)|
+|17695|[17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json)|
+|18424|[18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json)|

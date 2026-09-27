@@ -1,4 +1,4 @@
-# rapidapi : 41
+# rapidapi : 44
 
 |id|file|
 |----|----|
@@ -43,3 +43,6 @@
 |14001|[14001_Convert_YouTube_transcripts_in_Google_Sheets_to_X__Twitter__threads_with_Apify__OpenAI_and_RapidAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14001_Convert_YouTube_transcripts_in_Google_Sheets_to_X__Twitter__threads_with_Apify__OpenAI_and_RapidAPI.json)|
 |14366|[14366_Generate_and_qualify_local_business_leads_using_Google_Sheets__RapidAPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14366_Generate_and_qualify_local_business_leads_using_Google_Sheets__RapidAPI_and_OpenAI.json)|
 |16171|[16171_Publish_YouTube_Shorts_to_TikTok_with_RSS__RapidAPI_and_TikTok_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16171_Publish_YouTube_Shorts_to_TikTok_with_RSS__RapidAPI_and_TikTok_API.json)|
+|17617|[17617_Capture_CTO_job_leads_from_LinkedIn_with_RapidAPI__Seamless__BounceBan_and_PlusVibe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17617_Capture_CTO_job_leads_from_LinkedIn_with_RapidAPI__Seamless__BounceBan_and_PlusVibe.json)|
+|19728|[19728_Log_new_LinkedIn-style_job_postings_to_Google_Sheets_with_RapidAPI_JSearch.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19728_Log_new_LinkedIn-style_job_postings_to_Google_Sheets_with_RapidAPI_JSearch.json)|
+|19746|[19746_Classify_and_route_support_tickets_via_webhooks_using_RapidAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19746_Classify_and_route_support_tickets_via_webhooks_using_RapidAPI.json)|

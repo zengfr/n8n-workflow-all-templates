@@ -1,4 +1,4 @@
-# tool : 198
+# tool : 200
 
 |id|file|
 |----|----|
@@ -200,3 +200,5 @@
 |15978|[15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json)|
 |16093|[16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json)|
 |16734|[16734_Generate_rich_character_bibles_for_writers_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16734_Generate_rich_character_bibles_for_writers_with_GPT-4.1_and_Google_Sheets.json)|
+|17386|[17386_Gate_SaaS_and_AI_tool_approvals_with_RelayShield__Notion__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17386_Gate_SaaS_and_AI_tool_approvals_with_RelayShield__Notion__Slack__and_Gmail.json)|
+|18959|[18959_Log__audit_and_escalate_AI_agent_tool_calls_with_Groq__Discord_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18959_Log__audit_and_escalate_AI_agent_tool_calls_with_Groq__Discord_and_data_tables.json)|

@@ -1,4 +1,4 @@
-# share : 24
+# share : 29
 
 |id|file|
 |----|----|
@@ -26,3 +26,8 @@
 |15816|[15816_Resolve_Xiaohongshu_share_links_to_final_URLs_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15816_Resolve_Xiaohongshu_share_links_to_final_URLs_with_JustOneAPI.json)|
 |16019|[16019_Create_and_share_client_folders_from_Google_Sheets_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16019_Create_and_share_client_folders_from_Google_Sheets_to_Google_Drive.json)|
 |16140|[16140_Share_and_schedule_blog_posts_to_social_media_using_RSS_and_Posta.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16140_Share_and_schedule_blog_posts_to_social_media_using_RSS_and_Posta.json)|
+|17226|[17226_Monitor_weekly_LLM_share_of_voice_with_OpenRouter__Google_Sheets__and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17226_Monitor_weekly_LLM_share_of_voice_with_OpenRouter__Google_Sheets__and_email_reports.json)|
+|18961|[18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json)|
+|19071|[19071_Track_Amazon_keyword_rankings_and_share_of_shelf_with_Bright_Data_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19071_Track_Amazon_keyword_rankings_and_share_of_shelf_with_Bright_Data_and_Slack.json)|
+|19238|[19238_Track_organic_SEO_market_share_with_DataForSEO__OpenAI_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19238_Track_organic_SEO_market_share_with_DataForSEO__OpenAI_and_Google_Docs.json)|
+|19727|[19727_Share_new_WordPress_posts_on_LinkedIn__X_and_Facebook_via_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19727_Share_new_WordPress_posts_on_LinkedIn__X_and_Facebook_via_webhook.json)|

@@ -1,4 +1,4 @@
-# repos : 6
+# repos : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |13362|[13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json)|
 |13552|[13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13552_Send_weekly_GitHub_digest_with_releases__commits_and_trending_repos_via_Gmail.json)|
 |15314|[15314_Detect_and_remediate_leaked_secret_on_repo_with_GitHub__AWS__Jira__Slack__Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15314_Detect_and_remediate_leaked_secret_on_repo_with_GitHub__AWS__Jira__Slack__Claude.json)|
+|18934|[18934_Rank_and_triage_dependency_risk_with_GitHub__OSV__Slack__npm__PyPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18934_Rank_and_triage_dependency_risk_with_GitHub__OSV__Slack__npm__PyPI_and_OpenAI.json)|
+|18961|[18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json)|

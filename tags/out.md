@@ -1,4 +1,4 @@
-# out : 14
+# out : 20
 
 |id|file|
 |----|----|
@@ -16,3 +16,9 @@
 |12429|[12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12429_Coordinate_move-out_cleaning_and_repair_tasks_with_Sheets__Slack__email___Claude.json)|
 |12459|[12459_Discover_LinkedIn_leads_and_draft_outreach_using_Apify__Google_Sheets__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12459_Discover_LinkedIn_leads_and_draft_outreach_using_Apify__Google_Sheets__and_Gemini.json)|
 |14984|[14984_Automate_social_fan-out__marketplace_outreach__and_CRM_alerts_with_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14984_Automate_social_fan-out__marketplace_outreach__and_CRM_alerts_with_Salesforce.json)|
+|17530|[17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json)|
+|17802|[17802_Route_critical_out-of-office_emails_with_Gmail__Gemini__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17802_Route_critical_out-of-office_emails_with_Gmail__Gemini__Slack_and_Sheets.json)|
+|17914|[17914_Gate_human_approvals_with_ClickUp_tasks_and_ClickUp_Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17914_Gate_human_approvals_with_ClickUp_tasks_and_ClickUp_Chat.json)|
+|17968|[17968_Run_parallel_webhook_services_with_HTTP_Request_fan-out.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17968_Run_parallel_webhook_services_with_HTTP_Request_fan-out.json)|
+|18615|[18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json)|
+|19124|[19124_Generate_move-out_deposit_statements_with_gpt-5.6-terra__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19124_Generate_move-out_deposit_statements_with_gpt-5.6-terra__Gmail__and_Google_Sheets.json)|

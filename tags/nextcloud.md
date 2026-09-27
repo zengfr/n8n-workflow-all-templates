@@ -1,4 +1,4 @@
-# nextcloud : 15
+# nextcloud : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |8810|[8810_Convert_Event_Text_to_Calendar_Entries_with_AI_and_NextCloud_Google_Zoho.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8810_Convert_Event_Text_to_Calendar_Entries_with_AI_and_NextCloud_Google_Zoho.json)|
 |14040|[14040_Migrate_ClickUp_list_or_task_tree_to_Nextcloud_Deck_as_a_one-off_import.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14040_Migrate_ClickUp_list_or_task_tree_to_Nextcloud_Deck_as_a_one-off_import.json)|
 |14544|[14544_Summarize_Nextcloud_documents_with_IONOS_AI_Model_Hub_for_sovereign_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14544_Summarize_Nextcloud_documents_with_IONOS_AI_Model_Hub_for_sovereign_AI.json)|
+|18457|[18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json)|
+|19805|[19805_Back_up_workflows_to_Nextcloud_and_send_completion_alerts_in_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19805_Back_up_workflows_to_Nextcloud_and_send_completion_alerts_in_Discord.json)|

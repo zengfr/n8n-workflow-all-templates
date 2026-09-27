@@ -1,4 +1,4 @@
-# command : 15
+# command : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |9951|[9951_Automate_Workflow_Execution_with_Telegram_Bot_Command_Center.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9951_Automate_Workflow_Execution_with_Telegram_Bot_Command_Center.json)|
 |10405|[10405_Automate_Invoice_Data_Extraction_from_Google_Drive_to_Airtable_using_Nanonets_OCR___Command-R.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10405_Automate_Invoice_Data_Extraction_from_Google_Drive_to_Airtable_using_Nanonets_OCR___Command-R.json)|
 |11052|[11052_Generate_LinkedIn_Activity_Reports_via_Slack_Commands_with_GPT-4.1_and_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11052_Generate_LinkedIn_Activity_Reports_via_Slack_Commands_with_GPT-4.1_and_Email.json)|
+|17859|[17859_Generate_a_Sleeper_preseason_league_command_center_from_a_public_league_form.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17859_Generate_a_Sleeper_preseason_league_command_center_from_a_public_league_form.json)|
+|18600|[18600_Search_game_prices_and_deals_with_Discord_and_IsThereAnyDeal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18600_Search_game_prices_and_deals_with_Discord_and_IsThereAnyDeal.json)|

@@ -1,4 +1,4 @@
-# dms : 16
+# dms : 19
 
 |id|file|
 |----|----|
@@ -18,3 +18,6 @@
 |15467|[15467_Score_and_send_LinkedIn_DMs_with_GPT-4.1-mini__Google_Sheets_and_Phantombuster.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15467_Score_and_send_LinkedIn_DMs_with_GPT-4.1-mini__Google_Sheets_and_Phantombuster.json)|
 |15524|[15524_Archive_Outlook_email_attachments_to_DATEV_DMS_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15524_Archive_Outlook_email_attachments_to_DATEV_DMS_with_Slack_notifications.json)|
 |16300|[16300_Reply_to_Instagram_and_Facebook_comments_via_Meta_webhooks_and_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16300_Reply_to_Instagram_and_Facebook_comments_via_Meta_webhooks_and_DMs.json)|
+|18123|[18123_Capture_social_DMs_with_purchase_intent_using_FanBase__Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18123_Capture_social_DMs_with_purchase_intent_using_FanBase__Apify_and_Google_Sheets.json)|
+|18256|[18256_Answer_Instagram_FAQ_DMs_using_Google_Gemini_and_Qdrant_from_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18256_Answer_Instagram_FAQ_DMs_using_Google_Gemini_and_Qdrant_from_Google_Drive.json)|
+|18455|[18455_Reply_to_Instagram_comments_and_send_DMs_with_Facebook_Graph_API_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18455_Reply_to_Instagram_comments_and_send_DMs_with_Facebook_Graph_API_and_Gemini.json)|

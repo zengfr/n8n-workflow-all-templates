@@ -1,4 +1,4 @@
-# handling : 29
+# handling : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |15098|[15098_Catch_failed_invoice_extractions_with_easybits__Slack__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15098_Catch_failed_invoice_extractions_with_easybits__Slack__and_Google_Drive.json)|
 |15323|[15323_Send_AI_lead_follow-up_SMS_with_GPT-4.1__Google_Sheets__Twilio_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15323_Send_AI_lead_follow-up_SMS_with_GPT-4.1__Google_Sheets__Twilio_and_Gmail.json)|
 |15347|[15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15347_Log_errors_and_audit_events_with_n8n_Data_Tables.json)|
+|16821|[16821_Triage_and_reply_to_email_threads_with_GPT-5.2__IMAP__Gmail__and_ESP_suppression.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16821_Triage_and_reply_to_email_threads_with_GPT-5.2__IMAP__Gmail__and_ESP_suppression.json)|
+|16874|[16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json)|

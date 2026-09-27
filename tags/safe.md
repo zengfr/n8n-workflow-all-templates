@@ -1,4 +1,4 @@
-# safe : 5
+# safe : 13
 
 |id|file|
 |----|----|
@@ -7,3 +7,11 @@
 |13941|[13941_Mask_PII_in_documents_for_GDPR-safe_AI_processing_with_Postgres_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13941_Mask_PII_in_documents_for_GDPR-safe_AI_processing_with_Postgres_and_Claude.json)|
 |14275|[14275_Send_bulk_email_campaigns_with_Gmail_SMTP_and_Postgres_reputation-safe_timing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14275_Send_bulk_email_campaigns_with_Gmail_SMTP_and_Postgres_reputation-safe_timing.json)|
 |14320|[14320_Detect_and_mask_PII_for_GDPR-safe_AI_document_analysis_with_Anthropic_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14320_Detect_and_mask_PII_for_GDPR-safe_AI_document_analysis_with_Anthropic_and_PostgreSQL.json)|
+|17911|[17911_Build_CMS_import_rows_and_collision-safe_redirects_from_a_legacy_CSV_upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17911_Build_CMS_import_rows_and_collision-safe_redirects_from_a_legacy_CSV_upload.json)|
+|17988|[17988_Triage_support_tickets_and_draft_safe_replies_with_OpenAI__Gmail__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17988_Triage_support_tickets_and_draft_safe_replies_with_OpenAI__Gmail__and_Data_Tables.json)|
+|18121|[18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json)|
+|18741|[18741_Create_replay-safe_client_kickoff_bookings_with_Google_Calendar__Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18741_Create_replay-safe_client_kickoff_bookings_with_Google_Calendar__Gmail_and_data_tables.json)|
+|18927|[18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json)|
+|19006|[19006_Create_replay-safe_client_report_Gmail_drafts_with_webhooks_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19006_Create_replay-safe_client_report_Gmail_drafts_with_webhooks_and_Data_Tables.json)|
+|19103|[19103_Collect_duplicate-safe_client_intake_with_forms_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19103_Collect_duplicate-safe_client_intake_with_forms_and_Google_Sheets.json)|
+|19380|[19380_Analyze_URL_phishing_risk_with_VirusTotal__Safe_Browsing__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19380_Analyze_URL_phishing_risk_with_VirusTotal__Safe_Browsing__Gemini__and_Slack.json)|

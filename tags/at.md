@@ -1,4 +1,4 @@
-# at : 5
+# at : 13
 
 |id|file|
 |----|----|
@@ -7,3 +7,11 @@
 |3561|[3561_Automate_Hyper-Personalized_Outreach_at_Scale_With_Bright_Data_and_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/35/3561_Automate_Hyper-Personalized_Outreach_at_Scale_With_Bright_Data_and_LLMs.json)|
 |7766|[7766_Send_Automated_Recruitment_Rejection_Email_at_End-of-Day__Google_Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7766_Send_Automated_Recruitment_Rejection_Email_at_End-of-Day__Google_Sheets___Gmail.json)|
 |15911|[15911_Monitor_Core_Web_Vitals_at_scale_with_PageSpeed_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15911_Monitor_Core_Web_Vitals_at_scale_with_PageSpeed_API_and_Google_Sheets.json)|
+|17507|[17507_Send_localized_9am_RSS_coffee_newsletters_with_rrule.net_and_Brevo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17507_Send_localized_9am_RSS_coffee_newsletters_with_rrule.net_and_Brevo.json)|
+|17589|[17589_Schedule_Instagram_posts_at_optimal_times_with_Rubinyun.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17589_Schedule_Instagram_posts_at_optimal_times_with_Rubinyun.json)|
+|17694|[17694_Localize_text_into_multiple_languages_with_Google_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17694_Localize_text_into_multiple_languages_with_Google_Gemini__Gmail__and_Sheets.json)|
+|17729|[17729_Alert_on_at-risk_nursery_plants_with_OpenWeather__Google_Sheets__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17729_Alert_on_at-risk_nursery_plants_with_OpenWeather__Google_Sheets__Gemini__and_Slack.json)|
+|18276|[18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json)|
+|18476|[18476_Monitor_at-risk_students_with_Google_Sheets__GPT-4o__Gmail__Slack_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18476_Monitor_at-risk_students_with_Google_Sheets__GPT-4o__Gmail__Slack_and_Telegram.json)|
+|18978|[18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json)|
+|19314|[19314_Detect_at-risk_gym_clients_with_Supabase__Gemini__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19314_Detect_at-risk_gym_clients_with_Supabase__Gemini__Slack__Gmail__and_Sheets.json)|

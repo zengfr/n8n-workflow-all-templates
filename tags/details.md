@@ -1,4 +1,4 @@
-# details : 28
+# details : 33
 
 |id|file|
 |----|----|
@@ -30,3 +30,8 @@
 |15882|[15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json)|
 |15971|[15971_Retrieve_Kuaishou_video_details_from_keywords_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15971_Retrieve_Kuaishou_video_details_from_keywords_with_JustOneAPI.json)|
 |16012|[16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json)|
+|17065|[17065_Extract_Twilio_voice_donation_details_with_Groq__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17065_Extract_Twilio_voice_donation_details_with_Groq__Gemini__and_Google_Sheets.json)|
+|17390|[17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json)|
+|18068|[18068_Look_up_contact_details_with_Searchbug_NAP_E_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18068_Look_up_contact_details_with_Searchbug_NAP_E_and_Google_Sheets.json)|
+|18173|[18173_Search_and_score_contact_details_with_Searchbug_Contact_Info_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18173_Search_and_score_contact_details_with_Searchbug_Contact_Info_API_and_Google_Sheets.json)|
+|18484|[18484_Research_Amazon_product_details_and_reviews_by_ASIN_with_Pangolinfo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18484_Research_Amazon_product_details_and_reviews_by_ASIN_with_Pangolinfo.json)|

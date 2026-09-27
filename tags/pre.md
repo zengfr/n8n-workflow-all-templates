@@ -1,4 +1,4 @@
-# pre : 16
+# pre : 23
 
 |id|file|
 |----|----|
@@ -18,3 +18,10 @@
 |15928|[15928_Send_Taiwan_stock_pre-market_briefings_using_TWSE__CNYES__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15928_Send_Taiwan_stock_pre-market_briefings_using_TWSE__CNYES__OpenAI_and_Telegram.json)|
 |16107|[16107_Send_pre-meeting_context_briefings_with_Outlook__SharePoint__Entra_ID_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16107_Send_pre-meeting_context_briefings_with_Outlook__SharePoint__Entra_ID_and_Teams.json)|
 |16351|[16351_Send_pre-meeting_Slack_briefings_with_Google_Calendar_and_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16351_Send_pre-meeting_Slack_briefings_with_Google_Calendar_and_GitHub.json)|
+|17034|[17034_Draft_personalized_pre-demo_messages_from_demo_bookings_with_Twain__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17034_Draft_personalized_pre-demo_messages_from_demo_bookings_with_Twain__Gmail__and_Slack.json)|
+|17374|[17374_Plan_campaign_targeting_and_pre-vet_ad_variants_with_Spendict__OpenAI__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17374_Plan_campaign_targeting_and_pre-vet_ad_variants_with_Spendict__OpenAI__Slack_and_Google_Sheets.json)|
+|17791|[17791_Send_pre-meeting_company_news_summaries_with_Google_Calendar__NewsAPI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17791_Send_pre-meeting_company_news_summaries_with_Google_Calendar__NewsAPI__and_Gmail.json)|
+|18466|[18466_Route_Clio_draft_pre-bill_review_and_escalation_emails_with_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18466_Route_Clio_draft_pre-bill_review_and_escalation_emails_with_SMTP.json)|
+|18489|[18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json)|
+|18526|[18526_Get_pre-call_briefs_for_Calendly_bookings_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18526_Get_pre-call_briefs_for_Calendly_bookings_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|19377|[19377_Enrich_legal_leads_and_send_attorney_briefings_with_webhooks_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19377_Enrich_legal_leads_and_send_attorney_briefings_with_webhooks_and_Google_Sheets.json)|

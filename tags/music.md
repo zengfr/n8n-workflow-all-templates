@@ -1,4 +1,4 @@
-# music : 17
+# music : 20
 
 |id|file|
 |----|----|
@@ -19,3 +19,6 @@
 |14538|[14538_Generate_AI_music_and_publish_to_YouTube_automatically_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14538_Generate_AI_music_and_publish_to_YouTube_automatically_with_Blotato.json)|
 |14985|[14985_Generate_AI_music_and_publish_YouTube_videos_automatically_with_Blotato__OpenAI__ElevenLabs__and_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14985_Generate_AI_music_and_publish_YouTube_videos_automatically_with_Blotato__OpenAI__ElevenLabs__and_Shotstack.json)|
 |15829|[15829_Recommend_TikTok_sound_and_caption_packs_for_AI_product_videos_with_Wouldliker.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15829_Recommend_TikTok_sound_and_caption_packs_for_AI_product_videos_with_Wouldliker.json)|
+|16953|[16953_Create_AI_music_videos_from_a_prompt_with_OpenAI__Kie.ai_and_BeatAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16953_Create_AI_music_videos_from_a_prompt_with_OpenAI__Kie.ai_and_BeatAPI.json)|
+|17744|[17744_Classify_Plex_music_into_smart_playlists_using_Ollama_and_local_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17744_Classify_Plex_music_into_smart_playlists_using_Ollama_and_local_LLMs.json)|
+|19579|[19579_Gate_film_and_TV_music_cue_rights_clearance_with_Gmail__OpenAI__and_Google_Drive_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19579_Gate_film_and_TV_music_cue_rights_clearance_with_Gmail__OpenAI__and_Google_Drive_Sheets.json)|

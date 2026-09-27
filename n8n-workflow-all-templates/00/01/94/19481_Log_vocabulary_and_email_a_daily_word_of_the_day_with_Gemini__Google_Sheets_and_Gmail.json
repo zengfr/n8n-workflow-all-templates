@@ -1,0 +1,666 @@
+{
+  "name": "Log vocabulary with Gemini AI and email yourself a word of the day",
+  "nodes": [
+    {
+      "id": "form_trigger_capture",
+      "name": "When New Word Added",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        860
+      ],
+      "webhookId": "89270808-55cf-415f-81e6-d493c4214969",
+      "parameters": {
+        "options": {
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Got it - I'll look that up and add it to your vocabulary sheet."
+            }
+          }
+        },
+        "formTitle": "Log a new word or phrase",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Word, phrase, or grammar pattern",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Add a word, phrase, sentence, or grammar pattern you just came across. AI will look it up and save a study card to your vocabulary sheet."
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "config_capture",
+      "name": "Set Language and Level",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        272,
+        860
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfgA1",
+              "name": "targetLanguage",
+              "type": "string",
+              "value": "Japanese"
+            },
+            {
+              "id": "cfgA2",
+              "name": "learnerLevel",
+              "type": "string",
+              "value": "beginner to intermediate"
+            },
+            {
+              "id": "cfgA3",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": "PASTE_YOUR_GOOGLE_SHEET_ID_HERE"
+            },
+            {
+              "id": "cfgA4",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Vocabulary"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "gemini_lookup",
+      "name": "Gemini Word Lookup",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "maxTries": 5,
+      "position": [
+        480,
+        860
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3.8-flash",
+          "cachedResultName": "models/gemini-3.8-flash"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=You are a language tutor helping a {{ $json.learnerLevel }} learner of {{ $json.targetLanguage }}. The learner just came across this word, phrase, sentence, or grammar pattern: \"{{ $('When New Word Added').item.json['Word, phrase, or grammar pattern'] }}\"\n\nLook it up and return ONLY a raw JSON object (no markdown code fences, no extra commentary) with these exact keys:\n- \"term\": the word/phrase/pattern written in its native script\n- \"reading\": if the language uses a script with a separate phonetic reading (for example, hiragana next to Japanese kanji), give that reading here. Leave this an empty string if not applicable.\n- \"meaning\": a clear, concise English meaning or translation\n- \"example\": one natural example sentence using the term in the target language, followed by an English translation in parentheses\n- \"grammar_note\": a short, beginner-friendly breakdown of the grammar or conjugation involved (word-by-word or component-by-component where relevant), or a brief usage note if no grammar breakdown applies\n\nReturn compact, valid JSON only."
+            }
+          ]
+        },
+        "jsonOutput": true,
+        "builtInTools": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "code_parse",
+      "name": "Parse AI Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        784,
+        860
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\n// Extract the raw text the model produced. The real Gemini API response shape is\n// { content: { parts: [{ text: \"...\" }], role: \"model\" }, finishReason, index }\nlet raw;\nif (item && item.content && Array.isArray(item.content.parts)) {\n  raw = item.content.parts.map(p => p.text || '').join('');\n} else if (typeof item.content === 'string') {\n  raw = item.content;\n} else if (typeof item.text === 'string') {\n  raw = item.text;\n} else if (typeof item.output === 'string') {\n  raw = item.output;\n} else if (typeof item.response === 'string') {\n  raw = item.response;\n} else {\n  raw = item;\n}\n\nlet parsed;\nif (raw && typeof raw === 'object' && !Array.isArray(raw)) {\n  parsed = raw;\n} else {\n  let text = typeof raw === 'string' ? raw : JSON.stringify(raw);\n  text = text.trim()\n    .replace(/^```json\\s*/i, '')\n    .replace(/^```\\s*/, '')\n    .replace(/```\\s*$/, '')\n    .trim();\n  try {\n    parsed = JSON.parse(text);\n  } catch (e) {\n    parsed = {\n      term: $('When New Word Added').item.json['Word, phrase, or grammar pattern'],\n      reading: '',\n      meaning: 'Could not parse the AI response automatically - check it by hand: ' + text.slice(0, 300),\n      example: '',\n      grammar_note: ''\n    };\n  }\n}\n\nreturn [{\n  json: {\n    term: parsed.term || '',\n    reading: parsed.reading || '',\n    meaning: parsed.meaning || '',\n    example: parsed.example || '',\n    grammar_note: parsed.grammar_note || '',\n    date_added: new Date().toISOString().slice(0, 10),\n    last_sent: ''\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sheets_append",
+      "name": "Append to Vocabulary Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 5,
+      "position": [
+        1040,
+        860
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "term": "={{ $json.term }}",
+            "example": "={{ $json.example }}",
+            "meaning": "={{ $json.meaning }}",
+            "reading": "={{ $json.reading }}",
+            "last_sent": "={{ $json.last_sent }}",
+            "date_added": "={{ $json.date_added }}",
+            "grammar_note": "={{ $json.grammar_note }}"
+          },
+          "schema": [
+            {
+              "id": "term",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "term",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reading",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reading",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "meaning",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "meaning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "example",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "example",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "grammar_note",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "grammar_note",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date_added",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "date_added",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "term"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set Language and Level').item.json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set Language and Level').item.json.spreadsheetId }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "schedule_trigger_digest",
+      "name": "When Daily Schedule Runs",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        1340
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "config_digest",
+      "name": "Set Spreadsheet and Email",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        272,
+        1340
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfgB1",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": "PASTE_YOUR_GOOGLE_SHEET_ID_HERE"
+            },
+            {
+              "id": "cfgB2",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Vocabulary"
+            },
+            {
+              "id": "cfgB3",
+              "name": "notifyEmail",
+              "type": "string",
+              "value": "you@example.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "sheets_read",
+      "name": "Read Vocabulary from Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 5,
+      "position": [
+        528,
+        1340
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set Spreadsheet and Email').item.json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set Spreadsheet and Email').item.json.spreadsheetId }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "code_pick",
+      "name": "Select Word of the Day",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        784,
+        1340
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r.term);\n\nif (rows.length === 0) {\n  return [];\n}\n\nlet candidates = rows.filter(r => !r.last_sent);\nif (candidates.length === 0) {\n  candidates = [...rows].sort((a, b) => new Date(a.last_sent) - new Date(b.last_sent));\n} else {\n  candidates.sort((a, b) => new Date(a.date_added) - new Date(b.date_added));\n}\n\nreturn [{ json: candidates[0] }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gmail_send",
+      "name": "Email Word of the Day",
+      "type": "n8n-nodes-base.gmail",
+      "maxTries": 5,
+      "position": [
+        1040,
+        1340
+      ],
+      "webhookId": "4eafad92-b855-421e-a536-f0ee87a10512",
+      "parameters": {
+        "sendTo": "={{ $('Set Spreadsheet and Email').item.json.notifyEmail }}",
+        "message": "=<h2>{{ $json.term }}{{ $json.reading ? ' (' + $json.reading + ')' : '' }}</h2><p><strong>Meaning:</strong> {{ $json.meaning }}</p><p><strong>Example:</strong><br>{{ $json.example }}</p><p><strong>Grammar note:</strong><br>{{ $json.grammar_note }}</p>",
+        "options": {},
+        "subject": "=Word of the day: {{ $json.term }}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "sheets_update",
+      "name": "Update Word Status in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 5,
+      "position": [
+        1440,
+        1340
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "last_sent": "={{ $now.format('yyyy-MM-dd') }}",
+            "row_number": "={{ $json.row_number }}"
+          },
+          "schema": [
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "term",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "term",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reading",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reading",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "meaning",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "meaning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "example",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "example",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "grammar_note",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "grammar_note",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date_added",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "date_added",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set Spreadsheet and Email').item.json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set Spreadsheet and Email').item.json.spreadsheetId }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "sticky_overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        0
+      ],
+      "parameters": {
+        "width": 1680,
+        "height": 620,
+        "content": "## 🗣️ Language Learning, Built for Real Life\n\nMade first for people who moved abroad for work and have to pick up the local language on the job - in meetings, hallway chats, emails from coworkers - not from a textbook. But it works just as well for anyone learning a language for travel, study, or just because.\n\nYou hear something new - a word, a correction, a phrase worth keeping - and by the time you think to write it down, it's gone. This workflow gives that moment somewhere to go, then makes sure you actually see it again.\n\n📝 **Capture** (below) turns anything you log into a real study card: AI looks it up and writes the meaning, an example sentence, and a grammar note, then saves it to your own Google Sheet - a vocabulary list built from what you actually say and hear at work and in daily life, not a generic textbook list.\n\n📬 **Digest** (below) is what makes it stick. Once a day it emails you one word from that sheet to review, cycling through everything you've logged so nothing gets forgotten. Consistency is most of what makes language learning work, and a short email that shows up on its own beats remembering to open an app.\n\nOnly one branch runs per execution, so each has its own Configuration node - just keep the Spreadsheet ID and Sheet Name the same in both (see the note on the right). Works for any language: just change the Target Language field."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_capture",
+      "name": "Capture section note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        680
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1680,
+        "height": 420,
+        "content": "## 📝 Capture a new word\n\nSubmit the form the moment you come across something worth remembering -> Configuration holds your target language, learner level, and sheet details -> Google Gemini looks up the term and returns a meaning, an example sentence, and a grammar breakdown -> Code cleans up the AI's response -> the row is appended to your Google Sheet as a permanent record, not a fleeting thought."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_digest",
+      "name": "Digest section note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        1160
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1676,
+        "height": 420,
+        "content": "## 📬 Daily word of the day\n\nOn a schedule you choose -> Configuration holds the same sheet details plus who to email -> every row in your vocabulary sheet is read -> Code picks the oldest word you haven't reviewed yet (and recycles through old ones once you've seen them all) -> Gmail sends it straight to your inbox -> the sheet is updated so it isn't repeated until everything's had a turn."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_sync_warning",
+      "name": "Keep configs in sync warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 1580,
+        "content": "## ⚠️ Keep both Configuration nodes in sync\n\nThe Spreadsheet ID and Sheet Name are duplicated in 'Set Language and Level' and 'Set Spreadsheet and Email' because only one branch runs per execution - they never pass data to each other directly. If you ever change or recreate the sheet, update both nodes, or one branch will silently write to (or read from) the wrong place."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "carry_row_number",
+      "name": "Set Row Number",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1248,
+        1340
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "crn1",
+              "name": "row_number",
+              "type": "number",
+              "value": "={{ $('Select Word of the Day').item.json.row_number }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.5
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Set Row Number": {
+      "main": [
+        [
+          {
+            "node": "Update Word Status in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Response": {
+      "main": [
+        [
+          {
+            "node": "Append to Vocabulary Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini Word Lookup": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When New Word Added": {
+      "main": [
+        [
+          {
+            "node": "Set Language and Level",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Word of the Day": {
+      "main": [
+        [
+          {
+            "node": "Set Row Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Word of the Day": {
+      "main": [
+        [
+          {
+            "node": "Email Word of the Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Language and Level": {
+      "main": [
+        [
+          {
+            "node": "Gemini Word Lookup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Daily Schedule Runs": {
+      "main": [
+        [
+          {
+            "node": "Set Spreadsheet and Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Spreadsheet and Email": {
+      "main": [
+        [
+          {
+            "node": "Read Vocabulary from Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Vocabulary from Sheets": {
+      "main": [
+        [
+          {
+            "node": "Select Word of the Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Log vocabulary and email a daily word of the day with Gemini, Google Sheets and Gmail",
+    "wechat": "youandme10086",
+    "id": 19481,
+    "update_time": "2026-09-27"
+  }
+}

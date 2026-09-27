@@ -1,4 +1,4 @@
-# tax : 21
+# tax : 24
 
 |id|file|
 |----|----|
@@ -23,3 +23,6 @@
 |12790|[12790_Monitor_revenue_tax_compliance_and_auto-correct_anomalies_with_Anthropic__MagicCSV__Gmail_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12790_Monitor_revenue_tax_compliance_and_auto-correct_anomalies_with_Anthropic__MagicCSV__Gmail_and_WhatsApp.json)|
 |13909|[13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13909_Reconcile_expenses_and_optimize_tax_deductions_with_OpenAI_GPT_4.1_mini_and_Gmail.json)|
 |15846|[15846_Generate_tax_compliance_checklists_from_RSS_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15846_Generate_tax_compliance_checklists_from_RSS_with_Gemini_and_Google_Sheets.json)|
+|16873|[16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json)|
+|17894|[17894_Verify_tax_IDs_in_PDF_uploads_with_Groq__Google_Sheets__Lovable__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17894_Verify_tax_IDs_in_PDF_uploads_with_Groq__Google_Sheets__Lovable__and_Gmail.json)|
+|19227|[19227_Chase_missing_tax_documents_with_Airtable__gpt-5.6-terra__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19227_Chase_missing_tax_documents_with_Airtable__gpt-5.6-terra__Gmail_and_Telegram.json)|

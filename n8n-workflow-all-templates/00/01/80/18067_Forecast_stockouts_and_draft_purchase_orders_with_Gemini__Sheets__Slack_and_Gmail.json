@@ -1,0 +1,466 @@
+{
+  "id": "IueF0KXGRqM8aAgH",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Forecast stockouts and draft purchase orders with Gemini, Sheets, Slack and Gmail",
+    "wechat": "youandme10086",
+    "id": 18067,
+    "update_time": "2026-09-27"
+  },
+  "name": "Forecast stockouts and draft purchase orders with Gemini and Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "1d47e9bb-38a9-4d9b-a797-2062ac50d8de",
+      "name": "Schedule Daily Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        16,
+        48
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9c2c4961-e058-4023-bcc6-c8f1fbe56644",
+      "name": "Get Inventory",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        224,
+        48
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Inventory"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "6120c3fb-88fd-4fbe-b895-bbb696e2bf7c",
+      "name": "Forecast Days of Cover",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        432,
+        48
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const r = $json;\nconst num = function (v) { return Number(String(v == null ? 0 : v).replace(/[^0-9.-]/g, '')) || 0; };\nconst stock = num(r['Stock On Hand']);\nconst weekly = num(r['Weekly Sales']);\nconst leadTime = num(r['Lead Time Days']) || 7;\nconst daily = weekly / 7;\nconst daysOfCover = daily > 0 ? Math.floor(stock / daily) : 999;\nconst reorderPoint = Math.ceil(daily * leadTime * 1.2);\nconst suggestedQty = Math.max(Math.ceil(daily * 30) - stock, 0);\nconst last = String(r['Last Alert'] || '');\nlet daysSinceAlert = 999;\nif (last) { const l = new Date(last); if (!isNaN(l.getTime())) { daysSinceAlert = Math.floor((new Date() - l) / 86400000); } }\nlet status = 'ok';\nif (daysOfCover <= leadTime) status = 'stockout_risk';\nelse if (stock <= reorderPoint) status = 'low';\nconst shouldAlert = status !== 'ok' && daysSinceAlert >= 3;\nreturn {\n  sku: r.SKU || '', product: r.Product || '', supplier: r.Supplier || '', supplierEmail: r['Supplier Email'] || '',\n  stock: stock, weekly: weekly, leadTime: leadTime, unitCost: num(r['Unit Cost']),\n  daysOfCover: daysOfCover, reorderPoint: reorderPoint, suggestedQty: suggestedQty,\n  orderValue: Math.round(suggestedQty * num(r['Unit Cost'])),\n  status: shouldAlert ? status : 'skip'\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b3dc4f90-9354-4754-99e9-3f08380d49af",
+      "name": "Write Purchase Recommendation",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        704,
+        48
+      ],
+      "parameters": {
+        "text": "=You are an inventory planner. Write a short purchase recommendation (max 110 words, no subject line) for the buyer.\n\nProduct: {{ $json.product }} ({{ $json.sku }})\nStock on hand: {{ $json.stock }} units\nSelling: {{ $json.weekly }} units a week\nDays of cover left: {{ $json.daysOfCover }}\nSupplier lead time: {{ $json.leadTime }} days\nReorder point: {{ $json.reorderPoint }} units\nSuggested order: {{ $json.suggestedQty }} units (about {{ $json.orderValue }})\nSupplier: {{ $json.supplier }}\n\nState plainly whether stock will run out before the next delivery can arrive, recommend the order quantity and when to place it, and note one risk to check (for example a sales spike or a supplier delay). Be concrete and calm, no filler.",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "ff5a2b2e-58a8-40d4-86e1-d143d09ae487",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        704,
+        224
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0.3
+        },
+        "modelName": "models/gemini-3.1-flash-lite"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "credential-id",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "27cb987f-e08d-41d1-9068-257468e25bb1",
+      "name": "Route by Stock Status",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1072,
+        32
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Forecast Days of Cover\").item.json.status }}",
+                    "rightValue": "stockout_risk"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $(\"Forecast Days of Cover\").item.json.status }}",
+                    "rightValue": "low"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Skip"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "a9fa30c7-c79b-4f20-93fd-45ec3dd3b00c",
+      "name": "Alert Stockout Risk",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1456,
+        16
+      ],
+      "webhookId": "94b3e796-72cf-4e15-9236-7ebd85bb048e",
+      "parameters": {
+        "text": "=*:rotating_light: Stockout risk: {{ $(\"Forecast Days of Cover\").item.json.product }} ({{ $(\"Forecast Days of Cover\").item.json.sku }})*\n*Cover:* {{ $(\"Forecast Days of Cover\").item.json.daysOfCover }} days vs {{ $(\"Forecast Days of Cover\").item.json.leadTime }} day lead time\n*Suggested order:* {{ $(\"Forecast Days of Cover\").item.json.suggestedQty }} units (~{{ $(\"Forecast Days of Cover\").item.json.orderValue }})\n*Supplier:* {{ $(\"Forecast Days of Cover\").item.json.supplier }}\nA draft PO is ready in Gmail.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "#operations"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "d7d08f72-4125-4a3c-b036-abfbad02985d",
+      "name": "Draft Purchase Order",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1680,
+        16
+      ],
+      "webhookId": "2aed4cfb-2418-4813-93f7-32c711bad266",
+      "parameters": {
+        "message": "={{ \"Hello \" + $(\"Forecast Days of Cover\").item.json.supplier + \",\\n\\nWe would like to place an order:\\n\\nProduct: \" + $(\"Forecast Days of Cover\").item.json.product + \" (\" + $(\"Forecast Days of Cover\").item.json.sku + \")\\nQuantity: \" + $(\"Forecast Days of Cover\").item.json.suggestedQty + \" units\\nEstimated value: \" + $(\"Forecast Days of Cover\").item.json.orderValue + \"\\n\\nPlease confirm availability and the delivery date. Our current stock covers about \" + $(\"Forecast Days of Cover\").item.json.daysOfCover + \" days, so an early confirmation would help.\\n\\nThank you.\" }}",
+        "options": {
+          "sendTo": "={{ $(\"Forecast Days of Cover\").item.json.supplierEmail }}"
+        },
+        "subject": "={{ \"Purchase order: \" + $(\"Forecast Days of Cover\").item.json.suggestedQty + \" x \" + $(\"Forecast Days of Cover\").item.json.product }}",
+        "resource": "draft"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "48d3d3bd-7b2f-4f6e-94fe-559ccb5d9445",
+      "name": "Write Back Stock Status",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1968,
+        16
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Inventory"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "a732d7ae-0a6a-4819-8277-62222184b1b7",
+      "name": "Email Low Stock Notice",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1456,
+        256
+      ],
+      "webhookId": "551ac6ea-8431-4b01-adc6-0469462085ae",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ $(\"Write Purchase Recommendation\").item.json.text }}",
+        "options": {},
+        "subject": "={{ \"Reorder soon: \" + $(\"Forecast Days of Cover\").item.json.product + \" (\" + $(\"Forecast Days of Cover\").item.json.daysOfCover + \" days cover)\" }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "15569d80-9f9b-4d1d-aa28-a806d7e5701c",
+      "name": "Overview Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -736,
+        -128
+      ],
+      "parameters": {
+        "width": 672,
+        "height": 664,
+        "content": "## Forecast stockouts and draft purchase orders with Gemini and Sheets\n\n### How it works\nRunning out of stock costs sales; over-ordering ties up cash. Every morning this template reads your inventory sheet and a Code node does the planning maths for each SKU: daily sales velocity, days of cover left, a reorder point based on the supplier lead time with a safety buffer, and a suggested order quantity to reach 30 days of cover. A Basic LLM Chain with Google Gemini then writes a short purchase recommendation that says plainly whether stock will run out before a delivery could arrive, how much to order and when, plus one risk to check. Stockout risks alert the operations channel and prepare a supplier PO draft in Gmail; low stock sends a reorder notice; and every SKU is written back with its cover, reorder point and status. Items alerted in the last three days are skipped so nobody is spammed.\n\n### Setup\n1. Connect Google Sheets, Google Gemini (PaLM) API, Gmail and Slack.\n2. Give the Inventory sheet columns: SKU, Product, Stock On Hand, Weekly Sales, Lead Time Days, Unit Cost, Supplier, Supplier Email, Last Alert.\n3. Set the buyer email and pick your Slack channel.\n\n### Customization tips\nPull stock from Shopify instead, or auto-send the PO once a human approves it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "019eeef9-146a-4a3a-839c-45541f287dad",
+      "name": "S1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 544,
+        "content": "## 1. Read stock & do the maths\nCompute daily velocity, days of cover, a lead-time-aware reorder point and the suggested order quantity. Recently alerted SKUs are skipped."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06cfc268-0715-4887-95f7-0a02279161ec",
+      "name": "S2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        592,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 736,
+        "height": 544,
+        "content": "## 2. Recommend (Basic LLM Chain)\nGemini turns the numbers into a plain recommendation: order how much, when, and what to watch out for."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f8dfe418-76dd-4c6c-905e-efc5024ac493",
+      "name": "S3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1344,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 812,
+        "height": 552,
+        "content": "## 3. Act & write back\nStockout risk alerts Slack and drafts a supplier PO; low stock emails the buyer. Every SKU row gets its cover, reorder point and status."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "3efd6f16-7726-4c1e-bd29-f69f88ecb0b6",
+  "nodeGroups": [],
+  "connections": {
+    "Get Inventory": {
+      "main": [
+        [
+          {
+            "node": "Forecast Days of Cover",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Stockout Risk": {
+      "main": [
+        [
+          {
+            "node": "Draft Purchase Order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Purchase Order": {
+      "main": [
+        [
+          {
+            "node": "Write Back Stock Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Daily Check": {
+      "main": [
+        [
+          {
+            "node": "Get Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Stock Status": {
+      "main": [
+        [
+          {
+            "node": "Alert Stockout Risk",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Low Stock Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Low Stock Notice": {
+      "main": [
+        [
+          {
+            "node": "Write Back Stock Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Forecast Days of Cover": {
+      "main": [
+        [
+          {
+            "node": "Write Purchase Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write Purchase Recommendation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Purchase Recommendation": {
+      "main": [
+        [
+          {
+            "node": "Route by Stock Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

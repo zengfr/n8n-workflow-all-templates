@@ -1,4 +1,4 @@
-# response : 65
+# response : 76
 
 |id|file|
 |----|----|
@@ -67,3 +67,14 @@
 |16342|[16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json)|
 |16446|[16446_Generate_incident_response_reports_with_Supabase__Gemini_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16446_Generate_incident_response_reports_with_Supabase__Gemini_and_Claude.json)|
 |16699|[16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json)|
+|17417|[17417_Triage_brand_crises_with_OpenAI__Telegram__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17417_Triage_brand_crises_with_OpenAI__Telegram__Slack__and_Google_Sheets.json)|
+|17470|[17470_Classify_and_draft_Gmail_replies_with_OpenRouter_and_a_Google_Docs_RAG_KB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17470_Classify_and_draft_Gmail_replies_with_OpenRouter_and_a_Google_Docs_RAG_KB.json)|
+|17602|[17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json)|
+|17721|[17721_Generate_RFP_response_documents_with_OpenAI_Assistants__Google_Docs__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17721_Generate_RFP_response_documents_with_OpenAI_Assistants__Google_Docs__Gmail__and_Slack.json)|
+|18035|[18035_Triage_negative_Google_reviews_with_Zapier__Twilio__Anthropic__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18035_Triage_negative_Google_reviews_with_Zapier__Twilio__Anthropic__and_email.json)|
+|18751|[18751_Score_GeM_tender_compliance_and_draft_bid_responses_with_OpenAI__Sheets__Telegram__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18751_Score_GeM_tender_compliance_and_draft_bid_responses_with_OpenAI__Sheets__Telegram__Slack_and_Gmail.json)|
+|19139|[19139_Resolve_Ivanti_Neurons_ITSM_incidents_with_OpenAI_and_the_Ivanti_knowledge_base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19139_Resolve_Ivanti_Neurons_ITSM_incidents_with_OpenAI_and_the_Ivanti_knowledge_base.json)|
+|19356|[19356_Investigate_Alertmanager_incidents_with_GPT-4.1__ClickUp__Slack__and_PagerDuty.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19356_Investigate_Alertmanager_incidents_with_GPT-4.1__ClickUp__Slack__and_PagerDuty.json)|
+|19473|[19473_Capture_and_reply_to_real_estate_leads_with_Typeform__Groq__Airtable__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19473_Capture_and_reply_to_real_estate_leads_with_Typeform__Groq__Airtable__Gmail_and_Slack.json)|
+|19539|[19539_Qualify_and_score_omnichannel_leads_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19539_Qualify_and_score_omnichannel_leads_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|19585|[19585_Track_HubSpot_deal_lead-response_SLAs_using_activity_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19585_Track_HubSpot_deal_lead-response_SLAs_using_activity_history.json)|

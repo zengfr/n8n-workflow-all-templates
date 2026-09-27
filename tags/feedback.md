@@ -1,4 +1,4 @@
-# feedback : 83
+# feedback : 92
 
 |id|file|
 |----|----|
@@ -85,3 +85,12 @@
 |15943|[15943_Collect_astrology_feedback_with_Telegram_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15943_Collect_astrology_feedback_with_Telegram_and_Supabase.json)|
 |16305|[16305_Sort_customer_feedback_by_rating_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16305_Sort_customer_feedback_by_rating_with_Google_Sheets_and_Slack.json)|
 |16757|[16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json)|
+|17542|[17542_Improve_Gmail_AI_replies_with_OpenAI_and_Tracira_human_feedback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17542_Improve_Gmail_AI_replies_with_OpenAI_and_Tracira_human_feedback.json)|
+|17783|[17783_Analyze_event_feedback_with_Google_Gemini__Discord__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17783_Analyze_event_feedback_with_Google_Gemini__Discord__and_Gmail.json)|
+|17953|[17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|18149|[18149_Analyze_customer_feedback_and_alert_negative_sentiment_with_gpt-5.6-terra_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18149_Analyze_customer_feedback_and_alert_negative_sentiment_with_gpt-5.6-terra_and_Telegram.json)|
+|18302|[18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json)|
+|18322|[18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json)|
+|18951|[18951_Qualify_sponsorship_leads_and_send_proposals_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18951_Qualify_sponsorship_leads_and_send_proposals_with_GPT-4o__Google_Sheets_and_Gmail.json)|
+|19302|[19302_Build_an_Airbnb_guest_feedback_review_queue_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19302_Build_an_Airbnb_guest_feedback_review_queue_with_Apify_and_Google_Sheets.json)|
+|19396|[19396_Review_Google_Play_app_feedback_and_replies_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19396_Review_Google_Play_app_feedback_and_replies_with_Apify_and_Google_Sheets.json)|

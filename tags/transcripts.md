@@ -1,4 +1,4 @@
-# transcripts : 53
+# transcripts : 65
 
 |id|file|
 |----|----|
@@ -55,3 +55,15 @@
 |16410|[16410_Log_Fireflies_meeting_transcripts_to_Google_Sheets_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16410_Log_Fireflies_meeting_transcripts_to_Google_Sheets_CRM.json)|
 |16598|[16598_Extract_post-call_glossary_terms_from_transcripts_with_Anthropic_Claude_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16598_Extract_post-call_glossary_terms_from_transcripts_with_Anthropic_Claude_and_Telegram.json)|
 |16664|[16664_Create_Google_Tasks_from_Tactiq_meeting_transcripts_using_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16664_Create_Google_Tasks_from_Tactiq_meeting_transcripts_using_OpenAI_and_Telegram.json)|
+|17139|[17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json)|
+|17531|[17531_Summarize_meeting_transcripts_with_DeepSeek_and_email_summaries_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17531_Summarize_meeting_transcripts_with_DeepSeek_and_email_summaries_via_Gmail.json)|
+|17723|[17723_Convert_WhatsApp_video_to_transcripts_and__tts_text_to_voice_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17723_Convert_WhatsApp_video_to_transcripts_and__tts_text_to_voice_with_Gemini.json)|
+|17937|[17937_Turn_call__chat__and_email_transcripts_into_sales_records_with_Claude__Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17937_Turn_call__chat__and_email_transcripts_into_sales_records_with_Claude__Sheets__and_Gmail.json)|
+|17942|[17942_Transcribe_WhatsApp_audio_with_Groq_Whisper_and_save_transcripts_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17942_Transcribe_WhatsApp_audio_with_Groq_Whisper_and_save_transcripts_to_Google_Drive.json)|
+|18202|[18202_Summarize_meeting_transcripts_with_Google_Drive__OpenAI__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18202_Summarize_meeting_transcripts_with_Google_Drive__OpenAI__Gmail__and_Sheets.json)|
+|18705|[18705_Create_Notion_tasks_from_meeting_transcripts_with_OpenAI__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18705_Create_Notion_tasks_from_meeting_transcripts_with_OpenAI__Slack__and_Sheets.json)|
+|18756|[18756_Collect_TikTok_video_transcripts_by_hashtag_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18756_Collect_TikTok_video_transcripts_by_hashtag_with_Apify.json)|
+|19044|[19044_Extract_Facebook_ad_hooks__CTAs_and_transcripts_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19044_Extract_Facebook_ad_hooks__CTAs_and_transcripts_to_Google_Sheets_with_Apify.json)|
+|19626|[19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json)|
+|19629|[19629_Create_ClickUp_meeting_action_items_from_transcripts_with_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19629_Create_ClickUp_meeting_action_items_from_transcripts_with_GPT-4o-mini_and_Slack.json)|
+|19780|[19780_Summarize_meeting_transcripts_with_GPT-4o__Jira__Notion__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19780_Summarize_meeting_transcripts_with_GPT-4o__Jira__Notion__Slack__and_Sheets.json)|

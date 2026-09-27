@@ -1,4 +1,4 @@
-# animal : 11
+# animal : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |6485|[6485_Generate___Rank_Animal_Advocacy_Content_with_Claude_AI__Open_Paws___Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6485_Generate___Rank_Animal_Advocacy_Content_with_Claude_AI__Open_Paws___Hugging_Face.json)|
 |9184|[9184_Generate_Viral_CCTV_Animal_Videos_using_GPT_and_Veo3_AI_for_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9184_Generate_Viral_CCTV_Animal_Videos_using_GPT_and_Veo3_AI_for_TikTok.json)|
 |10735|[10735_Generate_Animal_Battle_Videos_with_Flux_AI__Creatomate___Multi-Platform_Publishing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10735_Generate_Animal_Battle_Videos_with_Flux_AI__Creatomate___Multi-Platform_Publishing.json)|
+|17007|[17007_Generate_CCTV-style_animal_TikTok_videos_with_OpenAI__Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17007_Generate_CCTV-style_animal_TikTok_videos_with_OpenAI__Seedance_and_Blotato.json)|

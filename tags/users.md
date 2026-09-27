@@ -1,4 +1,4 @@
-# users : 23
+# users : 25
 
 |id|file|
 |----|----|
@@ -25,3 +25,5 @@
 |15739|[15739_Search_Xiaohongshu_users_by_keyword_and_get_profile_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15739_Search_Xiaohongshu_users_by_keyword_and_get_profile_details_with_JustOneAPI.json)|
 |15880|[15880_Search_Douyin_users_by_keyword_and_fetch_profile_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15880_Search_Douyin_users_by_keyword_and_fetch_profile_details_with_JustOneAPI.json)|
 |16423|[16423_Send_re-engagement_emails_to_inactive_users_with_Supabase__Claude_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16423_Send_re-engagement_emails_to_inactive_users_with_Supabase__Claude_and_SMTP.json)|
+|18457|[18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json)|
+|18524|[18524_Audit_inactive_Microsoft_365_users_and_email_license_reports_via_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18524_Audit_inactive_Microsoft_365_users_and_email_license_reports_via_Outlook.json)|

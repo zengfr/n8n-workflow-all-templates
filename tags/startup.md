@@ -1,4 +1,4 @@
-# startup : 14
+# startup : 18
 
 |id|file|
 |----|----|
@@ -16,3 +16,7 @@
 |15006|[15006_Generate_weekly_Reddit_startup_opportunity_reports_with_Groq_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15006_Generate_weekly_Reddit_startup_opportunity_reports_with_Groq_AI.json)|
 |16513|[16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json)|
 |16759|[16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json)|
+|16977|[16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json)|
+|17052|[17052_Register_credential_overwrites_on_startup_with_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17052_Register_credential_overwrites_on_startup_with_the_n8n_API.json)|
+|18834|[18834_Generate_a_full_startup_plan_from_one_sentence_with_OpenAI__Postgres__Notion_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18834_Generate_a_full_startup_plan_from_one_sentence_with_OpenAI__Postgres__Notion_and_Sheets.json)|
+|19088|[19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json)|

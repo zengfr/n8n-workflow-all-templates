@@ -1,4 +1,4 @@
-# templates : 21
+# templates : 24
 
 |id|file|
 |----|----|
@@ -23,3 +23,6 @@
 |15081|[15081_Find_the_most_relevant_workflow_templates_using_RAG__Qdrant_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15081_Find_the_most_relevant_workflow_templates_using_RAG__Qdrant_and_Gemini.json)|
 |15812|[15812_Send_Stripe_purchase_templates_from_Google_Drive_via_Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15812_Send_Stripe_purchase_templates_from_Google_Drive_via_Gmail_and_Discord.json)|
 |16780|[16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json)|
+|16941|[16941_Generate_and_email_PDFBolt_template_PDFs_via_Gmail_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16941_Generate_and_email_PDFBolt_template_PDFs_via_Gmail_webhook.json)|
+|16968|[16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json)|
+|19328|[19328_Draft_cold_email_templates_from_Google_Sheets_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19328_Draft_cold_email_templates_from_Google_Sheets_with_OpenAI_and_Gmail.json)|

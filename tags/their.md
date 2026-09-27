@@ -1,4 +1,4 @@
-# their : 7
+# their : 10
 
 |id|file|
 |----|----|
@@ -9,3 +9,6 @@
 |3480|[3480_Get_notified_when_your_competitors_change_their_pricing_with_Airtop_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/34/3480_Get_notified_when_your_competitors_change_their_pricing_with_Airtop_and_Slack.json)|
 |11746|[11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json)|
 |11941|[11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11941_Automated_employee_offboarding__lock_Redmine___GitLab_accounts_using_Odoo_18.json)|
+|18807|[18807_Build_competitor_battlecards_from_web_pages_and_G2_reviews_with_Bright_Data__GPT-5.6_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18807_Build_competitor_battlecards_from_web_pages_and_G2_reviews_with_Bright_Data__GPT-5.6_and_Google_Docs.json)|
+|18808|[18808_Find_competitor_content_gaps_from_sitemaps_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18808_Find_competitor_content_gaps_from_sitemaps_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|19840|[19840_Score_LinkedIn_post_engagers_as_leads_with_Periodix_Actions__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19840_Score_LinkedIn_post_engagers_as_leads_with_Periodix_Actions__Claude__and_Google_Sheets.json)|

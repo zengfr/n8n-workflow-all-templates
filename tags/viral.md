@@ -1,4 +1,4 @@
-# viral : 74
+# viral : 77
 
 |id|file|
 |----|----|
@@ -76,3 +76,6 @@
 |14266|[14266_Generate_AI_UGC_videos_with_HeyGen_and_post_to_Instagram_and_Facebook_daily.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14266_Generate_AI_UGC_videos_with_HeyGen_and_post_to_Instagram_and_Facebook_daily.json)|
 |15253|[15253_Score_daily_viral_YouTube_Shorts_ideas_using_Reddit__RSS__and_DeepSeek_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15253_Score_daily_viral_YouTube_Shorts_ideas_using_Reddit__RSS__and_DeepSeek_AI.json)|
 |16105|[16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json)|
+|18584|[18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json)|
+|18956|[18956_Track_TikTok_keyword_trends_with_API_Direct__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18956_Track_TikTok_keyword_trends_with_API_Direct__Google_Sheets_and_Slack.json)|
+|19256|[19256_Monitor_viral_competitor_Instagram_posts_with_Apify__Groq__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19256_Monitor_viral_competitor_Instagram_posts_with_Apify__Groq__Google_Sheets_and_Slack.json)|

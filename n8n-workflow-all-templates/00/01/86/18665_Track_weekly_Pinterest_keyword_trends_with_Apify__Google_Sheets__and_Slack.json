@@ -1,0 +1,559 @@
+{
+  "name": "Compare weekly Pinterest keyword results with Apify and post changes to Slack",
+  "nodes": [
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000001",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -280,
+        320
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000002",
+      "name": "Keyword and thresholds",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -60,
+        320
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "query",
+              "type": "string",
+              "value": "small kitchen storage"
+            },
+            {
+              "id": "s2",
+              "name": "maxItems",
+              "type": "number",
+              "value": 80
+            },
+            {
+              "id": "s3",
+              "name": "topN",
+              "type": "number",
+              "value": 25
+            },
+            {
+              "id": "s4",
+              "name": "minRankMove",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "s5",
+              "name": "slackChannel",
+              "type": "string",
+              "value": "#content"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000003",
+      "name": "Search Pinterest",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        180,
+        320
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~pinterest-search-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ query: $json.query, maxItems: $json.maxItems, includePromoted: false }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000004",
+      "name": "Drop pins without a title",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        400,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.title }}",
+              "rightValue": ""
+            },
+            {
+              "id": "c2",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000005",
+      "name": "Rank by saves",
+      "type": "n8n-nodes-base.sort",
+      "position": [
+        620,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "order": "descending",
+              "fieldName": "repinCount"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000006",
+      "name": "Keep the top slice",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        840,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// One item out: this week's ranked top slice for the keyword.\n// The Sort node upstream has already put the most-saved pin first.\nconst cfg = $('Keyword and thresholds').first().json;\nconst topN = Math.max(1, Number(cfg.topN) || 25);\n\nconst pins = $input.all()\n  .map((i) => i.json)\n  .filter((p) => p && p.id && p.title)\n  .slice(0, topN)\n  .map((p, idx) => ({\n    id: String(p.id),\n    rank: idx + 1,\n    title: p.title,\n    saves: Number(p.repinCount) || 0,\n    url: p.pinUrl || null,\n  }));\n\nif (!pins.length) {\n  throw new Error('Pinterest returned no usable pins for \"' + cfg.query + '\". Stopping here rather than writing an empty week into the history and calling it a drop.');\n}\n\nreturn [{\n  json: {\n    keyword: cfg.query,\n    capturedAt: new Date().toISOString().slice(0, 10),\n    pins,\n    snapshot: JSON.stringify(pins),\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000007",
+      "name": "Load the previous snapshot",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1080,
+        320
+      ],
+      "parameters": {
+        "options": {
+          "returnAllMatches": "returnAllMatches"
+        },
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.keyword }}",
+              "lookupColumn": "Keyword"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000008",
+      "name": "Compare with the previous week",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// Compare this week's top slice with the most recent earlier snapshot for the\n// same keyword. A first run has nothing to compare against and says so instead\n// of reporting every pin as new.\nconst cfg = $('Keyword and thresholds').first().json;\nconst now = $('Keep the top slice').first().json;\nconst minMove = Math.max(1, Number(cfg.minRankMove) || 3);\n\nconst parseSnapshot = (s) => {\n  try {\n    const v = JSON.parse(s);\n    return Array.isArray(v) ? v.filter((p) => p && p.id) : [];\n  } catch (e) {\n    return [];\n  }\n};\n\nconst base = {\n  keyword: now.keyword,\n  week: now.capturedAt,\n  snapshot: now.snapshot,\n  topPin: now.pins[0].title,\n  topSaves: now.pins[0].saves,\n  pinsTracked: now.pins.length,\n};\n\n// Earlier weeks only. Rows the sheet has not filled in are ignored, not guessed at.\nconst history = $input.all()\n  .map((i) => i.json)\n  .filter((r) => r && r.Snapshot && r.Week && String(r.Week) < now.capturedAt)\n  .sort((a, b) => String(b.Week).localeCompare(String(a.Week)));\n\nconst previous = history.find((r) => parseSnapshot(r.Snapshot).length > 0);\n\nif (!previous) {\n  return [{\n    json: Object.assign({}, base, {\n      firstRun: true,\n      changed: false,\n      comparedWith: null,\n      entered: [],\n      left: [],\n      moved: [],\n      report: 'No earlier snapshot for \"' + now.keyword + '\". This run stores the baseline; next week has something to compare against.',\n    }),\n  }];\n}\n\nconst before = new Map(parseSnapshot(previous.Snapshot).map((p) => [String(p.id), p]));\nconst current = new Map(now.pins.map((p) => [p.id, p]));\n\nconst entered = now.pins\n  .filter((p) => !before.has(p.id))\n  .map((p) => ({ title: p.title, rank: p.rank, saves: p.saves, url: p.url }));\n\nconst left = [...before.values()]\n  .filter((p) => !current.has(String(p.id)))\n  .map((p) => ({ title: p.title || '(title not stored)', rank: p.rank }))\n  .sort((a, b) => a.rank - b.rank);\n\nconst moved = now.pins\n  .filter((p) => before.has(p.id))\n  .map((p) => {\n    const was = before.get(p.id);\n    return {\n      title: p.title,\n      from: was.rank,\n      to: p.rank,\n      places: was.rank - p.rank,\n      savesGained: p.saves - (Number(was.saves) || 0),\n    };\n  })\n  .filter((m) => Math.abs(m.places) >= minMove)\n  .sort((a, b) => Math.abs(b.places) - Math.abs(a.places));\n\nconst fmt = (n) => (n >= 0 ? '+' + n : String(n));\nconst lines = [\n  'Keyword: ' + now.keyword,\n  'This week: ' + now.capturedAt + '   Previous: ' + previous.Week,\n  'Top slice size: ' + now.pins.length,\n  '',\n  'New in the top slice:',\n  ...(entered.length ? entered.map((e) => '- #' + e.rank + ' ' + e.title + ' (' + e.saves + ' saves)') : ['- none']),\n  '',\n  'Dropped out of the top slice:',\n  ...(left.length ? left.map((l) => '- was #' + l.rank + ' ' + l.title) : ['- none']),\n  '',\n  'Moved ' + minMove + ' places or more:',\n  ...(moved.length ? moved.map((m) => '- ' + m.title + ': #' + m.from + ' to #' + m.to + ' (' + fmt(m.savesGained) + ' saves)') : ['- none']),\n];\n\nreturn [{\n  json: Object.assign({}, base, {\n    firstRun: false,\n    changed: entered.length > 0 || left.length > 0 || moved.length > 0,\n    comparedWith: previous.Week,\n    entered,\n    left,\n    moved,\n    report: lines.join('\\n'),\n  }),\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-000000000009",
+      "name": "Save this week's snapshot",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1300,
+        540
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Week": "={{ $json.week }}",
+            "Keyword": "={{ $json.keyword }}",
+            "Top pin": "={{ $json.topPin }}",
+            "Snapshot": "={{ $json.snapshot }}",
+            "Top saves": "={{ $json.topSaves }}",
+            "Pins tracked": "={{ $json.pinsTracked }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-00000000000a",
+      "name": "Anything actually moved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1540,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "i1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.changed }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-00000000000b",
+      "name": "Write up what changed",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1780,
+        240
+      ],
+      "parameters": {
+        "text": "=You are writing the Monday note for one Pinterest keyword that somebody tracks week to week. Below is the change report. It is the only thing you know.\n\n{{ $json.report }}\n\nWrite at most 120 words in plain sentences. Say what changed, and what it suggests about where this keyword is heading. If the only movement is two or three pins swapping places, call it a quiet week instead of dressing it up.\n\nDo not invent pins, numbers or explanations that are not in the report. If the report says none, say none.",
+        "messages": {
+          "messageValues": []
+        },
+        "promptType": "define",
+        "hasOutputParser": false
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-00000000000c",
+      "name": "Model that writes the note",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1780,
+        480
+      ],
+      "parameters": {
+        "model": {
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-00000000000d",
+      "name": "Post the changes to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2020,
+        240
+      ],
+      "parameters": {
+        "text": "=*Pinterest — {{ $('Compare with the previous week').first().json.keyword }}*\nWeek of {{ $('Compare with the previous week').first().json.week }}, against {{ $('Compare with the previous week').first().json.comparedWith }}\n\n{{ $json.text }}\n\n_In: {{ $('Compare with the previous week').first().json.entered.length }} · out: {{ $('Compare with the previous week').first().json.left.length }} · moved: {{ $('Compare with the previous week').first().json.moved.length }}_",
+        "select": "channel",
+        "channelId": "={{ $('Keyword and thresholds').first().json.slackChannel }}",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-0000000000f0",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        60
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1320,
+        "content": "## Compare weekly Pinterest keyword results and post what changed\n\n### Who's it for\n\nAnyone who checks the same Pinterest keyword every week and has to remember, unaided, what the top pins looked like last time. Content planners working a single niche, and SEO people who treat Pinterest as a search engine.\n\n### How it works\n\nPinterest research is normally a snapshot: a fresh list of top pins, with no way to tell which of them are new. Every week reads like the last one. This keeps the snapshot and compares it.\n\n1. Every Monday the Pinterest Search Scraper reads your keyword. Organic pins only.\n2. Pins are ranked by saves and the top slice kept, each with its position.\n3. The previous snapshot for that keyword is read back from Google Sheets and diffed pin by pin: what entered, what dropped out, what moved at least N places, how the saves shifted.\n4. If nothing moved, the run stops without posting. A quiet week is an answer, not a reason to send a message.\n5. When something did move, a model writes a short note and Slack gets it.\n\nThe first run has nothing to compare against. It stores the baseline and says so, rather than reporting every pin as new. It will not tell you search volume or whether the keyword itself is growing. It compares the pins one query returned, nothing beyond that.\n\n### How to set up\n\nApify token in the Apify credential, OpenAI key in the chat model. Point both Sheets nodes at one sheet with the columns Week, Keyword, Top pin, Top saves, Pins tracked and Snapshot. Set the keyword in *Keyword and thresholds*.\n\n### Requirements\n\nAn Apify account, an OpenAI API key, a Google Sheet and a Slack workspace.\n\n### How to customize\n\n*Keyword and thresholds* holds what you normally touch: the keyword, how many pins to read, how big the tracked slice is, and how far a pin must move before it counts. Raise *minRankMove* if the Monday note turns chatty. One copy per keyword."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-0000000000f1",
+      "name": "Sticky Note config",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        60
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 220,
+        "content": "### 1. What to track\nMonday morning suits a weekly planning cycle. The keyword, the size of the tracked slice and the movement threshold all live in the next node, which is the only one you normally edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-0000000000f2",
+      "name": "Sticky Note collect",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        60
+      ],
+      "parameters": {
+        "width": 880,
+        "height": 220,
+        "content": "### 2. Read Pinterest and rank it by saves\nPromoted pins are excluded, so a save count is earned rather than bought. Ranking happens on *repinCount*, which is the save count. Pinterest also returns a *reactionCount*, which is a different and far sparser number, and sorting on it would put the ranking in the wrong order. The top slice is trimmed here and each pin carries its position forward."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-0000000000f3",
+      "name": "Sticky Note compare",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        60
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 270,
+        "content": "### 3. Compare with the previous week\nLast week's snapshot is read back from the sheet and diffed against this week's by pin id. This week is written to the sheet whichever way the comparison goes, so the history keeps building even on a week nobody hears about."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2c3d4e5-2222-4bbb-9002-0000000000f4",
+      "name": "Sticky Note deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "width": 700,
+        "height": 220,
+        "content": "### 4. Only speak when something moved\nThe IF node is the point of the whole thing: no movement, no message. The model only ever sees the diff, never the raw pin list, so it cannot describe a change that did not happen."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Rank by saves": {
+      "main": [
+        [
+          {
+            "node": "Keep the top slice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Pinterest": {
+      "main": [
+        [
+          {
+            "node": "Drop pins without a title",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep the top slice": {
+      "main": [
+        [
+          {
+            "node": "Load the previous snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Keyword and thresholds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write up what changed": {
+      "main": [
+        [
+          {
+            "node": "Post the changes to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keyword and thresholds": {
+      "main": [
+        [
+          {
+            "node": "Search Pinterest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything actually moved?": {
+      "main": [
+        [
+          {
+            "node": "Write up what changed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Drop pins without a title": {
+      "main": [
+        [
+          {
+            "node": "Rank by saves",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load the previous snapshot": {
+      "main": [
+        [
+          {
+            "node": "Compare with the previous week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Model that writes the note": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write up what changed",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare with the previous week": {
+      "main": [
+        [
+          {
+            "node": "Anything actually moved?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Save this week's snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track weekly Pinterest keyword trends with Apify, Google Sheets, and Slack",
+    "wechat": "youandme10086",
+    "id": 18665,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,0 +1,587 @@
+{
+  "name": "Compare iPhone and Android app reviews to find platform-specific complaints",
+  "nodes": [
+    {
+      "id": "trig",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        460
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfg",
+      "name": "Your two app listings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a0",
+              "name": "appName",
+              "type": "string",
+              "value": "Your app"
+            },
+            {
+              "id": "a1",
+              "name": "playAppId",
+              "type": "string",
+              "value": "com.example.yourapp"
+            },
+            {
+              "id": "a2",
+              "name": "appStoreId",
+              "type": "string",
+              "value": "123456789"
+            },
+            {
+              "id": "a3",
+              "name": "maxItems",
+              "type": "number",
+              "value": 150
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a1",
+      "name": "Android reviews",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        540,
+        320
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~google-play-reviews-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ appIds: [$json.playAppId], maxItems: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a2",
+      "name": "iPhone reviews",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        540,
+        600
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~app-store-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ appIds: [$json.appStoreId], maxItems: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "mrg",
+      "name": "Put both stores together",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        820,
+        460
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "norm",
+      "name": "Label each review with its store",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1080,
+        460
+      ],
+      "parameters": {
+        "jsCode": "// The two scrapers return different field names, so nothing downstream can compare them until\n// the shape matches. Stamp the platform on each row while we still know which branch it came\n// from, and normalise rating and text to one name each.\nconst out = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const isPlay = j.appId !== undefined || j.reviewId !== undefined;\n  const text = (j.text || j.review || j.content || j.body || '').toString().trim();\n  if (!text) continue;\n  out.push({ json: {\n    platform: isPlay ? 'Android' : 'iPhone',\n    rating: Number(j.score != null ? j.score : (j.rating || 0)),\n    text,\n    id: String(j.reviewId || j.id || text.slice(0, 40)),\n    date: j.date || j.updated || null,\n  } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "flt",
+      "name": "Drop the one-liners",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1340,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ ($json.text || \"\").length > 40 && $json.rating <= 3 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "dd",
+      "name": "Skip reviews seen last week",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1600,
+        460
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 100000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.id }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ch",
+      "name": "Name the complaint",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1860,
+        460
+      ],
+      "parameters": {
+        "text": "=A user left this review of {{ $('Your two app listings').first().json.appName }} on {{ $json.platform }}.\n\nReview ({{ $json.rating }} stars): {{ $json.text.slice(0, 1200) }}\n\nGive the underlying complaint a short label, 2-4 words, lower case, the kind a support lead\nwould put in a spreadsheet (\"battery drain\", \"login loop\", \"sync fails\"). If it is praise, or\nhas no specific complaint in it, return exactly: none\n\nReturn ONLY the label, nothing else.",
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "llm",
+      "name": "OpenAI chat model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1860,
+        680
+      ],
+      "parameters": {
+        "model": {
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "pivot",
+      "name": "Find the gap between the two stores",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2120,
+        460
+      ],
+      "parameters": {
+        "jsCode": "// The point of the workflow: not a list of complaints, but which ones are LOPSIDED.\n// A theme with 14 mentions on Android and 1 on iPhone is almost certainly a platform bug.\n// One split evenly is a product decision. Counting per platform is what separates them, and it\n// can only happen once every row is labelled - which is why it sits here and not inside a loop.\nconst rows = $input.all();\nconst seen = $('Skip reviews seen last week').all();\nconst tally = {};\nfor (let i = 0; i < rows.length; i++) {\n  const theme = (rows[i].json.text || '').toString().trim().toLowerCase();\n  if (!theme || theme === 'none') continue;\n  // the chain preserves order, so row i corresponds to input i\n  const platform = seen[i] ? seen[i].json.platform : 'unknown';\n  if (!tally[theme]) tally[theme] = { theme, Android: 0, iPhone: 0 };\n  if (tally[theme][platform] !== undefined) tally[theme][platform] += 1;\n}\nconst out = Object.keys(tally).map((k) => {\n  const t = tally[k];\n  const total = t.Android + t.iPhone;\n  const skew = total ? Math.abs(t.Android - t.iPhone) / total : 0;\n  return { json: {\n    theme: t.theme,\n    android: t.Android,\n    iphone: t.iPhone,\n    total,\n    // 1.0 means it only ever happens on one platform, 0 means both equally\n    lopsidedness: Number(skew.toFixed(2)),\n    verdict: skew >= 0.7 ? 'looks platform-specific' : 'affects both',\n    week: new Date().toISOString().slice(0, 10),\n  } };\n});\nout.sort((a, b) => b.json.total - a.json.total);\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sh",
+      "name": "Write this week table",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2380,
+        460
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "opt-slack",
+      "name": "Optional: post the worst gap to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2120,
+        900
+      ],
+      "parameters": {
+        "text": "=*{{ $json.theme }}* - {{ $json.android }} on Android vs {{ $json.iphone }} on iPhone ({{ $json.verdict }})",
+        "select": "channel",
+        "channelId": "#product",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "opt-notion",
+      "name": "Optional: open a Notion page per theme",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2380,
+        900
+      ],
+      "parameters": {
+        "title": "={{ $json.theme }}",
+        "options": {},
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Android|number",
+              "numberValue": "={{ $json.android }}"
+            },
+            {
+              "key": "iPhone|number",
+              "numberValue": "={{ $json.iphone }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "st0",
+      "name": "Sticky Note s0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 1. Once a week\n\nMonday morning, so the table is waiting when someone looks. Both stores are read in the SAME run, which is what makes them comparable at all."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st1",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 2. Your two listings\n\nThe Play package name and the App Store numeric id for the same app. Everything downstream comes from these two fields."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st2",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 3. Both stores at once\n\nTwo Apify nodes run in parallel, one per store. Each carries its own max charge, so a busy week cannot surprise you."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st3",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 4. Merge\n\nThe two branches meet here. Nothing can be compared until they do, which is why all the interesting work is downstream of this node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st4",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 5. One shape\n\nThe scrapers use different field names. This stamps the platform on each row and renames rating and text, then keeps only 1-3 star reviews over 40 characters."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st5",
+      "name": "Sticky Note s5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 6. Name the complaint\n\nThe model returns a short theme label per review, or \"none\" for praise. This is the only step needing an OpenAI key."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st6",
+      "name": "Sticky Note s6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 7. The actual answer\n\nCounts each theme per platform and scores how lopsided it is. 14 on Android and 1 on iPhone is a bug; an even split is a product problem."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-opt",
+      "name": "Sticky Note optional",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        780
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 210,
+        "content": "## Optional - other endings\n\nWired to nothing on purpose. Hang **Slack** off the end for the single worst gap each week, or **Notion** if each theme should become a page someone can own."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-desc",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        40
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1380,
+        "content": "## Compare iPhone and Android reviews to find platform-specific complaints\n\nReads your app reviews from both stores in one run and tells you which complaints are lopsided - the ones happening on one platform and not the other.\n\n**Who is this for?**\nAnyone shipping the same app on both stores who reads reviews store by store, and therefore never notices when a complaint is one-sided.\n\n**What problem is this workflow solving?**\nRead separately, both stores look like the same soup of complaints. Read together, the split is the signal. A theme that appears 14 times on Android and once on iPhone is almost certainly a platform bug worth a ticket. One that appears evenly on both is a product decision. Nobody spots that scrolling two review pages in two tabs.\n\n**What this workflow does**\n- Pulls recent reviews from Google Play and the App Store in the same run.\n- Merges the two branches and normalises them to one shape, stamping each row with the store it came from.\n- Keeps only 1-3 star reviews with something in them, and skips any handled last week.\n- Asks the model for a short theme label per review.\n- Counts each theme per platform, scores how lopsided it is, and writes a ranked table.\n\n**Setup**\n1. Put your Play package name and App Store id in the second node.\n2. Connect Apify, OpenAI and Google Sheets credentials.\n3. Run it once by hand and read the sheet before you schedule it.\n\n**Requirements**\nApify (the two review scrapers), an OpenAI key, and a Google Sheet.\n\n**How to customize this workflow to your needs**\nThe lopsidedness threshold is one number in \"Find the gap between the two stores\". 0.7 means at least 70% of a theme mentions sit on one platform before it is called platform-specific. Lower it to see more.\n\nWant praise too? The star filter currently keeps `rating <= 3`.\n\n**Good to know**\nIt compares the reviews it can see, which is the recent page from each store rather than your whole history, so treat the counts as this week sample and not a total. And a theme only looks one-sided if both stores were actually read: if one Apify node fails, the other platform counts will look artificially lopsided. Check both branches ran before acting on a result."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "iPhone reviews": {
+      "main": [
+        [
+          {
+            "node": "Put both stores together",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Android reviews": {
+      "main": [
+        [
+          {
+            "node": "Put both stores together",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI chat model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Name the complaint",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Name the complaint": {
+      "main": [
+        [
+          {
+            "node": "Find the gap between the two stores",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Drop the one-liners": {
+      "main": [
+        [
+          {
+            "node": "Skip reviews seen last week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Your two app listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Your two app listings": {
+      "main": [
+        [
+          {
+            "node": "Android reviews",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "iPhone reviews",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Put both stores together": {
+      "main": [
+        [
+          {
+            "node": "Label each review with its store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Skip reviews seen last week": {
+      "main": [
+        [
+          {
+            "node": "Name the complaint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label each review with its store": {
+      "main": [
+        [
+          {
+            "node": "Drop the one-liners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find the gap between the two stores": {
+      "main": [
+        [
+          {
+            "node": "Write this week table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Compare iOS and Android review complaints with Apify, OpenAI and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19091,
+    "update_time": "2026-09-27"
+  }
+}

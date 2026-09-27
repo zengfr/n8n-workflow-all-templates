@@ -1,0 +1,872 @@
+{
+  "name": "Back up a server directory to Backblaze B2 with rclone",
+  "nodes": [
+    {
+      "id": "eec089c3-7d59-4677-9c76-ff82585f1c8a",
+      "name": "Ensure rclone Installed on Source Server",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        1424,
+        496
+      ],
+      "parameters": {
+        "command": "=if command -v rclone >/dev/null 2>&1; then\n  echo \"rclone already present: $(rclone version | head -n1)\"\nelse\n  curl -fsS https://rclone.org/install.sh | sudo -n bash\n  echo \"rclone installed: $(rclone version | head -n1)\"\nfi"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "35b53023-c5c9-46e2-9f14-38a77780bef1",
+      "name": "Stop: Fix Backblaze B2 Credentials",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        2768,
+        688
+      ],
+      "parameters": {
+        "errorMessage": "=Could not connect to Backblaze B2 bucket \"{{ $('Prepare Backup Configuration').item.json.config.bucket }}\" with the Key ID and Application Key you provided.\n\nPlease check:\n1- The Key ID and Application Key are correct and still active.    \n2- The bucket \"{{ $('Prepare Backup Configuration').item.json.config.bucket }}\" actually exists in your B2 account.   \n3- The application key has read/write permission scoped to this bucket (or is a master/account-wide key)\n\nThen submit the form again."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cff661f7-262c-4f91-8654-39c85c5363d0",
+      "name": "Route by Backup Mode",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2768,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-mode-sync",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Load Configuration').item.json.mode }}",
+              "rightValue": "sync"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ff6c3ad7-ef15-4eb7-b23d-2ba78a73d516",
+      "name": "Sync Directory to B2 (rclone sync)",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2992,
+        400
+      ],
+      "parameters": {
+        "command": "=SRC=\"{{ $('Load Configuration').item.json.sourceDir }}\"\nREMOTE=\"{{ $('Load Configuration').item.json.remoteName }}\"\nBUCKET=\"{{ $('Load Configuration').item.json.bucket }}\"\nDEST_PREFIX=\"{{ $('Load Configuration').item.json.destPrefix }}\"\n\nCRYPT_REMOTE=\"${REMOTE}_crypt\"\n\nENCRYPTION_ENABLED={{ $('Load Configuration').first().json.encrypted }}\n\nif [ \"$ENCRYPTION_ENABLED\" = \"true\" ]; then\n\n  # Sync to encrypted remote\n  rclone sync \\\n    \"$SRC\" \\\n    \"${CRYPT_REMOTE}:${DEST_PREFIX}\" \\\n    --fast-list \\\n    --transfers 8 \\\n    --checksum \\\n    -v\n\nelse\n\n  # Sync directly to B2 bucket\n  rclone sync \\\n    \"$SRC\" \\\n    \"${REMOTE}:${BUCKET}/${DEST_PREFIX}\" \\\n    --fast-list \\\n    --transfers 8 \\\n    --checksum \\\n    -v\n\nfi\n\n\nrc=$?\n\nif [ \"$rc\" -eq 0 ]; then\n  echo \"sync-done\"\nelse\n  echo \"sync-failed rc=$rc\" >&2\n  exit \"$rc\"\nfi"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "25bf011d-6068-4662-a7a4-7d9e003fcb17",
+      "name": "Create Versioned Backup (rclone copy)",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2992,
+        592
+      ],
+      "parameters": {
+        "command": "=SRC=\"{{ $('Load Configuration').item.json.sourceDir }}\"\nREMOTE=\"{{ $('Load Configuration').item.json.remoteName }}\"\nBUCKET=\"{{ $('Load Configuration').item.json.bucket }}\"\nDEST_PREFIX=\"{{ $('Load Configuration').item.json.destPrefix }}\"\nARCHIVE_BASE=\"backup\"\n\nCRYPT_REMOTE=\"${REMOTE}_crypt\"\n\nDATE_TAG=$(date +\"%Y-%m-%d_%H-%M-%S\")\nARCHIVE=\"${ARCHIVE_BASE}-${DATE_TAG}\"\nENCRYPTION_ENABLED={{ $('Load Configuration').first().json.encrypted }}\n\nif [ \"$ENCRYPTION_ENABLED\" = \"true\" ]; then\n\n  # Copy into encrypted remote with dated archive folder\n  rclone copy \\\n    \"$SRC\" \\\n    \"${CRYPT_REMOTE}:${DEST_PREFIX}/${ARCHIVE}\" \\\n    --transfers 8 \\\n    -v\n\nelse\n\n  # Copy into normal B2 bucket with dated archive folder\n  rclone copy \\\n    \"$SRC\" \\\n    \"${REMOTE}:${BUCKET}/${DEST_PREFIX}/${ARCHIVE}\" \\\n    --transfers 8 \\\n    -v\n\nfi\n\n\nrc=$?\n\nif [ \"$rc\" -eq 0 ]; then\n  echo \"versioned-done\"\nelse\n  echo \"versioned-failed rc=$rc\" >&2\n  exit \"$rc\"\nfi\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f172fef6-3cd1-41d9-a93e-954aa2f3ab0b",
+      "name": "Connection OK?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2544,
+        592
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-conn-ok",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.stdout }}",
+              "rightValue": "connection-ok"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b3a6755e-aa7e-42d7-bd87-b87b37655c3d",
+      "name": "Test Connection",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2320,
+        592
+      ],
+      "parameters": {
+        "command": "=ENCRYPTION_ENABLED={{ $json.encrypted}}\nREMOTE={{ $('Load Configuration').first().json.remoteName }}\nBUCKET={{ $('Load Configuration').first().json.bucket }}\nCRYPT_REMOTE=\"${REMOTE}_crypt\"\n\nif [ \"$ENCRYPTION_ENABLED\" = \"true\" ]; then\n\n  # Test encrypted remote connection\n  if rclone lsd \"${CRYPT_REMOTE}:\" >/dev/null 2>&1; then\n    echo \"encrypted-connection-ok\"\n  else\n    echo \"encrypted-connection-failed\"\n    exit 1\n  fi\n\nelse\n\n  # Test normal B2 remote connection\n  if rclone lsd \"${REMOTE}:${BUCKET}\" >/dev/null 2>&1; then\n    echo \"connection-ok\"\n  else\n    echo \"connection-failed\"\n    exit 1\n  fi\n\nfi"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f7a2f5ee-496e-4583-81d7-2f763956cba3",
+      "name": "Create B2 Remote (No Encryption)",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        1872,
+        592
+      ],
+      "parameters": {
+        "command": "=REMOTE=\"{{ $('Prepare Backup Configuration').item.json.config.remoteName }}\"\nBUCKET=\"{{ $('Prepare Backup Configuration').item.json.config.bucket }}\"\nKEY_ID=\"{{ $('Prepare Backup Configuration').item.json.b2KeyId }}\"\nAPP_KEY=\"{{ $('Prepare Backup Configuration').item.json.b2AppKey }}\"\n\n# Write the B2 credentials into rclone's own config file on the source\n# server (~/.config/rclone/rclone.conf), obscured at rest. After this,\n# every other command only ever references \"REMOTE:\" by name - the raw\n# key/secret never has to be typed again.\nrclone config create \"$REMOTE\" b2 account=\"$KEY_ID\" key=\"$APP_KEY\" --non-interactive --obscure >/dev/null\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe41ea1b-dfa7-44f8-bf06-5ffd35dd8e33",
+      "name": "Create B2 Remote (Encryption)",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        1872,
+        400
+      ],
+      "parameters": {
+        "command": "=REMOTE=\"{{ $('Prepare Backup Configuration').item.json.config.remoteName }}\"\nBUCKET=\"{{ $('Prepare Backup Configuration').item.json.config.bucket }}\"\nKEY_ID=\"{{ $('Prepare Backup Configuration').item.json.b2KeyId }}\"\nAPP_KEY=\"{{ $('Prepare Backup Configuration').item.json.b2AppKey }}\"\n\nCRYPT_REMOTE=\"${REMOTE}_crypt\"\n\nCRYPT_PASSWORD=\"{{ $('Backup Configuration Form').item.json['encryption passphrase'] }}\"\n\n\n# Create B2 remote\nrclone config create \"$REMOTE\" b2 \\\n  account=\"$KEY_ID\" \\\n  key=\"$APP_KEY\" \\\n  --non-interactive \\\n  --obscure >/dev/null\n\n\n# Create encrypted remote\nrclone config create \"$CRYPT_REMOTE\" crypt \\\n  remote=\"${REMOTE}:${BUCKET}\" \\\n  password=\"$CRYPT_PASSWORD\" \\\n  filename_encryption=standard \\\n  directory_name_encryption=false \\\n  --non-interactive >/dev/null\n\n\n\nunset KEY_ID\nunset APP_KEY\nunset CRYPT_PASSWORD"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ced54f68-90b9-4474-be77-3baaf2096df3",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        -48
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 624,
+        "content": "## Quick Setup\n\n1. Create an HTTP Basic Auth credential in n8n and select it in the **Backup Configuration Form** node.\n2. Configure the SSH credentials for the source and destination servers.\n3. If using Backblaze, create your account and generate an Application Key:\n   https://www.backblaze.com/b2/cloud-storage.html\n4. Open the **Backup Setup Form** and submit your backup settings once.\n5. The workflow will automatically install rclone (if needed), configure secure SSH access, and save your configuration.\n6. Open the **Schedule Trigger** node and choose how often backups should run.\n7. Activate the workflow.\n\n## Requirements\n\n- Basic Auth credentials configured for the form.\n- SSH access to both servers.\n- Passwordless sudo privileges.\n- If encryption is enabled, provide an rclone passphrase in the setup form.\n\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "28d0e2dd-f8e5-47ce-bc24-4d7a8326ed9b",
+      "name": "Save Backup Configuration",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1200,
+        496
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "mode": "={{ $('Prepare Backup Configuration').item.json.config.mode }}",
+            "bucket": "={{ $('Prepare Backup Configuration').item.json.config.bucket }}",
+            "encrypted": "={{ $('Prepare Backup Configuration').item.json.config.encrypted }}",
+            "sourceDir": "={{ $('Prepare Backup Configuration').item.json.config.sourceDir }}",
+            "destPrefix": "={{ $('Prepare Backup Configuration').item.json.config.destPrefix }}",
+            "remoteName": "={{ $('Prepare Backup Configuration').item.json.config.remoteName }}"
+          },
+          "schema": [
+            {
+              "id": "sourceDir",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "sourceDir",
+              "defaultMatch": false
+            },
+            {
+              "id": "mode",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "mode",
+              "defaultMatch": false
+            },
+            {
+              "id": "encrypted",
+              "type": "boolean",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "encrypted",
+              "defaultMatch": false
+            },
+            {
+              "id": "destPrefix",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "destPrefix",
+              "defaultMatch": false
+            },
+            {
+              "id": "bucket",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "bucket",
+              "defaultMatch": false
+            },
+            {
+              "id": "remoteName",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "remoteName",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "1"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Backup_Config_B2"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "a776b3dc-144b-45fc-9567-d13219ef68f4",
+      "name": "Load Configuration",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2096,
+        592
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "1"
+            }
+          ]
+        },
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Backup_Config_B2"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "d0c79ca6-da53-42a4-bf18-9d3aca64beb0",
+      "name": "Encryption Enabled?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1648,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e913b348-09fb-4926-aa11-bc8fe71f8de0",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Save Backup Configuration').item.json.encrypted }}",
+              "rightValue": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "147e83cc-b887-4d6a-a229-76bf212f0ea9",
+      "name": "Initialize Backup Configuration Table",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        976,
+        496
+      ],
+      "parameters": {
+        "columns": {
+          "column": [
+            {
+              "name": "sourceDir"
+            },
+            {
+              "name": "mode"
+            },
+            {
+              "name": "encrypted",
+              "type": "boolean"
+            },
+            {
+              "name": "destPrefix"
+            },
+            {
+              "name": "bucket"
+            },
+            {
+              "name": "remoteName"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "table",
+        "operation": "create",
+        "tableName": "Backup_Config_B2"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "379a37e4-6a82-4705-9e89-53b8667badf9",
+      "name": "Prepare Backup Configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        752,
+        496
+      ],
+      "parameters": {
+        "jsCode": "// Validates and rebuilds the backup configuration from raw form input.\n// Nothing here is trusted until it passes its regex - the object returned\n// is what every downstream SSH/shell command will interpolate.\n\nconst form = $('Backup Configuration Form').item.json;\n\nfunction fail(field, reason) {\n  throw new Error(`Invalid \"${field}\": ${reason}`);\n}\n\n// --- Source directory: absolute path, no shell metacharacters ---\nconst sourceDirRaw = (form['Source directory on the server'] || '').trim();\nconst sourceDirPattern = /^\\/$|^\\/[A-Za-z0-9._-]+(\\/[A-Za-z0-9._-]+)*$/;\nif (!sourceDirPattern.test(sourceDirRaw)) {\n  fail('Source directory on the server', 'must be an absolute path using only letters, numbers, dot, dash, underscore and slash');\n}\nconst sourceDir = sourceDirRaw;\n\n// --- Backup mode: only the two known dropdown labels are ever accepted ---\nconst modeLabel = form['Backup mode'] || '';\nlet mode;\nif (modeLabel.toLowerCase().includes('sync')) {\n  mode = 'sync';\n} else if (modeLabel.toLowerCase().includes('versioned')) {\n  mode = 'versioned';\n} else {\n  fail('Backup mode', 'unrecognized option');\n}\n\n// --- Bucket name: Backblaze B2 naming rules (6-63 chars, letters/numbers/dashes) ---\nconst bucketRaw = (form['Backblaze B2 bucket name'] || '').trim();\nconst bucketPattern = /^[A-Za-z0-9-]{6,63}$/;\nif (!bucketPattern.test(bucketRaw)) {\n  fail('Backblaze B2 bucket name', 'must be 6-63 characters: letters, numbers and dashes only');\n}\nconst bucket = bucketRaw;\n\n// --- Destination path inside the bucket ---\nconst destPrefixRaw = (form['Destination path inside the bucket'] || 'backups').trim();\nconst destPrefixTrimmed = destPrefixRaw.replace(/^\\/+|\\/+$/g, '') || 'backups';\nconst destPrefixPattern = /^[A-Za-z0-9._-]+(\\/[A-Za-z0-9._-]+)*$/;\nif (!destPrefixPattern.test(destPrefixTrimmed)) {\n  fail('Destination path inside the bucket', 'only letters, numbers, dot, dash, underscore and slash are allowed');\n}\nconst destPrefix = destPrefixTrimmed;\n\n// --- Backblaze B2 Key ID ---\nconst b2KeyIdRaw = (form['Backblaze B2 Key ID'] || '').trim();\nconst b2KeyIdPattern = /^[A-Za-z0-9]{10,64}$/;\nif (!b2KeyIdPattern.test(b2KeyIdRaw)) {\n  fail('Backblaze B2 Key ID', 'expected an alphanumeric key ID (10-64 chars)');\n}\nconst b2KeyId = b2KeyIdRaw;\n\n// --- Backblaze B2 Application Key ---\nconst b2AppKeyRaw = (form['Backblaze B2 Application Key'] || '').trim();\nconst b2AppKeyPattern = /^[A-Za-z0-9+/=_-]{10,128}$/;\nif (!b2AppKeyPattern.test(b2AppKeyRaw)) {\n  fail('Backblaze B2 Application Key', 'expected an alphanumeric/base64-style key (10-128 chars)');\n}\nconst b2AppKey = b2AppKeyRaw;\n\n// --- Encryption toggle ---\nconst wantsEncryption = (form['Encrypt the backup?'] || '').trim().toLowerCase() === 'yes';\n\n// --- Passphrase: only required and validated when encryption is enabled ---\nlet cryptPassphrase = null;\nif (wantsEncryption) {\n  const passphraseRaw = form['encryption passphrase'] || '';\n  // Block characters that can break out of a double-quoted shell string:\n  // double quote, backtick, dollar sign, backslash, and any line break.\n  const forbidden = /[\"`$\\\\\\r\\n]/;\n  if (passphraseRaw.length < 8) {\n    fail('encryption passphrase', 'must be at least 8 characters when encryption is enabled');\n  }\n  if (forbidden.test(passphraseRaw)) {\n    fail('encryption passphrase', 'cannot contain \", `, $, \\\\ or line breaks');\n  }\n  cryptPassphrase = passphraseRaw;\n}\n\nconst config = {\n  sourceDir,\n  mode,\n  bucket,\n  destPrefix,\n  remoteName: 'b2backup',\n  encrypted: wantsEncryption,\n};\n\nreturn [{\n  json: {\n    config,\n    b2KeyId,\n    b2AppKey,\n    cryptPassphrase,\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "89ce36d1-f813-4398-a5a3-fdc394183dfd",
+      "name": "Backup Configuration Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        528,
+        496
+      ],
+      "webhookId": "68326e18-3273-4b27-8b66-583df42ca9b7",
+      "parameters": {
+        "path": "backup-b2",
+        "options": {
+          "buttonLabel": "Start backup"
+        },
+        "formTitle": "Backup to Backblaze B2 (rclone)",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Source directory on the server",
+              "placeholder": "/home/ubuntu/data",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Backup mode",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Versioned backups (dated folder each run)"
+                  },
+                  {
+                    "option": "Sync (mirror bucket with source)"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Backblaze B2 bucket name",
+              "placeholder": "my-server-backups",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Destination path inside the bucket",
+              "placeholder": "backups"
+            },
+            {
+              "fieldLabel": "Backblaze B2 Key ID",
+              "requiredField": true
+            },
+            {
+              "fieldType": "password",
+              "fieldLabel": "Backblaze B2 Application Key",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Encrypt the backup?",
+              "defaultValue": "No",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldType": "password",
+              "fieldLabel": "encryption passphrase",
+              "placeholder": "leave blank if you chose \"No\" above"
+            }
+          ]
+        },
+        "authentication": "basicAuth",
+        "formDescription": "Enter the details needed to back up a directory to a Backblaze B2 bucket using rclone, over key-based API auth (fully headless, no browser login)."
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "09ea20ca-4885-4af0-97c7-d6ea640365a0",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        608
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 432,
+        "content": "**Restore Encrypted Backups**\n\nLocally (no SSH needed): put the downloaded file in a folder, then:\n\n```bash\nrclone config create local-crypt crypt \\\n  remote=/path/to/that/folder \\\n  password=YOUR_PASSPHRASE \\\n  directory_name_encryption=false\n\nrclone lsf local-crypt:              # list decrypted filenames\nrclone copy local-crypt: ~/decrypted-output   # extract\n```\n\nMore info: [rclone crypt](https://rclone.org/crypt/) "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f6d7ef4b-51a8-4381-86c1-961226d429d6",
+      "name": "Backup Completed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3216,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-backup-done",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $json.stdout }}",
+              "rightValue": "-done"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7fab4dd4-7a5d-419d-8bda-a34d45afe79d",
+      "name": "Stop: Backup Failed",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        3440,
+        496
+      ],
+      "parameters": {
+        "errorMessage": "=The backup did not complete successfully.  Command output: {{ $json.stdout }}  Error output: {{ $json.stderr }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8fc6a415-0216-450d-bbe3-50ab8bbec0ce",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 320,
+        "content": "## Capture backup settings\n\nStarts the setup path with a form trigger and prepares the submitted backup configuration for storage."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b0e41899-2ab8-4e81-91bf-e9cff361f7ca",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1360,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 320,
+        "content": "## Install and choose encryption\n\nEnsures rclone is installed on the source server, then branches based on whether encrypted remote storage is enabled."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0ac742c-6219-4eb1-9b09-41ad4341d178",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1808,
+        816
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 320,
+        "content": "## Scheduled backup start\n\nTriggers the recurring backup execution according to the configured schedule."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "26cac55c-75ee-4980-a8d8-435f58e6bdcb",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2064,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 864,
+        "height": 448,
+        "content": "## Load and validate connection\n\nLoads the saved configuration, tests the rclone connection to Backblaze B2, and stops with an error if the credentials or remote setup are invalid."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5788196-a3b6-4f7c-969f-b56d9e881ed0",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 544,
+        "content": "## Run selected backup\n\nRoutes the successful connection by backup mode and runs either rclone sync for mirroring or rclone copy for a versioned backup."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fafad26-3e79-44fb-8966-84897a6d0b68",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        912,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 320,
+        "content": "## Store backup configuration\n\nInitializes the backup configuration table and saves the prepared settings for later scheduled runs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c67079a7-ac8a-4bfd-9baf-bf18ddfc1ad6",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1808,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "height": 640,
+        "content": "## Create B2 remote\n\nCreates the rclone Backblaze B2 remote configuration, using either an encrypted crypt remote or a plain B2 remote."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5357c82c-3dd1-4c52-ae76-4e3b98388891",
+      "name": "When Scheduled",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1888,
+        976
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Connection OK?": {
+      "main": [
+        [
+          {
+            "node": "Route by Backup Mode",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop: Fix Backblaze B2 Credentials",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Scheduled": {
+      "main": [
+        [
+          {
+            "node": "Load Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test Connection": {
+      "main": [
+        [
+          {
+            "node": "Connection OK?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Backup Completed?": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Stop: Backup Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Configuration": {
+      "main": [
+        [
+          {
+            "node": "Test Connection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Encryption Enabled?": {
+      "main": [
+        [
+          {
+            "node": "Create B2 Remote (Encryption)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create B2 Remote (No Encryption)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Backup Mode": {
+      "main": [
+        [
+          {
+            "node": "Sync Directory to B2 (rclone sync)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Versioned Backup (rclone copy)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Backup Configuration Form": {
+      "main": [
+        [
+          {
+            "node": "Prepare Backup Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Backup Configuration": {
+      "main": [
+        [
+          {
+            "node": "Ensure rclone Installed on Source Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Backup Configuration": {
+      "main": [
+        [
+          {
+            "node": "Initialize Backup Configuration Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create B2 Remote (Encryption)": {
+      "main": [
+        [
+          {
+            "node": "Load Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create B2 Remote (No Encryption)": {
+      "main": [
+        [
+          {
+            "node": "Load Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync Directory to B2 (rclone sync)": {
+      "main": [
+        [
+          {
+            "node": "Backup Completed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Versioned Backup (rclone copy)": {
+      "main": [
+        [
+          {
+            "node": "Backup Completed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Backup Configuration Table": {
+      "main": [
+        [
+          {
+            "node": "Save Backup Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure rclone Installed on Source Server": {
+      "main": [
+        [
+          {
+            "node": "Encryption Enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Back up a Linux server directory to Backblaze B2 with rclone",
+    "wechat": "youandme10086",
+    "id": 18923,
+    "update_time": "2026-09-27"
+  }
+}

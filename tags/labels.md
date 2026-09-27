@@ -1,4 +1,4 @@
-# labels : 10
+# labels : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |6504|[6504_Automatically_Create_Invoices_from_Gmail_Labels_with_GPT-4O___QuickBooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/65/6504_Automatically_Create_Invoices_from_Gmail_Labels_with_GPT-4O___QuickBooks.json)|
 |7619|[7619_Automatic_Trello_Board_Cleanup_by_Removing_Cards_with_Specific_Labels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7619_Automatic_Trello_Board_Cleanup_by_Removing_Cards_with_Specific_Labels.json)|
 |13121|[13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13121_Triage_LinkedIn_notifications_and_InMails_using_Gmail__OpenAI__Notion__and_Slack.json)|
+|17489|[17489_Label_incoming_Gmail_emails_with_GPT-5_and_Gmail_labels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17489_Label_incoming_Gmail_emails_with_GPT-5_and_Gmail_labels.json)|
+|18015|[18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json)|
+|19769|[19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json)|

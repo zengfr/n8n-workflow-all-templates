@@ -1,4 +1,4 @@
-# progress : 8
+# progress : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |13156|[13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13156_Validate_student_progress_and_orchestrate_interventions_with_Claude_and_email.json)|
 |13533|[13533_Send_a_weekly_Keephub_task_progress_report_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13533_Send_a_weekly_Keephub_task_progress_report_to_Slack.json)|
 |13655|[13655_Run_WhatsApp_quizzes_and_track_student_progress_with_Wati__GPT-4.1_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13655_Run_WhatsApp_quizzes_and_track_student_progress_with_Wati__GPT-4.1_and_Sheets.json)|
+|17211|[17211_Generate_weekly_student_progress_reports_with_Gemini__Supabase__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17211_Generate_weekly_student_progress_reports_with_Gemini__Supabase__and_WhatsApp.json)|
+|18477|[18477_Send_weekly_parent_progress_reports_with_Google_Sheets__GPT-4o_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18477_Send_weekly_parent_progress_reports_with_Google_Sheets__GPT-4o_mini_and_Gmail.json)|

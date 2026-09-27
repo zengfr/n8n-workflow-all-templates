@@ -1,4 +1,4 @@
-# easybits : 22
+# easybits : 25
 
 |id|file|
 |----|----|
@@ -24,3 +24,6 @@
 |16098|[16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json)|
 |16099|[16099_Parse_reference_letters_from_Gmail_with_easybits_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16099_Parse_reference_letters_from_Gmail_with_easybits_and_Google_Sheets.json)|
 |16100|[16100_Create_deduplicated_LinkedIn_candidate_rows_from_Slack_with_easybits_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16100_Create_deduplicated_LinkedIn_candidate_rows_from_Slack_with_easybits_and_Google_Sheets.json)|
+|16901|[16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json)|
+|18674|[18674_Extract_purchase_orders_from_PDFs_with_easybits__Google_Sheets__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18674_Extract_purchase_orders_from_PDFs_with_easybits__Google_Sheets__and_Google_Drive.json)|
+|19010|[19010_Reconcile_invoice_payments_from_bank_statements_using_n8n_Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19010_Reconcile_invoice_payments_from_bank_statements_using_n8n_Forms.json)|

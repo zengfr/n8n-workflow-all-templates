@@ -1,4 +1,4 @@
-# internet : 4
+# internet : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |5535|[5535_Internet_Archive_Search_API_Integration_for_AI_Agents__3_Operations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5535_Internet_Archive_Search_API_Integration_for_AI_Agents__3_Operations.json)|
 |5536|[5536_Internet_Archive_Wayback_Machine_API_for_AI_Assistants.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5536_Internet_Archive_Wayback_Machine_API_for_AI_Assistants.json)|
 |13798|[13798_Turn_websites_into_a_Google_Sheets_database_with_MrScraper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13798_Turn_websites_into_a_Google_Sheets_database_with_MrScraper_and_Gmail.json)|
+|19477|[19477_Generate_internet_research_PDF_reports_with_GPT-4.1-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19477_Generate_internet_research_PDF_reports_with_GPT-4.1-mini_and_Gmail.json)|

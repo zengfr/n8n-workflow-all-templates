@@ -1,4 +1,4 @@
-# languages : 8
+# languages : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |10264|[10264_Translate_documents_to_multiple_languages_with_Google_Drive_and_DeepL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10264_Translate_documents_to_multiple_languages_with_Google_Drive_and_DeepL.json)|
 |10864|[10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10864_Translate_PDFs_into_Multiple_Languages_with_Google_Translate___ConvertAPI_Cost_Tracking.json)|
 |15350|[15350_Generate_two-host_PDF_podcasts_with_GPT-5__Smallest_AI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15350_Generate_two-host_PDF_podcasts_with_GPT-5__Smallest_AI__and_Gmail.json)|
+|16976|[16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json)|
+|17571|[17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json)|
+|17694|[17694_Localize_text_into_multiple_languages_with_Google_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17694_Localize_text_into_multiple_languages_with_Google_Gemini__Gmail__and_Sheets.json)|

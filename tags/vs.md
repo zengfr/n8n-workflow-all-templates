@@ -1,4 +1,4 @@
-# vs : 12
+# vs : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |15164|[15164_Generate_AI-powered_pro_vs_con_debates_with_GPT-4o_and_Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15164_Generate_AI-powered_pro_vs_con_debates_with_GPT-4o_and_Google_Sheets_tracking.json)|
 |16146|[16146_Analyze_skill_gaps_for_target_jobs_with_BrowserAct__LinkedIn_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16146_Analyze_skill_gaps_for_target_jobs_with_BrowserAct__LinkedIn_and_GPT-4o-mini.json)|
 |16583|[16583_Monitor_budget_variance_with_Google_Sheets__Gemini__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16583_Monitor_budget_variance_with_Google_Sheets__Gemini__Slack__and_Gmail.json)|
+|19069|[19069_Send_nightly_staging_vs_production_drift_digest_from_Google_Sheets_with_Snapshot_Site_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19069_Send_nightly_staging_vs_production_drift_digest_from_Google_Sheets_with_Snapshot_Site_and_Slack.json)|
+|19195|[19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json)|

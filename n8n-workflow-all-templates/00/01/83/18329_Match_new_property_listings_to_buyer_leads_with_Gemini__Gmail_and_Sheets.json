@@ -1,0 +1,1137 @@
+{
+  "id": "6DQ7OEDyqqiBaTKm",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Match new property listings to buyer leads with Gemini, Gmail and Sheets",
+    "wechat": "youandme10086",
+    "id": 18329,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Property Matcher — Match Buyer Leads to Active Listings Automatically",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "96e57fd8-0d96-4bf3-9bb8-53a90f0c374f",
+      "name": "Webhook: New Listing Received",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -1008,
+        -80
+      ],
+      "webhookId": "b4434a7a-a295-4db6-b972-aaec844d6d07",
+      "parameters": {
+        "path": "b4434a7a-a295-4db6-b972-aaec844d6d07",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "43361a49-2bf9-4604-8b47-aec717090ae3",
+      "name": "Normalize Listing Details",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -800,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\n\n// Handle all possible webhook payload structures\nconst data = raw.body || raw.data || raw;\n\n// Extract all fields with fallbacks\nconst listing = {\n  listingAddress:  data.listingAddress  || data.address        || null,\n  listingPrice:    parseFloat(data.listingPrice || data.price  || 0),\n  bedrooms:        data.bedrooms        || data.beds            || null,\n  bathrooms:       data.bathrooms       || data.baths           || null,\n  sqft:            data.sqft            || data.squareFeet      || null,\n  propertyType:    data.propertyType    || data.type            || null,\n  neighborhood:    data.neighborhood    || data.area            || null,\n  zipCode:         data.zipCode         || data.zip             || null,\n  description:     data.description     || data.details         || null,\n  listingUrl:      data.listingUrl      || data.url             || null,\n  daysOnMarket:    parseInt(data.daysOnMarket || data.days || 0),\n  source:          data.source          || 'Manual',\n\n  // Agent + workflow config\n  CALENDLY_USERNAME:  data.CALENDLY_USERNAME  || 'qualmatic',\n  CALENDLY_EVENT_SLUG: data.CALENDLY_EVENT_SLUG || 'property-viewing',\n  AGENT_EMAIL:        data.AGENT_EMAIL         || 'user@example.com',\n  AGENT_NAME:         data.AGENT_NAME          || 'QM',\n  MAX_MATCHES:        parseInt(data.MAX_MATCHES || '5'),\n  DAYS_SINCE_CONTACT: parseInt(data.DAYS_SINCE_CONTACT || '14'),\n  BUDGET_FLEXIBILITY: 0.10  // 10% over budget still qualifies — adjust as needed\n};\n\n// Validate required fields\nif (!listing.listingAddress) {\n  throw new Error('listingAddress is required in the webhook payload');\n}\nif (!listing.listingPrice || listing.listingPrice === 0) {\n  throw new Error('listingPrice is required in the webhook payload');\n}\n\nreturn [{ json: listing }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f88906b6-2ff3-48b8-972a-76ef8bd86d80",
+      "name": "Fetch Active Buyer Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -352,
+        -80
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "b4caea15-cacd-450f-a289-40ef58c555dd",
+      "name": "Stage 1 Filter: Hard Criteria",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        16,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "const listing = $('Normalize Listing Details').first().json;\nconst BUDGET_FLEXIBILITY = parseFloat($('Normalize Listing Details').first().json.BUDGET_FLEXIBILITY || '0.10');\nconst DAYS_SINCE_CONTACT = parseInt(listing.DAYS_SINCE_CONTACT || '14');\n\nconst allLeads = $input.all().map(i => i.json);\nconst candidates = [];\n\nfor (const lead of allLeads) {\n  // Must be active\n  const isActive = String(lead['Active'] || '').toLowerCase().trim();\n  if (isActive !== 'true') continue;\n\n  // Must have email\n  const email = (lead['Email'] || '').trim();\n  if (!email) continue;\n\n  // Budget check\n  const budgetMin = parseFloat(\n    String(lead['Budget Min'] || '0').replace(/[^0-9.]/g, '')\n  ) || 0;\n  const budgetMax = parseFloat(\n    String(lead['Budget Max'] || '9999999').replace(/[^0-9.]/g, '')\n  ) || 9999999;\n  const price = parseFloat(listing.listingPrice) || 0;\n  const adjustedMax = budgetMax * (1 + BUDGET_FLEXIBILITY);\n\n  if (price < budgetMin || price > adjustedMax) continue;\n\n  // Property type check\n  const leadType = (lead['Property Type'] || 'any').toLowerCase().trim();\n  const listingType = (listing.propertyType || '').toLowerCase().trim();\n  if (leadType !== 'any' && leadType !== '' && leadType !== listingType) continue;\n\n  // Recently contacted check\n  if (lead['Last Contacted']) {\n    const lastContact = new Date(lead['Last Contacted']);\n    if (!isNaN(lastContact.getTime())) {\n      const daysSince = (Date.now() - lastContact.getTime()) / (1000 * 60 * 60 * 24);\n      if (daysSince < DAYS_SINCE_CONTACT) continue;\n    }\n  }\n\n  candidates.push({\n    leadId:            lead['leadId']            || lead['Lead ID'] || email,\n    leadName:          lead['Lead Name']         || 'there',\n    leadEmail:         email,\n    leadPhone:         lead['Phone']             || null,\n    budgetMin:         lead['Budget Min']        || null,\n    budgetMax:         lead['Budget Max']        || null,\n    preferredLocation: lead['Preferred Location']|| null,\n    propertyType:      lead['Property Type']     || null,\n    bedroomsMin:       lead['Bedrooms Min']      || null,\n    timeline:          lead['Timeline']          || null,\n    notes:             lead['Notes']             || null,\n    facebookLeadId:    lead['Facebook Lead ID']  || null\n  });\n}\n\nreturn candidates.map(c => ({ json: { ...c, listing } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5cf5df1a-0404-4d7a-86ad-7b7279f2b34f",
+      "name": "Candidates Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        208,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bab7ce07-1f86-4ad2-bebd-8b8bacbeea19",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $input.all().length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "2b1feb8d-0d83-4f4c-a1b4-9d4dd6071c23",
+      "name": "Score Candidates & Draft Emails",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "position": [
+        640,
+        -96
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "options": {
+          "systemMessage": "You are a real estate buyer matching assistant. A new property listing has come onto the market. Score each buyer lead's fit and draft personalized emails for good matches.\n\nSCORING:\n- Strong Match: Budget fits well, property type matches, location aligns, timeline active — contact immediately\n- Possible Match: Most criteria fit, one area uncertain or slightly off — worth contacting\n- Poor Match: Two or more criteria misaligned — skip\n\nEMAIL RULES (Strong Match and Possible Match only):\n- 2–3 sentences body maximum\n- Reference the lead's specific preferences naturally\n- Sound like the agent personally thought of them\n- Never mention AI or automation\n- Never say \"matches your criteria\" — be conversational\n- Format: greeting line \\n\\n body paragraph\n\nFor Poor Match — set email_subject and email_body to null.\n\nOutput ONLY a valid JSON array, one object per lead, same order as input. No preamble, no markdown:\n[{\n  \"leadId\": \"value\",\n  \"leadName\": \"value\",\n  \"matchScore\": \"Strong Match|Possible Match|Poor Match\",\n  \"matchReason\": \"one sentence\",\n  \"email_subject\": \"subject or null\",\n  \"email_body\": \"Hi {name},\\n\\nBody. or null\"\n}]"
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "NEW LISTING:\nAddress: {{ $('Normalize Listing Details').first().json.listingAddress }}\nPrice: ${{ $('Normalize Listing Details').first().json.listingPrice }}\nType: {{ $('Normalize Listing Details').first().json.propertyType }}\nBedrooms: {{ $('Normalize Listing Details').first().json.bedrooms }}\nBathrooms: {{ $('Normalize Listing Details').first().json.bathrooms }}\nSize: {{ $('Normalize Listing Details').first().json.sqft }} sqft\nNeighborhood: {{ $('Normalize Listing Details').first().json.neighborhood }}\nDescription: {{ $('Normalize Listing Details').first().json.description }}\n\nBUYER LEADS TO SCORE:\n{{ JSON.stringify($input.all().map(item => ({\n  leadId: item.json.leadId,\n  leadName: item.json.leadName,\n  budgetMin: item.json.budgetMin,\n  budgetMax: item.json.budgetMax,\n  preferredLocation: item.json.preferredLocation,\n  propertyType: item.json.propertyType,\n  bedroomsMin: item.json.bedroomsMin,\n  timeline: item.json.timeline,\n  notes: item.json.notes\n}))) }}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "credential-id",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 1.2
+    },
+    {
+      "id": "18977615-793c-4f99-b89c-bf006b5c94a4",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        976,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================\nconst LISTING_NODE = 'Normalize Listing Details';\nconst FILTER_NODE = 'Stage 1 Filter: Hard Criteria';\n// ============================================================\n\nconst listing = $(LISTING_NODE).first().json;\nconst allCandidates = $(FILTER_NODE).all().map(i => i.json);\nconst maxMatches = parseInt(listing.MAX_MATCHES || '5');\n\n// Extract Gemini output\nconst allItems = $input.all();\nlet rawText = '';\nfor (const item of allItems) {\n  const text = item.json?.content?.parts?.[0]?.text\n    || item.json?.candidates?.[0]?.content?.parts?.[0]?.text\n    || item.json?.output || '';\n  if (text && text.includes('matchScore')) {\n    rawText = text;\n    break;\n  }\n}\n\nconst cleaned = rawText\n  .replace(/```json\\s*/gi, '')\n  .replace(/```\\s*/gi, '')\n  .trim();\n\nlet scores = [];\ntry {\n  scores = JSON.parse(cleaned);\n} catch (e) {\n  // Fallback — mark all candidates as Possible Match\n  scores = allCandidates.map(c => ({\n    leadId: c.leadId,\n    leadName: c.leadName,\n    matchScore: 'Possible Match',\n    matchReason: 'AI scoring unavailable — review manually.',\n    email_subject: `A property just listed that might interest you`,\n    email_body: `Hi ${c.leadName},\\n\\nA new property just listed that fits several of your requirements. I wanted to make sure you had a chance to take a look before it moves.`\n  }));\n}\n\n// HTML email formatter\nfunction escapeHtml(text) {\n  if (!text) return '';\n  return String(text)\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\nfunction formatEmailHtml(text) {\n  if (!text) return '';\n  const paragraphs = text\n    .split(/\\n\\s*\\n/)\n    .map(p => p.replace(/\\s+/g, ' ').trim())\n    .filter(Boolean);\n  return paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');\n}\n\n// Build Calendly booking link\nconst calendlyUsername = listing.CALENDLY_USERNAME || '';\nconst calendlySlug = listing.CALENDLY_EVENT_SLUG || 'property-viewing';\nconst bookingLink = calendlyUsername\n  ? `https://calendly.com/${calendlyUsername}/${calendlySlug}`\n  : null;\n\n// Merge scores with candidate data\nconst scoredLeads = scores.map((score, i) => {\n  const candidate = allCandidates.find(c => c.leadId === score.leadId)\n    || allCandidates[i]\n    || {};\n\n  return {\n    ...candidate,\n    matchScore:   score.matchScore || 'Poor Match',\n    matchReason:  score.matchReason || '',\n    email_subject: score.email_subject || null,\n    email_body:    score.email_body\n      ? formatEmailHtml(score.email_body)\n      : null,\n    bookingLink\n  };\n});\n\n// Filter to Strong + Possible only, cap at maxMatches\nconst topMatches = scoredLeads\n  .filter(l => l.matchScore === 'Strong Match' || l.matchScore === 'Possible Match')\n  .sort((a, b) => {\n    // Strong Match first\n    if (a.matchScore === 'Strong Match' && b.matchScore !== 'Strong Match') return -1;\n    if (b.matchScore === 'Strong Match' && a.matchScore !== 'Strong Match') return 1;\n    return 0;\n  })\n  .slice(0, maxMatches);\n\nconst strongCount = topMatches.filter(l => l.matchScore === 'Strong Match').length;\nconst possibleCount = topMatches.filter(l => l.matchScore === 'Possible Match').length;\n\n// Build agent summary HTML\nconst agentSummaryHtml = `\n  <div style=\"font-family:Arial,sans-serif;max-width:600px;\">\n    <div style=\"background:#1a1a2e;color:white;padding:20px;border-radius:8px 8px 0 0;\">\n      <h2 style=\"margin:0;\">🏠 Property Match Report</h2>\n      <p style=\"margin:8px 0 0 0;opacity:0.8;\">\n        ${escapeHtml(listing.listingAddress)}\n      </p>\n    </div>\n    <div style=\"background:#f8f9fa;padding:12px 20px;border-bottom:1px solid #ddd;\">\n      <p style=\"margin:0;font-size:14px;\">\n        <strong>${topMatches.length}</strong> buyers contacted &nbsp;|&nbsp;\n        <strong>${strongCount}</strong> Strong Matches &nbsp;|&nbsp;\n        <strong>${possibleCount}</strong> Possible Matches\n      </p>\n    </div>\n    <div style=\"padding:20px;background:white;\">\n      ${topMatches.map(lead => `\n        <div style=\"border-left:4px solid ${lead.matchScore === 'Strong Match' ? '#27ae60' : '#f39c12'};\n          padding:12px 16px;margin:12px 0;border-radius:0 8px 8px 0;background:#f9f9f9;\">\n          <p style=\"margin:0 0 4px 0;\">\n            <strong>${lead.matchScore === 'Strong Match' ? '✅' : '📋'} \n            ${escapeHtml(lead.matchScore)} — ${escapeHtml(lead.leadName)}</strong>\n          </p>\n          <p style=\"margin:0 0 4px 0;color:#555;font-size:14px;\">\n            ${escapeHtml(lead.leadEmail)} | \n            Budget: ${escapeHtml(lead.budgetMin)}–${escapeHtml(lead.budgetMax)}\n          </p>\n          <p style=\"margin:0;font-size:14px;\">\n            <strong>Reason:</strong> ${escapeHtml(lead.matchReason)}\n          </p>\n          <p style=\"margin:4px 0 0 0;font-size:13px;color:#27ae60;\">\n            Match email sent ✅\n          </p>\n        </div>\n      `).join('')}\n    </div>\n    <div style=\"padding:16px 20px;background:#f8f9fa;border-top:1px solid #ddd;\n      border-radius:0 0 8px 8px;font-size:13px;color:#666;\">\n      <strong>Listing:</strong> ${escapeHtml(listing.listingAddress)} | \n      $${Number(listing.listingPrice).toLocaleString()} | \n      ${escapeHtml(listing.bedrooms)}bd ${escapeHtml(listing.bathrooms)}ba |\n      Day ${escapeHtml(listing.daysOnMarket)} | ${escapeHtml(listing.source)}<br>\n      ${listing.listingUrl \n        ? `<a href=\"${escapeHtml(listing.listingUrl)}\" style=\"color:#3498db;\">View listing →</a>`\n        : ''}\n    </div>\n  </div>\n`;\n\n// Slack notification\nconst slackNotification = topMatches.length > 0\n  ? `🏠 *${topMatches.length} buyer${topMatches.length > 1 ? 's' : ''} matched — ${listing.listingAddress}*\\n` +\n    `$${Number(listing.listingPrice).toLocaleString()} | ${listing.bedrooms}bd | Day ${listing.daysOnMarket}\\n\\n` +\n    topMatches.slice(0, 3).map(l =>\n      `${l.matchScore === 'Strong Match' ? '✅' : '📋'} *${l.leadName}* — ${l.matchReason}`\n    ).join('\\n')\n  : '';\n\nreturn [{\n  json: {\n    topMatches,\n    strongCount,\n    possibleCount,\n    totalContacted: topMatches.length,\n    hasMatches: topMatches.length > 0,\n    agentSummaryHtml,\n    slackNotification,\n    listing,\n    timestamp: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c6609e74-da32-405f-8d39-95ef7522e120",
+      "name": "Split: One Match Per Item",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1440,
+        -112
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "topMatches"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0843491d-63c7-4671-87ac-565f337f2d99",
+      "name": "Send Property Match Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1648,
+        -112
+      ],
+      "webhookId": "1f5b7bfd-2677-4e8b-89d4-8e00f2404065",
+      "parameters": {
+        "sendTo": "={{ $('Split: One Match Per Item').item.json.leadEmail }}",
+        "message": "={{ $('Split: One Match Per Item').item.json.email_body }}\n<p>\n  <strong>Property Details:</strong><br>\n  📍 {{ $('Normalize Listing Details').first().json.listingAddress }}<br>\n  💰 ${{ $('Normalize Listing Details').first().json.listingPrice }}<br>\n  🛏 {{ $('Normalize Listing Details').first().json.bedrooms }}bd / \n  {{ $('Normalize Listing Details').first().json.bathrooms }}ba |\n  {{ $('Normalize Listing Details').first().json.sqft }} sqft\n</p>\n{{ $('Normalize Listing Details').first().json.listingUrl\n  ? '<p><a href=\"' + $('Normalize Listing Details').first().json.listingUrl + '\">View full listing →</a></p>'\n  : '' }}\n{{ $('Split: One Match Per Item').item.json.bookingLink\n  ? '<p>📅 <a href=\"' + $('Split: One Match Per Item').item.json.bookingLink + '\">Book a viewing</a></p>'\n  : '' }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $('Split: One Match Per Item').item.json.email_subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c1761066-c98e-42d0-baf0-e0bd8b78e12f",
+      "name": "Update Lead: Last Contacted",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1856,
+        -112
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "leadId": "={{ $('Split: One Match Per Item').item.json.leadId }}",
+            "Last Contacted": "={{ $now.toISO().substring(0,10) }}"
+          },
+          "schema": [
+            {
+              "id": "leadId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "leadId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Lead Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget Min",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Budget Min",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget Max",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Budget Max",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Preferred Location",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Preferred Location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Property Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Bedrooms Min",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Bedrooms Min",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timeline",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timeline",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Lead Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Contacted",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Last Contacted",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Notes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Active",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Active",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Facebook Lead ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Facebook Lead ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "leadId"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1Rt62KG_l7pyDIFZoBS0DsUe1AlFSEcxn64doe6_D8lU/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "e9cac3e5-4a1d-4176-875f-258c1bba9f6a",
+      "name": "Log Match to History",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2064,
+        -112
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Lead Name": "={{ $('Split: One Match Per Item').item.json.leadName }}",
+            "Email Sent": "true",
+            "Lead Email": "={{ $('Split: One Match Per Item').item.json.leadEmail }}",
+            "Match Date": "={{ $now.toISO().substring(0,10) }}",
+            "Listing URL": "={{ $('Normalize Listing Details').first().json.listingUrl }}",
+            "Match Score": "={{ $('Split: One Match Per Item').item.json.matchScore }}",
+            "Match Reason": "={{ $('Split: One Match Per Item').item.json.matchReason }}",
+            "Listing Price": "={{ $('Normalize Listing Details').first().json.listingPrice }}",
+            "WhatsApp Sent": "false",
+            "Days on Market": "={{ $('Normalize Listing Details').first().json.daysOnMarket }}",
+            "Listing Address": "={{ $('Normalize Listing Details').first().json.listingAddress }}"
+          },
+          "schema": [
+            {
+              "id": "Match Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Match Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Listing Address",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Listing Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Listing Price",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Listing Price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Lead Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Lead Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Lead Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Match Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Match Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Match Reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Match Reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "WhatsApp Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "WhatsApp Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Listing URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Listing URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Days on Market",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Days on Market",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1xnMI00xPQksGNtLXuBNQ4uXdDUncWaCNGE2ljUrMr38/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "1fe2f1d3-ea05-44eb-8c25-be3a3b097095",
+      "name": "Build Agent Match Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2704,
+        -192
+      ],
+      "parameters": {
+        "jsCode": "// Reference Parse AI Output which has the full summary\nconst summaryData = $('Parse AI Output').first().json;\n\nreturn [{\n  json: {\n    agentSummaryHtml: summaryData.agentSummaryHtml,\n    slackNotification: summaryData.slackNotification,\n    totalContacted: summaryData.totalContacted,\n    strongCount: summaryData.strongCount,\n    possibleCount: summaryData.possibleCount,\n    listing: summaryData.listing,\n    hasMatches: summaryData.hasMatches\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f79797a3-a255-4d6b-bd86-aed1c1a43491",
+      "name": "Notify Agent — Matches Sent",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3040,
+        -480
+      ],
+      "webhookId": "67b171ad-1399-425e-80e2-b9fb99c56839",
+      "parameters": {
+        "sendTo": "={{ $('Normalize Listing Details').first().json.AGENT_EMAIL }}",
+        "message": "={{ $json.agentSummaryHtml }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=🏠 {{ $json.totalContacted }} buyer{{ $json.totalContacted > 1 ? 's' : '' }} matched — {{ $json.listing.listingAddress }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d921bdce-446c-4be0-8f15-57dec46aecfb",
+      "name": "Notify Agent via Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3040,
+        -192
+      ],
+      "webhookId": "50611f2b-95ac-4254-ac79-62c19dd387a4",
+      "parameters": {
+        "text": "={{ $json.slackNotification }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#property-matches"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack API Account - QM"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "b424ca11-cac7-430a-9069-9c2662aa4760",
+      "name": "Top Matches Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1200,
+        -96
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4f5f1a60-a1fb-4abb-bd37-eb891fd6851a",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "topMatches",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "af77c8d2-ffe7-42d8-b245-c128d7ee9bb9",
+      "name": "Prepare Gemini Input",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        448,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "// Collect all candidate items into a single array\nconst candidates = $input.all().map(item => ({\n  leadId:            item.json.leadId,\n  leadName:          item.json.leadName,\n  leadEmail:         item.json.leadEmail,\n  leadPhone:         item.json.leadPhone,\n  budgetMin:         item.json.budgetMin,\n  budgetMax:         item.json.budgetMax,\n  preferredLocation: item.json.preferredLocation,\n  propertyType:      item.json.propertyType,\n  bedroomsMin:       item.json.bedroomsMin,\n  timeline:          item.json.timeline,\n  notes:             item.json.notes\n}));\n\nconst listing = $input.first().json.listing;\n\n// Return single item containing all candidates\nreturn [{\n  json: {\n    candidates,\n    listing,\n    candidateCount: candidates.length\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8a424c00-6a7d-4809-aeca-dd0a7409cdd3",
+      "name": "Strong Matches Threshold Met?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3040,
+        96
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "94c60676-dc23-46fc-a360-1d48662aca84",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.strongCount }}",
+              "rightValue": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "72eae90f-7cab-4883-9fad-ce3fc11b0034",
+      "name": "Post to Facebook Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3296,
+        80
+      ],
+      "parameters": {
+        "url": "https://graph.facebook.com/v21.0/YOUR_PAGE_ID/feed",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"message\": \"🏠 Just listed in {{ $('Normalize Listing Details').first().json.neighborhood }}: {{ $('Normalize Listing Details').first().json.bedrooms }}bd {{ $('Normalize Listing Details').first().json.propertyType }} at ${{ $('Normalize Listing Details').first().json.listingPrice }}. Looking for buyers in this area — DM me for details!\\n\\n{{ $('Normalize Listing Details').first().json.listingUrl }}\",\n  \"link\": \"{{ $('Normalize Listing Details').first().json.listingUrl }}\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "b68085bf-f375-4131-9efe-6258ff3b490d",
+      "name": "Send WhatsApp Match Message",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        2496,
+        -192
+      ],
+      "webhookId": "efd26fd1-43f9-47e5-97a5-e6841299df0c",
+      "parameters": {
+        "textBody": "=Hi {{ $('Split: One Match Per Item').item.json.leadName }}! 🏠 A property just listed that matches what you're looking for — {{ $('Normalize Listing Details').first().json.bedrooms }}bd in {{ $('Normalize Listing Details').first().json.neighborhood }} at ${{ $('Normalize Listing Details').first().json.listingPrice }}. Want to take a look? {{ $('Normalize Listing Details').first().json.listingUrl }}",
+        "operation": "send",
+        "additionalFields": {},
+        "recipientPhoneNumber": "={{ $('Split: One Match Per Item').item.json.leadPhone }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "credential-id",
+          "name": "WhatsApp API Account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9460b223-ee29-4669-baa1-fb8a0879bd36",
+      "name": "Has Phone Number?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2256,
+        -112
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f33591ed-0a63-4055-885b-dda1f1bcf44c",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Split: One Match Per Item').item.json.leadPhone }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "ef383ae1-b9f2-46a9-bcb5-e36d07e7a2e7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1936,
+        -704
+      ],
+      "parameters": {
+        "width": 672,
+        "height": 1008,
+        "content": "## AI Property Matcher — Match Buyer Leads to Listings\n\nEvery agent has buyer leads sitting in a database waiting for the right property. When a new listing hits the market, most agents either manually scan their CRM — or miss the match entirely. This workflow does it automatically.\n\nWhen a new listing arrives via webhook, AI scans your entire buyer lead database, scores every lead against the listing across budget, location, property type, and timeline, and sends personalized match emails to the top 5 buyers — all within 60 seconds. Hot matches also trigger a Facebook Page post and Slack alert. Every match logs to a permanent history sheet.\n\nOne match converted to a sale pays back this template hundreds of times over.\n\n### Requirements\n- **Gmail** OAuth2 — match emails + agent notification\n- **Gemini** API key — candidate scoring + email drafting\n- **Google Sheets** OAuth2 — buyer database + match history\n- **Slack** OAuth2 — optional Hot match alerts\n- **WhatsApp Business Cloud** — optional match messages\n- **Meta Page Access Token** — optional Facebook Page post\n\n### Setup\n1. Connect **Gmail**, **Gemini**, and **Google Sheets** credentials.\n2. Copy the *Buyer Lead Database* and *Property Match History* sheet templates and link them to the Sheets nodes.\n3. Populate your Buyer Lead Database — see the Buyer Database sticky for options.\n4. Update **AGENT_EMAIL**, **CALENDLY_USERNAME**, and **CALENDLY_EVENT_SLUG** in the Normalize Listing Details Code node.\n5. **Slack** is optional — connect your credential and set the channel name.\n6. **WhatsApp** and **Facebook Page post** are optional — leave disconnected if not using.\n\n### Customization\n- Change MAX_MATCHES (default 5) in Normalize node.\n- Change DAYS_SINCE_CONTACT (default 14) to adjust the re-contact cooldown window.\n- Edit the Gemini prompt to adjust scoring criteria for your market."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "75ec6ce8-1257-40ca-8ab7-45a6fd798ddd",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -704
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 560,
+        "height": 1008,
+        "content": "## Buyer Lead Database\n\nThe matcher reads from your Buyer Lead Database Google Sheet. Only leads marked **Active = TRUE** are scanned per run. Set Active = FALSE to pause a lead without deleting them.\n\n**How to populate your database:**\n**Option 1 — Manual entry**\nAdd buyer leads directly to the Google Sheet using the column structure from the sheet template provided. This is the simplest approach for agents with an existing lead list to migrate.\n**Option 2 — QualMatic Facebook Lead Ads Template**\nIf you run Facebook ads to capture buyer leads, pair this template with the QualMatic Facebook Lead Ads to AI-Qualified Follow-Up template (link below). Add one Google Sheets Append step to that workflow to automatically write every qualified Facebook buyer lead into this Buyer Lead Database — creating a fully automated pipeline from Facebook ad → qualification → matching.\n[Facebook Lead Ads to AI-Qualified Follow-Up →](https://n8n.io/workflows/17258-qualify-facebook-lead-ads-and-send-follow-ups-with-gemini-gmail-and-sheets/)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "049fd82c-9de5-4ae0-94f7-f2e796529f88",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1104,
+        -704
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "height": 1008,
+        "content": "## Webhook: New Listing Received\nFires when a new property listing is submitted via POST request from any source manually, from a competitor monitor workflow, or from any MLS webhook. See the submission docs for the required payload field names and format."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d44bf24-39de-4f8a-be17-11399c3ca120",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -848,
+        -704
+      ],
+      "parameters": {
+        "color": "#FCFCFC",
+        "width": 224,
+        "height": 1008,
+        "content": "## Normalize Listing Details\nMaps the incoming listing payload to clean named fields and sets all workflow configuration values in one place. Update AGENT_EMAIL, CALENDLY_USERNAME, MAX_MATCHES, and DAYS_SINCE_CONTACT here before going live."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dd1426bd-6102-4958-a9e7-a8217c0d09fb",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        -704
+      ],
+      "parameters": {
+        "color": "#FCFCFC",
+        "width": 1152,
+        "height": 1008,
+        "content": "## Score Candidates & Draft Emails\nA two-stage matching process keeps the workflow fast and rate-limit-safe.\n\nStage 1 (Code): Hard filter by budget range, property type, and contact cooldown — instant, no API calls.\n\nStage 2 (Gemini): One AI call scores all filtered candidates holistically and drafts a personalized email for each Strong Match and Possible Match.\n\nPoor Match leads are filtered out — only buyers with a genuine fit receive an email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "387f5f49-db75-4486-93c6-dc9a4e2a2dc9",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1136,
+        -704
+      ],
+      "parameters": {
+        "color": "#FCFCFC",
+        "width": 1504,
+        "height": 1008,
+        "content": "## Match Emails, WhatsApp & Booking Link\nEach matched buyer receives a personalized email referencing their specific preferences — not a generic blast. The email includes property details, a listing link, and a Calendly booking link so buyers can schedule a viewing instantly. WhatsApp message fires additionally if the lead has a phone number on file and WhatsApp node is connected. Last Contacted date updates after each send to enforce the re-contact cooldown window."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4e9196e4-4253-4fb0-be4a-809477497873",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2656,
+        -704
+      ],
+      "parameters": {
+        "color": "#FCFCFC",
+        "width": 960,
+        "height": 1008,
+        "content": "## Agent Summary & Alerts\nAfter all match emails are sent, the agent receives one summary email listing every buyer contacted, their match score, and the reason for the match. When 2 or more Strong Matches are found, an optional Facebook Page post publishes a property spotlight automatically. Slack fires alongside the agent email for Hot matches. Every match logs permanently to the Property Match History sheet — building an intelligence record of which listings generated buyer interest over time."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "083b30ea-4873-4cf8-90a0-1e79239e6638",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2416,
+        -240
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 224,
+        "height": 672,
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n\n\n## WhatsApp is Optional\nThis node only fires for leads with a phone number on file. Connect your WhatsApp Business Cloud credential and update your Phone Number ID before enabling. Leave disconnected if not using WhatsApp."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f41de1a-a980-4f27-a2b5-c5209d792403",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3216,
+        -16
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 400,
+        "height": 720,
+        "content": "\n\n\n\n\n\n\n\n\n\n\n\n## Facebook Page Post Setup Required\nBefore enabling this node:\n1. Replace YOUR_META_PAGE_ACCESS_TOKEN in the Authorization header with your real Page token.\n2. Replace YOUR_PAGE_ID in the URL with your Page ID.\n3. Connect this node from \"Strong Matches Threshold Met?\"\n\nTo get your Page Access Token:\nMeta Developer App → Tools → Graph API Explorer → select your Page → Generate Access Token.\n\nDisconnect if not using Facebook posting."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "01ce5810-1304-439b-8edd-12a7c0d35610",
+  "nodeGroups": [],
+  "connections": {
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Top Matches Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidates Found?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Gemini Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Phone Number?": {
+      "main": [
+        [
+          {
+            "node": "Send WhatsApp Match Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Top Matches Found?": {
+      "main": [
+        [
+          {
+            "node": "Split: One Match Per Item",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Match to History": {
+      "main": [
+        [
+          {
+            "node": "Has Phone Number?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Gemini Input": {
+      "main": [
+        [
+          {
+            "node": "Score Candidates & Draft Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Active Buyer Leads": {
+      "main": [
+        [
+          {
+            "node": "Stage 1 Filter: Hard Criteria",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Agent Match Summary": {
+      "main": [
+        [
+          {
+            "node": "Notify Agent — Matches Sent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify Agent via Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Strong Matches Threshold Met?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Listing Details": {
+      "main": [
+        [
+          {
+            "node": "Fetch Active Buyer Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Property Match Email": {
+      "main": [
+        [
+          {
+            "node": "Update Lead: Last Contacted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split: One Match Per Item": {
+      "main": [
+        [
+          {
+            "node": "Send Property Match Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send WhatsApp Match Message": {
+      "main": [
+        [
+          {
+            "node": "Build Agent Match Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead: Last Contacted": {
+      "main": [
+        [
+          {
+            "node": "Log Match to History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stage 1 Filter: Hard Criteria": {
+      "main": [
+        [
+          {
+            "node": "Candidates Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Strong Matches Threshold Met?": {
+      "main": [
+        [
+          {
+            "node": "Post to Facebook Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: New Listing Received": {
+      "main": [
+        [
+          {
+            "node": "Normalize Listing Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Candidates & Draft Emails": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

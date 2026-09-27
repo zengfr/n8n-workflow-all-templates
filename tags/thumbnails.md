@@ -1,4 +1,4 @@
-# thumbnails : 7
+# thumbnails : 12
 
 |id|file|
 |----|----|
@@ -9,3 +9,8 @@
 |12363|[12363_Generate_YouTube_thumbnails_via_Telegram_using_BrowserAct_and_Gemini__Nano_Banana_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12363_Generate_YouTube_thumbnails_via_Telegram_using_BrowserAct_and_Gemini__Nano_Banana_Pro.json)|
 |13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|
 |14255|[14255_Create_YouTube_SEO_metadata_and_thumbnails_from_Google_Drive_videos_with_Gemini__LemonFox_and_upload-post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14255_Create_YouTube_SEO_metadata_and_thumbnails_from_Google_Drive_videos_with_Gemini__LemonFox_and_upload-post.json)|
+|17758|[17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json)|
+|19064|[19064_Analyze_competitor_YouTube_thumbnails_with_OpenAI_and_hand_off_approved_concepts_to_ThumbCanvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19064_Analyze_competitor_YouTube_thumbnails_with_OpenAI_and_hand_off_approved_concepts_to_ThumbCanvas.json)|
+|19154|[19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json)|
+|19214|[19214_Generate_quality-checked_YouTube_thumbnails_with_OpenAI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19214_Generate_quality-checked_YouTube_thumbnails_with_OpenAI_and_Google_Drive.json)|
+|19369|[19369_Repurpose_YouTube_videos_into_social_posts_and_thumbnails_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19369_Repurpose_YouTube_videos_into_social_posts_and_thumbnails_with_OpenAI.json)|

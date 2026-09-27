@@ -1,4 +1,4 @@
-# guest : 12
+# guest : 17
 
 |id|file|
 |----|----|
@@ -14,3 +14,8 @@
 |16118|[16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json)|
 |16387|[16387_Answer_hotel_guest_messages_with_GPT-4o_mini__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16387_Answer_hotel_guest_messages_with_GPT-4o_mini__Slack__and_Google_Sheets.json)|
 |16712|[16712_Run_a_hotel_WhatsApp_concierge_using_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16712_Run_a_hotel_WhatsApp_concierge_using_Google_Gemini_and_Google_Sheets.json)|
+|17286|[17286_Manage_hotel_guest_requests_and_post-stay_outreach_with_Telegram__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17286_Manage_hotel_guest_requests_and_post-stay_outreach_with_Telegram__OpenAI__and_Google_Sheets.json)|
+|18228|[18228_Draft_and_triage_Google_Maps_guest_review_replies_with_SerpApi_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18228_Draft_and_triage_Google_Maps_guest_review_replies_with_SerpApi_and_OpenRouter.json)|
+|18332|[18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json)|
+|18363|[18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json)|
+|19302|[19302_Build_an_Airbnb_guest_feedback_review_queue_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19302_Build_an_Airbnb_guest_feedback_review_queue_with_Apify_and_Google_Sheets.json)|

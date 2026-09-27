@@ -1,4 +1,4 @@
-# architecture : 7
+# architecture : 10
 
 |id|file|
 |----|----|
@@ -9,3 +9,6 @@
 |12285|[12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12285_Generate_client_quotes_from_call_transcripts_with_Claude_GPT__Google_Drive__and_PandaDoc.json)|
 |13362|[13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13362_Transform_GitHub_repos_into_evidence-based_architecture_blueprints_with_Claude.json)|
 |13792|[13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13792_Decide_multi_agent_vs_simple_workflows_using_Azure_OpenAI_GPT_4o_mini.json)|
+|18348|[18348_Review_security_architecture_risks_and_route_alerts_with_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18348_Review_security_architecture_risks_and_route_alerts_with_OpenAI_GPT-4.1.json)|
+|18693|[18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json)|
+|19741|[19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json)|

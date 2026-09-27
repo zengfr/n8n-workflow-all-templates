@@ -1,4 +1,4 @@
-# hunt : 9
+# hunt : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |10791|[10791_AI-Powered_Product_Hunt_Data_Collection___Translation_with_GPT-4_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10791_AI-Powered_Product_Hunt_Data_Collection___Translation_with_GPT-4_and_Google_Sheets.json)|
 |11947|[11947_Automate_product_Hunt_lead_generation_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11947_Automate_product_Hunt_lead_generation_with_Apify_and_Google_Sheets.json)|
 |16517|[16517_Qualify_Product_Hunt_leads_with_Google_Gemini__Apify__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16517_Qualify_Product_Hunt_leads_with_Google_Gemini__Apify__and_Google_Sheets.json)|
+|17360|[17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json)|
+|19031|[19031_Email_a_weekly_Product_Hunt_leaderboard_digest_with_Apify_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19031_Email_a_weekly_Product_Hunt_leaderboard_digest_with_Apify_and_Gmail.json)|

@@ -1,0 +1,14 @@
+# smallest : 10
+
+|id|file|
+|----|----|
+|15350|[15350_Generate_two-host_PDF_podcasts_with_GPT-5__Smallest_AI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15350_Generate_two-host_PDF_podcasts_with_GPT-5__Smallest_AI__and_Gmail.json)|
+|16735|[16735_Generate_SRT_subtitles_for_Google_Drive_audio_with_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16735_Generate_SRT_subtitles_for_Google_Drive_audio_with_Smallest.ai.json)|
+|16815|[16815_Reply_to_Telegram_voice_messages_with_Smallest.ai_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16815_Reply_to_Telegram_voice_messages_with_Smallest.ai_and_Google_Gemini.json)|
+|16816|[16816_Transcribe_audio_to_text_via_webhook_with_Smallest.ai_speech-to-text.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16816_Transcribe_audio_to_text_via_webhook_with_Smallest.ai_speech-to-text.json)|
+|16817|[16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json)|
+|16819|[16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json)|
+|17095|[17095_Transcribe_and_summarize_Twilio_calls_with_Smallest.ai__Gemini__Slack__and_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17095_Transcribe_and_summarize_Twilio_calls_with_Smallest.ai__Gemini__Slack__and_GoHighLevel.json)|
+|17096|[17096_Qualify_leads_and_send_personalized_audio_follow-ups_with_Gemini_and_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17096_Qualify_leads_and_send_personalized_audio_follow-ups_with_Gemini_and_Smallest.ai.json)|
+|17097|[17097_Create_narrated_blog_audio_from_RSS_with_Google_Gemini__Smallest.ai_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17097_Create_narrated_blog_audio_from_RSS_with_Google_Gemini__Smallest.ai_and_WordPress.json)|
+|17152|[17152_Clone_brand_voices_and_generate_voiceovers_with_Smallest_AI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17152_Clone_brand_voices_and_generate_voiceovers_with_Smallest_AI_and_Google_Drive.json)|

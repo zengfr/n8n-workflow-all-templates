@@ -1,4 +1,4 @@
-# elevenlabs : 85
+# elevenlabs : 97
 
 |id|file|
 |----|----|
@@ -87,3 +87,15 @@
 |15888|[15888_Answer_HR_questions_with_GPT-4o-mini__PostgreSQL__Pinecone_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15888_Answer_HR_questions_with_GPT-4o-mini__PostgreSQL__Pinecone_and_ElevenLabs.json)|
 |16419|[16419_Generate_YouTube_shorts_from_prompts_with_OpenAI__ElevenLabs_and_Pexels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16419_Generate_YouTube_shorts_from_prompts_with_OpenAI__ElevenLabs_and_Pexels.json)|
 |16773|[16773_Dub_Telegram_video_links_with_ElevenLabs_and_publish_to_YouTube_and_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16773_Dub_Telegram_video_links_with_ElevenLabs_and_publish_to_YouTube_and_TikTok.json)|
+|16881|[16881_Generate_sound_effects_from_chat_with_Groq__ElevenLabs_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16881_Generate_sound_effects_from_chat_with_Groq__ElevenLabs_and_Google_Drive.json)|
+|16954|[16954_Generate_sound_effect_variation_packs_with_ElevenLabs_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16954_Generate_sound_effect_variation_packs_with_ElevenLabs_and_Google_Drive.json)|
+|16956|[16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json)|
+|17436|[17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json)|
+|17597|[17597_Generate_chat-based_sound_effects_with_OpenAI_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17597_Generate_chat-based_sound_effects_with_OpenAI_and_ElevenLabs.json)|
+|17898|[17898_Qualify_Facebook_leads_with_ElevenLabs_voice_calls__Supabase_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17898_Qualify_Facebook_leads_with_ElevenLabs_voice_calls__Supabase_and_Slack.json)|
+|18771|[18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json)|
+|19500|[19500_Handle_restaurant_reservations_and_orders_with_ElevenLabs__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19500_Handle_restaurant_reservations_and_orders_with_ElevenLabs__Sheets_and_Gmail.json)|
+|19628|[19628_Create_faceless_YouTube_shorts_with_Zvid__ElevenLabs_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19628_Create_faceless_YouTube_shorts_with_Zvid__ElevenLabs_and_OpenRouter.json)|
+|19751|[19751_Create_Reddit-style_story_videos_from_text_or_Reddit_with_OpenRouter__ElevenLabs__and_Zvid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19751_Create_Reddit-style_story_videos_from_text_or_Reddit_with_OpenRouter__ElevenLabs__and_Zvid.json)|
+|19762|[19762_Create_weekly_RSS_news_roundup_videos_with_Zvid__ElevenLabs__and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19762_Create_weekly_RSS_news_roundup_videos_with_Zvid__ElevenLabs__and_OpenRouter.json)|
+|19813|[19813_Book_phone_appointments_with_ElevenLabs__Exotel__and_Cal.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19813_Book_phone_appointments_with_ElevenLabs__Exotel__and_Cal.com.json)|

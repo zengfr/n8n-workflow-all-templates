@@ -1,4 +1,4 @@
-# step : 15
+# step : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |12955|[12955_Email_AI_Agent__with_step_by_step_video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12955_Email_AI_Agent__with_step_by_step_video.json)|
 |16002|[16002_Qualify_LinkedIn_leads_and_draft_multi-step_outreach_with_Airtable__Apify_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16002_Qualify_LinkedIn_leads_and_draft_multi-step_outreach_with_Airtable__Apify_and_Claude.json)|
 |16714|[16714_Generate_Salesforce_opportunity_next_steps_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16714_Generate_Salesforce_opportunity_next_steps_with_Gemini_and_Slack.json)|
+|18050|[18050_Edit_Google_Sheets_by_chat_using_GPT-4o-mini_with_approval_and_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18050_Edit_Google_Sheets_by_chat_using_GPT-4o-mini_with_approval_and_audit_log.json)|
+|19253|[19253_Triage_job_applications_from_Gmail_with_gpt-5.6-terra__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19253_Triage_job_applications_from_Gmail_with_gpt-5.6-terra__Google_Sheets__and_Telegram.json)|
+|19817|[19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json)|

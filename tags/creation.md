@@ -1,4 +1,4 @@
-# creation : 144
+# creation : 147
 
 |id|file|
 |----|----|
@@ -146,3 +146,6 @@
 |14554|[14554_Create_AI_Instagram_Reels_with_GPT-4.1__Veo3__Google_Sheets_and_Bloatato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14554_Create_AI_Instagram_Reels_with_GPT-4.1__Veo3__Google_Sheets_and_Bloatato.json)|
 |15699|[15699_Automate_Video_Creation_from_Google_Sheets_to_YouTube_with_VideoApiHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15699_Automate_Video_Creation_from_Google_Sheets_to_YouTube_with_VideoApiHub.json)|
 |15895|[15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json)|
+|17276|[17276_Create_purchase_orders_from_Google_Sheets_using_Groq_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17276_Create_purchase_orders_from_Google_Sheets_using_Groq_AI_and_Gmail.json)|
+|18717|[18717_Create_AI-written_Word_docs_from_Google_Sheets_with_Groq_and_Pandoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18717_Create_AI-written_Word_docs_from_Google_Sheets_with_Groq_and_Pandoc.json)|
+|19084|[19084_Extract_and_log_email_orders_with_Gmail__GPT-4o-mini__and_Google_Drive_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19084_Extract_and_log_email_orders_with_Gmail__GPT-4o-mini__and_Google_Drive_Sheets.json)|

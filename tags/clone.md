@@ -1,4 +1,4 @@
-# clone : 16
+# clone : 19
 
 |id|file|
 |----|----|
@@ -18,3 +18,6 @@
 |14008|[14008_OpenClaw_Clone____Expandable_Personal_Telegram_AI_Agent_Template.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14008_OpenClaw_Clone____Expandable_Personal_Telegram_AI_Agent_Template.json)|
 |14190|[14190_Clone_a_voice_and_create_talking_avatar_videos_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14190_Clone_a_voice_and_create_talking_avatar_videos_using_Anthropic_and_deAPI.json)|
 |15373|[15373_Clone_NocoDB_tables_and_data_to_another_base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15373_Clone_NocoDB_tables_and_data_to_another_base.json)|
+|17146|[17146_Answer_Slack_knowledge_base_questions_with_Notion__Pinecone__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17146_Answer_Slack_knowledge_base_questions_with_Notion__Pinecone__and_OpenAI.json)|
+|17152|[17152_Clone_brand_voices_and_generate_voiceovers_with_Smallest_AI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17152_Clone_brand_voices_and_generate_voiceovers_with_Smallest_AI_and_Google_Drive.json)|
+|17727|[17727_Clone_and_replay_WhatsApp_voice_notes_with_Fish_Audio__FreeConvert__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17727_Clone_and_replay_WhatsApp_voice_notes_with_Fish_Audio__FreeConvert__and_Sheets.json)|

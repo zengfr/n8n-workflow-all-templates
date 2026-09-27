@@ -1,0 +1,547 @@
+{
+  "id": "1QOg1WWSJ4mzgd6t",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Audit SPF DNS lookup limits with Google DNS, Slack, and Gmail",
+    "wechat": "youandme10086",
+    "id": 18583,
+    "update_time": "2026-09-27"
+  },
+  "name": "Audit SPF records for the 10-lookup limit with Google DNS-over-HTTPS, Slack and Gmail",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a26e63a1-9b90-4579-a71a-cdd491f34dee",
+      "name": "Every Morning at 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        7984,
+        2080
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "759c1325-8b51-435e-8363-e3b04530dfb3",
+      "name": "When Clicking Execute Workflow",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        7984,
+        2288
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "638aa41f-1cc3-43d6-b804-28f59f793017",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        8208,
+        2192
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "af836b97-733c-469c-8404-2fd04c57eb23",
+              "name": "domains",
+              "type": "string",
+              "value": "example.com"
+            },
+            {
+              "id": "20bec0fc-c95c-429d-9b6a-74f8ca286e76",
+              "name": "slackChannel",
+              "type": "string",
+              "value": "security-alerts"
+            },
+            {
+              "id": "d8f3ccf9-c6da-4fc2-b062-2062e12f14a3",
+              "name": "alertEmailTo",
+              "type": "string",
+              "value": "user@example.com"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8c587ae5-25d1-4ad4-a08a-8453b1cd897c",
+      "name": "Split Domains",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        8416,
+        2192
+      ],
+      "parameters": {
+        "jsCode": "// Turn the comma separated list in Configuration into one item per domain,\n// already shaped as the first round of DNS questions: fetch each domain's own\n// TXT record, which is where its SPF policy lives.\nconst cfg = $('Configuration').first().json;\nconst raw = String(cfg.domains || '');\n\nconst seen = new Set();\nconst out = [];\n\nfor (const part of raw.split(/[,\\s\\n]+/)) {\n  const domain = part\n    .trim()\n    .toLowerCase()\n    .replace(/^https?:\\/\\//, '')\n    .replace(/^www\\./, '')\n    .replace(/\\/.*$/, '');\n\n  if (!domain || !domain.includes('.')) continue;\n  if (seen.has(domain)) continue;\n\n  seen.add(domain);\n  out.push({ json: { domain, qname: domain, qtype: 'TXT', purpose: 'root_spf', round: 1 } });\n}\n\nif (out.length === 0) {\n  throw new Error(\n    'No domains configured. Open the Configuration node and add at least one domain you own, for example example.com'\n  );\n}\n\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "595da431-2314-4b06-982b-c939e8e79766",
+      "name": "Resolve DNS Round 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        8720,
+        2192
+      ],
+      "parameters": {
+        "url": "=https://dns.google/resolve?name={{ encodeURIComponent($json.qname) }}&type={{ encodeURIComponent($json.qtype) }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/dns-json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "n8n-spf-lookup-guard/1.0"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "93ed721c-8518-4c1f-bd4a-6fc932f3ff25",
+      "name": "Expand Includes Level 1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        8928,
+        2192
+      ],
+      "parameters": {
+        "jsCode": "// Read the round 1 answers, find every include: / redirect= target inside each\n// SPF record, and queue TXT lookups for them. This is what lets the audit count\n// NESTED lookups - whatever your vendors spend internally comes out of your own\n// 10-lookup budget.\n//\n// Skips: targets already asked about, macro targets (%{...}) which cannot be\n// expanded statically, and anything that is not a plain hostname.\n\n// A domain usually publishes SEVERAL TXT records: site verification tokens,\n// ownership proofs, and the SPF record. Each Answer row is its own record and\n// they must never be concatenated - only the 255-character chunks INSIDE a\n// single row get joined back together.\nfunction txtRecordsOf(answerJson) {\n  const rows = Array.isArray(answerJson && answerJson.Answer) ? answerJson.Answer : [];\n  const out = [];\n  for (const r of rows) {\n    if (Number(r.type) !== 16) continue; // skip CNAME and other row types\n    const raw = String(r.data || '');\n    const chunks = raw.match(/\"(?:[^\"\\\\]|\\\\.)*\"/g);\n    const text = (chunks\n      ? chunks.map((q) => q.slice(1, -1).replace(/\\\\\"/g, '\"')).join('')\n      : raw\n    ).trim();\n    if (text) out.push(text);\n  }\n  return out;\n}\n\n// Returns the SPF record only, plus how many were found. Publishing two v=spf1\n// records is itself a permerror under RFC 7208 section 4.5, so the count matters.\nfunction spfOf(answerJson) {\n  const spf = txtRecordsOf(answerJson).filter((t) => /^v=spf1(\\s|$)/i.test(t));\n  return { record: spf[0] || '', count: spf.length, all: spf };\n}\n\nfunction targetsOf(record) {\n  const found = [];\n  for (const term of record.trim().split(/\\s+/).slice(1)) {\n    const t = term.toLowerCase();\n    let target = '';\n    if (t.startsWith('redirect=')) target = t.slice(9);\n    else {\n      const m = /^[+\\-~?]?include:(.+)$/.exec(t);\n      if (m) target = m[1];\n    }\n    if (!target) continue;\n    target = target.replace(/\\.$/, '');\n    if (!target || !target.includes('.') || target.includes('%')) continue;\n    found.push(target);\n  }\n  return found;\n}\n\nconst asked = new Set();\nfor (const it of $('Split Domains').all()) {\n  asked.add(String(it.json.qname || '').toLowerCase());\n}\n\nconst plans = $('Split Domains').all();\nconst answers = $input.all();\n\nconst spfByHost = new Map();\nfor (let i = 0; i < answers.length; i++) {\n  const plan = plans[i].json;\n  if (plan.purpose !== 'root_spf') continue;\n  const rec = spfOf(answers[i].json).record;\n  if (rec) spfByHost.set(String(plan.qname).toLowerCase(), rec);\n}\n\nconst out = [];\nfor (const [host, rec] of spfByHost) {\n  for (const target of targetsOf(rec)) {\n    if (asked.has(target)) continue;\n    asked.add(target);\n    out.push({ json: { domain: host, qname: target, qtype: 'TXT', purpose: 'spf_include', round: 2 } });\n  }\n}\n\n// Keep the branch alive when there is nothing left to chase.\nif (out.length === 0) out.push({ json: { placeholder: true, qname: '.', qtype: 'TXT' } });\n\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "343742a0-b019-40d0-bd28-61527612f115",
+      "name": "Resolve DNS Round 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        9136,
+        2192
+      ],
+      "parameters": {
+        "url": "=https://dns.google/resolve?name={{ encodeURIComponent($json.qname) }}&type={{ encodeURIComponent($json.qtype) }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/dns-json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "n8n-spf-lookup-guard/1.0"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "a7d3ce70-ea97-4fae-a666-ebc10da03f00",
+      "name": "Expand Includes Level 2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        9344,
+        2192
+      ],
+      "parameters": {
+        "jsCode": "// Second expansion level. Some providers chain their includes two deep\n// (your include -> vendor A -> vendor A's upstream). This node reads the round 2\n// answers and queues one more layer, which covers virtually every SPF tree found\n// in practice. Deeper chains are counted best effort and flagged\n// \"real usage may be higher\" in the report.\n\n// A domain usually publishes SEVERAL TXT records: site verification tokens,\n// ownership proofs, and the SPF record. Each Answer row is its own record and\n// they must never be concatenated - only the 255-character chunks INSIDE a\n// single row get joined back together.\nfunction txtRecordsOf(answerJson) {\n  const rows = Array.isArray(answerJson && answerJson.Answer) ? answerJson.Answer : [];\n  const out = [];\n  for (const r of rows) {\n    if (Number(r.type) !== 16) continue; // skip CNAME and other row types\n    const raw = String(r.data || '');\n    const chunks = raw.match(/\"(?:[^\"\\\\]|\\\\.)*\"/g);\n    const text = (chunks\n      ? chunks.map((q) => q.slice(1, -1).replace(/\\\\\"/g, '\"')).join('')\n      : raw\n    ).trim();\n    if (text) out.push(text);\n  }\n  return out;\n}\n\n// Returns the SPF record only, plus how many were found. Publishing two v=spf1\n// records is itself a permerror under RFC 7208 section 4.5, so the count matters.\nfunction spfOf(answerJson) {\n  const spf = txtRecordsOf(answerJson).filter((t) => /^v=spf1(\\s|$)/i.test(t));\n  return { record: spf[0] || '', count: spf.length, all: spf };\n}\n\nfunction targetsOf(record) {\n  const found = [];\n  for (const term of record.trim().split(/\\s+/).slice(1)) {\n    const t = term.toLowerCase();\n    let target = '';\n    if (t.startsWith('redirect=')) target = t.slice(9);\n    else {\n      const m = /^[+\\-~?]?include:(.+)$/.exec(t);\n      if (m) target = m[1];\n    }\n    if (!target) continue;\n    target = target.replace(/\\.$/, '');\n    if (!target || !target.includes('.') || target.includes('%')) continue;\n    found.push(target);\n  }\n  return found;\n}\n\nconst asked = new Set();\nfor (const it of $('Split Domains').all()) {\n  asked.add(String(it.json.qname || '').toLowerCase());\n}\nfor (const it of $('Expand Includes Level 1').all()) {\n  asked.add(String(it.json.qname || '').toLowerCase());\n}\n\nconst plans = $('Expand Includes Level 1').all();\nconst answers = $input.all();\n\nconst spfByHost = new Map();\nfor (let i = 0; i < answers.length; i++) {\n  const plan = plans[i].json;\n  if (plan.purpose !== 'spf_include') continue;\n  const rec = spfOf(answers[i].json).record;\n  if (rec) spfByHost.set(String(plan.qname).toLowerCase(), rec);\n}\n\nconst out = [];\nfor (const [host, rec] of spfByHost) {\n  for (const target of targetsOf(rec)) {\n    if (asked.has(target)) continue;\n    asked.add(target);\n    out.push({ json: { domain: host, qname: target, qtype: 'TXT', purpose: 'spf_include', round: 3 } });\n  }\n}\n\nif (out.length === 0) out.push({ json: { placeholder: true, qname: '.', qtype: 'TXT' } });\n\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "71896ab3-9612-495c-82f9-a2dda0986616",
+      "name": "Resolve DNS Round 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        9552,
+        2192
+      ],
+      "parameters": {
+        "url": "=https://dns.google/resolve?name={{ encodeURIComponent($json.qname) }}&type={{ encodeURIComponent($json.qtype) }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/dns-json"
+            },
+            {
+              "name": "User-Agent",
+              "value": "n8n-spf-lookup-guard/1.0"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "30e10a7a-87a5-4825-ab01-c84f096ed903",
+      "name": "Count SPF Lookups",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        9840,
+        2192
+      ],
+      "parameters": {
+        "jsCode": "// ---------------------------------------------------------------------------\n// THE 10-DNS-LOOKUP BUDGET (RFC 7208, section 4.6.4)\n//\n// A receiving server may perform AT MOST ten DNS lookups while evaluating one\n// SPF record. The eleventh aborts the check with \"permerror\": the record stops\n// protecting the domain and some receivers reject even your genuine mail.\n//\n// Each of these terms costs ONE lookup:  include:  redirect=  a  mx  exists:  ptr\n// These cost nothing:                    ip4:  ip6:  all\n//\n// Vendor records are charged RECURSIVELY - whatever include:sendgrid.net spends\n// inside its own record comes out of YOUR budget.\n//\n// This node folds the three DNS rounds into one record cache, then replays that\n// arithmetic offline. No network calls happen here, and the result is\n// deterministic - the same records always produce the same verdict.\n// ---------------------------------------------------------------------------\n\n// A domain usually publishes SEVERAL TXT records: site verification tokens,\n// ownership proofs, and the SPF record. Each Answer row is its own record and\n// they must never be concatenated - only the 255-character chunks INSIDE a\n// single row get joined back together.\nfunction txtRecordsOf(answerJson) {\n  const rows = Array.isArray(answerJson && answerJson.Answer) ? answerJson.Answer : [];\n  const out = [];\n  for (const r of rows) {\n    if (Number(r.type) !== 16) continue; // skip CNAME and other row types\n    const raw = String(r.data || '');\n    const chunks = raw.match(/\"(?:[^\"\\\\]|\\\\.)*\"/g);\n    const text = (chunks\n      ? chunks.map((q) => q.slice(1, -1).replace(/\\\\\"/g, '\"')).join('')\n      : raw\n    ).trim();\n    if (text) out.push(text);\n  }\n  return out;\n}\n\n// Returns the SPF record only, plus how many were found. Publishing two v=spf1\n// records is itself a permerror under RFC 7208 section 4.5, so the count matters.\nfunction spfOf(answerJson) {\n  const spf = txtRecordsOf(answerJson).filter((t) => /^v=spf1(\\s|$)/i.test(t));\n  return { record: spf[0] || '', count: spf.length, all: spf };\n}\n\n// --- fold the three rounds into hostname -> SPF record text -----------------\nconst cache = {};\nconst duplicateSpf = {};    // host -> how many v=spf1 records it publishes\nconst duplicateRecords = {}; // host -> the conflicting records themselves\n\nconst rounds = [\n  { plans: $('Split Domains').all(), answers: $('Resolve DNS Round 1').all(), purpose: 'root_spf' },\n  { plans: $('Expand Includes Level 1').all(), answers: $('Resolve DNS Round 2').all(), purpose: 'spf_include' },\n  { plans: $('Expand Includes Level 2').all(), answers: $('Resolve DNS Round 3').all(), purpose: 'spf_include' },\n];\n\nfor (const round of rounds) {\n  for (let i = 0; i < round.answers.length; i++) {\n    const plan = round.plans[i] && round.plans[i].json;\n    if (!plan || plan.purpose !== round.purpose) continue;\n    const found = spfOf(round.answers[i].json);\n    if (found.record) {\n      const key = String(plan.qname).toLowerCase();\n      cache[key] = found.record;\n      if (found.count > 1) {\n        duplicateSpf[key] = found.count;\n        duplicateRecords[key] = found.all.map((r) => r.slice(0, 450));\n      }\n    }\n  }\n}\n\n// --- replay the receiver's arithmetic --------------------------------------\nconst VERDICT_RANK = {\n  'Missing SPF': 4,\n  'Unsafe +all': 4,\n  'Over 10 lookups': 3,\n  'Multiple SPF records': 3,\n  'At the ceiling': 2,\n  'Within limit': 1,\n};\n\nfunction evaluate(host, ctx, depth) {\n  const res = { lookups: 0, unresolved: false, allMechanism: '', ptrUsed: false, macros: 0, children: [], terms: [] };\n\n  const key = String(host || '').toLowerCase().replace(/\\.$/, '');\n  if (depth > 10) {\n    res.unresolved = true;\n    return res;\n  }\n\n  const record = cache[key];\n  if (!record || !/^v=spf1(\\s|$)/i.test(record)) {\n    res.unresolved = true;\n    return res;\n  }\n\n  // A target already walked elsewhere in THIS evaluation was already charged;\n  // the include term still costs its own 1, but the subtree is not recounted.\n  if (ctx.visited.has(key)) return res;\n  ctx.visited.add(key);\n\n  for (const term of record.trim().split(/\\s+/).slice(1)) {\n    const t = term.toLowerCase();\n\n    // Cost nothing. Note an ip4:/ip6: block covers many addresses for free -\n    // and equally, a name that resolves to several IPs still costs only 1.\n    // The budget counts TERMS, never the number of addresses returned.\n    if (t.startsWith('ip4:') || t.startsWith('ip6:')) {\n      res.terms.push({ term, cost: 0 });\n      continue;\n    }\n    if (t.startsWith('exp=')) continue;\n    if (/^[a-z][a-z0-9._-]*=/.test(t) && !t.startsWith('redirect=')) continue; // unknown modifier\n\n    if (t === 'all' || /^[+\\-~?]all$/.test(t)) {\n      if (!res.allMechanism) res.allMechanism = t;\n      res.terms.push({ term, cost: 0 });\n      continue;\n    }\n\n    if (t.startsWith('redirect=')) {\n      res.lookups += 1;\n      res.children.push({ term, cost: 1 });\n      const sub = evaluate(t.slice(9), ctx, depth + 1);\n      res.lookups += sub.lookups;\n      res.unresolved = res.unresolved || sub.unresolved;\n      res.terms.push({ term, cost: 1 + sub.lookups, nested: sub.lookups });\n      if (!res.allMechanism) res.allMechanism = sub.allMechanism || 'unknown (inside redirect)';\n      continue;\n    }\n\n    const inc = /^[+\\-~?]?include:(.+)$/.exec(t);\n    if (inc) {\n      const target = inc[1];\n      res.lookups += 1;\n      if (target.includes('%')) {\n        res.macros += 1;\n        res.unresolved = true;\n        res.children.push({ term, cost: 1, note: 'macro - could not expand' });\n        res.terms.push({ term, cost: 1, note: 'macro, not expandable' });\n        continue;\n      }\n      const sub = evaluate(target, ctx, depth + 1);\n      res.lookups += sub.lookups;\n      res.unresolved = res.unresolved || sub.unresolved;\n      res.children.push({ term, cost: 1 + sub.lookups });\n      res.terms.push({ term, cost: 1 + sub.lookups, nested: sub.lookups });\n      continue;\n    }\n\n    const mech = /^[+\\-~?]?(a|mx|ptr|exists)(?:[:/][^\\s]*)?$/.exec(t);\n    if (mech) {\n      res.lookups += 1;\n      if (mech[1] === 'ptr') res.ptrUsed = true;\n      res.children.push({ term, cost: 1 });\n      // One query, however many addresses come back. mx and ptr have their own\n      // separate cap of 10 hosts each, which is not part of this budget.\n      res.terms.push({ term, cost: 1 });\n      continue;\n    }\n  }\n\n  if (!res.allMechanism) res.allMechanism = '(implicit ?all)';\n  return res;\n}\n\nconst checkedAt = new Date().toISOString();\nconst domains = $('Split Domains').all().map((i) => i.json.domain);\nconst rows = [];\n\nfor (const domain of domains) {\n  const record = cache[domain] || '';\n\n  if (!/^v=spf1(\\s|$)/i.test(record)) {\n    rows.push({\n      json: {\n        domain,\n        spf_present: 'no',\n        spf_record: '',\n        spf_records_all: [],\n        lookup_terms: [],\n        spf_lookups: '',\n        spf_limit_status: 'Missing SPF',\n        budget_breakdown: '',\n        all_mechanism: '',\n        why: 'No TXT record starting with v=spf1 was found, so nothing stops anyone sending mail as this domain.',\n        recommended_action:\n          'Publish a record: v=spf1 followed by every service that sends as ' + domain + ', ending in -all',\n        warnings_list: ['No v=spf1 TXT record found'],\n        verdict_rank: VERDICT_RANK['Missing SPF'],\n        checked_at: checkedAt,\n      },\n    });\n    continue;\n  }\n\n  const ev = evaluate(domain, { visited: new Set() }, 0);\n  const lookups = ev.lookups;\n\n  let verdict = 'Within limit';\n  if (lookups > 10) verdict = 'Over 10 lookups';\n  else if (lookups === 10) verdict = 'At the ceiling';\n  if (ev.allMechanism === '+all') verdict = 'Unsafe +all';\n\n  // Two v=spf1 records is a permerror in its own right (RFC 7208 s4.5): the\n  // receiver cannot tell which one applies, so it stops checking entirely.\n  const dupes = duplicateSpf[domain] || 0;\n  if (dupes > 1 && VERDICT_RANK[verdict] < 4) verdict = 'Multiple SPF records';\n\n  const warnings = [];\n  if (dupes > 1) {\n    warnings.push(dupes + ' separate v=spf1 records published - receivers permerror and stop checking');\n  }\n  if (verdict === 'Over 10 lookups') {\n    warnings.push(lookups + ' DNS lookups used of the 10 allowed - receiving servers abort with permerror');\n  } else if (verdict === 'At the ceiling') {\n    warnings.push('Exactly at the 10-lookup ceiling - the next vendor include will break it');\n  }\n  if (ev.allMechanism === '+all') {\n    warnings.push('+all authorises every server on earth to send as ' + domain);\n  } else if (ev.allMechanism === '(implicit ?all)') {\n    warnings.push('No all mechanism and no redirect - treated as ?all, which permits anyone');\n  } else if (ev.allMechanism === '?all') {\n    warnings.push('?all is neutral - unauthorised senders are neither accepted nor rejected');\n  }\n  if (ev.ptrUsed) warnings.push('ptr mechanism found - deprecated, slow and unreliable');\n  if (ev.macros) warnings.push(ev.macros + ' macro target(s) could not be expanded - real usage may be higher');\n  if (ev.unresolved && !ev.macros) {\n    warnings.push('Some nested vendor records were unreachable - real usage may be higher');\n  }\n\n  const sorted = [...ev.children].sort((a, b) => b.cost - a.cost);\n  const heaviest = sorted[0];\n\n  // Plain-English explanation, derived from the same arithmetic as the verdict.\n  let why;\n  if (verdict === 'Multiple SPF records') {\n    why =\n      'This domain publishes ' + dupes + ' separate v=spf1 records. A receiver cannot tell which one applies, ' +\n      'so it gives up and the domain is left unprotected.';\n  } else if (ev.allMechanism === '+all') {\n    why = 'The record ends in +all, which authorises every mail server on the internet to send as this domain.';\n  } else if (verdict === 'Over 10 lookups') {\n    why =\n      'This record needs ' + lookups + ' DNS lookups, ' + (lookups - 10) + ' over the limit of 10' +\n      (heaviest ? ', mostly from ' + heaviest.term + ' which costs ' + heaviest.cost + ' on its own.' : '.');\n  } else if (verdict === 'At the ceiling') {\n    why =\n      'This record uses exactly 10 of the 10 allowed lookups' +\n      (heaviest ? ', with ' + heaviest.term + ' the heaviest at ' + heaviest.cost + '.' : '.');\n  } else {\n    why = 'This record uses ' + lookups + ' of the 10 allowed lookups and ends in ' + ev.allMechanism + '.';\n  }\n\n  let action;\n  if (verdict === 'Multiple SPF records') {\n    action = 'Merge the ' + dupes + ' records into one v=spf1 TXT record, then delete the extras';\n  } else if (ev.allMechanism === '+all') {\n    action = 'Replace +all with -all today; anyone can currently spoof ' + domain;\n  } else if (verdict === 'Over 10 lookups' && heaviest) {\n    action =\n      'Trim \"' + heaviest.term + '\" (costs ' + heaviest.cost +\n      '): drop unused vendors or replace includes with flat ip4:/ip6: entries';\n  } else if (verdict === 'Over 10 lookups') {\n    action = 'Reduce lookups below 10 by removing or flattening includes';\n  } else if (verdict === 'At the ceiling' && heaviest) {\n    action = 'Pre-flatten \"' + heaviest.term + '\" before the next vendor tips you over';\n  } else if (ev.allMechanism === '~all') {\n    action = 'Inside the limit; consider tightening ~all to -all';\n  } else if (ev.allMechanism === '(implicit ?all)' || ev.allMechanism === '?all') {\n    action = 'Inside the limit, but add -all at the end so unauthorised senders are actually rejected';\n  } else {\n    action = 'None - comfortably inside the limit';\n  }\n\n  rows.push({\n    json: {\n      domain,\n      spf_present: 'yes',\n      spf_record: record.slice(0, 450),\n      spf_records_all: duplicateRecords[domain] || [],\n      lookup_terms: ev.terms,\n      spf_lookups: lookups,\n      spf_limit_status: verdict,\n      budget_breakdown: sorted.length\n        ? sorted.map((c) => c.term + ' (' + c.cost + ')').join(', ').slice(0, 300)\n        : 'direct mechanisms only',\n      all_mechanism: ev.allMechanism,\n      why,\n      recommended_action: action,\n      warnings_list: warnings,\n      verdict_rank: VERDICT_RANK[verdict],\n      checked_at: checkedAt,\n    },\n  });\n}\n\nreturn rows;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "800016dd-2411-4edd-87e7-aa00d8644e37",
+      "name": "Build Alert Digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        10176,
+        2192
+      ],
+      "parameters": {
+        "jsCode": "// Build the Slack message and the HTML email.\n//\n// Design rule for this node: the reader's first question is always \"how many\n// lookups am I using?\" - so the count leads, on every domain, healthy or not.\n// The rule itself is explained once, briefly, underneath.\nconst cfg = $('Configuration').first().json;\n\nconst everything = $input.all().map((i) => i.json).filter((r) => r && r.domain);\nif (everything.length === 0) return [];\n\n// Anything a person has to act on: at the ceiling, over the limit, +all, or no\n// record at all. There is no threshold to configure - these are exactly the\n// findings this workflow exists to surface.\nconst findings = everything.filter((f) => f.verdict_rank >= 2);\n\n// A manual run always reports, so you can see the audit while testing.\n// A scheduled run stays silent when there is nothing to act on.\nlet isManualRun = false;\ntry {\n  isManualRun = $execution.mode === 'test';\n} catch (e) {\n  isManualRun = false;\n}\nif (findings.length === 0 && !isManualRun) return [];\n\nconst healthy = everything.filter((f) => f.verdict_rank === 1);\nconst checked = everything.length;\n\nconst STYLE = {\n  'Missing SPF': { color: '#b91c1c', order: 1 },\n  'Unsafe +all': { color: '#b91c1c', order: 2 },\n  'Over 10 lookups': { color: '#ea580c', order: 3 },\n  'Multiple SPF records': { color: '#ea580c', order: 3 },\n  'At the ceiling': { color: '#d97706', order: 4 },\n  'Within limit': { color: '#2563eb', order: 5 },\n};\n\nconst MAX_DETAIL = 12;         // full cards in the email\nconst MAX_HEALTHY_ROWS = 40;   // healthy domains listed with their count\nconst MAX_SLACK_DETAIL = 6;    // full cards in Slack\nconst SLACK_BLOCK_BUDGET = 46; // Slack hard limit is 50\nconst SLACK_TEXT_LIMIT = 2800; // Slack hard limit is 3000 per section\n\nconst bySeverity = (a, b) =>\n  (STYLE[a.spf_limit_status] ? STYLE[a.spf_limit_status].order : 9) -\n    (STYLE[b.spf_limit_status] ? STYLE[b.spf_limit_status].order : 9) ||\n  Number(b.spf_lookups || 0) - Number(a.spf_lookups || 0);\n\nfindings.sort(bySeverity);\nhealthy.sort((a, b) => Number(b.spf_lookups || 0) - Number(a.spf_lookups || 0));\n\nconst critical = findings.filter((f) => f.verdict_rank >= 4);\nconst over = findings.filter((f) => f.verdict_rank === 3);\nconst ceiling = findings.filter((f) => f.verdict_rank === 2);\nconst nothingToAct = findings.length === 0;\n\nconst runDate = new Date().toISOString().slice(0, 10);\nconst top = findings[0] || everything[0];\nconst cardDomains = [...critical, ...over];\n\n// --------------------------------------------------- the number, front and centre\n// \"4 of 10\" on every domain. Headroom is the number people actually act on:\n// it answers \"can I add another vendor?\" without any arithmetic.\nfunction countOf(f) {\n  if (f.spf_present === 'no') return 'no SPF record';\n  // With two conflicting records the receiver never evaluates either one, so a\n  // lookup count would be meaningless - and which record it came from arbitrary.\n  if (f.spf_limit_status === 'Multiple SPF records') {\n    return (f.spf_records_all || []).length + ' conflicting SPF records';\n  }\n  return f.spf_lookups + ' of 10 lookups';\n}\n\nfunction headroomOf(f) {\n  if (f.spf_present === 'no') return '';\n  if (f.spf_limit_status === 'Multiple SPF records') return 'permerror';\n  const left = 10 - Number(f.spf_lookups);\n  if (left > 1) return left + ' to spare';\n  if (left === 1) return '1 to spare';\n  if (left === 0) return 'no headroom left';\n  return Math.abs(left) + ' over the limit';\n}\n\n// One sentence at the top that answers the question the reader opened with.\nfunction headline() {\n  if (checked === 1) {\n    const f = everything[0];\n    if (f.spf_present === 'no') {\n      return 'No SPF record was found for ' + f.domain + ', so nothing stops anyone sending mail as it.';\n    }\n    if (f.spf_limit_status === 'Multiple SPF records') {\n      return f.domain + ' publishes ' + (f.spf_records_all || []).length +\n        ' separate SPF records. Receivers permerror and check none of them.';\n    }\n    const left = 10 - Number(f.spf_lookups);\n    if (left > 0) {\n      return f.domain + ' uses ' + f.spf_lookups + ' of the 10 allowed DNS lookups. Room for ' + left + ' more.';\n    }\n    if (left === 0) {\n      return f.domain + ' uses all 10 allowed DNS lookups. The next vendor you add breaks it.';\n    }\n    return f.domain + ' needs ' + f.spf_lookups + ' DNS lookups, ' + Math.abs(left) + ' more than receivers allow.';\n  }\n\n  const parts = [];\n  if (critical.length) parts.push(critical.length + ' unprotected');\n  if (over.length) parts.push(over.length + ' broken');\n  if (ceiling.length) parts.push(ceiling.length + ' at the ceiling');\n  if (healthy.length) parts.push(healthy.length + ' inside the limit');\n\n  const withRecords = everything.filter((f) => f.spf_present === 'yes');\n  const heaviest = withRecords.slice().sort((a, b) => Number(b.spf_lookups) - Number(a.spf_lookups))[0];\n  const tail = heaviest\n    ? ' Highest usage: ' + heaviest.domain + ' at ' + heaviest.spf_lookups + ' of 10.'\n    : '';\n\n  return checked + ' domains audited - ' + parts.join(', ') + '.' + tail;\n}\n\n// ============================================================== Slack blocks\nlet slackTruncated = 0;\n\nfunction nameSections(heading, entries) {\n  const out = [];\n  let cur = heading;\n  let first = true;\n  for (const e of entries) {\n    const piece = (first ? '' : '   ') + e;\n    if (cur.length + piece.length > SLACK_TEXT_LIMIT) {\n      out.push(cur);\n      cur = e;\n    } else {\n      cur += piece;\n      first = false;\n    }\n  }\n  if (cur.trim()) out.push(cur);\n  return out;\n}\n\nfunction pushNameSections(blocks, heading, entries) {\n  for (const text of nameSections(heading, entries)) {\n    if (blocks.length >= SLACK_BLOCK_BUDGET) {\n      slackTruncated += entries.length;\n      return;\n    }\n    blocks.push({ type: 'section', text: { type: 'mrkdwn', text } });\n  }\n}\n\nconst blocks = [\n  { type: 'header', text: { type: 'plain_text', text: 'SPF lookup audit', emoji: true } },\n  { type: 'section', text: { type: 'mrkdwn', text: '*' + headline() + '*' } },\n  {\n    type: 'context',\n    elements: [\n      {\n        type: 'mrkdwn',\n        text: 'A receiving server gives up after 10 DNS lookups. It counts terms, not addresses - but vendor includes are charged recursively, so your record is usually heavier than it looks.',\n      },\n    ],\n  },\n];\n\nif (cardDomains.length) {\n  blocks.push({ type: 'divider' });\n  blocks.push({\n    type: 'section',\n    text: {\n      type: 'mrkdwn',\n      text: critical.length ? ':rotating_light: *Fix immediately*' : ':large_orange_circle: *Broken - receivers will permerror*',\n    },\n  });\n\n  for (const f of cardDomains.slice(0, MAX_SLACK_DETAIL)) {\n    blocks.push({\n      type: 'section',\n      text: {\n        type: 'mrkdwn',\n        text:\n          '*`' + f.domain + '`*  ' + countOf(f) + '\\n' + f.why + '\\n:arrow_right: ' + f.recommended_action,\n      },\n    });\n  }\n\n  if (cardDomains.length > MAX_SLACK_DETAIL) {\n    pushNameSections(\n      blocks,\n      '_Also failing, details in the email:_\\n',\n      cardDomains.slice(MAX_SLACK_DETAIL).map((f) => '`' + f.domain + '`')\n    );\n  }\n}\n\nif (ceiling.length) {\n  blocks.push({ type: 'divider' });\n  pushNameSections(\n    blocks,\n    ':warning: *At the ceiling - exactly 10 of 10, one vendor from breaking*\\n',\n    ceiling.map((f) => '`' + f.domain + '`')\n  );\n}\n\nif (healthy.length) {\n  blocks.push({ type: 'divider' });\n  pushNameSections(\n    blocks,\n    ':white_check_mark: *Inside the limit (' + healthy.length + ')*\\n',\n    healthy.map((f) => '`' + f.domain + '` ' + f.spf_lookups + '/10')\n  );\n}\n\nif (slackTruncated) {\n  blocks.push({\n    type: 'context',\n    elements: [\n      {\n        type: 'mrkdwn',\n        text: 'Slack caps a message at 50 blocks, so ' + slackTruncated + ' domain(s) did not fit. All of them are in the email.',\n      },\n    ],\n  });\n}\n\n// ===================================================================== Email\nconst FONT = 'font-family:-apple-system,BlinkMacSystemFont,Segoe UI,Helvetica,Arial,sans-serif';\n\nfunction esc(s) {\n  return String(s == null ? '' : s).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\n}\n\nfunction chip(v) {\n  const c = (STYLE[v] || STYLE['Within limit']).color;\n  return (\n    '<span style=\"display:inline-block;background:' + c +\n    ';color:#ffffff;border-radius:4px;padding:2px 8px;' + FONT +\n    ';font-size:10px;font-weight:700;letter-spacing:0.4px;text-transform:uppercase;\">' + esc(v) + '</span>'\n  );\n}\n\nfunction heading(text, color) {\n  return (\n    '<tr><td style=\"padding:20px 20px 6px 20px;border-top:1px solid #e2e8f0;\">' +\n    '<div style=\"' + FONT + ';font-size:14px;font-weight:800;color:' + color + ';\">' + esc(text) + '</div></td></tr>'\n  );\n}\n\n// Full card: the count, then why, then the one thing to do about it.\nfunction detailRow(f) {\n  const head = countOf(f) + (headroomOf(f) ? ' &nbsp;&middot;&nbsp; ' + headroomOf(f) : '');\n  return (\n    '<tr><td style=\"padding:12px 20px;border-bottom:1px solid #f1f5f9;\">' +\n    '<div style=\"' + FONT + ';font-size:15px;font-weight:700;color:#0f172a;word-break:break-all;\">' +\n    esc(f.domain) + ' &nbsp;' + chip(f.spf_limit_status) + '</div>' +\n    '<div style=\"' + FONT + ';font-size:13px;font-weight:600;color:#0f172a;padding-top:4px;\">' + head + '</div>' +\n    '<div style=\"' + FONT + ';font-size:13px;line-height:1.6;color:#475569;padding-top:4px;\">' + esc(f.why) + '</div>' +\n    '<div style=\"' + FONT + ';font-size:13px;color:#0f172a;padding-top:6px;\">&rarr; ' + esc(f.recommended_action) + '</div>' +\n    recordBlock(f) +\n    termTable(f) +\n    '</td></tr>'\n  );\n}\n\n// Healthy domain, shown in full: the count, the record, and where it goes.\nfunction healthyDetailRow(f) {\n  const head = countOf(f) + (headroomOf(f) ? ' &nbsp;&middot;&nbsp; ' + headroomOf(f) : '');\n  return (\n    '<tr><td style=\"padding:12px 20px;border-bottom:1px solid #f1f5f9;\">' +\n    '<div style=\"' + FONT + ';font-size:15px;font-weight:700;color:#0f172a;word-break:break-all;\">' +\n    esc(f.domain) + '</div>' +\n    '<div style=\"' + FONT + ';font-size:13px;font-weight:600;color:#0f172a;padding-top:4px;\">' + head + '</div>' +\n    recordBlock(f) +\n    termTable(f) +\n    '</td></tr>'\n  );\n}\n\n// Compact row: still carries the count, which is the whole point.\nfunction countRow(f) {\n  return (\n    '<tr><td style=\"padding:7px 20px;border-bottom:1px solid #f8fafc;\">' +\n    '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>' +\n    '<td style=\"' + FONT + ';font-size:13px;color:#334155;word-break:break-all;\">' + esc(f.domain) + '</td>' +\n    '<td align=\"right\" style=\"' + FONT + ';font-size:13px;font-weight:700;color:#0f172a;white-space:nowrap;\">' +\n    esc(countOf(f)) + '</td></tr></table></td></tr>'\n  );\n}\n\n// The record itself, monospaced and wrapped.\nfunction recordBlock(f) {\n  const all = f.spf_records_all || [];\n  if (all.length > 1) {\n    return (\n      '<div style=\"' + FONT + ';font-size:11px;font-weight:700;color:#94a3b8;padding-top:10px;' +\n      'letter-spacing:0.5px;text-transform:uppercase;\">Your ' + all.length + ' conflicting records</div>' +\n      all\n        .map(\n          (r, n) =>\n            '<div style=\"font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;' +\n            'line-height:1.6;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;' +\n            'padding:9px 11px;margin-top:4px;word-break:break-all;\">' +\n            '<span style=\"color:#b91c1c;font-weight:700;\">' + (n + 1) + '.</span> ' + esc(r) + '</div>'\n        )\n        .join('')\n    );\n  }\n  if (!f.spf_record) return '';\n  return (\n    '<div style=\"' + FONT + ';font-size:11px;font-weight:700;color:#94a3b8;padding-top:10px;' +\n    'letter-spacing:0.5px;text-transform:uppercase;\">Your record</div>' +\n    '<div style=\"font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;font-size:12px;' +\n    'line-height:1.6;color:#334155;background:#f8fafc;border:1px solid #e2e8f0;border-radius:6px;' +\n    'padding:9px 11px;margin-top:4px;word-break:break-all;\">' + esc(f.spf_record) + '</div>'\n  );\n}\n\n// Where the lookups actually go, term by term, in the order they appear in the\n// record. Free terms are shown too, so the arithmetic is checkable by eye.\nfunction termTable(f) {\n  // Counting one of two conflicting records would imply the receiver picks one.\n  // It does not - it gives up. So no table here.\n  if (f.spf_limit_status === 'Multiple SPF records') return '';\n  const terms = Array.isArray(f.lookup_terms) ? f.lookup_terms : [];\n  if (!terms.length) return '';\n\n  const maxCost = Math.max(...terms.map((t) => Number(t.cost) || 0));\n\n  const rows = terms\n    .map((t) => {\n      const cost = Number(t.cost) || 0;\n      const heavy = cost > 0 && cost === maxCost && maxCost > 1;\n      const label = cost === 0 ? 'free' : cost === 1 ? '1 lookup' : cost + ' lookups';\n      const note = t.nested\n        ? ' <span style=\"color:#94a3b8;\">(1 + ' + t.nested + ' nested)</span>'\n        : t.note\n        ? ' <span style=\"color:#94a3b8;\">(' + esc(t.note) + ')</span>'\n        : '';\n      return (\n        '<tr><td style=\"padding:3px 0;font-family:ui-monospace,SFMono-Regular,Menlo,Consolas,monospace;' +\n        'font-size:12px;color:' + (cost === 0 ? '#94a3b8' : '#334155') + ';word-break:break-all;\">' +\n        esc(t.term) + '</td>' +\n        '<td align=\"right\" style=\"padding:3px 0 3px 12px;' + FONT + ';font-size:12px;white-space:nowrap;' +\n        'color:' + (cost === 0 ? '#94a3b8' : '#0f172a') + ';font-weight:' + (heavy ? '800' : '400') + ';\">' +\n        label + note + '</td></tr>'\n      );\n    })\n    .join('');\n\n  return (\n    '<div style=\"' + FONT + ';font-size:11px;font-weight:700;color:#94a3b8;padding-top:12px;' +\n    'letter-spacing:0.5px;text-transform:uppercase;\">Where the lookups go</div>' +\n    '<table role=\"presentation\" width=\"100%\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" style=\"margin-top:4px;\">' +\n    rows +\n    '<tr><td style=\"padding:7px 0 0 0;border-top:1px solid #e2e8f0;' + FONT + ';font-size:12px;font-weight:700;color:#0f172a;\">Total</td>' +\n    '<td align=\"right\" style=\"padding:7px 0 0 0;border-top:1px solid #e2e8f0;' + FONT +\n    ';font-size:12px;font-weight:800;color:#0f172a;white-space:nowrap;\">' + esc(countOf(f)) + '</td></tr>' +\n    '</table>'\n  );\n}\n\n// Small estates get the record and breakdown for every domain; large ones only\n// for the domains that need action, so the message stays readable.\nconst SHOW_DETAIL_FOR_ALL = checked <= 5;\n\nlet body = '';\n\nif (cardDomains.length) {\n  body += heading('Fix now (' + cardDomains.length + ')', critical.length ? '#b91c1c' : '#ea580c');\n  body += cardDomains.slice(0, MAX_DETAIL).map(detailRow).join('');\n  if (cardDomains.length > MAX_DETAIL) {\n    body += cardDomains.slice(MAX_DETAIL).map(countRow).join('');\n  }\n}\n\nif (ceiling.length) {\n  body += heading('At the ceiling - 10 of 10 (' + ceiling.length + ')', '#d97706');\n  body += ceiling.slice(0, MAX_DETAIL).map(detailRow).join('');\n  if (ceiling.length > MAX_DETAIL) {\n    body += ceiling.slice(MAX_DETAIL).map(countRow).join('');\n  }\n}\n\nif (healthy.length) {\n  // With one domain the headline already gave the count, so skip the heading\n  // and go straight to the record and the breakdown.\n  if (!(checked === 1 && nothingToAct)) {\n    body += heading('Inside the limit (' + healthy.length + ')', '#2563eb');\n  }\n  body += SHOW_DETAIL_FOR_ALL\n    ? healthy.map(healthyDetailRow).join('')\n    : healthy.slice(0, MAX_HEALTHY_ROWS).map(countRow).join('');\n  if (!SHOW_DETAIL_FOR_ALL && healthy.length > MAX_HEALTHY_ROWS) {\n    body +=\n      '<tr><td style=\"padding:10px 20px;' + FONT + ';font-size:12px;color:#94a3b8;\">and ' +\n      (healthy.length - MAX_HEALTHY_ROWS) + ' more inside the limit</td></tr>';\n  }\n}\n\nconst html =\n  '<div style=\"background:#f1f5f9;padding:24px 0;\">' +\n  '<table role=\"presentation\" width=\"620\" cellpadding=\"0\" cellspacing=\"0\" border=\"0\" ' +\n  'style=\"width:100%;max-width:620px;margin:0 auto;background:#ffffff;border-radius:10px;overflow:hidden;\">' +\n\n  '<tr><td style=\"background:' + (STYLE[top.spf_limit_status] || STYLE['Within limit']).color + ';height:5px;\"></td></tr>' +\n\n  // Title, then the answer, then the rule. In that order.\n  '<tr><td style=\"padding:22px 20px 0 20px;\">' +\n  '<div style=\"' + FONT + ';font-size:12px;font-weight:700;letter-spacing:0.6px;text-transform:uppercase;color:#94a3b8;\">' +\n  'SPF lookup audit &nbsp;&middot;&nbsp; ' + runDate + '</div>' +\n  '<div style=\"' + FONT + ';font-size:19px;font-weight:800;line-height:1.4;color:#0f172a;padding-top:8px;\">' +\n  esc(headline()) + '</div></td></tr>' +\n\n  '<tr><td style=\"padding:14px 20px 4px 20px;\">' +\n  '<div style=\"' + FONT + ';font-size:12px;line-height:1.7;color:#64748b;background:#f8fafc;border-left:3px solid #cbd5e1;padding:12px 14px;\">' +\n  '<strong style=\"color:#334155;\">Why 10 matters.</strong> When a server receives mail claiming to be from you, it reads ' +\n  'your SPF record to check the sender is authorised - but it will only make <strong>10 DNS lookups</strong> doing so. ' +\n  'The 11th aborts the check with <em>permerror</em>: your record stops protecting the domain, and some servers reject ' +\n  'even your genuine mail. Each <code>include:</code>, <code>redirect=</code>, <code>a</code>, <code>mx</code>, ' +\n  '<code>exists:</code> and <code>ptr</code> costs one. <code>ip4:</code>, <code>ip6:</code> and <code>all</code> are free. ' +\n  'A name that resolves to several IP addresses still costs <strong>one</strong> - the budget counts terms, ' +\n  'not addresses. What inflates it is nesting: a vendor include is charged recursively, so 5 includes can ' +\n  'easily cost 12.' +\n  '</div></td></tr>' +\n\n  '<tr><td style=\"padding:8px 0 0 0;\"><table role=\"presentation\" width=\"100%\" cellpadding=\"0\" ' +\n  'cellspacing=\"0\" border=\"0\">' + body + '</table></td></tr>' +\n\n  '<tr><td style=\"padding:16px 20px 20px 20px;' + FONT + ';font-size:11px;line-height:1.7;color:#94a3b8;border-top:1px solid #e2e8f0;\">' +\n  esc(String(cfg.domains || '')) + '<br>' +\n  'Records read from Google DNS-over-HTTPS, every include chased two levels deep, then the RFC 7208 lookup ' +\n  'arithmetic replayed offline. Only DNS TXT records are read - this workflow never opens, sends or scans email.' +\n  '</td></tr></table></div>';\n\nconst subjectParts = [];\nif (critical.length) subjectParts.push(critical.length + ' unprotected');\nif (over.length) subjectParts.push(over.length + ' broken');\nif (ceiling.length) subjectParts.push(ceiling.length + ' at ceiling');\n\nconst subject = nothingToAct\n  ? (checked === 1\n      ? '[OK] SPF audit: ' + everything[0].domain + ' at ' + everything[0].spf_lookups + ' of 10 lookups'\n      : '[OK] SPF audit: all ' + checked + ' domains inside the 10-lookup limit') + ' on ' + runDate\n  : '[' + top.spf_limit_status + '] SPF audit: ' + subjectParts.join(', ') + ' on ' + runDate;\n\nreturn [\n  {\n    json: {\n      subject,\n      html,\n      slackBlocks: { blocks },\n      slackChannel: String(cfg.slackChannel || 'security-alerts'),\n      summary: {\n        runDate,\n        checked,\n        critical: critical.length,\n        overLimit: over.length,\n        atCeiling: ceiling.length,\n        healthy: healthy.length,\n        nothingToAct,\n        headline: headline(),\n      },\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e360a72d-ed91-4242-82be-bf8adb0c9a8b",
+      "name": "Send Slack Digest",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        10416,
+        2080
+      ],
+      "webhookId": "9d41cc53-8f15-421e-a95d-a2515596c2a2",
+      "parameters": {
+        "select": "channel",
+        "blocksUi": "={{ JSON.stringify($json.slackBlocks) }}",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $json.slackChannel }}"
+        },
+        "messageType": "block",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "credential-id",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "353d3afd-5637-4473-88ab-5a4544ee0685",
+      "name": "Email Security Digest",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        10416,
+        2288
+      ],
+      "webhookId": "a8e0f464-6df2-4b9c-8f40-bb1bcb755dc7",
+      "parameters": {
+        "sendTo": "={{ $('Configuration').first().json.alertEmailTo }}",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail Account - OAuth2 API"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5530cd4e-296a-4f17-809f-11616d3394d7",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7408,
+        1824
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 1076,
+        "content": "## SPF 10-Lookup Guard - daily DNS audit\n\nRFC 7208 lets a receiving server make at most **10 DNS lookups** while checking one SPF record. The 11th aborts the check with _permerror_: your record stops protecting the domain, and some servers reject even your genuine mail.\n\nMost SPF checkers only count the `include:` lines you wrote. This one chases every vendor include two levels deep, so the lookups **your vendors spend inside their own records** are counted against your budget too - which is where almost every over-limit domain actually breaks.\n\n### How it works\n1. **Configuration** holds your domain list and where alerts go. Nothing else to edit.\n2. Each domain's SPF record is fetched from Google's free DNS-over-HTTPS endpoint. No API key.\n3. Three resolve rounds chase every `include:` and `redirect=` target two levels deep.\n4. The receiver's arithmetic is replayed offline: `include: redirect= a mx exists: ptr` cost 1 each, `ip4: ip6: all` cost nothing. A term costs 1 however many addresses it returns.\n5. Each domain gets a verdict, plus a term-by-term breakdown showing exactly where its lookups go.\n6. Anything that needs acting on goes to Slack and email. A healthy estate stays quiet.\n\n### Setup\n- [ ] In **Configuration**, replace `example.com` with your domains, comma separated\n- [ ] Set `slackChannel` and `alertEmailTo`. That is the whole configuration\n- [ ] Add **Slack** and **Gmail** credentials\n- [ ] Click Execute Workflow to test, then activate for the 07:00 schedule\n\n### Customize\nDelete the Slack node or the Gmail node if you only want one channel. Change the schedule hour on the trigger. "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c76260b-8806-4201-918e-c9fd95c2d077",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7920,
+        1920
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 640,
+        "height": 528,
+        "content": "## 1. Trigger and configuration\n\nEvery editable value lives in the Configuration node: your domains, the alert threshold, and where alerts go. The manual trigger is there so you can test before activating the schedule."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d5bcf13-5111-4221-8a47-aeffe1a1bfa1",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        8608,
+        1920
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 1120,
+        "height": 528,
+        "content": "## 2. DNS resolution, three rounds\n\nRound 1 fetches each domain's own SPF record. The Expand nodes read the answers and queue the `include:` / `redirect=` targets they find, so rounds 2 and 3 count nested vendor lookups too. Uses Google's free dns.google endpoint - no API key, no credential."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b6fbfd75-5045-4950-a35c-b3d0c9a576cf",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        9776,
+        1920
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 288,
+        "height": 528,
+        "content": "## 3. The lookup budget counter\n\nReplays RFC 7208 section 4.6.4 offline: recursive include counting, cycle-safe, macros flagged. Deterministic - same records, same verdict, every time."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "edf563d1-5a9d-4624-9880-4986218ce790",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        10112,
+        1920
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 512,
+        "height": 528,
+        "content": "## 4. Report\n\nFindings lead, worst first, each with the heaviest include named. Healthy domains are still listed compactly so the report is a full picture, not just the bad news."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1aac6787-6e1d-40c5-8c4b-49511182b9c2",
+      "name": "Sticky Note read-first",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7920,
+        2512
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 640,
+        "height": 112,
+        "content": "## Read before you run\n\n- **Audit only domains you manage.** These results drive mail-authentication changes."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "f014518e-1818-4a13-a206-45800776e502",
+  "nodeGroups": [],
+  "connections": {
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Split Domains",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Domains": {
+      "main": [
+        [
+          {
+            "node": "Resolve DNS Round 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count SPF Lookups": {
+      "main": [
+        [
+          {
+            "node": "Build Alert Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Alert Digest": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Digest",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Security Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve DNS Round 1": {
+      "main": [
+        [
+          {
+            "node": "Expand Includes Level 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve DNS Round 2": {
+      "main": [
+        [
+          {
+            "node": "Expand Includes Level 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve DNS Round 3": {
+      "main": [
+        [
+          {
+            "node": "Count SPF Lookups",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Morning at 07:00": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Includes Level 1": {
+      "main": [
+        [
+          {
+            "node": "Resolve DNS Round 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Includes Level 2": {
+      "main": [
+        [
+          {
+            "node": "Resolve DNS Round 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Clicking Execute Workflow": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

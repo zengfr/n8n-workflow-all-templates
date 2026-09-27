@@ -1,4 +1,4 @@
-# trello : 33
+# trello : 38
 
 |id|file|
 |----|----|
@@ -35,3 +35,8 @@
 |13873|[13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13873_Summarize_Trello_board_activity_with_Gemini_and_send_updates_to_Slack.json)|
 |15028|[15028_Qualify_and_route_inbound_leads_with_OpenAI__Trello__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15028_Qualify_and_route_inbound_leads_with_OpenAI__Trello__Slack_and_Gmail.json)|
 |16787|[16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json)|
+|16856|[16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json)|
+|17798|[17798_Post_new_and_moved_Trello_cards_to_a_Discord_channel_via_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17798_Post_new_and_moved_Trello_cards_to_a_Discord_channel_via_webhooks.json)|
+|18592|[18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json)|
+|19465|[19465_Triage_and_route_AI-powered_support_tickets_with_Google_Gemini__Trello__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19465_Triage_and_route_AI-powered_support_tickets_with_Google_Gemini__Trello__and_Gmail.json)|
+|19758|[19758_Route_AV_rental_kit_readiness_with_Airtable__OpenAI__Google_Sheets__and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19758_Route_AV_rental_kit_readiness_with_Airtable__OpenAI__Google_Sheets__and_Trello.json)|

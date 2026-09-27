@@ -1,4 +1,4 @@
-# topics : 17
+# topics : 23
 
 |id|file|
 |----|----|
@@ -19,3 +19,9 @@
 |15102|[15102_Create_weekly_AI_WordPress_posts_with_images_from_SharePoint_topics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15102_Create_weekly_AI_WordPress_posts_with_images_from_SharePoint_topics.json)|
 |15950|[15950_Generate_structured_research_briefs_for_content_topics_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15950_Generate_structured_research_briefs_for_content_topics_with_OpenRouter.json)|
 |15988|[15988_Track_monthly_trending_topics_with_Exploding_Topics_and_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15988_Track_monthly_trending_topics_with_Exploding_Topics_and_n8n_Data_Tables.json)|
+|17634|[17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json)|
+|17652|[17652_Generate_LinkedIn_posts_from_Gmail_topics_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17652_Generate_LinkedIn_posts_from_Gmail_topics_with_Google_Sheets_and_Gemini.json)|
+|18236|[18236_Generate_Zen_articles_and_images_with_OpenRouter__Google_Sheets__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18236_Generate_Zen_articles_and_images_with_OpenRouter__Google_Sheets__and_Drive.json)|
+|18963|[18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json)|
+|19047|[19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json)|
+|19713|[19713_Build_a_rising-topic_reading_shortlist_from_RSS_feeds_to_HTML_and_CSV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19713_Build_a_rising-topic_reading_shortlist_from_RSS_feeds_to_HTML_and_CSV.json)|

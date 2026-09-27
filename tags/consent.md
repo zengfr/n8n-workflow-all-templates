@@ -1,4 +1,4 @@
-# consent : 6
+# consent : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|
 |13233|[13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json)|
 |13474|[13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13474_Sync_contacts__consent__and_segments_between_KlickTipp_and_Salesforce.json)|
+|19639|[19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json)|
+|19784|[19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json)|

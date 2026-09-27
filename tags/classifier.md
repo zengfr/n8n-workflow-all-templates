@@ -1,4 +1,4 @@
-# classifier : 21
+# classifier : 29
 
 |id|file|
 |----|----|
@@ -23,3 +23,11 @@
 |15939|[15939_Score_and_route_GoHighLevel_leads_with_Claude_Sonnet__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15939_Score_and_route_GoHighLevel_leads_with_Claude_Sonnet__Slack__and_Google_Sheets.json)|
 |15955|[15955_Classify_support_emails_and_send_replies_with_Claude__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15955_Classify_support_emails_and_send_replies_with_Claude__Gmail__Slack_and_Sheets.json)|
 |16289|[16289_Classify_cold_email_replies_and_triage_Gmail_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16289_Classify_cold_email_replies_and_triage_Gmail_with_Claude_and_Slack.json)|
+|17280|[17280_Triage_support_tickets_and_draft_AI_replies_with_CometAPI__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17280_Triage_support_tickets_and_draft_AI_replies_with_CometAPI__Slack_and_Gmail.json)|
+|17502|[17502_Classify_cold_email_replies_and_route_leads_with_Gmail__Gemini__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17502_Classify_cold_email_replies_and_route_leads_with_Gmail__Gemini__Slack_and_Sheets.json)|
+|17953|[17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|18679|[18679_Classify_AI_news_from_RSS_and_create_LinkedIn_carousels_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18679_Classify_AI_news_from_RSS_and_create_LinkedIn_carousels_with_Gemini_and_PostNitro.json)|
+|19221|[19221_Build_an_EU_AI_Act_risk_inventory_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19221_Build_an_EU_AI_Act_risk_inventory_with_OpenAI_and_Google_Sheets.json)|
+|19381|[19381_Qualify_roofing_leads_and_send_WhatsApp_icebreakers_with_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19381_Qualify_roofing_leads_and_send_WhatsApp_icebreakers_with_Gemini_and_Sheets.json)|
+|19547|[19547_Classify_property_support_emails_with_Groq__Slack__Gmail_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19547_Classify_property_support_emails_with_Groq__Slack__Gmail_and_Airtable.json)|
+|19746|[19746_Classify_and_route_support_tickets_via_webhooks_using_RapidAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19746_Classify_and_route_support_tickets_via_webhooks_using_RapidAPI.json)|

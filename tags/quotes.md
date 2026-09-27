@@ -1,4 +1,4 @@
-# quotes : 20
+# quotes : 31
 
 |id|file|
 |----|----|
@@ -22,3 +22,14 @@
 |15744|[15744_Fetch_live_commodity_quotes_with_Octagon__OpenAI__GPT-5.4_Mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15744_Fetch_live_commodity_quotes_with_Octagon__OpenAI__GPT-5.4_Mini__and_Google_Sheets.json)|
 |16587|[16587_Post_daily_motivational_quote_images_to_Telegram_with_Gemini_and_HTML_to_Image.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16587_Post_daily_motivational_quote_images_to_Telegram_with_Gemini_and_HTML_to_Image.json)|
 |16710|[16710_Send_multi-carrier_shipping_quotes_via_WhatsApp_with_Gemini_and_ShipEngine.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16710_Send_multi-carrier_shipping_quotes_via_WhatsApp_with_Gemini_and_ShipEngine.json)|
+|17371|[17371_Send_daily_AI-personalized_inspirational_quotes_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17371_Send_daily_AI-personalized_inspirational_quotes_with_OpenAI_and_Gmail.json)|
+|17500|[17500_Send_event_quotes_from_WhatsApp_with_Groq__Google_Calendar__Sheets_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17500_Send_event_quotes_from_WhatsApp_with_Groq__Google_Calendar__Sheets_and_Supabase.json)|
+|17545|[17545_Send_a_weekly_digest_of_open_quotes_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17545_Send_a_weekly_digest_of_open_quotes_with_Gmail_and_Google_Sheets.json)|
+|17758|[17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json)|
+|18658|[18658_Draft_CPQ_quotes_from_Slack_with_TurboQuote_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18658_Draft_CPQ_quotes_from_Slack_with_TurboQuote_and_OpenAI.json)|
+|18863|[18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json)|
+|18873|[18873_Send_fixed-price_client_quotes_with_approvals_using_Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18873_Send_fixed-price_client_quotes_with_approvals_using_Gmail_and_data_tables.json)|
+|19414|[19414_Manage_catering_event_quotes_and_countdowns_with_Postgres__Gmail__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19414_Manage_catering_event_quotes_and_countdowns_with_Postgres__Gmail__OpenAI_and_Telegram.json)|
+|19693|[19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json)|
+|19773|[19773_Chase_unanswered_quotes_by_SMS_with_Twilio_and_a_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19773_Chase_unanswered_quotes_by_SMS_with_Twilio_and_a_webhook.json)|
+|19811|[19811_Negotiate_car_purchase_quotes_with_Gemini__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19811_Negotiate_car_purchase_quotes_with_Gemini__Gmail__and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# info : 17
+# info : 21
 
 |id|file|
 |----|----|
@@ -19,3 +19,7 @@
 |11131|[11131_Scrape_and_Analyze_Amazon_Product_Info_with_Decodo___OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11131_Scrape_and_Analyze_Amazon_Product_Info_with_Decodo___OpenAI.json)|
 |12058|[12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12058_Automate_business_card_management_with_LINE__AI__and_Google_Sheets.json)|
 |12078|[12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12078_Send_Shopify_shipping_tracking_WhatsApp_notifications_with_full_tracking_info.json)|
+|16913|[16913_Send_monthly_real_estate_market_summaries_to_Slack_with_Supabase_and_Rentcast.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16913_Send_monthly_real_estate_market_summaries_to_Slack_with_Supabase_and_Rentcast.json)|
+|16914|[16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json)|
+|18173|[18173_Search_and_score_contact_details_with_Searchbug_Contact_Info_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18173_Search_and_score_contact_details_with_Searchbug_Contact_Info_API_and_Google_Sheets.json)|
+|19134|[19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json)|

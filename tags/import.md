@@ -1,4 +1,4 @@
-# import : 37
+# import : 42
 
 |id|file|
 |----|----|
@@ -39,3 +39,8 @@
 |13999|[13999_Validate_JSON_and_CSV_import_data_via_webhook_with_configurable_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13999_Validate_JSON_and_CSV_import_data_via_webhook_with_configurable_rules.json)|
 |14040|[14040_Migrate_ClickUp_list_or_task_tree_to_Nextcloud_Deck_as_a_one-off_import.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14040_Migrate_ClickUp_list_or_task_tree_to_Nextcloud_Deck_as_a_one-off_import.json)|
 |15085|[15085_Brevo_Contact_Manager____Import__Add_to_List__Send_Email_and_Track_Unsubscribes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15085_Brevo_Contact_Manager____Import__Add_to_List__Send_Email_and_Track_Unsubscribes.json)|
+|17680|[17680_Bulk_import_local_PDF_and_text_files_into_an_Open_Notebook_notebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17680_Bulk_import_local_PDF_and_text_files_into_an_Open_Notebook_notebook.json)|
+|17763|[17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json)|
+|17911|[17911_Build_CMS_import_rows_and_collision-safe_redirects_from_a_legacy_CSV_upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17911_Build_CMS_import_rows_and_collision-safe_redirects_from_a_legacy_CSV_upload.json)|
+|18119|[18119_Clean_and_validate_inbound_contact_records_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18119_Clean_and_validate_inbound_contact_records_with_Gemini_and_Google_Sheets.json)|
+|19200|[19200_Migrate_Salesforce_accounts_to_GoHighLevel_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19200_Migrate_Salesforce_accounts_to_GoHighLevel_using_Google_Sheets.json)|

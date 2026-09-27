@@ -1,4 +1,4 @@
-# best : 17
+# best : 21
 
 |id|file|
 |----|----|
@@ -19,3 +19,7 @@
 |16063|[16063_Generate_and_evaluate_AI_prompts_with_Gemini__OpenRouter__Groq__Cohere_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16063_Generate_and_evaluate_AI_prompts_with_Gemini__OpenRouter__Groq__Cohere_and_Supabase.json)|
 |16660|[16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json)|
 |16760|[16760_Route_patients_to_the_best_nearby_hospital_using_Google_Maps__GPT-4.1_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16760_Route_patients_to_the_best_nearby_hospital_using_Google_Maps__GPT-4.1_and_Twilio.json)|
+|16823|[16823_Track_Amazon_best_seller_ranks_in_Airtable_with_ScraperAPI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16823_Track_Amazon_best_seller_ranks_in_Airtable_with_ScraperAPI_and_Slack.json)|
+|17589|[17589_Schedule_Instagram_posts_at_optimal_times_with_Rubinyun.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17589_Schedule_Instagram_posts_at_optimal_times_with_Rubinyun.json)|
+|19031|[19031_Email_a_weekly_Product_Hunt_leaderboard_digest_with_Apify_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19031_Email_a_weekly_Product_Hunt_leaderboard_digest_with_Apify_and_Gmail.json)|
+|19494|[19494_Send_Google_Search_Console_performance_reports_to_Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19494_Send_Google_Search_Console_performance_reports_to_Gmail_and_Telegram.json)|

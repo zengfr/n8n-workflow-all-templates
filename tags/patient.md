@@ -1,4 +1,4 @@
-# patient : 20
+# patient : 24
 
 |id|file|
 |----|----|
@@ -22,3 +22,7 @@
 |14860|[14860_Track_medicine_adherence_and_monitor_patients_with_Google_Sheets__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14860_Track_medicine_adherence_and_monitor_patients_with_Google_Sheets__OpenAI_and_Slack.json)|
 |15969|[15969_Send_AI_patient_follow-ups_and_rebooking_emails_with_Claude__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15969_Send_AI_patient_follow-ups_and_rebooking_emails_with_Claude__Gmail__Slack_and_Sheets.json)|
 |16457|[16457_Generate_and_review_patient_SOAP_notes_with_GPT-4o_Mini__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16457_Generate_and_review_patient_SOAP_notes_with_GPT-4o_Mini__Gmail__and_Google_Sheets.json)|
+|16878|[16878_Manage_clinic_appointments_and_prescriptions_with_Telegram__Gmail_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16878_Manage_clinic_appointments_and_prescriptions_with_Telegram__Gmail_and_Google.json)|
+|17419|[17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json)|
+|17603|[17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json)|
+|17757|[17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json)|

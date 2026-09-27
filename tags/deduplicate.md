@@ -1,4 +1,4 @@
-# deduplicate : 11
+# deduplicate : 19
 
 |id|file|
 |----|----|
@@ -13,3 +13,11 @@
 |16647|[16647_Capture_and_deduplicate_inbound_leads_with_webhooks_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16647_Capture_and_deduplicate_inbound_leads_with_webhooks_and_Google_Sheets.json)|
 |16748|[16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json)|
 |16801|[16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json)|
+|17445|[17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json)|
+|17639|[17639_Enrich_and_deduplicate_BROSH_CRM_leads_with_OpenAI_and_BROSH_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17639_Enrich_and_deduplicate_BROSH_CRM_leads_with_OpenAI_and_BROSH_MCP.json)|
+|17674|[17674_Deduplicate_and_send_server-side_conversions_to_Meta_Conversions_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17674_Deduplicate_and_send_server-side_conversions_to_Meta_Conversions_API.json)|
+|17719|[17719_Validate_and_deduplicate_webhook_leads_into_a_Google_Sheets_review_queue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17719_Validate_and_deduplicate_webhook_leads_into_a_Google_Sheets_review_queue.json)|
+|17749|[17749_Capture_and_deduplicate_website_leads_in_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17749_Capture_and_deduplicate_website_leads_in_Google_Sheets_with_Slack_alerts.json)|
+|18340|[18340_Deduplicate_security_alerts_into_unified_cases_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18340_Deduplicate_security_alerts_into_unified_cases_with_Claude_and_Slack.json)|
+|18789|[18789_Collect_and_deduplicate_local_business_leads_from_Google_Maps_with_Figranium_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18789_Collect_and_deduplicate_local_business_leads_from_Google_Maps_with_Figranium_and_Google_Sheets.json)|
+|18918|[18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json)|

@@ -1,4 +1,4 @@
-# orchestration : 24
+# orchestration : 25
 
 |id|file|
 |----|----|
@@ -26,3 +26,4 @@
 |13589|[13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json)|
 |14433|[14433_Orchestrate_sustainability_lifecycle_analytics_with_GPT-4o__Slack__Gmail_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14433_Orchestrate_sustainability_lifecycle_analytics_with_GPT-4o__Slack__Gmail_and_Google_Docs.json)|
 |16343|[16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json)|
+|17383|[17383_Run_a_full_lead-to-meeting_pipeline_with_Google_Sheets__Gmail__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17383_Run_a_full_lead-to-meeting_pipeline_with_Google_Sheets__Gmail__Gemini_and_OpenAI.json)|

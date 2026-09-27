@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Issue warehouse packing slips with pdfmill, Gmail, and Google Drive",
+    "wechat": "youandme10086",
+    "id": 18743,
+    "update_time": "2026-09-27"
+  },
+  "name": "Issue warehouse packing slips with pdfmill, Gmail, and Google Drive",
+  "tags": [
+    {
+      "name": "pdfmill"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "9160ae49-c1a1-4b41-89c9-9bba0fcc7a1d",
+      "name": "When a paid order is ready to fulfil",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        1000
+      ],
+      "webhookId": "70bcd0a4-537d-43d0-82c3-695c7e883b59",
+      "parameters": {
+        "path": "paid-order-packing-slip",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3b4eb66e-1c80-41c4-88e3-8616d7b8912c",
+      "name": "Validate and build the packing slip",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        1000
+      ],
+      "parameters": {
+        "jsCode": "// Validate the WHOLE order before rendering, emailing, or archiving anything.\n// A packing slip is warehouse-facing: identity, addresses, SKUs, descriptions, and quantities.\n// Price fields from the source order are deliberately ignored.\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst clean = (value) => String(value ?? '').trim();\nconst firstNonEmpty = (...values) => values.map(clean).find(Boolean) ?? '';\nconst isValidEmail = (email) => {\n  if (!email || email.length > 254) return false;\n  const at = email.indexOf('@');\n  if (at <= 0 || at !== email.lastIndexOf('@') || at === email.length - 1) return false;\n\n  const local = email.slice(0, at);\n  const domain = email.slice(at + 1);\n  if (local.length > 64 || local.startsWith('.') || local.endsWith('.') || local.includes('..')) return false;\n  if (!/^[A-Za-z0-9.!#$%&'*+/=?^_{|}~-]+$/.test(local)) return false;\n\n  const labels = domain.split('.');\n  if (labels.length < 2) return false;\n  return labels.every((label) =>\n    label.length > 0 &&\n    label.length <= 63 &&\n    /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(label)\n  );\n};\nconst isIsoDate = (value) => {\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;\n  const parsed = new Date(value + 'T00:00:00.000Z');\n  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;\n};\nconst addressObject = (value) => (value && typeof value === 'object') ? value : {};\nconst addressName = (value) => firstNonEmpty(\n  value.name,\n  [firstNonEmpty(value.firstName, value.first_name), firstNonEmpty(value.lastName, value.last_name)].filter(Boolean).join(' ')\n);\nconst formattedAddress = (value) => firstNonEmpty(\n  value.address,\n  value.formattedAddress,\n  [\n    firstNonEmpty(value.address1, value.address_1),\n    firstNonEmpty(value.address2, value.address_2),\n    value.city,\n    firstNonEmpty(value.province, value.state),\n    firstNonEmpty(value.zip, value.postcode, value.postalCode),\n    value.country,\n  ].map(clean).filter(Boolean).join(', ')\n);\nconst rawItems = Array.isArray(body.items)\n  ? body.items\n  : (Array.isArray(body.line_items) ? body.line_items : []);\n\nconst orderNumber = firstNonEmpty(body.orderNumber, body.name, body.order_number, body.orderId, body.id);\nconst orderedAtSource = firstNonEmpty(body.orderedAt, body.createdAt, body.created_at);\nconst orderedAt = /^\\d{4}-\\d{2}-\\d{2}/.test(orderedAtSource) ? orderedAtSource.slice(0, 10) : orderedAtSource;\nconst shippedAtSource = firstNonEmpty(body.shippedAt, body.shipped_at) || new Date().toISOString().slice(0, 10);\nconst shippedAt = /^\\d{4}-\\d{2}-\\d{2}/.test(shippedAtSource) ? shippedAtSource.slice(0, 10) : shippedAtSource;\nconst warehouseEmail = firstNonEmpty(body.warehouseEmail, body.fulfillmentEmail, body.fulfilmentEmail);\n\nconst rawShipTo = addressObject(body.shipTo ?? body.shipping ?? body.shippingAddress ?? body.shipping_address);\nconst rawCustomer = addressObject(body.customer);\nconst shipTo = {\n  name: firstNonEmpty(addressName(rawShipTo), addressName(rawCustomer)),\n  address: firstNonEmpty(formattedAddress(rawShipTo), formattedAddress(rawCustomer)),\n};\nconst rawShipFrom = addressObject(body.shipFrom ?? body.warehouse ?? body.fulfillmentCenter ?? body.fulfilmentCentre);\nconst shipFrom = {\n  name: addressName(rawShipFrom),\n  address: formattedAddress(rawShipFrom),\n};\n\nconst invalidOrderFields = [];\nif (!orderNumber || orderNumber.length > 100) invalidOrderFields.push('orderNumber');\nif (!isIsoDate(orderedAt)) invalidOrderFields.push('orderedAt (YYYY-MM-DD)');\nif (!isIsoDate(shippedAt)) invalidOrderFields.push('shippedAt (YYYY-MM-DD)');\nif (!isValidEmail(warehouseEmail)) invalidOrderFields.push('warehouseEmail');\nif (!shipFrom.name) invalidOrderFields.push('shipFrom.name');\nif (!shipFrom.address) invalidOrderFields.push('shipFrom.address');\nif (!shipTo.name) invalidOrderFields.push('shipTo.name');\nif (!shipTo.address) invalidOrderFields.push('shipTo.address');\nif (rawItems.length === 0) invalidOrderFields.push('items (non-empty array)');\n\nconst invalidItems = [];\nconst items = rawItems.map((value, index) => {\n  const item = (value && typeof value === 'object') ? value : {};\n  const sku = firstNonEmpty(item.sku, item.variant_sku, item.variantSku, item.variantId, item.id);\n  const description = firstNonEmpty(item.description, item.name, item.title);\n  const quantitySource = clean(item.quantity) ? item.quantity : item.qty;\n  const quantity = Number(quantitySource);\n  const invalidFields = [];\n\n  if (!sku) invalidFields.push('sku');\n  if (!description) invalidFields.push('description');\n  if (clean(quantitySource) === '' || !Number.isInteger(quantity) || quantity <= 0) invalidFields.push('quantity');\n  if (invalidFields.length > 0) invalidItems.push({ position: index + 1, fields: invalidFields });\n\n  return { sku, description, quantity };\n});\n\nif (invalidOrderFields.length > 0 || invalidItems.length > 0) {\n  const details = [];\n  if (invalidOrderFields.length > 0) details.push('order fields: ' + invalidOrderFields.join(', '));\n  for (const invalid of invalidItems) details.push('item ' + invalid.position + ': ' + invalid.fields.join(', '));\n  return [{\n    json: {\n      isValid: false,\n      error: 'The packing-slip request is invalid. Check ' + details.join('; ') + '.',\n      invalidOrderFields,\n      invalidItems,\n      status: 'rejected',\n    },\n    pairedItem: { item: 0 },\n  }];\n}\n\nconst totalItems = items.reduce((sum, item) => sum + item.quantity, 0);\nconst fileSafeOrderNumber = orderNumber\n  .replace(/[^A-Za-z0-9._-]+/g, '_')\n  .replace(/^_+|_+$/g, '') || 'order';\n\nreturn [{\n  json: {\n    isValid: true,\n    orderNumber,\n    fileSafeOrderNumber,\n    orderedAt,\n    shippedAt,\n    carrier: firstNonEmpty(body.carrier, body.shipping_carrier),\n    trackingNumber: firstNonEmpty(body.trackingNumber, body.tracking_number),\n    shipFrom,\n    shipTo,\n    items,\n    totalItems,\n    totalWeight: clean(body.totalWeight),\n    notes: firstNonEmpty(body.notes, body.note) || 'Pick against the SKUs, verify every quantity, and mark the order fulfilled after dispatch.',\n    warehouseEmail,\n  },\n  pairedItem: { item: 0 },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "08c86657-2a8a-4b49-89fe-687943e40b6a",
+      "name": "Is the entire order valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        600,
+        1000
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bd3542ba-ed10-488d-824f-70e299899c3f",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isValid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bd74f26e-c480-4756-845e-f3622a14d0ed",
+      "name": "Generate the packing slip PDF",
+      "type": "n8n-nodes-pdfmill.pdfmill",
+      "position": [
+        880,
+        1000
+      ],
+      "parameters": {
+        "data": "={{ $json }}",
+        "format": "pdf",
+        "options": {},
+        "template": "packing-slip",
+        "operation": "template",
+        "binaryPropertyName": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d55a4840-32bc-4007-8bb4-92e3b78a7aaa",
+      "name": "Email the packing slip to the warehouse",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1180,
+        860
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Validate and build the packing slip').item.json.warehouseEmail }}",
+        "message": "=A paid order is ready to pick and pack.\n\nOrder: {{ $('Validate and build the packing slip').item.json.orderNumber }}\nUnits: {{ $('Validate and build the packing slip').item.json.totalItems }}\nShip to: {{ $('Validate and build the packing slip').item.json.shipTo.name }}\nCarrier: {{ $('Validate and build the packing slip').item.json.carrier || 'Not assigned' }}\nTracking: {{ $('Validate and build the packing slip').item.json.trackingNumber || 'Not assigned' }}\n\nThe attached packing slip contains SKUs, descriptions, and quantities only—no prices. Pick against the SKUs and verify every quantity before dispatch.",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "=Order {{ $('Validate and build the packing slip').item.json.orderNumber }} is ready to pack ({{ $('Validate and build the packing slip').item.json.totalItems }} units)"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "9d7a6453-89ae-4982-8e50-6019d7792cb2",
+      "name": "Archive the packing slip in Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1180,
+        1120
+      ],
+      "parameters": {
+        "name": "=Packing slip - {{ $('Validate and build the packing slip').item.json.fileSafeOrderNumber }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "00bf367b-7b6f-44f1-8a9e-01213758dd84",
+      "name": "Wait for warehouse email and archive",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1480,
+        1000
+      ],
+      "parameters": {
+        "mode": "chooseBranch",
+        "output": "empty",
+        "numberInputs": 2,
+        "chooseBranchMode": "waitForAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "68db4ad4-a0e1-4f2b-8a62-57772861377f",
+      "name": "Return packing_slip_ready",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1760,
+        1000
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ { \"orderNumber\": $('Validate and build the packing slip').first().json.orderNumber, \"totalItems\": $('Validate and build the packing slip').first().json.totalItems, \"status\": \"packing_slip_ready\" } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "38337da0-a9c0-4081-836d-105fdae5c07c",
+      "name": "Return one 400 order error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        880,
+        1620
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": $json.error, \"status\": \"rejected\" } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "45a84ef3-8966-4403-8d8a-404a2cc60307",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        20
+      ],
+      "parameters": {
+        "width": 1160,
+        "height": 720,
+        "content": "## 📦 Paid order → warehouse packing slip\n\n**Who it's for:** ecommerce and fulfilment teams that need a clean, price-free packing slip as soon as an order is ready to pack.\n\n**What it does:** receives one paid order, validates the complete fulfilment payload before any side effect, and renders a branded packing slip with pdfmill. The PDF contains order identity, ship-from/ship-to addresses, SKUs, descriptions, and quantities—never prices.\n\nThe pdfmill binary goes **directly and in parallel** to Gmail and Google Drive. The Merge waits for both branches before the webhook returns `packing_slip_ready`. Gmail output is never reused as the Drive upload source.\n\n**Control flow**\n1. Receive and validate the whole order.\n2. Reject missing identity, addresses, warehouse mailbox, dates, or malformed line items with one 400 response.\n3. Render one price-free packing slip PDF.\n4. Email and archive the same pdfmill binary.\n5. Wait for both branches, then return the order number and unit count.\n\n**Setup:** connect pdfmill, Gmail, and Google Drive credentials; choose an archive folder; then POST the documented payload to the Production webhook URL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f90a4ae6-30d8-49f0-811f-6faa25c0e3fc",
+      "name": "Section: Validate the whole order",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 640,
+        "content": "## 1. Validate the whole order\nThe Code node checks the complete order before rendering. Order identity, dates, ship-from and ship-to addresses, a warehouse mailbox, and a non-empty items array are required. Every item needs a SKU, description, and positive integer quantity. One bad field rejects the whole order, so a malformed request cannot trigger a partial fulfilment action."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b65dfec-af55-445c-845f-80677d2c0152",
+      "name": "Section: Render the packing slip",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 640,
+        "content": "## 2. Render the packing slip\npdfmill renders the built-in Packing Slip template and writes the PDF binary to `data`. Source prices are deliberately ignored; only warehouse-facing item and shipping facts reach the document."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eb8dabfb-82fc-49f0-8439-b0103c1f9c7a",
+      "name": "Section: Deliver, join, and respond",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        740
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 920,
+        "height": 720,
+        "content": "## 3. Deliver, join, and respond\nThe pdfmill output fans out directly to Gmail and Drive. Both nodes consume the same `data` binary. Gmail sends to the validated warehouse mailbox, Drive archives the PDF, and the Merge waits for **both** successful branches before a single webhook response reports `packing_slip_ready`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9aace203-6a8a-4560-8223-47a817f45ca3",
+      "name": "Section: Reject the order",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        1480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 420,
+        "content": "## Invalid order → one 400\nAn empty order, malformed warehouse mailbox, missing address, invalid date, or line without a SKU, description, or positive integer quantity rejects the complete request. Nothing is rendered, emailed, or archived."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a54ed78d-730c-45bd-85b6-10df37335f58",
+      "name": "Setup: expected paid-order payload",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        1500
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 800,
+        "height": 1040,
+        "content": "## Expected payload\n\nPOST a paid order to the Production webhook URL:\n\n```json\n{\n  \"orderNumber\": \"SO-2026-3187\",\n  \"orderedAt\": \"2026-08-25\",\n  \"shippedAt\": \"2026-08-26\",\n  \"warehouseEmail\": \"warehouse@example.com\",\n  \"shipFrom\": { \"name\": \"North Dock\", \"address\": \"1 Fulfilment Way, Austin, TX 78701\" },\n  \"shipTo\": { \"name\": \"Ana Popescu\", \"address\": \"22 Aviatorilor, Bucharest\" },\n  \"carrier\": \"DHL Express\",\n  \"trackingNumber\": \"JD014600003118872291\",\n  \"items\": [\n    { \"sku\": \"NTS-TENT-02\", \"description\": \"Alpine two-person tent\", \"quantity\": 1 },\n    { \"sku\": \"NTS-BTL-07\", \"description\": \"Insulated steel bottle\", \"quantity\": 2 }\n  ]\n}\n```\n\n### Required order fields\n- `orderNumber`, `orderedAt` as `YYYY-MM-DD`, and one standard mailbox in `warehouseEmail`\n- `shipFrom.name`, `shipFrom.address`, `shipTo.name`, and `shipTo.address`\n- A non-empty `items` array; every item needs a SKU, description, and positive integer quantity\n\n`shippedAt` defaults to today's UTC date. Carrier, tracking number, weight, and notes are optional. Common Shopify/WooCommerce aliases such as `line_items`, `order_number`, `created_at`, `variant_sku`, and `qty` are accepted. Source price fields are ignored.\n\nConnect a pdfmill API credential, Gmail, and Google Drive. Select the Drive folder where packing slips should be archived."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Is the entire order valid?": {
+      "main": [
+        [
+          {
+            "node": "Generate the packing slip PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return one 400 order error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate the packing slip PDF": {
+      "main": [
+        [
+          {
+            "node": "Email the packing slip to the warehouse",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Archive the packing slip in Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and build the packing slip": {
+      "main": [
+        [
+          {
+            "node": "Is the entire order valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for warehouse email and archive": {
+      "main": [
+        [
+          {
+            "node": "Return packing_slip_ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When a paid order is ready to fulfil": {
+      "main": [
+        [
+          {
+            "node": "Validate and build the packing slip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the packing slip to the warehouse": {
+      "main": [
+        [
+          {
+            "node": "Wait for warehouse email and archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive the packing slip in Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Wait for warehouse email and archive",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

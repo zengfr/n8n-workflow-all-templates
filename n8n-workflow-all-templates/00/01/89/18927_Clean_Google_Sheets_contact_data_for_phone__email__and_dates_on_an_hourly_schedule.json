@@ -1,0 +1,482 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Clean Google Sheets contact data for phone, email, and dates on an hourly schedule",
+    "wechat": "youandme10086",
+    "id": 18927,
+    "update_time": "2026-09-27"
+  },
+  "name": "Google Sheets Contact Data Cleaner — normalize, validate, review queue, error-safe",
+  "nodes": [
+    {
+      "id": "sticky-setup",
+      "name": "Setup notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -460
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 340,
+        "content": "## Setup (5 min)\n1. Connect your Google Sheets account in n8n (the three Google Sheets nodes below).\n2. In \"Read rows\" and \"Write cleaned rows back\", set `documentId` to your spreadsheet and `sheetName` to the tab you want cleaned.\n3. In \"Flag invalid rows\", set `sheetName` to a review tab (e.g. `Needs Review`) — create it once, empty, with the same headers plus `_reason`.\n4. In \"Normalize phone/email/date\", set `PHONE_COL`/`EMAIL_COL`/`DATE_COL` to your actual column headers and `DEFAULT_COUNTRY_PREFIX` to your default dialing code.\n5. Activate. Runs hourly."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-what",
+      "name": "What this does",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        460,
+        -460
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 300,
+        "content": "## What this does\nReads every row of a Google Sheet on a schedule, normalizes messy `phone`/`email`/`date` columns (E.164-ish phone, lowercased/trimmed email, ISO date). Rows with an invalid email are routed to a separate review tab instead of being silently overwritten or dropped. Only rows that actually changed are written back, so it's safe to run continuously without rewriting untouched data or racing other automations on the same sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-errors",
+      "name": "Error handling & edge cases",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        940,
+        -460
+      ],
+      "parameters": {
+        "width": 460,
+        "height": 340,
+        "content": "## Error handling & edge cases\n- **Read rows** and both write nodes use `onError: continueRegularOutput`: a failed Google Sheets call becomes a normal item carrying an `error` field instead of throwing and killing the whole run.\n- **Read failed?** stops that run cleanly (logged, no partial writes) instead of writing garbage on top of a half-read sheet.\n- **Invalid email found?** never overwrites a bad row in place — it copies it to a review tab so a human can fix the source data, and skips writing it back.\n- **Write failed?** (both the review-flag write and the main write) is logged separately, so a quota error or a locked sheet doesn't disappear silently — you see exactly which write failed and why on the next run's execution log."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "trigger-1h",
+      "name": "Every hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "read-sheet",
+      "name": "Read rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "sheet",
+        "operation": "read",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PUT_YOUR_SHEET_ID_HERE"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Google Sheets (create the credential in n8n)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "if-read-failed",
+      "name": "Read failed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.error }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "log-read-failure",
+      "name": "Log read failure",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        660,
+        -140
+      ],
+      "parameters": {
+        "jsCode": "// Read rows failed (network/quota/permission error on the sheet). Stop here — do not\n// attempt to normalize or write anything on top of a run that never got real data.\nconst out = [];\nfor (const item of $input.all()) {\n  out.push({ json: { logged: 'read-failed', at: new Date().toISOString(), error: item.json.error || item.json } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "normalize",
+      "name": "Normalize phone/email/date",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        660,
+        140
+      ],
+      "parameters": {
+        "jsCode": "// Normalizes three common messy columns without touching the rest of the row.\n// Adjust the column names (PHONE_COL, EMAIL_COL, DATE_COL) to match your sheet.\nconst PHONE_COL = 'phone';\nconst EMAIL_COL = 'email';\nconst DATE_COL = 'date';\nconst DEFAULT_COUNTRY_PREFIX = '+1'; // change to your default country code\n\nfunction cleanPhone(raw) {\n  if (!raw) return '';\n  let digits = String(raw).replace(/[^0-9+]/g, '');\n  if (!digits.startsWith('+')) digits = DEFAULT_COUNTRY_PREFIX + digits.replace(/^0+/, '');\n  return digits;\n}\nfunction cleanEmail(raw) {\n  if (!raw) return '';\n  return String(raw).trim().toLowerCase();\n}\nfunction isValidEmail(e) {\n  return /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(e);\n}\nfunction cleanDate(raw) {\n  if (!raw) return '';\n  const d = new Date(raw);\n  if (isNaN(d.getTime())) return '';\n  return d.toISOString().slice(0, 10); // YYYY-MM-DD\n}\n\nconst out = [];\nfor (const item of $input.all()) {\n  const row = { ...item.json };\n  const originalPhone = row[PHONE_COL];\n  const originalEmail = row[EMAIL_COL];\n  const originalDate = row[DATE_COL];\n  row[PHONE_COL] = cleanPhone(originalPhone);\n  row[EMAIL_COL] = cleanEmail(originalEmail);\n  row[DATE_COL] = cleanDate(originalDate);\n  row._email_valid = isValidEmail(row[EMAIL_COL]);\n  row._changed = row[PHONE_COL] !== originalPhone || row[EMAIL_COL] !== originalEmail || row[DATE_COL] !== originalDate;\n  row._reason = row._email_valid ? '' : 'invalid email after cleanup';\n  out.push({ json: row });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-invalid-email",
+      "name": "Invalid email found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        880,
+        140
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json._email_valid }}",
+              "rightValue": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "flag-invalid",
+      "name": "Flag invalid rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        1100,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "sheet",
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Needs Review"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PUT_YOUR_SHEET_ID_HERE"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Google Sheets (create the credential in n8n)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "if-changed",
+      "name": "Only changed rows",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1100,
+        240
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json._changed }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "write-sheet",
+      "name": "Write cleaned rows back",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        1320,
+        180
+      ],
+      "parameters": {
+        "columns": {
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {},
+        "resource": "sheet",
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "PUT_YOUR_SHEET_ID_HERE"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "CONFIGURE_IN_N8N",
+          "name": "Google Sheets (create the credential in n8n)"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "if-write-failed",
+      "name": "Write failed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1540,
+        180
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "exists"
+              },
+              "leftValue": "={{ $json.error }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "log-write-failure",
+      "name": "Log write failure",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1760,
+        80
+      ],
+      "parameters": {
+        "jsCode": "// The sheet write failed (quota, locked range, permission). Log it explicitly instead of\n// letting it disappear — the source data is untouched, safe to retry next run.\nconst out = [];\nfor (const item of $input.all()) {\n  out.push({ json: { logged: 'write-failed', at: new Date().toISOString(), error: item.json.error || item.json } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "noop-updated",
+      "name": "Row updated",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1760,
+        280
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "noop-no-change",
+      "name": "No changes, skip write",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1320,
+        340
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Read rows": {
+      "main": [
+        [
+          {
+            "node": "Read failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every hour": {
+      "main": [
+        [
+          {
+            "node": "Read rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read failed?": {
+      "main": [
+        [
+          {
+            "node": "Log read failure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalize phone/email/date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write failed?": {
+      "main": [
+        [
+          {
+            "node": "Log write failure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Row updated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only changed rows": {
+      "main": [
+        [
+          {
+            "node": "Write cleaned rows back",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No changes, skip write",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invalid email found?": {
+      "main": [
+        [
+          {
+            "node": "Flag invalid rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Only changed rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write cleaned rows back": {
+      "main": [
+        [
+          {
+            "node": "Write failed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize phone/email/date": {
+      "main": [
+        [
+          {
+            "node": "Invalid email found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# label : 20
+# label : 32
 
 |id|file|
 |----|----|
@@ -22,3 +22,15 @@
 |13874|[13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13874_Triage_GitHub_issues_with_Gemini_AI__auto-label_them__and_send_Slack_alerts.json)|
 |13903|[13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13903_Filter_and_label_Gmail_emails_using_keyword-based_rules_and_Google_Sheets_logging.json)|
 |16245|[16245_Send_white-label_ad_performance_reports_with_Claude__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16245_Send_white-label_ad_performance_reports_with_Claude__Gmail_and_Google_Sheets.json)|
+|17365|[17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json)|
+|17466|[17466_Label_and_triage_support_emails_in_Gmail_with_DeepSeek_or_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17466_Label_and_triage_support_emails_in_Gmail_with_DeepSeek_or_OpenAI.json)|
+|17489|[17489_Label_incoming_Gmail_emails_with_GPT-5_and_Gmail_labels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17489_Label_incoming_Gmail_emails_with_GPT-5_and_Gmail_labels.json)|
+|17640|[17640_Triage_and_label_Gmail_inbox_emails_with_OpenRouter_Gemini_3.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17640_Triage_and_label_Gmail_inbox_emails_with_OpenRouter_Gemini_3.5.json)|
+|17949|[17949_Classify_Gmail_with_Google_Gemini__label_messages__and_log_triage_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17949_Classify_Gmail_with_Google_Gemini__label_messages__and_log_triage_to_Sheets.json)|
+|18015|[18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json)|
+|18102|[18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json)|
+|18616|[18616_Draft_and_label_Gmail_support_and_sales_replies_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18616_Draft_and_label_Gmail_support_and_sales_replies_with_OpenAI.json)|
+|18913|[18913_Triage_and_label_Gmail_emails_with_OpenAI_GPT-5.6_Terra.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18913_Triage_and_label_Gmail_emails_with_OpenAI_GPT-5.6_Terra.json)|
+|19135|[19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json)|
+|19459|[19459_Classify_and_label_new_Gmail_messages_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19459_Classify_and_label_new_Gmail_messages_with_OpenAI_GPT-4o-mini.json)|
+|19797|[19797_Label_AI-generated_content_for_EU_AI_Act_compliance_with_Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19797_Label_AI-generated_content_for_EU_AI_Act_compliance_with_Slack_and_Postgres.json)|

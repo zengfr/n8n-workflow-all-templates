@@ -1,4 +1,4 @@
-# construction : 21
+# construction : 23
 
 |id|file|
 |----|----|
@@ -23,3 +23,5 @@
 |16374|[16374_Manage_construction_work_permits_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16374_Manage_construction_work_permits_with_GPT-4o__Google_Sheets_and_Gmail.json)|
 |16378|[16378_Triage_construction_incidents_with_GPT-4o__Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16378_Triage_construction_incidents_with_GPT-4o__Slack__Gmail_and_Google_Sheets.json)|
 |16426|[16426_Generate_construction_bid_estimates_with_Azure_OpenAI__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16426_Generate_construction_bid_estimates_with_Azure_OpenAI__Google_Docs_and_Sheets.json)|
+|18358|[18358_Log_and_report_construction_punch_list_items_with_OpenAI__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18358_Log_and_report_construction_punch_list_items_with_OpenAI__Google_Sheets__Gmail_and_Telegram.json)|
+|19815|[19815_Track_and_manage_construction_RFIs_with_Gmail__OpenAI__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19815_Track_and_manage_construction_RFIs_with_Gmail__OpenAI__and_Data_Tables.json)|

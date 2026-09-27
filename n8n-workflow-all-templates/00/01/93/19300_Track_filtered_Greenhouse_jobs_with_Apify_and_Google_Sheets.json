@@ -1,0 +1,757 @@
+{
+  "name": "Track new Greenhouse jobs by filters with Apify and Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4480822d424a76bed4ca86b7",
+      "name": "Start manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "789198133eee22512a0a0117",
+      "name": "Job watch settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6009e0b5f37a52d132399fe6",
+              "name": "companyBoards",
+              "type": "string",
+              "value": "airbnb"
+            },
+            {
+              "id": "2da8f0ef640bcc790ac025f0",
+              "name": "keywords",
+              "type": "string",
+              "value": "engineer"
+            },
+            {
+              "id": "a542fe758ad118ea2525a7b9",
+              "name": "department",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "0e9d78d11aa498f595efc365",
+              "name": "location",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "0109d6105d336d4210ccf282",
+              "name": "remoteOnly",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "45dda57de061760d45eccedd",
+              "name": "stateNamespace",
+              "type": "string",
+              "value": "my-greenhouse-watch"
+            },
+            {
+              "id": "c5ccf45c34446c5680494418",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": "REPLACE_WITH_SPREADSHEET_ID"
+            },
+            {
+              "id": "fc4c5daa42f457c469cc8077",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Greenhouse Watch"
+            },
+            {
+              "id": "44bf385383a59ddc74b91ea4",
+              "name": "maxCostPerRunUsd",
+              "type": "number",
+              "value": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "045f1505542d63f21e1ad667",
+      "name": "Validate settings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='cgpuChc3gdFFgEdD6';\nconst BUILD_ID='eV9Sw25JLbxibku09';\nconst BUILD_TAG='greenhouse-release-20260906f';\nconst COLUMNS=['upsertKey','stableId','company','title','location','departments','status','changeKind','firstPublished','sourceUpdatedAt','observedAt','applyUrl','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const boards=String(c.companyBoards??'').split(/[\\s,]+/).filter(Boolean).map(x=>x.toLowerCase()).sort();\n if(!boards.length||boards.length>3||boards.some(x=>! /^(eu:)?[a-z0-9][a-z0-9_-]{0,79}$/.test(x)||/replace/i.test(x))||new Set(boards).size!==boards.length)throw Error('Enter one to three distinct Greenhouse board slugs; prefix European boards with eu:.');\n const keywords=String(c.keywords??'').split(',').map(x=>x.trim()).filter(Boolean).sort();\n if(keywords.length>20||keywords.some(x=>x.length>100))throw Error('Use up to 20 comma-separated keywords.');\n if(typeof c.remoteOnly!=='boolean')throw Error('remoteOnly must be boolean.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\n if(!String(c.sheetName??'').trim()||! /^[\\w.-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and a stable watch name.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isInteger(cap)||cap<1||cap>3)throw Error('Use an integer Actor charge cap from $1 to $3. Actual small runs usually cost less; unchanged jobs are billable.');\n const actorInput={workflow:'monitor',companyBoards:boards,jobTargets:[],keywords,department:String(c.department??'').trim(),location:String(c.location??'').trim(),remoteOnly:c.remoteOnly,firstPublishedAfter:'',includeContent:true,includeQuestions:false,includePayRanges:false,maxJobs:100,maxJobsPerBoard:1000,maxRuntimeSecs:60,maxBuyerChargeUsd:cap,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new'};\n const scope=JSON.stringify([actorInput.stateNamespace,boards,keywords,actorInput.department,actorInput.location,actorInput.remoteOnly,100,1000]);\n return {...c,boards,scope,actorInput,maxCostPerRunUsd:cap};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;\n if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status))throw Error('Actor '+run.status+'; inspect existing run '+run.id+'. No Sheet write.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Unexpected Actor status.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect the existing run, never automatically repeat the paid call.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');\n return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n if(s.workflow!=='monitor'||s.coverageStatus!=='COMPLETE'||!Array.isArray(s.coverage)||!s.coverage.length||s.coverage.length>3||s.coverage.some(x=>!['COMPLETE','EMPTY_CONFIRMED'].includes(x.coverageStatus)))throw Error('Source coverage is incomplete; narrow filters before another paid run. Sheet unchanged.');\n for(const k of ['verifiedJobs','deliveredRecords','changes'])if(!Number.isInteger(s[k])||s[k]<0||s[k]>200)throw Error('Invalid output count.');\n if(s.verifiedJobs>100||s.deliveredRecords<s.verifiedJobs||s.changes<s.deliveredRecords-s.verifiedJobs)throw Error('Inconsistent output counts.');\n // Absences are both paid records and changes. Count them once in the dataset.\n const count=s.verifiedJobs+s.changes+s.coverage.length;\n if(count>303)throw Error('Unsupported dataset size.');\n return count;\n}\nfunction reconcile({config,run,summary,rows}){\n if(rows.length!==bounds(summary))throw Error('Dataset count differs from authoritative OUTPUT.');\n const expectedTargets=config.boards.map(x=>x.startsWith('eu:')?x:'us:'+x).sort();\n if(JSON.stringify(summary.coverage.map(x=>x.target).sort())!==JSON.stringify(expectedTargets))throw Error('Unexpected coverage targets.');\n const jobs=new Map(),changes=new Map();let coverage=0;\n for(const r of rows){\n  if(r.recordType==='coverage'){coverage++;continue;}\n  if(!/^greenhouse:(us|eu):[a-z0-9_-]+:\\d+$/.test(r.stableId??'')||!expectedTargets.some(t=>r.stableId.startsWith('greenhouse:'+t+':')))throw Error('Invalid source identity.');\n  const map=r.recordType==='job'?jobs:r.recordType==='change'?changes:null;\n  if(!map||map.has(r.stableId))throw Error('Unexpected or duplicate source row.');\n  if(map===changes&&!['NEW','UPDATED','CLOSED','LEFT_FILTER'].includes(r.changeKind))throw Error('Unexpected change type.');\n  map.set(r.stableId,r);\n }\n if(jobs.size!==summary.verifiedJobs||changes.size!==summary.changes||coverage!==summary.coverage.length)throw Error('Dataset record counts do not reconcile.');\n const absent=[...changes.values()].filter(x=>['CLOSED','LEFT_FILTER'].includes(x.changeKind));\n if(jobs.size+absent.length!==summary.deliveredRecords||absent.some(x=>jobs.has(x.stableId)))throw Error('Absence conflicts with current jobs.');\n const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n const counts={search_checked:1,job_result:jobs.size,absence_result:absent.length};let charge=0;\n for(const [event,count]of Object.entries(counts)){const price=prices?.[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0)throw Error('Missing effective event price.');charge+=price*count;}\n if(!Number.isFinite(summary.expectedBuyerChargeUsd)||Math.abs(charge-summary.expectedBuyerChargeUsd)>1e-7||charge>config.maxCostPerRunUsd+1e-9)throw Error('Unreconciled estimated Actor charge.');\n for(const change of changes.values())if(['NEW','UPDATED'].includes(change.changeKind)&&!jobs.has(change.stableId))throw Error('Change is missing its current job.');\n return [...jobs.values(),...absent].map(r=>{const kind=changes.get(r.stableId)?.changeKind??'UNCHANGED';return {upsertKey:'greenhouse|'+config.scope+'|'+r.stableId,stableId:r.stableId,company:r.companyName??r.companyBoard,title:r.title??'',location:r.location??'',departments:(r.departments??[]).map(x=>x.name).join(', '),status:['CLOSED','LEFT_FILTER'].includes(kind)?kind:'OPEN',changeKind:kind,firstPublished:r.firstPublished??'',sourceUpdatedAt:r.updatedAt??'',observedAt:r.collectedAt,applyUrl:r.absoluteUrl??r.url??'',coverageStatus:'COMPLETE',estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\n}\n\nreturn [{json:preflight($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "884dc8a2e2fbb552ff9f7523",
+      "name": "Run Greenhouse once",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        880,
+        160
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/cgpuChc3gdFFgEdD6/runs",
+        "method": "POST",
+        "options": {
+          "timeout": 70000
+        },
+        "jsonBody": "={{ JSON.stringify($('Validate settings').first().json.actorInput) }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "build",
+              "value": "greenhouse-release-20260906f"
+            },
+            {
+              "name": "timeout",
+              "value": "300"
+            },
+            {
+              "name": "memory",
+              "value": "512"
+            },
+            {
+              "name": "waitForFinish",
+              "value": "60"
+            },
+            {
+              "name": "maxTotalChargeUsd",
+              "value": "={{ $('Validate settings').first().json.maxCostPerRunUsd }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a34c2d50a0ff71dcf369c35c",
+      "name": "Check run status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='cgpuChc3gdFFgEdD6';\nconst BUILD_ID='eV9Sw25JLbxibku09';\nconst BUILD_TAG='greenhouse-release-20260906f';\nconst COLUMNS=['upsertKey','stableId','company','title','location','departments','status','changeKind','firstPublished','sourceUpdatedAt','observedAt','applyUrl','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const boards=String(c.companyBoards??'').split(/[\\s,]+/).filter(Boolean).map(x=>x.toLowerCase()).sort();\n if(!boards.length||boards.length>3||boards.some(x=>! /^(eu:)?[a-z0-9][a-z0-9_-]{0,79}$/.test(x)||/replace/i.test(x))||new Set(boards).size!==boards.length)throw Error('Enter one to three distinct Greenhouse board slugs; prefix European boards with eu:.');\n const keywords=String(c.keywords??'').split(',').map(x=>x.trim()).filter(Boolean).sort();\n if(keywords.length>20||keywords.some(x=>x.length>100))throw Error('Use up to 20 comma-separated keywords.');\n if(typeof c.remoteOnly!=='boolean')throw Error('remoteOnly must be boolean.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\n if(!String(c.sheetName??'').trim()||! /^[\\w.-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and a stable watch name.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isInteger(cap)||cap<1||cap>3)throw Error('Use an integer Actor charge cap from $1 to $3. Actual small runs usually cost less; unchanged jobs are billable.');\n const actorInput={workflow:'monitor',companyBoards:boards,jobTargets:[],keywords,department:String(c.department??'').trim(),location:String(c.location??'').trim(),remoteOnly:c.remoteOnly,firstPublishedAfter:'',includeContent:true,includeQuestions:false,includePayRanges:false,maxJobs:100,maxJobsPerBoard:1000,maxRuntimeSecs:60,maxBuyerChargeUsd:cap,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new'};\n const scope=JSON.stringify([actorInput.stateNamespace,boards,keywords,actorInput.department,actorInput.location,actorInput.remoteOnly,100,1000]);\n return {...c,boards,scope,actorInput,maxCostPerRunUsd:cap};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;\n if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status))throw Error('Actor '+run.status+'; inspect existing run '+run.id+'. No Sheet write.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Unexpected Actor status.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect the existing run, never automatically repeat the paid call.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');\n return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n if(s.workflow!=='monitor'||s.coverageStatus!=='COMPLETE'||!Array.isArray(s.coverage)||!s.coverage.length||s.coverage.length>3||s.coverage.some(x=>!['COMPLETE','EMPTY_CONFIRMED'].includes(x.coverageStatus)))throw Error('Source coverage is incomplete; narrow filters before another paid run. Sheet unchanged.');\n for(const k of ['verifiedJobs','deliveredRecords','changes'])if(!Number.isInteger(s[k])||s[k]<0||s[k]>200)throw Error('Invalid output count.');\n if(s.verifiedJobs>100||s.deliveredRecords<s.verifiedJobs||s.changes<s.deliveredRecords-s.verifiedJobs)throw Error('Inconsistent output counts.');\n // Absences are both paid records and changes. Count them once in the dataset.\n const count=s.verifiedJobs+s.changes+s.coverage.length;\n if(count>303)throw Error('Unsupported dataset size.');\n return count;\n}\nfunction reconcile({config,run,summary,rows}){\n if(rows.length!==bounds(summary))throw Error('Dataset count differs from authoritative OUTPUT.');\n const expectedTargets=config.boards.map(x=>x.startsWith('eu:')?x:'us:'+x).sort();\n if(JSON.stringify(summary.coverage.map(x=>x.target).sort())!==JSON.stringify(expectedTargets))throw Error('Unexpected coverage targets.');\n const jobs=new Map(),changes=new Map();let coverage=0;\n for(const r of rows){\n  if(r.recordType==='coverage'){coverage++;continue;}\n  if(!/^greenhouse:(us|eu):[a-z0-9_-]+:\\d+$/.test(r.stableId??'')||!expectedTargets.some(t=>r.stableId.startsWith('greenhouse:'+t+':')))throw Error('Invalid source identity.');\n  const map=r.recordType==='job'?jobs:r.recordType==='change'?changes:null;\n  if(!map||map.has(r.stableId))throw Error('Unexpected or duplicate source row.');\n  if(map===changes&&!['NEW','UPDATED','CLOSED','LEFT_FILTER'].includes(r.changeKind))throw Error('Unexpected change type.');\n  map.set(r.stableId,r);\n }\n if(jobs.size!==summary.verifiedJobs||changes.size!==summary.changes||coverage!==summary.coverage.length)throw Error('Dataset record counts do not reconcile.');\n const absent=[...changes.values()].filter(x=>['CLOSED','LEFT_FILTER'].includes(x.changeKind));\n if(jobs.size+absent.length!==summary.deliveredRecords||absent.some(x=>jobs.has(x.stableId)))throw Error('Absence conflicts with current jobs.');\n const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n const counts={search_checked:1,job_result:jobs.size,absence_result:absent.length};let charge=0;\n for(const [event,count]of Object.entries(counts)){const price=prices?.[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0)throw Error('Missing effective event price.');charge+=price*count;}\n if(!Number.isFinite(summary.expectedBuyerChargeUsd)||Math.abs(charge-summary.expectedBuyerChargeUsd)>1e-7||charge>config.maxCostPerRunUsd+1e-9)throw Error('Unreconciled estimated Actor charge.');\n for(const change of changes.values())if(['NEW','UPDATED'].includes(change.changeKind)&&!jobs.has(change.stableId))throw Error('Change is missing its current job.');\n return [...jobs.values(),...absent].map(r=>{const kind=changes.get(r.stableId)?.changeKind??'UNCHANGED';return {upsertKey:'greenhouse|'+config.scope+'|'+r.stableId,stableId:r.stableId,company:r.companyName??r.companyBoard,title:r.title??'',location:r.location??'',departments:(r.departments??[]).map(x=>x.name).join(', '),status:['CLOSED','LEFT_FILTER'].includes(kind)?kind:'OPEN',changeKind:kind,firstPublished:r.firstPublished??'',sourceUpdatedAt:r.updatedAt??'',observedAt:r.collectedAt,applyUrl:r.absoluteUrl??r.url??'',coverageStatus:'COMPLETE',estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\n}\n\nreturn [{json:classify($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0a32e893c49e5af006e62944",
+      "name": "Run finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1360,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e479e5b65807a4fe811bd7d6",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b80ab70dc33e99c56c5d336a",
+      "name": "Wait five seconds",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1360,
+        432
+      ],
+      "webhookId": "1a872f3dfb174b41c39604dc",
+      "parameters": {
+        "unit": "seconds",
+        "amount": 5,
+        "resume": "timeInterval"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2740a9a5ae1feeef81554972",
+      "name": "Read existing run",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        432
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $json.run.id }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8fd31447b37168ecaf2edf18",
+      "name": "Read authoritative output",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1776,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/key-value-stores/' + $('Check run status').item.json.run.defaultKeyValueStoreId + '/records/OUTPUT' }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1ce8a912029823292c0db300",
+      "name": "Check output bounds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2016,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='cgpuChc3gdFFgEdD6';\nconst BUILD_ID='eV9Sw25JLbxibku09';\nconst BUILD_TAG='greenhouse-release-20260906f';\nconst COLUMNS=['upsertKey','stableId','company','title','location','departments','status','changeKind','firstPublished','sourceUpdatedAt','observedAt','applyUrl','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const boards=String(c.companyBoards??'').split(/[\\s,]+/).filter(Boolean).map(x=>x.toLowerCase()).sort();\n if(!boards.length||boards.length>3||boards.some(x=>! /^(eu:)?[a-z0-9][a-z0-9_-]{0,79}$/.test(x)||/replace/i.test(x))||new Set(boards).size!==boards.length)throw Error('Enter one to three distinct Greenhouse board slugs; prefix European boards with eu:.');\n const keywords=String(c.keywords??'').split(',').map(x=>x.trim()).filter(Boolean).sort();\n if(keywords.length>20||keywords.some(x=>x.length>100))throw Error('Use up to 20 comma-separated keywords.');\n if(typeof c.remoteOnly!=='boolean')throw Error('remoteOnly must be boolean.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\n if(!String(c.sheetName??'').trim()||! /^[\\w.-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and a stable watch name.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isInteger(cap)||cap<1||cap>3)throw Error('Use an integer Actor charge cap from $1 to $3. Actual small runs usually cost less; unchanged jobs are billable.');\n const actorInput={workflow:'monitor',companyBoards:boards,jobTargets:[],keywords,department:String(c.department??'').trim(),location:String(c.location??'').trim(),remoteOnly:c.remoteOnly,firstPublishedAfter:'',includeContent:true,includeQuestions:false,includePayRanges:false,maxJobs:100,maxJobsPerBoard:1000,maxRuntimeSecs:60,maxBuyerChargeUsd:cap,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new'};\n const scope=JSON.stringify([actorInput.stateNamespace,boards,keywords,actorInput.department,actorInput.location,actorInput.remoteOnly,100,1000]);\n return {...c,boards,scope,actorInput,maxCostPerRunUsd:cap};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;\n if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status))throw Error('Actor '+run.status+'; inspect existing run '+run.id+'. No Sheet write.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Unexpected Actor status.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect the existing run, never automatically repeat the paid call.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');\n return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n if(s.workflow!=='monitor'||s.coverageStatus!=='COMPLETE'||!Array.isArray(s.coverage)||!s.coverage.length||s.coverage.length>3||s.coverage.some(x=>!['COMPLETE','EMPTY_CONFIRMED'].includes(x.coverageStatus)))throw Error('Source coverage is incomplete; narrow filters before another paid run. Sheet unchanged.');\n for(const k of ['verifiedJobs','deliveredRecords','changes'])if(!Number.isInteger(s[k])||s[k]<0||s[k]>200)throw Error('Invalid output count.');\n if(s.verifiedJobs>100||s.deliveredRecords<s.verifiedJobs||s.changes<s.deliveredRecords-s.verifiedJobs)throw Error('Inconsistent output counts.');\n // Absences are both paid records and changes. Count them once in the dataset.\n const count=s.verifiedJobs+s.changes+s.coverage.length;\n if(count>303)throw Error('Unsupported dataset size.');\n return count;\n}\nfunction reconcile({config,run,summary,rows}){\n if(rows.length!==bounds(summary))throw Error('Dataset count differs from authoritative OUTPUT.');\n const expectedTargets=config.boards.map(x=>x.startsWith('eu:')?x:'us:'+x).sort();\n if(JSON.stringify(summary.coverage.map(x=>x.target).sort())!==JSON.stringify(expectedTargets))throw Error('Unexpected coverage targets.');\n const jobs=new Map(),changes=new Map();let coverage=0;\n for(const r of rows){\n  if(r.recordType==='coverage'){coverage++;continue;}\n  if(!/^greenhouse:(us|eu):[a-z0-9_-]+:\\d+$/.test(r.stableId??'')||!expectedTargets.some(t=>r.stableId.startsWith('greenhouse:'+t+':')))throw Error('Invalid source identity.');\n  const map=r.recordType==='job'?jobs:r.recordType==='change'?changes:null;\n  if(!map||map.has(r.stableId))throw Error('Unexpected or duplicate source row.');\n  if(map===changes&&!['NEW','UPDATED','CLOSED','LEFT_FILTER'].includes(r.changeKind))throw Error('Unexpected change type.');\n  map.set(r.stableId,r);\n }\n if(jobs.size!==summary.verifiedJobs||changes.size!==summary.changes||coverage!==summary.coverage.length)throw Error('Dataset record counts do not reconcile.');\n const absent=[...changes.values()].filter(x=>['CLOSED','LEFT_FILTER'].includes(x.changeKind));\n if(jobs.size+absent.length!==summary.deliveredRecords||absent.some(x=>jobs.has(x.stableId)))throw Error('Absence conflicts with current jobs.');\n const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n const counts={search_checked:1,job_result:jobs.size,absence_result:absent.length};let charge=0;\n for(const [event,count]of Object.entries(counts)){const price=prices?.[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0)throw Error('Missing effective event price.');charge+=price*count;}\n if(!Number.isFinite(summary.expectedBuyerChargeUsd)||Math.abs(charge-summary.expectedBuyerChargeUsd)>1e-7||charge>config.maxCostPerRunUsd+1e-9)throw Error('Unreconciled estimated Actor charge.');\n for(const change of changes.values())if(['NEW','UPDATED'].includes(change.changeKind)&&!jobs.has(change.stableId))throw Error('Change is missing its current job.');\n return [...jobs.values(),...absent].map(r=>{const kind=changes.get(r.stableId)?.changeKind??'UNCHANGED';return {upsertKey:'greenhouse|'+config.scope+'|'+r.stableId,stableId:r.stableId,company:r.companyName??r.companyBoard,title:r.title??'',location:r.location??'',departments:(r.departments??[]).map(x=>x.name).join(', '),status:['CLOSED','LEFT_FILTER'].includes(kind)?kind:'OPEN',changeKind:kind,firstPublished:r.firstPublished??'',sourceUpdatedAt:r.updatedAt??'',observedAt:r.collectedAt,applyUrl:r.absoluteUrl??r.url??'',coverageStatus:'COMPLETE',estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\n}\n\nconst summary=$input.first().json; bounds(summary); return [{json:{summary,run:$('Check run status').item.json.run}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cda21599b4536b388e691fa9",
+      "name": "Read complete bounded dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2256,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $json.run.defaultDatasetId + '/items' }}",
+        "options": {
+          "timeout": 70000
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "304"
+            },
+            {
+              "name": "clean",
+              "value": "true"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "587e5a498b6baaee093aafde",
+      "name": "Build verified Sheet rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2656,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='cgpuChc3gdFFgEdD6';\nconst BUILD_ID='eV9Sw25JLbxibku09';\nconst BUILD_TAG='greenhouse-release-20260906f';\nconst COLUMNS=['upsertKey','stableId','company','title','location','departments','status','changeKind','firstPublished','sourceUpdatedAt','observedAt','applyUrl','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const boards=String(c.companyBoards??'').split(/[\\s,]+/).filter(Boolean).map(x=>x.toLowerCase()).sort();\n if(!boards.length||boards.length>3||boards.some(x=>! /^(eu:)?[a-z0-9][a-z0-9_-]{0,79}$/.test(x)||/replace/i.test(x))||new Set(boards).size!==boards.length)throw Error('Enter one to three distinct Greenhouse board slugs; prefix European boards with eu:.');\n const keywords=String(c.keywords??'').split(',').map(x=>x.trim()).filter(Boolean).sort();\n if(keywords.length>20||keywords.some(x=>x.length>100))throw Error('Use up to 20 comma-separated keywords.');\n if(typeof c.remoteOnly!=='boolean')throw Error('remoteOnly must be boolean.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\n if(!String(c.sheetName??'').trim()||! /^[\\w.-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and a stable watch name.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isInteger(cap)||cap<1||cap>3)throw Error('Use an integer Actor charge cap from $1 to $3. Actual small runs usually cost less; unchanged jobs are billable.');\n const actorInput={workflow:'monitor',companyBoards:boards,jobTargets:[],keywords,department:String(c.department??'').trim(),location:String(c.location??'').trim(),remoteOnly:c.remoteOnly,firstPublishedAfter:'',includeContent:true,includeQuestions:false,includePayRanges:false,maxJobs:100,maxJobsPerBoard:1000,maxRuntimeSecs:60,maxBuyerChargeUsd:cap,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new'};\n const scope=JSON.stringify([actorInput.stateNamespace,boards,keywords,actorInput.department,actorInput.location,actorInput.remoteOnly,100,1000]);\n return {...c,boards,scope,actorInput,maxCostPerRunUsd:cap};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;\n if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status))throw Error('Actor '+run.status+'; inspect existing run '+run.id+'. No Sheet write.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Unexpected Actor status.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect the existing run, never automatically repeat the paid call.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');\n return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n if(s.workflow!=='monitor'||s.coverageStatus!=='COMPLETE'||!Array.isArray(s.coverage)||!s.coverage.length||s.coverage.length>3||s.coverage.some(x=>!['COMPLETE','EMPTY_CONFIRMED'].includes(x.coverageStatus)))throw Error('Source coverage is incomplete; narrow filters before another paid run. Sheet unchanged.');\n for(const k of ['verifiedJobs','deliveredRecords','changes'])if(!Number.isInteger(s[k])||s[k]<0||s[k]>200)throw Error('Invalid output count.');\n if(s.verifiedJobs>100||s.deliveredRecords<s.verifiedJobs||s.changes<s.deliveredRecords-s.verifiedJobs)throw Error('Inconsistent output counts.');\n // Absences are both paid records and changes. Count them once in the dataset.\n const count=s.verifiedJobs+s.changes+s.coverage.length;\n if(count>303)throw Error('Unsupported dataset size.');\n return count;\n}\nfunction reconcile({config,run,summary,rows}){\n if(rows.length!==bounds(summary))throw Error('Dataset count differs from authoritative OUTPUT.');\n const expectedTargets=config.boards.map(x=>x.startsWith('eu:')?x:'us:'+x).sort();\n if(JSON.stringify(summary.coverage.map(x=>x.target).sort())!==JSON.stringify(expectedTargets))throw Error('Unexpected coverage targets.');\n const jobs=new Map(),changes=new Map();let coverage=0;\n for(const r of rows){\n  if(r.recordType==='coverage'){coverage++;continue;}\n  if(!/^greenhouse:(us|eu):[a-z0-9_-]+:\\d+$/.test(r.stableId??'')||!expectedTargets.some(t=>r.stableId.startsWith('greenhouse:'+t+':')))throw Error('Invalid source identity.');\n  const map=r.recordType==='job'?jobs:r.recordType==='change'?changes:null;\n  if(!map||map.has(r.stableId))throw Error('Unexpected or duplicate source row.');\n  if(map===changes&&!['NEW','UPDATED','CLOSED','LEFT_FILTER'].includes(r.changeKind))throw Error('Unexpected change type.');\n  map.set(r.stableId,r);\n }\n if(jobs.size!==summary.verifiedJobs||changes.size!==summary.changes||coverage!==summary.coverage.length)throw Error('Dataset record counts do not reconcile.');\n const absent=[...changes.values()].filter(x=>['CLOSED','LEFT_FILTER'].includes(x.changeKind));\n if(jobs.size+absent.length!==summary.deliveredRecords||absent.some(x=>jobs.has(x.stableId)))throw Error('Absence conflicts with current jobs.');\n const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n const counts={search_checked:1,job_result:jobs.size,absence_result:absent.length};let charge=0;\n for(const [event,count]of Object.entries(counts)){const price=prices?.[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0)throw Error('Missing effective event price.');charge+=price*count;}\n if(!Number.isFinite(summary.expectedBuyerChargeUsd)||Math.abs(charge-summary.expectedBuyerChargeUsd)>1e-7||charge>config.maxCostPerRunUsd+1e-9)throw Error('Unreconciled estimated Actor charge.');\n for(const change of changes.values())if(['NEW','UPDATED'].includes(change.changeKind)&&!jobs.has(change.stableId))throw Error('Change is missing its current job.');\n return [...jobs.values(),...absent].map(r=>{const kind=changes.get(r.stableId)?.changeKind??'UNCHANGED';return {upsertKey:'greenhouse|'+config.scope+'|'+r.stableId,stableId:r.stableId,company:r.companyName??r.companyBoard,title:r.title??'',location:r.location??'',departments:(r.departments??[]).map(x=>x.name).join(', '),status:['CLOSED','LEFT_FILTER'].includes(kind)?kind:'OPEN',changeKind:kind,firstPublished:r.firstPublished??'',sourceUpdatedAt:r.updatedAt??'',observedAt:r.collectedAt,applyUrl:r.absoluteUrl??r.url??'',coverageStatus:'COMPLETE',estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\n}\n\nconst bound=$('Check output bounds').first().json; const rows=$input.all().flatMap(item=>Array.isArray(item.json)?item.json:[item.json]); return reconcile({config:$('Validate settings').first().json,run:bound.run,summary:bound.summary,rows}).map(json=>({json}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f9004bcffdacf62d926148be",
+      "name": "Upsert jobs in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 2,
+      "position": [
+        2896,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "upsertKey",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "upsertKey",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "stableId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "stableId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "company",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "company",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "location",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "location",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "departments",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "departments",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "changeKind",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "changeKind",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "firstPublished",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "firstPublished",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "sourceUpdatedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "sourceUpdatedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "observedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "observedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "applyUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "applyUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "coverageStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "coverageStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "estimatedActorChargeUsd",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "estimatedActorChargeUsd",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "runUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "runUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "upsertKey"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Validate settings').first().json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Validate settings').first().json.spreadsheetId }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.6,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "3d85a352f6d78df492d8621c",
+      "name": "Return delivery receipt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3136,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='cgpuChc3gdFFgEdD6';\nconst BUILD_ID='eV9Sw25JLbxibku09';\nconst BUILD_TAG='greenhouse-release-20260906f';\nconst COLUMNS=['upsertKey','stableId','company','title','location','departments','status','changeKind','firstPublished','sourceUpdatedAt','observedAt','applyUrl','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const boards=String(c.companyBoards??'').split(/[\\s,]+/).filter(Boolean).map(x=>x.toLowerCase()).sort();\n if(!boards.length||boards.length>3||boards.some(x=>! /^(eu:)?[a-z0-9][a-z0-9_-]{0,79}$/.test(x)||/replace/i.test(x))||new Set(boards).size!==boards.length)throw Error('Enter one to three distinct Greenhouse board slugs; prefix European boards with eu:.');\n const keywords=String(c.keywords??'').split(',').map(x=>x.trim()).filter(Boolean).sort();\n if(keywords.length>20||keywords.some(x=>x.length>100))throw Error('Use up to 20 comma-separated keywords.');\n if(typeof c.remoteOnly!=='boolean')throw Error('remoteOnly must be boolean.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\n if(!String(c.sheetName??'').trim()||! /^[\\w.-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and a stable watch name.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isInteger(cap)||cap<1||cap>3)throw Error('Use an integer Actor charge cap from $1 to $3. Actual small runs usually cost less; unchanged jobs are billable.');\n const actorInput={workflow:'monitor',companyBoards:boards,jobTargets:[],keywords,department:String(c.department??'').trim(),location:String(c.location??'').trim(),remoteOnly:c.remoteOnly,firstPublishedAfter:'',includeContent:true,includeQuestions:false,includePayRanges:false,maxJobs:100,maxJobsPerBoard:1000,maxRuntimeSecs:60,maxBuyerChargeUsd:cap,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new'};\n const scope=JSON.stringify([actorInput.stateNamespace,boards,keywords,actorInput.department,actorInput.location,actorInput.remoteOnly,100,1000]);\n return {...c,boards,scope,actorInput,maxCostPerRunUsd:cap};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;\n if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status))throw Error('Actor '+run.status+'; inspect existing run '+run.id+'. No Sheet write.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Unexpected Actor status.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect the existing run, never automatically repeat the paid call.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');\n return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n if(s.workflow!=='monitor'||s.coverageStatus!=='COMPLETE'||!Array.isArray(s.coverage)||!s.coverage.length||s.coverage.length>3||s.coverage.some(x=>!['COMPLETE','EMPTY_CONFIRMED'].includes(x.coverageStatus)))throw Error('Source coverage is incomplete; narrow filters before another paid run. Sheet unchanged.');\n for(const k of ['verifiedJobs','deliveredRecords','changes'])if(!Number.isInteger(s[k])||s[k]<0||s[k]>200)throw Error('Invalid output count.');\n if(s.verifiedJobs>100||s.deliveredRecords<s.verifiedJobs||s.changes<s.deliveredRecords-s.verifiedJobs)throw Error('Inconsistent output counts.');\n // Absences are both paid records and changes. Count them once in the dataset.\n const count=s.verifiedJobs+s.changes+s.coverage.length;\n if(count>303)throw Error('Unsupported dataset size.');\n return count;\n}\nfunction reconcile({config,run,summary,rows}){\n if(rows.length!==bounds(summary))throw Error('Dataset count differs from authoritative OUTPUT.');\n const expectedTargets=config.boards.map(x=>x.startsWith('eu:')?x:'us:'+x).sort();\n if(JSON.stringify(summary.coverage.map(x=>x.target).sort())!==JSON.stringify(expectedTargets))throw Error('Unexpected coverage targets.');\n const jobs=new Map(),changes=new Map();let coverage=0;\n for(const r of rows){\n  if(r.recordType==='coverage'){coverage++;continue;}\n  if(!/^greenhouse:(us|eu):[a-z0-9_-]+:\\d+$/.test(r.stableId??'')||!expectedTargets.some(t=>r.stableId.startsWith('greenhouse:'+t+':')))throw Error('Invalid source identity.');\n  const map=r.recordType==='job'?jobs:r.recordType==='change'?changes:null;\n  if(!map||map.has(r.stableId))throw Error('Unexpected or duplicate source row.');\n  if(map===changes&&!['NEW','UPDATED','CLOSED','LEFT_FILTER'].includes(r.changeKind))throw Error('Unexpected change type.');\n  map.set(r.stableId,r);\n }\n if(jobs.size!==summary.verifiedJobs||changes.size!==summary.changes||coverage!==summary.coverage.length)throw Error('Dataset record counts do not reconcile.');\n const absent=[...changes.values()].filter(x=>['CLOSED','LEFT_FILTER'].includes(x.changeKind));\n if(jobs.size+absent.length!==summary.deliveredRecords||absent.some(x=>jobs.has(x.stableId)))throw Error('Absence conflicts with current jobs.');\n const prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n const counts={search_checked:1,job_result:jobs.size,absence_result:absent.length};let charge=0;\n for(const [event,count]of Object.entries(counts)){const price=prices?.[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0)throw Error('Missing effective event price.');charge+=price*count;}\n if(!Number.isFinite(summary.expectedBuyerChargeUsd)||Math.abs(charge-summary.expectedBuyerChargeUsd)>1e-7||charge>config.maxCostPerRunUsd+1e-9)throw Error('Unreconciled estimated Actor charge.');\n for(const change of changes.values())if(['NEW','UPDATED'].includes(change.changeKind)&&!jobs.has(change.stableId))throw Error('Change is missing its current job.');\n return [...jobs.values(),...absent].map(r=>{const kind=changes.get(r.stableId)?.changeKind??'UNCHANGED';return {upsertKey:'greenhouse|'+config.scope+'|'+r.stableId,stableId:r.stableId,company:r.companyName??r.companyBoard,title:r.title??'',location:r.location??'',departments:(r.departments??[]).map(x=>x.name).join(', '),status:['CLOSED','LEFT_FILTER'].includes(kind)?kind:'OPEN',changeKind:kind,firstPublished:r.firstPublished??'',sourceUpdatedAt:r.updatedAt??'',observedAt:r.collectedAt,applyUrl:r.absoluteUrl??r.url??'',coverageStatus:'COMPLETE',estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\n}\n\nconst rows=$('Build verified Sheet rows').all().map(x=>x.json); return [{json:{status:'SHEETS_WRITTEN',rows:rows.length,coverageStatus:rows[0].coverageStatus,estimatedActorChargeUsd:rows[0].estimatedActorChargeUsd,runUrl:rows[0].runUrl}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7ffe6ecf6fce400b77f4c2b6",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        -1056
+      ],
+      "parameters": {
+        "width": 1120,
+        "height": 900,
+        "content": "## Track filtered Greenhouse jobs in Google Sheets\n\nBuild a shortlist of roles from companies you follow. This workflow helps job seekers and recruiters monitor public Greenhouse boards using company, keyword, department, location and remote filters. It requires no AI service or applicant data.\n\n### How it works\nThe workflow starts one Apify run and waits for that same run. Complete coverage, dataset counts and estimated Actor charges must reconcile before delivery. Each job uses one stable Sheet key per watch scope. The first run labels matching jobs NEW, even when originally published earlier. Repeats update existing rows, add newly observed matches, and mark confirmed CLOSED or LEFT_FILTER jobs. Unchanged jobs remain billable. The Sheet is a current register; change labels describe the latest observation, not permanent event history. Incomplete or capped checks stop without writing. Verified empty results produce no new rows.\n\n### Setup\n1. Create an Apify Header Auth credential: name Authorization, value Bearer followed by your token. Select it on all four HTTP nodes.\n2. Connect Google Sheets OAuth2 on the delivery node. Create a Greenhouse Watch tab with the supplied CSV headers.\n3. Enter the spreadsheet ID in Job watch settings. Start with the default Airbnb remote engineering example, then change filters as needed.\n4. Run manually and inspect the Sheet. Keep the watch name and filters stable and run sequentially; changed settings create a new scope.\n5. Up to three boards and 100 matching jobs are supported. The default $1 charge cap is a limit, not a quoted run price. Apify usage is paid; the template includes no credits."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f173e8ad0603a053452c3751",
+      "name": "Configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 680,
+        "content": "## 1. Configure\nSet company boards, job filters and your Sheet destination. Validation stops missing destinations and invalid caps before paid work."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4462fd96ad7c96e57ae92757",
+      "name": "Run",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 2. Run once and wait\nOnly the first HTTP call starts an Actor. Polling reads the existing run; failures stop before any Sheet write."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "74f750cb4dca0a1d742a3003",
+      "name": "Verify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 3. Verify output\nRead the authoritative summary and the complete bounded dataset. Reject incomplete coverage or row-count mismatches."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "753894989a9742e607ef063a",
+      "name": "Deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 4. Update your register\nOne stable key per job and watch scope. Keep confirmed closures as rows. Only destination delivery may retry; the paid Actor never retries automatically."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 480
+  },
+  "connections": {
+    "Run finished?": {
+      "main": [
+        [
+          {
+            "node": "Read authoritative output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait five seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start manually": {
+      "main": [
+        [
+          {
+            "node": "Job watch settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check run status": {
+      "main": [
+        [
+          {
+            "node": "Run finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing run": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate settings": {
+      "main": [
+        [
+          {
+            "node": "Run Greenhouse once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait five seconds": {
+      "main": [
+        [
+          {
+            "node": "Read existing run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job watch settings": {
+      "main": [
+        [
+          {
+            "node": "Validate settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check output bounds": {
+      "main": [
+        [
+          {
+            "node": "Read complete bounded dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Greenhouse once": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build verified Sheet rows": {
+      "main": [
+        [
+          {
+            "node": "Upsert jobs in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read authoritative output": {
+      "main": [
+        [
+          {
+            "node": "Check output bounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert jobs in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Return delivery receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read complete bounded dataset": {
+      "main": [
+        [
+          {
+            "node": "Build verified Sheet rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track filtered Greenhouse jobs with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19300,
+    "update_time": "2026-09-27"
+  }
+}

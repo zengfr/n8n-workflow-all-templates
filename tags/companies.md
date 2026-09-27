@@ -1,4 +1,4 @@
-# companies : 29
+# companies : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |15540|[15540_Enrich_and_deduplicate_Slack-uploaded_companies_in_HubSpot_with_Coresignal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15540_Enrich_and_deduplicate_Slack-uploaded_companies_in_HubSpot_with_Coresignal.json)|
 |15851|[15851_Monitor_negative_news_for_watchlist_companies_with_Google_Sheets__SerpAPI__Groq__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15851_Monitor_negative_news_for_watchlist_companies_with_Google_Sheets__SerpAPI__Groq__and_Gmail.json)|
 |16345|[16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json)|
+|17916|[17916_Enrich_Polish_company_records_from_NIP_with_VAT_whitelist__KRS_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17916_Enrich_Polish_company_records_from_NIP_with_VAT_whitelist__KRS_and_Google_Sheets.json)|
+|18562|[18562_Create_de-duplicated_HubSpot_companies_from_Google_Maps_with_BasedOnBusiness.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18562_Create_de-duplicated_HubSpot_companies_from_Google_Maps_with_BasedOnBusiness.json)|

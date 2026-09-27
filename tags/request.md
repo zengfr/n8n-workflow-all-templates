@@ -1,4 +1,4 @@
-# request : 45
+# request : 60
 
 |id|file|
 |----|----|
@@ -47,3 +47,18 @@
 |15954|[15954_Send_Murban_crude_futures_price_alerts_with_HTTP_request_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15954_Send_Murban_crude_futures_price_alerts_with_HTTP_request_and_Telegram.json)|
 |16055|[16055_Create_instrumental_tracks_from_song_URLs_with_StemSplit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16055_Create_instrumental_tracks_from_song_URLs_with_StemSplit.json)|
 |16194|[16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json)|
+|16863|[16863_Manage_IT_asset_requests_and_inventory_with_Airtable_and_a_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16863_Manage_IT_asset_requests_and_inventory_with_Airtable_and_a_webhook.json)|
+|17026|[17026_Collect_post-purchase_product_reviews_with_WooCommerce__Google_Sheets__and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17026_Collect_post-purchase_product_reviews_with_WooCommerce__Google_Sheets__and_SMTP.json)|
+|17059|[17059_Send_Google_review_request_and_reminder_emails_via_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17059_Send_Google_review_request_and_reminder_emails_via_Gmail_and_Google_Sheets.json)|
+|17333|[17333_Route_law_firm_review_requests_with_Twilio_SMS__Google_Reviews_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17333_Route_law_firm_review_requests_with_Twilio_SMS__Google_Reviews_and_email.json)|
+|17968|[17968_Run_parallel_webhook_services_with_HTTP_Request_fan-out.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17968_Run_parallel_webhook_services_with_HTTP_Request_fan-out.json)|
+|18481|[18481_Archive_Instagram_stories_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18481_Archive_Instagram_stories_to_Google_Sheets_with_Apify.json)|
+|18539|[18539_Fetch_website_content_with_HTTP_request_and_Apify_Web_Fetch.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18539_Fetch_website_content_with_HTTP_request_and_Apify_Web_Fetch.json)|
+|18732|[18732_Chase_overdue_client_documents_with_Clio_and_SMTP_email_escalations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18732_Chase_overdue_client_documents_with_Clio_and_SMTP_email_escalations.json)|
+|18929|[18929_Find_and_log_GDPR_request_evidence_with_Groq_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18929_Find_and_log_GDPR_request_evidence_with_Groq_and_Data_Tables.json)|
+|19134|[19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json)|
+|19269|[19269_Sync_staging_n8n_workflows_to_GitHub_via_pull_request.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19269_Sync_staging_n8n_workflows_to_GitHub_via_pull_request.json)|
+|19503|[19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json)|
+|19575|[19575_Reconcile_claimed_workflow_successes_with_provider_HTTP_APIs_and_code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19575_Reconcile_claimed_workflow_successes_with_provider_HTTP_APIs_and_code.json)|
+|19693|[19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json)|
+|19827|[19827_Estimate_military_discount_baskets_with_the_SaluteScout_guides_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19827_Estimate_military_discount_baskets_with_the_SaluteScout_guides_HTTP_API.json)|

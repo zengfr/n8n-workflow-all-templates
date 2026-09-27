@@ -1,0 +1,688 @@
+{
+  "id": "Mj0gsdP3GHsuNfRG",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Retry flaky HTTP calls with Google Gemini and Google Sheets dead letters",
+    "wechat": "youandme10086",
+    "id": 18181,
+    "update_time": "2026-09-27"
+  },
+  "name": "Retry a flaky call with AI triage, and replay the dead letters overnight",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e530995a-f475-4b09-9380-146365114cc1",
+      "name": "Called by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -368,
+        0
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "jobName"
+            },
+            {
+              "name": "url"
+            },
+            {
+              "name": "method"
+            },
+            {
+              "name": "body"
+            },
+            {
+              "name": "maxAttempts",
+              "type": "number"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1ec9de07-9fe4-4e0d-875e-9f31abd55e11",
+      "name": "Start the Attempt Counter",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        16,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const j = $json;\nconst state = $getWorkflowStaticData('global');\nstate.attempts = state.attempts || {};\n\nconst jobName = String(j.jobName || 'unnamed job').slice(0, 80);\nconst key = jobName + '|' + $execution.id;\nstate.attempts[key] = 0;\n\nconst now = Date.now();\nstate.seen = (state.seen || []).filter(function (s) { return now - s.at < 86400000; });\nstate.seen.push({ key: key, at: now });\n\nreturn [{ json: {\n  jobName: jobName, key: key,\n  url: String(j.url || '').trim(),\n  method: String(j.method || 'GET').toUpperCase(),\n  body: String(j.body || ''),\n  maxAttempts: Math.min(Math.max(Number(j.maxAttempts) || 3, 1), 8),\n  attempt: 1, backoffSeconds: 0,\n  isReplay: false, replayOf: ''\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4711b24a-8b58-4e44-9983-dd084485aa9e",
+      "name": "Call the Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        432,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "body": "={{ $json.body }}",
+        "method": "={{ $json.method }}",
+        "options": {
+          "timeout": 20000
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "45b2db1a-7481-4043-8bbd-482c7fb9d529",
+      "name": "Nightly Dead Letter Sweep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -336,
+        944
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b8bef571-c101-4f96-9784-a7c5c2f919f4",
+      "name": "Load the Dead Letter Register",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -96,
+        944
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Dead Letters"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VBagC67WblkLgsDb",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "69c4b1ee-82de-4acc-a1f2-1bcea0820ee2",
+      "name": "Pick What Is Worth Another Try",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        144,
+        944
+      ],
+      "parameters": {
+        "jsCode": "// A dead letter register nobody replays is just a graveyard. This picks the\n// ones the overnight gap may have fixed, and deliberately leaves the rest alone.\nconst MIN_AGE_MINUTES = 30;\nconst MAX_PER_SWEEP = 20;\nconst MAX_REPLAY_ATTEMPTS = 2;\n\nconst out = [];\nconst now = Date.now();\nconst state = $getWorkflowStaticData('global');\nstate.attempts = state.attempts || {};\n\nfor (const item of $input.all()) {\n  if (out.length >= MAX_PER_SWEEP) break;\n  const r = item.json || {};\n\n  const status = String(r.Status || 'Open').trim().toLowerCase();\n  if (status !== 'open') continue;\n\n  // Permanent failures will fail identically forever - replaying them is waste\n  const cls = String(r.Class || '').trim().toLowerCase();\n  if (cls !== 'transient') continue;\n\n  const failedAt = new Date(String(r['Failed At'] || ''));\n  if (isNaN(failedAt.getTime())) continue;\n  if (now - failedAt.getTime() < MIN_AGE_MINUTES * 60000) continue;\n\n  const endpoint = String(r.Endpoint || '').trim();\n  const sp = endpoint.indexOf(' ');\n  if (sp === -1) continue;\n  const method = endpoint.slice(0, sp).toUpperCase();\n  const url = endpoint.slice(sp + 1).trim();\n  if (!url) continue;\n\n  const jobName = String(r.Job || 'replayed job').slice(0, 80);\n  const key = jobName + '|replay|' + $execution.id + '|' + out.length;\n  state.attempts[key] = 0;\n\n  out.push({ json: {\n    jobName: jobName, key: key, url: url, method: method,\n    body: String(r.Payload || ''),\n    maxAttempts: MAX_REPLAY_ATTEMPTS,\n    attempt: 1, backoffSeconds: 0,\n    isReplay: true, replayOf: String(r['Failed At'] || '')\n  } });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2065624f-e317-4bb1-a03a-5c106dd6a9a9",
+      "name": "Report Success",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        800,
+        -208
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const cfg = $('Call the Service').item.json;\nlet src = {};\ntry { src = $('Start the Attempt Counter').item.json; } catch (e) { src = {}; }\nif (!src.jobName) { try { src = $('Pick What Is Worth Another Try').item.json; } catch (e2) { src = {}; } }\n\nconst state = $getWorkflowStaticData('global');\nconst attempts = ((state.attempts || {})[src.key] || 0) + 1;\n\nreturn { json: {\n  ok: true,\n  jobName: src.jobName || 'unnamed job',\n  attemptsUsed: attempts,\n  isReplay: src.isReplay === true,\n  replayOf: src.replayOf || '',\n  response: cfg,\n  summary: (src.jobName || 'The job') + (src.isReplay ? ' succeeded on replay' : ' succeeded') + ' on attempt ' + attempts + '.'\n} };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0ea3a0a1-160d-4d97-9338-53e2bac5b17b",
+      "name": "Was This a Replay",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1376,
+        -208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isReplay }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "cd1634f1-d404-450d-900f-5bf7b8159af5",
+      "name": "Close It in the Register",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        2000,
+        -224
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Dead Letters"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VBagC67WblkLgsDb",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "6f6e3bb6-b5b3-41cf-857c-d43e6b7de306",
+      "name": "Triage the Failure",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "onError": "continueRegularOutput",
+      "position": [
+        784,
+        96
+      ],
+      "parameters": {
+        "text": "=A call failed and you must decide whether retrying it could possibly work. Retrying a request the server has already rejected on its merits is wasted time and can duplicate side effects, so be strict.\n\nError: {{ JSON.stringify($json).slice(0, 1200) }}\n\nClassify as exactly one of:\n- transient: the request was fine and the service was momentarily unable to serve it. Timeouts, connection resets, 429, 502, 503, 504. Retrying can work.\n- permanent: the request itself is wrong or forbidden and will fail identically forever. 400, 401, 403, 404, 409, 422, schema errors, bad credentials. Retrying cannot work.\n- needs_human: something a person must decide or unblock - expired credentials, a suspended account, a quota that must be raised, or an ambiguous 500 on a non-idempotent write where a retry might duplicate the side effect.\n\nFor backoff_seconds use exponential backoff, 15 seconds rising to at most 240, and honour any Retry-After value visible in the error. Set it to 0 when retrying will not help. Write cause for the engineer reading this at 3am - name the actual signal you used. Fill human_action only for needs_human, and say precisely what the person must do.",
+        "batching": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "22722023-642c-4d49-a412-bff22cb19240",
+      "name": "Gemini for Triage",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        752,
+        336
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0.1
+        },
+        "modelName": "models/gemini-3.1-flash-lite"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "SqSj0UBxvATZV3OU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6408bc20-f44a-4bcd-b488-4c143558f5ea",
+      "name": "Triage Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        912,
+        336
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"class\":\"transient\",\"cause\":\"The service returned 503, which means it was temporarily unavailable rather than rejecting the request\",\"retry_would_help\":true,\"backoff_seconds\":30,\"human_action\":\"\"}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "282d5d4f-f077-4c8d-8ea3-9fef86196fcb",
+      "name": "Count It and Decide",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1136,
+        96
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let cfg = {};\ntry { cfg = $('Start the Attempt Counter').item.json; } catch (e) { cfg = {}; }\nif (!cfg.jobName) { try { cfg = $('Pick What Is Worth Another Try').item.json; } catch (e2) { cfg = {}; } }\n\nconst t = $json.output || {};\nconst state = $getWorkflowStaticData('global');\nstate.attempts = state.attempts || {};\nstate.attempts[cfg.key] = (state.attempts[cfg.key] || 0) + 1;\n\nconst used = state.attempts[cfg.key];\nconst cls = ['transient', 'permanent', 'needs_human'].indexOf(t.class) === -1 ? 'needs_human' : t.class;\nconst attemptsLeft = (cfg.maxAttempts || 3) - used;\n\nlet verdict;\nif (cls === 'transient' && t.retry_would_help === true && attemptsLeft > 0) verdict = 'retry';\nelse if (cls === 'transient' && attemptsLeft <= 0) verdict = 'exhausted';\nelse verdict = 'dead_letter';\n\nreturn { json: {\n  verdict: verdict, errorClass: cls,\n  cause: String(t.cause || 'No diagnosis available'),\n  humanAction: String(t.human_action || ''),\n  backoffSeconds: Math.min(Math.max(Number(t.backoff_seconds) || 15, 5), 300),\n  attemptsUsed: used, attemptsLeft: attemptsLeft < 0 ? 0 : attemptsLeft,\n  jobName: cfg.jobName, key: cfg.key, url: cfg.url, method: cfg.method, body: cfg.body,\n  maxAttempts: cfg.maxAttempts, attempt: used + 1,\n  isReplay: cfg.isReplay === true, replayOf: cfg.replayOf || ''\n} };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "54721fee-6d01-450e-8477-ea2248940c46",
+      "name": "Retry or Give Up",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1376,
+        80
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.verdict }}",
+                    "rightValue": "retry"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.verdict }}",
+                    "rightValue": "exhausted"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Dead letter"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "281fe844-9216-4eec-bc9f-8f6aaa38c326",
+      "name": "Wait Out the Backoff",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2032,
+        64
+      ],
+      "webhookId": "43adb49f-6dc9-45cd-b89b-d81dda437f12",
+      "parameters": {
+        "amount": "={{ $json.backoffSeconds }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d2130d27-8939-4069-aa73-829dbfd2f59b",
+      "name": "File It in the Dead Letter Register",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        1744,
+        304
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Dead Letters"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VBagC67WblkLgsDb",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "a84c6afb-b4f5-4d36-848d-e52ed5336b4b",
+      "name": "Answer the Caller",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2032,
+        304
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const d = $('Count It and Decide').item.json;\nconst wasExhausted = d.verdict === 'exhausted';\n\nreturn { json: {\n  ok: false, jobName: d.jobName, attemptsUsed: d.attemptsUsed,\n  errorClass: d.errorClass, cause: d.cause, humanAction: d.humanAction,\n  retryPointless: d.errorClass !== 'transient',\n  wasReplay: d.isReplay === true,\n  filedInRegister: true,\n  summary: d.jobName + ' failed after ' + d.attemptsUsed + ' attempt(s). ' + (wasExhausted ? 'The service kept failing and the retry budget ran out. ' : (d.errorClass === 'permanent' ? 'Retrying was pointless - the request itself is being rejected. ' : 'A person needs to unblock this. ')) + d.cause + (d.humanAction ? ' Action: ' + d.humanAction : '')\n} };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f0f4fae4-b6a2-4a53-956e-f7b055a2c53a",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1504,
+        -464
+      ],
+      "parameters": {
+        "width": 1004,
+        "height": 1428,
+        "content": "## Retry a flaky call with AI triage, and replay the dead letters overnight\n\n### What this is\nTwo entry points onto one guarded pipeline. Call it live from any workflow with Execute Sub-workflow to make a single unreliable HTTP call reliable - or let the nightly sweep pick up what failed yesterday and try again now the outage is over.\n\n### The problem with normal retries\nn8n can retry a node a fixed number of times. A fixed retry is blind: it hammers a 401 four times exactly as eagerly as a 503, wasting minutes on a request the server will never accept, and it can fire a non-idempotent write twice. Then when it gives up, the payload disappears with the failed execution.\n\n### How the live path works\nYou pass a job name, a URL, a method, a body and a retry budget. The call runs with its error output wired up, so a failure is data rather than a crash.\n\nWhen it fails, a Basic LLM Chain triages the error into exactly one of three classes. Transient means the request was fine and the service was momentarily unable to serve it - timeouts, resets, 429, 502, 503, 504 - so retrying can work. Permanent means the request itself is being rejected and will fail identically forever - 400, 401, 403, 404, 409, 422 - so retrying is pure waste. Needs human means someone has to unblock it: expired credentials, a suspended account, a quota to raise, or an ambiguous 500 on a write where a retry might duplicate the side effect.\n\nOnly transient failures are retried. A Wait node holds for an exponential backoff calculated from the error itself and any Retry-After it could see, then the call re-enters the same path. Attempt counts live in workflow static data keyed by execution, so the loop cannot run away. Anything not worth retrying, and anything that exhausts its budget, is written to a dead letter register with the payload, the diagnosis and what a person must do.\n\nThe caller always gets a structured answer - ok true or false, the class, the attempts used, a plain-English cause and whether retrying is pointless - so it can branch instead of guessing.\n\n### Why the second trigger exists\nA dead letter register that nobody replays is just a graveyard. Most of what lands in it failed because something was down at the time, and by morning it is up again.\n\nSo a schedule trigger sweeps the register overnight and feeds the recoverable rows back into the same pipeline. It is deliberately picky: only rows still marked Open, only ones classed transient - a permanent failure will fail identically forever, so replaying it is waste - only ones old enough that the outage has plausibly passed, and only a capped number per sweep so a bad night cannot flood your API at 2am. Replays get a shorter budget than live calls, and anything that succeeds is closed out in the register with a note saying when.\n\n### Setup\n1. Connect Google Gemini (PaLM) API and Google Sheets.\n2. Create a sheet tab called Dead Letters with columns: Failed At, Job, Endpoint, Class, Attempts Used, Diagnosis, Someone Must, Payload, Status, Execution.\n3. From any workflow, add Execute Sub-workflow, point it here and pass jobName, url, method, body and maxAttempts.\n4. Activate the workflow so the nightly sweep runs and static data persists.\n\n### Customization tips\nChange MIN_AGE_MINUTES, MAX_PER_SWEEP and MAX_REPLAY_ATTEMPTS at the top of Pick What Is Worth Another Try. Add a Slack alert on the needs human class so a person is paged rather than quietly logged. Swap the HTTP node for any node that can fail."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71546c6d-3505-4725-84ec-498c54c8e5cd",
+      "name": "S1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1084,
+        "height": 1120,
+        "content": "## 1. Live path - take the job and try it once\nAnother workflow calls this one with a job name, a URL, a method, a body and a retry budget. The attempt counter lives in workflow static data keyed by this execution. The HTTP node has its error output wired, so a failure becomes data to reason about rather than a crash."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b6b4fa52-15ee-4b4a-844a-90d1b713020a",
+      "name": "S2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 956,
+        "height": 1120,
+        "content": "## 2. Decide whether retrying could possibly work\nThis is the part a fixed retry count cannot do. The chain separates a service that was briefly unavailable from a request being rejected on its merits, and from cases where a retry could duplicate a write. Only the first is worth trying again - and the backoff is calculated from the error, not guessed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7f61d30-f3d0-4968-a037-83329fa01cb3",
+      "name": "S3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1616,
+        -464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 1120,
+        "content": "## 3. Back off and go round, or stop and file it\nTransient failures wait out the backoff and re-enter the same call - that arrow going back is the retry loop. Everything else, and anything that exhausts its budget, lands in the register with the payload, the diagnosis and what a person must do. A success that came from a replay is closed out in the register; a live success just answers the caller."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0cd782c7-09e6-41da-ae59-11033e0bd3f4",
+      "name": "S4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        704
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1236,
+        "height": 468,
+        "content": "## The second entry point - replay the graveyard\nA dead letter register nobody replays is just a graveyard. Most of what lands in it failed because something was down, and by morning it is back up.\n\nThis sweep is deliberately picky: only rows still Open, only ones classed **transient** (a permanent failure will fail identically forever), only ones old enough that the outage has plausibly passed, and only a capped number per sweep so a bad night cannot flood your API at 2am. Replays get a shorter budget than live calls and rejoin the same guarded pipeline."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "2e96e547-238c-4e47-bebd-f49bf9b932c5",
+  "nodeGroups": [],
+  "connections": {
+    "Triage Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Triage the Failure",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report Success": {
+      "main": [
+        [
+          {
+            "node": "Was This a Replay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call the Service": {
+      "main": [
+        [
+          {
+            "node": "Report Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Triage the Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry or Give Up": {
+      "main": [
+        [
+          {
+            "node": "Wait Out the Backoff",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File It in the Dead Letter Register",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "File It in the Dead Letter Register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gemini for Triage": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Triage the Failure",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Was This a Replay": {
+      "main": [
+        [
+          {
+            "node": "Close It in the Register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Triage the Failure": {
+      "main": [
+        [
+          {
+            "node": "Count It and Decide",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count It and Decide": {
+      "main": [
+        [
+          {
+            "node": "Retry or Give Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait Out the Backoff": {
+      "main": [
+        [
+          {
+            "node": "Call the Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nightly Dead Letter Sweep": {
+      "main": [
+        [
+          {
+            "node": "Load the Dead Letter Register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start the Attempt Counter": {
+      "main": [
+        [
+          {
+            "node": "Call the Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Called by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Start the Attempt Counter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load the Dead Letter Register": {
+      "main": [
+        [
+          {
+            "node": "Pick What Is Worth Another Try",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick What Is Worth Another Try": {
+      "main": [
+        [
+          {
+            "node": "Call the Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File It in the Dead Letter Register": {
+      "main": [
+        [
+          {
+            "node": "Answer the Caller",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# phishing : 8
+# phishing : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |12221|[12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12221_Monitor_SSL_certificates_for_brand-impersonating_domains_with_crt.sh__Urlscan.io_and_Slack.json)|
 |12846|[12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json)|
 |13448|[13448_Check_phishing_URL_reputation_with_VirusTotal_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13448_Check_phishing_URL_reputation_with_VirusTotal_and_log_to_Google_Sheets.json)|
+|18899|[18899_Investigate_phishing_emails_from_Google_Sheets_with_MCP_server_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18899_Investigate_phishing_emails_from_Google_Sheets_with_MCP_server_and_Telegram.json)|
+|19380|[19380_Analyze_URL_phishing_risk_with_VirusTotal__Safe_Browsing__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19380_Analyze_URL_phishing_risk_with_VirusTotal__Safe_Browsing__Gemini__and_Slack.json)|
+|19594|[19594_Detect_phishing_and_triage_Gmail_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19594_Detect_phishing_and_triage_Gmail_with_Google_Gemini_and_Google_Sheets.json)|

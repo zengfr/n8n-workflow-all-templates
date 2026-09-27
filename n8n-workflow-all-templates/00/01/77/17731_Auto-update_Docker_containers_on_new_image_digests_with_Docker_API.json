@@ -1,0 +1,548 @@
+{
+  "name": "Auto-update a container when a new image is published",
+  "nodes": [
+    {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "Every hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -656,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "notes": "Everything you need to change lives here.",
+      "position": [
+        -448,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "containerName",
+              "type": "string",
+              "value": "my-service"
+            },
+            {
+              "id": "c2",
+              "name": "image",
+              "type": "string",
+              "value": "nginx:latest"
+            },
+            {
+              "id": "c3",
+              "name": "hostPort",
+              "type": "number",
+              "value": 8080
+            },
+            {
+              "id": "c4",
+              "name": "containerPort",
+              "type": "number",
+              "value": 80
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "Check registry for a new digest",
+      "type": "n8n-nodes-docker-api.docker",
+      "notes": "Reads the manifest only — a few KB, not the whole image. This is what makes running hourly reasonable.",
+      "position": [
+        -224,
+        0
+      ],
+      "parameters": {
+        "resource": "image",
+        "operation": "distributionInspect",
+        "retryPolicy": {},
+        "imageReference": "={{ $json.image }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "name": "Inspect the local image",
+      "type": "n8n-nodes-docker-api.docker",
+      "notes": "Continues on error so a first run, before the image has ever been pulled here, counts as needing a deploy rather than failing the workflow.",
+      "onError": "continueRegularOutput",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "resource": "image",
+        "operation": "inspectImage",
+        "retryPolicy": {},
+        "imageReference": "={{ $json.image }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "name": "Has the image changed?",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Compare what the registry publishes against the copy held locally.\n//\n// A local image records where it came from in `digests`, as name@sha256:...,\n// while the registry reports the bare sha256:... for the same thing — so the\n// name is stripped before comparing. The comparison is on the digest and never\n// on the tag, because tags move and digests do not.\nconst registry = $('Check registry for a new digest').first().json;\nconst local = $input.first().json;\nconst settings = $('Settings').first().json;\n\nconst published = registry.digest ?? null;\nconst missingLocally = !!local.error || !local.id;\n\nconst localDigest =\n  (local.digests ?? [])\n    .map((d) => String(d).split('@').pop())\n    .find((d) => d && d.startsWith('sha256:')) ?? null;\n\nconst updateNeeded = missingLocally || (!!published && published !== localDigest);\n\nreturn [{\n  json: {\n    ...settings,\n    publishedDigest: published,\n    localDigest,\n    updateNeeded,\n    reason: missingLocally\n      ? 'the image has not been pulled here yet'\n      : updateNeeded\n        ? 'a newer image has been published'\n        : 'already up to date',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000006",
+      "name": "Update needed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "u1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.updateNeeded }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000007",
+      "name": "Pull the new image",
+      "type": "n8n-nodes-docker-api.docker",
+      "notes": "Waits for the pull to finish and returns a summary, rather than a progress stream that never ends.",
+      "position": [
+        672,
+        -96
+      ],
+      "parameters": {
+        "resource": "image",
+        "operation": "pullImage",
+        "retryPolicy": {},
+        "imageReference": "={{ $json.image }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000008",
+      "name": "Remove the old container",
+      "type": "n8n-nodes-docker-api.docker",
+      "notes": "Continues on error: on the very first run there is nothing to remove.",
+      "onError": "continueRegularOutput",
+      "position": [
+        880,
+        -96
+      ],
+      "parameters": {
+        "force": true,
+        "dryRun": false,
+        "resource": "container",
+        "operation": "remove",
+        "containerId": "={{ $('Has the image changed?').item.json.containerName }}",
+        "retryPolicy": {},
+        "removeVolumes": false
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000009",
+      "name": "Create the new container",
+      "type": "n8n-nodes-docker-api.docker",
+      "notes": "A health check is defined here so the next step has something real to wait for. Adjust the test command to suit your service.",
+      "position": [
+        1104,
+        -96
+      ],
+      "parameters": {
+        "env": {},
+        "image": "={{ $('Has the image changed?').item.json.image }}",
+        "labels": {},
+        "command": "",
+        "resource": "container",
+        "operation": "create",
+        "retryPolicy": {},
+        "portMappings": {
+          "mapping": [
+            {
+              "hostPort": "={{ $('Has the image changed?').item.json.hostPort }}",
+              "containerPort": "={{ $('Has the image changed?').item.json.containerPort }}"
+            }
+          ]
+        },
+        "containerName": "={{ $('Has the image changed?').item.json.containerName }}",
+        "volumeMappings": {},
+        "additionalFields": {
+          "healthcheck": {
+            "check": {
+              "test": "wget -q --spider http://localhost:{{ $('Has the image changed?').item.json.containerPort }}/ || exit 1",
+              "timeoutSeconds": 3,
+              "intervalSeconds": 5,
+              "startPeriodSeconds": 5
+            }
+          },
+          "restartPolicy": "unless-stopped",
+          "startAfterCreate": true
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000010",
+      "name": "Wait until it is healthy",
+      "type": "n8n-nodes-docker-api.docker",
+      "notes": "The point of the whole workflow. 'Running' only means the process started; 'healthy' means it actually works.",
+      "position": [
+        1328,
+        -96
+      ],
+      "parameters": {
+        "resource": "container",
+        "operation": "waitForState",
+        "containerId": "={{ $('Has the image changed?').item.json.containerName }}",
+        "retryPolicy": {},
+        "targetState": "healthy",
+        "waitTimeout": 120
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000011",
+      "name": "Did it come up healthy?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1552,
+        -96
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "h1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.reached }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000012",
+      "name": "Updated successfully",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Replace with Slack, Discord, email — whatever you use.",
+      "position": [
+        1760,
+        -224
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000013",
+      "name": "ALERT: new image is unhealthy",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "The update went out but the new image never became healthy. This is the branch worth alerting on loudly — and the point at which you would roll back to the previous tag.",
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000014",
+      "name": "Already up to date",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Nothing to do. This is the branch taken almost every run, and it costs one small registry call.",
+      "position": [
+        672,
+        144
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a9000000-0000-4000-8000-000000000001",
+      "name": "Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -700,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 384,
+        "height": 412,
+        "content": "## ⚙️ Start here\n\nOpen **Settings** and set the container name, image and ports.\n\nThat is the only node you need to touch to make this work for your setup."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9000000-0000-4000-8000-000000000002",
+      "name": "How the check stays cheap",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -284,
+        -260
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 872,
+        "height": 412,
+        "content": "## 🔍 Why this can run hourly\n\n**Check registry** reads the image manifest only — a few kilobytes — instead of pulling the whole image to find out nothing changed.\n\nIt compares **digests, never tags**. A tag moves; a digest does not."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9000000-0000-4000-8000-000000000003",
+      "name": "Replace and verify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        628,
+        -360
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1072,
+        "height": 420,
+        "content": "## 🚀 Replace, then prove it works\n\n**Wait until it is healthy** is the point of the whole workflow. *Running* only means the process started — *healthy* means it actually serves traffic."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9000000-0000-4000-8000-000000000004",
+      "name": "Wire your alerts",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1720,
+        -520
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 480,
+        "height": 700,
+        "content": "## 🔔 Connect your notifications\n\nReplace both placeholder nodes with Slack, Discord, email — whatever you use.\n\n**The unhealthy branch is the one to wire up.** An update that deploys but never comes up healthy is the failure worth waking someone for — and where you'd roll back to the previous tag."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9000000-0000-4000-8000-000000000005",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        -360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 772,
+        "content": "## ♻️ Auto-update a container when a new image is published\n\nChecks hourly whether the image you run has been rebuilt upstream. If it has, it pulls the new image, replaces the container, and **waits until the new one reports healthy** before calling the update a success.\n\nThe check reads the registry manifest only — a few kilobytes — instead of pulling the whole image to discover nothing changed. It compares digests, never tags.\n\n### 📦 Requires a community node\n\nThe Docker steps show as unrecognised until **n8n-nodes-docker-api** is installed.\n\n**Settings → Community nodes → Install a community node**, enter `n8n-nodes-docker-api`, tick the risk acknowledgement, install. Self-hosted n8n only.\n\n### 🔧 Setup\n\n1. Add a **Docker API** credential for your daemon — Unix socket, Windows named pipe, or TCP with TLS.\n2. Set the container name, image and ports in **Settings**.\n3. Adjust the health check in **Create the new container** to suit your service. The default probes an HTTP port.\n4. Replace the two placeholder end nodes with your own alerting."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Check registry for a new digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every hour": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update needed?": {
+      "main": [
+        [
+          {
+            "node": "Pull the new image",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Already up to date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pull the new image": {
+      "main": [
+        [
+          {
+            "node": "Remove the old container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has the image changed?": {
+      "main": [
+        [
+          {
+            "node": "Update needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did it come up healthy?": {
+      "main": [
+        [
+          {
+            "node": "Updated successfully",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ALERT: new image is unhealthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inspect the local image": {
+      "main": [
+        [
+          {
+            "node": "Has the image changed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create the new container": {
+      "main": [
+        [
+          {
+            "node": "Wait until it is healthy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove the old container": {
+      "main": [
+        [
+          {
+            "node": "Create the new container",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait until it is healthy": {
+      "main": [
+        [
+          {
+            "node": "Did it come up healthy?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check registry for a new digest": {
+      "main": [
+        [
+          {
+            "node": "Inspect the local image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Auto-update Docker containers on new image digests with Docker API",
+    "wechat": "youandme10086",
+    "id": 17731,
+    "update_time": "2026-09-27"
+  }
+}

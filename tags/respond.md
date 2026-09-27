@@ -1,4 +1,4 @@
-# respond : 17
+# respond : 22
 
 |id|file|
 |----|----|
@@ -19,3 +19,8 @@
 |13118|[13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json)|
 |13450|[13450_Auto-respond_and_classify_WhatsApp_leads_with_Ollama_AI_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13450_Auto-respond_and_classify_WhatsApp_leads_with_Ollama_AI_and_log_to_Google_Sheets.json)|
 |14924|[14924_Auto-respond_to_job_opportunities_with_Gmail__LinkedIn__GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14924_Auto-respond_to_job_opportunities_with_Gmail__LinkedIn__GPT-4.1-mini_and_Google_Sheets.json)|
+|17631|[17631_Parse_documents_in_real_time_via_webhook_with_Parseur_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17631_Parse_documents_in_real_time_via_webhook_with_Parseur_and_Google_Sheets.json)|
+|18360|[18360_Respond_to_Google_reviews_and_send_weekly_digests_with_DeepSeek__Sheets__Discord_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18360_Respond_to_Google_reviews_and_send_weekly_digests_with_DeepSeek__Sheets__Discord_and_Gmail.json)|
+|18499|[18499_Route_and_respond_to_support_tickets_with_Google_Sheets__Slack__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18499_Route_and_respond_to_support_tickets_with_Google_Sheets__Slack__and_Gemini.json)|
+|18974|[18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json)|
+|19427|[19427_Respond_to_missed_calls_with_Twilio_SMS_and_email_alerts_from_CallRail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19427_Respond_to_missed_calls_with_Twilio_SMS_and_email_alerts_from_CallRail.json)|

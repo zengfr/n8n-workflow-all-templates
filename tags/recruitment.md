@@ -1,4 +1,4 @@
-# recruitment : 10
+# recruitment : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |12076|[12076_Manage_recruitment_tasks_in_Slack_with_Recrutei_ATS___GPT-4_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12076_Manage_recruitment_tasks_in_Slack_with_Recrutei_ATS___GPT-4_Agent.json)|
 |13517|[13517_Automate_end-to-end_hiring_with_Keka__Google_Sheets__Gmail_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13517_Automate_end-to-end_hiring_with_Keka__Google_Sheets__Gmail_and_GPT-4.json)|
 |15620|[15620_Screen_and_schedule_recruitment_interviews_on_WhatsApp_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15620_Screen_and_schedule_recruitment_interviews_on_WhatsApp_with_OpenAI.json)|
+|18288|[18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json)|
+|19772|[19772_Manage_recruitment_candidates_with_Google_Sheets__Notion_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19772_Manage_recruitment_candidates_with_Google_Sheets__Notion_and_Gmail.json)|

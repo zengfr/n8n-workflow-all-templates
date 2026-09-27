@@ -1,4 +1,4 @@
-# nano : 61
+# nano : 63
 
 |id|file|
 |----|----|
@@ -63,3 +63,5 @@
 |15364|[15364_Post_daily_AI-generated_Instagram_images_from_Google_Sheets_with_GPT-4.1_Nano_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15364_Post_daily_AI-generated_Instagram_images_from_Google_Sheets_with_GPT-4.1_Nano_and_Google_Gemini.json)|
 |15586|[15586_Generate_and_edit_images_with_Havis_AI_Nano_Banana_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15586_Generate_and_edit_images_with_Havis_AI_Nano_Banana_2.json)|
 |16135|[16135_Groom_Nirvana_GTD_inbox_tasks_with_MCP_and_OpenAI_GPT-5-nano.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16135_Groom_Nirvana_GTD_inbox_tasks_with_MCP_and_OpenAI_GPT-5-nano.json)|
+|16865|[16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json)|
+|16895|[16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json)|

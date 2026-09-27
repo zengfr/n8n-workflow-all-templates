@@ -1,0 +1,624 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Assess churn risk from HubSpot tickets with DeepSeek and Slack alerts",
+    "wechat": "youandme10086",
+    "id": 18681,
+    "update_time": "2026-09-27"
+  },
+  "name": "[HubSpot Demo] Support-Ticket-Driven Churn Risk Alert (AI Agent)",
+  "nodes": [
+    {
+      "id": "2d0e1287-62d3-425a-9c33-f06c3bc36973",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1504,
+        96
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 880,
+        "content": "## [HubSpot Demo] Support-Ticket-Driven Churn Risk Alert (AI Agent)\n\n### How it works\n\nThis workflow runs on a schedule to find recent HubSpot support tickets, aggregate them by contact, and use an AI agent to assess churn risk. It parses the AI output into structured risk fields, updates the contact's churn risk property in HubSpot, and routes high-risk cases into Slack alerts and follow-up tasks. A final pass-through node captures asynchronous failure paths from ticket retrieval and downstream notification/task actions.\n\n### Setup steps\n\n- Connect HubSpot credentials for reading tickets, updating contact properties, and creating follow-up tasks.\n- Connect Slack credentials and configure the target channel for churn risk alerts.\n- Configure the DeepSeek chat model credentials used by the AI Agent.\n- Ensure HubSpot has the required churn risk fields/properties, such as risk level, risk summary, recommended action, and contact ID mapping.\n- Review the schedule trigger interval and confirm the ticket query only retrieves the desired recent time window.\n\n### Customization\n\nAdjust the aggregation logic, AI prompt, structured output schema, risk-level routing rules, Slack message format, and HubSpot task details to match your support and customer-success process."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "437b6752-377c-4906-9a5e-70c94d674a4c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -944,
+        272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 304,
+        "content": "## Scan recent tickets\n\nStarts the workflow on a schedule and pulls recent support tickets from HubSpot for analysis."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ecc9e8b7-b27f-44ab-8500-5982a0e47538",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -464,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 688,
+        "height": 544,
+        "content": "## Assess contact risk\n\nAggregates tickets by contact, sends the grouped support history to the AI agent, uses the DeepSeek model with structured output parsing, and maps the response into churn risk fields."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3f1b82e0-47fe-480d-8017-f4f9c126cac7",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        288,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 352,
+        "content": "## Update and route risk\n\nWrites the churn risk assessment back to HubSpot, then branches execution based on the assessed risk level."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0e8dada5-b80e-416f-b65e-9cc512abc78b",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 624,
+        "content": "## Alert and task handling\n\nHandles routed outcomes by posting churn risk alerts to Slack, creating HubSpot follow-up tasks, and passing asynchronous failures into a logging endpoint."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2n1",
+      "name": "When Support Tickets Scanned",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -900,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b2n2",
+      "name": "Retrieve HubSpot Tickets",
+      "type": "n8n-nodes-base.hubspot",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        -660,
+        400
+      ],
+      "parameters": {
+        "resource": "ticket",
+        "operation": "getAll",
+        "returnAll": true,
+        "additionalFields": {
+          "properties": [
+            "subject",
+            "hs_ticket_priority",
+            "createdate",
+            "hs_pipeline_stage",
+            "associated_contact_email",
+            "associated_contact_id",
+            "associated_contact_name",
+            "associated_company_name"
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "b2n3",
+      "name": "Compile Tickets by Contact",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -420,
+        400
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst byContact = {};\n\nfor (const item of items) {\n  const p = item.json.properties || {};\n  const email = p.associated_contact_email;\n  if (!email) continue;\n\n  if (!byContact[email]) {\n    byContact[email] = {\n      contactEmail: email,\n      contactId: p.associated_contact_id || '',\n      contactName: p.associated_contact_name || email,\n      companyName: p.associated_company_name || 'Unknown Company',\n      ticketCount: 0,\n      highPriorityCount: 0,\n      mostRecentTicketDate: null,\n      subjects: []\n    };\n  }\n\n  const rec = byContact[email];\n  rec.ticketCount += 1;\n\n  const priority = String(p.hs_ticket_priority || '').toUpperCase();\n  if (priority === 'HIGH' || priority === 'URGENT') rec.highPriorityCount += 1;\n\n  const created = p.createdate ? new Date(p.createdate) : null;\n  if (created && !isNaN(created.getTime()) && (!rec.mostRecentTicketDate || created > new Date(rec.mostRecentTicketDate))) {\n    rec.mostRecentTicketDate = created.toISOString();\n  }\n\n  if (p.subject) rec.subjects.push(p.subject);\n}\n\nconst now = new Date();\n\nreturn Object.values(byContact).map((rec) => {\n  const daysSinceLastTicket = rec.mostRecentTicketDate\n    ? Math.floor((now.getTime() - new Date(rec.mostRecentTicketDate).getTime()) / 86400000)\n    : null;\n\n  return {\n    json: {\n      contactEmail: rec.contactEmail,\n      contactId: rec.contactId,\n      contactName: rec.contactName,\n      companyName: rec.companyName,\n      ticketCount: rec.ticketCount,\n      highPriorityCount: rec.highPriorityCount,\n      daysSinceLastTicket,\n      subjectsSummary: rec.subjects.slice(0, 5).join('; ')\n    }\n  };\n});",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b2n4",
+      "name": "Churn Risk Assessment Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -180,
+        400
+      ],
+      "parameters": {
+        "text": "=Assess the churn risk for this account based on its recent support-ticket activity:\n\nContact: {{ $json.contactName }} ({{ $json.contactEmail }})\nCompany: {{ $json.companyName }}\nTicket count (current scan window): {{ $json.ticketCount }}\nHigh-priority/urgent tickets: {{ $json.highPriorityCount }}\nDays since their most recent ticket: {{ $json.daysSinceLastTicket }}\nRecent ticket subjects: {{ $json.subjectsSummary }}\n\nReturn your churn-risk assessment.",
+        "options": {
+          "systemMessage": "=You are a senior Customer Success churn-risk analyst. You are given a summary of a customer's recent HubSpot support-ticket activity: ticket volume, the share of high-priority/urgent tickets, how many days since their last ticket, and the subjects raised. Weigh recency, escalation pattern, and topic severity together — do not just restate the numbers back. Three low-priority tickets spread over a year is a very different risk than three urgent tickets in the last week, even though the count is the same; a cluster of urgent billing or outage tickets right before a likely renewal is worse than the same tickets spread evenly over time with no recent activity. Form a genuine qualitative judgment a simple numeric threshold would miss, and always return valid JSON matching the required schema. Today's date is {{ $now.format('yyyy-MM-dd') }}."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "b2n4a",
+      "name": "DeepSeek AI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "position": [
+        -180,
+        640
+      ],
+      "parameters": {
+        "model": "deepseek-chat",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2n5",
+      "name": "Parse Structured Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        80,
+        640
+      ],
+      "parameters": {
+        "autoFix": true,
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"riskLevel\": { \"type\": \"string\", \"enum\": [\"low\", \"medium\", \"high\"], \"description\": \"Overall churn risk tier for this account\" },\n    \"riskSummary\": { \"type\": \"string\", \"description\": \"2-3 sentence qualitative assessment of why this account is or isn't at risk\" },\n    \"recommendedAction\": { \"type\": \"string\", \"description\": \"A specific, concrete next action for the CSM to take\" }\n  },\n  \"required\": [\"riskLevel\", \"riskSummary\", \"recommendedAction\"]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b2n5a",
+      "name": "DeepSeek Model Fixer",
+      "type": "@n8n/n8n-nodes-langchain.lmChatDeepSeek",
+      "position": [
+        80,
+        860
+      ],
+      "parameters": {
+        "model": "deepseek-chat",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2n6",
+      "name": "Set Risk Assessment Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        80,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "riskLevel",
+              "type": "string",
+              "value": "={{ $json.output.riskLevel }}"
+            },
+            {
+              "id": "a2",
+              "name": "riskSummary",
+              "type": "string",
+              "value": "={{ $json.output.riskSummary }}"
+            },
+            {
+              "id": "a3",
+              "name": "recommendedAction",
+              "type": "string",
+              "value": "={{ $json.output.recommendedAction }}"
+            },
+            {
+              "id": "a4",
+              "name": "contactId",
+              "type": "string",
+              "value": "={{ $('Compile Tickets by Contact').item.json.contactId }}"
+            },
+            {
+              "id": "a5",
+              "name": "contactEmail",
+              "type": "string",
+              "value": "={{ $('Compile Tickets by Contact').item.json.contactEmail }}"
+            },
+            {
+              "id": "a6",
+              "name": "contactName",
+              "type": "string",
+              "value": "={{ $('Compile Tickets by Contact').item.json.contactName }}"
+            },
+            {
+              "id": "a7",
+              "name": "companyName",
+              "type": "string",
+              "value": "={{ $('Compile Tickets by Contact').item.json.companyName }}"
+            },
+            {
+              "id": "a8",
+              "name": "ticketCount",
+              "type": "number",
+              "value": "={{ $('Compile Tickets by Contact').item.json.ticketCount }}"
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b2n7",
+      "name": "Update Churn Risk in HubSpot",
+      "type": "n8n-nodes-base.hubspot",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        340,
+        400
+      ],
+      "parameters": {
+        "resource": "contact",
+        "contactId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.contactId }}"
+        },
+        "operation": "update",
+        "additionalFields": {
+          "customPropertiesUi": {
+            "customPropertiesValues": [
+              {
+                "value": "={{ $json.riskLevel }}",
+                "property": "churn_risk_level"
+              },
+              {
+                "value": "={{ $json.riskSummary }}",
+                "property": "churn_risk_summary"
+              }
+            ]
+          }
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "b2n8",
+      "name": "Route by Churn Risk Level",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        580,
+        400
+      ],
+      "parameters": {
+        "mode": "rules",
+        "rules": {
+          "values": [
+            {
+              "outputKey": "High Risk",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.riskLevel }}",
+                    "rightValue": "high"
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "Medium Risk",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.riskLevel }}",
+                    "rightValue": "medium"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Low Risk"
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b2n9",
+      "name": "Notify Slack of Churn Risk",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        840,
+        280
+      ],
+      "parameters": {
+        "text": "={{ ':rotating_light: Churn risk alert — ' + $json.riskLevel.toUpperCase() + '\\n*Account:* ' + $json.contactName + ' @ ' + $json.companyName + '\\n*Tickets:* ' + $json.ticketCount + '\\n*Assessment:* ' + $json.riskSummary + '\\n*Recommended action:* ' + $json.recommendedAction }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#customer-success",
+          "cachedResultName": "customer-success"
+        },
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "b2n10",
+      "name": "Initiate Churn Follow-Up Task",
+      "type": "n8n-nodes-base.hubspot",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        840,
+        560
+      ],
+      "parameters": {
+        "type": "task",
+        "dueDate": "={{ $now.plus({days: 1}).toISO() }}",
+        "metadata": {
+          "body": "={{ $json.riskSummary + ' Recommended action: ' + $json.recommendedAction }}",
+          "status": "NOT_STARTED",
+          "subject": "={{ 'High churn risk: ' + $json.contactName + ' @ ' + $json.companyName }}"
+        },
+        "resource": "engagement",
+        "operation": "create",
+        "additionalFields": {
+          "associations": "={{ [ $json.contactId ] }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "b2n11",
+      "name": "Log Failure for Review",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1100,
+        560
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "connections": {
+    "DeepSeek AI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Churn Risk Assessment Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek Model Fixer": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Parse Structured Output",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Structured Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Churn Risk Assessment Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve HubSpot Tickets": {
+      "main": [
+        [
+          {
+            "node": "Compile Tickets by Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Failure for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Churn Risk Level": {
+      "main": [
+        [
+          {
+            "node": "Notify Slack of Churn Risk",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Initiate Churn Follow-Up Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Slack of Churn Risk",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Compile Tickets by Contact": {
+      "main": [
+        [
+          {
+            "node": "Churn Risk Assessment Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Slack of Churn Risk": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Log Failure for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Risk Assessment Fields": {
+      "main": [
+        [
+          {
+            "node": "Update Churn Risk in HubSpot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Churn Risk Assessment Agent": {
+      "main": [
+        [
+          {
+            "node": "Set Risk Assessment Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Churn Risk in HubSpot": {
+      "main": [
+        [
+          {
+            "node": "Route by Churn Risk Level",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Route by Churn Risk Level",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Support Tickets Scanned": {
+      "main": [
+        [
+          {
+            "node": "Retrieve HubSpot Tickets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initiate Churn Follow-Up Task": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Log Failure for Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

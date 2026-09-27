@@ -1,4 +1,4 @@
-# then : 9
+# then : 14
 
 |id|file|
 |----|----|
@@ -11,3 +11,8 @@
 |11710|[11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11710_Extend_and_Merge_UGC_Viral_Videos_Using_Kling_2.1__Then_Publish_on_Social_Media.json)|
 |13353|[13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13353_Ingest_and_enrich_Q_A_pairs_then_store_in_Data_Table__1_2.json)|
 |14212|[14212_Scan_business_cards_from_LINE_with_Gemini_to_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14212_Scan_business_cards_from_LINE_with_Gemini_to_Sheets__Slack__and_Gmail.json)|
+|17126|[17126_Find_and_verify_business_emails_with_ScraperCity__OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17126_Find_and_verify_business_emails_with_ScraperCity__OpenAI__Google_Sheets__and_Gmail.json)|
+|18263|[18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json)|
+|18593|[18593_Vet_supplier_payments_with_Bright_Data__GPT-5.6__Slack__and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18593_Vet_supplier_payments_with_Bright_Data__GPT-5.6__Slack__and_data_tables.json)|
+|18609|[18609_Enrich_and_score_B2B_leads_with_Apollo__then_sync_tiers_to_Brevo_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18609_Enrich_and_score_B2B_leads_with_Apollo__then_sync_tiers_to_Brevo_and_Slack.json)|
+|18911|[18911_Check_shipping_documents_against_SharePoint_instructions_with_OneDrive_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18911_Check_shipping_documents_against_SharePoint_instructions_with_OneDrive_and_Claude.json)|

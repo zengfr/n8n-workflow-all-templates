@@ -1,4 +1,4 @@
-# executive : 6
+# executive : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |15798|[15798_Manage_Gmail_and_Google_Calendar_with_a_multi-agent_executive_assistant__GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15798_Manage_Gmail_and_Google_Calendar_with_a_multi-agent_executive_assistant__GPT-4o.json)|
 |16459|[16459_Send_daily_executive_financial_briefings_with_Google_Sheets__GPT-4o-mini__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16459_Send_daily_executive_financial_briefings_with_Google_Sheets__GPT-4o-mini__Notion_and_Telegram.json)|
 |16496|[16496_Track_Slack_EOD_updates_and_post_executive_summaries_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16496_Track_Slack_EOD_updates_and_post_executive_summaries_with_Google_Sheets_and_Gemini.json)|
+|17038|[17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json)|
+|18642|[18642_Prepare_executive_meeting_briefs_with_Firecrawl__Tavily__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18642_Prepare_executive_meeting_briefs_with_Firecrawl__Tavily__OpenAI__and_Gmail.json)|
+|19312|[19312_Send_weekly_KPI_executive_summaries_from_Google_Sheets_via_Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19312_Send_weekly_KPI_executive_summaries_from_Google_Sheets_via_Gemini__Gmail_and_Slack.json)|
+|19791|[19791_Run_a_personal_executive_assistant_with_Gmail__Slack__Calendar__ClickUp__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19791_Run_a_personal_executive_assistant_with_Gmail__Slack__Calendar__ClickUp__and_OpenAI.json)|

@@ -1,4 +1,4 @@
-# you : 10
+# you : 18
 
 |id|file|
 |----|----|
@@ -12,3 +12,11 @@
 |14212|[14212_Scan_business_cards_from_LINE_with_Gemini_to_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14212_Scan_business_cards_from_LINE_with_Gemini_to_Sheets__Slack__and_Gmail.json)|
 |14257|[14257_Track_AI_search_winners_and_uncover_topic_gaps_with_SE_Ranking_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14257_Track_AI_search_winners_and_uncover_topic_gaps_with_SE_Ranking_and_Google_Sheets.json)|
 |16504|[16504_Enrich_and_route_inbound_leads_using_You.com__Groq__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16504_Enrich_and_route_inbound_leads_using_You.com__Groq__Notion__and_Slack.json)|
+|17270|[17270_Answer_Notion_knowledge_base_questions_with_You.com_Research.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17270_Answer_Notion_knowledge_base_questions_with_You.com_Research.json)|
+|17335|[17335_Draft_cited_support_replies_from_public_docs_with_You.com__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17335_Draft_cited_support_replies_from_public_docs_with_You.com__Gmail__and_Slack.json)|
+|17575|[17575_Send_Stripe_payment_thank-you_receipts_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17575_Send_Stripe_payment_thank-you_receipts_with_Claude_Sonnet_and_Gmail.json)|
+|18120|[18120_Summarise_reusable_text_blocks_with_Google_Gemini_from_any_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18120_Summarise_reusable_text_blocks_with_Google_Gemini_from_any_workflow.json)|
+|18361|[18361_Send_donor_thank-you_receipts_and_weekly_digests_with_Google_Sheets__DeepSeek__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18361_Send_donor_thank-you_receipts_and_weekly_digests_with_Google_Sheets__DeepSeek__Gmail_and_Telegram.json)|
+|18963|[18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json)|
+|18995|[18995_Log_and_thank_legal_referrals_with_webhooks__Google_Sheets__and_email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18995_Log_and_thank_legal_referrals_with_webhooks__Google_Sheets__and_email_digests.json)|
+|19650|[19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json)|

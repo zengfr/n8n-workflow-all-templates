@@ -1,4 +1,4 @@
-# candidates : 10
+# candidates : 20
 
 |id|file|
 |----|----|
@@ -12,3 +12,13 @@
 |14442|[14442_Screen_resumes_and_match_candidates_with_GPT-4o__Google_Sheets_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14442_Screen_resumes_and_match_candidates_with_GPT-4o__Google_Sheets_and_email.json)|
 |14686|[14686_Screen_resumes_with_OpenAI_GPT_4.1_and_route_candidates_via_Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14686_Screen_resumes_with_OpenAI_GPT_4.1_and_route_candidates_via_Gmail__Slack_and_Sheets.json)|
 |16549|[16549_Discover_and_score_engineering_candidates_with_Groq__GitHub__LinkedIn__Stack_Overflow__HN_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16549_Discover_and_score_engineering_candidates_with_Groq__GitHub__LinkedIn__Stack_Overflow__HN_and_Supabase.json)|
+|16894|[16894_Score_and_triage_job_candidates_with_OpenAI_o3-mini__OpenRouter__and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16894_Score_and_triage_job_candidates_with_OpenAI_o3-mini__OpenRouter__and_ClickUp.json)|
+|17379|[17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json)|
+|17705|[17705_Score_and_route_job_candidates_with_Mistral__Gemini__Google_Sheets__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17705_Score_and_route_job_candidates_with_Mistral__Gemini__Google_Sheets__and_Drive.json)|
+|18125|[18125_Source_candidate_shortlists_from_Slack_job_ads_with_Coresignal_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18125_Source_candidate_shortlists_from_Slack_job_ads_with_Coresignal_and_Claude.json)|
+|18434|[18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json)|
+|18519|[18519_Score_and_triage_job_candidates_with_OpenAI__Google_Drive__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18519_Score_and_triage_job_candidates_with_OpenAI__Google_Drive__Google_Sheets__and_Gmail.json)|
+|19203|[19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json)|
+|19731|[19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json)|
+|19772|[19772_Manage_recruitment_candidates_with_Google_Sheets__Notion_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19772_Manage_recruitment_candidates_with_Google_Sheets__Notion_and_Gmail.json)|
+|19775|[19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json)|

@@ -1,4 +1,4 @@
-# card : 27
+# card : 31
 
 |id|file|
 |----|----|
@@ -29,3 +29,7 @@
 |15308|[15308_Save_business_card_contacts_from_LINE_photos_to_Google_Sheets_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15308_Save_business_card_contacts_from_LINE_photos_to_Google_Sheets_using_Gemini.json)|
 |15530|[15530_Scan_business_cards_to_Google_Sheets_and_iPhone_contacts_with_Telegram_and_easybits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15530_Scan_business_cards_to_Google_Sheets_and_iPhone_contacts_with_Telegram_and_easybits.json)|
 |15708|[15708_Scan_business_cards_from_Telegram_to_Google_Contacts_with_Mistral_OCR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15708_Scan_business_cards_from_Telegram_to_Google_Contacts_with_Mistral_OCR.json)|
+|16942|[16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json)|
+|17256|[17256_Extract_business_card_contacts_from_LINE_with_Google_Gemini_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17256_Extract_business_card_contacts_from_LINE_with_Google_Gemini_and_Notion.json)|
+|17769|[17769_Save_business_card_contacts_from_Telegram_photos_to_Google_Contacts_with_Mistral_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17769_Save_business_card_contacts_from_Telegram_photos_to_Google_Contacts_with_Mistral_and_OpenAI.json)|
+|18134|[18134_Generate_employee_numbers_and_ID_cards_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18134_Generate_employee_numbers_and_ID_cards_with_Google_Sheets_and_Gmail.json)|

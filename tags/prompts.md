@@ -1,4 +1,4 @@
-# prompts : 58
+# prompts : 70
 
 |id|file|
 |----|----|
@@ -60,3 +60,15 @@
 |16455|[16455_Generate_presentation_decks_from_prompts_with_Encelade.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16455_Generate_presentation_decks_from_prompts_with_Encelade.json)|
 |16488|[16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json)|
 |16570|[16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json)|
+|16865|[16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json)|
+|16890|[16890_Generate_Google_Veo_3.1_AI_videos_from_form_prompts_using_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16890_Generate_Google_Veo_3.1_AI_videos_from_form_prompts_using_Pollo_API.json)|
+|16900|[16900_Generate_AI_songs_from_Telegram_prompts_with_OpenAI_and_Suno.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16900_Generate_AI_songs_from_Telegram_prompts_with_OpenAI_and_Suno.json)|
+|17261|[17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json)|
+|17664|[17664_Generate_Kling_3.0_commercial_videos_from_form_prompts_with_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17664_Generate_Kling_3.0_commercial_videos_from_form_prompts_with_Pollo_API.json)|
+|17871|[17871_Route_chat_prompts_to_text__image__or_video_replies_with_Agnes_AI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17871_Route_chat_prompts_to_text__image__or_video_replies_with_Agnes_AI_and_Telegram.json)|
+|18012|[18012_Route_LLM_prompts_with_Claude_as_primary_and_OpenAI_as_fallback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18012_Route_LLM_prompts_with_Claude_as_primary_and_OpenAI_as_fallback.json)|
+|18203|[18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json)|
+|18931|[18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json)|
+|18972|[18972_Generate_scientific_illustrations_from_text_prompts_with_SciDraw_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18972_Generate_scientific_illustrations_from_text_prompts_with_SciDraw_AI.json)|
+|18993|[18993_Create_blameless_win_loss_retro_prompts_from_closed-lost_HubSpot_deals_with_OpenAI_and_TeamRetro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18993_Create_blameless_win_loss_retro_prompts_from_closed-lost_HubSpot_deals_with_OpenAI_and_TeamRetro.json)|
+|19658|[19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json)|

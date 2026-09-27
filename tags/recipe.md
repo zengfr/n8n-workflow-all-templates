@@ -1,4 +1,4 @@
-# recipe : 13
+# recipe : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |7919|[7919_WhatsApp_Recipe_Suggestions_from_Pantry_Items_with_Gemini_AI___FatSecret_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7919_WhatsApp_Recipe_Suggestions_from_Pantry_Items_with_Gemini_AI___FatSecret_API.json)|
 |9558|[9558_Generate_Recipes_from_Fridge_Photos_using_GPT-4_Vision___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9558_Generate_Recipes_from_Fridge_Photos_using_GPT-4_Vision___Telegram.json)|
 |13168|[13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13168_Create_and_publish_AI_recipe_infographics_with_Gemini__Nanobanana_Pro_and_Blotato.json)|
+|19291|[19291_Generate_recipe_PDFs_from_food_photos_with_OpenRouter__Apify_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19291_Generate_recipe_PDFs_from_food_photos_with_OpenRouter__Apify_and_Google_Drive.json)|

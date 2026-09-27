@@ -1,4 +1,4 @@
-# creative : 9
+# creative : 16
 
 |id|file|
 |----|----|
@@ -11,3 +11,10 @@
 |8383|[8383_Generate_Creative_Solutions_with_Dual_AI_Agents__Randomization___Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/83/8383_Generate_Creative_Solutions_with_Dual_AI_Agents__Randomization___Redis.json)|
 |8484|[8484_Generate_Product_Creative_Images_with_Google_Nano-Banana_Model_via_Defapi.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8484_Generate_Product_Creative_Images_with_Google_Nano-Banana_Model_via_Defapi.json)|
 |8601|[8601_Generate_Creative_ADV_Images_from_References_with_Seedream_v4_for_Instagram___Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8601_Generate_Creative_ADV_Images_from_References_with_Seedream_v4_for_Instagram___Facebook.json)|
+|17064|[17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json)|
+|17093|[17093_Flag_Meta_ad_creative_fatigue_with_Facebook_Graph_API_and_send_ranked_reports_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17093_Flag_Meta_ad_creative_fatigue_with_Facebook_Graph_API_and_send_ranked_reports_to_Slack.json)|
+|17291|[17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json)|
+|18574|[18574_Send_Meta_Ads_creative_change_reports_to_Telegram_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18574_Send_Meta_Ads_creative_change_reports_to_Telegram_with_Apify.json)|
+|18965|[18965_Turn_weekly_competitor_ads_into_one_creative_brief_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18965_Turn_weekly_competitor_ads_into_one_creative_brief_with_Apify_and_Google_Sheets.json)|
+|19153|[19153_Transcribe_TikTok_Creative_Center_top_ads_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19153_Transcribe_TikTok_Creative_Center_top_ads_with_Apify_and_Google_Sheets.json)|
+|19591|[19591_Turn_creative_briefs_into_approved_MaxVideoAI_generations_with_human_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19591_Turn_creative_briefs_into_approved_MaxVideoAI_generations_with_human_review.json)|

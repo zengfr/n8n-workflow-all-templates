@@ -1,4 +1,4 @@
-# websites : 34
+# websites : 39
 
 |id|file|
 |----|----|
@@ -36,3 +36,8 @@
 |14375|[14375_Detect_stale_website_content_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14375_Detect_stale_website_content_with_OpenAI__Google_Sheets__and_Gmail.json)|
 |14815|[14815_Monitor_competitor_websites_daily_with_Firecrawl__Gemini__and_Zalo_Bot_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14815_Monitor_competitor_websites_daily_with_Firecrawl__Gemini__and_Zalo_Bot_alerts.json)|
 |15525|[15525_Generate___Upload_llms.txt_for_websites_GEO_optimization_____with_ScrapegraphAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15525_Generate___Upload_llms.txt_for_websites_GEO_optimization_____with_ScrapegraphAI.json)|
+|17495|[17495_Monitor_website_and_RSS_changes_with_Apify__GPT-4o_mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17495_Monitor_website_and_RSS_changes_with_Apify__GPT-4o_mini_and_Slack_alerts.json)|
+|18375|[18375_Find_local_businesses_without_websites_from_Google_Maps_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18375_Find_local_businesses_without_websites_from_Google_Maps_with_BasedOnBusiness_and_Google_Sheets.json)|
+|18533|[18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json)|
+|18629|[18629_Audit_prospect_websites_and_generate_HTML_SEO_reports_with_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18629_Audit_prospect_websites_and_generate_HTML_SEO_reports_with_Bright_Data_and_GPT-5.6.json)|
+|19698|[19698_Audit_websites_from_Telegram_with_GPT-4o-mini_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19698_Audit_websites_from_Telegram_with_GPT-4o-mini_and_log_results_to_Google_Sheets.json)|

@@ -1,0 +1,341 @@
+{
+  "name": "Turn inbound SMS into Notion tasks with deterministic due-date parsing",
+  "nodes": [
+    {
+      "id": "ebbd0f9c-b1ef-455a-a020-523a87cb4ac8",
+      "name": "Inbound SMS Received",
+      "type": "n8n-nodes-base.twilioTrigger",
+      "position": [
+        256,
+        704
+      ],
+      "parameters": {
+        "updates": [
+          "com.twilio.messaging.inbound-message.received"
+        ]
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_TWILIO_CREDENTIAL"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e002a133-f2c9-411e-b780-2cb75aa099cf",
+      "name": "Normalize Message Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        496,
+        704
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "message-body",
+              "name": "messageBody",
+              "type": "string",
+              "value": "={{ ($json.Body ?? $json.body ?? \"\").trim() }}"
+            },
+            {
+              "id": "search-text",
+              "name": "searchText",
+              "type": "string",
+              "value": "={{ ($json.Body ?? $json.body ?? \"\").trim().toLowerCase() }}"
+            },
+            {
+              "id": "from-number",
+              "name": "fromNumber",
+              "type": "string",
+              "value": "={{ $json.From ?? $json.from ?? \"\" }}"
+            },
+            {
+              "id": "received-at",
+              "name": "receivedAt",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "98f49a6c-d39c-4586-89e9-83b6861f2ebb",
+      "name": "Parse Due Date From Rule Table",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        896,
+        704
+      ],
+      "parameters": {
+        "jsCode": "const TIMEZONE = 'America/Halifax';\n\nconst WEEKDAYS = {\n  monday: 1, mon: 1, tuesday: 2, tue: 2, tues: 2, wednesday: 3, wed: 3,\n  thursday: 4, thu: 4, thurs: 4, friday: 5, fri: 5,\n  saturday: 6, sat: 6, sunday: 7, sun: 7\n};\n\nconst MONTHS = {\n  january: 1, jan: 1, february: 2, feb: 2, march: 3, mar: 3, april: 4, apr: 4,\n  may: 5, june: 6, jun: 6, july: 7, jul: 7, august: 8, aug: 8,\n  september: 9, sept: 9, sep: 9, october: 10, oct: 10,\n  november: 11, nov: 11, december: 12, dec: 12\n};\n\nconst weekdayNames = Object.keys(WEEKDAYS).join('|');\nconst monthNames = Object.keys(MONTHS).join('|');\n\nfunction soonestWeekday(now, target) {\n  const start = now.startOf('day');\n  let delta = (target - start.weekday + 7) % 7;\n  if (delta === 0) delta = 7;\n  return start.plus({ days: delta });\n}\n\nfunction monthDay(now, month, day) {\n  const start = now.startOf('day');\n  let candidate = start.set({ month: month, day: day });\n  if (!candidate.isValid) return null;\n  if (candidate < start) candidate = candidate.plus({ years: 1 });\n  return candidate;\n}\n\nconst RULES = [\n  { id: 'in N days', pattern: new RegExp('\\\\bin (\\\\d{1,3}) days?\\\\b'), resolve: (now, m) => now.startOf('day').plus({ days: Number(m[1]) }) },\n  { id: 'next weekday', pattern: new RegExp('\\\\bnext (' + weekdayNames + ')\\\\b'), resolve: (now, m) => soonestWeekday(now, WEEKDAYS[m[1]]) },\n  { id: 'by weekday', pattern: new RegExp('\\\\bby (' + weekdayNames + ')\\\\b'), resolve: (now, m) => soonestWeekday(now, WEEKDAYS[m[1]]) },\n  { id: 'on month day', pattern: new RegExp('\\\\bon (' + monthNames + ') (\\\\d{1,2})\\\\b'), resolve: (now, m) => monthDay(now, MONTHS[m[1]], Number(m[2])) },\n  { id: 'tomorrow', pattern: new RegExp('\\\\btomorrow\\\\b'), resolve: (now) => now.startOf('day').plus({ days: 1 }) },\n  { id: 'today', pattern: new RegExp('\\\\btoday\\\\b'), resolve: (now) => now.startOf('day') }\n];\n\nconst now = DateTime.now().setZone(TIMEZONE);\nconst results = [];\n\nfor (const item of $input.all()) {\n  const body = String(item.json.messageBody || '');\n  const haystack = String(item.json.searchText || body.toLowerCase());\n  let dueIso = '';\n  let matchedRule = '';\n  let matchedPhrase = '';\n  let title = body;\n\n  for (const rule of RULES) {\n    const found = haystack.match(rule.pattern);\n    if (!found) continue;\n    const due = rule.resolve(now, found);\n    if (!due || !due.isValid) continue;\n    dueIso = due.toISODate();\n    matchedRule = rule.id;\n    matchedPhrase = body.substring(found.index, found.index + found[0].length);\n    title = body.slice(0, found.index) + ' ' + body.slice(found.index + found[0].length);\n    break;\n  }\n\n  title = title.replace(new RegExp('\\\\s+', 'g'), ' ').trim();\n  title = title.replace(new RegExp('^[,.;:-]+'), '').replace(new RegExp('[,.;:-]+$'), '').trim();\n  if (!title) title = 'Untitled SMS task';\n\n  results.push({\n    json: {\n      title: title,\n      dueIso: dueIso,\n      matchedRule: matchedRule,\n      matchedPhrase: matchedPhrase,\n      timezone: TIMEZONE,\n      fromNumber: item.json.fromNumber || '',\n      receivedAt: item.json.receivedAt || '',\n      originalBody: body\n    }\n  });\n}\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3f03f957-75ef-4445-b914-d5f5ed2598ca",
+      "name": "Did A Rule Match A Date",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1136,
+        704
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "due-not-empty",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.dueIso }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "3765824a-f9b3-4ac0-9d19-21c14d4ee0eb",
+      "name": "Create Notion Task With Due Date",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        1584,
+        688
+      ],
+      "parameters": {
+        "title": "={{ $json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_YOUR_NOTION_DATABASE_ID",
+          "cachedResultName": "REPLACE_WITH_YOUR_NOTION_DATABASE"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Due|date",
+              "date": "={{ $json.dueIso }}",
+              "type": "date",
+              "includeTime": false
+            },
+            {
+              "key": "Source|rich_text",
+              "type": "rich_text",
+              "textContent": "=SMS via rule: {{ $json.matchedRule }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_NOTION_CREDENTIAL"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f3fcd007-185f-4380-b7fd-a1ccc1bd8b9e",
+      "name": "Create Notion Task Flagged For Review",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        1584,
+        896
+      ],
+      "parameters": {
+        "title": "={{ $json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_YOUR_NOTION_DATABASE_ID",
+          "cachedResultName": "REPLACE_WITH_YOUR_NOTION_DATABASE"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Needs Review|checkbox",
+              "type": "checkbox",
+              "checkboxValue": true
+            },
+            {
+              "key": "Source|rich_text",
+              "type": "rich_text",
+              "textContent": "=SMS with no date phrase: {{ $json.originalBody }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_NOTION_CREDENTIAL"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "3af844a8-0620-48b7-8825-60b7f9021108",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        -256
+      ],
+      "parameters": {
+        "width": 992,
+        "height": 640,
+        "content": "## Turn inbound SMS into Notion tasks with deterministic due-date parsing\n\n### How it works\n\n1. `Inbound SMS Received` fires when your Twilio number gets a text.\n2. `Normalize Message Text` trims the body and makes a lowercased copy for matching.\n3. `Parse Due Date From Rule Table` runs a fixed list of regexes, resolves the first match to a real date with Luxon, and cuts the phrase out of the title.\n4. `Did A Rule Match A Date` splits on whether a date came back.\n5. `Create Notion Task With Due Date` writes the page with Due filled in. `Create Notion Task Flagged For Review` writes it with Needs Review ticked instead.\n\n### Setup steps\n\n- [ ] Add a Twilio credential to `Inbound SMS Received`, then point your number's inbound webhook at the trigger's production URL over POST.\n- [ ] Add a Notion credential to both Notion nodes and pick your task database.\n- [ ] Give that database a title property, a date property Due, a checkbox Needs Review, and a text property Source.\n- [ ] Open `Parse Due Date From Rule Table` and set `TIMEZONE` on the first line. It ships as America/Halifax.\n\n### Customization\n\nAdd or reorder entries in the RULES array to cover phrases your team texts, point the two Notion nodes at different databases, or swap the Twilio trigger for another inbound channel."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "469ad11b-4205-4ade-9523-f5a241285305",
+      "name": "Trial And Timezone Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1264,
+        -32
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 448,
+        "height": 256,
+        "content": "## Twilio trial limits and one timezone\n\nA Twilio trial cannot send custom SMS bodies, so the optional confirmation reply is left out and off by default. Inbound receiving is unrestricted, which is why the capture loop still works end to end on a trial. The parser also assumes the single timezone declared at the top of the Code node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93739901-aadd-4270-aa48-022a5162fa54",
+      "name": "Section Take In The Text",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        496
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 544,
+        "height": 400,
+        "content": "## Take in the text message\n\nA Twilio Trigger fires on an inbound message, then one Set node trims the body, keeps a lowercased copy for matching, and records the sender number and the receive time."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bc0e0fcb-1303-4b90-b866-6438cd5f920a",
+      "name": "Section Parse The Due Date",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        496
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 592,
+        "height": 400,
+        "content": "## Parse the due date from a rule table\n\nA Code node runs a fixed table of regular expressions against the lowercased copy, resolves the first hit to a real date, and strips that phrase out of the title. An IF node then splits on whether a date came back."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0cd043cc-4736-4628-8763-07cc36e923fb",
+      "name": "Section Create The Notion Task",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        432
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 672,
+        "content": "## Create the Notion task either way\n\nThe true branch writes the page with the parsed Due date. The false branch writes the same title with Needs Review ticked and the raw message in Source, so a text with no date phrase is a flagged task rather than a failed run."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Inbound SMS Received": {
+      "main": [
+        [
+          {
+            "node": "Normalize Message Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Message Text": {
+      "main": [
+        [
+          {
+            "node": "Parse Due Date From Rule Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did A Rule Match A Date": {
+      "main": [
+        [
+          {
+            "node": "Create Notion Task With Due Date",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Notion Task Flagged For Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Due Date From Rule Table": {
+      "main": [
+        [
+          {
+            "node": "Did A Rule Match A Date",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Create Notion tasks from inbound SMS with Twilio and rule-based date parsing",
+    "wechat": "youandme10086",
+    "id": 17402,
+    "update_time": "2026-09-27"
+  }
+}

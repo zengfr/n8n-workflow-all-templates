@@ -1,4 +1,4 @@
-# off : 6
+# off : 11
 
 |id|file|
 |----|----|
@@ -8,3 +8,8 @@
 |14040|[14040_Migrate_ClickUp_list_or_task_tree_to_Nextcloud_Deck_as_a_one-off_import.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14040_Migrate_ClickUp_list_or_task_tree_to_Nextcloud_Deck_as_a_one-off_import.json)|
 |15198|[15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json)|
 |16007|[16007_Qualify_WhatsApp_insurance_leads_with_OpenAI__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16007_Qualify_WhatsApp_insurance_leads_with_OpenAI__HubSpot__and_Slack.json)|
+|17185|[17185_Switch_Gainium_DCA_bot_risk_mode_with_the_fear_and_greed_index_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17185_Switch_Gainium_DCA_bot_risk_mode_with_the_fear_and_greed_index_and_Telegram.json)|
+|18272|[18272_Launch_off-boarding_access_reviews_with_Probo__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18272_Launch_off-boarding_access_reviews_with_Probo__email_and_Slack.json)|
+|19064|[19064_Analyze_competitor_YouTube_thumbnails_with_OpenAI_and_hand_off_approved_concepts_to_ThumbCanvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19064_Analyze_competitor_YouTube_thumbnails_with_OpenAI_and_hand_off_approved_concepts_to_ThumbCanvas.json)|
+|19351|[19351_Route_AI_voice_call_webhooks_to_WhatsApp_and_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19351_Route_AI_voice_call_webhooks_to_WhatsApp_and_Google_Sheets_with_OpenAI.json)|
+|19679|[19679_Kick_off_new_clients_with_Google_Drive__Clio__Google_Sheets__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19679_Kick_off_new_clients_with_Google_Drive__Clio__Google_Sheets__and_email.json)|

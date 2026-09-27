@@ -1,0 +1,1543 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Enrich and verify partnership leads from Google Sheets with Apollo and Instantly",
+    "wechat": "youandme10086",
+    "id": 19778,
+    "update_time": "2026-09-27"
+  },
+  "name": "Enrich and verify partnership leads from Google Sheets into Instantly",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "manual",
+      "name": "Run it now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        190
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sched",
+      "name": "Every weekday, 07:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 7 * * 1-5"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfg",
+      "name": "config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// EVERGREEN PARTNERSHIP ENGINE — STAGE 2: ENRICH AND VERIFY — CONFIG\n// Everything you might want to change lives in this one node. Nothing else in this\n// workflow needs editing.\n//\n// Any key left blank means that step is SKIPPED, not that the run fails. That is what\n// lets this be demonstrated on a screen-share before a single credential exists.\n\n// ---------------------------------------------------------------- Your working sheet\n// The id is the long code in the sheet's web address:\n// docs.google.com/spreadsheets/d/<THIS BIT>/edit\nconst SHEET_ID     = '';\nconst ORGS_TAB     = 'Organisations';   // the raw list, from scrapers and directories\nconst CONTACTS_TAB = 'Contacts';        // the enriched, verified output\n\n// Column headings, exactly as they appear in row 1 of each tab.\nconst ORG_COLUMNS = {\n  org_id:      'Org id',\n  name:        'Organisation',\n  category:    'Category',\n  website:     'Website',\n  county:      'County',\n  city:        'City',\n  state:       'State',\n  phone:       'Phone',\n  // Optional, and only used when Apollo is not configured: a name and address a scraper or\n  // a researcher already put on the row.\n  contact:       'Contact',\n  contact_title: 'Contact title',\n  contact_email: 'Contact email',\n  source:      'Source',\n  status:      'Status',\n  enriched_at: 'Enriched at',\n  contacts:    'Contacts found',\n  notes:       'Notes'\n};\n\nconst CONTACT_COLUMNS = {\n  contact_id:   'Contact id',\n  org_id:       'Org id',\n  org_name:     'Organisation',\n  category:     'Category',\n  county:       'County',\n  full_name:    'Full name',\n  first_name:   'First name',\n  title:        'Title',\n  email:        'Email',\n  email_status: 'Email status',\n  verified_at:  'Verified at',\n  phone:        'Phone',\n  linkedin:     'LinkedIn',\n  score:        'ICP score',\n  tier:         'Tier',\n  sending_list: 'Sending list',\n  hold_reason:  'Hold reason',\n  campaign:     'Campaign',\n  pushed_at:    'Pushed at',\n  updated_at:   'Last updated'\n};\n\n// ---------------------------------------------------------------- How much per run\nconst BATCH_SIZE           = 25;   // organisations enriched per run\nconst MAX_CONTACTS_PER_ORG = 3;    // more than this from one building reads as a blast\nconst REENRICH_AFTER_DAYS  = 90;   // an org already done is left alone for this long\nconst DAILY_CAP            = 200;  // hard ceiling on contacts pushed per run\n\n// Only these org statuses are picked up. Anything else is treated as already handled.\nconst READY_STATUSES = ['', 'New', 'Ready', 'Re-enrich'];\n\n// ---------------------------------------------------------------- Who we are looking for\n// The segments in the brief. First rule whose words appear in the org name or the website\n// wins, so put the more specific rule first.\nconst CATEGORY_RULES = [\n  { category: 'Hospital / discharge planning',\n    words: ['hospital', 'medical center', 'medical centre', 'health system', 'regional health',\n            'discharge', 'inpatient', 'emergency department'] },\n  { category: 'Addiction treatment',\n    words: ['recovery', 'treatment center', 'treatment centre', 'detox', 'sober', 'substance',\n            'rehab', 'opioid', 'addiction', 'withdrawal'] },\n  { category: 'County social services',\n    words: ['job and family services', 'jfs', 'county', 'department of', 'adamhs',\n            'developmental disabilities', 'children services', 'public health'] },\n  { category: 'Community non-profit',\n    words: ['community action', 'united way', 'food bank', 'ministries', 'shelter', 'housing',\n            'coalition', 'ymca', 'salvation army', 'foundation', 'nonprofit', 'non-profit'] },\n  { category: 'Behavioral health provider',\n    words: ['behavioral', 'behavioural', 'counseling', 'counselling', 'mental health',\n            'psychiatric', 'wellness'] }\n];\n\n// Titles that can actually send a referral. The weight is the starting ICP score.\nconst TITLE_RULES = [\n  { weight: 45, tier: 'A',\n    words: ['discharge planner', 'discharge planning', 'director of case management',\n            'case management director', 'transitions of care', 'utilization review',\n            'utilisation review', 'social work director', 'director of social work',\n            'care coordination manager'] },\n  { weight: 40, tier: 'A',\n    words: ['executive director', 'chief clinical', 'clinical director', 'director of nursing',\n            'behavioral health director', 'director of behavioral', 'program director',\n            'admissions director', 'director of admissions', 'county director'] },\n  { weight: 30, tier: 'B',\n    words: ['referral coordinator', 'intake coordinator', 'intake manager', 'care coordinator',\n            'case manager', 'social worker', 'peer support', 'community outreach',\n            'outreach coordinator', 'nurse manager', 'supervisor'] },\n  { weight: 20, tier: 'B',\n    words: ['director', 'manager', 'coordinator', 'administrator'] }\n];\n\n// Nobody in these roles can refer a patient. Dropped, not scored.\nconst EXCLUDE_TITLES = ['billing', 'accounts payable', 'recruiter', 'talent acquisition',\n  'sales', 'account executive', 'marketing', 'it support', 'systems admin', 'volunteer',\n  'intern', 'student', 'security'];\n\n// A mailbox nobody owns. Held back — these are where bounce rates come from.\nconst ROLE_PREFIXES = ['info', 'admin', 'contact', 'office', 'hello', 'enquiries', 'inquiries',\n  'support', 'billing', 'careers', 'jobs', 'hr', 'media', 'press', 'noreply', 'no-reply',\n  'donate', 'volunteer', 'webmaster', 'postmaster'];\n\nconst MIN_ICP_SCORE = 35;    // below this a contact is kept in the sheet but not emailed\nconst REQUIRE_STATE = 'OH';  // blank to accept any state\n\n// Never contact these, whatever else says otherwise. Domains or full addresses.\n// Anything that replies \"remove me\" goes in here.\nconst SUPPRESSION = [\n  'evergreenmentorship.org'\n];\n\n// ---------------------------------------------------------------- Apollo (people search)\n// app.apollo.io -> Settings -> Integrations -> API. Blank = skip Apollo and use whatever\n// contact details the raw list already carries.\nconst APOLLO_API_KEY = '';\nconst APOLLO_URL     = 'https://api.apollo.io/api/v1/mixed_people/search';\n\n// ---------------------------------------------------------------- Email verification\n// This is the KPI. Under 2% bounce is not a copywriting problem, it is this step.\n// MillionVerifier by default; any verifier that returns a status string works.\nconst VERIFIER_API_KEY = '';\nconst VERIFIER_URL     = 'https://api.millionverifier.com/api/v3/';\n\n// Which verdicts are allowed onto the sending list. Everything else is held.\nconst ACCEPT_STATUSES = ['ok', 'valid', 'deliverable'];\nconst RISKY_STATUSES  = ['catch_all', 'catch-all', 'accept_all', 'unknown', 'risky'];\n\n// true = an address we could not verify is never emailed. Turning this off is how a\n// campaign ends up at a 12% bounce rate and a burnt domain. Leave it true.\nconst HOLD_UNVERIFIED = true;\n\n// Demo only. With no verifier key set, gives each address a deterministic fake verdict so\n// the whole pipeline can be watched end to end before any account exists. While this is on\n// the run is FORCED into preview — a made-up verdict can never reach a real campaign.\nconst DEMO_VERIFIER = false;\n\n// ---------------------------------------------------------------- Optional AI classifier\n// Only used on organisations the keyword rules could not place. Blank = keyword rules only,\n// which is where most of them land anyway.\nconst AI_API_KEY = '';\nconst AI_URL     = 'https://api.anthropic.com/v1/messages';\nconst AI_MODEL   = 'claude-opus-5';\n\n// ---------------------------------------------------------------- The sending engine\n// Instantly: Settings -> Integrations -> API keys (a v2 key). Smartlead works the same way:\n// change INSTANTLY_URL and the body built in \"payload for the campaign\".\nconst INSTANTLY_API_KEY     = '';\nconst INSTANTLY_URL         = 'https://api.instantly.ai/api/v2/leads';\nconst INSTANTLY_CAMPAIGN_ID = '';\n\n// Optional: a different campaign per segment, so a hospital and a county office do not get\n// the same email. Anything not listed here goes to INSTANTLY_CAMPAIGN_ID.\nconst CAMPAIGN_BY_CATEGORY = {\n  // 'Hospital / discharge planning': 'campaign-uuid-here',\n  // 'County social services':        'campaign-uuid-here'\n};\n\n// ---------------------------------------------------------------- Run summary\nconst ALERT_WEBHOOK_URL = '';   // Slack incoming webhook. Blank = no notification.\n\n// ---------------------------------------------------------------- Safety switch\n//   TEST_RUN true,  TEST_CAMPAIGN_ID blank -> PREVIEW. The sheet is written so you can read\n//                                            every verdict and score, but nothing is pushed\n//                                            to a campaign. Ships this way.\n//   TEST_RUN true,  TEST_CAMPAIGN_ID set   -> TEST. Leads really are pushed, but to that\n//                                            campaign instead of the live one.\n//   TEST_RUN false                         -> LIVE.\nconst TEST_RUN         = true;\nconst TEST_CAMPAIGN_ID = '';\n\nconst DEMO_VERDICTS = DEMO_VERIFIER === true && VERIFIER_API_KEY.trim() === '';\n\nlet MODE = TEST_RUN !== true ? 'live'\n  : (TEST_CAMPAIGN_ID.trim() !== '' ? 'test' : 'preview');\n\n// Demo verdicts are not evidence. They cannot open the sending gate, whatever TEST_RUN says.\nconst FORCED_PREVIEW = DEMO_VERDICTS && MODE !== 'preview';\nif (FORCED_PREVIEW) MODE = 'preview';\n\nconst CAMPAIGN_ID = MODE === 'test' ? TEST_CAMPAIGN_ID.trim() : INSTANTLY_CAMPAIGN_ID.trim();\n\nreturn [{\n  json: {\n    sheet_id:        SHEET_ID,\n    orgs_tab:        ORGS_TAB,\n    contacts_tab:    CONTACTS_TAB,\n    org_columns:     ORG_COLUMNS,\n    contact_columns: CONTACT_COLUMNS,\n\n    batch_size:           Number(BATCH_SIZE) || 25,\n    max_contacts_per_org: Number(MAX_CONTACTS_PER_ORG) || 1,\n    reenrich_after_days:  Number(REENRICH_AFTER_DAYS) || 90,\n    daily_cap:            Number(DAILY_CAP) || 0,\n    ready_statuses:       READY_STATUSES,\n\n    category_rules: CATEGORY_RULES,\n    title_rules:    TITLE_RULES,\n    exclude_titles: EXCLUDE_TITLES,\n    role_prefixes:  ROLE_PREFIXES,\n    min_icp_score:  Number(MIN_ICP_SCORE) || 0,\n    require_state:  REQUIRE_STATE.trim().toUpperCase(),\n    suppression:    SUPPRESSION.map((s) => String(s).trim().toLowerCase()).filter(Boolean),\n\n    apollo_api_key: APOLLO_API_KEY.trim(),\n    apollo_url:     APOLLO_URL,\n\n    verifier_api_key: VERIFIER_API_KEY.trim(),\n    verifier_url:     VERIFIER_URL,\n    accept_statuses:  ACCEPT_STATUSES.map((s) => s.toLowerCase()),\n    risky_statuses:   RISKY_STATUSES.map((s) => s.toLowerCase()),\n    hold_unverified:  HOLD_UNVERIFIED !== false,\n\n    ai_api_key: AI_API_KEY.trim(),\n    ai_url:     AI_URL,\n    ai_model:   AI_MODEL,\n\n    instantly_api_key:    INSTANTLY_API_KEY.trim(),\n    instantly_url:        INSTANTLY_URL,\n    campaign_id:          CAMPAIGN_ID,\n    campaign_by_category: CAMPAIGN_BY_CATEGORY,\n\n    alert_webhook_url: ALERT_WEBHOOK_URL.trim(),\n\n    // derived flags — the gates read these, never the raw constants\n    mode:         MODE,\n    preview_only: MODE === 'preview',\n    test_send:    MODE === 'test',\n    live_send:    MODE === 'live',\n    push_enabled: MODE !== 'preview' && INSTANTLY_API_KEY.trim() !== '' && CAMPAIGN_ID !== '',\n\n    apollo_enabled:   APOLLO_API_KEY.trim() !== '',\n    verifier_enabled: VERIFIER_API_KEY.trim() !== '',\n    ai_enabled:       AI_API_KEY.trim() !== '',\n    alert_enabled:    ALERT_WEBHOOK_URL.trim() !== '',\n    demo_verdicts:    DEMO_VERDICTS,\n    forced_preview:   FORCED_PREVIEW\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "read-raw",
+      "name": "[cred] Sheets - read the raw list",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "alwaysOutputData is on. Without it, a tab holding only a header row ends the run here with a green tick and no explanation.",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('config').first().json.orgs_tab }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "batch",
+      "name": "pick this run's batch",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        840,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Decide which organisations this run works on.\n//\n// Three things happen here and nowhere else: rows already enriched recently are skipped,\n// the same organisation appearing twice in the raw list is collapsed to one, and the run is\n// capped at BATCH_SIZE. The cap is what keeps Apollo credits and verifier spend predictable\n// — a scraper that dumps 4,000 rows in overnight does not turn into 4,000 API calls at 07:00.\nconst cfg = $('config').first().json;\nconst col = cfg.org_columns;\nconst rows = $input.all().map((i) => i.json);\n\nconst ready = (cfg.ready_statuses || []).map((s) => String(s).trim().toLowerCase());\nconst staleMs = Number(cfg.reenrich_after_days || 90) * 24 * 60 * 60 * 1000;\nconst now = Date.now();\n\nconst key = (row) => {\n  const site = String(row[col.website] || '').toLowerCase()\n    .replace(/^https?:\\/\\//, '').replace(/^www\\./, '').replace(/\\/.*$/, '').trim();\n  if (site) return 'd:' + site;\n  return 'n:' + String(row[col.name] || '').toLowerCase().replace(/[^a-z0-9]/g, '');\n};\n\nconst seen = new Set();\nconst picked = [];\nconst skipped = { not_ready: 0, too_recent: 0, duplicate: 0, no_name: 0 };\n\nfor (const row of rows) {\n  const name = String(row[col.name] || '').trim();\n  if (!name) { skipped.no_name++; continue; }\n\n  const status = String(row[col.status] || '').trim().toLowerCase();\n  if (ready.length && !ready.includes(status)) { skipped.not_ready++; continue; }\n\n  const enriched = String(row[col.enriched_at] || '').trim();\n  if (enriched && status !== 're-enrich') {\n    const when = Date.parse(enriched);\n    if (!isNaN(when) && now - when < staleMs) { skipped.too_recent++; continue; }\n  }\n\n  const k = key(row);\n  if (seen.has(k)) { skipped.duplicate++; continue; }\n  seen.add(k);\n\n  picked.push(row);\n  if (picked.length >= Number(cfg.batch_size || 25)) break;\n}\n\n// The read node has alwaysOutputData on, so a tab holding only a header row arrives here as\n// one empty item rather than as nothing at all. Telling those two apart is the difference\n// between \"your sheet is empty\" and \"your workflow is broken\".\nconst emptyTab = rows.length === 0\n  || rows.every((r) => Object.keys(r).filter((k) => String(r[k] || '').trim() !== '').length === 0);\n\nconst stats = {\n  _rows_in_sheet: emptyTab ? 0 : rows.length,\n  _picked: picked.length,\n  _skipped: skipped,\n  _sheet_empty: emptyTab,\n  _tab: cfg.orgs_tab,\n  _has_work: picked.length > 0\n};\n\nif (!picked.length) return [{ json: stats }];\n\nreturn picked.map((row, idx) => ({\n  json: Object.assign({}, stats, {\n    _row: row,\n    // A stable id, so a re-run updates the same row instead of appending a second one.\n    org_id: String(row[col.org_id] || '').trim()\n      || 'ORG-' + key(row).replace(/[^a-z0-9]/g, '').slice(0, 24) || 'ORG-' + (idx + 1)\n  })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "has-work",
+      "name": "anything to enrich?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-work-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._has_work }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stop-empty",
+      "name": "STOP: nothing to enrich",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1400,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Nothing in the raw list needs work: every row is already enriched, a duplicate, or not\n// marked ready. The run ends here on purpose and says which, so an empty morning is\n// distinguishable from a broken morning.\n//\n// The empty-tab case is called out separately because it is the one that looks like a bug.\n// A tab with only a header row would otherwise end the run at the Sheets node with a green\n// tick and no explanation at all.\nconst s = $input.first().json;\nconst skipped = s._skipped || {};\n\nconst why = s._sheet_empty\n  ? 'The \"' + (s._tab || 'Organisations') + '\" tab has no data rows. Headings alone are not '\n    + 'enough — paste some organisations in below row 1, or check that ORGS_TAB in config '\n    + 'matches the tab name exactly.'\n  : 'Every row is either already enriched, a duplicate, or not marked ready. Set Status to '\n    + 'Re-enrich on anything you want redone.';\n\nreturn [{\n  json: {\n    _outcome: s._sheet_empty ? 'the sheet is empty' : 'nothing to enrich',\n    tab: s._tab || '',\n    rows_in_sheet: s._rows_in_sheet || 0,\n    already_enriched_recently: skipped.too_recent || 0,\n    not_marked_ready: skipped.not_ready || 0,\n    duplicates_in_the_list: skipped.duplicate || 0,\n    rows_with_no_name: skipped.no_name || 0,\n    _next_step: why\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "normalise",
+      "name": "normalise the organisation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Turn a scraped row into something a data provider can be asked about.\n//\n// Apollo is only as good as the domain you hand it. \"www.MtCarmelHealth.com/about\" and\n// \"https://mtcarmelhealth.com\" are the same building, and asking twice costs twice. The\n// category is decided by the keyword rules in config; anything the rules cannot place is\n// flagged _needs_ai and the optional classifier picks it up.\n//\n// The two provider payloads are built here rather than inside the HTTP nodes, so the prompt\n// and the search are readable — and editable — without opening a body expression.\nconst cfg = $('config').first().json;\nconst col = cfg.org_columns;\n\nconst text = (v) => String(v == null ? '' : v).trim();\nconst categories = (cfg.category_rules || []).map((r) => r.category);\n\n// Only the specific titles are searched on. The catch-all \"director\"/\"manager\" rule exists to\n// score whoever comes back, not to ask Apollo for every manager in a hospital.\nconst searchTitles = [];\nfor (const rule of (cfg.title_rules || []).slice(0, 3)) {\n  for (const w of rule.words || []) if (searchTitles.length < 25) searchTitles.push(w);\n}\n\nreturn $input.all().map((entry) => {\n  const item = entry.json;\n  const row = item._row || {};\n\n  const name = text(row[col.name]);\n\n  const domain = text(row[col.website]).toLowerCase()\n    .replace(/^https?:\\/\\//, '')\n    .replace(/^www\\./, '')\n    .replace(/[/?#].*$/, '')\n    .replace(/[^a-z0-9.-]/g, '');\n\n  const haystack = (name + ' ' + domain).toLowerCase();\n\n  // A category already typed into the sheet by a human beats any rule here.\n  let category = text(row[col.category]);\n  let matchedOn = '';\n  let confident = category !== '';\n\n  if (!category) {\n    for (const rule of cfg.category_rules || []) {\n      const hit = (rule.words || []).find((w) => haystack.includes(String(w).toLowerCase()));\n      if (hit) { category = rule.category; matchedOn = hit; confident = true; break; }\n    }\n  }\n\n  if (!category) { category = 'Unclassified'; confident = false; }\n\n  const aiSystem = 'You classify Ohio health and social-service organisations for a referral '\n    + 'partnership programme. Answer with one JSON object and nothing else: '\n    + '{\"category\": \"<one of the listed categories, or Other>\", \"confidence\": <0-1>, '\n    + '\"reason\": \"<12 words max>\"}. Never invent a category that is not listed.';\n\n  const aiUser = 'Categories: ' + categories.join(' | ') + ' | Other\\n\\n'\n    + 'Organisation: ' + (name || '(no name)') + '\\n'\n    + 'Website: ' + (domain || '(none)') + '\\n'\n    + 'City/County: ' + [text(row[col.city]), text(row[col.county])].filter(Boolean).join(', ')\n    + '\\n\\nWhich category is it?';\n\n  const apolloBody = {\n    q_organization_domains_list: domain ? [domain] : [],\n    q_organization_name: domain ? undefined : name,\n    person_titles: searchTitles,\n    person_locations: cfg.require_state === 'OH' ? ['Ohio, US'] : undefined,\n    page: 1,\n    per_page: Math.max(Number(cfg.max_contacts_per_org || 3) * 3, 5)\n  };\n\n  return {\n    json: {\n      org_id:   item.org_id,\n      org_name: name,\n      domain:   domain,\n      category: category,\n      county:   text(row[col.county]),\n      city:     text(row[col.city]),\n      state:    text(row[col.state]).toUpperCase().slice(0, 2),\n      phone:    text(row[col.phone]),\n      source:   text(row[col.source]) || 'sheet',\n\n      // whatever the raw list already knew — the fallback when Apollo is not configured\n      _row: row,\n\n      _category_matched_on: matchedOn,\n      _category_confident:  confident,\n      // Only an unclassified org is worth an AI call. The rest already have an answer.\n      _needs_ai: !confident && cfg.ai_enabled === true,\n      _domain_missing: domain === '',\n\n      _ai_system: aiSystem,\n      _ai_user:   aiUser,\n      // JSON round-trip drops the undefined keys, which Apollo would otherwise reject.\n      _apollo_body: JSON.parse(JSON.stringify(apolloBody))\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "need-ai",
+      "name": "AI classification needed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "need-ai-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._needs_ai }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ai",
+      "name": "AI - classify the organisation",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Anthropic Messages API. The prompt is built in 'normalise the organisation' so it is readable without opening this body.",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        1960,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.ai_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ JSON.stringify({ model: $('config').first().json.ai_model, max_tokens: 512, output_config: { effort: 'low' }, system: $json._ai_system, messages: [{ role: 'user', content: $json._ai_user }] }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $('config').first().json.ai_api_key }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "ai-apply",
+      "name": "apply the AI classification",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Read the classifier's answer back onto the organisation.\n//\n// Two rules. The model may only pick a category that exists in config — anything else is\n// treated as Unclassified rather than quietly inventing a segment. And a failed or\n// unparseable call leaves the organisation exactly as the keyword rules left it, so the run\n// continues; an AI outage is not an outage of the pipeline.\nconst cfg = $('config').first().json;\nconst allowed = (cfg.category_rules || []).map((r) => r.category);\nconst src = $('AI classification needed?');\nconst replies = $input.all();\n\nconst orgFor = (i) => {\n  try { return src.itemMatching(i).json; } catch (e) { /* fall through */ }\n  return (src.all(0)[i] || src.all()[i] || { json: {} }).json;\n};\n\n// Claude returns content blocks; with thinking on, the answer is not always block 0.\nconst firstText = (body) => {\n  const blocks = (body && body.content) || [];\n  const block = blocks.find((b) => b && b.type === 'text' && String(b.text || '').trim());\n  return block ? String(block.text) : '';\n};\n\nconst parse = (raw) => {\n  const s = String(raw || '').trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();\n  const start = s.indexOf('{');\n  const end = s.lastIndexOf('}');\n  if (start === -1 || end <= start) return null;\n  try { return JSON.parse(s.slice(start, end + 1)); } catch (e) { return null; }\n};\n\nreturn replies.map((reply, i) => {\n  const org = orgFor(i);\n  const body = reply.json || {};\n  const answer = parse(firstText(body));\n\n  const category = answer && allowed.includes(String(answer.category)) ? String(answer.category) : '';\n  const confidence = answer && isFinite(Number(answer.confidence)) ? Number(answer.confidence) : 0;\n  const usable = category !== '' && confidence >= 0.5;\n\n  return {\n    json: Object.assign({}, org, {\n      category: usable ? category : (org.category || 'Unclassified'),\n      _category_matched_on: usable ? 'ai' : (org._category_matched_on || ''),\n      _category_confident: usable ? true : Boolean(org._category_confident),\n      _ai_called: true,\n      _ai_answer: answer ? (answer.reason || '') : '',\n      _ai_confidence: confidence,\n      _ai_failed: answer === null,\n      _ai_error: body.error ? String(body.error.message || body.error.type || 'error') : ''\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "stop-no-ai",
+      "name": "STOP: keyword rules only",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1960,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// No AI key set, or the keyword rules already placed this organisation confidently.\n// Either way it carries on with the category it has — this branch exists so the canvas\n// shows where those items went instead of them appearing to vanish.\nreturn $input.all().map((i) => ({\n  json: Object.assign({}, i.json, { _ai_called: false })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "merge-orgs",
+      "name": "one list of organisations",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2520,
+        0
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "apollo-on",
+      "name": "Apollo configured?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2800,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "apollo-on-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.apollo_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "apollo",
+      "name": "Apollo - find decision makers",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Search body is built in 'normalise the organisation'. Swap this node for a Clay webhook and nothing downstream changes.",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        3080,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.apollo_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ JSON.stringify($json._apollo_body) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $('config').first().json.apollo_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Cache-Control",
+              "value": "no-cache"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "apollo-read",
+      "name": "read Apollo's people",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3360,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Turn one Apollo response per organisation into one item per person.\n//\n// The detail that matters: Apollo hands back placeholders like\n// \"user@example.com\" for people whose address costs a credit to reveal. Treated\n// as a real address, those are a guaranteed hard bounce. They are dropped here, and the\n// organisation is written back as \"No contact found\" rather than silently looking enriched.\nconst cfg = $('config').first().json;\nconst src = $('Apollo configured?');\nconst replies = $input.all();\n\nconst orgFor = (i) => {\n  try { return src.itemMatching(i).json; } catch (e) { /* fall through */ }\n  return (src.all(0)[i] || src.all()[i] || { json: {} }).json;\n};\n\nconst placeholder = (email) => {\n  const e = String(email || '').toLowerCase();\n  return e === '' || e.includes('email_not_unlocked') || e.includes('not_unlocked')\n    || e.startsWith('email_') || e.includes('domain.com');\n};\n\nconst out = [];\n\nreplies.forEach((reply, i) => {\n  const org = orgFor(i);\n  const body = reply.json || {};\n  const people = [].concat(body.people || [], body.contacts || []);\n\n  const usable = [];\n  let hidden = 0;\n\n  for (const p of people) {\n    const email = String(p.email || '').trim().toLowerCase();\n    if (placeholder(email)) { hidden++; continue; }\n    usable.push({ p: p, email: email });\n    if (usable.length >= Number(cfg.max_contacts_per_org || 3)) break;\n  }\n\n  if (!usable.length) {\n    out.push({\n      json: Object.assign({}, org, {\n        _no_contact: true,\n        _hold_reason: hidden ? 'Apollo has ' + hidden + ' people, no unlocked email' : 'no contact found',\n        _apollo_people: people.length,\n        _apollo_hidden: hidden,\n        _apollo_error: body.error ? String(body.error) : (body.message || '')\n      })\n    });\n    return;\n  }\n\n  usable.forEach((u, n) => {\n    const p = u.p;\n    const phones = [].concat(p.phone_numbers || []);\n    out.push({\n      json: Object.assign({}, org, {\n        _no_contact: false,\n        contact_id: org.org_id + '-' + (n + 1),\n        full_name: String(p.name || [p.first_name, p.last_name].filter(Boolean).join(' ')).trim(),\n        first_name: String(p.first_name || '').trim(),\n        title: String(p.title || '').trim(),\n        email: u.email,\n        contact_phone: String((phones[0] && (phones[0].sanitized_number || phones[0].raw_number)) || '').trim(),\n        linkedin: String(p.linkedin_url || '').trim(),\n        // Apollo's own guess. Useful, but it is not verification and is never treated as such.\n        provider_email_status: String(p.email_status || '').trim(),\n        _apollo_people: people.length,\n        _apollo_hidden: hidden,\n        _from: 'apollo'\n      })\n    });\n  });\n});\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "stop-no-apollo",
+      "name": "STOP: Apollo not configured",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3080,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// No Apollo key. Rather than fail, fall back to whatever contact details the raw list\n// already carries — scraped staff pages and county directories usually give a name, a title\n// and an address, which is enough to score and verify. This is also the branch the whole\n// workflow runs on during a demo, before any account exists.\nconst cfg = $('config').first().json;\nconst col = cfg.org_columns;\n\nreturn $input.all().map((item) => {\n  const org = item.json;\n  const row = org._row || {};\n\n  const email = String(row[col.contact_email] || '').trim().toLowerCase();\n  const name = String(row[col.contact] || '').trim();\n  const title = String(row[col.contact_title] || '').trim();\n\n  if (!email) {\n    return {\n      json: Object.assign({}, org, {\n        _no_contact: true,\n        _hold_reason: 'no contact on the row (Apollo not configured)',\n        _from: 'sheet'\n      })\n    };\n  }\n\n  return {\n    json: Object.assign({}, org, {\n      _no_contact: false,\n      contact_id: org.org_id + '-1',\n      full_name: name,\n      first_name: name.split(/\\s+/)[0] || '',\n      title: title,\n      email: email,\n      contact_phone: String(row[col.phone] || '').trim(),\n      linkedin: '',\n      // Nothing from a scrape is treated as verified. That is the verifier's job.\n      provider_email_status: '',\n      _from: 'sheet'\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "merge-contacts",
+      "name": "one list of contacts",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3640,
+        0
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "score",
+      "name": "score against the ICP",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3920,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Score every contact against the ideal profile, so the caller's day is spent on the people\n// who can actually make a referral.\n//\n// The score is deliberately boring arithmetic, not a black box: title weight from config,\n// plus small bonuses for a direct phone number and a segment we know the offer lands in.\n// When Zak asks \"why is this person a 78\", the answer is four numbers you can point at.\nconst cfg = $('config').first().json;\n\nconst titleRules = cfg.title_rules || [];\nconst excluded = (cfg.exclude_titles || []).map((t) => String(t).toLowerCase());\n\n// Segments where a no-cost Medicaid telehealth referral is closest to a live need.\nconst CATEGORY_BONUS = {\n  'Hospital / discharge planning': 12,\n  'Addiction treatment': 10,\n  'County social services': 8,\n  'Behavioral health provider': 6,\n  'Community non-profit': 4\n};\n\nreturn $input.all().map((item) => {\n  const c = item.json;\n\n  if (c._no_contact) {\n    return { json: Object.assign({}, c, { score: 0, tier: '-', _verifiable: false }) };\n  }\n\n  const title = String(c.title || '').toLowerCase();\n  const hitExcluded = excluded.find((t) => title.includes(t));\n\n  if (hitExcluded) {\n    return {\n      json: Object.assign({}, c, {\n        score: 0, tier: 'X', _verifiable: false,\n        _hold_reason: 'excluded title (' + hitExcluded + ')'\n      })\n    };\n  }\n\n  let weight = 0;\n  let tier = 'C';\n  let matchedTitle = '';\n  for (const rule of titleRules) {\n    const hit = (rule.words || []).find((w) => title.includes(String(w).toLowerCase()));\n    if (hit) { weight = Number(rule.weight) || 0; tier = rule.tier || 'C'; matchedTitle = hit; break; }\n  }\n\n  const categoryBonus = Number(CATEGORY_BONUS[c.category] || 0);\n  const phoneBonus = String(c.contact_phone || c.phone || '').trim() ? 8 : 0;\n  const linkedinBonus = String(c.linkedin || '').trim() ? 4 : 0;\n  const namedBonus = String(c.first_name || '').trim() ? 6 : 0;\n\n  const score = Math.max(0, Math.min(100, weight + categoryBonus + phoneBonus + linkedinBonus + namedBonus));\n\n  return {\n    json: Object.assign({}, c, {\n      score: score,\n      tier: score >= 70 ? 'A' : (score >= Number(cfg.min_icp_score || 35) ? tier : 'C'),\n      _score_parts: {\n        title: weight, title_matched: matchedTitle, category: categoryBonus,\n        phone: phoneBonus, linkedin: linkedinBonus, named: namedBonus\n      },\n      // Only a real address on a scorable person is worth a verifier credit.\n      _verifiable: String(c.email || '').includes('@') && cfg.verifier_enabled === true\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "verify-on",
+      "name": "verification possible?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4200,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "verify-on-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._verifiable }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "verify",
+      "name": "Verifier - check the address",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "MillionVerifier v3. NeverBounce / ZeroBounce / Bouncer all return a status string; map yours in ACCEPT_STATUSES and RISKY_STATUSES.",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        4480,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.verifier_url }}",
+        "method": "GET",
+        "options": {
+          "timeout": 20000
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "api",
+              "value": "={{ $('config').first().json.verifier_api_key }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.email }}"
+            },
+            {
+              "name": "timeout",
+              "value": "10"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "verify-apply",
+      "name": "apply the verification",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4760,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Read the verifier's verdict back onto the contact. This node is the bounce-rate KPI.\n//\n// It fails closed, and that is the whole point: a call that times out, 402s on credits or\n// returns something unrecognised becomes \"unknown\", which is held back, not sent. Every\n// other outcome in a cold-email system can be fixed later; a burnt sending domain cannot.\nconst cfg = $('config').first().json;\nconst accept = cfg.accept_statuses || [];\nconst risky = cfg.risky_statuses || [];\nconst src = $('verification possible?');\nconst replies = $input.all();\n\nconst contactFor = (i) => {\n  try { return src.itemMatching(i).json; } catch (e) { /* fall through */ }\n  return (src.all(0)[i] || src.all()[i] || { json: {} }).json;\n};\n\nconst stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');\n\nreturn replies.map((reply, i) => {\n  const contact = contactFor(i);\n  const body = reply.json || {};\n\n  // MillionVerifier uses \"result\"; NeverBounce and ZeroBounce use \"result\"/\"status\".\n  const raw = String(body.result || body.status || body.state || '').toLowerCase().trim();\n  const status = raw || 'unknown';\n\n  const verdict = accept.includes(status) ? 'accepted'\n    : (risky.includes(status) ? 'risky' : 'rejected');\n\n  return {\n    json: Object.assign({}, contact, {\n      email_status: status,\n      _verdict: verdict,\n      _verified: verdict === 'accepted',\n      _verified_at: stamp,\n      _verifier_role_flag: body.role === true || body.role === 'true',\n      _verifier_raw: raw ? '' : JSON.stringify(body).slice(0, 200),\n      _verifier_failed: raw === ''\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "stop-unverified",
+      "name": "STOP: unverified - held back",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4480,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// Everything that could not be verified: no verifier key set, no address to check, or an\n// organisation Apollo found nobody at. It is still written to the sheet — the work is not\n// thrown away — it just never reaches the sending list while HOLD_UNVERIFIED is true.\n//\n// DEMO_VERIFIER gives these a deterministic pretend verdict so the rest of the pipeline can\n// be watched on a screen-share. The config node forces preview whenever that is on, so a\n// made-up verdict cannot reach a real campaign.\nconst cfg = $('config').first().json;\nconst stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');\n\n// Same address always gets the same fake verdict, so a demo is repeatable.\nconst pretend = (email) => {\n  let h = 0;\n  for (const ch of String(email)) h = (h * 31 + ch.charCodeAt(0)) % 100000;\n  const n = h % 100;\n  if (n < 78) return 'ok';\n  if (n < 90) return 'catch_all';\n  if (n < 96) return 'unknown';\n  return 'invalid';\n};\n\nreturn $input.all().map((item) => {\n  const c = item.json;\n\n  if (c._no_contact) {\n    return {\n      json: Object.assign({}, c, {\n        email_status: '', _verdict: 'no contact', _verified: false, _verified_at: ''\n      })\n    };\n  }\n\n  if (cfg.demo_verdicts) {\n    const status = pretend(c.email);\n    const verdict = (cfg.accept_statuses || []).includes(status) ? 'accepted'\n      : ((cfg.risky_statuses || []).includes(status) ? 'risky' : 'rejected');\n    return {\n      json: Object.assign({}, c, {\n        email_status: status + ' (demo)',\n        _verdict: verdict,\n        _verified: verdict === 'accepted',\n        _verified_at: stamp,\n        _demo_verdict: true\n      })\n    };\n  }\n\n  return {\n    json: Object.assign({}, c, {\n      email_status: 'unverified',\n      _verdict: 'unverified',\n      _verified: false,\n      _verified_at: '',\n      _hold_reason: c._hold_reason || 'not verified'\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "merge-verdicts",
+      "name": "one list of verdicts",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        5040,
+        0
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "decide",
+      "name": "decide who is safe to email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// The one gate that decides who gets emailed. Every reason a contact is held is written on\n// the contact, in words, so the sheet answers \"why isn't this person in the campaign?\"\n// without anyone having to open an execution log.\n//\n// Order matters: the cheapest and most absolute rules run first, so a suppressed address is\n// never reported as merely low-scoring.\nconst cfg = $('config').first().json;\nconst contacts = $input.all().map((i) => i.json);\n\nconst suppression = cfg.suppression || [];\nconst rolePrefixes = (cfg.role_prefixes || []).map((p) => String(p).toLowerCase());\nconst minScore = Number(cfg.min_icp_score || 0);\nconst cap = Number(cfg.daily_cap || 0);\nconst requireState = String(cfg.require_state || '');\n\nconst seenEmail = new Set();\nlet pushed = 0;\n\nconst decided = contacts.map((c) => {\n  const email = String(c.email || '').trim().toLowerCase();\n  const domain = email.split('@')[1] || '';\n  const local = email.split('@')[0] || '';\n\n  let hold = '';\n\n  if (c._no_contact) hold = c._hold_reason || 'no contact found';\n  else if (!email.includes('@')) hold = 'no email address';\n  else if (c.tier === 'X') hold = c._hold_reason || 'excluded title';\n  else if (suppression.some((s) => s === email || s === domain || domain.endsWith('.' + s))) hold = 'on the suppression list';\n  else if (seenEmail.has(email)) hold = 'duplicate of another row this run';\n  else if (rolePrefixes.includes(local) || c._verifier_role_flag) hold = 'shared mailbox, not a person';\n  else if (requireState && String(c.state || '').toUpperCase() !== requireState) hold = 'outside ' + requireState;\n  else if (c._verdict === 'rejected') hold = 'verifier says ' + (c.email_status || 'undeliverable');\n  else if (c._verdict === 'risky') hold = 'risky (' + (c.email_status || 'catch-all') + ')';\n  else if (!c._verified && cfg.hold_unverified) hold = c._verdict === 'unverified' ? 'not verified yet' : 'not verified';\n  else if (Number(c.score || 0) < minScore) hold = 'ICP score ' + Number(c.score || 0) + ' below ' + minScore;\n\n  if (!hold && email) seenEmail.add(email);\n\n  // The cap is enforced here, in code, not described in a comment somewhere.\n  if (!hold && cap > 0 && pushed >= cap) hold = 'daily cap of ' + cap + ' reached';\n  if (!hold) pushed++;\n\n  const campaign = (cfg.campaign_by_category || {})[c.category] || cfg.campaign_id || '';\n\n  return Object.assign({}, c, {\n    _safe: hold === '',\n    _hold_reason: hold,\n    _campaign_id: hold === '' ? campaign : '',\n    sending_list: hold === '' ? 'Yes' : 'No'\n  });\n});\n\nconst safe = decided.filter((c) => c._safe);\nconst withEmail = decided.filter((c) => !c._no_contact && String(c.email || '').includes('@'));\nconst rejected = decided.filter((c) => c._verdict === 'rejected').length;\n\n// The numbers the KPI conversation actually needs. Reported per run, on every item, so the\n// summary node and the sheet cannot disagree about them.\nconst stats = {\n  _contacts_seen: decided.length,\n  _with_email: withEmail.length,\n  _safe_count: safe.length,\n  _held_count: decided.length - safe.length,\n  _rejected_count: rejected,\n  _verified_rate: withEmail.length ? Math.round((withEmail.filter((c) => c._verified).length / withEmail.length) * 100) : 0,\n  // What the bounce rate would have been had nothing been filtered.\n  _bounce_risk_avoided: withEmail.length ? Math.round((rejected / withEmail.length) * 1000) / 10 : 0,\n  _any_safe: safe.length > 0 && cfg.push_enabled === true\n};\n\nreturn decided.map((c) => ({\n  json: Object.assign({}, c, stats, { _push: c._safe && cfg.push_enabled === true })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "org-rows",
+      "name": "rows for the organisations tab",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5600,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// One row per organisation, folded back from however many contacts came out of it, so the\n// raw list records what happened and the next run does not do the same work again.\n//\n// The status is the honest one: \"Enriched\" only if a person with an address came out,\n// \"No contact found\" otherwise. An org that silently looks done but produced nobody is how\n// a 2,000-record database turns out to contain 900 usable people.\nconst cfg = $('config').first().json;\nconst C = cfg.org_columns;\nconst contacts = $input.all().map((i) => i.json);\nconst stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');\n\n// Carried onto every org row so the gates further down have something run-level to read\n// after the item shape has changed from contacts to organisations.\nconst runFlags = {\n  _contacts_to_write: contacts.some((c) => !c._no_contact && String(c.email || '').includes('@')),\n  _any_safe: contacts.some((c) => c._safe) && cfg.push_enabled === true\n};\n\nconst byOrg = new Map();\nfor (const c of contacts) {\n  const id = c.org_id || '(unknown)';\n  if (!byOrg.has(id)) byOrg.set(id, []);\n  byOrg.get(id).push(c);\n}\n\nconst rows = [];\n\nfor (const [id, group] of byOrg) {\n  const first = group[0] || {};\n  const found = group.filter((c) => !c._no_contact && String(c.email || '').includes('@'));\n  const safe = group.filter((c) => c._safe);\n\n  const notes = [];\n  if (first._category_matched_on === 'ai') notes.push('category by AI: ' + (first._ai_answer || ''));\n  if (first._domain_missing) notes.push('no website on the raw row');\n  if (first._apollo_hidden) notes.push(first._apollo_hidden + ' Apollo emails locked');\n  if (!found.length) notes.push(first._hold_reason || 'no contact found');\n  else if (!safe.length) notes.push('found ' + found.length + ', none passed: ' + (found[0]._hold_reason || ''));\n\n  const row = {};\n  row[C.org_id]      = id;\n  row[C.name]        = first.org_name || '';\n  row[C.category]    = first.category || '';\n  row[C.website]     = first.domain || '';\n  row[C.county]      = first.county || '';\n  row[C.city]        = first.city || '';\n  row[C.state]       = first.state || '';\n  row[C.phone]       = first.phone || '';\n  row[C.source]      = first.source || '';\n  row[C.status]      = found.length ? 'Enriched' : 'No contact found';\n  row[C.enriched_at] = stamp;\n  row[C.contacts]    = found.length;\n  row[C.notes]       = notes.join(' | ').slice(0, 900);\n\n  rows.push({ json: Object.assign({}, row, runFlags, { _org_id: id, _contacts: group.length }) });\n}\n\nreturn rows;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "write-orgs",
+      "name": "[cred] Sheets - update the organisations",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Matches on 'Org id'. Rename that heading and this stops finding rows - change ORG_COLUMNS.org_id in config AND the match field here.",
+      "position": [
+        5880,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "Org id"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('config').first().json.orgs_tab }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "any-contacts",
+      "name": "any contacts to write?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        6160,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "any-contacts-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('rows for the organisations tab').first().json._contacts_to_write }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stop-no-contacts",
+      "name": "STOP: no contacts found",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6440,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// The organisations were worked but nobody usable came out of any of them. The\n// Organisations tab has already been updated with the reason per row, so the next run does\n// not grind through the same dead addresses.\n//\n// Seeing this branch fire repeatedly means the raw list is the problem, not the pipeline —\n// usually scraped rows with no website, or an Apollo plan out of credits.\nconst contacts = $('decide who is safe to email').all().map((i) => i.json);\n\nconst reasons = {};\nfor (const c of contacts) {\n  const r = c._hold_reason || 'unknown';\n  reasons[r] = (reasons[r] || 0) + 1;\n}\n\nreturn [{\n  json: {\n    _outcome: 'no contacts found',\n    organisations_worked: new Set(contacts.map((c) => c.org_id)).size,\n    reasons: reasons,\n    _next_step: 'Check the Website column on those rows, and Apollo credits.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "contact-rows",
+      "name": "rows for the contacts tab",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// One row per contact, in the same shape every time.\n//\n// The contacts come from \"decide who is safe to email\" rather than from this node's input,\n// because the input is now organisation rows — the previous step folded them. Held contacts\n// are written too, with the reason in plain words: the sheet is the record of the whole\n// database, not just the part that got emailed.\nconst cfg = $('config').first().json;\nconst C = cfg.contact_columns;\nconst stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');\n\nconst contacts = $('decide who is safe to email').all()\n  .map((i) => i.json)\n  .filter((c) => !c._no_contact && String(c.email || '').includes('@'));\n\nreturn contacts.map((c) => {\n  const row = {};\n  row[C.contact_id]   = c.contact_id || '';\n  row[C.org_id]       = c.org_id || '';\n  row[C.org_name]     = c.org_name || '';\n  row[C.category]     = c.category || '';\n  row[C.county]       = c.county || '';\n  row[C.full_name]    = c.full_name || '';\n  row[C.first_name]   = c.first_name || '';\n  row[C.title]        = c.title || '';\n  row[C.email]        = c.email || '';\n  row[C.email_status] = c.email_status || '';\n  row[C.verified_at]  = c._verified_at || '';\n  row[C.phone]        = c.contact_phone || '';\n  row[C.linkedin]     = c.linkedin || '';\n  row[C.score]        = Number(c.score || 0);\n  row[C.tier]         = c.tier || '';\n  row[C.sending_list] = c.sending_list || 'No';\n  row[C.hold_reason]  = c._hold_reason || '';\n  row[C.updated_at]   = stamp;\n  // Campaign and \"Pushed at\" are deliberately absent. This write matches on Contact id, and\n  // a blank here would wipe what a previous run recorded; only \"mark them pushed\" sets them.\n\n  return { json: Object.assign({}, row, { _contact: c }) };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "write-contacts",
+      "name": "[cred] Sheets - write the contacts",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Every contact is written here, held ones included, with the reason. This is the database the client keeps.",
+      "position": [
+        6720,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "Contact id"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('config').first().json.contacts_tab }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "pushing",
+      "name": "pushing to the campaign?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        7000,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "pushing-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('rows for the organisations tab').first().json._any_safe }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "payload",
+      "name": "payload for the campaign",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Build one Instantly lead per safe contact, and only the safe ones.\n//\n// The custom variables are the reason the email can be short and specific — {{firstName}},\n// {{organisation}} and {{county}} are what let one sequence read as though it were written\n// for a discharge planner in Franklin County rather than mail-merged at 2,000 people.\nconst cfg = $('config').first().json;\n\nconst contacts = $('decide who is safe to email').all()\n  .map((i) => i.json)\n  .filter((c) => c._push === true);\n\nreturn contacts.map((c) => ({\n  json: {\n    _body: {\n      campaign: c._campaign_id || cfg.campaign_id,\n      email: c.email,\n      first_name: c.first_name || '',\n      last_name: String(c.full_name || '').split(/\\s+/).slice(1).join(' '),\n      company_name: c.org_name || '',\n      personalization: c.first_name || 'there',\n      phone: c.contact_phone || '',\n      website: c.domain || '',\n      custom_variables: {\n        organisation: c.org_name || '',\n        county: c.county || '',\n        city: c.city || '',\n        segment: c.category || '',\n        title: c.title || '',\n        icp_score: Number(c.score || 0),\n        tier: c.tier || '',\n        email_status: c.email_status || '',\n        org_id: c.org_id || '',\n        contact_id: c.contact_id || ''\n      },\n      skip_if_in_workspace: true,\n      verify_leads_on_import: false\n    },\n    _contact_id: c.contact_id,\n    _email: c.email,\n    _campaign_id: c._campaign_id || cfg.campaign_id,\n    _mode: cfg.mode\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "instantly",
+      "name": "Instantly - add to the campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Instantly v2 POST /leads. For Smartlead, change INSTANTLY_URL and the body in 'payload for the campaign'.",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        7560,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.instantly_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ JSON.stringify($json._body) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Bearer ' + $('config').first().json.instantly_api_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "pushed",
+      "name": "record what was pushed",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7840,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Write back only what the sending engine actually accepted.\n//\n// A lead Instantly rejected — already in another campaign, blocked, malformed — must not be\n// recorded as pushed, or the next run will think it is handled and the person is never\n// contacted by anyone. The failure is written into the hold reason instead.\nconst cfg = $('config').first().json;\nconst C = cfg.contact_columns;\nconst src = $('payload for the campaign');\nconst replies = $input.all();\nconst stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');\n\nconst sentFor = (i) => {\n  try { return src.itemMatching(i).json; } catch (e) { /* fall through */ }\n  return (src.all()[i] || { json: {} }).json;\n};\n\nreturn replies.map((reply, i) => {\n  const sent = sentFor(i);\n  const body = reply.json || {};\n\n  // Instantly v2 returns the created lead with an id. Anything else is a failure.\n  const ok = Boolean(body.id || body.lead_id || body.status === 'success');\n  const error = String(body.error || body.message || (body.detail && body.detail.message) || '').slice(0, 200);\n\n  const row = {};\n  row[C.contact_id]   = sent._contact_id || '';\n  row[C.email]        = sent._email || '';\n  row[C.sending_list] = ok ? 'Yes' : 'No';\n  row[C.campaign]     = ok ? (sent._campaign_id || '') : '';\n  row[C.pushed_at]    = ok ? stamp : '';\n  row[C.hold_reason]  = ok ? '' : ('campaign rejected it: ' + (error || 'unknown error'));\n  row[C.updated_at]   = stamp;\n\n  return {\n    json: Object.assign({}, row, {\n      _ok: ok, _email: sent._email, _error: error\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "mark-pushed",
+      "name": "[cred] Sheets - mark them pushed",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Only what the campaign actually accepted. A rejected lead is left off the sending list so somebody picks it up again.",
+      "position": [
+        8120,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "Contact id"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('config').first().json.contacts_tab }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "stop-not-pushed",
+      "name": "STOP: not pushed",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7280,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// Nothing was pushed to a campaign this run. Open this node to see why, per contact.\n//\n// In preview mode — how the workflow ships — this is where every run lands, and its output\n// is the review screen: name, title, score, verifier verdict and hold reason for everyone\n// the pipeline touched. Read it before turning the sending gate on.\nconst cfg = $('config').first().json;\n\nconst reason = cfg.forced_preview\n    ? 'forced to preview: DEMO_VERIFIER is on, so the verdicts are not real'\n  : cfg.preview_only\n    ? 'preview mode — TEST_RUN is true and TEST_CAMPAIGN_ID is blank'\n  : !cfg.instantly_api_key\n    ? 'no Instantly API key in config'\n  : !cfg.campaign_id\n    ? 'no campaign id in config'\n    : 'nothing passed verification and scoring this run';\n\nreturn $('decide who is safe to email').all().map((i) => {\n  const c = i.json;\n  return {\n    json: {\n      _outcome: 'not pushed',\n      _why: reason,\n      organisation: c.org_name,\n      name: c.full_name || '(no contact found)',\n      title: c.title || '',\n      email: c.email || '',\n      email_status: c.email_status || '',\n      score: c.score,\n      tier: c.tier,\n      would_be_sent: Boolean(c._safe),\n      hold_reason: c._hold_reason || '',\n      campaign_it_would_go_to: c._campaign_id || cfg.campaign_id || '(none set)'\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "summary",
+      "name": "build the run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        8400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// The one screen that says whether the pipeline is healthy: how many organisations were\n// worked, how many people came out, what the verifier threw away, and how many reached the\n// campaign — plus the number the client is actually judged on, the share of the sending\n// list that is verified deliverable.\nconst cfg = $('config').first().json;\nconst contacts = $('decide who is safe to email').all().map((i) => i.json);\nconst first = contacts[0] || {};\n\nlet pushedOk = 0;\nlet pushedFailed = 0;\nlet pushErrors = [];\ntry {\n  for (const item of $('record what was pushed').all()) {\n    if (item.json._ok) pushedOk++;\n    else { pushedFailed++; if (item.json._error) pushErrors.push(item.json._error); }\n  }\n} catch (e) {\n  // The push branch did not run this time. Preview runs land here every time.\n}\n\nconst orgs = new Set(contacts.map((c) => c.org_id)).size;\nconst withEmail = contacts.filter((c) => !c._no_contact && String(c.email || '').includes('@'));\nconst held = contacts.filter((c) => !c._safe);\n\nconst reasons = {};\nfor (const c of held) {\n  const r = c._hold_reason || 'unknown';\n  reasons[r] = (reasons[r] || 0) + 1;\n}\nconst topReasons = Object.keys(reasons)\n  .sort((a, b) => reasons[b] - reasons[a])\n  .slice(0, 6)\n  .map((r) => reasons[r] + ' x ' + r);\n\nconst bySegment = {};\nfor (const c of contacts.filter((x) => x._safe)) {\n  bySegment[c.category] = (bySegment[c.category] || 0) + 1;\n}\n\nconst batch = $('pick this run\\'s batch').first().json || {};\n\nconst lines = [\n  'the partnership partnership engine — enrich and verify',\n  'Mode: ' + cfg.mode.toUpperCase() + (cfg.forced_preview ? ' (forced: demo verdicts are on)' : ''),\n  '',\n  'Organisations worked: ' + orgs + ' of ' + (batch._rows_in_sheet || 0) + ' rows in the sheet',\n  'Contacts found: ' + withEmail.length + ' (' + (withEmail.length && orgs ? (Math.round((withEmail.length / orgs) * 10) / 10) : 0) + ' per org)',\n  'Verified deliverable: ' + withEmail.filter((c) => c._verified).length + ' (' + (first._verified_rate || 0) + '%)',\n  'Undeliverable caught: ' + (first._rejected_count || 0) + ' — that is ' + (first._bounce_risk_avoided || 0) + '% of bounce risk removed before sending',\n  'Onto the sending list: ' + (first._safe_count || 0),\n  'Held back: ' + held.length,\n  '',\n  'Why they were held: ' + (topReasons.length ? topReasons.join(', ') : 'nothing held'),\n  'Sending list by segment: ' + (Object.keys(bySegment).length\n    ? Object.keys(bySegment).map((k) => k + ' ' + bySegment[k]).join(', ') : 'none'),\n  '',\n  cfg.push_enabled\n    ? 'Pushed to campaign: ' + pushedOk + ' ok, ' + pushedFailed + ' rejected'\n      + (pushErrors.length ? ' (' + pushErrors.slice(0, 2).join('; ') + ')' : '')\n    : 'Pushed to campaign: nothing — ' + (cfg.preview_only ? 'preview mode' : 'sending engine not configured')\n];\n\n// Anything here needs a human before the next run.\nconst warnings = [];\nif (!cfg.verifier_enabled) warnings.push('no verifier key: every address is being held');\nif (!cfg.apollo_enabled) warnings.push('no Apollo key: running on sheet contacts only');\nif (cfg.demo_verdicts) warnings.push('DEMO_VERIFIER is on — verdicts are fabricated');\nif (withEmail.length && (first._verified_rate || 0) < 60) warnings.push('verified rate under 60% — check the source of this list');\nif (pushedFailed > pushedOk && pushedFailed > 0) warnings.push('more campaign rejections than successes');\nif (warnings.length) lines.push('', 'Needs attention: ' + warnings.join(' | '));\n\nconst text = lines.join('\\n');\n\nreturn [{\n  json: {\n    summary_text: text,\n    orgs_worked: orgs,\n    contacts_found: withEmail.length,\n    verified: withEmail.filter((c) => c._verified).length,\n    verified_rate: first._verified_rate || 0,\n    undeliverable_caught: first._rejected_count || 0,\n    sending_list: first._safe_count || 0,\n    held: held.length,\n    pushed_ok: pushedOk,\n    pushed_failed: pushedFailed,\n    hold_reasons: reasons,\n    warnings: warnings,\n    mode: cfg.mode,\n    // Slack incoming-webhook shape. Any webhook that accepts JSON will take this.\n    _alert_body: { text: text }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "alert-on",
+      "name": "alert configured?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        8680,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "alert-on-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.alert_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "alert",
+      "name": "Post the run summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Slack incoming webhook shape. Any endpoint that accepts JSON works.",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        8960,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.alert_webhook_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 15000
+        },
+        "jsonBody": "={{ JSON.stringify($json._alert_body) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "no-alert",
+      "name": "STOP: no alert webhook",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        8960,
+        190
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "end",
+      "name": "End",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        9240,
+        380
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-00",
+      "name": "Template overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -1444
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 660,
+        "height": 1104,
+        "content": "## Enrich and verify partnership leads from Google Sheets into Instantly\n\n**Who's it for**\nPartnership, referral and B2B outreach teams who have a raw list of organisations and need the\ndecision maker found, the address proved deliverable, and only the safe contacts handed to a\nsending tool. Built for anyone whose bounce rate is a number somebody checks.\n\n**How it works**\nEach weekday it takes a batch from the raw list in Google Sheets, normalises each organisation and\nclassifies it — by keyword rules, or by an AI call when the rules are not confident. Apollo is asked\nfor the decision makers, everyone is scored against your ICP, and every address goes to a verifier.\nThe gate is the point of the whole workflow: it **fails closed**. A verifier that times out, runs\nout of credits or returns something unrecognised produces `unknown`, and `unknown` is held back.\nCatch-all addresses are held by default too, because they pass a verifier and still bounce. What\nsurvives is written to two sheet tabs and pushed to an Instantly campaign; everything held is\nwritten down with the reason in plain words.\n\n**How to set up**\n1. Open **`config`** and set your sheet id, the batch size and `ACCEPT_STATUSES`.\n2. Add Apollo, verifier, AI and Instantly keys as you get them — each is optional.\n3. Leave `TEST_RUN = true` and `TEST_CAMPAIGN_ID` blank for the first run.\n\n**Requirements**\nA Google Sheet with a raw organisation list. Apollo, an email verifier, an OpenAI-compatible\nendpoint and Instantly are each optional — a blank key skips that step rather than failing the run.\n\n**How to customize**\nThe ICP scoring is in **`score against the ICP`** and the accept list is in `config`. To swap the\nverifier or the sending tool, replace that one HTTP node — nothing else changes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-01",
+      "name": "1. Take a batch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -242
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1600,
+        "height": 202,
+        "content": "### 1. Take a batch, not the whole list\n\n**`pick this run's batch`** takes `BATCH_SIZE` rows that have not been enriched yet, so a 40,000-row list costs a predictable amount per run instead of everything at once.\n\n**`normalise the organisation`** cleans the name and domain before anything is spent on looking it up."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-02",
+      "name": "2. Classify, then find the people",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        330
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2160,
+        "height": 180,
+        "content": "### 2. Classify, then find the people\n\nKeyword rules place most organisations on their own. **`AI classification needed?`** only spends a token on the ones they cannot place.\n\nApollo is then asked for the decision makers. With no Apollo key the run continues on whatever contact details the raw list already had — see the note on degrading below."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-03",
+      "name": "3. This is the bounce rate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4200,
+        -374
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1040,
+        "height": 334,
+        "content": "### 3. This is the under-2% bounce rate\n\nNot the copy, not the domains — this node and the gate after it.\n\n**It fails closed.** A verifier that times out, runs out of credits, or returns\nsomething unrecognised produces `unknown`, and `unknown` is held back. Every other\nmistake in cold outreach is recoverable; a burnt sending domain is not.\n\n`ACCEPT_STATUSES` is what reaches the campaign. Catch-all and unknown are held by\ndefault — they are the addresses that pass a verifier and still bounce.\n\n`HOLD_UNVERIFIED = true` is the setting that makes the KPI true. Leave it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-04",
+      "name": "4. Every optional step degrades",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5320,
+        330
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1600,
+        "height": 312,
+        "content": "### 4. Every optional step degrades, none of them fail\n\nA blank key in `config` means *skip this step*, never *fail this run*:\n\n- **no Apollo key** -> uses whatever contact details the raw list already has\n- **no AI key** -> keyword rules only, which place most organisations anyway\n- **no verifier key** -> nothing is emailed, everything is written to the sheet\n- **no Instantly key** -> the sending list is produced and reviewed, not pushed\n\nWhich is why this whole pipeline can be demonstrated on a screen-share before the\nclient has handed over a single credential."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-05",
+      "name": "5. Nothing is pushed until you say so",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7000,
+        -374
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1320,
+        "height": 334,
+        "content": "### 5. Nothing is pushed until you say so\n\n`TEST_RUN = true` with a blank `TEST_CAMPAIGN_ID` (how it ships) runs the whole\npipeline and writes both sheet tabs, but pushes nothing to a campaign. Open\n**STOP: not pushed** to read the whole sending list first: name, title, score,\nverifier verdict, and for everyone held, the reason in plain words.\n\nPut a campaign id in `TEST_CAMPAIGN_ID` and leads really are pushed, to that\ncampaign. `TEST_RUN = false` goes live.\n\n`DEMO_VERIFIER = true` forces preview whichever way those are set — a fabricated\nverdict can never reach a real campaign."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-06",
+      "name": "6. Report what happened",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        8400,
+        330
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 224,
+        "content": "### 6. Report what happened\n\nThe summary counts what was enriched, verified, held and pushed, and posts it to Slack or Discord.\n\nNo webhook in `config` means the run ends quietly at **`STOP: no alert webhook`** — the work still happened and the sheet is still written."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "config": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - read the raw list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run it now": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: not pushed": {
+      "main": [
+        [
+          {
+            "node": "build the run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "alert configured?": {
+      "main": [
+        [
+          {
+            "node": "Post the run summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: no alert webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apollo configured?": {
+      "main": [
+        [
+          {
+            "node": "Apollo - find decision makers",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: Apollo not configured",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "anything to enrich?": {
+      "main": [
+        [
+          {
+            "node": "normalise the organisation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: nothing to enrich",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every weekday, 07:00": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post the run summary": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one list of contacts": {
+      "main": [
+        [
+          {
+            "node": "score against the ICP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one list of verdicts": {
+      "main": [
+        [
+          {
+            "node": "decide who is safe to email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read Apollo's people": {
+      "main": [
+        [
+          {
+            "node": "one list of contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build the run summary": {
+      "main": [
+        [
+          {
+            "node": "alert configured?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pick this run's batch": {
+      "main": [
+        [
+          {
+            "node": "anything to enrich?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "score against the ICP": {
+      "main": [
+        [
+          {
+            "node": "verification possible?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: no alert webhook": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "any contacts to write?": {
+      "main": [
+        [
+          {
+            "node": "rows for the contacts tab",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: no contacts found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "apply the verification": {
+      "main": [
+        [
+          {
+            "node": "one list of verdicts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "record what was pushed": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - mark them pushed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verification possible?": {
+      "main": [
+        [
+          {
+            "node": "Verifier - check the address",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: unverified - held back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: no contacts found": {
+      "main": [
+        [
+          {
+            "node": "build the run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: nothing to enrich": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: keyword rules only": {
+      "main": [
+        [
+          {
+            "node": "one list of organisations",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "payload for the campaign": {
+      "main": [
+        [
+          {
+            "node": "Instantly - add to the campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pushing to the campaign?": {
+      "main": [
+        [
+          {
+            "node": "payload for the campaign",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: not pushed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI classification needed?": {
+      "main": [
+        [
+          {
+            "node": "AI - classify the organisation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: keyword rules only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one list of organisations": {
+      "main": [
+        [
+          {
+            "node": "Apollo configured?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rows for the contacts tab": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - write the contacts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalise the organisation": {
+      "main": [
+        [
+          {
+            "node": "AI classification needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: Apollo not configured": {
+      "main": [
+        [
+          {
+            "node": "one list of contacts",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "apply the AI classification": {
+      "main": [
+        [
+          {
+            "node": "one list of organisations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "decide who is safe to email": {
+      "main": [
+        [
+          {
+            "node": "rows for the organisations tab",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: unverified - held back": {
+      "main": [
+        [
+          {
+            "node": "one list of verdicts",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Verifier - check the address": {
+      "main": [
+        [
+          {
+            "node": "apply the verification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apollo - find decision makers": {
+      "main": [
+        [
+          {
+            "node": "read Apollo's people",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - classify the organisation": {
+      "main": [
+        [
+          {
+            "node": "apply the AI classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rows for the organisations tab": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - update the organisations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Instantly - add to the campaign": {
+      "main": [
+        [
+          {
+            "node": "record what was pushed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - mark them pushed": {
+      "main": [
+        [
+          {
+            "node": "build the run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - read the raw list": {
+      "main": [
+        [
+          {
+            "node": "pick this run's batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - write the contacts": {
+      "main": [
+        [
+          {
+            "node": "pushing to the campaign?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - update the organisations": {
+      "main": [
+        [
+          {
+            "node": "any contacts to write?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

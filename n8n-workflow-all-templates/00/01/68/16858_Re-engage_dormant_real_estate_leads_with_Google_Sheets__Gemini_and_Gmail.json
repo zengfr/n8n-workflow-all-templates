@@ -1,0 +1,466 @@
+{
+  "id": "Y8Wu783gWc8zzs4O",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Re-engage dormant real estate leads with Google Sheets, Gemini and Gmail",
+    "wechat": "youandme10086",
+    "id": 16858,
+    "update_time": "2026-09-27"
+  },
+  "name": "Cold Lead Re-Engagement (Winback) Sequencer",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "615fca2e-e436-45d5-92b1-d1cba9a8ae81",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -336,
+        192
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9a5a5135-6559-486a-b2e6-ab3d8726660d",
+      "name": "Fetch All Leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -128,
+        192
+      ],
+      "parameters": {
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bwlwY5RMiJrFf6VE",
+          "name": "Google Sheets account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "e3a79eac-1db1-41e8-9a42-3f1b1fecf40a",
+      "name": "Filter: Dormant Leads Only",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        80,
+        192
+      ],
+      "parameters": {
+        "jsCode": "const DORMANT_THRESHOLD_DAYS = 30; // change this to adjust the re-engagement window\n\nconst today = new Date();\nconst dormant = [];\nconst skipped = [];\n\nfor (const item of $input.all()) {\n  const lead = item.json;\n  const status = (lead['Status'] || '').trim();\n  const email = (lead['Email'] || '').trim();\n  const lastContact = lead['Last Contact Date'] \n    ? new Date(lead['Last Contact Date']) \n    : null;\n\n  // Exclude Do Not Contact leads\n  if (status.toLowerCase() === 'do not contact') {\n    skipped.push({ name: lead['Lead Name'], reason: 'Do Not Contact' });\n    continue;\n  }\n\n  // Exclude leads with no email\n  if (!email) {\n    skipped.push({ name: lead['Lead Name'], reason: 'No email on file' });\n    continue;\n  }\n\n  // Exclude leads with no last contact date (treat as new, not dormant)\n  if (!lastContact || isNaN(lastContact.getTime())) {\n    skipped.push({ name: lead['Lead Name'], reason: 'No contact date recorded' });\n    continue;\n  }\n\n  // Calculate days since last contact\n  const daysSinceContact = Math.floor(\n    (today - lastContact) / (1000 * 60 * 60 * 24)\n  );\n\n  // Exclude recently contacted leads\n  if (daysSinceContact < DORMANT_THRESHOLD_DAYS) {\n    skipped.push({ \n      name: lead['Lead Name'], \n      reason: `Contacted ${daysSinceContact} days ago — not yet dormant` \n    });\n    continue;\n  }\n\n  // Lead is dormant — include for re-engagement\n  dormant.push({\n    json: {\n      recordId: lead['recordId'],\n      leadName: lead['Lead Name'],\n      leadEmail: email,\n      leadPhone: lead['Phone'] || '',\n      propertyInterest: lead['Property Interest'] || 'a property you enquired about',\n      lastContactDate: lead['Last Contact Date'],\n      daysSinceContact,\n      reEngagementCount: parseInt(lead['Re-Engagement Attempt Count'] || '0'),\n      status: lead['Status']\n    }\n  });\n}\n\n// Store skipped leads summary in a global static node for digest use later\n// (passed forward via the first dormant item or a separate output)\nconst summary = {\n  totalScanned: $input.all().length,\n  dormantCount: dormant.length,\n  skippedCount: skipped.length,\n  skippedReasons: skipped\n};\n\n// Attach summary to every dormant item so it's available downstream\nreturn dormant.map(item => ({\n  json: { ...item.json, runSummary: summary }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bd537b70-21f7-4371-a0bc-c093a40ada83",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        288,
+        192
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "158762df-0418-4c80-92c9-c14977e55993",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        496,
+        208
+      ],
+      "parameters": {
+        "text": "=Lead name: {{ $json.leadName }}\nOriginal property interest: {{ $json.propertyInterest }}\nDays since last contact: {{ $json.daysSinceContact }}",
+        "options": {
+          "systemMessage": "You are a helpful assistantYou are a friendly, professional real estate assistant.\nWrite a short, warm re-engagement message to a lead who showed interest \nin a property but has not been in contact for a while.\n\nRules:\n- Tone must be warm, low-pressure, and never guilt-tripping\n- Never say they \"went quiet\" or \"disappeared\" or \"haven't responded\"\n- Reference their original property interest naturally\n- Offer to help, not to push\n- Keep it brief — 2-3 sentences in the body maximum\n\nFormat the email_body as two parts separated by a literal \\n\\n:\n  Part 1: greeting line only e.g. \"Hi {name},\"\n  Part 2: message body as a single short paragraph\n\nOutput ONLY valid JSON with no preamble or markdown backticks:\n{\n  \"email_subject\": \"short, friendly subject line\",\n  \"email_body\": \"Hi {name},\\n\\nMessage body here.\"\n}"
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "773d61c2-7cfa-474c-ac8f-8a279c7d1c15",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        496,
+        432
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oaBZTFjPqHP2QG4W",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f8eaf06e-8e48-4867-b73d-ff6292dc3e5a",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        832,
+        208
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output;\nconst leadData = $('Loop Over Items').item.json; \n\nlet parsed;\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = {\n    email_subject: `Checking in — still interested in ${leadData.propertyInterest}?`,\n    email_body: `Hi ${leadData.leadName},\\n\\nI wanted to reach out and see if you're still interested in finding the right property. I'd love to help whenever the timing is right for you — no pressure at all.`\n  };\n}\n\nfunction escapeHtml(text) {\n  return text\n    .replace(/&/g, '&amp;')\n    .replace(/</g, '&lt;')\n    .replace(/>/g, '&gt;');\n}\n\nfunction formatEmailHtml(text) {\n  const paragraphs = text\n    .split(/\\n\\s*\\n/)\n    .map(p => p.replace(/\\s+/g, ' ').trim())\n    .filter(Boolean);\n  return paragraphs.map(p => `<p>${escapeHtml(p)}</p>`).join('');\n}\n\nreturn [{\n  json: {\n    ...leadData,\n    email_subject: parsed.email_subject,\n    email_body: formatEmailHtml(parsed.email_body)\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2f4d6b0f-282e-4ebc-84f5-ed3df1590c4e",
+      "name": "Send Re-Engagement Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1040,
+        208
+      ],
+      "webhookId": "8464bdfa-da0e-40d1-b112-aa661156dfb4",
+      "parameters": {
+        "sendTo": "={{ $('Loop Over Items').item.json.leadEmail }}",
+        "message": "={{ $json.email_body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.email_subject }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DjQTb4o5QghcJviF",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "068fae26-66a4-4534-9f7a-06a52cc50c81",
+      "name": "Update Lead Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1248,
+        208
+      ],
+      "parameters": {
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultUrl": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "bwlwY5RMiJrFf6VE",
+          "name": "Google Sheets account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "0a2e63d3-7b3a-4a07-ab8c-22bc51540e38",
+      "name": "Aggregate Run Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1472,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Pull lead data from Filter node — reliable source outside the loop\nconst filterItems = $('Filter: Dormant Leads Only').all();\nconst fetchItems = $('Fetch All Leads').all();\n\nconst totalScanned = fetchItems.length;\nconst dormantCount = filterItems.length;\nconst skippedCount = totalScanned - dormantCount;\n\n// Build contacted list from Filter node items\nconst contacted = filterItems.map(item => ({\n  name: item.json.leadName,\n  email: item.json.leadEmail,\n  property: item.json.propertyInterest || 'a property you enquired about',\n  daysDormant: item.json.daysSinceContact\n}));\n\n// Guard against undefined fields\nfunction safeVal(val, fallback = 'N/A') {\n  return val !== undefined && val !== null && val !== '' ? val : fallback;\n}\n\n// Build digest HTML\nconst digestHtml = `\n  <p><strong>Winback Run Summary — ${new Date().toDateString()}</strong></p>\n  <p>\n    Total leads scanned: ${totalScanned}<br>\n    Re-engagement emails sent: ${contacted.length}<br>\n    Leads skipped: ${skippedCount}\n  </p>\n  <p><strong>Emails sent to:</strong></p>\n  <p>${contacted.length > 0\n    ? contacted.map(l =>\n        `${safeVal(l.name)} (${safeVal(l.email)}) — ${safeVal(l.property)} — ${safeVal(l.daysDormant)} days dormant`\n      ).join('<br>')\n    : 'No dormant leads found in this run.'\n  }</p>\n  ${skippedCount > 0 ? `\n  <p><strong>Leads skipped:</strong> ${skippedCount} (check sheet for Do Not Contact, missing email, or recently contacted leads)</p>\n  ` : ''}\n`;\n\n// Build Slack digest\nconst contactedLines = contacted.map(\n  l => `• ${safeVal(l.name)} (${safeVal(l.email)}) — ${safeVal(l.property)} — ${safeVal(l.daysDormant)} days dormant`\n).join('\\n');\n\nconst slackDigest =\n  `📋 *Winback Run — ${new Date().toDateString()}*\\n` +\n  `Scanned: ${totalScanned} | Sent: ${contacted.length} | Skipped: ${skippedCount}\\n\\n` +\n  (contacted.length > 0\n    ? `*Emailed:*\\n${contactedLines}`\n    : '_No dormant leads found today._');\n\nreturn [{\n  json: {\n    digestHtml,\n    slackDigest,\n    totalScanned,\n    emailsSent: contacted.length,\n    skippedCount\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ccadd12-5c04-480f-9447-bd2fa4fd3d4e",
+      "name": "Send Summary Digest Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1664,
+        80
+      ],
+      "webhookId": "8089f4ff-b46d-466c-8972-a3c28146ffc6",
+      "parameters": {
+        "sendTo": "youremail@gmail.com",
+        "message": "={{ $json.digestHtml }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Winback Run Summary — {{ $now.toFormat('MMM dd yyyy') }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DjQTb4o5QghcJviF",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8d8877eb-3383-42be-b666-81dbd43b63a5",
+      "name": "Send Summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1664,
+        368
+      ],
+      "webhookId": "3f20b00d-feb1-4315-bce0-b104d32f2246",
+      "parameters": {
+        "text": "={{ $json.slackDigest }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#lead-updates"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "2d6e1cda-e4ea-4967-af9e-4f8601a47435",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1072,
+        -272
+      ],
+      "parameters": {
+        "width": 576,
+        "height": 1072,
+        "content": "## Cold Lead Re-Engagement (Winback) Sequencer\n\nEvery real estate agent has a list of leads that went quiet — buyers  who showed interest, then stopped responding. Most never get followed  up with again. This workflow fixes that automatically.\n\nOn a daily schedule, it scans your lead database, identifies anyone  who hasn't been contacted in 30+ days, and sends them a warm,  AI-personalized re-engagement email. At the end of each run, you  receive a single summary digest showing exactly who was contacted, so you stay informed without being overwhelmed by per-lead alerts.\n\n### How it works\nA Schedule Trigger runs daily at 8am. Your Google Sheets lead  database is scanned and filtered to find dormant leads — anyone  inactive for 30+ days, excluding Do Not Contact leads and leads  with no email on file. For each dormant lead, Gemini AI drafts a  short, warm, low-pressure re-engagement email referencing their  original property interest. The email sends via Gmail, and the  lead record updates automatically. Once all leads are processed,  a summary digest lands in your inbox — and optionally in Slack.\n\n### Setup\n1. Connect **Google Sheets**, **Gmail**, and **Gemini API** credentials.\n2. Copy the *Winback Lead Database* sheet template and link it to the Fetch and Update Sheets nodes.\n3. Populate your lead database with at least a **Last Contact Date** and **Status** column for every lead.\n4. Update the agent email address in the \"Send Summary Digest Email\" node.\n5. Adjust the dormancy threshold (default: 30 days) in the \"Filter: Dormant Leads Only\" node if needed.\n6. **Slack is optional** — connect your Slack credential to the Slack node for a second digest channel, or leave it disconnected.\n\n### Customization\n- Change `DORMANT_THRESHOLD_DAYS` in the filter node to 60 or 90 days for a less aggressive re-engagement cadence.\n- Edit the AI prompt to adjust tone, language, or message length.\n- Add a second branch to handle Warm vs. Cold leads differently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "485967e2-f9f3-44a3-aa6e-ff41ff55cdd4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -80
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 256,
+        "height": 512,
+        "content": "## Scheduled Lead Scan\nRuns automatically every day at 8am.\nTrigger it manually anytime to run a winback campaign on demand."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0eb24673-3c7a-466b-8942-731d3cadeae1",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        -80
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 400,
+        "height": 512,
+        "content": "##  Fetch & Filter Dormant Leads\nReads all leads from Google Sheets and filters to dormant only — excluding Do Not Contact leads, missing emails, and recently  contacted leads. Skipped leads are counted in the summary digest."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7723f699-c794-4b18-9d40-024e10010a34",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        240,
+        -112
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 1152,
+        "height": 688,
+        "content": "## AI Draft & Send (Per Lead)\nLoops through each dormant lead one at a time. Gemini drafts a  personalized re-engagement email per lead, which sends via Gmail  immediately. The lead record updates after each send."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "46ede2cf-66dd-446a-9a02-b1647b372eec",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1408,
+        -112
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 544,
+        "height": 688,
+        "content": "## Run Summary & Agent Notification\nAfter all leads are processed, one summary digest sends to the  agent — total leads scanned, emails sent, and leads skipped. Slack digest fires alongside if connected."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "59b258fe-10ed-492e-9052-246a13181543",
+  "nodeGroups": [],
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Leads": {
+      "main": [
+        [
+          {
+            "node": "Filter: Dormant Leads Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [],
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Send Re-Engagement Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Lead Record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate Run Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Run Results": {
+      "main": [
+        [
+          {
+            "node": "Send Summary Digest Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Re-Engagement Email": {
+      "main": [
+        [
+          {
+            "node": "Update Lead Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter: Dormant Leads Only": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# tailored : 8
+# tailored : 14
 
 |id|file|
 |----|----|
@@ -10,3 +10,9 @@
 |15255|[15255_Generate_tailored_CV_and_Cover_Letter_from_job_links.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15255_Generate_tailored_CV_and_Cover_Letter_from_job_links.json)|
 |16375|[16375_Screen_LinkedIn_jobs_and_generate_tailored_resume_and_cover_PDFs_with_Anthropic_and_DocRaptor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16375_Screen_LinkedIn_jobs_and_generate_tailored_resume_and_cover_PDFs_with_Anthropic_and_DocRaptor.json)|
 |16560|[16560_Score_job_listings_and_generate_tailored_cover_letters_with_Apify__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16560_Score_job_listings_and_generate_tailored_cover_letters_with_Apify__OpenAI_and_Google_Sheets.json)|
+|17215|[17215_Screen_LinkedIn_jobs_and_send_tailored_applications_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17215_Screen_LinkedIn_jobs_and_send_tailored_applications_with_Apify_and_OpenAI.json)|
+|18032|[18032_Create_tailored_resumes_from_job_postings_with_OpenRouter__Notion__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18032_Create_tailored_resumes_from_job_postings_with_OpenRouter__Notion__and_Google_Drive.json)|
+|18110|[18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json)|
+|19172|[19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json)|
+|19203|[19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json)|
+|19667|[19667_Triage_client_intake_and_send_tailored_advisory_emails_with_Groq_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19667_Triage_client_intake_and_send_tailored_advisory_emails_with_Groq_and_Gmail.json)|

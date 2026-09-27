@@ -1,4 +1,4 @@
-# jina : 17
+# jina : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |13580|[13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13580_Enrich_Google_Maps_business_leads_using_Apify__OpenAI__Jina_AI__Telegram_and_Sheets.json)|
 |13582|[13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13582_Enrich_B2B_Google_Maps_leads_with_Apify__Jina_AI__GPT-5.2_and_Google_Sheets.json)|
 |13608|[13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13608_Research_web_topics_and_email_a_Claude_report_via_Gmail_using_SerpApi__Jina.ai_and_Firecrawl.json)|
+|18533|[18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json)|
+|19570|[19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json)|

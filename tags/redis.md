@@ -1,4 +1,4 @@
-# redis : 30
+# redis : 35
 
 |id|file|
 |----|----|
@@ -32,3 +32,8 @@
 |13505|[13505_Automate_daily_standups_using_Slack__Notion__and_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13505_Automate_daily_standups_using_Slack__Notion__and_Redis.json)|
 |15432|[15432_Classify_Gmail_leads_with_Groq_AI_and_sync_SLA_cases_to_Supabase_via_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15432_Classify_Gmail_leads_with_Groq_AI_and_sync_SLA_cases_to_Supabase_via_Redis.json)|
 |15984|[15984_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15984_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Redis.json)|
+|17190|[17190_Send_WhatsApp_booking_links_for_Facebook_leads_with_Sheets__Redis__and_Cal.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17190_Send_WhatsApp_booking_links_for_Facebook_leads_with_Sheets__Redis__and_Cal.com.json)|
+|19116|[19116_Debounce_and_buffer_WhatsApp_AI_replies_with_Redis_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19116_Debounce_and_buffer_WhatsApp_AI_replies_with_Redis_and_Google_Gemini.json)|
+|19668|[19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json)|
+|19669|[19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json)|
+|19812|[19812_Collect_student_absence_reasons_via_WhatsApp__Google_Sheets__Gemini__and_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19812_Collect_student_absence_reasons_via_WhatsApp__Google_Sheets__Gemini__and_Redis.json)|

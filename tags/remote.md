@@ -1,4 +1,4 @@
-# remote : 9
+# remote : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |12436|[12436_Auto-post_curated_remote_jobs_to_Telegram_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12436_Auto-post_curated_remote_jobs_to_Telegram_with_BrowserAct_and_Gemini.json)|
 |13382|[13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13382_Post_curated_remote_job_listings_to_Slack_with_BrowserAct_and_OpenRouter.json)|
 |16010|[16010_Send_a_daily_remote_developer_job_digest_from_RSS_feeds_using_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16010_Send_a_daily_remote_developer_job_digest_from_RSS_feeds_using_SMTP_email.json)|
+|18105|[18105_Match_CVs_to_remote_jobs_with_Groq__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18105_Match_CVs_to_remote_jobs_with_Groq__Google_Sheets__and_Gmail.json)|
+|18799|[18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json)|
+|18871|[18871_Post_a_daily_digest_of_new_Remotive_remote_jobs_to_Slack_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18871_Post_a_daily_digest_of_new_Remotive_remote_jobs_to_Slack_with_Apify.json)|
+|19056|[19056_Screen_and_auto-apply_to_remote_jobs_with_MrScraper__Gemini__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19056_Screen_and_auto-apply_to_remote_jobs_with_MrScraper__Gemini__and_Telegram.json)|

@@ -1,4 +1,4 @@
-# uptime : 14
+# uptime : 21
 
 |id|file|
 |----|----|
@@ -16,3 +16,10 @@
 |13672|[13672_Monitor_website_uptime_and_diagnose_errors_with_Gemini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13672_Monitor_website_uptime_and_diagnose_errors_with_Gemini_and_Slack_alerts.json)|
 |15925|[15925_Monitor_website_uptime_and_send_alerts_via_Uptime_Robot__Claude__and_email_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15925_Monitor_website_uptime_and_send_alerts_via_Uptime_Robot__Claude__and_email_chat.json)|
 |16221|[16221_Monitor_website_uptime_and_content_changes_with_HTTP_checks_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16221_Monitor_website_uptime_and_content_changes_with_HTTP_checks_and_Slack.json)|
+|17704|[17704_Monitor_website_uptime_with_HTTP_checks_and_SMTP_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17704_Monitor_website_uptime_with_HTTP_checks_and_SMTP_email_alerts.json)|
+|18059|[18059_Monitor_website_uptime_and_SSL_expiry_with_Cert_Spotter_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18059_Monitor_website_uptime_and_SSL_expiry_with_Cert_Spotter_and_Telegram_alerts.json)|
+|18221|[18221_Monitor_website_uptime_and_latency_with_Slack_alerts_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18221_Monitor_website_uptime_and_latency_with_Slack_alerts_and_Data_Tables.json)|
+|18650|[18650_Monitor_website_domain__SSL__and_uptime_with_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18650_Monitor_website_domain__SSL__and_uptime_with_Google_Sheets_and_Telegram.json)|
+|18946|[18946_Monitor_ScribeTo_uptime_via_HTTP_and_send_state-aware_Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18946_Monitor_ScribeTo_uptime_via_HTTP_and_send_state-aware_Discord_alerts.json)|
+|19070|[19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json)|
+|19612|[19612_Monitor_API_health_and_send_uptime_alerts_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19612_Monitor_API_health_and_send_uptime_alerts_with_Google_Sheets_and_Slack.json)|

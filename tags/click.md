@@ -1,4 +1,4 @@
-# click : 10
+# click : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |13538|[13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json)|
 |14987|[14987_Invite_the_Fireflies_recording_bot_to_meetings_from_a_one-click_form.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14987_Invite_the_Fireflies_recording_bot_to_meetings_from_a_one-click_form.json)|
 |16498|[16498_Send_daily_product_newsletters_via_Gmail_and_track_events_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16498_Send_daily_product_newsletters_via_Gmail_and_track_events_in_Google_Sheets.json)|
+|17104|[17104_Send_purchase_conversions_from_Bitrix24_deals_to_Google_Ads_using_offline_click_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17104_Send_purchase_conversions_from_Bitrix24_deals_to_Google_Ads_using_offline_click_tracking.json)|
+|17571|[17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json)|
+|18092|[18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json)|
+|19154|[19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json)|

@@ -1,0 +1,1510 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Score ATS candidates and enroll top matches into Supabase outreach campaigns",
+    "wechat": "youandme10086",
+    "id": 19775,
+    "update_time": "2026-09-27"
+  },
+  "name": "Score ATS candidates into a Supabase outreach campaign",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "hook1",
+      "name": "Job order created",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Point the ATS webhook subscription here. Bullhorn: Events API. CEIPAL / Recruit CRM: their outbound webhook settings.",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "stratton-job-order",
+      "parameters": {
+        "path": "stratton-job-order",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "man1",
+      "name": "Run it now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        190
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cfg1",
+      "name": "config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// STRATTON CANDIDATE ENGINE — CONFIG\n// The same node appears at the head of all three workflows. Edit it in one, paste it\n// into the other two; validate.py checks that they have not drifted apart.\n//\n// Any key left blank means that step is SKIPPED, not that the run fails. That is what\n// lets the whole engine be demonstrated on a screen-share before a single credential,\n// phone number or ATS sandbox exists.\n\n// ---------------------------------------------------------------- Which client is this\n// Everything the engine writes carries this id. One n8n instance runs every client;\n// two clients can never see each other's rows because every query is filtered on it and\n// every table has an RLS policy that says the same thing.\nconst CLIENT_SLUG = 'stratton';\nconst CLIENT_ID   = '';          // the clients.id uuid from Supabase. Blank -> demo mode.\n\n// ---------------------------------------------------------------- Supabase\n// SUPABASE_URL blank -> the engine runs against sample/ data and writes nothing.\nconst SUPABASE_URL          = '';   // https://xxxxxxxx.supabase.co\nconst SUPABASE_SERVICE_KEY  = '';   // service_role key. n8n credential store is better;\n                                    // this is here so the template runs before that exists.\n\n// ---------------------------------------------------------------- The ATS\n// One block, six vendors. Only ATS_VENDOR and the credentials change between clients —\n// the field mapping below is what actually makes a new ATS work.\nconst ATS_VENDOR   = 'bullhorn';    // bullhorn | avionte | ceipal | jobdiva | recruitcrm | salesforce | generic\nconst ATS_BASE_URL = '';            // e.g. https://rest99.bullhornstaffing.com/rest-services/abcde\nconst ATS_TOKEN    = '';            // BhRestToken / bearer. Blank -> ATS steps are skipped.\n\n// How THIS client's ATS names things. This object is the entire onboarding cost of a new\n// ATS: point each of our field names at theirs, dotted paths allowed.\nconst ATS_FIELDS = {\n  job: {\n    id:            'id',\n    title:         'title',\n    description:   'publicDescription',\n    skills:        'skillList',            // comma string or array, both handled\n    city:          'address.city',\n    state:         'address.state',\n    pay_rate:      'payRate',\n    shift:         'customText1',\n    employment:    'employmentType',\n    recruiter:     'owner.name',\n    recruiter_mail:'owner.email'\n  },\n  candidate: {\n    id:         'id',\n    first_name: 'firstName',\n    last_name:  'lastName',\n    email:      'email',\n    phone:      'mobile',\n    phone_alt:  'phone',\n    title:      'occupation',\n    skills:     'skillSet',\n    city:       'address.city',\n    state:      'address.state',\n    status:     'status'\n  }\n};\n\n// Where candidates come from when the ATS is not connected. The search endpoint per\n// vendor differs; the shape after `normalise the candidates` does not.\nconst ATS_CANDIDATE_SEARCH_LIMIT = 200;   // ask the ATS for this many, score them all\nconst ENROLL_TOP_N               = 25;    // enroll only the best this many\n\n// ---------------------------------------------------------------- The AI reader\n// Most job orders are prose. `skillList` is empty far more often than a vendor demo\n// suggests, and matching 20,000 candidates against an empty skill list finds nobody.\n//\n// So when the ATS gives us fewer than MIN_SKILLS_BEFORE_AI real skills, the description is\n// read once and turned into a structured requirement list. It runs ONCE PER JOB ORDER, not\n// per candidate — a few hundred tokens per campaign, not per person.\n//\n// Blank key -> the step is skipped and the keyword rules stand on their own.\nconst AI_API_KEY = '';\nconst AI_MODEL   = 'claude-opus-5';\nconst AI_EFFORT  = 'low';        // low | medium | high — extraction is not a hard problem\nconst MIN_SKILLS_BEFORE_AI = 2;  // at or below this many ATS skills, ask the model\n\n// The model may only return skills. It is never asked who to contact, and never asked to\n// score anybody — those stay in code where they can be audited and re-run.\nconst AI_MAX_SKILLS = 12;\n\n// ---------------------------------------------------------------- Matching\n// A transparent score, on purpose. A staffing manager can read why someone was\n// contacted, which they cannot do with an embedding similarity.\nconst MATCH = {\n  required_skill:   18,   // per required skill the candidate has\n  nice_skill:        6,\n  same_city:        12,\n  same_state:        6,\n  title_overlap:    14,   // words shared between their title and the job title\n  recent_activity:  10,   // ATS status suggests they are actively looking\n  has_mobile:        8    // no mobile means no SMS and no call. Weighted, not fatal.\n};\nconst MIN_MATCH_SCORE = 40;   // below this, stored with a reason and never contacted\n\n// Statuses in the client's ATS that mean \"do not contact this person\". Placed candidates\n// are the one that gets people in trouble.\nconst ATS_EXCLUDE_STATUSES = ['Placed', 'Do Not Contact', 'Blacklisted', 'Inactive',\n  'Deceased', 'Archived'];\n\n// ---------------------------------------------------------------- The outreach ladder\n// Copied onto the campaign at launch, so editing this never changes the behaviour of a\n// campaign already running. delay_hours is measured from the previous attempt.\nconst SEQUENCE = [\n  { step: 1, channel: 'sms',   delay_hours: 0,\n    template: 'Hi {{first_name}}, it is {{recruiter_name}} at {{client_name}}. We have a '\n            + '{{job_title}} role in {{job_city}}{{pay_phrase}}. Interested in hearing more? '\n            + 'Reply YES or STOP to opt out.' },\n  { step: 2, channel: 'sms',   delay_hours: 20,\n    template: 'Hi {{first_name}}, following up on the {{job_title}} position in {{job_city}}. '\n            + 'Still open. Reply YES and I will call you, or STOP to opt out.' },\n  { step: 3, channel: 'voice', delay_hours: 26,\n    agent_note: 'Second contact. They have had two texts and not replied. Keep it under '\n              + '90 seconds and offer to text the details instead.' },\n  { step: 4, channel: 'sms',   delay_hours: 48,\n    template: 'Last note from me on the {{job_title}} role, {{first_name}} — reply YES if '\n            + 'you would like the details, otherwise I will close it out. STOP to opt out.' }\n];\n\n// ---------------------------------------------------------------- When we are allowed\n// TCPA is the reason this block exists. Quiet hours are evaluated in the CANDIDATE's\n// timezone, not the server's and not the recruiter's.\nconst QUIET_HOURS_START = 21;    // no outbound at or after 21:00 local\nconst QUIET_HOURS_END   = 8;     // no outbound before 08:00 local\nconst SEND_ON_WEEKENDS  = false;\nconst DEFAULT_TIMEZONE  = 'America/New_York';\n\nconst RUNNER_BATCH_SIZE = 50;    // enrollments claimed per 15-minute run\nconst DAILY_SEND_CAP    = 500;   // hard ceiling per client per day, enforced in code\nconst LEASE_SECONDS     = 300;   // how long a claimed row stays claimed\n\n// A number we have already touched today is not touched again, whatever the ladder says.\nconst MIN_HOURS_BETWEEN_TOUCHES = 18;\n\n// ---------------------------------------------------------------- Twilio\nconst TWILIO_ACCOUNT_SID  = '';\nconst TWILIO_AUTH_TOKEN   = '';   // also the key the inbound webhook signature is checked with\nconst TWILIO_FROM_NUMBER  = '';   // +1XXXXXXXXXX, or a Messaging Service SID below\nconst TWILIO_MESSAGING_SID= '';   // MGxxxx. Preferred at volume — handles the number pool.\nconst TWILIO_STATUS_CALLBACK = '';// https://n8n.example.com/webhook/stratton-inbound\n\n// Twilio error codes that mean \"this will never work\" — retrying them wastes money and\n// looks like a loop. Everything else is treated as transient and backed off.\nconst PERMANENT_SMS_ERRORS = ['21211', '21610', '21614', '21408', '30003', '30005', '30006'];\n//                            bad num  optout  not mobile geo-perm unreach  unknown  landline\n\n// ---------------------------------------------------------------- Retell AI\nconst RETELL_API_KEY   = '';\nconst RETELL_AGENT_ID  = '';      // the outbound screening agent\nconst RETELL_FROM_NUMBER = '';    // a number bought inside Retell, or a Twilio number imported\nconst RETELL_WEBHOOK_SECRET = ''; // verifies the call_analyzed callback\n\n// ---------------------------------------------------------------- Qualification\n// The structured criteria. The AI agent is asked to fill these in; it is not asked to\n// decide. The decision is this object, evaluated in a Code node, identically every time.\nconst QUALIFY = {\n  must: [\n    { key: 'interested',        equals: true,  label: 'said they are interested' },\n    { key: 'authorized_to_work', equals: true, label: 'authorised to work' },\n    { key: 'can_start_within_days', lte: 21,   label: 'can start within three weeks' }\n  ],\n  score: [\n    { key: 'years_experience',  gte: 2,    points: 25, label: '2+ years experience' },\n    { key: 'has_reliable_transport', equals: true, points: 15, label: 'has transport' },\n    { key: 'shift_match',       equals: true, points: 20, label: 'shift works for them' },\n    { key: 'rate_acceptable',   equals: true, points: 25, label: 'accepts the rate' },\n    { key: 'certifications_valid', equals: true, points: 15, label: 'certifications current' }\n  ],\n  pass_mark: 60,\n  // Anything the AI could not establish is null, and null never passes a `must`. An\n  // unanswered question is a not-qualified, not an assumed yes.\n  review_band: 15   // within this many points of the pass mark -> human review, not a rejection\n};\n\n// Words that stop everything, checked before anything else is done with a message.\nconst OPT_OUT_KEYWORDS = ['stop', 'stopall', 'unsubscribe', 'cancel', 'end', 'quit',\n  'remove me', 'opt out', 'optout', 'do not text', 'dont text', 'take me off'];\nconst POSITIVE_KEYWORDS = ['yes', 'yeah', 'yep', 'y', 'sure', 'interested', 'ok', 'okay',\n  'tell me more', 'more info', 'call me', 'sounds good', 'im in', \"i'm in\"];\nconst NEGATIVE_KEYWORDS = ['no', 'not interested', 'no thanks', 'nope', 'pass',\n  'already have a job', 'found a job', 'not looking'];\n\n// ---------------------------------------------------------------- Scheduling\nconst CALENDAR_PROVIDER   = 'google';   // google | microsoft | none\nconst RECRUITER_CALENDARS = {\n  // recruiter email -> calendar id. Blank object -> the job order's recruiter_email is used\n  // as the calendar id, which is what Google does by default anyway.\n};\nconst INTERVIEW_MINUTES     = 30;\nconst BOOKING_LEAD_HOURS    = 18;    // never book sooner than this\nconst BOOKING_WINDOW_DAYS   = 5;     // look this far ahead for a slot\nconst BOOKING_HOURS         = [9, 10, 11, 13, 14, 15, 16];   // recruiter local hours\n\n// ---------------------------------------------------------------- Telling people\nconst SLACK_WEBHOOK_URL = '';    // blank -> no Slack notification\nconst NOTIFY_RECRUITER_EMAIL = true;\n\n// ---------------------------------------------------------------- The safety switch\n// Ships in the safest position. Nothing reaches a candidate until someone deliberately\n// changes TEST_RUN.\nconst TEST_RUN    = true;   // true -> no SMS, no call, no ATS write, no calendar event\nconst TEST_PHONE  = '';     // blank -> preview only. Set -> messages really send, to here.\nconst DRY_RUN_DB  = false;  // true -> Supabase reads happen, writes do not\n\n// Gives every provider call a deterministic fake response so the three workflows can be\n// watched end to end before any account exists. FORCES preview whatever the two above say,\n// because a fabricated Twilio SID must never be able to reach a real phone.\nconst DEMO_MODE = true;\n\n// Quiet hours are real, and at 01:00 the runner correctly defers every single row — which\n// is the right behaviour and a useless thing to film. This ignores the quiet-hours check\n// so a walkthrough can be recorded at any hour.\n//\n// It is honoured ONLY when DEMO_MODE is on, and DEMO_MODE forces preview, so this switch\n// can never cause a real message at 3am. Turning DEMO_MODE off disarms it automatically.\nconst DEMO_ANY_HOUR = true;\n\n// =============================================================================\nconst MODE = DEMO_MODE ? 'preview'\n           : (TEST_RUN !== true ? 'live' : (TEST_PHONE.trim() !== '' ? 'test' : 'preview'));\n\nconst supabase_enabled = SUPABASE_URL.trim() !== '' && SUPABASE_SERVICE_KEY.trim() !== '';\nconst ats_enabled      = ATS_BASE_URL.trim() !== '' && ATS_TOKEN.trim() !== '';\nconst twilio_enabled   = TWILIO_ACCOUNT_SID.trim() !== '' && TWILIO_AUTH_TOKEN.trim() !== ''\n                      && (TWILIO_FROM_NUMBER.trim() !== '' || TWILIO_MESSAGING_SID.trim() !== '');\nconst retell_enabled   = RETELL_API_KEY.trim() !== '' && RETELL_AGENT_ID.trim() !== '';\n\nreturn [{\n  json: {\n    client_slug: CLIENT_SLUG,\n    client_id:   CLIENT_ID,\n    client_name: CLIENT_SLUG.charAt(0).toUpperCase() + CLIENT_SLUG.slice(1),\n\n    supabase_url: SUPABASE_URL.replace(/\\/+$/, ''),\n    supabase_key: SUPABASE_SERVICE_KEY,\n    supabase_enabled: supabase_enabled,\n    dry_run_db: DRY_RUN_DB === true,\n\n    ats_vendor: ATS_VENDOR,\n    ats_base_url: ATS_BASE_URL.replace(/\\/+$/, ''),\n    ats_token: ATS_TOKEN,\n    ats_fields: ATS_FIELDS,\n    ats_enabled: ats_enabled,\n    ats_exclude_statuses: ATS_EXCLUDE_STATUSES,\n    ats_search_limit: ATS_CANDIDATE_SEARCH_LIMIT,\n\n    ai_key: AI_API_KEY,\n    ai_model: AI_MODEL,\n    ai_effort: AI_EFFORT,\n    ai_max_skills: AI_MAX_SKILLS,\n    min_skills_before_ai: MIN_SKILLS_BEFORE_AI,\n    ai_enabled: AI_API_KEY.trim() !== '',\n\n    match: MATCH,\n    min_match_score: MIN_MATCH_SCORE,\n    enroll_top_n: ENROLL_TOP_N,\n\n    sequence: SEQUENCE,\n    quiet_hours_start: QUIET_HOURS_START,\n    quiet_hours_end: QUIET_HOURS_END,\n    send_on_weekends: SEND_ON_WEEKENDS,\n    default_timezone: DEFAULT_TIMEZONE,\n    runner_batch_size: RUNNER_BATCH_SIZE,\n    daily_send_cap: DAILY_SEND_CAP,\n    lease_seconds: LEASE_SECONDS,\n    min_hours_between_touches: MIN_HOURS_BETWEEN_TOUCHES,\n\n    twilio_sid: TWILIO_ACCOUNT_SID,\n    twilio_token: TWILIO_AUTH_TOKEN,\n    twilio_from: TWILIO_FROM_NUMBER,\n    twilio_messaging_sid: TWILIO_MESSAGING_SID,\n    twilio_status_callback: TWILIO_STATUS_CALLBACK,\n    twilio_enabled: twilio_enabled,\n    permanent_sms_errors: PERMANENT_SMS_ERRORS,\n\n    retell_key: RETELL_API_KEY,\n    retell_agent: RETELL_AGENT_ID,\n    retell_from: RETELL_FROM_NUMBER,\n    retell_secret: RETELL_WEBHOOK_SECRET,\n    retell_enabled: retell_enabled,\n\n    qualify: QUALIFY,\n    opt_out_keywords: OPT_OUT_KEYWORDS,\n    positive_keywords: POSITIVE_KEYWORDS,\n    negative_keywords: NEGATIVE_KEYWORDS,\n\n    calendar_provider: CALENDAR_PROVIDER,\n    calendar_enabled: CALENDAR_PROVIDER !== 'none',\n    recruiter_calendars: RECRUITER_CALENDARS,\n    interview_minutes: INTERVIEW_MINUTES,\n    booking_lead_hours: BOOKING_LEAD_HOURS,\n    booking_window_days: BOOKING_WINDOW_DAYS,\n    booking_hours: BOOKING_HOURS,\n\n    slack_webhook_url: SLACK_WEBHOOK_URL,\n    slack_enabled: SLACK_WEBHOOK_URL.trim() !== '',\n    notify_recruiter_email: NOTIFY_RECRUITER_EMAIL === true,\n\n    mode: MODE,\n    test_phone: TEST_PHONE.trim(),\n    demo_mode: DEMO_MODE === true,\n    // Deliberately ANDed with DEMO_MODE here rather than trusted on its own, so the flag\n    // cannot be left on by accident and quietly disable quiet hours in production.\n    ignore_quiet_hours: DEMO_MODE === true && DEMO_ANY_HOUR === true,\n    forced_preview: DEMO_MODE === true && TEST_RUN !== true,\n    // The single flag every outbound gate reads. Nothing else decides whether to send.\n    send_enabled: MODE !== 'preview',\n    live_send: MODE === 'live',\n    // Only a live run may touch the client's ATS or a recruiter's real calendar.\n    writeback_enabled: MODE === 'live'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "readjob",
+      "name": "read the job order",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Turns whatever the ATS posted into one job spec, using the ATS_FIELDS.job map in config.\n// Bullhorn sends `publicDescription` and `address.city`; CEIPAL sends `job_description` and\n// `city`. Only the map changes between them — nothing downstream of this node knows which\n// ATS it is talking to, which is the whole point of having the map.\nconst cfg = $('config').first().json;\nconst map = (cfg.ats_fields && cfg.ats_fields.job) || {};\n\n// A webhook body arrives under .body; a manual run may have the job pasted at the top level;\n// some ATSs wrap the payload in `data` or an array of one.\nconst raw0 = $input.first().json || {};\nlet src = raw0.body !== undefined ? raw0.body : raw0;\nif (src && src.data && typeof src.data === 'object') src = src.data;\nif (Array.isArray(src)) src = src[0] || {};\nif (src && Array.isArray(src.jobOrders)) src = src.jobOrders[0] || {};\n\n// Dotted paths, because every ATS nests something. Missing links give undefined, not a throw.\nconst dig = (obj, path) => {\n  if (!path) return undefined;\n  return String(path).split('.').reduce(\n    (o, k) => (o === null || o === undefined ? undefined : o[k]), obj);\n};\n\nconst str = (v) => (v === null || v === undefined ? '' : String(v).trim());\n\n// Skills arrive as an array, a comma string, a semicolon string, or an array of\n// {id,name} objects. All four are the same list.\nconst asList = (v) => {\n  if (!v) return [];\n  const flat = Array.isArray(v) ? v : String(v).split(/[,;|]/);\n  return flat\n    .map((x) => (x && typeof x === 'object' ? (x.name || x.label || x.value || '') : x))\n    .map((x) => str(x).toLowerCase())\n    .filter((x) => x.length > 1);\n};\n\nconst title = str(dig(src, map.title) || src.title || src.job_title || src.name);\nconst ats_job_id = str(dig(src, map.id) || src.id || src.job_id || src.jobOrderId);\n\nconst description = str(dig(src, map.description) || src.description || src.job_description);\nconst required = asList(dig(src, map.skills) || src.skills || src.required_skills);\nconst nice = asList(src.nice_to_have || src.preferred_skills);\n\n// Pay rate can be \"$22.50/hr\", \"22.50\", 22.5, or a {min,max} object.\nconst payRaw = dig(src, map.pay_rate);\nlet pay_rate = null;\nif (payRaw !== undefined && payRaw !== null && payRaw !== '') {\n  const n = typeof payRaw === 'object'\n    ? Number(payRaw.max || payRaw.min || 0)\n    : Number(String(payRaw).replace(/[^0-9.]/g, ''));\n  if (Number.isFinite(n) && n > 0) pay_rate = n;\n}\n\nconst city = str(dig(src, map.city));\nconst state = str(dig(src, map.state)).toUpperCase().slice(0, 2);\n\n// The recruiter is who the candidate will be booked with. A job order with no recruiter is\n// still usable — it falls back to the client's default — but it is worth saying so.\nconst recruiter_name = str(dig(src, map.recruiter)) || 'the recruiting team';\nconst recruiter_email = str(dig(src, map.recruiter_mail)).toLowerCase();\n\n// The idempotency key for the campaign. An ATS that delivers the same webhook three times\n// (Bullhorn does, on subscription redelivery) produces one campaign, because this key is\n// the same all three times and the unique index on campaigns rejects the second and third.\nconst day = new Date().toISOString().slice(0, 10);\nconst idempotency_key = ['campaign', cfg.client_slug, ats_job_id, day].join(':');\n\nconst problems = [];\nif (!ats_job_id) problems.push('no job id in the payload');\nif (!title) problems.push('no job title');\nif (!required.length && !description) {\n  problems.push('nothing to match on — neither a skill list nor a description');\n}\n\n// Whether the AI reader is worth calling. A job order that already carries a real skill\n// list does not need a model; one that carries three paragraphs of prose does, because\n// matching 20,000 candidates against an empty skill list finds nobody.\nconst thinSkills = required.length <= Number(cfg.min_skills_before_ai || 0);\nconst needsAi = thinSkills && description.length > 80;\n\nreturn [{\n  json: {\n    _job_usable: problems.length === 0,\n    _problems: problems,\n    _ats_vendor: cfg.ats_vendor,\n    _received_keys: Object.keys(src || {}).slice(0, 25),\n    _needs_ai: needsAi,\n    _ai_worth_calling: needsAi && cfg.ai_enabled,\n    _skills_from_ats: required.length,\n\n    client_id: cfg.client_id,\n    client_slug: cfg.client_slug,\n    ats_job_id: ats_job_id,\n    title: title,\n    description: description.slice(0, 4000),\n    required_skills: required,\n    nice_to_have: nice,\n    city: city,\n    state: state,\n    pay_rate: pay_rate,\n    shift: str(dig(src, map.shift)),\n    employment_type: str(dig(src, map.employment)),\n    recruiter_name: recruiter_name,\n    recruiter_email: recruiter_email,\n    _recruiter_missing: recruiter_email === '',\n    idempotency_key: idempotency_key,\n    campaign_name: (title || 'Job') + ' — ' + (city || state || 'any') + ' — ' + day,\n    raw: src\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "usable",
+      "name": "job order usable?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        840,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "usable-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._job_usable }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopjob",
+      "name": "STOP: job order not usable",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// The ATS posted something this engine cannot start a campaign from. The run ends here on\n// purpose, naming both the fields it looked for and the keys it actually received — because\n// the usual cause is a field map pointing at the wrong name for this vendor, and that is a\n// two-minute fix once you can see the two lists side by side.\nconst cfg = $('config').first().json;\nconst j = $input.first().json;\n\nreturn [{\n  json: {\n    _outcome: 'job order not usable',\n    problems: j._problems || [],\n    ats_vendor: j._ats_vendor,\n    keys_in_the_payload: j._received_keys || [],\n    field_map_in_use: (cfg.ats_fields && cfg.ats_fields.job) || {},\n    _next_step: 'Compare the two lists above. ATS_FIELDS.job in the config node maps our '\n      + 'field names to theirs; a job order with no id or no title almost always means one '\n      + 'of those paths is wrong for this vendor. Dotted paths like \"address.city\" are fine.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aineed",
+      "name": "AI worth calling?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "aineed-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._ai_worth_calling }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "aijob",
+      "name": "[cred] AI - read the job description",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Runs ONCE PER JOB ORDER, not per candidate — a few hundred tokens per campaign. It fills in blanks; it never decides who is contacted. Blank AI_API_KEY skips it entirely and the keyword rules stand alone.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1400,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ model: $('config').first().json.ai_model, max_tokens: 1024, output_config: { effort: $('config').first().json.ai_effort }, system: 'You extract hiring requirements from staffing job orders. Reply with JSON only, no prose and no code fence, matching: {\"required_skills\":[],\"nice_to_have\":[],\"certifications\":[],\"shift\":\"\"}. Skills must be short lowercase noun phrases a recruiter would search on (\"forklift\", \"osha 10\", \"rf scanner\") - never sentences, never soft skills like \"team player\". At most ' + $('config').first().json.ai_max_skills + ' required skills. If the description does not state something, return an empty array rather than guessing.', messages: [{ role: 'user', content: 'Job title: ' + $json.title + '\\n\\nDescription:\\n' + $json.description }] }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $('config').first().json.ai_key }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "aiapply",
+      "name": "apply the AI requirements",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Merges what the model extracted back onto the job spec.\n//\n// The model's output is treated as untrusted input, because it is. Every value is\n// validated, capped and normalised before it can influence who gets a text message:\n//\n//   - the reply may arrive wrapped in a code fence, or with a sentence in front of it\n//   - it may be valid JSON of entirely the wrong shape\n//   - it may return forty skills when it was asked for twelve\n//   - the API may have returned an error object with a 200, because the HTTP node is set\n//     to neverError so that a failure here cannot take the campaign down\n//\n// Any of those falls back to the ATS skill list and the run continues. An AI step that can\n// fail a job order is worse than no AI step.\nconst cfg = $('config').first().json;\nconst job = $('read the job order').first().json;\nconst res = $input.first().json || {};\n\nconst clean = (s) => String(s || '').toLowerCase().trim()\n  .replace(/^[-*\\d.)\\s]+/, '')     // list bullets the model added anyway\n  .replace(/\\s+/g, ' ')\n  .slice(0, 60);\n\n// Anthropic returns { content: [ { type: 'text', text: '...' } ] }. An error returns\n// { type: 'error', error: { message } } — with a 200, because of neverError.\nlet raw = '';\nif (Array.isArray(res.content)) {\n  raw = res.content.filter((b) => b && b.type === 'text').map((b) => b.text).join('\\n');\n} else if (typeof res.completion === 'string') {\n  raw = res.completion;\n}\n\nconst apiError = res.error ? String(res.error.message || res.error.type || 'API error')\n  : (res.type === 'error' ? 'API returned an error' : '');\n\n// Pull the first {...} out of whatever came back. Handles a bare object, a fenced block,\n// and a model that felt like explaining itself first.\nfunction extractJson(text) {\n  const s = String(text || '');\n  const fenced = s.match(/```(?:json)?\\s*([\\s\\S]*?)```/);\n  const candidate = fenced ? fenced[1] : s;\n  const start = candidate.indexOf('{');\n  const end = candidate.lastIndexOf('}');\n  if (start === -1 || end <= start) return null;\n  try {\n    return JSON.parse(candidate.slice(start, end + 1));\n  } catch (e) {\n    return null;\n  }\n}\n\nconst parsed = extractJson(raw);\nconst cap = Number(cfg.ai_max_skills) || 12;\n\nconst asSkills = (v) => (Array.isArray(v) ? v : [])\n  .map(clean)\n  .filter((x) => x.length > 1 && x.length < 60)\n  .filter((x, i, a) => a.indexOf(x) === i)\n  .slice(0, cap);\n\nconst aiRequired = parsed ? asSkills(parsed.required_skills) : [];\nconst aiNice = parsed ? asSkills(parsed.nice_to_have) : [];\n\n// The ATS list always wins where the two disagree — a recruiter typed it, and the model\n// only ever adds to it.\nconst merged = job.required_skills.slice();\nfor (const s of aiRequired) if (merged.indexOf(s) === -1) merged.push(s);\nconst mergedNice = job.nice_to_have.slice();\nfor (const s of aiNice) if (mergedNice.indexOf(s) === -1 && merged.indexOf(s) === -1) {\n  mergedNice.push(s);\n}\n\nconst used = merged.length > job.required_skills.length || mergedNice.length > job.nice_to_have.length;\n\nlet note;\nif (apiError) note = 'the AI call failed (' + apiError + ') — keyword rules only';\nelse if (!parsed) note = 'the AI reply could not be parsed as JSON — keyword rules only';\nelse if (!used) note = 'the AI added nothing the ATS did not already have';\nelse note = 'the AI added ' + (merged.length - job.required_skills.length) + ' required and '\n  + (mergedNice.length - job.nice_to_have.length) + ' preferred skills';\n\nreturn [{\n  json: Object.assign({}, job, {\n    required_skills: merged,\n    nice_to_have: mergedNice,\n    // A shift or a certification the model spotted in the prose is useful on the ATS note\n    // and in the SMS, but it is never allowed to gate anybody.\n    _ai_shift: parsed && typeof parsed.shift === 'string' ? clean(parsed.shift) : '',\n    _ai_certifications: parsed ? asSkills(parsed.certifications) : [],\n    _ai_used: used,\n    _ai_note: note,\n    _ai_model: cfg.ai_model,\n    _ai_raw_reply: String(raw).slice(0, 1200),\n    _skills_before_ai: job.required_skills.length,\n    _skills_after_ai: merged.length,\n    _tokens: res.usage\n      ? { in: res.usage.input_tokens, out: res.usage.output_tokens } : null\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aioff",
+      "name": "STOP: keyword rules only",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1400,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// The AI reader was not called. Either the ATS already gave a real skill list, or no key\n// is configured. Either way the job spec passes through untouched.\n//\n// This branch exists so the merge downstream always has an item, and so the reason is\n// visible in the execution list rather than inferred from a node that did not light up.\nconst cfg = $('config').first().json;\nconst job = $input.first().json;\n\nconst why = !cfg.ai_enabled\n  ? 'no AI_API_KEY in config — keyword rules only'\n  : (!job._needs_ai\n    ? 'the ATS supplied ' + job._skills_from_ats + ' skills, which is enough to match on'\n    : 'the job description was too short to be worth reading');\n\nreturn [{\n  json: Object.assign({}, job, {\n    _ai_used: false,\n    _ai_note: why,\n    _skills_before_ai: (job.required_skills || []).length,\n    _skills_after_ai: (job.required_skills || []).length,\n    _ai_shift: '',\n    _ai_certifications: []\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "jobspec",
+      "name": "the job spec",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1960,
+        0
+      ],
+      "parameters": {
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "atson",
+      "name": "ATS connected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "atson-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.ats_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "atssearch",
+      "name": "[cred] ATS - search candidates",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "THE one node that changes per ATS vendor. Everything downstream reads the normalised shape, so swapping Bullhorn for CEIPAL is this node and the ATS_FIELDS map in config.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2520,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.ats_base_url }}/search/Candidate",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ query: $json.required_skills.join(' OR ') || $json.title, fields: Object.values($('config').first().json.ats_fields.candidate).join(','), count: $('config').first().json.ats_search_limit }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.ats_token }}"
+            },
+            {
+              "name": "BhRestToken",
+              "value": "={{ $('config').first().json.ats_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "stoppool",
+      "name": "STOP: using the sample pool",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2520,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// No ATS connected. Rather than ending the run, the engine hands the pipeline a small pool\n// of fabricated candidates so every node downstream can be watched working. This is the\n// state the walkthrough video is recorded in.\n//\n// Each row exists to exercise one branch of the gate. Do not tidy them up. Every number is\n// in the 555-01XX reserved range and every address is at example.com.\nreturn [\n  { json: { id: 'C-1001', firstName: 'Marcus', lastName: 'Ellison', email: 'user@example.com',\n      mobile: '(614) 555-0142', occupation: 'Forklift Operator',\n      skillSet: 'forklift, pallet jack, shipping, RF scanner',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Active' } },\n\n  { json: { id: 'C-1002', firstName: 'Danielle', lastName: 'Okafor', email: 'user@example.com',\n      mobile: '614.555.0177', occupation: 'Warehouse Associate',\n      skillSet: 'forklift certified; shipping; receiving; inventory',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Available' } },\n\n  // The same human as C-1002 under a second ATS record, with the number written a third\n  // way. Must collapse to one person, not be texted twice.\n  { json: { id: 'C-1003', firstName: 'Danielle', lastName: 'Okafor', email: 'user@example.com',\n      mobile: '+1234567890', occupation: 'Warehouse', skillSet: '',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Active' } },\n\n  // Opted out three weeks ago. Scores well. Must never be contacted.\n  { json: { id: 'C-1004', firstName: 'Priya', lastName: 'Raman', email: 'user@example.com',\n      mobile: '(614) 555-0188', occupation: 'Forklift Driver',\n      skillSet: 'forklift, RF scanner, cycle counting',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Active' } },\n\n  // Placed last month. Texting a placed candidate about a new role is how an agency loses\n  // the client whose worker it just poached.\n  { json: { id: 'C-1005', firstName: 'Tomas', lastName: 'Ibarra', email: 'user@example.com',\n      mobile: '(614) 555-0155', occupation: 'Forklift Operator', skillSet: 'forklift, shipping',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Placed' } },\n\n  // A placeholder typed into the mobile field, with a real landline underneath. Twilio\n  // would answer 30003 on the first and charge for it.\n  { json: { id: 'C-1006', firstName: 'Yvette', lastName: 'Braun', email: 'user@example.com',\n      mobile: '+1234567890', phone: '614-555-0121', occupation: 'Shipping Clerk',\n      skillSet: 'shipping, receiving', address: { city: 'Dublin', state: 'OH' }, status: 'Active' } },\n\n  // Contacted six hours ago about a different job order. Inside the cooldown.\n  { json: { id: 'C-1007', firstName: 'Andre', lastName: 'Whitlock', email: 'user@example.com',\n      mobile: '(614) 555-0199', occupation: 'Material Handler', skillSet: 'forklift, pallet jack',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Active' } },\n\n  // Right skills, wrong state. Still scores; the distance shows up in the reasons.\n  { json: { id: 'C-1008', firstName: 'Renata', lastName: 'Voss', email: 'user@example.com',\n      mobile: '(313) 555-0164', occupation: 'Forklift Operator', skillSet: 'forklift, shipping, OSHA',\n      address: { city: 'Detroit', state: 'MI' }, status: 'Active' } },\n\n  // Nothing in common with the job order. Below the floor, stored with the reason.\n  { json: { id: 'C-1009', firstName: 'Owen', lastName: 'Castellanos', email: 'user@example.com',\n      mobile: '(614) 555-0133', occupation: 'Graphic Designer', skillSet: 'illustrator, figma',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Active' } },\n\n  // No phone at all. Cannot be texted or called; kept in the database, not enrolled.\n  { json: { id: 'C-1010', firstName: 'Sasha', lastName: 'Nurse', email: 'user@example.com',\n      mobile: '', occupation: 'Forklift Operator', skillSet: 'forklift, inventory',\n      address: { city: 'Columbus', state: 'OH' }, status: 'Active' } },\n\n  // A row the ATS export left half-empty. No id, so it cannot be tracked at all.\n  { json: { id: '', firstName: '', lastName: '', mobile: '(614) 555-0102', skillSet: '' } }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "pool",
+      "name": "one candidate pool",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2800,
+        0
+      ],
+      "parameters": {
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "normalise",
+      "name": "normalise the candidates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3080,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Every candidate from every ATS becomes the same object here. Two things matter:\n//\n//   1. The phone becomes E.164 or it becomes null. \"(614) 555-0142\", \"614.555.0142\" and\n//      \"+1234567890\" are one number, and if they are not normalised on the way in then\n//      the opt-out table cannot match them and somebody who texted STOP gets texted again.\n//   2. A dedupe key is computed here rather than left to the database, so the run can\n//      report \"the same person is in your ATS four times\" instead of silently collapsing it.\nconst cfg = $('config').first().json;\nconst map = (cfg.ats_fields && cfg.ats_fields.candidate) || {};\nconst exclude = (cfg.ats_exclude_statuses || []).map((s) => String(s).toLowerCase());\n\nconst dig = (obj, path) => {\n  if (!path) return undefined;\n  return String(path).split('.').reduce(\n    (o, k) => (o === null || o === undefined ? undefined : o[k]), obj);\n};\nconst str = (v) => (v === null || v === undefined ? '' : String(v).trim());\n\nconst asList = (v) => {\n  if (!v) return [];\n  const flat = Array.isArray(v) ? v : String(v).split(/[,;|]/);\n  return flat\n    .map((x) => (x && typeof x === 'object' ? (x.name || x.label || x.value || '') : x))\n    .map((x) => str(x).toLowerCase())\n    .filter((x) => x.length > 1);\n};\n\n// North American numbers. Anything else is left alone and flagged, because guessing a\n// country code is how you call a stranger in another timezone at 3am.\nfunction toE164(value) {\n  const raw = str(value);\n  if (!raw) return { phone: null, why: 'no number on the record' };\n  if (/^\\+[1-9]\\d{7,14}$/.test(raw.replace(/[\\s()-]/g, ''))) {\n    return { phone: raw.replace(/[\\s()-]/g, ''), why: '' };\n  }\n  const digits = raw.replace(/\\D/g, '');\n  if (digits.length === 11 && digits[0] === '1') return { phone: '+' + digits, why: '' };\n  if (digits.length === 10) {\n    // NANP: area code and exchange both start 2-9. Catches +1234567890 placeholders.\n    if (digits[0] < '2' || digits[3] < '2') {\n      return { phone: null, why: 'not a valid North American number: ' + raw };\n    }\n    return { phone: '+1' + digits, why: '' };\n  }\n  if (digits.length > 11) return { phone: null, why: 'looks international, left for review: ' + raw };\n  return { phone: null, why: 'unusable number: ' + raw };\n}\n\nconst items = $input.all().map((i) => i.json).filter((r) => r && !r._empty_placeholder);\n\n// Some ATS search endpoints return {data:[...]}, some return the array, some paginate into\n// {results:[...]}. Flatten whichever arrived.\nlet rows = [];\nfor (const it of items) {\n  if (Array.isArray(it.data)) rows = rows.concat(it.data);\n  else if (Array.isArray(it.results)) rows = rows.concat(it.results);\n  else if (Array.isArray(it.candidates)) rows = rows.concat(it.candidates);\n  else rows.push(it);\n}\n\nconst seen = new Map();\nconst out = [];\nconst skipped = { no_id: 0, no_phone: 0, excluded_status: 0, duplicate_in_ats: 0 };\n\nfor (const r of rows) {\n  const ats_candidate_id = str(dig(r, map.id) || r.id || r.candidate_id);\n  if (!ats_candidate_id) { skipped.no_id++; continue; }\n\n  const first_name = str(dig(r, map.first_name) || r.first_name);\n  const last_name = str(dig(r, map.last_name) || r.last_name);\n  const status = str(dig(r, map.status) || r.status);\n\n  if (status && exclude.indexOf(status.toLowerCase()) !== -1) {\n    skipped.excluded_status++;\n    continue;   // Placed / Do Not Contact. Dropped here, never scored, never stored as eligible.\n  }\n\n  // Mobile first: an SMS to a landline is a guaranteed Twilio 30003 and a wasted segment.\n  const primary = toE164(dig(r, map.phone) || r.mobile);\n  const fallback = primary.phone ? primary : toE164(dig(r, map.phone_alt) || r.phone);\n  const phone_e164 = primary.phone || fallback.phone;\n  const phone_note = phone_e164 ? '' : (primary.why || fallback.why);\n\n  const candidate = {\n    ats_candidate_id: ats_candidate_id,\n    first_name: first_name,\n    last_name: last_name,\n    full_name: (first_name + ' ' + last_name).trim() || ('candidate ' + ats_candidate_id),\n    email: str(dig(r, map.email) || r.email).toLowerCase(),\n    phone_e164: phone_e164,\n    _phone_note: phone_note,\n    title: str(dig(r, map.title) || r.title),\n    skills: asList(dig(r, map.skills) || r.skills),\n    city: str(dig(r, map.city)),\n    state: str(dig(r, map.state)).toUpperCase().slice(0, 2),\n    timezone: str(r.timezone) || cfg.default_timezone,\n    ats_status: status,\n    _source_row: ats_candidate_id\n  };\n\n  if (!phone_e164) skipped.no_phone++;\n\n  // Duplicate defence #3, and the only one that runs before anything is written: the same\n  // human under two ATS ids. Keep the record with the most on it rather than the first seen.\n  const key = phone_e164 || ('email:' + candidate.email) || ('name:' + candidate.full_name.toLowerCase());\n  if (phone_e164 || candidate.email) {\n    const prior = seen.get(key);\n    if (prior) {\n      skipped.duplicate_in_ats++;\n      prior._duplicate_ats_ids = (prior._duplicate_ats_ids || []).concat(ats_candidate_id);\n      const weight = (c) => (c.skills.length ? 2 : 0) + (c.email ? 1 : 0) + (c.title ? 1 : 0);\n      if (weight(candidate) > weight(prior)) {\n        candidate._duplicate_ats_ids = prior._duplicate_ats_ids;\n        out[out.indexOf(prior)] = candidate;\n        seen.set(key, candidate);\n      }\n      continue;\n    }\n    seen.set(key, candidate);\n  }\n  out.push(candidate);\n}\n\nif (!out.length) {\n  return [{ json: { _no_candidates: true, _skipped: skipped, _rows_from_ats: rows.length } }];\n}\n\nreturn out.map((c) => ({\n  json: Object.assign(c, {\n    _no_candidates: false,\n    _skipped: skipped,\n    _rows_from_ats: rows.length,\n    _unique_people: out.length\n  })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "scorejob",
+      "name": "score against the job order",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3360,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// A transparent score. Every point is attributable to a rule with a name, so the sentence\n// \"why did we text this person about a forklift job\" always has an answer that fits on one\n// line — which is the thing an embedding similarity cannot give a staffing manager.\nconst cfg = $('config').first().json;\nconst w = cfg.match || {};\nconst job = $('the job spec').first().json;\n\nconst candidates = $input.all().map((i) => i.json).filter((c) => c && !c._no_candidates);\n\n// \"Forklift Operator\" vs \"Warehouse Forklift Driver\" share `forklift`. Stop words removed\n// so \"of\", \"and\" and \"the\" do not manufacture a match.\nconst STOP = new Set(['a','an','and','the','of','for','to','in','at','with','or','ii','iii',\n  'senior','junior','lead','level','i','ft','pt','temp','contract']);\nconst words = (s) => String(s || '').toLowerCase().split(/[^a-z0-9+#]+/)\n  .filter((x) => x.length > 2 && !STOP.has(x));\n\nconst jobTitleWords = new Set(words(job.title));\nconst required = job.required_skills || [];\nconst nice = job.nice_to_have || [];\n\n// A skill matches if either string contains the other: \"forklift\" matches \"forklift certified\",\n// and \"excel\" does not match \"excellent\".\nconst hasSkill = (skills, want) => skills.some((s) => {\n  const a = s.toLowerCase(), b = String(want).toLowerCase();\n  return a === b || (a.length > 3 && b.length > 3 && (a.includes(b) || b.includes(a)));\n});\n\n// The description is the fallback when the ATS skill list is empty, which for most job\n// orders it is. Pulling the required skills out of prose is a genuine weak point and it is\n// called out in the README rather than hidden.\nconst descWords = new Set(words(job.description));\n\nconst scored = candidates.map((c) => {\n  let score = 0;\n  const reasons = [];\n  const skills = c.skills || [];\n\n  let hits = 0;\n  for (const s of required) {\n    if (hasSkill(skills, s)) { hits++; score += w.required_skill || 0; }\n  }\n  if (hits) reasons.push(hits + ' of ' + required.length + ' required skills');\n\n  let niceHits = 0;\n  for (const s of nice) {\n    if (hasSkill(skills, s)) { niceHits++; score += w.nice_skill || 0; }\n  }\n  if (niceHits) reasons.push(niceHits + ' preferred skills');\n\n  // No skill list on either side: fall back to their title against the description.\n  if (!required.length && descWords.size) {\n    const overlap = words(c.title).filter((x) => descWords.has(x));\n    if (overlap.length) {\n      score += Math.min(overlap.length, 3) * (w.required_skill || 0) / 2;\n      reasons.push('title words in the job description: ' + overlap.slice(0, 3).join(', '));\n    }\n  }\n\n  const titleOverlap = words(c.title).filter((x) => jobTitleWords.has(x));\n  if (titleOverlap.length) {\n    score += w.title_overlap || 0;\n    reasons.push('title matches on ' + titleOverlap.slice(0, 2).join(', '));\n  }\n\n  if (job.city && c.city && job.city.toLowerCase() === c.city.toLowerCase()) {\n    score += w.same_city || 0;\n    reasons.push('same city');\n  } else if (job.state && c.state && job.state === c.state) {\n    score += w.same_state || 0;\n    reasons.push('same state');\n  } else if (job.state && c.state && job.state !== c.state) {\n    reasons.push('out of state (' + c.state + ')');\n  }\n\n  const active = ['active', 'available', 'placed - available', 'new lead', 'submitted',\n    'contacted', 'qualifying'];\n  if (c.ats_status && active.indexOf(c.ats_status.toLowerCase()) !== -1) {\n    score += w.recent_activity || 0;\n    reasons.push('ATS status \"' + c.ats_status + '\"');\n  }\n\n  if (c.phone_e164) {\n    score += w.has_mobile || 0;\n  } else {\n    reasons.push('no usable mobile — cannot be texted or called');\n  }\n\n  score = Math.max(0, Math.round(score));\n\n  return Object.assign({}, c, {\n    match_score: score,\n    match_reasons: reasons,\n    _above_floor: score >= (cfg.min_match_score || 0),\n    _job_title: job.title,\n    _ats_job_id: job.ats_job_id\n  });\n});\n\nscored.sort((a, b) => b.match_score - a.match_score);\n\n// Everyone is returned, including those below the floor. They are stored with their score\n// and their reason, so \"why was this person not contacted\" is answerable too — and so the\n// floor can be lowered next week without re-pulling 20,000 records.\nreturn scored.map((c, i) => ({ json: Object.assign(c, { _rank: i + 1, _pool_size: scored.length }) }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "supaon1",
+      "name": "Supabase connected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3640,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "supaon1-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.supabase_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "hist",
+      "name": "[cred] Supabase - engagement history",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "One call, not three. A half-populated suppression list is worse than none, so opt-outs, recent touches and live enrollments come back together or not at all.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3920,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/rpc/engagement_history",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ p_client_id: $('config').first().json.client_id, p_ats_job_id: $('the job spec').first().json.ats_job_id, p_phones: $('score against the job order').all().map(i => i.json.phone_e164).filter(Boolean) }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "readhist",
+      "name": "read the engagement history",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4200,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Shapes what Supabase returned into the one object the gate expects, so the gate does not\n// care whether the history came from the database or from the demo stub.\n//\n// One request, not three: the HTTP node calls an RPC that returns\n// { opt_outs, recent_touches, active_phones, enrolled_ats_ids } in a single round trip.\n// Three separate REST calls would be three chances for a partial failure to produce a\n// half-populated suppression list, which is worse than none.\nconst job = $('the job spec').first().json;\nconst raw = $input.first().json || {};\nconst body = Array.isArray(raw) ? (raw[0] || {}) : (raw.data || raw);\n\nconst arr = (v) => (Array.isArray(v) ? v : []);\n\n// recent_touches arrives as [{phone_e164, last_attempt_at}]; the gate wants a lookup.\nconst last_touch = {};\nfor (const t of arr(body.recent_touches)) {\n  const p = t && (t.phone_e164 || t.phone);\n  if (p && t.last_attempt_at) last_touch[String(p)] = t.last_attempt_at;\n}\n\nconst optOuts = arr(body.opt_outs).map((o) =>\n  (typeof o === 'string' ? { phone_e164: o } : o)).filter((o) => o && o.phone_e164);\n\n// A Supabase call that succeeded but returned nothing is a real answer (a brand new client\n// genuinely has no opt-outs). A call that errored is not, and must not read as one.\nconst errored = !!(raw.error || raw.message || raw.code) && !body.opt_outs;\n\nreturn [{\n  json: {\n    _source: errored ? 'supabase — ERRORED' : 'supabase',\n    opt_outs: optOuts,\n    last_touch: last_touch,\n    active_phones: arr(body.active_phones).map(String),\n    enrolled_ats_ids: arr(body.enrolled_ats_ids).map(String),\n    _counts: {\n      opt_outs: optOuts.length,\n      recent_touches: Object.keys(last_touch).length,\n      active_elsewhere: arr(body.active_phones).length,\n      already_enrolled: arr(body.enrolled_ats_ids).length\n    },\n    _job: job.ats_job_id,\n    _warning: errored\n      ? 'The engagement history query failed (' + (raw.message || raw.error || raw.code)\n        + '). The gate is running with an EMPTY suppression list — treat this run as '\n        + 'preview and investigate before going live.'\n      : ''\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "stophist",
+      "name": "STOP: no engagement history",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3920,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// Supabase is not connected, so there is no opt-out list and no contact history to check\n// against. In demo mode the engine substitutes a small fabricated history — which is what\n// makes the opted-out candidate and the cooldown candidate visible in the walkthrough.\n//\n// With DEMO_MODE off and Supabase unconfigured this returns an EMPTY history and says so\n// loudly. An empty opt-out list is not the same as nobody having opted out, and that\n// warning is carried through to the end of the run rather than dropped here.\nconst cfg = $('config').first().json;\n\nif (cfg.demo_mode) {\n  return [{\n    json: {\n      _source: 'demo — fabricated history, not real opt-outs',\n      opt_outs: [{ phone_e164: '+1234567890' }],          // Priya, three weeks ago\n      last_touch: { '+1234567890': new Date(Date.now() - 6 * 3600 * 1000).toISOString() },\n      active_phones: [],\n      enrolled_ats_ids: [],\n      _warning: ''\n    }\n  }];\n}\n\nreturn [{\n  json: {\n    _source: 'none — Supabase not configured',\n    opt_outs: [],\n    last_touch: {},\n    active_phones: [],\n    enrolled_ats_ids: [],\n    _warning: 'No opt-out list was available for this run, so no suppression could be '\n      + 'applied. Nothing was sent — the first touch is scheduled by workflow 2, which '\n      + 'checks the opt-out table again before it sends anything.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "histm",
+      "name": "one engagement history",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        4480,
+        0
+      ],
+      "parameters": {
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "gate",
+      "name": "decide who gets contacted",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4760,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// THE GATE. Nothing is enrolled that does not pass every check here, and every rejection\n// is recorded with the reason next to the name rather than dropped.\n//\n// This node's $input is the engagement history (opt-outs and recent attempts, one item);\n// the candidates come from the scored node. That way a Supabase outage produces an empty\n// history and a run that stops, not a run that contacts everybody.\nconst cfg = $('config').first().json;\nconst job = $('the job spec').first().json;\nconst scored = $('score against the job order').all().map((i) => i.json)\n  .filter((c) => c && c.ats_candidate_id);\n\nconst hist = $input.first().json || {};\nconst optOuts = new Set((hist.opt_outs || []).map((o) =>\n  String(typeof o === 'string' ? o : o.phone_e164 || '')).filter(Boolean));\n// phone -> ISO timestamp of the last outbound touch, from any campaign\nconst lastTouch = hist.last_touch || {};\n// phones already live in another campaign\nconst activeElsewhere = new Set((hist.active_phones || []).map(String));\n// ats ids already enrolled in THIS campaign (a re-delivered webhook, or a second run)\nconst alreadyEnrolled = new Set((hist.enrolled_ats_ids || []).map(String));\n\nconst now = Date.now();\nconst minGapMs = (Number(cfg.min_hours_between_touches) || 0) * 3600 * 1000;\n\nconst held = [];\nconst eligible = [];\n\nfor (const c of scored) {\n  const hold = (reason) => { held.push(Object.assign({}, c, { hold_reason: reason })); };\n\n  // Order matters. The cheapest and most legally consequential checks come first, and\n  // opt-out comes before everything including the score — an opted-out number is never\n  // reconsidered because the job is a good fit.\n  if (!c.phone_e164) { hold('no usable mobile number' + (c._phone_note ? ' — ' + c._phone_note : '')); continue; }\n  if (optOuts.has(c.phone_e164)) { hold('opted out — never contact'); continue; }\n  if (alreadyEnrolled.has(String(c.ats_candidate_id))) { hold('already enrolled in this campaign'); continue; }\n  if (activeElsewhere.has(c.phone_e164)) { hold('already being worked by another live campaign'); continue; }\n\n  const last = lastTouch[c.phone_e164];\n  if (last && minGapMs > 0) {\n    const age = now - new Date(last).getTime();\n    if (Number.isFinite(age) && age < minGapMs) {\n      hold('contacted ' + Math.round(age / 3600000) + 'h ago, inside the '\n        + cfg.min_hours_between_touches + 'h cooldown');\n      continue;\n    }\n  }\n\n  if (!c._above_floor) {\n    hold('match score ' + c.match_score + ' below the floor of ' + cfg.min_match_score);\n    continue;\n  }\n\n  eligible.push(c);\n}\n\n// Already sorted by score. Take the top N and hold the rest with a reason that says they\n// are not rejected, only queued — a second push for the same job picks them up.\nconst topN = Number(cfg.enroll_top_n) || 25;\nconst enrolled = eligible.slice(0, topN);\nfor (const c of eligible.slice(topN)) {\n  held.push(Object.assign({}, c, {\n    hold_reason: 'eligible, outside the top ' + topN + ' this run — rank ' + c._rank\n  }));\n}\n\nconst firstStep = (cfg.sequence || [])[0] || { step: 1, channel: 'sms', delay_hours: 0 };\n\nconst summary = {\n  _stage: 'gate',\n  job_title: job.title,\n  ats_job_id: job.ats_job_id,\n  pool: scored.length,\n  eligible: eligible.length,\n  enrolled: enrolled.length,\n  held: held.length,\n  held_by_reason: held.reduce((acc, h) => {\n    const k = String(h.hold_reason).replace(/\\d+/g, 'N').split(' — ')[0];\n    acc[k] = (acc[k] || 0) + 1; return acc;\n  }, {}),\n  history_source: hist._source || 'unknown'\n};\n\nif (!enrolled.length) {\n  return [{ json: Object.assign({ _has_enrollments: false, held: held }, summary) }];\n}\n\nreturn enrolled.map((c) => ({\n  json: Object.assign({}, c, {\n    _has_enrollments: true,\n    _summary: summary,\n    _held: held,\n    // The first touch is scheduled, not sent. Workflow 2 owns every send, which is what\n    // keeps quiet hours and the daily cap in one place instead of two.\n    step: 0,\n    attempts_made: 0,\n    status: 'pending',\n    next_attempt_at: new Date(now + (Number(firstStep.delay_hours) || 0) * 3600000).toISOString(),\n    campaign_idempotency_key: job.idempotency_key,\n    // Per-enrollment key, so re-running this workflow for the same job on the same day\n    // updates rather than duplicates.\n    enrollment_key: ['enr', cfg.client_slug, job.ats_job_id, c.ats_candidate_id].join(':')\n  })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "anyone",
+      "name": "anyone to enroll?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5040,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "anyone-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._has_enrollments }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopnobody",
+      "name": "STOP: nobody eligible",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5320,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// The pool was pulled and scored, and nobody came out the other side. That is a legitimate\n// outcome for a narrow job order, so it is reported with the arithmetic — which is what\n// tells it apart from a broken run.\nconst j = $input.first().json;\nconst held = j.held || [];\n\nreturn [{\n  json: {\n    _outcome: 'nobody eligible',\n    job_title: j.job_title,\n    ats_job_id: j.ats_job_id,\n    candidates_scored: j.pool || 0,\n    held_back: held.length,\n    held_by_reason: j.held_by_reason || {},\n    examples: held.slice(0, 10).map((h) => ({\n      name: h.full_name, score: h.match_score, reason: h.hold_reason\n    })),\n    _next_step: 'If most rows say \"below the floor\", MIN_MATCH_SCORE is too high for this '\n      + 'job order, or the ATS skill list was empty and there was nothing to match on. If '\n      + 'most say \"no usable mobile\", the candidate field map is pointing at the wrong '\n      + 'phone field for this vendor.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "rowsdb",
+      "name": "rows for supabase",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5320,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Builds the three upsert payloads the launch writes, in the order the foreign keys need:\n// job order, then candidates, then enrollments.\n//\n// Every payload is an ARRAY sent in ONE request. Twenty-five candidates is one round trip\n// with `Prefer: resolution=merge-duplicates`, not twenty-five — which matters less for 25\n// than it does for the nightly 20,000-row candidate sync that uses this same shape.\nconst cfg = $('config').first().json;\nconst job = $('the job spec').first().json;\nconst rows = $input.all().map((i) => i.json).filter((r) => r && r._has_enrollments);\n\nconst first = rows[0] || {};\nconst summary = first._summary || {};\nconst held = first._held || [];\n\nconst job_order = {\n  client_id: cfg.client_id || null,\n  ats_job_id: job.ats_job_id,\n  title: job.title,\n  description: job.description,\n  required_skills: job.required_skills,\n  nice_to_have: job.nice_to_have,\n  city: job.city,\n  state: job.state,\n  pay_rate: job.pay_rate,\n  shift: job.shift,\n  employment_type: job.employment_type,\n  recruiter_name: job.recruiter_name,\n  recruiter_email: job.recruiter_email,\n  status: 'open',\n  raw: job.raw\n};\n\nconst campaign = {\n  client_id: cfg.client_id || null,\n  name: job.campaign_name,\n  // The ladder is COPIED onto the campaign, not referenced. Editing SEQUENCE in config\n  // next week must not change the behaviour of a campaign already half way through.\n  sequence: cfg.sequence,\n  qualification: cfg.qualify,\n  status: 'active',\n  idempotency_key: job.idempotency_key\n};\n\nconst candidates = rows.map((c) => ({\n  client_id: cfg.client_id || null,\n  ats_candidate_id: c.ats_candidate_id,\n  first_name: c.first_name,\n  last_name: c.last_name,\n  email: c.email || null,\n  phone_e164: c.phone_e164,\n  title: c.title,\n  skills: c.skills,\n  city: c.city,\n  state: c.state,\n  timezone: c.timezone || cfg.default_timezone,\n  ats_status: c.ats_status,\n  last_ats_sync_at: new Date().toISOString()\n}));\n\n// The enrollment rows cannot be built yet — campaign_id and candidate_id are uuids Supabase\n// has not minted. They are carried as natural keys and resolved by the next node from what\n// the two upserts returned. Doing it this way rather than with 25 lookup calls is the\n// difference between a launch that takes two seconds and one that takes ninety.\nconst enrollments = rows.map((c) => ({\n  client_id: cfg.client_id || null,\n  _ats_candidate_id: c.ats_candidate_id,\n  _campaign_key: job.idempotency_key,\n  _ats_job_id: job.ats_job_id,\n  status: 'pending',\n  match_score: c.match_score,\n  match_reasons: c.match_reasons,\n  step: 0,\n  attempts_made: 0,\n  next_attempt_at: c.next_attempt_at\n}));\n\nreturn [{\n  json: {\n    _write: cfg.supabase_enabled && !cfg.dry_run_db,\n    job_order: job_order,\n    campaign: campaign,\n    candidates: candidates,\n    enrollments: enrollments,\n    held: held.map((h) => ({\n      ats_candidate_id: h.ats_candidate_id,\n      name: h.full_name,\n      phone: h.phone_e164,\n      match_score: h.match_score,\n      hold_reason: h.hold_reason\n    })),\n    summary: summary\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "writedb",
+      "name": "writing to the database?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5600,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "writedb-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._write }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopprev1",
+      "name": "STOP: preview - nothing enrolled",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5880,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// Preview. Everything ran; nothing was written to Supabase and nothing was scheduled.\n// Open this node to read the entire launch — who would be enrolled, in what order, with\n// what score and for what reason, and everyone who was held back and why.\n//\n// This is the node to have on screen when a client asks \"so what would it actually do\".\nconst cfg = $('config').first().json;\nconst p = $input.first().json;\n\nreturn [{\n  json: {\n    _outcome: 'preview — nothing enrolled',\n    _why: cfg.demo_mode\n      ? 'DEMO_MODE is on. It forces preview whatever TEST_RUN says, because a fabricated '\n        + 'campaign must never be able to schedule a real text.'\n      : (!cfg.supabase_enabled\n        ? 'Supabase is not configured, so there is nowhere to write the campaign to.'\n        : 'TEST_RUN is true with no TEST_PHONE set.'),\n    job: p.campaign && p.campaign.name,\n    would_enroll: (p.candidates || []).length,\n    would_hold: (p.held || []).length,\n    summary: p.summary,\n\n    enrolling: (p.candidates || []).map((c, i) => {\n      const e = (p.enrollments || [])[i] || {};\n      return {\n        rank: i + 1,\n        name: (c.first_name + ' ' + c.last_name).trim(),\n        ats_id: c.ats_candidate_id,\n        phone: c.phone_e164,\n        title: c.title,\n        score: e.match_score,\n        why: (e.match_reasons || []).join(' · '),\n        first_touch_due: e.next_attempt_at\n      };\n    }),\n\n    held_back: p.held || [],\n\n    _next_step: 'Set DEMO_MODE = false and fill in SUPABASE_URL and SUPABASE_SERVICE_KEY '\n      + 'to write this campaign. Nothing is sent even then — workflow 2 owns every send, '\n      + 'and it has its own TEST_RUN gate.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "upjob",
+      "name": "[cred] Supabase - upsert the job order",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5880,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/job_orders?on_conflict=client_id,ats_job_id",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify([$json.job_order]) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "upcamp",
+      "name": "[cred] Supabase - upsert the campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "The unique index on (client_id, idempotency_key) is what makes an ATS webhook delivered three times create one campaign.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        6160,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/campaigns?on_conflict=client_id,idempotency_key",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify([$('rows for supabase').first().json.campaign]) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "upcand",
+      "name": "[cred] Supabase - upsert the candidates",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        6440,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/candidates?on_conflict=client_id,ats_candidate_id",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($('rows for supabase').first().json.candidates) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "link",
+      "name": "link the enrollments",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6720,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Resolves the natural keys carried by `rows for supabase` into the uuids Supabase just\n// minted, using what the two upserts returned rather than by looking anything up.\n//\n// Both upsert nodes send `Prefer: return=representation`, so the response IS the resolved\n// row set. Twenty-five candidates cost one request and this node, instead of twenty-five\n// select-by-ats_id calls — which is the difference between a launch that takes two seconds\n// and one that takes a minute and a half against a rate-limited API.\nconst cfg = $('config').first().json;\nconst prepared = $('rows for supabase').first().json;\n\nconst asRows = (v) => {\n  const j = v && v.json !== undefined ? v.json : v;\n  if (Array.isArray(j)) return j;\n  if (j && Array.isArray(j.data)) return j.data;\n  return j ? [j] : [];\n};\n\nconst campaignRows = $('[cred] Supabase - upsert the campaign').all().flatMap(asRows);\nconst candidateRows = $input.all().flatMap(asRows);\nconst jobRows = $('[cred] Supabase - upsert the job order').all().flatMap(asRows);\n\nconst campaign = campaignRows.find((r) => r && r.id) || {};\nconst jobRow = jobRows.find((r) => r && r.id) || {};\n\nconst byAtsId = new Map();\nfor (const r of candidateRows) {\n  if (r && r.id && r.ats_candidate_id) byAtsId.set(String(r.ats_candidate_id), r.id);\n}\n\nconst unresolved = [];\nconst enrollments = [];\n\nfor (const e of prepared.enrollments || []) {\n  const candidate_id = byAtsId.get(String(e._ats_candidate_id));\n  if (!candidate_id || !campaign.id || !jobRow.id) {\n    unresolved.push({\n      ats_candidate_id: e._ats_candidate_id,\n      missing: !candidate_id ? 'candidate row' : (!campaign.id ? 'campaign row' : 'job order row')\n    });\n    continue;\n  }\n  enrollments.push({\n    client_id: cfg.client_id || null,\n    campaign_id: campaign.id,\n    candidate_id: candidate_id,\n    job_order_id: jobRow.id,\n    status: e.status,\n    match_score: e.match_score,\n    match_reasons: e.match_reasons,\n    step: e.step,\n    attempts_made: e.attempts_made,\n    next_attempt_at: e.next_attempt_at\n  });\n}\n\n// An enrollment that cannot be linked is reported, not silently skipped. It is nearly\n// always the upsert returning fewer rows than were sent because one of them violated a\n// constraint, and that is worth seeing in the execution list.\nreturn [{\n  json: {\n    campaign_id: campaign.id || null,\n    job_order_id: jobRow.id || null,\n    enrollments: enrollments,\n    linked: enrollments.length,\n    unresolved: unresolved,\n    _warning: unresolved.length\n      ? unresolved.length + ' enrollment(s) could not be linked to a Supabase row. '\n        + 'Check the upsert responses above for a constraint violation.'\n      : ''\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "upenr",
+      "name": "[cred] Supabase - insert the enrollments",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "ignore-duplicates, not merge. Re-running a launch must never reset somebody's step counter back to zero and text them again.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        7000,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/enrollments?on_conflict=campaign_id,candidate_id",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.enrollments) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=representation"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "sum1",
+      "name": "build the launch summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// The Slack message. Written so a recruiting manager who knows nothing about n8n can read\n// it in five seconds and tell whether the morning went well.\nconst cfg = $('config').first().json;\nconst p = $('rows for supabase').first().json;\nconst s = p.summary || {};\nconst held = p.held || [];\n\nconst byReason = Object.entries(s.held_by_reason || {})\n  .sort((a, b) => b[1] - a[1])\n  .map(([reason, n]) => '• ' + n + ' — ' + reason);\n\nconst enrolled = (p.candidates || []).length;\nconst top = (p.enrollments || []).slice(0, 3).map((e, i) => {\n  const c = (p.candidates || [])[i] || {};\n  return '  ' + (i + 1) + '. ' + ((c.first_name + ' ' + c.last_name).trim() || c.ats_candidate_id)\n    + ' (' + e.match_score + ') — ' + (e.match_reasons || []).slice(0, 2).join(', ');\n});\n\nconst modeLabel = cfg.mode === 'live' ? '' : '  [' + cfg.mode.toUpperCase() + ']';\n\nconst lines = [\n  '*Candidate engine — campaign launched*' + modeLabel,\n  (p.campaign && p.campaign.name) || 'campaign',\n  '',\n  'Pool scored: ' + (s.pool || 0) + '   Enrolled: ' + enrolled + '   Held: ' + held.length,\n  ''\n];\nif (top.length) lines.push('Top matches:', ...top, '');\nif (byReason.length) lines.push('Held back:', ...byReason, '');\nlines.push('First touches are scheduled. The outreach runner sends them on its next pass.');\n\n// Anything a human needs to act on, rather than just read.\nconst attention = [];\nif (!cfg.supabase_enabled) attention.push('Supabase not configured — nothing was persisted.');\nif (!cfg.twilio_enabled) attention.push('Twilio not configured — the scheduled touches cannot send.');\nif (!cfg.ats_enabled) attention.push('ATS not connected — this ran against the sample pool.');\nconst noPhone = held.filter((h) => String(h.hold_reason).startsWith('no usable mobile')).length;\nif (noPhone > 2) {\n  attention.push(noPhone + ' candidates had no usable mobile — check the phone field mapping.');\n}\nif (attention.length) lines.push('', '*Needs attention*', ...attention.map((a) => '• ' + a));\n\nreturn [{\n  json: {\n    _outcome: 'campaign launched',\n    enrolled: enrolled,\n    held: held.length,\n    pool: s.pool || 0,\n    needs_attention: attention,\n    slack_text: lines.join('\\n'),\n    // Slack's incoming-webhook shape. One field, so swapping Slack for Teams is one node.\n    slack_payload: { text: lines.join('\\n') }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "slack1",
+      "name": "summary configured?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        7560,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "slack1-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.slack_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "post1",
+      "name": "Post the launch summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        7840,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.slack_webhook_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.slack_payload) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "end1",
+      "name": "End",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        8120,
+        380
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-00",
+      "name": "Template overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -1356
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 1016,
+        "content": "## Score ATS candidates into a Supabase outreach campaign\n\n**Who's it for**\nRecruitment agencies and in-house talent teams who already keep candidates in an ATS and want a\nscored, compliant shortlist enrolled into outreach automatically, instead of a recruiter picking\nnames by hand.\n\n**How it works**\nA new job order arrives by webhook, or you press **Run it now**. The job is normalised through a\nper-vendor field map, then optionally enriched by an AI call that pulls out the must-have and\nnice-to-have requirements. Candidates are fetched from the ATS, normalised (phone numbers to E.164,\nduplicates collapsed) and scored against the job order transparently. Engagement history is read\nfrom Supabase so the gate can reject opt-outs, anyone inside a cooldown window, anyone already in\nanother live campaign, everyone below the score floor, and anything over the per-run cap. Survivors\nare enrolled with a first touch *scheduled* — never sent. Workflow 2 owns every outbound message,\nwhich keeps quiet hours and the daily cap in one place.\n\n**How to set up**\n1. Open **`config`** and set `ATS_FIELDS` for your vendor, the score floor and the per-run cap.\n2. Attach your credentials to the four `[cred]` nodes.\n3. Leave **`DEMO_MODE = true`** for the first run — it uses the sample pool and writes nothing.\n\n**Requirements**\nAn ATS with a candidate search API, a Supabase project, and optionally an OpenAI-compatible\nendpoint and a Slack or Discord webhook.\n\n**How to customize**\nScoring weights, the cooldown window and the gate thresholds all live in `config`. To add a\nsourcing channel, feed it into **`one candidate pool`** and the rest of the pipeline is unchanged."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-01",
+      "name": "1. Read the job order",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -286
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 246,
+        "content": "### 1. Read the job order\n\nThe ATS posts a new job order to **`Job order created`**, or you press **`Run it now`** to use the sample.\n\n**`config`** holds every setting in one place. **`read the job order`** maps the vendor payload through `ATS_FIELDS`, so a new ATS is one map entry, not a new workflow.\n\n**`job order usable?`** rejects a job with no title or no requirements before anything is spent on it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-02",
+      "name": "2. Enrich with AI",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 224,
+        "content": "### 2. Enrich the spec (optional)\n\n**`AI worth calling?`** only spends a token when the job order is thin. A well-filled order skips straight to the keyword rules.\n\n**`apply the AI requirements`** merges the extracted must-haves and nice-to-haves over the parsed order — the AI adds to the spec, it never replaces what the ATS already told us."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-03",
+      "name": "3. Source and score",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        -264
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1320,
+        "height": 224,
+        "content": "### 3. Source and score the candidates\n\n**`[cred] ATS - search candidates`** runs the search; with no ATS credential the run falls back to the bundled sample pool, so you can see the whole pipeline before connecting anything.\n\n**`normalise the candidates`** puts phone numbers in E.164 and collapses duplicates. **`score against the job order`** scores every candidate transparently — the reason is carried next to the score."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-04",
+      "name": "4. The gate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3640,
+        330
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1600,
+        "height": 202,
+        "content": "### 4. The gate\n\nNobody is enrolled who does not pass every check, and every rejection is kept with the reason next to the name — so *\"why was this person not contacted\"* is as answerable as *\"why were they\"*.\n\nThe order is deliberate. **Opt-out is checked before the score**, because an opted-out number is never reconsidered on the grounds that the job is a good fit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-05",
+      "name": "5. Enrol the survivors",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5320,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1880,
+        "height": 180,
+        "content": "### 5. Enrol the survivors\n\nThe job order, campaign and candidates are upserted first, then **`link the enrollments`** resolves the returned ids so an enrollment can never point at a row that does not exist.\n\nEach enrollment is written with its first touch **scheduled**, not sent."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-06",
+      "name": "6. Nothing is written until you say so",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7280,
+        520
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1040,
+        "height": 246,
+        "content": "### 6. Nothing is written until you say so\n\n`DEMO_MODE = true` (how it ships) runs the whole pipeline against the sample pool and writes nothing. Open **`STOP: preview - nothing enrolled`** to read the entire launch: who would be enrolled, in what order, with what score, and everyone held back and why.\n\nSet `DEMO_MODE = false` and fill in Supabase to persist a campaign. Even then **no message is sent** — that is workflow 2, and it has its own gate."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "config": {
+      "main": [
+        [
+          {
+            "node": "read the job order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run it now": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "the job spec": {
+      "main": [
+        [
+          {
+            "node": "ATS connected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ATS connected?": {
+      "main": [
+        [
+          {
+            "node": "[cred] ATS - search candidates",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: using the sample pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI worth calling?": {
+      "main": [
+        [
+          {
+            "node": "[cred] AI - read the job description",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: keyword rules only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job order created": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "anyone to enroll?": {
+      "main": [
+        [
+          {
+            "node": "rows for supabase",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: nobody eligible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "job order usable?": {
+      "main": [
+        [
+          {
+            "node": "AI worth calling?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: job order not usable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "rows for supabase": {
+      "main": [
+        [
+          {
+            "node": "writing to the database?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one candidate pool": {
+      "main": [
+        [
+          {
+            "node": "normalise the candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read the job order": {
+      "main": [
+        [
+          {
+            "node": "job order usable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase connected?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - engagement history",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: no engagement history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "summary configured?": {
+      "main": [
+        [
+          {
+            "node": "Post the launch summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "link the enrollments": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - insert the enrollments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: nobody eligible": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one engagement history": {
+      "main": [
+        [
+          {
+            "node": "decide who gets contacted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post the launch summary": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: keyword rules only": {
+      "main": [
+        [
+          {
+            "node": "the job spec",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "build the launch summary": {
+      "main": [
+        [
+          {
+            "node": "summary configured?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "normalise the candidates": {
+      "main": [
+        [
+          {
+            "node": "score against the job order",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "writing to the database?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - upsert the job order",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: preview - nothing enrolled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "apply the AI requirements": {
+      "main": [
+        [
+          {
+            "node": "the job spec",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "decide who gets contacted": {
+      "main": [
+        [
+          {
+            "node": "anyone to enroll?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: job order not usable": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: no engagement history": {
+      "main": [
+        [
+          {
+            "node": "one engagement history",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "STOP: using the sample pool": {
+      "main": [
+        [
+          {
+            "node": "one candidate pool",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "read the engagement history": {
+      "main": [
+        [
+          {
+            "node": "one engagement history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "score against the job order": {
+      "main": [
+        [
+          {
+            "node": "Supabase connected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] ATS - search candidates": {
+      "main": [
+        [
+          {
+            "node": "one candidate pool",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: preview - nothing enrolled": {
+      "main": [
+        [
+          {
+            "node": "build the launch summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] AI - read the job description": {
+      "main": [
+        [
+          {
+            "node": "apply the AI requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - engagement history": {
+      "main": [
+        [
+          {
+            "node": "read the engagement history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - upsert the campaign": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - upsert the candidates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - upsert the job order": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - upsert the campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - upsert the candidates": {
+      "main": [
+        [
+          {
+            "node": "link the enrollments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - insert the enrollments": {
+      "main": [
+        [
+          {
+            "node": "build the launch summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

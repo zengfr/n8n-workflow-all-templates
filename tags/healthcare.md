@@ -1,4 +1,4 @@
-# healthcare : 8
+# healthcare : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |12794|[12794_Manage_healthcare_resource_allocation_and_conflicts_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12794_Manage_healthcare_resource_allocation_and_conflicts_with_Anthropic_Claude.json)|
 |13308|[13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json)|
 |13960|[13960_Triage_and_schedule_healthcare_appointments_with_Azure_OpenAI__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13960_Triage_and_schedule_healthcare_appointments_with_Azure_OpenAI__Google_Sheets_and_Gmail.json)|
+|17630|[17630_Handle_healthcare_appointments_on_WhatsApp_with_Gemini_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17630_Handle_healthcare_appointments_on_WhatsApp_with_Gemini_and_Google_Calendar.json)|

@@ -1,4 +1,4 @@
-# icp : 18
+# icp : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |16345|[16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json)|
 |16373|[16373_Score_LinkedIn_ICP_leads_and_draft_outreach_with_Claude__Notion_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16373_Score_LinkedIn_ICP_leads_and_draft_outreach_with_Claude__Notion_and_Sheets.json)|
 |16386|[16386_Qualify_inbound_leads_with_OpenAI__HubSpot__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16386_Qualify_inbound_leads_with_OpenAI__HubSpot__Slack_and_Gmail.json)|
+|19724|[19724_Qualify_event_venue_leads_from_Gmail_with_Gemini__HighLevel__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19724_Qualify_event_venue_leads_from_Gmail_with_Gemini__HighLevel__Sheets_and_Slack.json)|

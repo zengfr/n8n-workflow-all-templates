@@ -1,4 +1,4 @@
-# group : 25
+# group : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |12046|[12046_Automate_Facebook_group_problem-solving_content_with_GPT-4_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12046_Automate_Facebook_group_problem-solving_content_with_GPT-4_and_Apify.json)|
 |13213|[13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json)|
 |13833|[13833_Moderate_Facebook_group_posts_with_OpenAI__Slack__and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13833_Moderate_Facebook_group_posts_with_OpenAI__Slack__and_Airtable.json)|
+|17459|[17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json)|
+|17504|[17504_Run_synthetic_campaign_focus_groups_with_Claude_and_Google_Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17504_Run_synthetic_campaign_focus_groups_with_Claude_and_Google_Sheets_and_SendGrid.json)|

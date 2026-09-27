@@ -1,4 +1,4 @@
-# ready : 34
+# ready : 41
 
 |id|file|
 |----|----|
@@ -36,3 +36,10 @@
 |15810|[15810_Generate_client-ready_workflow_diagrams_from_sales_call_transcripts_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15810_Generate_client-ready_workflow_diagrams_from_sales_call_transcripts_with_Claude.json)|
 |16035|[16035_Implement_AI-ready_GitHub_issues_with_CloudCLI_and_Telegram_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16035_Implement_AI-ready_GitHub_issues_with_CloudCLI_and_Telegram_summaries.json)|
 |16216|[16216_Create_SEO-ready_WordPress_blog_drafts_with_Claude__Imagen_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16216_Create_SEO-ready_WordPress_blog_drafts_with_Claude__Imagen_and_Slack.json)|
+|17145|[17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json)|
+|17308|[17308_Verify_billing-ready_completion_documents_with_OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17308_Verify_billing-ready_completion_documents_with_OpenRouter_and_Google_Sheets.json)|
+|17571|[17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json)|
+|17692|[17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json)|
+|17929|[17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json)|
+|17933|[17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json)|
+|19684|[19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json)|

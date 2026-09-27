@@ -1,4 +1,4 @@
-# processing : 80
+# processing : 91
 
 |id|file|
 |----|----|
@@ -82,3 +82,14 @@
 |15790|[15790_Extract_and_classify_legal_documents_with_Claude_Sonnet_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15790_Extract_and_classify_legal_documents_with_Claude_Sonnet_and_Google_Sheets.json)|
 |15937|[15937_Extract_invoice_data_with_Google_Gemini__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15937_Extract_invoice_data_with_Google_Gemini__Google_Sheets__and_Telegram.json)|
 |16771|[16771_Process_prescription_orders_and_refills_with_Telegram__Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16771_Process_prescription_orders_and_refills_with_Telegram__Google_Gemini_and_Sheets.json)|
+|17751|[17751_Process_demo_Stripe_orders_with_Lovable__Gmail__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17751_Process_demo_Stripe_orders_with_Lovable__Gmail__Slack__and_Google_Sheets.json)|
+|17806|[17806_Process_invoices_securely_with_OpenAI__Slack__and_ERP_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17806_Process_invoices_securely_with_OpenAI__Slack__and_ERP_webhooks.json)|
+|18863|[18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json)|
+|18958|[18958_Prevent_duplicate_webhook_processing_with_Data_Tables_idempotency_guard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18958_Prevent_duplicate_webhook_processing_with_Data_Tables_idempotency_guard.json)|
+|19042|[19042_Extract_and_triage_PDF_documents_with_Claude__Gmail__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19042_Extract_and_triage_PDF_documents_with_Claude__Gmail__Airtable_and_Slack.json)|
+|19223|[19223_Capture__classify__and_log_Gmail_PDF_invoices_with_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19223_Capture__classify__and_log_Gmail_PDF_invoices_with_Gemini_and_Google_Drive.json)|
+|19266|[19266_Register_GDPR_Article_30_processing_activities_with_Groq_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19266_Register_GDPR_Article_30_processing_activities_with_Groq_and_Discord.json)|
+|19319|[19319_Process_Gmail_invoices_with_OpenAI__Google_Sheets__and_Slack_reminders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19319_Process_Gmail_invoices_with_OpenAI__Google_Sheets__and_Slack_reminders.json)|
+|19444|[19444_Extract_invoice_data_from_Google_Drive_PDFs_with_Mistral_OCR_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19444_Extract_invoice_data_from_Google_Drive_PDFs_with_Mistral_OCR_and_Sheets.json)|
+|19739|[19739_Process__validate__and_approve_invoices_with_OpenAI_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19739_Process__validate__and_approve_invoices_with_OpenAI_GPT-4o_and_Google_Sheets.json)|
+|19845|[19845_Process_invoices_from_Gmail_and_Drive_using_Google_Gemini__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19845_Process_invoices_from_Gmail_and_Drive_using_Google_Gemini__Slack__and_Sheets.json)|

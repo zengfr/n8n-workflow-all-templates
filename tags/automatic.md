@@ -1,4 +1,4 @@
-# automatic : 85
+# automatic : 90
 
 |id|file|
 |----|----|
@@ -87,3 +87,8 @@
 |15895|[15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json)|
 |16121|[16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json)|
 |16735|[16735_Generate_SRT_subtitles_for_Google_Drive_audio_with_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16735_Generate_SRT_subtitles_for_Google_Drive_audio_with_Smallest.ai.json)|
+|16838|[16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json)|
+|17095|[17095_Transcribe_and_summarize_Twilio_calls_with_Smallest.ai__Gemini__Slack__and_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17095_Transcribe_and_summarize_Twilio_calls_with_Smallest.ai__Gemini__Slack__and_GoHighLevel.json)|
+|17835|[17835_Send_automatic_welcome_emails_to_new_Kit_subscribers_with_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17835_Send_automatic_welcome_emails_to_new_Kit_subscribers_with_Gmail_and_Slack.json)|
+|17877|[17877_Answer_electronics_questions_with_Google_Gemini__SerpAPI__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17877_Answer_electronics_questions_with_Google_Gemini__SerpAPI__and_Supabase.json)|
+|19444|[19444_Extract_invoice_data_from_Google_Drive_PDFs_with_Mistral_OCR_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19444_Extract_invoice_data_from_Google_Drive_PDFs_with_Mistral_OCR_and_Sheets.json)|

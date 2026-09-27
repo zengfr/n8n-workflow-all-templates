@@ -1,4 +1,4 @@
-# xml : 20
+# xml : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |8691|[8691_Sitemap.xml_Metadata_Export_to_Google_Sheets__Title__Meta_Description__and_URLs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8691_Sitemap.xml_Metadata_Export_to_Google_Sheets__Title__Meta_Description__and_URLs.json)|
 |11911|[11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11911_Automate_invoice_processing_with_GPT-4o_classification_and_XML_export_to_accounting.json)|
 |15443|[15443_Extract_sitemap_URLs_to_CSV_using_chat_input__XML_parsing_and_HTTP_upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15443_Extract_sitemap_URLs_to_CSV_using_chat_input__XML_parsing_and_HTTP_upload.json)|
+|18936|[18936_Send_SAP_XML_sales_orders_from_GoHighLevel_to_a_warehouse_via_Make.com_SFTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18936_Send_SAP_XML_sales_orders_from_GoHighLevel_to_a_warehouse_via_Make.com_SFTP.json)|
+|19020|[19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json)|

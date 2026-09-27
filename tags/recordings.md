@@ -1,4 +1,4 @@
-# recordings : 19
+# recordings : 26
 
 |id|file|
 |----|----|
@@ -21,3 +21,10 @@
 |15421|[15421_Convert_sales_call_recordings_into_HubSpot_CRM_notes_with_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15421_Convert_sales_call_recordings_into_HubSpot_CRM_notes_with_WayinVideo_and_GPT-4o-mini.json)|
 |15511|[15511_Turn_webinar_recordings_into_Salesforce_follow-up_emails_with_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15511_Turn_webinar_recordings_into_Salesforce_follow-up_emails_with_WayinVideo_and_GPT-4o-mini.json)|
 |15974|[15974_Transcribe_meetings_and_log_action_items_to_Notion_with_AssemblyAI_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15974_Transcribe_meetings_and_log_action_items_to_Notion_with_AssemblyAI_and_Gemini.json)|
+|16817|[16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json)|
+|16957|[16957_Transcribe_and_summarize_Notion_meeting_recordings_with_Gladia.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16957_Transcribe_and_summarize_Notion_meeting_recordings_with_Gladia.json)|
+|17138|[17138_Transcribe_speaker-labeled_recordings_with_Gladia__Google_Drive__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17138_Transcribe_speaker-labeled_recordings_with_Gladia__Google_Drive__and_Slack.json)|
+|17222|[17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json)|
+|17888|[17888_Score_sales_call_recordings_with_Google_Drive__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17888_Score_sales_call_recordings_with_Google_Drive__Google_Gemini_and_Google_Sheets.json)|
+|18121|[18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json)|
+|18862|[18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json)|

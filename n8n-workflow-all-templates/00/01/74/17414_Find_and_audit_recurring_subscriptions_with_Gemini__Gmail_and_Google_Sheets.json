@@ -1,0 +1,511 @@
+{
+  "id": "QT5HhSWsHeyjnDPr",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Find and audit recurring subscriptions with Gemini, Gmail and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 17414,
+    "update_time": "2026-09-27"
+  },
+  "name": "Find forgotten subscriptions in your bank statement with Gemini and Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ca937a16-94c5-4b74-9331-b450addf4001",
+      "name": "Subscription Audit Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        48,
+        48
+      ],
+      "webhookId": "c1de06d7-b7d3-43cb-aeb6-a8e5b7cf04ba",
+      "parameters": {
+        "options": {
+          "buttonLabel": "Audit my subscriptions",
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Thanks! Your subscription audit will arrive by email shortly."
+            }
+          }
+        },
+        "formTitle": "Find my forgotten subscriptions",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "email",
+              "fieldLabel": "Your email",
+              "requiredField": true
+            },
+            {
+              "fieldType": "file",
+              "fieldLabel": "Statement",
+              "multipleFiles": false,
+              "requiredField": true,
+              "acceptFileTypes": ".csv"
+            }
+          ]
+        },
+        "formDescription": "Upload 3-12 months of bank or card statements as CSV. We find every recurring charge and tell you what to cancel."
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "2033d4e4-6aaa-4862-9a88-e0ff063325a7",
+      "name": "Extract Transactions",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        272,
+        48
+      ],
+      "parameters": {
+        "options": {},
+        "binaryPropertyName": "Statement"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1f178595-fd9a-478b-b96c-b9766d06284f",
+      "name": "Detect Recurring Charges",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        48
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(function (i) { return i.json; });\nconst f = $('Subscription Audit Form').first().json;\nconst groups = {};\nfor (const r of rows) {\n  const raw = r.Amount || r.amount || r.Debit || r.debit || 0;\n  const amt = Math.abs(Number(String(raw).replace(/[^0-9.-]/g, '')) || 0);\n  if (!amt) continue;\n  const desc = String(r.Description || r.description || r.Memo || r.Details || '');\n  if (!desc) continue;\n  const key = desc.toLowerCase().replace(/[0-9]/g, '').replace(/[^a-z ]/g, '').replace(/\\s+/g, ' ').trim().slice(0, 24);\n  if (!key) continue;\n  const date = String(r.Date || r.date || r['Transaction Date'] || '');\n  if (!groups[key]) { groups[key] = { merchant: key, charges: [], dates: [] }; }\n  groups[key].charges.push(amt);\n  groups[key].dates.push(date);\n}\nconst recurring = [];\nfor (const k of Object.keys(groups)) {\n  const g = groups[k];\n  if (g.charges.length < 2) continue;\n  const avg = g.charges.reduce(function (a, b) { return a + b; }, 0) / g.charges.length;\n  const spread = Math.max.apply(null, g.charges) - Math.min.apply(null, g.charges);\n  const stable = avg > 0 && spread / avg < 0.25;\n  if (!stable) continue;\n  recurring.push({ merchant: g.merchant, times: g.charges.length, averageAmount: Math.round(avg * 100) / 100, totalPaid: Math.round(g.charges.reduce(function (a, b) { return a + b; }, 0)), lastSeen: g.dates.sort().slice(-1)[0] || '' });\n}\nrecurring.sort(function (a, b) { return b.totalPaid - a.totalPaid; });\nconst top = recurring.slice(0, 25);\nreturn [{ json: {\n  email: f['Your email'] || '',\n  transactionCount: rows.length,\n  recurringCount: top.length,\n  totalRecurringSpend: top.reduce(function (a, b) { return a + b.totalPaid; }, 0),\n  candidateText: top.map(function (t) { return t.merchant + ' | charged ' + t.times + ' times | avg ' + t.averageAmount + ' | total ' + t.totalPaid + ' | last ' + t.lastSeen; }).join('\\n')\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a63a458c-f8e8-4235-ba2c-1cc52edd62d2",
+      "name": "Found Recurring Charges",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        704,
+        48
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.recurringCount }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4df64103-80dd-4b1e-a97e-797f5d9cdc6d",
+      "name": "Audit Subscriptions with Gemini",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "onError": "continueErrorOutput",
+      "position": [
+        1184,
+        32
+      ],
+      "parameters": {
+        "text": "=You are a personal finance analyst. The list below contains repeating charges detected in a bank statement. For each one work out what the service actually is from the merchant string, its category, the monthly and annual cost, and whether the person should keep, review or cancel it. Use \"cancel\" for obviously duplicated services or things charged repeatedly but rarely used, \"review\" when it depends on the person's habits, and \"keep\" for essentials such as utilities, insurance, rent or phone. Ignore anything that is clearly not a subscription, such as groceries or fuel. Also give the total annual cost and the realistic savings if the cancel and review items were dropped.\n\nRepeating charges:\n{{ $json.candidateText }}",
+        "batching": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "d6a214d5-d869-4042-a03b-dbfe61b063f1",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1152,
+        208
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0.2,
+          "maxOutputTokens": 4096
+        },
+        "modelName": "models/gemini-3.1-flash-lite"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "SqSj0UBxvATZV3OU",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "925d19d7-4ab7-4d72-814b-7d02590e13d5",
+      "name": "Audit Result Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1376,
+        208
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"subscriptions\":[{\"merchant\":\"netflixcom\",\"service\":\"Netflix\",\"category\":\"Streaming\",\"monthly_cost\":15.99,\"annual_cost\":191.88,\"recommendation\":\"review\",\"reason\":\"Check if anyone still watches it\"}],\"total_annual_cost\":420,\"potential_savings\":180,\"summary\":\"You have 9 recurring charges costing about 420 a year\"}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a1267a4d-5c78-4773-93c4-d3284480d246",
+      "name": "Parse Audit Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1856,
+        16
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const src = $json.output || $json;\nconst d = $('Detect Recurring Charges').item.json;\nconst list = Array.isArray(src.subscriptions) ? src.subscriptions : [];\nconst subs = list.map(function (s) { return { merchant: s.merchant || '', service: s.service || s.merchant || '', category: s.category || 'Other', monthlyCost: Number(s.monthly_cost) || 0, annualCost: Number(s.annual_cost) || 0, recommendation: String(s.recommendation || 'review').toLowerCase(), reason: s.reason || '' }; });\nconst cancels = subs.filter(function (s) { return s.recommendation === 'cancel' || s.recommendation === 'review'; });\nreturn {\n  email: d.email,\n  subscriptionCount: subs.length,\n  totalAnnualCost: Number(src.total_annual_cost) || 0,\n  potentialSavings: Number(src.potential_savings) || 0,\n  summary: src.summary || '',\n  subscriptions: subs,\n  cancelText: cancels.map(function (s) { return '- ' + s.service + ' (' + s.category + '): ' + s.annualCost + ' per year -> ' + s.recommendation + '. ' + s.reason; }).join('\\n'),\n  keepText: subs.filter(function (s) { return s.recommendation === 'keep'; }).map(function (s) { return '- ' + s.service + ': ' + s.annualCost + ' per year'; }).join('\\n')\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2b3a8b0c-7374-45bb-8dde-aceb84b841a7",
+      "name": "Email Cancel List",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2096,
+        16
+      ],
+      "webhookId": "14420f5a-2e35-4321-a61c-abd30796f597",
+      "parameters": {
+        "sendTo": "={{ $(\"Parse Audit Result\").item.json.email }}",
+        "message": "={{ $(\"Parse Audit Result\").item.json.summary + \"\\n\\nSubscriptions found: \" + $(\"Parse Audit Result\").item.json.subscriptionCount + \"\\nTotal per year: \" + $(\"Parse Audit Result\").item.json.totalAnnualCost + \"\\nPotential savings: \" + $(\"Parse Audit Result\").item.json.potentialSavings + \"\\n\\nWorth cancelling or reviewing:\\n\" + $(\"Parse Audit Result\").item.json.cancelText + \"\\n\\nKeep these:\\n\" + $(\"Parse Audit Result\").item.json.keepText + \"\\n\\nThe full list is in your Google Sheet.\" }}",
+        "options": {},
+        "subject": "={{ \"You are paying \" + $(\"Parse Audit Result\").item.json.totalAnnualCost + \" a year in subscriptions\" }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bb222e25-7c37-4eda-8058-3bc34a6aac99",
+      "name": "Split Subscriptions",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        2400,
+        16
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "subscriptions"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "08278503-aaa3-49a4-9c66-c6e6fca698a9",
+      "name": "Save Subscriptions",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2624,
+        16
+      ],
+      "parameters": {
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Subscriptions"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select your spreadsheet"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "VBagC67WblkLgsDb",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "0bedceef-8152-40ff-9948-8ee19b2e5bf5",
+      "name": "Email No Subscriptions Found",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        928,
+        160
+      ],
+      "webhookId": "0a403ab4-03ae-4b27-a6f1-0f796d96705a",
+      "parameters": {
+        "sendTo": "={{ $(\"Detect Recurring Charges\").item.json.email }}",
+        "message": "We did not find any repeating charges in that statement. Upload a longer period (3 months or more) so repeats can be detected.",
+        "options": {},
+        "subject": "No recurring charges found",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4fb12621-9ad8-4eb0-8d38-33730d3cc18c",
+      "name": "Email Audit Failure",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1600,
+        208
+      ],
+      "webhookId": "78c699a0-8824-4eb1-9626-1e31d9af0873",
+      "parameters": {
+        "sendTo": "={{ $(\"Detect Recurring Charges\").item.json.email }}",
+        "message": "Sorry - the analysis failed. Please check the CSV has Date, Description and Amount columns and try again.",
+        "options": {},
+        "subject": "We could not complete your subscription audit",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "UGspxvKkMZCF4l4Y",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "084dc5b1-718b-4ed6-8ca5-25b2cd6a9b25",
+      "name": "Overview Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        -288
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 900,
+        "content": "## Find forgotten subscriptions in your bank statement with Gemini and Google Sheets\n\n### How it works\nThe average person pays for several subscriptions they forgot about. Upload a few months of statements as CSV and a Code node groups the transactions by merchant and finds the genuinely repeating ones - charged at least twice with a stable amount - so only aggregated candidates, never raw transactions, are sent to the AI. A Basic LLM Chain with Google Gemini then works out what each merchant actually is, its category, the monthly and annual cost, and whether to keep, review or cancel it, protecting essentials like rent, utilities and insurance. Each subscription is upserted into Google Sheets by merchant so repeat audits update rows instead of duplicating, and you get an email with the cancel list and the savings on the table.\n\n### Setup\n1. Connect Google Gemini (PaLM) API, Google Sheets and Gmail.\n2. Point the Sheets node at your spreadsheet (tab: Subscriptions).\n3. Export 3-12 months of statements as CSV with Date, Description and Amount columns.\n\n### Customization tips\nTighten the repeat detection, or add a monthly scheduled re-audit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3127d1a7-5aca-4b0f-a08e-c24145ad5575",
+      "name": "S1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -288
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1100,
+        "height": 676,
+        "content": "## 1. Upload & detect repeats\nA Code node groups transactions by merchant and keeps only charges that repeat with a stable amount. Statements with no repeats stop here with a helpful email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "22f45e6e-5f6c-416e-a6e0-317375fd01bc",
+      "name": "S2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        -288
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 644,
+        "height": 676,
+        "content": "## 2. AI classification (Basic LLM Chain)\nGemini names the real service behind each merchant string, prices it annually and recommends keep, review or cancel - protecting essentials."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "931b23a9-34bb-4a7d-bc48-c22d3583ebd8",
+      "name": "S3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1792,
+        -288
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 676,
+        "content": "## 3. Email the cancel list\nSend the totals, the potential savings and exactly what to cancel or review."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f6ebb235-372b-4462-bf07-a81a7bbb1422",
+      "name": "S4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2320,
+        -288
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 676,
+        "content": "## 4. Save one row per subscription\nSplit the list and upsert by merchant so you build a tracker you can sort by annual cost."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "1e7417fb-e9ec-42b0-8a61-6a76fdb38bfa",
+  "nodeGroups": [],
+  "connections": {
+    "Email Cancel List": {
+      "main": [
+        [
+          {
+            "node": "Split Subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Audit Result": {
+      "main": [
+        [
+          {
+            "node": "Email Cancel List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audit Result Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Audit Subscriptions with Gemini",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Subscriptions": {
+      "main": [
+        [
+          {
+            "node": "Save Subscriptions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Transactions": {
+      "main": [
+        [
+          {
+            "node": "Detect Recurring Charges",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Found Recurring Charges": {
+      "main": [
+        [
+          {
+            "node": "Audit Subscriptions with Gemini",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email No Subscriptions Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subscription Audit Form": {
+      "main": [
+        [
+          {
+            "node": "Extract Transactions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Recurring Charges": {
+      "main": [
+        [
+          {
+            "node": "Found Recurring Charges",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Audit Subscriptions with Gemini",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Audit Subscriptions with Gemini": {
+      "main": [
+        [
+          {
+            "node": "Parse Audit Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Audit Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

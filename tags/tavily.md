@@ -1,4 +1,4 @@
-# tavily : 42
+# tavily : 48
 
 |id|file|
 |----|----|
@@ -44,3 +44,9 @@
 |16577|[16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json)|
 |16662|[16662_Run_a_multi-agent_research_and_publishing_pipeline_with_GPT-4o__Tavily_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16662_Run_a_multi-agent_research_and_publishing_pipeline_with_GPT-4o__Tavily_and_Notion.json)|
 |16676|[16676_Create_blog_drafts__images__and_LinkedIn_posts_with_Tavily__Gemini__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16676_Create_blog_drafts__images__and_LinkedIn_posts_with_Tavily__Gemini__and_OpenAI.json)|
+|17555|[17555_Generate_business_strategy_canvases_with_GPT-4o__Tavily__MongoDB_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17555_Generate_business_strategy_canvases_with_GPT-4o__Tavily__MongoDB_and_Gmail.json)|
+|17637|[17637_Qualify_and_enrich_Odoo_leads_with_Tavily__Google_Gemini__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17637_Qualify_and_enrich_Odoo_leads_with_Tavily__Google_Gemini__and_Resend.json)|
+|17710|[17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json)|
+|18394|[18394_Generate_weekly_AI_automation_newsletters_with_Google_Sheets__Tavily__OpenRouter_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18394_Generate_weekly_AI_automation_newsletters_with_Google_Sheets__Tavily__OpenRouter_and_Gmail.json)|
+|18642|[18642_Prepare_executive_meeting_briefs_with_Firecrawl__Tavily__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18642_Prepare_executive_meeting_briefs_with_Firecrawl__Tavily__OpenAI__and_Gmail.json)|
+|19545|[19545_Generate_video_ad_scenes_from_URLs_with_Tavily__Google_Gemini__OpenAI_and_JSON2Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19545_Generate_video_ad_scenes_from_URLs_with_Tavily__Google_Gemini__OpenAI_and_JSON2Video.json)|

@@ -1,4 +1,4 @@
-# backed : 8
+# backed : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |13282|[13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json)|
 |13995|[13995_Generate_research-backed_curriculum_plans_with_GPT-4o__Perplexity_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13995_Generate_research-backed_curriculum_plans_with_GPT-4o__Perplexity_and_Google_Sheets.json)|
 |14000|[14000_Generate_research-backed_infographics_with_GPT-4__kie.ai__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14000_Generate_research-backed_infographics_with_GPT-4__kie.ai__and_Gmail.json)|
+|17692|[17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json)|

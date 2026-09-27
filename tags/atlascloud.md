@@ -1,4 +1,4 @@
-# atlascloud : 4
+# atlascloud : 11
 
 |id|file|
 |----|----|
@@ -6,3 +6,10 @@
 |16347|[16347_Create_and_publish_AI_social_posts_from_Telegram_with_OpenAI__AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16347_Create_and_publish_AI_social_posts_from_Telegram_with_OpenAI__AtlasCloud_and_Blotato.json)|
 |16572|[16572_Create_Veo_3.1_Fast_AI_shorts_from_Telegram_with_AtlasCloud__OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16572_Create_Veo_3.1_Fast_AI_shorts_from_Telegram_with_AtlasCloud__OpenAI_and_Blotato.json)|
 |16776|[16776_Generate_Telegram_image-to-video_clips_with_AtlasCloud_WAN_2.7_and_post_via_Blotato_to_TikTok__Instagram__Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16776_Generate_Telegram_image-to-video_clips_with_AtlasCloud_WAN_2.7_and_post_via_Blotato_to_TikTok__Instagram__Facebook.json)|
+|16895|[16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json)|
+|16898|[16898_Create_and_publish_AI_video_reels_to_Instagram_from_Telegram_with_OpenAI_and_AtlasCloud.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16898_Create_and_publish_AI_video_reels_to_Instagram_from_Telegram_with_OpenAI_and_AtlasCloud.json)|
+|16905|[16905_Create_AI_image_and_video_posts_from_Telegram_with_GPT-4o__AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16905_Create_AI_image_and_video_posts_from_Telegram_with_GPT-4o__AtlasCloud_and_Blotato.json)|
+|17058|[17058_Create_AI_product_video_ad_Shorts_from_Telegram_photos_with_OpenAI_and_AtlasCloud.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17058_Create_AI_product_video_ad_Shorts_from_Telegram_photos_with_OpenAI_and_AtlasCloud.json)|
+|17060|[17060_Generate_daily_auto-service_AI_videos_and_post_them_with_OpenAI__Perplexity__AtlasCloud__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17060_Generate_daily_auto-service_AI_videos_and_post_them_with_OpenAI__Perplexity__AtlasCloud__and_Blotato.json)|
+|17311|[17311_Create_AI_news_shorts_from_Hacker_News_with_OpenAI__AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17311_Create_AI_news_shorts_from_Hacker_News_with_OpenAI__AtlasCloud_and_Blotato.json)|
+|17593|[17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json)|

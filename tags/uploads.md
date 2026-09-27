@@ -1,4 +1,4 @@
-# uploads : 11
+# uploads : 15
 
 |id|file|
 |----|----|
@@ -13,3 +13,7 @@
 |14543|[14543_Monitor_APK_uploads_and_run_MobSF_analysis_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14543_Monitor_APK_uploads_and_run_MobSF_analysis_with_OpenAI_and_Slack_alerts.json)|
 |16400|[16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json)|
 |16435|[16435_Promote_YouTube_uploads_to_social_channels_with_DeepSeek_and_Posta.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16435_Promote_YouTube_uploads_to_social_channels_with_DeepSeek_and_Posta.json)|
+|16901|[16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json)|
+|17894|[17894_Verify_tax_IDs_in_PDF_uploads_with_Groq__Google_Sheets__Lovable__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17894_Verify_tax_IDs_in_PDF_uploads_with_Groq__Google_Sheets__Lovable__and_Gmail.json)|
+|18584|[18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json)|
+|18666|[18666_Summarize_new_YouTube_uploads_with_Apify__OpenAI__Slack__Notion_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18666_Summarize_new_YouTube_uploads_with_Apify__OpenAI__Slack__Notion_and_Sheets.json)|

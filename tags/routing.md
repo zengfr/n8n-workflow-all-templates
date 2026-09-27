@@ -1,4 +1,4 @@
-# routing : 69
+# routing : 82
 
 |id|file|
 |----|----|
@@ -71,3 +71,16 @@
 |16574|[16574_Handle_client_intake__routing__and_confirmations_with_Claude__Google_Sheets__Gmail__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16574_Handle_client_intake__routing__and_confirmations_with_Claude__Google_Sheets__Gmail__and_Twilio.json)|
 |16719|[16719_Route_medical_equipment_form_leads_to_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16719_Route_medical_equipment_form_leads_to_Google_Sheets_and_Slack.json)|
 |16760|[16760_Route_patients_to_the_best_nearby_hospital_using_Google_Maps__GPT-4.1_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16760_Route_patients_to_the_best_nearby_hospital_using_Google_Maps__GPT-4.1_and_Twilio.json)|
+|16989|[16989_Route_WhatsApp_support_requests_with_Groq__Google_Sheets__Gmail__Telegram_and_AiSensy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16989_Route_WhatsApp_support_requests_with_Groq__Google_Sheets__Gmail__Telegram_and_AiSensy.json)|
+|17110|[17110_Route_procurement_helpdesk_tickets_from_Gmail_with_Groq_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17110_Route_procurement_helpdesk_tickets_from_Gmail_with_Groq_and_Slack.json)|
+|17147|[17147_Handle_NPS_survey_replies_and_routing_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17147_Handle_NPS_survey_replies_and_routing_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|17148|[17148_Handle_NPS_survey_responses_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17148_Handle_NPS_survey_responses_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|17210|[17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json)|
+|17929|[17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json)|
+|18461|[18461_Send_a_daily_RSS_digest_email_with_GPT-4o-mini_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18461_Send_a_daily_RSS_digest_email_with_GPT-4o-mini_and_SMTP.json)|
+|18482|[18482_Triage_social_crisis_mentions_with_Google_Gemini_and_webhook_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18482_Triage_social_crisis_mentions_with_Google_Gemini_and_webhook_routing.json)|
+|18499|[18499_Route_and_respond_to_support_tickets_with_Google_Sheets__Slack__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18499_Route_and_respond_to_support_tickets_with_Google_Sheets__Slack__and_Gemini.json)|
+|18612|[18612_Qualify_and_route_real_estate_leads_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18612_Qualify_and_route_real_estate_leads_with_Gmail_and_Google_Sheets.json)|
+|19097|[19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json)|
+|19708|[19708_Score_and_route_property_enquiries_with_Groq__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19708_Score_and_route_property_enquiries_with_Groq__Google_Sheets__and_Gmail.json)|
+|19809|[19809_Intake_and_route_web_form_leads_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19809_Intake_and_route_web_form_leads_with_Airtable_and_Slack.json)|

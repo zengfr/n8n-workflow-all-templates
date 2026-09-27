@@ -1,4 +1,4 @@
-# git : 12
+# git : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |15354|[15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json)|
 |15795|[15795_Deploy_n8n_workflows_with_GitHub-based_version_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15795_Deploy_n8n_workflows_with_GitHub-based_version_control.json)|
 |16220|[16220_Report_and_clean_up_stale_GitHub_branches_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16220_Report_and_clean_up_stale_GitHub_branches_with_Slack_notifications.json)|
+|18590|[18590_Sync_workflows_to_GitHub_repository_files_using_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18590_Sync_workflows_to_GitHub_repository_files_using_the_n8n_API.json)|

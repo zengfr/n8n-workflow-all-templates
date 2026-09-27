@@ -1,4 +1,4 @@
-# script : 14
+# script : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |15832|[15832_Generate_short-form_social_videos_with_Claude__ElevenLabs__Creatomate_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15832_Generate_short-form_social_videos_with_Claude__ElevenLabs__Creatomate_and_Google_Drive.json)|
 |16105|[16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json)|
 |16552|[16552_Send_GitHub_release_audio_newsletters_with_OpenAI__Google_Drive__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16552_Send_GitHub_release_audio_newsletters_with_OpenAI__Google_Drive__Gmail_and_Sheets.json)|
+|17408|[17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json)|
+|18933|[18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json)|

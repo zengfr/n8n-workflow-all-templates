@@ -1,4 +1,4 @@
-# removal : 9
+# removal : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |14381|[14381_Generate_AI_document_titles_for_Paperless-ngx_with_GPT-4o_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14381_Generate_AI_document_titles_for_Paperless-ngx_with_GPT-4o_Mini.json)|
 |14387|[14387_Generate_clean_plates_and_automate_object_removal_with_Seedance_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14387_Generate_clean_plates_and_automate_object_removal_with_Seedance_AI.json)|
 |16353|[16353_Sync_paid_Shopify_order_contacts_with_Odoo_and_remove_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16353_Sync_paid_Shopify_order_contacts_with_Odoo_and_remove_duplicates.json)|
+|19206|[19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json)|
+|19783|[19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json)|
+|19784|[19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json)|

@@ -1,0 +1,1068 @@
+{
+  "name": "Turn long videos in Google Drive into captioned vertical clips with CNAPS",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "A new video lands in Drive",
+      "name": "A new video lands in Drive",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "Settings",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "output_folder_id",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "a2",
+              "name": "sheet_id",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "a3",
+              "name": "sheet_name",
+              "type": "string",
+              "value": "Clips"
+            },
+            {
+              "id": "a4",
+              "name": "slack_channel",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "a5",
+              "name": "clip_target_len_sec",
+              "type": "number",
+              "value": 45
+            },
+            {
+              "id": "a6",
+              "name": "tempo",
+              "type": "string",
+              "value": "A little faster"
+            },
+            {
+              "id": "a7",
+              "name": "wait_minutes_per_source_minute",
+              "type": "number",
+              "value": 4
+            },
+            {
+              "id": "a8",
+              "name": "min_wait_minutes",
+              "type": "number",
+              "value": 6
+            },
+            {
+              "id": "a9",
+              "name": "max_wait_minutes",
+              "type": "number",
+              "value": 45
+            },
+            {
+              "id": "a10",
+              "name": "clip_instruction",
+              "type": "string",
+              "value": "Find the strongest self-contained moments in this video. Each should be a complete thought that makes sense without the surrounding footage. Return them as timecoded segments."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "Work out how long to wait",
+      "name": "Work out how long to wait",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// CNAPS runtime scales with source length — a fixed Wait either stalls short\n// videos or times out long ones. Whisper is the long pole; ~4 min of processing\n// per minute of source is what we measured. Drive only reports duration for\n// files it has finished analysing, so fall back to the minimum when it is absent.\nconst cfg  = $('Settings').first().json;\nconst file = $('A new video lands in Drive').first().json;\n\n// Guard: writing clips back into the watched folder makes the trigger fire on its\n// own output, forever. Fail loudly here rather than let that start.\nconst watchedFolder = Array.isArray(file?.parents) ? file.parents[0] : null;\nif (watchedFolder && cfg.output_folder_id && watchedFolder === cfg.output_folder_id) {\n  throw new Error(\n    'output_folder_id in Settings is the same folder the trigger watches (' + watchedFolder +\n    '). Saving clips there would re-trigger this workflow on its own output. ' +\n    'Point output_folder_id at a different folder.'\n  );\n}\n\nconst durationMs = Number(file?.videoMediaMetadata?.durationMillis ?? 0);\nconst sourceMin  = durationMs > 0 ? durationMs / 60000 : null;\n\nlet waitMinutes;\nif (sourceMin) {\n  waitMinutes = Math.ceil(sourceMin * cfg.wait_minutes_per_source_minute);\n} else {\n  waitMinutes = cfg.min_wait_minutes;\n}\nwaitMinutes = Math.min(cfg.max_wait_minutes, Math.max(cfg.min_wait_minutes, waitMinutes));\n\nreturn [{ json: {\n  file_id: file.id,\n  file_name: file.name,\n  source_minutes: sourceMin ? Number(sourceMin.toFixed(2)) : null,\n  wait_minutes: waitMinutes,\n  wait_basis: sourceMin ? 'measured from Drive metadata' : 'no duration on the file, used min_wait_minutes',\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "Download the video",
+      "name": "Download the video",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1500,
+        0
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Work out how long to wait').first().json.file_id }}"
+        },
+        "options": {
+          "binaryPropertyName": "data"
+        },
+        "operation": "download"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "Open an MCP session",
+      "name": "Open an MCP session",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        840,
+        0
+      ],
+      "parameters": {
+        "url": "https://mcp.cnaps.ai/mcp",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          }
+        },
+        "jsonBody": "{\"jsonrpc\":\"2.0\",\"id\":1,\"method\":\"initialize\",\"params\":{\"protocolVersion\":\"2025-06-18\",\"capabilities\":{},\"clientInfo\":{\"name\":\"n8n\",\"version\":\"1\"}}}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/event-stream"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "Ask CNAPS for an upload slot",
+      "name": "Ask CNAPS for an upload slot",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1060,
+        0
+      ],
+      "parameters": {
+        "url": "https://mcp.cnaps.ai/mcp",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "jsonBody": "{\"jsonrpc\":\"2.0\",\"id\":2,\"method\":\"tools/call\",\"params\":{\"name\":\"upload_file\",\"arguments\":{}}}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/event-stream"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Mcp-Session-Id",
+              "value": "={{ $('Open an MCP session').first().json.headers['mcp-session-id'] }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "Read the upload URL",
+      "name": "Read the upload URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// The upload URL is a 64-character secret. Never route a secret through an LLM —\n// one mistyped character produces a URL that looks perfect and 404s with\n// \"Upload session not found or expired\". So this is plain HTTP + a regex, no agent.\n// The MCP endpoint answers in SSE framing (\"event: message\\ndata: {...}\"), so the\n// JSON has to be pulled out of the body text rather than read as a field.\nconst body = $input.first().json;\nconst raw  = typeof body === 'string' ? body : JSON.stringify(body);\nconst m    = raw.match(/https:\\/\\/mcp\\.cnaps\\.ai\\/upload\\/[a-f0-9]{64}/);\n\nif (!m) {\n  throw new Error('CNAPS did not return an upload URL. Response was: ' + raw.slice(0, 400));\n}\nreturn [{ json: { upload_url: m[0] } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "Send the video to CNAPS",
+      "name": "Send the video to CNAPS",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1720,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('Read the upload URL').first().json.upload_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 600000
+        },
+        "sendBody": true,
+        "contentType": "multipart-form-data",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "files",
+              "parameterType": "formBinaryData",
+              "inputDataFieldName": "data"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "Start the clip run on CNAPS",
+      "name": "Start the clip run on CNAPS",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        2120,
+        0
+      ],
+      "parameters": {
+        "text": "={{ JSON.stringify({ video_url: $('Send the video to CNAPS').first().json.files[0].url, instruction: $('Settings').first().json.clip_instruction, target_len_sec: $('Settings').first().json.clip_target_len_sec, tempo: $('Settings').first().json.tempo }) }}",
+        "options": {
+          "systemMessage": "You start a CNAPS clip-extraction run. Call create_flow EXACTLY ONCE with the graph below, then stop.\n\nThe user message is JSON with four fields: video_url, instruction, target_len_sec, tempo.\nSubstitute each one wherever you see its name in angle brackets below.\n\nDo not improvise the graph. Do not call get_flow — a later node checks the status.\n\nnodes = [\n  {\"id\":1000,\"type\":\"input\",\"model_id\":\"Video-Loader\"},\n  {\"id\":1001,\"type\":\"input\",\"model_id\":\"Text-Input\"},\n  {\"id\":1,\"type\":\"ai_model\",\"model_id\":\"llm-gemini-video\"},\n  {\"id\":2,\"type\":\"ai_model\",\"model_id\":\"Whisper-ASR\"},\n  {\"id\":3,\"type\":\"tool\",\"model_id\":\"Video-Constraint-Map\"},\n  {\"id\":4,\"type\":\"tool\",\"model_id\":\"Video-Snap-Segments\"},\n  {\"id\":5,\"type\":\"tool\",\"model_id\":\"Video-EDL-Planner\",\"parameters\":{\"target_len_sec\":<target_len_sec>,\"tempo\":\"<tempo>\"}},\n  {\"id\":6,\"type\":\"tool\",\"model_id\":\"Video-EDL\"},\n  {\"id\":7,\"type\":\"tool\",\"model_id\":\"Traditional-Video-Trim\"},\n  {\"id\":8,\"type\":\"tool\",\"model_id\":\"Video-Slice-Transcript\"},\n  {\"id\":9,\"type\":\"tool\",\"model_id\":\"Video-Reframe\"},\n  {\"id\":10,\"type\":\"tool\",\"model_id\":\"Video-Subtitle\"},\n  {\"id\":1002,\"type\":\"output\",\"model_id\":\"Gallery-Viewer\"}\n]\nconnections = [\n  {\"out_node_id\":1000,\"out_index\":0,\"in_node_id\":1,\"in_index\":0},\n  {\"out_node_id\":1001,\"out_index\":0,\"in_node_id\":1,\"in_index\":1},\n  {\"out_node_id\":1000,\"out_index\":0,\"in_node_id\":2,\"in_index\":0},\n  {\"out_node_id\":1000,\"out_index\":0,\"in_node_id\":3,\"in_index\":0},\n  {\"out_node_id\":1,\"out_index\":0,\"in_node_id\":4,\"in_index\":0},\n  {\"out_node_id\":2,\"out_index\":0,\"in_node_id\":4,\"in_index\":1},\n  {\"out_node_id\":4,\"out_index\":0,\"in_node_id\":5,\"in_index\":0},\n  {\"out_node_id\":3,\"out_index\":0,\"in_node_id\":5,\"in_index\":1},\n  {\"out_node_id\":5,\"out_index\":0,\"in_node_id\":6,\"in_index\":0},\n  {\"out_node_id\":3,\"out_index\":0,\"in_node_id\":6,\"in_index\":1},\n  {\"out_node_id\":1000,\"out_index\":0,\"in_node_id\":7,\"in_index\":0},\n  {\"out_node_id\":6,\"out_index\":0,\"in_node_id\":7,\"in_index\":1},\n  {\"out_node_id\":2,\"out_index\":0,\"in_node_id\":8,\"in_index\":0},\n  {\"out_node_id\":7,\"out_index\":0,\"in_node_id\":8,\"in_index\":1},\n  {\"out_node_id\":7,\"out_index\":0,\"in_node_id\":9,\"in_index\":0},\n  {\"out_node_id\":9,\"out_index\":0,\"in_node_id\":10,\"in_index\":0},\n  {\"out_node_id\":8,\"out_index\":0,\"in_node_id\":10,\"in_index\":1},\n  {\"out_node_id\":10,\"out_index\":0,\"in_node_id\":1002,\"in_index\":0}\n]\ninclude_optional = false\nrun = true\ninput_files = [<video_url>, <instruction>]\n\nReturn ONLY this JSON: {\"flow_id\":\"<the id>\",\"flow_url\":\"<the web_url>\",\"started\":true|false}"
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.7
+    },
+    {
+      "id": "Let CNAPS cut the clips",
+      "name": "Let CNAPS cut the clips",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2340,
+        0
+      ],
+      "parameters": {
+        "unit": "minutes",
+        "amount": "={{ $('Work out how long to wait').first().json.wait_minutes }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "Check the run",
+      "name": "Check the run",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        2560,
+        0
+      ],
+      "parameters": {
+        "text": "={{ JSON.stringify({ flow_id: JSON.parse($('Start the clip run on CNAPS').first().json.output.replace(/```json|```/g,'').trim()).flow_id }) }}",
+        "options": {
+          "systemMessage": "You read back one CNAPS run. The user message is JSON containing flow_id.\nCall get_flow with that flow_id and view \"detail\". Call it at most twice.\n\nFrom the response find the FINAL subtitled clip list — it is the list:video artifact produced by node id 10 (Video-Subtitle). Three list:video artifacts look alike (trimmed, reframed, subtitled); the subtitled one is the output of node 10. Return its URL.\n\nReturn ONLY this JSON, nothing else:\n{\"status\":\"<the flow status>\",\"clips_list_url\":\"<url of node 10's output list, or null>\",\"failed_nodes\":[\"<model_id of any node not completed>\"]}"
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.7
+    },
+    {
+      "id": "Fetch the clip list",
+      "name": "Fetch the clip list",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2780,
+        0
+      ],
+      "parameters": {
+        "url": "={{ JSON.parse($('Check the run').first().json.output.replace(/```json|```/g,'').trim()).clips_list_url }}",
+        "options": {
+          "timeout": 60000
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "One row per clip",
+      "name": "One row per clip",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3180,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// CNAPS returns the finished clips as one list document. Flatten it into one n8n\n// item per clip so the loop below can upload and log each one independently.\n// Each item already carries everything the sheet needs — no second lookup.\nconst cfg    = $('Settings').first().json;\nconst meta   = $('Work out how long to wait').first().json;\nconst listed = $input.first().json ?? {};\nconst items  = Array.isArray(listed.items) ? listed.items : [];\n\nif (items.length === 0) {\n  return [{ json: {\n    ok: false,\n    reason: listed.error ? String(listed.error).slice(0, 300)\n                         : 'CNAPS returned no clips — the run may still have been going when the Wait expired',\n    source_name: meta.file_name,\n    clip_count: 0,\n  }}];\n}\n\nreturn items.map((clip, i) => ({ json: {\n  ok: true,\n  source_name:   meta.file_name,\n  source_file_id: meta.file_id,\n  clip_index:    clip.index ?? i,\n  title:         clip.label ?? `Clip ${i + 1}`,\n  span:          clip.span ?? null,\n  start_sec:     clip.source_start ?? null,\n  end_sec:       clip.source_end ?? null,\n  duration_sec:  (clip.source_end != null && clip.source_start != null)\n                   ? Number((clip.source_end - clip.source_start).toFixed(2)) : null,\n  camera:        clip.authored?.camera ?? null,\n  cnaps_url:     clip.url,\n  clip_count:    items.length,\n  output_folder_id: cfg.output_folder_id,\n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "Did we get clips?",
+      "name": "Did we get clips?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3400,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "One clip at a time",
+      "name": "One clip at a time",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3620,
+        -112
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "Download the clip",
+      "name": "Download the clip",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        3840,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $json.cnaps_url }}",
+        "options": {
+          "timeout": 300000,
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "Save the clip to Drive",
+      "name": "Save the clip to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        4060,
+        0
+      ],
+      "parameters": {
+        "name": "={{ $('One clip at a time').item.json.source_name.replace(/\\.[^.]+$/,'') + ' - ' + String($('One clip at a time').item.json.clip_index + 1).padStart(2,'0') + ' - ' + $('One clip at a time').item.json.title.replace(/[\\\\/:*?\"<>|]/g,'') + '.mp4' }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Settings').first().json.output_folder_id }}"
+        },
+        "inputDataFieldName": "data"
+      },
+      "retryOnFail": true,
+      "typeVersion": 3
+    },
+    {
+      "id": "Log the clip in Sheets",
+      "name": "Log the clip in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        4280,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Clip": "={{ $('One clip at a time').item.json.clip_index + 1 }}",
+            "Span": "={{ $('One clip at a time').item.json.span }}",
+            "Title": "={{ $('One clip at a time').item.json.title }}",
+            "Camera": "={{ $('One clip at a time').item.json.camera }}",
+            "Drive link": "={{ $json.webViewLink || '' }}",
+            "Duration (s)": "={{ $('One clip at a time').item.json.duration_sec }}",
+            "Source video": "={{ $('One clip at a time').item.json.source_name }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.sheet_name }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Settings').first().json.sheet_id }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "Tell the team it's ready",
+      "name": "Tell the team it's ready",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        3840,
+        -224
+      ],
+      "parameters": {
+        "text": "={{ '*' + $('One row per clip').first().json.clip_count + ' clips ready* from _' + $('One row per clip').first().json.source_name + '_\\n' + $('One row per clip').all().map(i => '• ' + i.json.title + '  (' + i.json.span + ', ' + i.json.duration_sec + 's)').join('\\n') + '\\n\\nSaved to Drive and logged to the sheet.' }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "Say what went wrong",
+      "name": "Say what went wrong",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        3840,
+        224
+      ],
+      "parameters": {
+        "text": "={{ ':warning: *No clips came back* from _' + $json.source_name + '_\\n' + $json.reason + '\\n\\nWait used: ' + $('Work out how long to wait').first().json.wait_minutes + ' min (' + $('Work out how long to wait').first().json.wait_basis + '). If the run was still going, raise wait_minutes_per_source_minute in Settings.' }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "Run summary",
+      "name": "Run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4060,
+        -224
+      ],
+      "parameters": {
+        "jsCode": "// Report what actually happened, read back from the nodes that did the work —\n// never assume a step succeeded just because the workflow reached this point.\nfunction outcome(nodeName) {\n  try {\n    const out = $(nodeName).first().json;\n    if (!out) return null;\n    if (out.error) return { ok: false, error: String(out.error).slice(0, 200) };\n    if (out.ok === false) return { ok: false, error: out.error ?? 'node reported ok:false' };\n    return { ok: true };\n  } catch (e) { return null; }\n}\n\nconst meta  = $('Work out how long to wait').first().json;\nconst clips = $('One row per clip').all().map(i => i.json).filter(c => c.ok);\nconst notified = outcome('Tell the team it\\'s ready') ?? outcome('Say what went wrong');\n\nreturn [{ json: {\n  source_video:  meta.file_name,\n  source_minutes: meta.source_minutes,\n  wait_minutes:  meta.wait_minutes,\n  wait_basis:    meta.wait_basis,\n  clips_made:    clips.length,\n  clips: clips.map(c => ({ title: c.title, span: c.span, seconds: c.duration_sec })),\n  notified:      notified ? notified.ok : false,\n  notify_error:  notified && !notified.ok ? notified.error : null,\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "Anthropic Chat Model",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        2200,
+        200
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "CNAPS MCP",
+      "name": "CNAPS MCP",
+      "type": "@n8n/n8n-nodes-langchain.mcpClientTool",
+      "maxTries": 3,
+      "position": [
+        2420,
+        200
+      ],
+      "parameters": {
+        "include": "selected",
+        "options": {},
+        "endpointUrl": "https://mcp.cnaps.ai/mcp",
+        "includeTools": [
+          "create_flow",
+          "get_flow"
+        ],
+        "authentication": "headerAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "sticky-overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -420
+      ],
+      "parameters": {
+        "width": 780,
+        "height": 1090,
+        "content": "## Turn long videos in Google Drive into captioned vertical clips\n\nDrop a long video into a watched Drive folder. CNAPS Studio transcribes it, picks\nthe moments that stand on their own, cuts on word boundaries, reframes to\n1080x1920 and burns in word-synced captions. Clips land in Drive, get logged in a\nSheet and announced in Slack — for podcasts, webinars and interviews that need\nShorts cuts filed and tracked.\n\nComparable pipelines chain four vendors. This uses one platform plus your own Gemini key.\n\n### How it works\n1. The trigger fires on a new file; a Code node sizes the wait from its duration.\n2. Three HTTP calls open an MCP session, get an upload slot and POST the file.\n3. An agent starts the CNAPS Studio flow, a Wait node sleeps, a second agent reads the result.\n4. Each clip is downloaded to Drive, logged in the sheet and posted to Slack.\n\n### Setup steps\n1. Get a CNAPS Studio API key at cnaps.ai under API Key; the free plan can issue one.\n2. Create an n8n Header Auth credential: name `x-api-key`, value that key.\n3. In CNAPS Studio, add a Google Gemini API key under provider settings — Video Analysis runs on it. Get one at aistudio.google.com/apikey.\n4. Add Anthropic (or OpenAI), Google Drive, Google Sheets and Slack credentials.\n5. On the trigger, pick the Drive folder to watch.\n6. In Settings, set `output_folder_id` (must differ from the watched folder), `sheet_id` and `slack_channel`.\n7. Sheet headers: Source video, Clip, Title, Span, Duration (s), Camera, Drive link.\n\nNeeds n8n 1.104.0 or later.\n\n### Customization\n- `clip_instruction` decides what counts as a good moment.\n- `clip_target_len_sec` and `tempo` control length and pacing.\n- Swap Slack for email or Discord without touching anything upstream."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-s4",
+      "name": "Section 4 - File each clip and report",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3120,
+        -454
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1420,
+        "height": 1188,
+        "content": "## 4. File every clip and report back\n\n**One row per clip** flattens the list. The loop downloads each clip, saves it to\nDrive and appends a sheet row. Slack gets one digest, or a message naming what failed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-s3",
+      "name": "Section 3 - Run it, then read it back",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2060,
+        -257
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 980,
+        "height": 1091,
+        "content": "## 3. Run the clip pipeline, then read it back\n\nThe first agent calls `create_flow` once. Transcription, moment selection,\nword-boundary cuts, reframing and captions all happen inside CNAPS Studio.\n**Wait** sleeps for the time from step 1, then **Check the run** reads the flow once."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-s2",
+      "name": "Section 2 - Hand the video to CNAPS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        -182
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1200,
+        "height": 628,
+        "content": "## 2. Hand the video to CNAPS\n\nThree plain HTTP calls, no agent: open an MCP session, ask for a one-time upload\nslot, then POST the file to it. The video is streamed straight from Drive."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-s1",
+      "name": "Section 1 - Watch Drive and size the wait",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -285
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 756,
+        "content": "## 1. Watch Drive and size the wait\n\nThe trigger fires on a new file. **Settings** holds every value you change, so\nnothing is hard-coded downstream. **Work out how long to wait** sizes the wait from\nthe video's duration and fails fast if the output folder is the watched one."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup-1",
+      "name": "Setup - folder to watch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        148
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 230,
+        "content": "### Setup: folder to watch\n\nOpen this node and pick the Drive folder\nthat long videos get dropped into."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup-2",
+      "name": "Setup - Settings",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        148
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 283,
+        "content": "### Setup: fill in Settings\n\n- `output_folder_id` must be a different folder from the one watched\n- `sheet_id` / `sheet_name` point at the log spreadsheet\n- `slack_channel` is where the digest goes"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup-3",
+      "name": "Setup - CNAPS credential",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        148
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 258,
+        "content": "### Setup: CNAPS credential\n\nBoth HTTP nodes use one Header Auth\ncredential: name `x-api-key`, value your\nCNAPS Studio API key. The free plan can\nissue one."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-1",
+      "name": "Why there is no AI here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1370,
+        148
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 230,
+        "content": "### Why there is no AI here\n\nThe upload URL is a 64-character secret. One character\nchanged by a model gives a URL that looks right and 404s,\nso it is read out of the response with a regex instead."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup-4",
+      "name": "Setup - model and MCP",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2660,
+        348
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 360,
+        "height": 446,
+        "content": "### Setup: model and MCP\n\nSwap Anthropic Chat Model for any chat\nmodel you have a credential for.\n\nCNAPS MCP: endpoint `https://mcp.cnaps.ai/mcp`,\ntransport HTTP Streamable, auth Header Auth.\n\nThe Gemini key for Video Analysis goes in\nCNAPS Studio, not here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup-5",
+      "name": "Setup - sheet headers",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3140,
+        372
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 175,
+        "content": "### Setup: sheet headers\n\nSource video, Clip, Title, Span, Duration (s), Camera, Drive link"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-2",
+      "name": "If no clips come back",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3840,
+        372
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 322,
+        "content": "### If no clips come back\n\nThe Wait usually expired before the render finished. Raise\n`wait_minutes_per_source_minute` or `max_wait_minutes` in Settings.\n\nIf the run never started, check for a Gemini key in CNAPS Studio."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Work out how long to wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "CNAPS MCP": {
+      "ai_tool": [
+        [
+          {
+            "node": "Start the clip run on CNAPS",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Check the run",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check the run": {
+      "main": [
+        [
+          {
+            "node": "Fetch the clip list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One row per clip": {
+      "main": [
+        [
+          {
+            "node": "Did we get clips?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did we get clips?": {
+      "main": [
+        [
+          {
+            "node": "One clip at a time",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Say what went wrong",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the clip": {
+      "main": [
+        [
+          {
+            "node": "Save the clip to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the video": {
+      "main": [
+        [
+          {
+            "node": "Send the video to CNAPS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One clip at a time": {
+      "main": [
+        [
+          {
+            "node": "Tell the team it's ready",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download the clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch the clip list": {
+      "main": [
+        [
+          {
+            "node": "One row per clip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Open an MCP session": {
+      "main": [
+        [
+          {
+            "node": "Ask CNAPS for an upload slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the upload URL": {
+      "main": [
+        [
+          {
+            "node": "Download the video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Start the clip run on CNAPS",
+            "type": "ai_languageModel",
+            "index": 0
+          },
+          {
+            "node": "Check the run",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log the clip in Sheets": {
+      "main": [
+        [
+          {
+            "node": "One clip at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save the clip to Drive": {
+      "main": [
+        [
+          {
+            "node": "Log the clip in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Let CNAPS cut the clips": {
+      "main": [
+        [
+          {
+            "node": "Check the run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send the video to CNAPS": {
+      "main": [
+        [
+          {
+            "node": "Start the clip run on CNAPS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell the team it's ready": {
+      "main": [
+        [
+          {
+            "node": "Run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Work out how long to wait": {
+      "main": [
+        [
+          {
+            "node": "Open an MCP session",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A new video lands in Drive": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start the clip run on CNAPS": {
+      "main": [
+        [
+          {
+            "node": "Let CNAPS cut the clips",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask CNAPS for an upload slot": {
+      "main": [
+        [
+          {
+            "node": "Read the upload URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Create captioned vertical video clips from Google Drive using CNAPS and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18341,
+    "update_time": "2026-09-27"
+  }
+}

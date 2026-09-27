@@ -1,4 +1,4 @@
-# about : 26
+# about : 31
 
 |id|file|
 |----|----|
@@ -28,3 +28,8 @@
 |12841|[12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12841_Send_AI-generated_stale_lead_nudges_from_Notion_CRM_to_Telegram_with_OpenAI.json)|
 |16697|[16697_Notify_Slack_about_Figma_library_publishes__comments_and_deletions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16697_Notify_Slack_about_Figma_library_publishes__comments_and_deletions.json)|
 |16780|[16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json)|
+|17954|[17954_Answer_PDF_questions_with_cited_answers_using_Google_Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17954_Answer_PDF_questions_with_cited_answers_using_Google_Gemini__Gmail_and_Sheets.json)|
+|18731|[18731_Fact-check_ChatGPT_product_claims_with_Bright_Data__GPT-5.6__Data_Tables_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18731_Fact-check_ChatGPT_product_claims_with_Bright_Data__GPT-5.6__Data_Tables_and_Gmail.json)|
+|19054|[19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json)|
+|19074|[19074_Watch_brand_edits_on_Wikipedia_and_Wikidata_with_OpenAI_and_email_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19074_Watch_brand_edits_on_Wikipedia_and_Wikidata_with_OpenAI_and_email_summaries.json)|
+|19825|[19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json)|

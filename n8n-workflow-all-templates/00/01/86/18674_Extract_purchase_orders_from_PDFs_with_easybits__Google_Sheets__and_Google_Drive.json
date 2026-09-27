@@ -1,0 +1,889 @@
+{
+  "name": "Purchase Order Extractor Workflow Updated",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "55950fd8-4cd2-4108-a47e-47ff970a1108",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "formTitle": "Purchase Order Intake",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "file",
+              "fieldLabel": "Purchase Order PDF",
+              "requiredField": true,
+              "acceptFileTypes": ".pdf"
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Generate EDI 850 file",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "No"
+                  },
+                  {
+                    "option": "Yes"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Upload one or more purchase order PDFs to extract line items."
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "36aecfe6-cbc9-40a9-a693-e14fb0558c15",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1488,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "a1793744-c991-46e4-b328-00cbbd430891",
+      "name": "Extract: PO Data",
+      "type": "@easybits/n8n-nodes-extractor.easybitsExtractor",
+      "position": [
+        1984,
+        304
+      ],
+      "parameters": {},
+      "typeVersion": 2
+    },
+    {
+      "id": "aed19daa-b55c-43e0-9bc4-80bd9566a164",
+      "name": "Build: Article Rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3464,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const isMissing = (v) => {\n  if (v === null || v === undefined) return true;\n  const s = String(v).trim().toLowerCase();\n  return s === '' || s === 'null';\n};\nconst clean = (v) => (isMissing(v) ? '' : v);\nconst num = (v) =>\n  isMissing(v) ? '' : Number(String(v).replace(/[^0-9.\\-]/g, ''));\n\nconst fileName = $('Loop Over Items').first().json.fileName || 'Unknown document';\n\nconst sd = $getWorkflowStaticData('global');\nif (!Array.isArray(sd.flags)) sd.flags = [];\n\nconst rows = [];\n\nfor (const item of $input.all()) {\n  const po = item.json.data || {};\n  const articles = Array.isArray(po.articles) ? po.articles : [];\n\n  // --- per-document flagging ---\n  const missingHeader = [];\n  const headerChecks = {\n    'Customer': po.customer,\n    'Supplier': po.supplier,\n    'LPO No': po.po_number,\n    'Date': po.po_date,\n  };\n  for (const [label, val] of Object.entries(headerChecks)) {\n    if (isMissing(val)) missingHeader.push(label);\n  }\n\n  const badArticles = [];\n  if (articles.length === 0) {\n    badArticles.push('no articles extracted');\n  } else {\n    articles.forEach((a, i) => {\n      const miss = [];\n      if (isMissing(a.article)) miss.push('name');\n      if (isMissing(a.unit)) miss.push('unit');\n      if (isMissing(a.quantity)) miss.push('qty');\n      if (isMissing(a.rate)) miss.push('rate');\n      if (miss.length) badArticles.push(`row ${i + 1} (${miss.join(', ')})`);\n    });\n  }\n\n  if (missingHeader.length || badArticles.length) {\n    sd.flags.push({ document: fileName, missingHeader, badArticles });\n  }\n\n  // --- build sheet rows ---\n  articles.forEach((a, idx) => {\n    const qty = num(a.quantity);\n    const rate = num(a.rate);\n    const total = (qty === '' || rate === '') ? '' : qty * rate;\n\n    rows.push({\n      json: {\n        'Date': clean(po.po_date),\n        'Customer': clean(po.customer),\n        'Supplier': clean(po.supplier),\n        'LPO No': idx === 0 ? clean(po.po_number) : '',\n        'Delivery Date': clean(po.delivery_date),\n        'Items': clean(a.article),\n        'Unit': clean(a.unit),\n        'Qty': qty,\n        'Rate': rate,\n        'Total': total,\n        'Document Name': fileName,\n      },\n    });\n  });\n}\n\nreturn rows;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e389b7ad-b73b-4715-a9c9-df87416a8041",
+      "name": "Prepare: Split PDFs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        992,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const sd = $getWorkflowStaticData('global');\n\n// Build the set of PO numbers already in the sheet\nconst seen = [];\nfor (const row of $input.all()) {\n  const v = row.json ? row.json['LPO No'] : undefined;\n  if (v !== null && v !== undefined && String(v).trim() !== '') {\n    seen.push(String(v).trim());\n  }\n}\nsd.seenPOs = seen;\nsd.flags = [];\nsd.duplicates = [];\nsd.processedCount = 0;\n\n// Split the uploaded PDFs (sourced from the form node)\nconst out = [];\nfor (const item of $('On form submission').all()) {\n  const bin = item.binary || {};\n  for (const key of Object.keys(bin)) {\n    out.push({ json: { fileName: bin[key].fileName || key }, binary: { data: bin[key] } });\n  }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "816d4813-b25c-48ca-8f82-8cfee62617a6",
+      "name": "Append: PO Rows to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3960,
+        304
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Customer",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Customer",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Supplier",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Supplier",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "LPO No",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "LPO No",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Delivery Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Delivery Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Items",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Items",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Unit",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Unit",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Qty",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Qty",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rate",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Rate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Total",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Delivered",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Delivered",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice No",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Invoice No",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Document Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Document Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SHEET_TAB"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SPREADSHEET_ID"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "1ad43827-1959-48b0-ac0d-8b52e5e451d1",
+      "name": "Build: Flag Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1984,
+        -224
+      ],
+      "parameters": {
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nconst flags = Array.isArray(sd.flags) ? sd.flags : [];\nconst dupes = Array.isArray(sd.duplicates) ? sd.duplicates : [];\n\nconst esc = (s) => String(s)\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;').replace(/\"/g, '&quot;');\n\nconst clean = flags.length === 0;\nconst n = flags.length;\n\nconst total = typeof sd.processedCount === 'number' ? sd.processedCount : (flags.length + dupes.length);\nconst added = total - dupes.length;\n\nlet cards = '';\nfor (const f of flags) {\n  const mh = Array.isArray(f.missingHeader) ? f.missingHeader : [];\n  const ba = Array.isArray(f.badArticles) ? f.badArticles : [];\n  let issues = '';\n  if (mh.length) {\n    issues += `<div class=\"eb-row\"><span class=\"eb-lbl\">Header fields</span><span class=\"eb-chips\">` +\n      mh.map(h => `<span class=\"eb-chip\">${esc(h)}</span>`).join('') + `</span></div>`;\n  }\n  if (ba.length) {\n    issues += `<div class=\"eb-row\"><span class=\"eb-lbl\">Article rows</span><span class=\"eb-chips\">` +\n      ba.map(a => `<span class=\"eb-chip\">${esc(a)}</span>`).join('') + `</span></div>`;\n  }\n  cards += `<div class=\"eb-card\"><div class=\"eb-doc\">${esc(f.document)}</div>${issues}</div>`;\n}\n\nlet dupSection = '';\nif (dupes.length) {\n  const rows = dupes.map(dp =>\n    `<div class=\"eb-dup-row\"><span class=\"eb-dup-doc\">${esc(dp.document)}</span><span class=\"eb-dup-po\">${esc(dp.po_number)}</span></div>`\n  ).join('');\n  dupSection = `<div class=\"eb-dupbox\"><div class=\"eb-dup-title\">Already processed &middot; skipped (${dupes.length})</div>${rows}</div>`;\n}\n\nconst statusClass = clean ? 'eb-ok' : 'eb-warn';\nconst icon = clean ? '&#10003;' : '&#33;';\n\nlet sub;\nif (!clean) {\n  sub = `${n} document${n === 1 ? '' : 's'} below may have fields worth a quick check against the original PDF.`;\n} else if (added === 0) {\n  sub = 'No new data was added. The documents below were already processed.';\n} else if (dupes.length) {\n  sub = `${added} document${added === 1 ? '' : 's'} added. ${dupes.length} already processed and skipped (below).`;\n} else {\n  sub = 'All documents were extracted cleanly. No missing fields detected.';\n}\n\nconst html = `\n<style>\n  #eb { font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', sans-serif; color: #1f2933; max-width: 620px; margin: 56px auto 0; padding: 40px 44px 32px; background: #fff; border: 1px solid #e6e9f0; border-radius: 16px; box-shadow: 0 12px 40px rgba(20,30,70,0.08); }\n  #eb * { box-sizing: border-box; }\n  #eb .eb-badge { width: 58px; height: 58px; border-radius: 50%; display: flex; align-items: center; justify-content: center; font-size: 28px; font-weight: 700; margin: 4px auto 20px; }\n  #eb .eb-ok { background: #e7f7ef; color: #1a9d63; }\n  #eb .eb-warn { background: #fdf3e2; color: #d98617; }\n  #eb h2 { text-align: center; font-size: 22px; font-weight: 600; margin: 0 0 8px; }\n  #eb .eb-sub { text-align: center; color: #5b6472; font-size: 15px; line-height: 1.5; margin: 0 0 28px; }\n  #eb .eb-cards { display: flex; flex-direction: column; gap: 14px; }\n  #eb .eb-card { background: #fdf9f0; border: 1px solid #f4e4c6; border-radius: 12px; padding: 18px 20px; }\n  #eb .eb-doc { font-weight: 600; font-size: 15px; margin-bottom: 10px; word-break: break-word; }\n  #eb .eb-row { display: flex; flex-wrap: wrap; gap: 10px; margin-top: 10px; }\n  #eb .eb-lbl { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #8a94a6; min-width: 92px; padding-top: 4px; }\n  #eb .eb-chips { display: flex; flex-wrap: wrap; gap: 7px; flex: 1; }\n  #eb .eb-chip { background: #fff; color: #b8710f; border: 1px solid #f4dcae; border-radius: 999px; padding: 3px 11px; font-size: 13px; }\n  #eb .eb-dupbox { margin-top: 16px; background: #f3f6fb; border: 1px solid #dce4f0; border-radius: 12px; padding: 16px 20px; }\n  #eb .eb-dup-title { font-size: 11px; text-transform: uppercase; letter-spacing: 0.05em; color: #6b7688; margin-bottom: 10px; }\n  #eb .eb-dup-row { display: flex; justify-content: space-between; gap: 12px; padding: 5px 0; border-top: 1px solid #e6ecf5; font-size: 14px; }\n  #eb .eb-dup-row:first-of-type { border-top: none; }\n  #eb .eb-dup-doc { color: #3b4453; word-break: break-word; }\n  #eb .eb-dup-po { color: #8a94a6; white-space: nowrap; }\n  #eb .eb-foot { text-align: center; color: #9aa3b2; font-size: 12px; margin-top: 30px; }\n</style>\n<div id=\"eb\">\n  <div class=\"eb-badge ${statusClass}\">${icon}</div>\n  <h2>Extraction complete</h2>\n  <p class=\"eb-sub\">${esc(sub)}</p>\n  ${clean ? '' : `<div class=\"eb-cards\">${cards}</div>`}\n  ${dupSection}\n  <div class=\"eb-foot\">Powered by easybits Extractor</div>\n</div>\n`;\n\nreturn [{ json: { html } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4e02e334-3bea-4eeb-b042-4406ddb19666",
+      "name": "Form: Completion",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        2472,
+        -224
+      ],
+      "parameters": {
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "={{ $json.html }}"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "a6d203c2-31a7-49e3-86e8-a6cc4c4e8ab0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -170,
+        -335
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 📄 Form Intake\nCollects the purchase order PDFs from the user. **Multiple files** can be uploaded in one submission. Only **.pdf** is accepted and at least one file is required."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4042783-757e-4cff-9ae5-bd1407ca3889",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        822,
+        -335
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## ✂️ Split & Seed\nBuilds the **seen-PO list** from the sheet rows it receives, then resets the run's flag, duplicate and count buffers. It then pulls the uploaded files from the form and splits them into **one item per PDF**, renaming each binary to `data` (the name the Extractor expects)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2db72447-6696-49b1-9e9e-649f361641ef",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1318,
+        -335
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 🔁 One PO at a time\nBatch size **1**. The Extractor bundles all inputs into a single call, so each PDF must pass through on its own. The **loop** output processes each PO, the **done** output fires once at the end."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e675b0ca-9239-45df-9ae6-e2e21a709c48",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1814,
+        -559
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 🚩 Build Warnings\nReads the flags collected during the run and builds the message for the end screen. If nothing was flagged, it reports a **clean extraction**. Runs once, on the loop's **done** output."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f4c30e30-3159-447d-a722-e8126f866ba8",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1814,
+        -31
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 🤖 Extract with easybits\nReads the header fields and the full article table from one PDF. Output is wrapped in a `data` envelope. Field setup lives in the Extractor credential – see the main note for the field list and descriptions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "27d4bbda-bb7f-4f0b-98fc-6653e7f9e115",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3294,
+        -31
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 🧩 Flatten to Rows\nTurns each PO into **one row per article**, stapling the header fields (PO Number, dates, Mark For, PR Number) onto every line. Adds the **Document Name**. Cleans every empty value (`null`, `NULL`, `\"\"`, blanks) to an empty cell and **records a flag** per document if anything is missing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95cb04d5-f581-48c5-9246-4518fb99b9e9",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3790,
+        -31
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 📊 Write to Sheet\nAppends every article row to the Google Sheet. **RAW** value mode keeps quantities and special characters literal. Columns map automatically – the header row in the sheet must match the field names exactly."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f8c9c34c-c66e-43d0-9bcf-1105035e971f",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2302,
+        -559
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## ✅ End Screen\nShows the user the result after processing. Lists **which documents and which fields** may not have extracted fully, so they know what to double-check against the original PDF."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04208920-94d5-439e-9893-390c36f81da4",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -950,
+        -559
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 1374,
+        "content": "## 📦 Purchase Order Extractor (powered by easybits)\n\nUpload one or more purchase order PDFs through a simple form. The workflow reads the **header details** and the **full article table** from each PO, writes everything to a Google Sheet (**one row per article**, with the parent PO fields repeated on each line), and can optionally generate an **EDI 850** file per PO for direct ERP integration. Duplicate POs are detected and skipped, and the completion screen reports anything missing or already processed.\n\n## 🔧 How the flow works\n**Form** collects the PDFs and the EDI toggle → **Read** loads existing PO numbers from the sheet → **Split & Seed** prepares the files and the duplicate list → **Loop** feeds one PDF at a time → **Extract** pulls the data → **Check** decides new versus duplicate. New POs are flattened to **rows** and written to the **Sheet**; when the toggle is on, they also build a canonical object, generate the **850**, and save it to **Drive**. A styled **summary** is shown at the end.\n\n## 📝 Google Sheet setup\nCreate a sheet with these headers in row 1, matching exactly:\n`Date | Customer | Supplier | LPO No | Delivery Date | Items | Unit | Qty | Rate | Total | Document Name`\nConnect it in the **Append** node and the **Read** node, and set the Append value mode to **RAW**. The dedup check reads the **LPO No** column, so keep that header intact.\n\n## ☁️ Extractor setup (n8n Cloud)\nThe `@easybits/n8n-nodes-extractor` node is **verified** and available natively on n8n Cloud – just search for it when adding a node. Create an easybits account at https://extractor.easybits.tech/, generate an **API key**, and add it as the node credential. The free plan covers **10 fields per call** and **50 requests per month**.\n\n## 📌 Extractor fields\nSet a short, layout-neutral document description, then define these fields, each told to return `null` when a value is absent: **customer**, **supplier**, **currency**, **po_number**, **po_date** (ISO `YYYY-MM-DD`), **delivery_date** (ISO), and an **articles** array with **article**, **unit**, **quantity**, **rate**. The **currency** field is the one to drop first if you need to stay inside the free-plan field budget.\n\n## ⚠️ Good to know\nDates are normalised to ISO so mixed day-first and month-first PO formats resolve correctly. The **currency** field defaults to `AED` in code when a PO does not state one, so it can be removed without breaking the 850."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7b94fc8d-180e-4af1-856b-4b1499c44c6d",
+      "name": "IF: EDI Enabled?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3464,
+        824
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "95af2f96-9e1a-45c4-8cae-7e10f7585036",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('On form submission').first().json['Generate EDI 850 file'] }}",
+              "rightValue": "Yes"
+            },
+            {
+              "id": "6810291f-7add-4eba-b959-6f4e2f065328",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._duplicate }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "eb3afc34-ab71-4770-ab04-6825160c1d9f",
+      "name": "Build: PO Object",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3960,
+        824
+      ],
+      "parameters": {
+        "jsCode": "const isMissing = (v) => {\n  if (v === null || v === undefined) return true;\n  const s = String(v).trim().toLowerCase();\n  return s === '' || s === 'null';\n};\nconst clean = (v) => (isMissing(v) ? '' : v);\nconst num = (v) => isMissing(v) ? '' : Number(String(v).replace(/[^0-9.\\-]/g, ''));\n\nconst DEFAULT_CURRENCY = 'AED';   // fallback when the PO doesn't state one\nconst DEFAULT_UOM      = 'EA';\n\nconst po = $input.first().json.data || {};\nconst articles = Array.isArray(po.articles) ? po.articles : [];\n\nconst lines = articles.map((a, i) => {\n  const qty   = num(a.quantity);\n  const price = num(a.rate);\n  const total = (qty === '' || price === '') ? 0 : qty * price;\n  return {\n    line_number: i + 1,\n    description: clean(a.article),\n    item_code:   clean(a.article_no),\n    quantity:    qty === '' ? 0 : qty,\n    uom:         clean(a.unit) || DEFAULT_UOM,\n    unit_price:  price === '' ? 0 : price,\n    line_total:  total,\n  };\n});\n\nreturn [{\n  json: {\n    po_number:     clean(po.po_number),\n    po_date:       clean(po.po_date),\n    delivery_date: clean(po.delivery_date),\n    customer:      clean(po.customer),\n    supplier:      clean(po.supplier),\n    currency:      clean(po.currency) || DEFAULT_CURRENCY,\n    lines,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "329044b2-1224-4977-861e-958ad6d2aa05",
+      "name": "Call 'Purchase Order Extractor Workflow – Generate EDI 850'",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "position": [
+        4456,
+        824
+      ],
+      "parameters": {
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SUBWORKFLOW_ID"
+        },
+        "workflowInputs": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "be980a1c-8fcd-46f6-987e-7b21f12f65f4",
+      "name": "Google Drive: Upload",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        4952,
+        824
+      ],
+      "parameters": {
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DRIVE_FOLDER_ID"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "1c2d6beb-aceb-467e-8fb0-e81c6b30955c",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        326,
+        -335
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 📖 Load Processed POs\nReads the master sheet once at the start of every run so the workflow knows which purchase orders already exist. Only the **LPO No** column is used, to build the duplicate-check list."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99858bbb-68cc-4125-b923-930a792c73d6",
+      "name": "Read: Existing POs",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        496,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SHEET_TAB"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SPREADSHEET_ID"
+        }
+      },
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "744ef4ae-acc7-4dad-a2ac-737f90c58a52",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2302,
+        -31
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 🔍 Duplicate Check\nCompares each extracted **PO Number** against the seen list. A new PO is remembered and passed on; one already on file is tagged `_duplicate` and recorded for the completion screen."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a84580f0-ac0b-4f9e-9db7-d36ba44619c2",
+      "name": "Check: Duplicate PO",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2472,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const sd = $getWorkflowStaticData('global');\nif (!Array.isArray(sd.seenPOs)) sd.seenPOs = [];\nif (!Array.isArray(sd.duplicates)) sd.duplicates = [];\nif (typeof sd.processedCount !== 'number') sd.processedCount = 0;\nsd.processedCount += 1;\n\nconst item = $input.first();\nconst po = (item.json && item.json.data) ? item.json.data : {};\nconst raw = po.po_number;\nconst poNum = (raw === null || raw === undefined) ? '' : String(raw).trim();\nconst missing = poNum === '' || poNum.toLowerCase() === 'null';\n\nconst fileName = $('Loop Over Items').first().json.fileName || 'Unknown document';\n\nlet isDup = false;\nif (!missing) {\n  if (sd.seenPOs.includes(poNum)) {\n    isDup = true;\n    sd.duplicates.push({ document: fileName, po_number: poNum });\n  } else {\n    sd.seenPOs.push(poNum);\n  }\n}\n\nitem.json._duplicate = isDup;\nreturn [item];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e490ab45-6ccd-4236-9f60-1ecf5e7be989",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2798,
+        -31
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 🚦 New or Skip\nRoutes the sheet path by the `_duplicate` tag. **New** POs go on to the row builder and the sheet, while **duplicates** return straight to the loop so nothing is written and the loop keeps moving."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c706347-c581-4df5-8073-43c4dd92afff",
+      "name": "IF: New PO?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2968,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "abed403a-0f18-4a7e-a143-69bca29a40c5",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._duplicate }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "5404005a-287f-48ac-a721-ec1f57421ead",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3294,
+        489
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## ⚙️ EDI Toggle\nFires only when the form toggle **Generate EDI 850 file** is `Yes` and the PO is not a duplicate. This keeps the 850 branch off by default and stops duplicate files being created."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71f50d79-a86f-4762-9aab-f5a1bab0acf0",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3790,
+        489
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 🧱 Canonical PO\nReshapes the extractor output into a clean nested object, a **header** plus a **lines** array, in the shape the EDI sub-workflow expects. Cleans every value and defaults the currency to `AED` and any missing unit to `EA`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e115b6c-4717-48e1-a01e-a0bf15c23139",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4286,
+        489
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## 📞 Generate 850\nPasses the canonical PO object to the **Generate: EDI 850** sub-workflow, which returns the finished `.edi` file. Set to **run once for each item** so every PO produces its own file."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c5438ac-cbed-4a3b-b6ee-17ca92e5248f",
+      "name": "Sticky Note15",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4782,
+        489
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 480,
+        "content": "## ☁️ Save 850\nUploads each returned `.edi` file to the Drive folder. The branch ends here and does not loop back; users open the folder in Drive to collect the files."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "IF: New PO?": {
+      "main": [
+        [
+          {
+            "node": "Build: Article Rows",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Build: Flag Summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract: PO Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build: PO Object": {
+      "main": [
+        [
+          {
+            "node": "Call 'Purchase Order Extractor Workflow – Generate EDI 850'",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract: PO Data": {
+      "main": [
+        [
+          {
+            "node": "Check: Duplicate PO",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF: EDI Enabled?": {
+      "main": [
+        [
+          {
+            "node": "Build: PO Object",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "Read: Existing POs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read: Existing POs": {
+      "main": [
+        [
+          {
+            "node": "Prepare: Split PDFs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build: Article Rows": {
+      "main": [
+        [
+          {
+            "node": "Append: PO Rows to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build: Flag Summary": {
+      "main": [
+        [
+          {
+            "node": "Form: Completion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check: Duplicate PO": {
+      "main": [
+        [
+          {
+            "node": "IF: EDI Enabled?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "IF: New PO?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare: Split PDFs": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Drive: Upload": {
+      "main": [
+        []
+      ]
+    },
+    "Append: PO Rows to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call 'Purchase Order Extractor Workflow – Generate EDI 850'": {
+      "main": [
+        [
+          {
+            "node": "Google Drive: Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Extract purchase orders from PDFs with easybits, Google Sheets, and Google Drive",
+    "wechat": "youandme10086",
+    "id": 18674,
+    "update_time": "2026-09-27"
+  }
+}

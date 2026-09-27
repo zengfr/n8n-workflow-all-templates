@@ -1,4 +1,4 @@
-# organize : 24
+# organize : 26
 
 |id|file|
 |----|----|
@@ -26,3 +26,5 @@
 |15038|[15038_Organize_and_back_up_n8n_workflows_to_Google_Drive_as_consolidated_JSON.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15038_Organize_and_back_up_n8n_workflows_to_Google_Drive_as_consolidated_JSON.json)|
 |15224|[15224_Organize_Gmail_inbox_with_Groq_AI__Google_Sheets_and_Google_Tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15224_Organize_Gmail_inbox_with_Groq_AI__Google_Sheets_and_Google_Tasks.json)|
 |15866|[15866_Classify_documents_with_Gemini_and_organize_them_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15866_Classify_documents_with_Gemini_and_organize_them_in_Google_Drive.json)|
+|17025|[17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json)|
+|19769|[19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json)|

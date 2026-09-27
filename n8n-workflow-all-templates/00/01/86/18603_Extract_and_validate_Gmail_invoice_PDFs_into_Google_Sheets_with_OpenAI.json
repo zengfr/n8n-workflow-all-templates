@@ -1,0 +1,360 @@
+{
+  "name": "Extract invoice data from Gmail PDFs into Google Sheets with GPT",
+  "nodes": [
+    {
+      "id": "a0a29ec1-a984-48db-a476-a71b2eedee7e",
+      "name": "New Invoice Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "<__PLACEHOLDER_VALUE__Gmail label for supplier invoices, e.g. \"Invoices\"__>"
+          ],
+          "hasAttachment": true
+        },
+        "options": {
+          "downloadAttachments": true
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "51b32d3b-9804-4e3f-b569-c76c55eb9800",
+      "name": "Only PDF Attachments",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $binary.attachment_0?.fileExtension }}",
+              "rightValue": "pdf"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "758e0879-38aa-4bb1-9c52-22a7073016f5",
+      "name": "PDF To Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d4396ed2-7626-44b2-a359-3d564c4d1946",
+      "name": "Read The Invoice",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        760,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "options": {
+          "systemPromptTemplate": "You read supplier invoices and return structured data.\n\nRules that matter more than completeness:\n1. Return null for any field you cannot read with confidence. NEVER guess a number.\n2. Amounts are numbers, not strings. No currency symbols, no thousands separators.\n3. Dates are ISO yyyy-mm-dd. If the format is ambiguous between UK and US, assume UK (dd/mm/yyyy).\n4. A credit note has negative amounts. If the document says credit note, refund or negative total, return all amounts as negative numbers.\n5. Read the FINAL total, which on a multi-page invoice is usually on the last page. Do not take a subtotal from page one."
+        },
+        "schemaType": "fromJson",
+        "jsonSchemaExample": "{\n  \"supplier\": \"Acme Supplies Ltd\",\n  \"invoice_number\": \"INV-2041\",\n  \"issue_date\": \"2026-08-12\",\n  \"due_date\": \"2026-09-11\",\n  \"currency\": \"GBP\",\n  \"net\": 1200.00,\n  \"vat\": 240.00,\n  \"gross\": 1440.00,\n  \"vat_rate\": 20,\n  \"line_items\": [{ \"description\": \"Consulting\", \"quantity\": 1, \"unit_price\": 1200.00, \"amount\": 1200.00 }]\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3c651ffa-195c-4c9e-a499-a065089077b0",
+      "name": "Extraction Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        760,
+        220
+      ],
+      "parameters": {
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "3a1fd8b2-1896-45e2-afdd-6a483d92ee20",
+      "name": "Validate Before Booking",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const d = $json.output ?? $json;\nconst fails = [];\nconst num = (v) => (typeof v === 'number' && Number.isFinite(v) ? v : null);\nconst near = (a, b) => Math.abs(a - b) < 0.02;\n\nconst net = num(d.net), vat = num(d.vat), gross = num(d.gross);\n\nfor (const f of ['supplier', 'invoice_number', 'issue_date']) {\n  if (!d[f]) fails.push('missing ' + f);\n}\nif (net === null) fails.push('net unreadable');\nif (gross === null) fails.push('gross unreadable');\n\nif (net !== null && vat !== null && gross !== null && !near(net + vat, gross)) {\n  fails.push('net + VAT does not equal gross');\n}\n\nif (Array.isArray(d.line_items) && d.line_items.length && net !== null) {\n  const sum = d.line_items.reduce((t, li) => t + (num(li.amount) ?? 0), 0);\n  if (!near(sum, net)) fails.push('line items do not sum to net');\n}\n\nif (d.vat_rate != null && ![0, 5, 20].includes(Number(d.vat_rate))) {\n  fails.push('VAT rate ' + d.vat_rate + '% is not a UK rate');\n}\n\nif (gross !== null && gross < 0) fails.push('negative total, looks like a credit note');\n\nreturn { json: { ...d, ok: fails.length === 0, problems: fails.join('; ') || null, source_email: $('New Invoice Email').item.json.id } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "380ff8c3-4c67-45b0-aa64-2a3e9b79c218",
+      "name": "Did It Reconcile?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1360,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ok }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "aec681c6-03f8-46c4-9aab-d1efd2e51612",
+      "name": "Append To Books",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1620,
+        -120
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "<__PLACEHOLDER_VALUE__URL of your invoices spreadsheet__>"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "f190f073-1ea3-4dae-a70a-b000dd588714",
+      "name": "Send To Exceptions Queue",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1620,
+        120
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Exceptions"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "<__PLACEHOLDER_VALUE__URL of your invoices spreadsheet__>"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "7e3e6152-cc56-4ab0-9a5c-30c1b3162072",
+      "name": "Sticky Note 043ec057",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -800
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 760,
+        "height": 760,
+        "content": "## Extract invoice data from Gmail PDFs into Google Sheets with GPT\n\n### Who's it for\n\nSmall teams and finance admins who receive supplier invoices as PDF attachments and currently retype them into their accounts by hand.\n\nIt earns its place above roughly thirty invoices a month. Below that, a spreadsheet and ten minutes a week is genuinely cheaper, and I would tell you not to build it. Check whether your accounting software already ships invoice capture before you build anything, because paying to rebuild a feature you already own is the most avoidable spend in this category.\n\n### How it works\n\n1. **Gmail Trigger** watches one label, not your whole inbox. An automation with read access to everything becomes a data protection question somebody has to answer later.\n2. **Filter** keeps only PDF attachments, so a signature image or a stray screenshot cannot reach the extractor.\n3. **Extract From File** turns the PDF into text.\n4. **Information Extractor** with an OpenAI model reads that text into a structured record: supplier, invoice number, both dates, net, VAT, gross, currency and line items. The prompt tells the model to return null instead of guessing, and it handles the two documents that quietly cost money: credit notes, where the sign is inverted, and multi-page invoices where the real total sits on the last page rather than page one. Temperature is 0.\n5. **Code node** validates before anything is booked. Do the line items sum to the net. Does net plus VAT equal gross. Is that a real VAT rate. Is it secretly a credit note.\n6. **IF** routes the result. Invoices that reconcile land in your `Invoices` sheet. Anything that fails lands in an `Exceptions` sheet with the reason attached, so a person sees it rather than your accounts quietly absorbing a wrong number.\n\n### How to set up\n\n1. Connect your Gmail, OpenAI and Google Sheets credentials.\n2. Set the Gmail label your suppliers' invoices arrive under.\n3. Point both Google Sheets nodes at one spreadsheet containing an `Invoices` tab and an `Exceptions` tab.\n4. Run it against a handful of real invoices before activating, and read what lands in `Exceptions`. That queue is the honest measure of whether it is working.\n\n### Requirements\n\nA Gmail account, an OpenAI API key, and Google Sheets.\n\n### How to customize\n\n- Swap the Google Sheets nodes for your accounting system's API.\n- Adjust the accepted VAT rates in the validation node for your country. It currently checks UK rates (0, 5, 20).\n- **Add a duplicate check on invoice number plus supplier before you go live.** Paying the same invoice twice is the failure that actually costs you money, and this template deliberately leaves that to you because the right place to check depends on where your books live.\n- Swap Gmail for IMAP if you are not on Google.\n\n---\n\nBuilt by **Fractional HQ** · https://fractionalhq.uk\n\n**Need help customising this, or want the whole thing built and handed over working?** I build automation systems for small teams. Get in touch: https://fractionalhq.uk/brief\n\nLonger writeup, including what breaks in production and when not to build this at all: https://fractionalhq.uk/use-cases/invoice-data-entry"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "590f3c3d-10c2-4f96-8032-d04371beab33",
+      "name": "Sticky Note 63eefec7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        -800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 300,
+        "content": "### Step 2: read it, and let it say \"I do not know\"\n\nThe prompt asks for a strict schema and tells the model to return null rather than guess. That single instruction is the difference between a missing field you can see and a wrong number you cannot.\n\nTemperature is 0. You do not want creativity here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d0bd788-acfa-45ac-8389-0901ab486d83",
+      "name": "Sticky Note 69a5617a",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1180,
+        -800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 300,
+        "content": "### Step 3: the stage most builds skip\n\nDo the line items sum to the net. Does net plus VAT equal gross. Is that a real VAT rate. Is it secretly a credit note.\n\nNothing reaches your books until it reconciles. A demo that works on five clean invoices proves nothing; this is what survives week two.\n\n**Before going live:** add a duplicate check on invoice number plus supplier."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "PDF To Text": {
+      "main": [
+        [
+          {
+            "node": "Read The Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extraction Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Read The Invoice",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Invoice": {
+      "main": [
+        [
+          {
+            "node": "Validate Before Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did It Reconcile?": {
+      "main": [
+        [
+          {
+            "node": "Append To Books",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send To Exceptions Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Invoice Email": {
+      "main": [
+        [
+          {
+            "node": "Only PDF Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only PDF Attachments": {
+      "main": [
+        [
+          {
+            "node": "PDF To Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Before Booking": {
+      "main": [
+        [
+          {
+            "node": "Did It Reconcile?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Extract and validate Gmail invoice PDFs into Google Sheets with OpenAI",
+    "wechat": "youandme10086",
+    "id": 18603,
+    "update_time": "2026-09-27"
+  }
+}

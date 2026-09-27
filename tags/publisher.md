@@ -1,4 +1,4 @@
-# publisher : 28
+# publisher : 35
 
 |id|file|
 |----|----|
@@ -30,3 +30,10 @@
 |15697|[15697_Publish_RSS_articles_to_LinkedIn_and_Instagram_using_OpenAI_and_Gemini_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15697_Publish_RSS_articles_to_LinkedIn_and_Instagram_using_OpenAI_and_Gemini_images.json)|
 |15926|[15926_Create_and_publish_LinkedIn_posts_from_URLs_with_Telegram__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15926_Create_and_publish_LinkedIn_posts_from_URLs_with_Telegram__Gemini__and_Google_Sheets.json)|
 |16586|[16586_Publish_science_newsletter_posts_from_YouTube_using_Ghost_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16586_Publish_science_newsletter_posts_from_YouTube_using_Ghost_and_Google_Sheets.json)|
+|16984|[16984_Post_daily_e-commerce_market_news_from_Google_News_RSS_to_LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16984_Post_daily_e-commerce_market_news_from_Google_News_RSS_to_LinkedIn.json)|
+|17813|[17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json)|
+|17814|[17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json)|
+|18405|[18405_Create_multi-platform_social_posts_with_DeepSeek__Gemini__Google_Sheets__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18405_Create_multi-platform_social_posts_with_DeepSeek__Gemini__Google_Sheets__and_gotoHuman.json)|
+|19117|[19117_Publish_YouTube_videos_with_OpenAI_and_HTTP_file_download.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19117_Publish_YouTube_videos_with_OpenAI_and_HTTP_file_download.json)|
+|19570|[19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json)|
+|19709|[19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json)|

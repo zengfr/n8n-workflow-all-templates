@@ -1,0 +1,320 @@
+{
+  "id": "7a15ac141a64e4c5",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Flag Meta Audience Network wasted spend with Meta Marketing API and Claude",
+    "wechat": "youandme10086",
+    "id": 17606,
+    "update_time": "2026-09-27"
+  },
+  "name": "Flag Meta Audience Network wasted spend by placement with Claude AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "807edce162f21a3a",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -528,
+        128
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cbb9283fc790854d",
+      "name": "Set config: results & AN thresholds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -272,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Audience Network leak detector - tune here.\n// RESULT_ACTIONS = every event that counts as a conversion (leads, registrations,\n// purchases); the workflow sums whichever are present, so it fits lead-gen and ecommerce.\nreturn [{ json: {\n  DATE_PRESET: 'last_30d',\n  SPEND_FLOOR: 50,        // ignore Audience Network slices spending less than this\n  CPA_MULTIPLE: 1.5,      // flag AN when its cost-per-result is this many times the non-AN benchmark\n  MIN_BENCH_RESULTS: 3,   // need at least this many non-AN results before trusting the benchmark\n  RESULT_ACTIONS: [\n    'offsite_complete_registration_add_meta_leads', 'lead', 'leadgen_grouped',\n    'onsite_conversion.lead_grouped', 'omni_complete_registration', 'complete_registration',\n    'omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase',\n  ],\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3201be4fb23de1df",
+      "name": "Fetch placement insights (Meta)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        80,
+        128
+      ],
+      "parameters": {
+        "url": "=https://graph.facebook.com/{{ $env.META_API_VERSION || 'v21.0' }}/{{ $env.META_AD_ACCOUNT_ID }}/insights",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $env.META_ACCESS_TOKEN }}"
+            },
+            {
+              "name": "level",
+              "value": "account"
+            },
+            {
+              "name": "date_preset",
+              "value": "={{ $('Set config: results & AN thresholds').first().json.DATE_PRESET }}"
+            },
+            {
+              "name": "breakdowns",
+              "value": "publisher_platform,platform_position"
+            },
+            {
+              "name": "fields",
+              "value": "spend,impressions,clicks,actions"
+            },
+            {
+              "name": "limit",
+              "value": "500"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "79c709a262eec7ef",
+      "name": "Flag Audience Network leaks",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        576,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Separate Audience Network slices from the rest, compute cost-per-result for each,\n// and flag AN spend that underperforms the non-AN benchmark or converts nothing.\nconst cfg = $('Set config: results & AN thresholds').first().json;\nconst RES = new Set(cfg.RESULT_ACTIONS);\nconst rows = $json.data || [];\nconst resultsOf = (actions) => Array.isArray(actions)\n  ? actions.filter((a) => RES.has(a.action_type)).reduce((n, a) => n + (Number(a.value) || 0), 0)\n  : 0;\n\nlet anSpend = 0, anResults = 0, restSpend = 0, restResults = 0;\nconst anSlices = [];\nfor (const r of rows) {\n  const spend = Number(r.spend) || 0;\n  const results = resultsOf(r.actions);\n  if (r.publisher_platform === 'audience_network') {\n    anSpend += spend; anResults += results;\n    anSlices.push({\n      placement: `${r.publisher_platform} / ${r.platform_position}`,\n      spend: +spend.toFixed(2),\n      results,\n      cpa: results > 0 ? +(spend / results).toFixed(2) : null,\n    });\n  } else { restSpend += spend; restResults += results; }\n}\nconst benchCPA = (restResults >= cfg.MIN_BENCH_RESULTS && restResults > 0)\n  ? +(restSpend / restResults).toFixed(2) : null;\n\nconst leaks = [];\nfor (const s of anSlices) {\n  if (s.spend < cfg.SPEND_FLOOR) continue;\n  const zeroResults = s.results === 0;\n  const overBench = benchCPA != null && s.cpa != null && s.cpa >= benchCPA * cfg.CPA_MULTIPLE;\n  if (!zeroResults && !overBench) continue;\n  const recoverable = zeroResults ? s.spend : (s.spend - benchCPA * s.results);\n  leaks.push({\n    ...s,\n    benchmark_cpa: benchCPA,\n    reason: zeroResults ? 'spend with zero results' : `CPA $${s.cpa} vs benchmark $${benchCPA}`,\n    dollars_recoverable: Math.max(0, +recoverable.toFixed(2)),\n  });\n}\nleaks.sort((a, b) => b.dollars_recoverable - a.dollars_recoverable);\n\nreturn [{ json: {\n  date_preset: cfg.DATE_PRESET,\n  audience_network_totals: {\n    spend: +anSpend.toFixed(2), results: anResults,\n    cpa: anResults > 0 ? +(anSpend / anResults).toFixed(2) : null,\n  },\n  benchmark_cpa: benchCPA,\n  leak_count: leaks.length,\n  total_recoverable: +leaks.reduce((n, l) => n + l.dollars_recoverable, 0).toFixed(2),\n  leaks,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "90bf8bcccfa057f5",
+      "name": "Build AI action prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        816,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Ask Claude to turn the Audience Network leak list into a prioritized action plan.\nconst d = $json;\nconst system = 'You are a senior paid-social analyst. You are given Audience Network (AN) delivery slices from a Meta ad account, judged against the account non-AN cost-per-result benchmark. For each slice give one concrete action: EXCLUDE Audience Network, KEEP (with why), or INVESTIGATE. Rank by dollars recoverable. Be terse. Return ONLY valid JSON, no prose, no markdown fences.';\nconst user = 'Non-AN benchmark CPA: $' + d.benchmark_cpa + '. Total recoverable: $' + d.total_recoverable + '.\\n\\nAudience Network leaks:\\n' + JSON.stringify(d.leaks) + '\\n\\nReturn JSON exactly: {\"summary\":\"one sentence\",\"ranked\":[{\"placement\":\"\",\"recoverable\":0,\"action\":\"exclude|keep|investigate\",\"why\":\"\"}]}';\nconst body = { model: 'claude-haiku-4-5', max_tokens: 3000, system, messages: [{ role: 'user', content: user }] };\nreturn [{ json: { body, _ctx: d } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6a8c62f5eb81735e",
+      "name": "Rank Audience Network leaks with Claude AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1248,
+        128
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "de0499f28f833e1b",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1600,
+        -304
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 664,
+        "content": "## Meta Audience Network Leak Detector\n\nFinds where the Meta Audience Network placement is quietly wasting your ad budget, and gives you an AI-ranked action plan. Works for lead-gen and ecommerce.\n\n### How it works\n- Pulls last-30-day account insights broken down by placement from the Meta Marketing API.\n- Separates Audience Network spend from your other placements and computes a non-AN cost-per-result benchmark.\n- Flags Audience Network slices spending over a floor with zero results, or a cost-per-result far above benchmark, and scores the dollars recoverable.\n- Claude ranks the leaks and recommends exclude, keep, or investigate.\n\n### Setup\n1. Add to your environment: META_ACCESS_TOKEN, META_AD_ACCOUNT_ID, META_API_VERSION, ANTHROPIC_API_KEY.\n2. Run with the manual trigger, or attach a Schedule trigger for a daily check.\n\n### Customization\nIn the Config node, set RESULT_ACTIONS to the events you optimize for, and tune SPEND_FLOOR and CPA_MULTIPLE. Swap the report node for a Slack or email node to auto-deliver.\n\nBuilt by **nocode.expert** - done-for-you automation & tracking. https://nocode.expert"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8eaaaaf5515fb2dc",
+      "name": "Sticky Note - Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 424,
+        "height": 380,
+        "content": "## 1. Fetch & benchmark\nPull account insights split by placement; separate Audience Network from the rest."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "455ba21d1d5a133d",
+      "name": "Sticky Note - Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 380,
+        "content": "## 2. Detect & rank\nFlag Audience Network slices below benchmark, then Claude ranks the fixes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66f3aaaaacfa2d6c",
+      "name": "Sticky Note - Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1152,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 380,
+        "content": "## 3. Report\nPrint the leak report (swap for Slack/email)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0cb0a6f7-28c6-4e08-8f97-b59b944ef5ac",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1696,
+        128
+      ],
+      "webhookId": "9738c50f-eee5-466f-8508-ee0bbd6c8d96",
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "af50137c660c5404",
+      "name": "Compile Audience Network leak report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1488,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Print a readable Audience Network leak report. Swap this node for Slack or email to auto-deliver.\nconst ctx = $('Build AI action prompt').first().json._ctx || {};\nfunction aiJson(fallback) {\n  const t = ($json.content && $json.content[0] && $json.content[0].text) || '';\n  let s = String(t).trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();\n  try { return JSON.parse(s); } catch (e) {}\n  const m = s.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { return JSON.parse(m[0]); } catch (e) {} }\n  return fallback;\n}\nconst ai = aiJson({ summary: 'AI response could not be parsed.', ranked: [] });\n\nconst lines = [];\nlines.push('AUDIENCE NETWORK LEAK REPORT (' + (ctx.date_preset || '') + ')');\nlines.push('Non-AN benchmark CPA: $' + ctx.benchmark_cpa);\nlines.push('Leaks: ' + (ctx.leak_count || 0) + ' | Recoverable: $' + (ctx.total_recoverable || 0));\nlines.push('');\nlines.push(ai.summary || '');\nlines.push('');\nfor (const r of (ai.ranked || [])) {\n  lines.push('- [' + String(r.action || '').toUpperCase() + '] ' + r.placement + '  ($' + r.recoverable + ')');\n  if (r.why) lines.push('    ' + r.why);\n}\nreturn [{ json: { report: lines.join('\\n'), leaks: ctx.leaks || [], ai } }];"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "405d6eab-0f82-4bef-8b7a-752ae12ed219",
+  "nodeGroups": [],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Set config: results & AN thresholds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI action prompt": {
+      "main": [
+        [
+          {
+            "node": "Rank Audience Network leaks with Claude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag Audience Network leaks": {
+      "main": [
+        [
+          {
+            "node": "Build AI action prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch placement insights (Meta)": {
+      "main": [
+        [
+          {
+            "node": "Flag Audience Network leaks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config: results & AN thresholds": {
+      "main": [
+        [
+          {
+            "node": "Fetch placement insights (Meta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compile Audience Network leak report": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rank Audience Network leaks with Claude AI": {
+      "main": [
+        [
+          {
+            "node": "Compile Audience Network leak report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# queries : 23
+# queries : 28
 
 |id|file|
 |----|----|
@@ -25,3 +25,8 @@
 |14268|[14268_Retrieve_and_answer_Gmail_email_queries_with_Llama_3.2__mxbai-embed__and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14268_Retrieve_and_answer_Gmail_email_queries_with_Llama_3.2__mxbai-embed__and_Qdrant.json)|
 |16136|[16136_Answer_voice_queries_from_a_webhook_over_Google_Drive_docs_using_GPT-4o-mini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16136_Answer_voice_queries_from_a_webhook_over_Google_Drive_docs_using_GPT-4o-mini_and_Supabase.json)|
 |16169|[16169_Find_client_email_leads_from_search_queries_with_FindMyClient.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16169_Find_client_email_leads_from_search_queries_with_FindMyClient.json)|
+|16991|[16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json)|
+|17285|[17285_Qualify_real_estate_leads_and_answer_EMI_queries_via_Telegram_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17285_Qualify_real_estate_leads_and_answer_EMI_queries_via_Telegram_with_OpenAI_GPT-4o-mini.json)|
+|17436|[17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17436_Answer_restaurant_voice_queries_with_ElevenLabs__OpenAI__Qdrant__and_Google_Drive.json)|
+|17658|[17658_Manage_CRM_leads_by_chat_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17658_Manage_CRM_leads_by_chat_with_Google_Gemini_and_Google_Sheets.json)|
+|17765|[17765_Answer_WhatsApp_sales_queries_from_text__voice__photos__and_video_with_OpenAI_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17765_Answer_WhatsApp_sales_queries_from_text__voice__photos__and_video_with_OpenAI_and_Gemini.json)|

@@ -1,4 +1,4 @@
-# asana : 29
+# asana : 35
 
 |id|file|
 |----|----|
@@ -31,3 +31,9 @@
 |13689|[13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13689_Track_broken_backlinks_with_DataForSEO__log_to_Google_Sheets__and_create_Asana_tasks.json)|
 |16227|[16227_Extract_meeting_action_items_and_decisions_with_OpenAI__Asana_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16227_Extract_meeting_action_items_and_decisions_with_OpenAI__Asana_and_Sheets.json)|
 |16270|[16270_Monitor_contract_renewal_risk_with_HubSpot__Asana__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16270_Monitor_contract_renewal_risk_with_HubSpot__Asana__Slack__and_Gmail.json)|
+|17183|[17183_Report_workflow_errors_to_Asana_tasks_with_Google_Chat_and_Grok_4.5_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17183_Report_workflow_errors_to_Asana_tasks_with_Google_Chat_and_Grok_4.5_analysis.json)|
+|17206|[17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json)|
+|17268|[17268_Audit_Asana_task_hygiene_with_Google_Sheets_and_Slack_scorecards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17268_Audit_Asana_task_hygiene_with_Google_Sheets_and_Slack_scorecards.json)|
+|17269|[17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json)|
+|17271|[17271_Post_a_daily_Asana_project_status_digest_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17271_Post_a_daily_Asana_project_status_digest_to_Slack.json)|
+|17306|[17306_Sync_Asana_project_tasks_with_a_mirrored_Google_Sheets_tab.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17306_Sync_Asana_project_tasks_with_a_mirrored_Google_Sheets_tab.json)|

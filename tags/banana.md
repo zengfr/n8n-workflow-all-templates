@@ -1,4 +1,4 @@
-# banana : 40
+# banana : 43
 
 |id|file|
 |----|----|
@@ -42,3 +42,6 @@
 |12542|[12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12542_Create_Viral___AI_celebrity_selfies___with_Nano_Banana_Pro___upload_to_Instagram.json)|
 |13778|[13778_Generate_hyper-realistic_images_from_Telegram_via_Gemini_Nano_Banana_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13778_Generate_hyper-realistic_images_from_Telegram_via_Gemini_Nano_Banana_2.json)|
 |15586|[15586_Generate_and_edit_images_with_Havis_AI_Nano_Banana_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15586_Generate_and_edit_images_with_Havis_AI_Nano_Banana_2.json)|
+|16865|[16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json)|
+|16895|[16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json)|
+|18931|[18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json)|

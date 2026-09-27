@@ -1,4 +1,4 @@
-# checker : 29
+# checker : 36
 
 |id|file|
 |----|----|
@@ -31,3 +31,10 @@
 |16458|[16458_Check_prescription_safety_and_drug_interactions_with_GPT-4o__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16458_Check_prescription_safety_and_drug_interactions_with_GPT-4o__Sheets__and_Telegram.json)|
 |16470|[16470_Notify_website_downtime_via_email_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16470_Notify_website_downtime_via_email_and_Telegram_alerts.json)|
 |16693|[16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json)|
+|16877|[16877_Verify_customs_shipping_documents_with_GPT-4o-mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16877_Verify_customs_shipping_documents_with_GPT-4o-mini__Gmail_and_Slack.json)|
+|17111|[17111_Score_Salesforce_playbook_compliance_with_Google_Sheets__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17111_Score_Salesforce_playbook_compliance_with_Google_Sheets__Gemini__and_Slack.json)|
+|17457|[17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json)|
+|17458|[17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|17675|[17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|18587|[18587_Review_employee_overtime_compliance_with_Google_Sheets__GPT-4o-mini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18587_Review_employee_overtime_compliance_with_Google_Sheets__GPT-4o-mini__and_Gmail.json)|
+|19445|[19445_Check_invoice_contract_price_compliance_with_Google_Sheets_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19445_Check_invoice_contract_price_compliance_with_Google_Sheets_and_Telegram_alerts.json)|

@@ -1,0 +1,383 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Send PDF payment receipts with Stripe, EmitForge, Gmail, Google Drive and Slack",
+    "wechat": "youandme10086",
+    "id": 19077,
+    "update_time": "2026-09-27"
+  },
+  "name": "Send a PDF receipt automatically after each Stripe payment",
+  "nodes": [
+    {
+      "id": "when-a-stripe-charge-succeeds",
+      "name": "When a Stripe charge succeeds",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "position": [
+        640,
+        380
+      ],
+      "webhookId": "c0000000-0000-4000-8000-000000000001",
+      "parameters": {
+        "events": [
+          "charge.succeeded"
+        ]
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "set-company-details",
+      "name": "Set company details",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        860,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "company_name",
+              "type": "string",
+              "value": "Your Company Ltd"
+            },
+            {
+              "id": "a2",
+              "name": "company_address",
+              "type": "string",
+              "value": "12 Example Street, City, Country"
+            },
+            {
+              "id": "a3",
+              "name": "support_email",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "a4",
+              "name": "locale",
+              "type": "string",
+              "value": "en-US"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "build-the-receipt-fields",
+      "name": "Build the receipt fields",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1160,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Turn the Stripe charge into the fields the receipt template needs.\n// Stripe sends money in minor units (cents); zero-decimal currencies (JPY,\n// KRW…) are the exception and are handled by Intl, not by hand.\n\nconst event = $input.first().json;\nconst charge = event.data && event.data.object ? event.data.object : event;\nconst defaults = $('Set company details').first().json;\n\nconst escape = (v) => String(v ?? '')\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\n  .replace(/\"/g, '&quot;').replace(/'/g, '&#39;');\n\nconst currency = String(charge.currency || 'usd').toUpperCase();\nconst zeroDecimal = ['BIF','CLP','DJF','GNF','JPY','KMF','KRW','MGA','PYG','RWF','UGX','VND','VUV','XAF','XOF','XPF'];\nconst divisor = zeroDecimal.includes(currency) ? 1 : 100;\nconst money = (minor) => new Intl.NumberFormat(defaults.locale || 'en-US', {\n  style: 'currency', currency,\n}).format(Number(minor || 0) / divisor);\n\nconst billing = charge.billing_details || {};\nconst card = charge.payment_method_details && charge.payment_method_details.card\n  ? charge.payment_method_details.card : null;\n\nconst paidAt = new Date(Number(charge.created || Date.now() / 1000) * 1000);\n\n// One line per receipt: a charge has a description, not line items. If you\n// pass items in charge.metadata.items as \"desc|qty|unit;desc|qty|unit\", they\n// become rows instead.\nlet rowsHtml = '';\nconst items = String((charge.metadata && charge.metadata.items) || '').trim();\nif (items) {\n  rowsHtml = items.split(';').map((line) => {\n    const [desc, qty, unit] = line.split('|').map((s) => s.trim());\n    const amount = Number(qty || 1) * Number(unit || 0);\n    return `<tr><td>${escape(desc)}</td><td class=\"num\">${escape(qty || 1)}</td>` +\n      `<td class=\"num\">${money(unit)}</td><td class=\"num\">${money(amount)}</td></tr>`;\n  }).join('');\n} else {\n  rowsHtml = `<tr><td>${escape(charge.description || 'Payment')}</td><td class=\"num\">1</td>` +\n    `<td class=\"num\">${money(charge.amount)}</td><td class=\"num\">${money(charge.amount)}</td></tr>`;\n}\n\nconst fields = {\n  receipt_number: String(charge.id || '').replace(/^ch_/, 'R-').slice(0, 20),\n  paid_on: paidAt.toLocaleDateString(defaults.locale || 'en-US', { year: 'numeric', month: 'long', day: 'numeric' }),\n  customer_name: billing.name || charge.customer_name || 'Customer',\n  customer_email: charge.receipt_email || billing.email || '',\n  description: charge.description || 'Payment',\n  rows_html: rowsHtml,\n  total: money(charge.amount),\n  currency,\n  card_label: card ? `${String(card.brand || 'card').toUpperCase()} •••• ${card.last4}` : 'Card',\n  charge_id: charge.id || '',\n};\n\n// ---------------------------------------------------------------------------\n// The PDF request is assembled here, not in the HTTP node.\n//\n// Why: a JSON body written by hand with \"={{ ... }}\" inside the quotes is not\n// an expression to n8n — only a field whose whole value starts with \"=\" is.\n// Written that way, the literal text {{ $json.rows_html }} was sent to the API\n// and printed on the page. Building the object here and sending it as one\n// JSON.stringify keeps every quote in rows_html intact.\nconst PDF_TEMPLATE = \"<!doctype html><html><head><meta charset=\\\"utf-8\\\"><style>@page{size:A4;margin:18mm 16mm 20mm}body{font-family:'Open Sans',sans-serif;color:#1f1c19;font-size:12.5px;line-height:1.5;margin:0}header{display:flex;justify-content:space-between;align-items:flex-end;border-bottom:2px solid #1f1c19;padding-bottom:12px;margin-bottom:20px}.brand{font-size:19px;font-weight:bold}.brand small{display:block;font-size:11px;font-weight:normal;color:#5c534b}.meta{text-align:right;font-size:11.5px;color:#5c534b}.meta b{display:block;font-size:14px;color:#1f1c19}.paid{display:inline-block;border:1.5px solid #1f1c19;border-radius:3px;padding:1px 7px;font-size:9px;letter-spacing:.14em;text-transform:uppercase;margin-top:4px}.label{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#6b625b;margin-bottom:4px}.two{display:flex;gap:32px;margin-bottom:18px}.two>div{flex:1}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}th{text-align:left;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#6b625b;border-bottom:1px solid #d8d2ca;padding:0 0 6px;font-weight:normal}td{padding:8px 0;border-bottom:1px solid #f2eee9;vertical-align:top}.num{text-align:right;white-space:nowrap}.totals{margin:18px 0 0 auto;width:54%;break-inside:avoid}.totals td{border:0;padding:5px 0}.totals .grand td{border-top:2px solid #1f1c19;padding-top:9px;font-size:15px;font-weight:bold}footer{margin-top:28px;font-size:10.5px;color:#6b625b;border-top:1px solid #d8d2ca;padding-top:10px}</style></head><body><header><div class=\\\"brand\\\">{{company.name}}<small>{{company.address}}</small></div><div class=\\\"meta\\\"><b>Receipt {{receipt_number}}</b><div>{{paid_on}}</div><span class=\\\"paid\\\">Paid</span></div></header><div class=\\\"two\\\"><div><div class=\\\"label\\\">Received from</div><p><b>{{customer_name}}</b><br>{{customer_email}}</p></div><div><div class=\\\"label\\\">Payment method</div><p>{{card_label}}<br>Charge {{charge_id}}</p></div></div><table><thead><tr><th>Description</th><th class=\\\"num\\\">Qty</th><th class=\\\"num\\\">Unit</th><th class=\\\"num\\\">Amount</th></tr></thead><tbody>{{{rows_html}}}</tbody></table><table class=\\\"totals\\\"><tr class=\\\"grand\\\"><td>Total paid ({{currency}})</td><td class=\\\"num\\\">{{total}}</td></tr></table><footer>Thank you for your payment. Questions about this receipt: {{company.support_email}}</footer></body></html>\";\n\nreturn [{\n  json: {\n    ...fields,\n    pdf_template: PDF_TEMPLATE,\n    pdf_data: {\n      company: {\n        name: defaults.company_name,\n        address: defaults.company_address,\n        support_email: defaults.support_email,\n      },\n      ...fields,\n    },\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "has-a-customer-email",
+      "name": "Has a customer email?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1380,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-email",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.customer_email }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "render-the-receipt-pdf",
+      "name": "Render the receipt PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1600,
+        380
+      ],
+      "parameters": {
+        "url": "https://emitforge.com/v1/pdf",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ template: $json.pdf_template, data: $json.pdf_data, format: 'A4' }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "download-the-rendered-file",
+      "name": "Download the rendered file",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1820,
+        380
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "email-the-receipt-to-the-customer",
+      "name": "Email the receipt to the customer",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2120,
+        260
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Build the receipt fields').item.json.customer_email }}",
+        "message": "=Hello {{ $('Build the receipt fields').item.json.customer_name }},\n\nThank you for your payment of {{ $('Build the receipt fields').item.json.total }}. Your receipt is attached.\n\n{{ $('Set company details').first().json.company_name }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "=Your receipt {{ $('Build the receipt fields').item.json.receipt_number }} from {{ $('Set company details').first().json.company_name }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "archive-the-receipt-in-drive",
+      "name": "Archive the receipt in Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2120,
+        500
+      ],
+      "parameters": {
+        "name": "={{ $('Build the receipt fields').item.json.receipt_number }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "post-a-one-line-summary-to-slack",
+      "name": "Post a one-line summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2400,
+        260
+      ],
+      "parameters": {
+        "text": "=Receipt {{ $('Build the receipt fields').item.json.receipt_number }} sent to {{ $('Build the receipt fields').item.json.customer_email }} — {{ $('Build the receipt fields').item.json.total }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "sticky-note-overview",
+      "name": "Sticky Note Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        16
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1180,
+        "content": "## Send a PDF receipt automatically after each Stripe payment\n\n### Who's it for\n\nAnyone selling through Stripe who wants customers to get a branded, itemised receipt as a PDF attachment — not just Stripe's default email. Works for one-off charges and for subscription renewals, since both produce a `charge.succeeded` event.\n\n### How it works\n\nThe Stripe Trigger fires on every successful charge. A Code node turns the charge into receipt fields: money formatted in the charge's own currency (zero-decimal currencies handled), the card brand and last four digits, the customer's name and email. The HTML template is posted to an HTTP endpoint that returns a signed link, and a second request downloads it as a file so Gmail and Drive receive the same binary.\n\nCharges without a customer email are stopped by the If node instead of failing in Gmail.\n\n### How to set up\n\n1. Connect your Stripe account to the **Stripe Trigger** node. n8n registers the webhook for you.\n2. Put your company name, address, support email and locale in **Set company details**.\n3. Add a Header Auth credential named `Authorization` with the value `Bearer YOUR_KEY`. Get the key at [emitforge.com/start](https://emitforge.com/start?from=n8n) — the free tier covers 100 receipts a month and needs no card.\n4. Connect Gmail, and optionally Google Drive and Slack (delete those two nodes if you don't need them).\n5. Make a test payment in Stripe test mode and check the receipt lands in your inbox.\n\n### Requirements\n\nStripe and Gmail credentials (Google Drive and Slack optional), plus an API key for the rendering endpoint — free tier at [emitforge.com/start](https://emitforge.com/start?from=n8n), 100 renders a month, no card.\n\n### How to customize\n\nTo itemise a receipt, put `metadata.items` on the charge as `desc|qty|unit;desc|qty|unit` — the Code node turns it into table rows. To use `payment_intent.succeeded` instead, change the event in the trigger and read `data.object` the same way. To use your own typeface, embed it as a data URI; the renderer has one font installed and any other family falls back silently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-section-1",
+      "name": "Sticky Note Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 1180,
+        "content": "## Step 1: Catch the payment\n\nStripe calls this workflow the moment a charge succeeds. Company details live in one Set node so they are edited in a single place."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-section-2",
+      "name": "Sticky Note Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1092,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 920,
+        "height": 1180,
+        "content": "## Step 2: Build the receipt and render it\n\nThe Code node reads the real charge fields (amount, currency, receipt_email, description, card) and formats them. Charges with no email are stopped here. The HTTP request posts the HTML and gets back a signed link; the second request downloads it as a file.\n\nNo key yet? Sign up at [emitforge.com/start](https://emitforge.com/start?from=n8n) and it arrives by email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-section-3",
+      "name": "Sticky Note Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2044,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 1180,
+        "content": "## Step 3: Deliver\n\nGmail sends the receipt as an attachment and Drive archives the same file in parallel. Slack gets a one-line summary so you can see the run without opening anything."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Set company details": {
+      "main": [
+        [
+          {
+            "node": "Build the receipt fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has a customer email?": {
+      "main": [
+        [
+          {
+            "node": "Render the receipt PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Render the receipt PDF": {
+      "main": [
+        [
+          {
+            "node": "Download the rendered file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the receipt fields": {
+      "main": [
+        [
+          {
+            "node": "Has a customer email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the rendered file": {
+      "main": [
+        [
+          {
+            "node": "Email the receipt to the customer",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Archive the receipt in Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When a Stripe charge succeeds": {
+      "main": [
+        [
+          {
+            "node": "Set company details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the receipt to the customer": {
+      "main": [
+        [
+          {
+            "node": "Post a one-line summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

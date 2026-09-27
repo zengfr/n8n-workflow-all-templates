@@ -1,4 +1,4 @@
-# batch : 24
+# batch : 33
 
 |id|file|
 |----|----|
@@ -26,3 +26,12 @@
 |15048|[15048_Batch_transcribe_Google_Drive_videos_to_text_files_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15048_Batch_transcribe_Google_Drive_videos_to_text_files_with_Gemini.json)|
 |15456|[15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json)|
 |15837|[15837_Batch_Ad_Banner_Generator_with_gpt-image-2_and_Sharp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15837_Batch_Ad_Banner_Generator_with_gpt-image-2_and_Sharp.json)|
+|16967|[16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json)|
+|17459|[17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json)|
+|17511|[17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json)|
+|17517|[17517_Moderate_toxic_text__redact_PII__and_audit_with_a_Gemini_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17517_Moderate_toxic_text__redact_PII__and_audit_with_a_Gemini_HTTP_API.json)|
+|17518|[17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json)|
+|17559|[17559_Classify_Apify_scraped_dataset_rows_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17559_Classify_Apify_scraped_dataset_rows_with_OpenAI_and_Google_Sheets.json)|
+|19142|[19142_Audit_website_readability_weekly_with_Snapshot_Site__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19142_Audit_website_readability_weekly_with_Snapshot_Site__Google_Sheets__and_Slack.json)|
+|19170|[19170_Investigate_batch_deviation_root_causes_with_GPT-4.1__QMS__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19170_Investigate_batch_deviation_root_causes_with_GPT-4.1__QMS__and_Slack.json)|
+|19645|[19645_Generate_catalog_concept_PNGs_with_OpenAI_gpt-image-1_and_CSV_manifests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19645_Generate_catalog_concept_PNGs_with_OpenAI_gpt-image-1_and_CSV_manifests.json)|

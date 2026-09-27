@@ -1,4 +1,4 @@
-# return : 7
+# return : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |11945|[11945_Detect_WooCommerce_return_surges_in_real-time_with_Slack_alerts___Airtable_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11945_Detect_WooCommerce_return_surges_in_real-time_with_Slack_alerts___Airtable_logging.json)|
 |12148|[12148_Send_return_pickup_reminders_via_WhatsApp___voice_calls_using_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12148_Send_return_pickup_reminders_via_WhatsApp___voice_calls_using_Google_Sheets.json)|
 |15039|[15039_Compare_physical_vs_digital_24K_gold_costs_and_returns_with_GoldAPI__IBJA__Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15039_Compare_physical_vs_digital_24K_gold_costs_and_returns_with_GoldAPI__IBJA__Groq_and_Google_Sheets.json)|
+|18438|[18438_Decide_Shopify_return_refunds_with_GPT-4o__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18438_Decide_Shopify_return_refunds_with_GPT-4o__Slack__and_Google_Sheets.json)|

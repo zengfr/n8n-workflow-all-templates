@@ -1,4 +1,4 @@
-# posting : 42
+# posting : 46
 
 |id|file|
 |----|----|
@@ -44,3 +44,7 @@
 |15033|[15033_Generate_Instagram_posts_with_OpenAI__RSS_news__and_auto_image_posting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15033_Generate_Instagram_posts_with_OpenAI__RSS_news__and_auto_image_posting.json)|
 |15699|[15699_Automate_Video_Creation_from_Google_Sheets_to_YouTube_with_VideoApiHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15699_Automate_Video_Creation_from_Google_Sheets_to_YouTube_with_VideoApiHub.json)|
 |16707|[16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json)|
+|17449|[17449_Monitor_churn_risk_from_competitor_job_posts_with_JSearch__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17449_Monitor_churn_risk_from_competitor_job_posts_with_JSearch__Google_Sheets__and_Gmail.json)|
+|18110|[18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json)|
+|18177|[18177_Score_and_triage_job_applicants_with_Airtable__Google_Drive_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18177_Score_and_triage_job_applicants_with_Airtable__Google_Drive_and_OpenAI.json)|
+|19172|[19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json)|

@@ -1,4 +1,4 @@
-# idea : 14
+# idea : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |15066|[15066_Generate_daily_investment_ideas_with_Yahoo_Finance_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15066_Generate_daily_investment_ideas_with_Yahoo_Finance_and_Google_Gemini.json)|
 |15520|[15520_Capture_and_draft_content_ideas_from_Telegram_with_Claude_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15520_Capture_and_draft_content_ideas_from_Telegram_with_Claude_and_Notion.json)|
 |16513|[16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json)|
+|17530|[17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json)|
+|17566|[17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json)|
+|19672|[19672_Mine_YouTube_competitor_content_ideas_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19672_Mine_YouTube_competitor_content_ideas_with_Google_Gemini_and_Google_Sheets.json)|

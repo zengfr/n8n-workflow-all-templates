@@ -1,4 +1,4 @@
-# advisor : 6
+# advisor : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |13680|[13680_Route_and_escalate_student_advising_requests_with_OpenAI__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13680_Route_and_escalate_student_advising_requests_with_OpenAI__Gmail_and_Slack.json)|
 |15071|[15071_Summarize_financial_news_from_multiple_RSS_feeds_with_Gemini_and_deliver_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15071_Summarize_financial_news_from_multiple_RSS_feeds_with_Gemini_and_deliver_to_Discord.json)|
 |15666|[15666_Generate_weekly_advisor_talking_points_with_Gemini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15666_Generate_weekly_advisor_talking_points_with_Gemini__Gmail_and_Google_Sheets.json)|
+|18093|[18093_Review_electricity_bills_and_flag_anomalies_with_OpenAI__Google_Sheets__and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18093_Review_electricity_bills_and_flag_anomalies_with_OpenAI__Google_Sheets__and_SendGrid.json)|

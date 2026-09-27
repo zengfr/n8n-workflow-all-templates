@@ -1,4 +1,4 @@
-# upsell : 7
+# upsell : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |12950|[12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json)|
 |14557|[14557_Send_AI_upsell_emails_with_Groq__Gmail__HubSpot_CRM_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14557_Send_AI_upsell_emails_with_Groq__Gmail__HubSpot_CRM_and_Slack_alerts.json)|
 |15598|[15598_Trigger_HVAC_upsell_campaigns_from_weather_data_and_handle_bookings_with_GoHighLevel__WhatsApp__WeatherAPI_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15598_Trigger_HVAC_upsell_campaigns_from_weather_data_and_handle_bookings_with_GoHighLevel__WhatsApp__WeatherAPI_and_Gemini.json)|
+|17326|[17326_Create_personalized_Shopify_upsell_photos_with_Dreem.ai_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17326_Create_personalized_Shopify_upsell_photos_with_Dreem.ai_and_Slack.json)|
+|17577|[17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json)|

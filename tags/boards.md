@@ -1,4 +1,4 @@
-# boards : 7
+# boards : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |14806|[14806_Aggregate_multi-source_job_boards_into_Supabase_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14806_Aggregate_multi-source_job_boards_into_Supabase_and_Google_Sheets.json)|
 |14996|[14996_Aggregate_multi-source_job_boards_to_Supabase_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14996_Aggregate_multi-source_job_boards_to_Supabase_and_Google_Sheets.json)|
 |15998|[15998_Collect_and_score_job_listings_from_multiple_boards_with_Apify_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15998_Collect_and_score_job_listings_from_multiple_boards_with_Apify_and_Sheets.json)|
+|17257|[17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json)|
+|18660|[18660_Score_ATS_job_postings_with_OpenAI_and_send_alerts_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18660_Score_ATS_job_postings_with_OpenAI_and_send_alerts_to_Slack_and_Google_Sheets.json)|

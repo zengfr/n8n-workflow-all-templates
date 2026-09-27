@@ -1,4 +1,4 @@
-# short : 28
+# short : 37
 
 |id|file|
 |----|----|
@@ -30,3 +30,12 @@
 |16115|[16115_Generate_Veo_3_short-form_videos_from_a_form_using_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16115_Generate_Veo_3_short-form_videos_from_a_form_using_Groq_and_Google_Sheets.json)|
 |16576|[16576_Create_Seedance_2.0_short_videos_from_Telegram_ideas_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16576_Create_Seedance_2.0_short_videos_from_Telegram_ideas_with_OpenAI_and_Blotato.json)|
 |16772|[16772_Generate_and_publish_AI_short_videos_from_Telegram_using_Blotato_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16772_Generate_and_publish_AI_short_videos_from_Telegram_using_Blotato_and_OpenAI.json)|
+|16875|[16875_Send_daily_short-form_video_ideas_to_Discord_from_Google_News_RSS_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16875_Send_daily_short-form_video_ideas_to_Discord_from_Google_News_RSS_with_Claude.json)|
+|17644|[17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json)|
+|17979|[17979_Generate_realistic_short-form_videos_with_Veo_3.1_via_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17979_Generate_realistic_short-form_videos_with_Veo_3.1_via_Pollo_API.json)|
+|17994|[17994_Create_AI_short_videos_from_Feishu_with_DeepSeek__MiniMax_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17994_Create_AI_short_videos_from_Feishu_with_DeepSeek__MiniMax_and_Blotato.json)|
+|18117|[18117_Create_and_publish_short_marketing_videos_with_Feishu__DeepSeek__Jimeng_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18117_Create_and_publish_short_marketing_videos_with_Feishu__DeepSeek__Jimeng_and_Blotato.json)|
+|18332|[18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json)|
+|18363|[18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json)|
+|19023|[19023_Generate_calming_directions_from_short_reflections_with_ImageHealAI_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19023_Generate_calming_directions_from_short_reflections_with_ImageHealAI_webhooks.json)|
+|19709|[19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json)|

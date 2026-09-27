@@ -1,4 +1,4 @@
-# fireflies : 20
+# fireflies : 22
 
 |id|file|
 |----|----|
@@ -22,3 +22,5 @@
 |15099|[15099_Send_client_recap_emails_after_Fireflies_meetings_using_GPT-4o-mini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15099_Send_client_recap_emails_after_Fireflies_meetings_using_GPT-4o-mini__Gmail_and_Sheets.json)|
 |15106|[15106_Extract_sales_training_clips_from_Fireflies_calls_using_WayinVideo__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15106_Extract_sales_training_clips_from_Fireflies_calls_using_WayinVideo__Sheets_and_Slack.json)|
 |16410|[16410_Log_Fireflies_meeting_transcripts_to_Google_Sheets_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16410_Log_Fireflies_meeting_transcripts_to_Google_Sheets_CRM.json)|
+|19076|[19076_Sync_Fireflies_meeting_notes_to_HubSpot_CRM_using_Google_Gemini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19076_Sync_Fireflies_meeting_notes_to_HubSpot_CRM_using_Google_Gemini_and_Slack_alerts.json)|
+|19626|[19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json)|

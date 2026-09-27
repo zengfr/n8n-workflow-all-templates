@@ -1,4 +1,4 @@
-# brevo : 12
+# brevo : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |15085|[15085_Brevo_Contact_Manager____Import__Add_to_List__Send_Email_and_Track_Unsubscribes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15085_Brevo_Contact_Manager____Import__Add_to_List__Send_Email_and_Track_Unsubscribes.json)|
 |15156|[15156_Create_AI_LinkedIn_posts_with_Groq__Tavily__Pollinations__Brevo_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15156_Create_AI_LinkedIn_posts_with_Groq__Tavily__Pollinations__Brevo_and_Telegram.json)|
 |16192|[16192_Run_AI_voice_outreach_from_Airtable_with_Bolna__Groq__Brevo_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16192_Run_AI_voice_outreach_from_Airtable_with_Bolna__Groq__Brevo_and_Twilio.json)|
+|16988|[16988_Run_AI_voice_outreach_from_Airtable_with_Bolna__Groq__Brevo_and_AiSensy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16988_Run_AI_voice_outreach_from_Airtable_with_Bolna__Groq__Brevo_and_AiSensy.json)|
+|17507|[17507_Send_localized_9am_RSS_coffee_newsletters_with_rrule.net_and_Brevo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17507_Send_localized_9am_RSS_coffee_newsletters_with_rrule.net_and_Brevo.json)|
+|18500|[18500_Handle_ManyChat_WhatsApp_leads_with_OpenAI__Brevo_CRM__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18500_Handle_ManyChat_WhatsApp_leads_with_OpenAI__Brevo_CRM__and_Slack_alerts.json)|
+|18609|[18609_Enrich_and_score_B2B_leads_with_Apollo__then_sync_tiers_to_Brevo_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18609_Enrich_and_score_B2B_leads_with_Apollo__then_sync_tiers_to_Brevo_and_Slack.json)|

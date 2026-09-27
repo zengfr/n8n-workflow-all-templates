@@ -1,4 +1,4 @@
-# lifecycle : 11
+# lifecycle : 19
 
 |id|file|
 |----|----|
@@ -13,3 +13,11 @@
 |12037|[12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12037_Automate_contract_analysis___negotiation_with_GPT-4___financial_impact_assessment.json)|
 |14433|[14433_Orchestrate_sustainability_lifecycle_analytics_with_GPT-4o__Slack__Gmail_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14433_Orchestrate_sustainability_lifecycle_analytics_with_GPT-4o__Slack__Gmail_and_Google_Docs.json)|
 |16011|[16011_Score_inbound_leads_with_Claude_and_route_HubSpot_lifecycle_stages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16011_Score_inbound_leads_with_Claude_and_route_HubSpot_lifecycle_stages.json)|
+|17123|[17123_Send_appointment_confirmations__reminders_and_reviews_with_Sheets__Gmail___Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17123_Send_appointment_confirmations__reminders_and_reviews_with_Sheets__Gmail___Twilio.json)|
+|17383|[17383_Run_a_full_lead-to-meeting_pipeline_with_Google_Sheets__Gmail__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17383_Run_a_full_lead-to-meeting_pipeline_with_Google_Sheets__Gmail__Gemini_and_OpenAI.json)|
+|17528|[17528_Track_supplier_compliance_and_send_AI-generated_alerts_with_Notion__Groq__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17528_Track_supplier_compliance_and_send_AI-generated_alerts_with_Notion__Groq__Gmail_and_Slack.json)|
+|18673|[18673_Send_daily_CFO_invoice_health_reports_with_Google_Sheets__Groq__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18673_Send_daily_CFO_invoice_health_reports_with_Google_Sheets__Groq__Gmail_and_Slack.json)|
+|18741|[18741_Create_replay-safe_client_kickoff_bookings_with_Google_Calendar__Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18741_Create_replay-safe_client_kickoff_bookings_with_Google_Calendar__Gmail_and_data_tables.json)|
+|19049|[19049_Manage_student_lifecycle_and_AI_exam_grading_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19049_Manage_student_lifecycle_and_AI_exam_grading_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|19067|[19067_Reconcile_LMS_student_access_with_Google_Sheets_payment_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19067_Reconcile_LMS_student_access_with_Google_Sheets_payment_records.json)|
+|19122|[19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json)|

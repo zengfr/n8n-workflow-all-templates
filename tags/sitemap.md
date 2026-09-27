@@ -1,4 +1,4 @@
-# sitemap : 13
+# sitemap : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |14991|[14991_Filter_sitemap_URLs_and_inspect_indexing_status_with_Google_Search_Console.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14991_Filter_sitemap_URLs_and_inspect_indexing_status_with_Google_Search_Console.json)|
 |15443|[15443_Extract_sitemap_URLs_to_CSV_using_chat_input__XML_parsing_and_HTTP_upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15443_Extract_sitemap_URLs_to_CSV_using_chat_input__XML_parsing_and_HTTP_upload.json)|
 |15444|[15444_Extract_sitemap_URLs_in_bulk_via_chat_and_export_them_to_a_CSV_download_link.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15444_Extract_sitemap_URLs_in_bulk_via_chat_and_export_them_to_a_CSV_download_link.json)|
+|16972|[16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json)|
+|18808|[18808_Find_competitor_content_gaps_from_sitemaps_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18808_Find_competitor_content_gaps_from_sitemaps_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|19141|[19141_Catch_soft_404_and_error_pages_from_sitemaps_with_Snapshot_Site__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19141_Catch_soft_404_and_error_pages_from_sitemaps_with_Snapshot_Site__Slack__and_Google_Sheets.json)|

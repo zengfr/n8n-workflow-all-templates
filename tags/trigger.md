@@ -1,4 +1,4 @@
-# trigger : 26
+# trigger : 29
 
 |id|file|
 |----|----|
@@ -28,3 +28,6 @@
 |16048|[16048_Trigger_AI_outbound_calls_from_HubSpot_and_log_call_results_with_Vapi.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16048_Trigger_AI_outbound_calls_from_HubSpot_and_log_call_results_with_Vapi.json)|
 |16371|[16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json)|
 |16641|[16641_Trigger_Coolify_deployments_from_new_Docker_Hub_and_GHCR_image_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16641_Trigger_Coolify_deployments_from_new_Docker_Hub_and_GHCR_image_digests.json)|
+|17274|[17274_Fill_PDF_forms_from_JSON_data_with_JustFill_and_an_n8n_form_trigger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17274_Fill_PDF_forms_from_JSON_data_with_JustFill_and_an_n8n_form_trigger.json)|
+|19132|[19132_Mine_pharma_complaint_trends_and_trigger_CAPA_alerts_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19132_Mine_pharma_complaint_trends_and_trigger_CAPA_alerts_with_Claude_and_Slack.json)|
+|19796|[19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json)|

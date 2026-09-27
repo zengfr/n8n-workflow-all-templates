@@ -1,4 +1,4 @@
-# releases : 15
+# releases : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |13677|[13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json)|
 |14973|[14973_Turn_GitHub_releases_into_audio_updates_and_newsletters_with_OpenAI_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14973_Turn_GitHub_releases_into_audio_updates_and_newsletters_with_OpenAI_and_ElevenLabs.json)|
 |15354|[15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json)|
+|16968|[16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json)|
+|18872|[18872_Send_Slack_alerts_for_new_npm_or_PyPI_package_releases_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18872_Send_Slack_alerts_for_new_npm_or_PyPI_package_releases_with_Apify.json)|

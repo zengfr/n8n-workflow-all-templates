@@ -1,4 +1,4 @@
-# judge : 8
+# judge : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |16096|[16096_Score_and_rank_ad_copy_variants_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16096_Score_and_rank_ad_copy_variants_with_Claude_and_Google_Sheets.json)|
 |16488|[16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json)|
 |16570|[16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json)|
+|16944|[16944_Score_draft_content_citability_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16944_Score_draft_content_citability_with_GPT-4o-mini_and_Google_Sheets.json)|
+|17445|[17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json)|
+|19720|[19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json)|

@@ -1,0 +1,899 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Check consent before pgvector indexing in Postgres with OpenAI and Slack",
+    "wechat": "youandme10086",
+    "id": 19639,
+    "update_time": "2026-09-27"
+  },
+  "name": "Check consent before embedding records into a Postgres pgvector index",
+  "nodes": [
+    {
+      "id": "15f8a08f-c283-5f70-8d75-ca921d0c4873",
+      "name": "Index Run Every Night",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        256,
+        320
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "8210b959-7267-502e-a510-eeeb69f79a9e",
+      "name": "Consent Rules",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        496,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "required_purpose",
+              "type": "string",
+              "value": "ai_training"
+            },
+            {
+              "id": "a2",
+              "name": "documents_query",
+              "type": "string",
+              "value": "SELECT id AS document_id, subject_id, title, body AS text\nFROM kb_documents\nWHERE indexed_at IS NULL\nORDER BY id"
+            },
+            {
+              "id": "a3",
+              "name": "register_query",
+              "type": "string",
+              "value": "SELECT * FROM consent_register"
+            },
+            {
+              "id": "a4",
+              "name": "index_table",
+              "type": "string",
+              "value": "kb_index"
+            },
+            {
+              "id": "a5",
+              "name": "max_rows_in_report",
+              "type": "number",
+              "value": 15
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "43d838d0-9032-596b-8d5c-4a62981bab10",
+      "name": "Read The Records Waiting To Be Indexed",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        736,
+        320
+      ],
+      "parameters": {
+        "query": "={{ $('Consent Rules').first().json.documents_query }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b0b83a50-f5b4-5858-9787-73e9103d4b53",
+      "name": "Read The Consent Register",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        976,
+        320
+      ],
+      "parameters": {
+        "query": "={{ $('Consent Rules').first().json.register_query }}",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "09d3d624-e625-5b4c-9a7b-7fff122e0320",
+      "name": "Match Each Record To Its Consent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1216,
+        320
+      ],
+      "parameters": {
+        "jsCode": "\n// Bring each waiting record together with whatever the consent register says about its subject.\n// The join is done here rather than in SQL on purpose: the register is very often a DIFFERENT\n// system from the document store, so a template that assumed one JOIN-able database would not\n// survive first contact with a real setup.\n// This node sits AFTER the register read, so $input.all() is the REGISTER, and the waiting\n// records have to be pulled back by name. Getting that the wrong way round costs nothing at\n// import time and silently empties the queue at run time.\nconst register = $input.all().map(i => i.json).filter(r => r && r.subject_id);\n\nconst bySubject = {};\nfor (const r of register) bySubject[String(r.subject_id).trim()] = r;\n\nconst out = [];\nfor (const item of $('Read The Records Waiting To Be Indexed').all()) {\n  const d = item.json || {};\n  if (d.document_id === undefined || d.document_id === null) continue;   // the alwaysOutputData shim\n  const subject = String(d.subject_id === null || d.subject_id === undefined ? '' : d.subject_id).trim();\n  const c = subject ? bySubject[subject] : null;\n  out.push({ json: {\n    document_id: d.document_id,\n    subject_id: subject || null,\n    title: d.title,\n    text: d.text,\n    has_consent_row: !!c,\n    purposes: c ? c.purposes : null,\n    given_at: c ? c.given_at : null,\n    withdrawn_at: c ? c.withdrawn_at : null,\n    retention_until: c ? c.retention_until : null,\n    objected_to_profiling: c ? c.objected_to_profiling : null,\n    special_category: c ? c.special_category : null,\n  } });\n}\nreturn out;\n"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "bd69a44a-5ee1-5ca9-ae2b-bc04c90562de",
+      "name": "Decide If This Record May Be Embedded",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1744,
+        320
+      ],
+      "parameters": {
+        "jsCode": "\n// ONE decision per record. Six refusal grounds, each INDEPENDENT of the others, plus a third\n// answer that is neither yes nor no.\n//\n// The reason this is not a single boolean: a record can fail exactly one ground while passing all\n// the rest, so collapsing them loses the only thing the reader needs - WHICH rule stopped it. The\n// refusal ground is what a data protection officer is asked for months later, not the fact of the\n// refusal.\n//\n// \"held\" is deliberately not \"refused\". A consent row missing the fields the decision needs cannot\n// be judged in either direction, and guessing is the failure this whole template exists to stop.\nconst policy = $('Consent Rules').first().json;\nconst purpose = String(policy.required_purpose || 'ai_training').trim().toLowerCase();\nconst listOf = (v) => String(v || '').split(',').map(x => x.trim().toLowerCase()).filter(Boolean);\n\nconst today = new Date();\ntoday.setUTCHours(0, 0, 0, 0);\nconst asDate = (v) => {\n  if (!v) return null;\n  const d = new Date(v);\n  return isNaN(d.getTime()) ? null : d;\n};\nconst truthy = (v) => v === true || v === 1 || ['true', 'yes', 't', '1'].includes(String(v).trim().toLowerCase());\n\nconst rows = $input.all().map(i => i.json).filter(r => r && r.document_id !== undefined);\nconst out = [];\n\nfor (const r of rows) {\n  const base = {\n    document_id: r.document_id,\n    subject_id: r.subject_id || null,\n    title: r.title || null,\n    text: r.text || null,\n    // every key on every branch, so all four outcomes have the same shape (error A21)\n    decision: null, ground: null, detail: null,\n  };\n  const emit = (decision, ground, detail) =>\n    out.push({ json: Object.assign({}, base, { decision: decision, ground: ground, detail: detail }) });\n\n  const subject = String(r.subject_id || '').trim();\n\n  // A record about nobody has no consent question to answer. This is the ONLY route to the index\n  // that does not require a register entry.\n  if (!subject) { emit('eligible', 'not_personal', 'No data subject is attached to this record.'); continue; }\n\n  if (!r.has_consent_row) {\n    emit('refused', 'no_consent_record', 'Nothing in the consent register for ' + subject + '.'); continue;\n  }\n\n  // UNDECIDABLE, before any refusal ground is tested: if the register row cannot answer the\n  // question, no ground below can be trusted either.\n  const missing = [];\n  if (!r.purposes) missing.push('purposes');\n  if (!r.retention_until) missing.push('retention_until');\n  if (!r.given_at) missing.push('given_at');\n  if (missing.length) {\n    emit('held', 'incomplete_record',\n         'The consent register entry for ' + subject + ' is missing: ' + missing.join(', ') + '.'); continue;\n  }\n\n  // ground 1 - special category (GDPR Article 9). A HARD refusal: there is no policy setting that\n  // turns this into a warning, which is the point of putting it first.\n  if (truthy(r.special_category)) {\n    emit('refused', 'special_category',\n         'Marked special category, which needs its own Article 9 condition, not ordinary consent.'); continue;\n  }\n\n  // ground 2 - consent withdrawn. Withdrawal is not retroactive to the past, but it absolutely\n  // stops anything NEW being indexed from now on.\n  const withdrawn = asDate(r.withdrawn_at);\n  if (withdrawn && withdrawn <= today) {\n    emit('refused', 'consent_withdrawn', 'Consent was withdrawn on ' + String(r.withdrawn_at).slice(0, 10) + '.');\n    continue;\n  }\n\n  // ground 3 - objection to profiling (Article 21). Independent of consent: a person can consent\n  // to a purpose and still object to being profiled for it.\n  if (truthy(r.objected_to_profiling)) {\n    emit('refused', 'objection_to_profiling', 'This subject has objected to profiling.'); continue;\n  }\n\n  // ground 4 - retention. Consent that was once valid does not survive its own retention window.\n  const until = asDate(r.retention_until);\n  if (until && until < today) {\n    emit('refused', 'retention_expired',\n         'Retention ran out on ' + String(r.retention_until).slice(0, 10) + '.'); continue;\n  }\n\n  // ground 5 - purpose limitation (Article 5(1)(b)). The one almost every pipeline gets wrong:\n  // consent for support or marketing is NOT consent to be embedded into a model index.\n  const have = listOf(r.purposes);\n  if (!have.includes(purpose)) {\n    emit('refused', 'purpose_limitation',\n         'Consent covers ' + have.join(', ') + ' but not ' + purpose + '.'); continue;\n  }\n\n  emit('eligible', 'consent_on_file', 'Consent covers ' + purpose + ' and is inside its retention window.');\n}\n\n// A Merge never fires when NONE of its inputs ran, and on template C that produced a run which\n// reported absolutely nothing. An empty queue is a real answer and gets its own labelled row.\nif (!out.length) {\n  out.push({ json: { document_id: null, subject_id: null, title: null, text: null,\n                     decision: 'none', ground: 'queue_empty',\n                     detail: 'No records were waiting to be indexed.' } });\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "db2c9fb0-9a10-56c5-9393-b3c1b8cfce73",
+      "name": "Where Does This Record Go?",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1984,
+        320
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Eligible",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "eligible"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Refused",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "refused"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Held",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "held"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Nothing Waiting"
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6a1f4a34-4549-5457-b5f0-7d466b8916fa",
+      "name": "Embed In Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2496,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 50
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "4ac3c369-0913-50bc-b7c2-cb77e3f9ef31",
+      "name": "Add To The Index",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePGVector",
+      "position": [
+        2736,
+        320
+      ],
+      "parameters": {
+        "mode": "insert",
+        "options": {},
+        "tableName": "={{ $('Consent Rules').first().json.index_table }}",
+        "embeddingBatchSize": 200
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a67d4755-821f-5064-bd0f-f300882e1c9e",
+      "name": "Turn The Text Into Vectors",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        2736,
+        560
+      ],
+      "parameters": {
+        "model": "text-embedding-3-small",
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "848ba203-35d0-5b0f-90ca-c4be3df65358",
+      "name": "Load The Record Text",
+      "type": "@n8n/n8n-nodes-langchain.documentDefaultDataLoader",
+      "position": [
+        2736,
+        800
+      ],
+      "parameters": {
+        "options": {
+          "metadata": {
+            "metadataValues": [
+              {
+                "name": "document_id",
+                "value": "={{ $json.document_id }}"
+              },
+              {
+                "name": "subject_id",
+                "value": "={{ $json.subject_id }}"
+              },
+              {
+                "name": "lawful_ground",
+                "value": "={{ $json.ground }}"
+              }
+            ]
+          }
+        },
+        "jsonData": "={{ $json.text }}",
+        "jsonMode": "expressionData",
+        "textSplittingMode": "custom"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d60597a2-2e82-52dc-b11a-ff3124c24780",
+      "name": "Split Long Records",
+      "type": "@n8n/n8n-nodes-langchain.textSplitterRecursiveCharacterTextSplitter",
+      "position": [
+        2976,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "chunkSize": 800,
+        "chunkOverlap": 100
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f2da808-46a2-5f76-9294-967d5625394a",
+      "name": "Mark The Record As Indexed",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3504,
+        320
+      ],
+      "parameters": {
+        "query": "UPDATE kb_documents SET indexed_at = now() WHERE id = $1\nRETURNING id AS document_id",
+        "options": {
+          "queryReplacement": "={{ [$('Embed In Batches').item.json.document_id] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "93b6beb5-c638-536d-9218-39c0270555d1",
+      "name": "Write The Inclusion Manifest",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        3744,
+        320
+      ],
+      "parameters": {
+        "query": "INSERT INTO index_manifest (run_id, document_id, subject_id, decision, ground, detail)\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING document_id, subject_id, decision, ground, detail",
+        "options": {
+          "queryReplacement": "={{ [$execution.id, $('Embed In Batches').item.json.document_id, $('Embed In Batches').item.json.subject_id, $('Embed In Batches').item.json.decision, $('Embed In Batches').item.json.ground, $('Embed In Batches').item.json.detail] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f511a52d-0069-5369-9fa5-87fdb6b3ee1a",
+      "name": "Record Why It Was Refused",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        4256,
+        320
+      ],
+      "parameters": {
+        "query": "INSERT INTO index_manifest (run_id, document_id, subject_id, decision, ground, detail)\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING document_id, subject_id, decision, ground, detail",
+        "options": {
+          "queryReplacement": "={{ [$execution.id, $json.document_id, $json.subject_id, $json.decision, $json.ground, $json.detail] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "765bf6e4-e16d-58ae-a6a5-03cc04a054e9",
+      "name": "Hold It For A Human",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        4256,
+        560
+      ],
+      "parameters": {
+        "query": "INSERT INTO index_manifest (run_id, document_id, subject_id, decision, ground, detail)\nVALUES ($1, $2, $3, $4, $5, $6)\nRETURNING document_id, subject_id, decision, ground, detail",
+        "options": {
+          "queryReplacement": "={{ [$execution.id, $json.document_id, $json.subject_id, $json.decision, $json.ground, $json.detail] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "name": "Postgres account"
+        }
+      },
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "3e196001-7961-5ddb-af0d-b783f6eecbbb",
+      "name": "Gather Every Outcome",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        4784,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "numberInputs": 4
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "b90dbf1c-b7b1-59ee-a639-8248ed29f2a9",
+      "name": "Summarise This Index Run",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5024,
+        320
+      ],
+      "parameters": {
+        "jsCode": "\n// What this run decided, counted once. Reads the merged stream rather than any single branch, so\n// one index run produces exactly one message no matter how many outcomes occurred.\nconst policy = $('Consent Rules').first().json;\nconst maxRows = Number(policy.max_rows_in_report) || 15;\n\nconst rows = $input.all().map(i => i.json).filter(r => r && r.decision);\nconst eligible = rows.filter(r => r.decision === 'eligible');\nconst refused = rows.filter(r => r.decision === 'refused');\nconst held = rows.filter(r => r.decision === 'held');\nconst idle = rows.filter(r => r.decision === 'none');\n\n// Grouping by GROUND is the useful shape: \"9 refused\" tells a reader nothing, \"7 refused for\n// purpose limitation\" tells them their consent copy is wrong.\nconst byGround = {};\nfor (const r of refused.concat(held)) {\n  const g = r.ground || 'unknown';\n  byGround[g] = (byGround[g] || 0) + 1;\n}\nconst groundLines = Object.keys(byGround).sort()\n  .map(g => '- ' + g.replace(/_/g, ' ') + ': ' + byGround[g]);\n\nconst examples = refused.concat(held).slice(0, maxRows)\n  .map(r => '- ' + (r.title || 'record ' + r.document_id) + ' (' + r.ground.replace(/_/g, ' ') + ')');\n\nconst considered = eligible.length + refused.length + held.length;\n\nreturn [{ json: {\n  records_considered: considered,\n  embedded: eligible.length,\n  refused: refused.length,\n  held_for_review: held.length,\n  refusal_grounds: byGround,\n  queue_was_empty: idle.length > 0 && considered === 0,\n  needs_telling: refused.length > 0 || held.length > 0,\n  report_text: considered === 0\n    ? 'Nothing was waiting to be indexed.'\n    : eligible.length + ' of ' + considered + ' record(s) were embedded. '\n      + refused.length + ' refused, ' + held.length + ' held for a human.'\n      + (groundLines.length ? '\\nWhy:\\n' + groundLines.join('\\n') : '')\n      + (examples.length ? '\\n' + examples.join('\\n') : '')\n      + (refused.length + held.length > maxRows\n         ? '\\n...and ' + (refused.length + held.length - maxRows) + ' more in the manifest.' : ''),\n} }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "258d27ba-d9d7-5050-a5be-0b8e02738c63",
+      "name": "Anything Refused Or Held?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5264,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.needs_telling }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "196b8234-b4a7-5ad7-a517-e4f9a51e9fc7",
+      "name": "Tell The Data Protection Owner",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        5504,
+        320
+      ],
+      "parameters": {
+        "text": "={{ $json.report_text }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": ""
+        },
+        "operation": "post",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.7
+    },
+    {
+      "id": "f87ada72-076c-57cc-bea6-2cfb62e682eb",
+      "name": "Everything Was Eligible",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        5504,
+        560
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "9fea9a3f-45f5-5866-96cc-d217748eadf5",
+      "name": "Overview Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -704,
+        160
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 736,
+        "height": 1360,
+        "content": "## Check consent before embedding records into a pgvector index\n\nHundreds of workflows load documents, chunk them and push them into a vector store. Almost none ask\nwhether they are allowed to. This one puts a gate in front of the index: every record is checked\nagainst a consent register first, and anything without a lawful basis is refused with its reason.\n\n### How it works\nRecords waiting to be indexed and the consent register are read separately, because in real setups\nthe two live in different systems.\n\nEach record then gets one decision with six independent refusal grounds. Special category data is\nrefused outright, because it needs its own Article 9 condition rather than ordinary consent.\nWithdrawn consent stops anything new being indexed. An objection to profiling refuses the record\neven when consent exists. Retention that has run out refuses it even though the consent was once\nvalid. And purpose limitation is the one most pipelines get wrong: consent for support or marketing\nis not consent to be embedded into a model index.\n\nA record whose register entry is missing the fields the decision needs is **held**, not refused.\nUndecidable is a third answer, and guessing either way is what this exists to prevent.\n\nEligible records are embedded. Every decision and its ground goes into an inclusion manifest, so\nmonths later you can prove exactly what was in the index and why.\n\n### Setup\n1. Create the consent register, documents and manifest tables, and enable the pgvector extension.\n2. Connect Postgres, an embeddings provider and Slack.\n3. Open **Consent Rules** and set `required_purpose` to the exact purpose string your register uses.\n\nA refusal here is a legal decision, so the ground is recorded, never just a count."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "73918ad6-984c-560c-b6de-589b543571ca",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1312,
+        "height": 400,
+        "content": "## 1. Read the records and the register separately\nThe queue and the register usually live in different systems, so they are read\napart and joined here rather than in one SQL statement."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e47d9533-ea1b-5505-846e-8fd8fe0a9745",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 464,
+        "content": "## 2. One decision, six grounds, three answers\nEligible, refused with the exact ground, or held because the register cannot\nanswer. Held is not a soft refusal. It is a third answer."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "822bcadd-6eff-5249-8b4e-bd9f2c738e11",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2448,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 832,
+        "height": 880,
+        "content": "## 3. Only eligible records reach the index\nEverything else stops at the branch on the left. Long text is split before it\nis embedded, so a record does not silently lose its tail."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55befd88-62ce-5bc0-94bd-7a93f46616a1",
+      "name": "Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3456,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 400,
+        "content": "## 4. Record what went in\nThe manifest is written per record, so the index can be proved later rather\nthan described."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b25741de-5935-557a-960e-b8b939439290",
+      "name": "Section 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4208,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 352,
+        "height": 640,
+        "content": "## 5. Refused and held records stop here\nBoth are stored with the ground that produced them. Held rows are the ones a\nhuman still has to answer."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7817c245-3eef-5e2a-8d3f-80043316f7b2",
+      "name": "Section 6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4736,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1056,
+        "height": 640,
+        "content": "## 6. One run, one message\nFour branches merge before counting, so a run reports once. Refusals are\ngrouped by ground, because a bare count tells nobody what to fix."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Consent Rules": {
+      "main": [
+        [
+          {
+            "node": "Read The Records Waiting To Be Indexed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add To The Index": {
+      "main": [
+        [
+          {
+            "node": "Mark The Record As Indexed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Embed In Batches": {
+      "main": [
+        [
+          {
+            "node": "Gather Every Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Add To The Index",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Long Records": {
+      "ai_textSplitter": [
+        [
+          {
+            "node": "Load The Record Text",
+            "type": "ai_textSplitter",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hold It For A Human": {
+      "main": [
+        [
+          {
+            "node": "Gather Every Outcome",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Gather Every Outcome": {
+      "main": [
+        [
+          {
+            "node": "Summarise This Index Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load The Record Text": {
+      "ai_document": [
+        [
+          {
+            "node": "Add To The Index",
+            "type": "ai_document",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Index Run Every Night": {
+      "main": [
+        [
+          {
+            "node": "Consent Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise This Index Run": {
+      "main": [
+        [
+          {
+            "node": "Anything Refused Or Held?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything Refused Or Held?": {
+      "main": [
+        [
+          {
+            "node": "Tell The Data Protection Owner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Everything Was Eligible",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Consent Register": {
+      "main": [
+        [
+          {
+            "node": "Match Each Record To Its Consent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Why It Was Refused": {
+      "main": [
+        [
+          {
+            "node": "Gather Every Outcome",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Mark The Record As Indexed": {
+      "main": [
+        [
+          {
+            "node": "Write The Inclusion Manifest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Turn The Text Into Vectors": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Add To The Index",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Where Does This Record Go?": {
+      "main": [
+        [
+          {
+            "node": "Embed In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Why It Was Refused",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hold It For A Human",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Gather Every Outcome",
+            "type": "main",
+            "index": 3
+          }
+        ]
+      ]
+    },
+    "Write The Inclusion Manifest": {
+      "main": [
+        [
+          {
+            "node": "Embed In Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Each Record To Its Consent": {
+      "main": [
+        [
+          {
+            "node": "Decide If This Record May Be Embedded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide If This Record May Be Embedded": {
+      "main": [
+        [
+          {
+            "node": "Where Does This Record Go?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Records Waiting To Be Indexed": {
+      "main": [
+        [
+          {
+            "node": "Read The Consent Register",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

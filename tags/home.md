@@ -1,4 +1,4 @@
-# home : 12
+# home : 19
 
 |id|file|
 |----|----|
@@ -14,3 +14,10 @@
 |15263|[15263_Create_a_personal_property_inventory_with_Notion_and_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15263_Create_a_personal_property_inventory_with_Notion_and_Anthropic_Claude.json)|
 |15393|[15393_Submit_home_inventory_images_via_web_form_to_a_property_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15393_Submit_home_inventory_images_via_web_form_to_a_property_workflow.json)|
 |16439|[16439_Generate_and_publish_AI_home_cam_Shorts_with_OpenAI__kie.ai_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16439_Generate_and_publish_AI_home_cam_Shorts_with_OpenAI__kie.ai_and_YouTube.json)|
+|17322|[17322_Route_WhatsApp_home-service_requests_by_urgency_with_Groq__Supabase__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17322_Route_WhatsApp_home-service_requests_by_urgency_with_Groq__Supabase__and_Sheets.json)|
+|17379|[17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json)|
+|17512|[17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json)|
+|17618|[17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json)|
+|17761|[17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json)|
+|19174|[19174_Quote_and_dispatch_home-service_jobs_from_forms_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19174_Quote_and_dispatch_home-service_jobs_from_forms_with_OpenAI__Google_Sheets_and_Slack.json)|
+|19242|[19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json)|

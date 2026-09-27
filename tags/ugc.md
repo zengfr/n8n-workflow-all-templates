@@ -1,4 +1,4 @@
-# ugc : 23
+# ugc : 27
 
 |id|file|
 |----|----|
@@ -25,3 +25,7 @@
 |14256|[14256_Generate_UGC_product_videos_from_Google_Sheets_with_DALL_E__GPT-4_and_Sora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14256_Generate_UGC_product_videos_from_Google_Sheets_with_DALL_E__GPT-4_and_Sora.json)|
 |14266|[14266_Generate_AI_UGC_videos_with_HeyGen_and_post_to_Instagram_and_Facebook_daily.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14266_Generate_AI_UGC_videos_with_HeyGen_and_post_to_Instagram_and_Facebook_daily.json)|
 |14316|[14316_Ads_Factory__Generate_Unlimited_Length_UGC_AI_Video_Pipeline.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14316_Ads_Factory__Generate_Unlimited_Length_UGC_AI_Video_Pipeline.json)|
+|17593|[17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json)|
+|18326|[18326_Generate_and_approve_UGC_ad_videos_with_OpenRouter__Fal__Replicate__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18326_Generate_and_approve_UGC_ad_videos_with_OpenRouter__Fal__Replicate__and_Discord.json)|
+|18698|[18698_Generate_UGC_ad_reels_from_product_photos_with_DeepSeek_and_kie.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18698_Generate_UGC_ad_reels_from_product_photos_with_DeepSeek_and_kie.ai.json)|
+|19416|[19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json)|

@@ -1,4 +1,4 @@
-# portfolio : 30
+# portfolio : 32
 
 |id|file|
 |----|----|
@@ -32,3 +32,5 @@
 |16443|[16443_Send_portfolio_risk_reports_with_Google_Sheets__GPT-4o-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16443_Send_portfolio_risk_reports_with_Google_Sheets__GPT-4o-mini_and_Gmail.json)|
 |16622|[16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json)|
 |16650|[16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json)|
+|18099|[18099_Extract_portfolio_project_credits_from_web_pages_with_OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18099_Extract_portfolio_project_credits_from_web_pages_with_OpenAI_and_Sheets.json)|
+|18892|[18892_Summarize_portfolio_review_notes_and_flag_compliance_risk_with_GPT-4o__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18892_Summarize_portfolio_review_notes_and_flag_compliance_risk_with_GPT-4o__Gmail_and_Google_Sheets.json)|

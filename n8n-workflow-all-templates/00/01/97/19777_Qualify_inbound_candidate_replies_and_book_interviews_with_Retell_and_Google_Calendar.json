@@ -1,0 +1,1513 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Qualify inbound candidate replies and book interviews with Retell and Google Calendar",
+    "wechat": "youandme10086",
+    "id": 19777,
+    "update_time": "2026-09-27"
+  },
+  "name": "Qualify inbound candidate replies and book interviews in Google Calendar",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "hook3",
+      "name": "Inbound webhook",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "One endpoint for three things: Twilio inbound SMS, Twilio status callbacks, and the Retell call_analyzed webhook. Put this URL in both consoles and in TWILIO_STATUS_CALLBACK in config.",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "stratton-inbound",
+      "parameters": {
+        "path": "stratton-inbound",
+        "options": {
+          "rawBody": false
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cfg3",
+      "name": "config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// STRATTON CANDIDATE ENGINE — CONFIG\n// The same node appears at the head of all three workflows. Edit it in one, paste it\n// into the other two; validate.py checks that they have not drifted apart.\n//\n// Any key left blank means that step is SKIPPED, not that the run fails. That is what\n// lets the whole engine be demonstrated on a screen-share before a single credential,\n// phone number or ATS sandbox exists.\n\n// ---------------------------------------------------------------- Which client is this\n// Everything the engine writes carries this id. One n8n instance runs every client;\n// two clients can never see each other's rows because every query is filtered on it and\n// every table has an RLS policy that says the same thing.\nconst CLIENT_SLUG = 'stratton';\nconst CLIENT_ID   = '';          // the clients.id uuid from Supabase. Blank -> demo mode.\n\n// ---------------------------------------------------------------- Supabase\n// SUPABASE_URL blank -> the engine runs against sample/ data and writes nothing.\nconst SUPABASE_URL          = '';   // https://xxxxxxxx.supabase.co\nconst SUPABASE_SERVICE_KEY  = '';   // service_role key. n8n credential store is better;\n                                    // this is here so the template runs before that exists.\n\n// ---------------------------------------------------------------- The ATS\n// One block, six vendors. Only ATS_VENDOR and the credentials change between clients —\n// the field mapping below is what actually makes a new ATS work.\nconst ATS_VENDOR   = 'bullhorn';    // bullhorn | avionte | ceipal | jobdiva | recruitcrm | salesforce | generic\nconst ATS_BASE_URL = '';            // e.g. https://rest99.bullhornstaffing.com/rest-services/abcde\nconst ATS_TOKEN    = '';            // BhRestToken / bearer. Blank -> ATS steps are skipped.\n\n// How THIS client's ATS names things. This object is the entire onboarding cost of a new\n// ATS: point each of our field names at theirs, dotted paths allowed.\nconst ATS_FIELDS = {\n  job: {\n    id:            'id',\n    title:         'title',\n    description:   'publicDescription',\n    skills:        'skillList',            // comma string or array, both handled\n    city:          'address.city',\n    state:         'address.state',\n    pay_rate:      'payRate',\n    shift:         'customText1',\n    employment:    'employmentType',\n    recruiter:     'owner.name',\n    recruiter_mail:'owner.email'\n  },\n  candidate: {\n    id:         'id',\n    first_name: 'firstName',\n    last_name:  'lastName',\n    email:      'email',\n    phone:      'mobile',\n    phone_alt:  'phone',\n    title:      'occupation',\n    skills:     'skillSet',\n    city:       'address.city',\n    state:      'address.state',\n    status:     'status'\n  }\n};\n\n// Where candidates come from when the ATS is not connected. The search endpoint per\n// vendor differs; the shape after `normalise the candidates` does not.\nconst ATS_CANDIDATE_SEARCH_LIMIT = 200;   // ask the ATS for this many, score them all\nconst ENROLL_TOP_N               = 25;    // enroll only the best this many\n\n// ---------------------------------------------------------------- The AI reader\n// Most job orders are prose. `skillList` is empty far more often than a vendor demo\n// suggests, and matching 20,000 candidates against an empty skill list finds nobody.\n//\n// So when the ATS gives us fewer than MIN_SKILLS_BEFORE_AI real skills, the description is\n// read once and turned into a structured requirement list. It runs ONCE PER JOB ORDER, not\n// per candidate — a few hundred tokens per campaign, not per person.\n//\n// Blank key -> the step is skipped and the keyword rules stand on their own.\nconst AI_API_KEY = '';\nconst AI_MODEL   = 'claude-opus-5';\nconst AI_EFFORT  = 'low';        // low | medium | high — extraction is not a hard problem\nconst MIN_SKILLS_BEFORE_AI = 2;  // at or below this many ATS skills, ask the model\n\n// The model may only return skills. It is never asked who to contact, and never asked to\n// score anybody — those stay in code where they can be audited and re-run.\nconst AI_MAX_SKILLS = 12;\n\n// ---------------------------------------------------------------- Matching\n// A transparent score, on purpose. A staffing manager can read why someone was\n// contacted, which they cannot do with an embedding similarity.\nconst MATCH = {\n  required_skill:   18,   // per required skill the candidate has\n  nice_skill:        6,\n  same_city:        12,\n  same_state:        6,\n  title_overlap:    14,   // words shared between their title and the job title\n  recent_activity:  10,   // ATS status suggests they are actively looking\n  has_mobile:        8    // no mobile means no SMS and no call. Weighted, not fatal.\n};\nconst MIN_MATCH_SCORE = 40;   // below this, stored with a reason and never contacted\n\n// Statuses in the client's ATS that mean \"do not contact this person\". Placed candidates\n// are the one that gets people in trouble.\nconst ATS_EXCLUDE_STATUSES = ['Placed', 'Do Not Contact', 'Blacklisted', 'Inactive',\n  'Deceased', 'Archived'];\n\n// ---------------------------------------------------------------- The outreach ladder\n// Copied onto the campaign at launch, so editing this never changes the behaviour of a\n// campaign already running. delay_hours is measured from the previous attempt.\nconst SEQUENCE = [\n  { step: 1, channel: 'sms',   delay_hours: 0,\n    template: 'Hi {{first_name}}, it is {{recruiter_name}} at {{client_name}}. We have a '\n            + '{{job_title}} role in {{job_city}}{{pay_phrase}}. Interested in hearing more? '\n            + 'Reply YES or STOP to opt out.' },\n  { step: 2, channel: 'sms',   delay_hours: 20,\n    template: 'Hi {{first_name}}, following up on the {{job_title}} position in {{job_city}}. '\n            + 'Still open. Reply YES and I will call you, or STOP to opt out.' },\n  { step: 3, channel: 'voice', delay_hours: 26,\n    agent_note: 'Second contact. They have had two texts and not replied. Keep it under '\n              + '90 seconds and offer to text the details instead.' },\n  { step: 4, channel: 'sms',   delay_hours: 48,\n    template: 'Last note from me on the {{job_title}} role, {{first_name}} — reply YES if '\n            + 'you would like the details, otherwise I will close it out. STOP to opt out.' }\n];\n\n// ---------------------------------------------------------------- When we are allowed\n// TCPA is the reason this block exists. Quiet hours are evaluated in the CANDIDATE's\n// timezone, not the server's and not the recruiter's.\nconst QUIET_HOURS_START = 21;    // no outbound at or after 21:00 local\nconst QUIET_HOURS_END   = 8;     // no outbound before 08:00 local\nconst SEND_ON_WEEKENDS  = false;\nconst DEFAULT_TIMEZONE  = 'America/New_York';\n\nconst RUNNER_BATCH_SIZE = 50;    // enrollments claimed per 15-minute run\nconst DAILY_SEND_CAP    = 500;   // hard ceiling per client per day, enforced in code\nconst LEASE_SECONDS     = 300;   // how long a claimed row stays claimed\n\n// A number we have already touched today is not touched again, whatever the ladder says.\nconst MIN_HOURS_BETWEEN_TOUCHES = 18;\n\n// ---------------------------------------------------------------- Twilio\nconst TWILIO_ACCOUNT_SID  = '';\nconst TWILIO_AUTH_TOKEN   = '';   // also the key the inbound webhook signature is checked with\nconst TWILIO_FROM_NUMBER  = '';   // +1XXXXXXXXXX, or a Messaging Service SID below\nconst TWILIO_MESSAGING_SID= '';   // MGxxxx. Preferred at volume — handles the number pool.\nconst TWILIO_STATUS_CALLBACK = '';// https://n8n.example.com/webhook/stratton-inbound\n\n// Twilio error codes that mean \"this will never work\" — retrying them wastes money and\n// looks like a loop. Everything else is treated as transient and backed off.\nconst PERMANENT_SMS_ERRORS = ['21211', '21610', '21614', '21408', '30003', '30005', '30006'];\n//                            bad num  optout  not mobile geo-perm unreach  unknown  landline\n\n// ---------------------------------------------------------------- Retell AI\nconst RETELL_API_KEY   = '';\nconst RETELL_AGENT_ID  = '';      // the outbound screening agent\nconst RETELL_FROM_NUMBER = '';    // a number bought inside Retell, or a Twilio number imported\nconst RETELL_WEBHOOK_SECRET = ''; // verifies the call_analyzed callback\n\n// ---------------------------------------------------------------- Qualification\n// The structured criteria. The AI agent is asked to fill these in; it is not asked to\n// decide. The decision is this object, evaluated in a Code node, identically every time.\nconst QUALIFY = {\n  must: [\n    { key: 'interested',        equals: true,  label: 'said they are interested' },\n    { key: 'authorized_to_work', equals: true, label: 'authorised to work' },\n    { key: 'can_start_within_days', lte: 21,   label: 'can start within three weeks' }\n  ],\n  score: [\n    { key: 'years_experience',  gte: 2,    points: 25, label: '2+ years experience' },\n    { key: 'has_reliable_transport', equals: true, points: 15, label: 'has transport' },\n    { key: 'shift_match',       equals: true, points: 20, label: 'shift works for them' },\n    { key: 'rate_acceptable',   equals: true, points: 25, label: 'accepts the rate' },\n    { key: 'certifications_valid', equals: true, points: 15, label: 'certifications current' }\n  ],\n  pass_mark: 60,\n  // Anything the AI could not establish is null, and null never passes a `must`. An\n  // unanswered question is a not-qualified, not an assumed yes.\n  review_band: 15   // within this many points of the pass mark -> human review, not a rejection\n};\n\n// Words that stop everything, checked before anything else is done with a message.\nconst OPT_OUT_KEYWORDS = ['stop', 'stopall', 'unsubscribe', 'cancel', 'end', 'quit',\n  'remove me', 'opt out', 'optout', 'do not text', 'dont text', 'take me off'];\nconst POSITIVE_KEYWORDS = ['yes', 'yeah', 'yep', 'y', 'sure', 'interested', 'ok', 'okay',\n  'tell me more', 'more info', 'call me', 'sounds good', 'im in', \"i'm in\"];\nconst NEGATIVE_KEYWORDS = ['no', 'not interested', 'no thanks', 'nope', 'pass',\n  'already have a job', 'found a job', 'not looking'];\n\n// ---------------------------------------------------------------- Scheduling\nconst CALENDAR_PROVIDER   = 'google';   // google | microsoft | none\nconst RECRUITER_CALENDARS = {\n  // recruiter email -> calendar id. Blank object -> the job order's recruiter_email is used\n  // as the calendar id, which is what Google does by default anyway.\n};\nconst INTERVIEW_MINUTES     = 30;\nconst BOOKING_LEAD_HOURS    = 18;    // never book sooner than this\nconst BOOKING_WINDOW_DAYS   = 5;     // look this far ahead for a slot\nconst BOOKING_HOURS         = [9, 10, 11, 13, 14, 15, 16];   // recruiter local hours\n\n// ---------------------------------------------------------------- Telling people\nconst SLACK_WEBHOOK_URL = '';    // blank -> no Slack notification\nconst NOTIFY_RECRUITER_EMAIL = true;\n\n// ---------------------------------------------------------------- The safety switch\n// Ships in the safest position. Nothing reaches a candidate until someone deliberately\n// changes TEST_RUN.\nconst TEST_RUN    = true;   // true -> no SMS, no call, no ATS write, no calendar event\nconst TEST_PHONE  = '';     // blank -> preview only. Set -> messages really send, to here.\nconst DRY_RUN_DB  = false;  // true -> Supabase reads happen, writes do not\n\n// Gives every provider call a deterministic fake response so the three workflows can be\n// watched end to end before any account exists. FORCES preview whatever the two above say,\n// because a fabricated Twilio SID must never be able to reach a real phone.\nconst DEMO_MODE = true;\n\n// Quiet hours are real, and at 01:00 the runner correctly defers every single row — which\n// is the right behaviour and a useless thing to film. This ignores the quiet-hours check\n// so a walkthrough can be recorded at any hour.\n//\n// It is honoured ONLY when DEMO_MODE is on, and DEMO_MODE forces preview, so this switch\n// can never cause a real message at 3am. Turning DEMO_MODE off disarms it automatically.\nconst DEMO_ANY_HOUR = true;\n\n// =============================================================================\nconst MODE = DEMO_MODE ? 'preview'\n           : (TEST_RUN !== true ? 'live' : (TEST_PHONE.trim() !== '' ? 'test' : 'preview'));\n\nconst supabase_enabled = SUPABASE_URL.trim() !== '' && SUPABASE_SERVICE_KEY.trim() !== '';\nconst ats_enabled      = ATS_BASE_URL.trim() !== '' && ATS_TOKEN.trim() !== '';\nconst twilio_enabled   = TWILIO_ACCOUNT_SID.trim() !== '' && TWILIO_AUTH_TOKEN.trim() !== ''\n                      && (TWILIO_FROM_NUMBER.trim() !== '' || TWILIO_MESSAGING_SID.trim() !== '');\nconst retell_enabled   = RETELL_API_KEY.trim() !== '' && RETELL_AGENT_ID.trim() !== '';\n\nreturn [{\n  json: {\n    client_slug: CLIENT_SLUG,\n    client_id:   CLIENT_ID,\n    client_name: CLIENT_SLUG.charAt(0).toUpperCase() + CLIENT_SLUG.slice(1),\n\n    supabase_url: SUPABASE_URL.replace(/\\/+$/, ''),\n    supabase_key: SUPABASE_SERVICE_KEY,\n    supabase_enabled: supabase_enabled,\n    dry_run_db: DRY_RUN_DB === true,\n\n    ats_vendor: ATS_VENDOR,\n    ats_base_url: ATS_BASE_URL.replace(/\\/+$/, ''),\n    ats_token: ATS_TOKEN,\n    ats_fields: ATS_FIELDS,\n    ats_enabled: ats_enabled,\n    ats_exclude_statuses: ATS_EXCLUDE_STATUSES,\n    ats_search_limit: ATS_CANDIDATE_SEARCH_LIMIT,\n\n    ai_key: AI_API_KEY,\n    ai_model: AI_MODEL,\n    ai_effort: AI_EFFORT,\n    ai_max_skills: AI_MAX_SKILLS,\n    min_skills_before_ai: MIN_SKILLS_BEFORE_AI,\n    ai_enabled: AI_API_KEY.trim() !== '',\n\n    match: MATCH,\n    min_match_score: MIN_MATCH_SCORE,\n    enroll_top_n: ENROLL_TOP_N,\n\n    sequence: SEQUENCE,\n    quiet_hours_start: QUIET_HOURS_START,\n    quiet_hours_end: QUIET_HOURS_END,\n    send_on_weekends: SEND_ON_WEEKENDS,\n    default_timezone: DEFAULT_TIMEZONE,\n    runner_batch_size: RUNNER_BATCH_SIZE,\n    daily_send_cap: DAILY_SEND_CAP,\n    lease_seconds: LEASE_SECONDS,\n    min_hours_between_touches: MIN_HOURS_BETWEEN_TOUCHES,\n\n    twilio_sid: TWILIO_ACCOUNT_SID,\n    twilio_token: TWILIO_AUTH_TOKEN,\n    twilio_from: TWILIO_FROM_NUMBER,\n    twilio_messaging_sid: TWILIO_MESSAGING_SID,\n    twilio_status_callback: TWILIO_STATUS_CALLBACK,\n    twilio_enabled: twilio_enabled,\n    permanent_sms_errors: PERMANENT_SMS_ERRORS,\n\n    retell_key: RETELL_API_KEY,\n    retell_agent: RETELL_AGENT_ID,\n    retell_from: RETELL_FROM_NUMBER,\n    retell_secret: RETELL_WEBHOOK_SECRET,\n    retell_enabled: retell_enabled,\n\n    qualify: QUALIFY,\n    opt_out_keywords: OPT_OUT_KEYWORDS,\n    positive_keywords: POSITIVE_KEYWORDS,\n    negative_keywords: NEGATIVE_KEYWORDS,\n\n    calendar_provider: CALENDAR_PROVIDER,\n    calendar_enabled: CALENDAR_PROVIDER !== 'none',\n    recruiter_calendars: RECRUITER_CALENDARS,\n    interview_minutes: INTERVIEW_MINUTES,\n    booking_lead_hours: BOOKING_LEAD_HOURS,\n    booking_window_days: BOOKING_WINDOW_DAYS,\n    booking_hours: BOOKING_HOURS,\n\n    slack_webhook_url: SLACK_WEBHOOK_URL,\n    slack_enabled: SLACK_WEBHOOK_URL.trim() !== '',\n    notify_recruiter_email: NOTIFY_RECRUITER_EMAIL === true,\n\n    mode: MODE,\n    test_phone: TEST_PHONE.trim(),\n    demo_mode: DEMO_MODE === true,\n    // Deliberately ANDed with DEMO_MODE here rather than trusted on its own, so the flag\n    // cannot be left on by accident and quietly disable quiet hours in production.\n    ignore_quiet_hours: DEMO_MODE === true && DEMO_ANY_HOUR === true,\n    forced_preview: DEMO_MODE === true && TEST_RUN !== true,\n    // The single flag every outbound gate reads. Nothing else decides whether to send.\n    send_enabled: MODE !== 'preview',\n    live_send: MODE === 'live',\n    // Only a live run may touch the client's ATS or a recruiter's real calendar.\n    writeback_enabled: MODE === 'live'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "verify",
+      "name": "verify the signature",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Webhook security. This endpoint is a public URL that can opt a candidate out, cancel a\n// campaign and write into the client's ATS, so anything arriving unsigned is refused.\n//\n// Two providers, two algorithms, both implemented properly:\n//\n//   Twilio   X-Twilio-Signature — HMAC-SHA1, base64, over the full request URL with the\n//            POST parameters appended in alphabetical key order. Reconstructing that from\n//            the parsed form body IS the documented algorithm, not an approximation.\n//\n//   Retell   X-Retell-Signature — HMAC-SHA256, hex, over the JSON payload. Retell's own\n//            SDK signs JSON.stringify(body), so stringifying the parsed body matches.\n//\n// It fails CLOSED. If no secret is configured, or the platform gives us no way to compute\n// an HMAC, a live run rejects the request rather than trusting it. Only preview mode is\n// allowed to wave an unverified event through, and it says so in the output.\nconst cfg = $('config').first().json;\nconst req = $input.first().json || {};\nconst headers = req.headers || {};\nconst body = req.body !== undefined ? req.body : req;\nconst query = req.query || {};\n\nconst lower = {};\nfor (const k of Object.keys(headers)) lower[String(k).toLowerCase()] = headers[k];\n\nconst twilioSig = lower['x-twilio-signature'] || '';\nconst retellSig = lower['x-retell-signature'] || '';\nconst source = twilioSig ? 'twilio' : (retellSig ? 'retell' : 'unknown');\n\n// Web Crypto is a global in the n8n sandbox and in Node 18+, so no require() and no\n// instance env var is needed for this to work on n8n Cloud.\nasync function hmac(algo, secret, message, encoding) {\n  const enc = new TextEncoder();\n  const key = await crypto.subtle.importKey(\n    'raw', enc.encode(secret), { name: 'HMAC', hash: algo }, false, ['sign']);\n  const sig = await crypto.subtle.sign('HMAC', key, enc.encode(message));\n  const bytes = new Uint8Array(sig);\n  if (encoding === 'hex') {\n    let out = '';\n    for (let i = 0; i < bytes.length; i++) out += bytes[i].toString(16).padStart(2, '0');\n    return out;\n  }\n  let bin = '';\n  for (let i = 0; i < bytes.length; i++) bin += String.fromCharCode(bytes[i]);\n  return btoa(bin);\n}\n\n// Length-independent comparison. A timing attack on a webhook is unlikely; writing the\n// comparison correctly costs three lines.\nfunction safeEqual(a, b) {\n  const x = String(a || '');\n  const y = String(b || '');\n  let diff = x.length ^ y.length;\n  for (let i = 0; i < Math.max(x.length, y.length); i++) {\n    diff |= (x.charCodeAt(i) || 0) ^ (y.charCodeAt(i) || 0);\n  }\n  return diff === 0;\n}\n\nconst result = {\n  _source: source,\n  _verified: false,\n  _reason: '',\n  headers_seen: Object.keys(lower).filter((h) => h.indexOf('signature') !== -1),\n  body: body,\n  query: query\n};\n\ntry {\n  if (source === 'twilio') {\n    if (!cfg.twilio_token) {\n      result._reason = 'no TWILIO_AUTH_TOKEN configured — cannot verify';\n    } else {\n      // The URL Twilio signed. It must be the externally visible one; behind a proxy the\n      // node sees http:// and the wrong host, which is the usual cause of a signature that\n      // \"should\" match and does not.\n      const url = cfg.twilio_status_callback\n        || (lower['x-forwarded-proto'] || 'https') + '://' + (lower['x-forwarded-host']\n            || lower.host || '') + (req.path || req.webhookUrl || '');\n      const params = (body && typeof body === 'object') ? body : {};\n      const signedString = Object.keys(params).sort().reduce(\n        (acc, k) => acc + k + (params[k] === null || params[k] === undefined ? '' : params[k]),\n        url);\n      const expected = await hmac('SHA-1', cfg.twilio_token, signedString, 'base64');\n      result._verified = safeEqual(expected, twilioSig);\n      result._reason = result._verified ? 'twilio signature ok'\n        : 'twilio signature mismatch — check that TWILIO_STATUS_CALLBACK in config is the '\n          + 'exact public URL configured in the Twilio console, including https and any path';\n      result._signed_url = url;\n    }\n  } else if (source === 'retell') {\n    if (!cfg.retell_secret) {\n      result._reason = 'no RETELL_WEBHOOK_SECRET configured — cannot verify';\n    } else {\n      const payload = typeof body === 'string' ? body : JSON.stringify(body);\n      const expected = await hmac('SHA-256', cfg.retell_secret, payload, 'hex');\n      const provided = String(retellSig).replace(/^v=/, '');\n      result._verified = safeEqual(expected, provided);\n      result._reason = result._verified ? 'retell signature ok' : 'retell signature mismatch';\n    }\n  } else {\n    result._reason = 'no recognised signature header on the request';\n  }\n} catch (e) {\n  result._reason = 'signature check errored: ' + String(e && e.message ? e.message : e);\n}\n\n// Preview may proceed unverified so the workflow can be demonstrated with a curl. A live\n// run may not, ever.\nresult._allow = result._verified || (!cfg.live_send && !cfg.writeback_enabled);\nresult._unverified_but_allowed = result._allow && !result._verified;\n\nreturn [{ json: result }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sigok",
+      "name": "signature ok?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        840,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "sigok-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._allow }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopsig",
+      "name": "STOP: signature rejected",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// The request was not signed by anyone we trust. It is refused, logged, and answered with\n// a 403 — and nothing downstream of this node ever sees it.\n//\n// This branch existing is the point. A public webhook that can opt a candidate out and\n// write into a client's ATS has to be able to say no, and it has to say no by default when\n// a secret is missing rather than when a secret is wrong.\nconst cfg = $('config').first().json;\nconst v = $input.first().json || {};\n\nreturn [{\n  json: {\n    _outcome: 'signature rejected',\n    source: v._source,\n    reason: v._reason,\n    signature_headers_present: v.headers_seen || [],\n    signed_url_we_used: v._signed_url || '(n/a)',\n    mode: cfg.mode,\n    _http_status: 403,\n    _next_step: v._source === 'twilio'\n      ? 'Almost always the URL. Twilio signs the exact public URL it posted to, so behind '\n        + 'a reverse proxy n8n sees the internal one and the HMAC will never match. Set '\n        + 'TWILIO_STATUS_CALLBACK in config to the exact URL in the Twilio console.'\n      : (v._source === 'retell'\n        ? 'Check RETELL_WEBHOOK_SECRET matches the signing secret in the Retell dashboard.'\n        : 'No signature header arrived at all. If this was a manual curl, that is expected '\n          + '— set DEMO_MODE or TEST_RUN so preview lets unsigned requests through.')\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "readev",
+      "name": "read the event",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// One endpoint, three kinds of event. This node normalises all of them into the same\n// object so nothing downstream has to know which provider it came from.\n//\n//   twilio_sms      a candidate replied to a text\n//   twilio_status   a delivery receipt (delivered / undelivered / failed)\n//   retell_call     an AI screening call finished and was analysed\n//\n// It also decides the INTENT of an inbound message, and the order of those checks is the\n// part that matters. Opt-out is tested first, on the raw text, before any AI is involved —\n// because \"stop calling me, I already told the last guy\" contains both an opt-out and a\n// sentence a classifier could easily read as engagement.\nconst cfg = $('config').first().json;\nconst v = $input.first().json || {};\nconst b = v.body || {};\n\nconst str = (x) => (x === null || x === undefined ? '' : String(x).trim());\nconst norm = (s) => str(s).toLowerCase().replace(/[^a-z0-9 ]+/g, ' ').replace(/\\s+/g, ' ').trim();\n\nfunction toE164(value) {\n  const raw = str(value);\n  const cleaned = raw.replace(/[\\s()-]/g, '');\n  if (/^\\+[1-9]\\d{7,14}$/.test(cleaned)) return cleaned;\n  const digits = raw.replace(/\\D/g, '');\n  if (digits.length === 11 && digits[0] === '1') return '+' + digits;\n  if (digits.length === 10) return '+1' + digits;\n  return null;\n}\n\nlet out = {\n  _understood: false,\n  source: v._source || 'unknown',\n  event_type: '',\n  provider_event_id: '',\n  from_number: null,\n  body_text: '',\n  intent: 'unclear',\n  _signature_verified: v._verified === true,\n  _unverified_but_allowed: v._unverified_but_allowed === true\n};\n\n// ---------------------------------------------------------------- Twilio\nif (b.MessageSid || b.SmsSid || b.MessageStatus || b.SmsStatus) {\n  const status = str(b.MessageStatus || b.SmsStatus).toLowerCase();\n  const hasText = b.Body !== undefined;\n\n  if (hasText && !status) {\n    out.source = 'twilio_sms';\n    out.event_type = 'inbound_sms';\n    out.provider_event_id = str(b.MessageSid || b.SmsSid);\n    out.from_number = toE164(b.From);\n    out.body_text = str(b.Body);\n    out._understood = !!out.from_number;\n  } else {\n    out.source = 'twilio_status';\n    out.event_type = status || 'status';\n    out.provider_event_id = str(b.MessageSid || b.SmsSid) + ':' + status;\n    out.from_number = toE164(b.To);\n    out.delivery_status = status;\n    out.error_code = str(b.ErrorCode) || null;\n    // A delivery receipt is bookkeeping, not a reply. It updates the attempt row and\n    // stops. The one exception is a hard failure, which retires the number.\n    out._is_delivery_failure = ['undelivered', 'failed'].indexOf(status) !== -1;\n    out._understood = true;\n  }\n}\n\n// ---------------------------------------------------------------- Retell\nelse if (b.event || b.call || b.call_id) {\n  const call = b.call || b;\n  const ev = str(b.event || 'call_analyzed');\n  out.source = 'retell_call';\n  out.event_type = ev;\n  out.provider_event_id = str(call.call_id || b.call_id);\n  out.from_number = toE164(call.to_number || call.to || b.to_number);\n  out.call_status = str(call.call_status || b.call_status);\n  out.disconnect_reason = str(call.disconnection_reason || '');\n  out.duration_seconds = Number(call.duration_ms ? call.duration_ms / 1000\n    : (call.duration_seconds || 0)) || 0;\n  out.transcript = str(call.transcript).slice(0, 8000);\n  out.recording_url = str(call.recording_url);\n\n  // The structured answers. This is the ONLY part of the call the engine makes a decision\n  // from — the transcript is stored for a human, and the summary is stored for a human,\n  // and neither is parsed. An LLM that writes prose into a decision path is a bug.\n  const analysis = call.call_analysis || b.call_analysis || {};\n  out.call_summary = str(analysis.call_summary).slice(0, 2000);\n  out.answers = analysis.custom_analysis_data || analysis.extracted || {};\n  out.agent_sentiment = str(analysis.user_sentiment);\n\n  // Only a call that was actually analysed carries answers. `call_started` and\n  // `call_ended` arrive first and must not be mistaken for a screening result.\n  out._is_final = ev === 'call_analyzed';\n  out._no_answer = ['no-answer', 'voicemail', 'dial_no_answer', 'dial_busy', 'dial_failed']\n    .indexOf(out.disconnect_reason) !== -1\n    || ['no_answer', 'busy', 'failed'].indexOf(out.call_status) !== -1;\n  out._understood = !!out.provider_event_id;\n}\n\n// ---------------------------------------------------------------- Intent\n// Only inbound text gets an intent. Word-boundary matching, so \"not interested\" is not\n// read as \"interested\" and a message containing \"stopping by\" is not an opt-out.\nif (out.source === 'twilio_sms') {\n  const text = norm(out.body_text);\n  const words = text.split(' ');\n  const containsPhrase = (list) => list.some((p) => {\n    const phrase = norm(p);\n    if (!phrase) return false;\n    if (phrase.indexOf(' ') !== -1) return text.indexOf(phrase) !== -1;\n    return words.indexOf(phrase) !== -1;\n  });\n\n  if (containsPhrase(cfg.opt_out_keywords)) out.intent = 'opt_out';\n  else if (containsPhrase(cfg.negative_keywords)) out.intent = 'not_interested';\n  else if (containsPhrase(cfg.positive_keywords)) out.intent = 'interested';\n  else if (text.indexOf('?') !== -1 || out.body_text.indexOf('?') !== -1) out.intent = 'question';\n  else out.intent = 'unclear';\n\n  // Whatever the intent, an inbound message stops the sequence. Someone who wrote back is\n  // a conversation, and a robot texting over the top of a human reply is the single most\n  // visible way this kind of system embarrasses an agency.\n  out._stop_sequence = true;\n}\n\nif (out.source === 'retell_call') {\n  out._stop_sequence = out._is_final && !out._no_answer;\n}\n\nout.client_id = cfg.client_id || null;\nout.received_at = new Date().toISOString();\nout._raw = b;\n\nreturn [{ json: out }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "action",
+      "name": "actionable?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1400,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "action-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._understood && $json._stop_sequence === true }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopign",
+      "name": "STOP: event ignored",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1680,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// A signed, valid event that this workflow deliberately does nothing with. Delivery\n// receipts, `call_started`, `call_ended` and unanswered calls all land here.\n//\n// They are answered 200 — refusing them makes Twilio and Retell retry the same event for\n// hours — recorded, and dropped. Being explicit about the ones we ignore is what keeps the\n// execution list readable: a run that ends here is not a run that broke.\nconst ev = $input.first().json || {};\n\nlet why;\nif (ev.source === 'twilio_status') {\n  why = ev._is_delivery_failure\n    ? 'delivery failure (' + ev.delivery_status + (ev.error_code ? ', code ' + ev.error_code : '')\n      + ') — the attempt row is updated, the ladder is not advanced'\n    : 'delivery receipt (' + ev.delivery_status + ') — bookkeeping only, not a reply';\n} else if (ev.source === 'retell_call' && !ev._is_final) {\n  why = 'Retell \"' + ev.event_type + '\" — the screening result arrives on call_analyzed, '\n    + 'and acting on an earlier event would qualify somebody from a call still in progress';\n} else if (ev._no_answer) {\n  why = 'the call was not answered (' + (ev.disconnect_reason || ev.call_status)\n    + ') — not a rejection. The enrollment stays on its rung and the ladder continues.';\n} else if (!ev._understood) {\n  why = 'the payload did not match any shape this endpoint knows';\n} else {\n  why = 'no action defined for intent \"' + ev.intent + '\"';\n}\n\nreturn [{\n  json: {\n    _outcome: 'event ignored',\n    source: ev.source,\n    event_type: ev.event_type,\n    intent: ev.intent,\n    why: why,\n    provider_event_id: ev.provider_event_id,\n    _http_status: 200,\n    _still_logged: true,\n    _next_step: 'Every event is written to inbound_events regardless, so the full history '\n      + 'of what arrived is queryable even for the ones nothing was done about.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "optout",
+      "name": "opted out?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "optout-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.intent === 'opt_out' }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dooptout",
+      "name": "handle the opt-out",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1960,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Somebody said stop. This node builds everything that has to happen, and the important\n// property is that it is ONE database call — `stop_all_outreach(client_id, phone)` — not a\n// sequence of four that could half-succeed.\n//\n// Inside that function, in one transaction: the number goes on the opt-out list, and every\n// enrollment for that number in any campaign has its next_attempt_at set to null. There is\n// no window in which the opt-out is recorded but the queue still holds a scheduled text.\n//\n// Keyed on the PHONE, not the candidate. One human with three ATS records opts out once.\nconst cfg = $('config').first().json;\nconst ev = $input.first().json || {};\n\nconst phone = ev.from_number;\n\n// The reply. Legally you may send exactly one confirmation to someone who opted out, and\n// nothing after it. It is deliberately plain text with no link and no question.\nconst confirmation = 'You have been unsubscribed and will not receive further messages '\n  + 'from ' + (cfg.client_name || 'us') + '. No further action is needed.';\n\nreturn [{\n  json: {\n    _outcome: 'opt-out',\n    phone_e164: phone,\n    client_id: cfg.client_id || null,\n    reason: ev.source === 'retell_call' ? 'asked to stop on a call' : 'SMS keyword',\n    matched_text: (ev.body_text || '').slice(0, 200),\n\n    // The single RPC call the next node makes.\n    rpc: {\n      p_client_id: cfg.client_id || null,\n      p_phone: phone,\n      p_reason: ev.source === 'retell_call' ? 'voice' : 'sms_keyword'\n    },\n\n    // Twilio auto-replies to STOP itself for standard keywords on a US long code, so\n    // sending our own confirmation would double-text them. It is only sent for the\n    // non-standard phrases Twilio does not catch (\"take me off\", \"remove me\").\n    _send_confirmation: !/^(stop|stopall|unsubscribe|cancel|end|quit)$/i\n      .test(String(ev.body_text || '').trim()),\n    confirmation_text: confirmation,\n\n    // Queued for the ATS so the recruiter sees it in the place they actually work, rather\n    // than only in a database they never open.\n    ats_note: {\n      action: 'add_note',\n      payload: {\n        action: 'Opt-out',\n        comments: 'Candidate opted out of SMS/voice outreach on '\n          + new Date().toISOString().slice(0, 10)\n          + (ev.body_text ? (' — replied: \"' + String(ev.body_text).slice(0, 120) + '\"') : '')\n          + '. All automated outreach for this number has been stopped across every '\n          + 'campaign. Do not re-add manually.'\n      }\n    },\n\n    _next_step: 'Nothing else in the engine can contact this number. The queue view filters '\n      + 'on the opt-out table, so even a campaign launched tomorrow will exclude them.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "db3",
+      "name": "database connected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "db3-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.supabase_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "nooptout",
+      "name": "STOP: opt-out not persisted",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2520,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// An opt-out arrived and there is no database to record it in.\n//\n// This is the one STOP node in the engine that is genuinely uncomfortable, and it is\n// written that way on purpose. Every other unconfigured integration degrades harmlessly —\n// a missing Twilio key means nothing sends. A missing opt-out record means the request was\n// received and forgotten, which is the failure that gets a staffing agency a TCPA letter.\n//\n// It cannot bite in practice: with no database there is no queue, so nothing was scheduled\n// to send to them in the first place. But the moment a database exists, this branch stops\n// being reachable, and until then the node says out loud what was not stored.\nconst cfg = $('config').first().json;\nconst j = $input.first().json || {};\n\nreturn [{\n  json: {\n    _outcome: 'OPT-OUT NOT PERSISTED — no database configured',\n    _severity: 'would be serious in production',\n    phone_e164: j.phone_e164,\n    reason: j.reason,\n    matched_text: j.matched_text,\n\n    would_have_called: 'stop_all_outreach(' + (cfg.client_id || 'null') + ', '\n      + j.phone_e164 + ')',\n    which_would: [\n      'insert the number into opt_outs, keyed on the phone so it covers every ATS record '\n        + 'that person has',\n      'set next_attempt_at = null on every enrollment for that number, in every campaign',\n      'both in one transaction, so there is no window where the opt-out is recorded but a '\n        + 'text is still queued'\n    ],\n\n    _safe_because: 'With no database there is no queue, so nothing was scheduled to send to '\n      + 'this number and nothing will. The gap is real but it is not currently reachable.',\n    _next_step: 'Fill in SUPABASE_URL and SUPABASE_SERVICE_KEY. This branch is unreachable '\n      + 'from that point on.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "stopall",
+      "name": "[cred] Supabase - stop all outreach",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "One transaction. The number goes on the opt-out list AND every enrollment for it in every campaign has next_attempt_at set to null. There is no window where the opt-out is recorded but a text is still queued.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2520,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/rpc/stop_all_outreach",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.rpc) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "qualify",
+      "name": "qualify the candidate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1960,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// The decision. Deterministic, auditable, and identical every time it runs on the same\n// answers — which is the property that lets a staffing manager argue with it.\n//\n// The AI's job is to fill in the blanks. This node's job is to decide. The separation is\n// deliberate: the Retell agent is asked structured questions and returns typed answers,\n// and the pass/fail is computed from QUALIFY in the config node, so changing the bar is a\n// config edit rather than a prompt rewrite, and last month's decisions can be re-explained.\n//\n// The rule that matters most: null never passes. A question the agent could not establish\n// is not an assumed yes.\nconst cfg = $('config').first().json;\nconst ev = $input.first().json || {};\nconst q = cfg.qualify || { must: [], score: [], pass_mark: 0, review_band: 0 };\n\n// Answers come from the Retell analysis, or from an SMS conversation that got far enough.\n// Both arrive as a flat object of typed values.\nconst answers = Object.assign({}, ev.answers || {});\n\n// An SMS \"YES\" is interest, not qualification. It is recorded as one answered question out\n// of several, and it will not on its own clear a `must` list that asks about work\n// authorisation and a start date.\nif (ev.source === 'twilio_sms') {\n  if (ev.intent === 'interested') answers.interested = true;\n  if (ev.intent === 'not_interested') answers.interested = false;\n}\n\nconst coerce = (v) => {\n  if (v === undefined || v === null || v === '') return null;\n  if (typeof v === 'boolean') return v;\n  const s = String(v).trim().toLowerCase();\n  if (['true', 'yes', 'y', 'confirmed'].indexOf(s) !== -1) return true;\n  if (['false', 'no', 'n', 'declined'].indexOf(s) !== -1) return false;\n  if (['unknown', 'unclear', 'n/a', 'na', 'not stated', 'null'].indexOf(s) !== -1) return null;\n  const n = Number(v);\n  return Number.isFinite(n) ? n : String(v);\n};\n\nfunction test(rule, value) {\n  if (value === null) return { pass: false, why: 'not established' };\n  if (rule.equals !== undefined) {\n    return { pass: value === rule.equals, why: 'answered ' + JSON.stringify(value) };\n  }\n  if (rule.gte !== undefined) {\n    const n = Number(value);\n    return { pass: Number.isFinite(n) && n >= rule.gte, why: String(value) + ' vs >= ' + rule.gte };\n  }\n  if (rule.lte !== undefined) {\n    const n = Number(value);\n    return { pass: Number.isFinite(n) && n <= rule.lte, why: String(value) + ' vs <= ' + rule.lte };\n  }\n  return { pass: false, why: 'no comparison in the rule' };\n}\n\nconst musts = [];\nlet failedMust = null;\nfor (const rule of q.must || []) {\n  const value = coerce(answers[rule.key]);\n  const r = test(rule, value);\n  musts.push({ label: rule.label, key: rule.key, value: value, passed: r.pass, detail: r.why });\n  if (!r.pass && !failedMust) failedMust = rule.label + ' (' + r.why + ')';\n}\n\nlet score = 0;\nconst scored = [];\nfor (const rule of q.score || []) {\n  const value = coerce(answers[rule.key]);\n  const r = test(rule, value);\n  if (r.pass) score += Number(rule.points) || 0;\n  scored.push({ label: rule.label, key: rule.key, value: value,\n    passed: r.pass, points: r.pass ? (rule.points || 0) : 0, detail: r.why });\n}\n\nconst answered = musts.concat(scored).filter((x) => x.value !== null).length;\nconst total = musts.length + scored.length;\n\nconst passMark = Number(q.pass_mark) || 0;\nconst band = Number(q.review_band) || 0;\n\nlet outcome;\nlet reason;\n\nif (ev._no_answer) {\n  outcome = 'no_answer';\n  reason = 'the call was not answered — this is not a rejection, the ladder continues';\n} else if (ev.intent === 'not_interested' || answers.interested === false) {\n  outcome = 'not_qualified';\n  reason = 'said they are not interested';\n} else if (failedMust) {\n  // Everything that failed only because the agent never got an answer goes to a human\n  // rather than being rejected. A dropped call is not a \"no\".\n  const onlyUnestablished = musts.filter((m) => !m.passed).every((m) => m.value === null);\n  outcome = onlyUnestablished && answered > 0 ? 'needs_review' : 'not_qualified';\n  reason = onlyUnestablished\n    ? 'could not establish: ' + musts.filter((m) => !m.passed).map((m) => m.label).join(', ')\n    : 'failed a requirement — ' + failedMust;\n} else if (score >= passMark) {\n  outcome = 'qualified';\n  reason = 'met every requirement and scored ' + score + ' of ' + passMark;\n} else if (score >= passMark - band) {\n  outcome = 'needs_review';\n  reason = 'scored ' + score + ', within ' + band + ' of the ' + passMark + ' pass mark';\n} else {\n  outcome = 'not_qualified';\n  reason = 'scored ' + score + ', below the ' + passMark + ' pass mark';\n}\n\n// A one-line sentence a recruiter can read without opening anything. This is what goes in\n// the Slack message and into the ATS note.\nconst highlights = scored.filter((s) => s.passed).map((s) => s.label);\nconst gaps = scored.filter((s) => !s.passed && s.value !== null).map((s) => s.label);\n\nreturn [{\n  json: Object.assign({}, ev, {\n    qualification: {\n      outcome: outcome,\n      reason: reason,\n      score: score,\n      pass_mark: passMark,\n      questions_answered: answered,\n      questions_total: total,\n      must: musts,\n      scored: scored,\n      answers: answers,\n      evaluated_at: new Date().toISOString(),\n      // Stamped so a decision made last quarter can be re-explained against the rules that\n      // were in force at the time, not the ones in config today.\n      criteria_version: JSON.stringify(q).length\n    },\n    _qualified: outcome === 'qualified',\n    _needs_review: outcome === 'needs_review',\n    _no_answer: outcome === 'no_answer',\n    _headline: (ev.candidate_name || 'Candidate') + ' — ' + outcome.replace('_', ' ')\n      + ' (' + score + '/' + passMark + ')',\n    _highlights: highlights,\n    _gaps: gaps,\n    _enrollment_status: outcome === 'qualified' ? 'qualified'\n      : (outcome === 'no_answer' ? 'active'\n        : (outcome === 'needs_review' ? 'responded' : 'not_qualified'))\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "isqual",
+      "name": "qualified?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        190
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "isqual-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._qualified }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopnq",
+      "name": "STOP: not qualified",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2520,
+        570
+      ],
+      "parameters": {
+        "jsCode": "// Screened and not moving forward — or screened and needing a human. Either way this is a\n// real outcome that gets written into the ATS, not a dead end.\n//\n// The distinction between the two matters commercially. \"Not qualified\" closes a candidate\n// out. \"Needs review\" is a person the AI could not finish establishing something about,\n// and quietly rejecting those is how an agency loses good candidates to an automation\n// nobody audits.\nconst ev = $input.first().json || {};\nconst q = ev.qualification || {};\n\nconst unanswered = (q.must || []).concat(q.scored || [])\n  .filter((x) => x.value === null)\n  .map((x) => x.label);\n\nreturn [{\n  json: Object.assign({}, ev, {\n    _outcome: q.outcome,\n    headline: ev._headline,\n    reason: q.reason,\n    score: q.score,\n    pass_mark: q.pass_mark,\n    answered: q.questions_answered + ' of ' + q.questions_total,\n    could_not_establish: unanswered,\n    failed_requirements: (q.must || []).filter((m) => !m.passed)\n      .map((m) => m.label + ' — ' + m.detail),\n    _needs_a_human: q.outcome === 'needs_review',\n    _next_step: q.outcome === 'needs_review'\n      ? 'This one is queued for a recruiter, not rejected. The ATS note carries every '\n        + 'answer the agent did get, so the follow-up call starts from something.'\n      : 'Written back to the ATS with the reason. The candidate stays in the database and '\n        + 'is eligible for a different job order tomorrow — the outcome is scoped to this '\n        + 'campaign, not to the person.'\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "slot",
+      "name": "pick the recruiter and slot",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2520,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Chooses who the interview is with and when. Both answers are deterministic, because a\n// booking that lands in the wrong recruiter's calendar is worse than no booking.\n//\n// The recruiter is the one on the JOB ORDER, not a round-robin. A candidate who was texted\n// about Dana's forklift role and booked with someone else has to be re-explained to two\n// people, and the client hears about it.\nconst cfg = $('config').first().json;\nconst ev = $input.first().json || {};\n\nconst recruiterEmail = String(ev.recruiter_email || '').toLowerCase();\nconst calendarId = (cfg.recruiter_calendars || {})[recruiterEmail] || recruiterEmail;\n\nconst tz = ev.candidate_timezone || cfg.default_timezone;\nconst minutes = Number(cfg.interview_minutes) || 30;\nconst leadHours = Number(cfg.booking_lead_hours) || 18;\nconst windowDays = Number(cfg.booking_window_days) || 5;\nconst hours = (cfg.booking_hours || [9, 10, 11, 13, 14, 15, 16]).map(Number);\n\nfunction partsIn(date, zone) {\n  try {\n    const f = new Intl.DateTimeFormat('en-US', {\n      timeZone: zone, hour: 'numeric', hour12: false, weekday: 'short'\n    });\n    const p = f.formatToParts(date);\n    return {\n      hour: Number((p.find((x) => x.type === 'hour') || {}).value) % 24,\n      weekday: (p.find((x) => x.type === 'weekday') || {}).value\n    };\n  } catch (e) {\n    return { hour: date.getUTCHours(), weekday: 'Mon' };\n  }\n}\n\n// Walk forward hour by hour from the lead time. The first slot that is a weekday, inside\n// the recruiter's booking hours, wins. Proposing rather than booking blind is deliberate:\n// this is a candidate-side hold, and the free/busy check happens in the calendar node,\n// which will refuse a genuine clash.\nconst earliest = new Date(Date.now() + leadHours * 3600 * 1000);\nlet slot = null;\nfor (let h = 0; h < windowDays * 24; h++) {\n  const t = new Date(earliest.getTime() + h * 3600 * 1000);\n  const p = partsIn(t, tz);\n  if (p.weekday === 'Sat' || p.weekday === 'Sun') continue;\n  if (hours.indexOf(p.hour) === -1) continue;\n  t.setUTCMinutes(0, 0, 0);\n  slot = t;\n  break;\n}\n\nif (!slot) slot = new Date(earliest.getTime() + 24 * 3600 * 1000);\n\nconst ends = new Date(slot.getTime() + minutes * 60 * 1000);\nconst qual = ev.qualification || {};\n\nconst when = (() => {\n  try {\n    return new Intl.DateTimeFormat('en-US', {\n      timeZone: tz, weekday: 'long', month: 'short', day: 'numeric',\n      hour: 'numeric', minute: '2-digit'\n    }).format(slot) + ' (' + tz.split('/').pop().replace('_', ' ') + ')';\n  } catch (e) { return slot.toISOString(); }\n})();\n\nreturn [{\n  json: Object.assign({}, ev, {\n    booking: {\n      recruiter_email: recruiterEmail,\n      recruiter_name: ev.recruiter_name || 'the recruiting team',\n      calendar_id: calendarId,\n      calendar_provider: cfg.calendar_provider,\n      starts_at: slot.toISOString(),\n      ends_at: ends.toISOString(),\n      timezone: tz,\n      human_time: when,\n      summary: 'Interview: ' + (ev.candidate_name || 'candidate') + ' — '\n        + (ev.job_title || 'role'),\n      description: [\n        (ev.candidate_name || 'Candidate') + ' — ' + (ev.job_title || 'role'),\n        '',\n        'Qualified by AI screening on ' + new Date().toISOString().slice(0, 10) + '.',\n        'Score ' + qual.score + '/' + qual.pass_mark + '. ' + (qual.reason || ''),\n        '',\n        'Strengths: ' + ((ev._highlights || []).join(', ') || 'none recorded'),\n        'Gaps: ' + ((ev._gaps || []).join(', ') || 'none recorded'),\n        '',\n        'Phone: ' + (ev.from_number || 'unknown'),\n        ev.call_summary ? ('\\nCall summary:\\n' + ev.call_summary) : '',\n        ev.recording_url ? ('\\nRecording: ' + ev.recording_url) : ''\n      ].filter(Boolean).join('\\n'),\n      attendees: [recruiterEmail].filter(Boolean)\n    },\n    _recruiter_missing: !recruiterEmail,\n    _booking_warning: !recruiterEmail\n      ? 'The job order carried no recruiter email, so there is no calendar to book into. '\n        + 'The candidate is still marked qualified and the recruiter notification still '\n        + 'goes out — it just has to be booked by hand.'\n      : ''\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "canbook",
+      "name": "can we book?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2800,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "canbook-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.calendar_enabled && $('config').first().json.writeback_enabled && !$json._recruiter_missing }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "gcal",
+      "name": "[cred] Google Calendar - book the interview",
+      "type": "n8n-nodes-base.googleCalendar",
+      "notes": "The one n8n credential this engine needs, besides Gmail. Everything else lives in the config node.",
+      "onError": "continueRegularOutput",
+      "position": [
+        3080,
+        380
+      ],
+      "parameters": {
+        "end": "={{ $json.booking.ends_at }}",
+        "start": "={{ $json.booking.starts_at }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.booking.calendar_id }}"
+        },
+        "additionalFields": {
+          "summary": "={{ $json.booking.summary }}",
+          "attendees": "={{ $json.booking.attendees }}",
+          "description": "={{ $json.booking.description }}",
+          "sendUpdates": "all"
+        }
+      },
+      "typeVersion": 1.3,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "appt",
+      "name": "[cred] Supabase - record the appointment",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3360,
+        380
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/appointments?on_conflict=enrollment_id,starts_at",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify([{ client_id: $('config').first().json.client_id, enrollment_id: $('read the event').first().json.enrollment_id, candidate_id: $('read the event').first().json.candidate_id, recruiter_email: $('pick the recruiter and slot').first().json.booking.recruiter_email, calendar_provider: $('config').first().json.calendar_provider, calendar_event_id: $json.id || null, starts_at: $('pick the recruiter and slot').first().json.booking.starts_at, ends_at: $('pick the recruiter and slot').first().json.booking.ends_at, status: 'booked' }]) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=representation"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "stopnb",
+      "name": "STOP: qualified - not booked",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3080,
+        570
+      ],
+      "parameters": {
+        "jsCode": "// Qualified, but nothing was put in a calendar. Three reasons, and the node says which.\n//\n// It is deliberately NOT an error branch. A qualified candidate with no booking is still a\n// qualified candidate the recruiter must hear about within minutes, so this path carries\n// on to the notification and the ATS write-back exactly like the booked path does.\nconst cfg = $('config').first().json;\nconst ev = $input.first().json || {};\nconst b = ev.booking || {};\n\nconst why = !cfg.calendar_enabled\n  ? 'CALENDAR_PROVIDER is set to \"none\".'\n  : (ev._recruiter_missing\n    ? 'The job order carried no recruiter email, so there is no calendar to book into. '\n      + 'Check ATS_FIELDS.job.recruiter_mail for this vendor.'\n    : (!cfg.writeback_enabled\n      ? 'This run is ' + cfg.mode + '. Only a live run creates a real calendar event.'\n      : 'The calendar node did not return an event.'));\n\nreturn [{\n  json: Object.assign({}, ev, {\n    _outcome: 'qualified — not booked',\n    why: why,\n    proposed_slot: b.starts_at\n      ? { starts_at: b.starts_at, human_time: b.human_time, recruiter: b.recruiter_email }\n      : null,\n    _next_step: 'The recruiter is still notified and the ATS note is still written. The '\n      + 'slot above is the one the engine would have taken, so booking it by hand takes a '\n      + 'few seconds rather than a conversation.'\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "outm",
+      "name": "one outcome",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3640,
+        380
+      ],
+      "parameters": {
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "wbpay",
+      "name": "the write-back payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3920,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Everything that goes back into the client's ATS, and the notification that goes to the\n// recruiter.\n//\n// The write-back is QUEUED to the ats_writebacks table before it is attempted. That is the\n// difference between a Bullhorn outage delaying a note and losing it: the row exists with\n// status 'pending', a retry sweep picks it up, and the idempotency key means a note is\n// never written twice however many times it is retried.\n//\n// A recruiter who works in Bullhorn all day will not open a Supabase dashboard. If the\n// outcome is not in the ATS, it did not happen.\nconst cfg = $('config').first().json;\nconst ev = $input.first().json || {};\nconst q = ev.qualification || {};\nconst b = ev.booking || {};\n\nconst today = new Date().toISOString().slice(0, 10);\nconst atsId = ev.ats_candidate_id || ev.candidate_ats_id || '';\n\n// Stable per candidate, per outcome, per day. A retry writes the same row; a genuinely new\n// outcome tomorrow writes a new one.\nconst key = (action) => ['wb', cfg.client_slug, atsId, action, q.outcome || 'none', today].join(':');\n\nconst answered = (q.must || []).concat(q.scored || [])\n  .filter((x) => x.value !== null)\n  .map((x) => '  - ' + x.label + ': ' + JSON.stringify(x.value) + (x.passed ? '' : '  (miss)'));\n\nconst note = [\n  'AI screening — ' + String(q.outcome || 'unknown').replace('_', ' ').toUpperCase(),\n  '',\n  'Role: ' + (ev.job_title || 'unknown'),\n  'Channel: ' + (ev.source === 'retell_call' ? 'AI voice call' : 'SMS'),\n  'Score: ' + q.score + ' / ' + q.pass_mark + '  (' + q.questions_answered + ' of '\n    + q.questions_total + ' questions answered)',\n  'Verdict: ' + (q.reason || ''),\n  '',\n  'Answers:',\n  ...(answered.length ? answered : ['  - none recorded']),\n  ''\n];\n\nif (b.starts_at) {\n  note.push('Interview booked: ' + b.human_time + ' with ' + b.recruiter_name, '');\n}\nif (ev.call_summary) note.push('Call summary:', ev.call_summary, '');\nif (ev.recording_url) note.push('Recording: ' + ev.recording_url);\nif (ev.transcript) {\n  note.push('', 'Transcript is stored against the attempt in the operating database.');\n}\n\n// The status a candidate moves to. Deliberately conservative: the engine advances people\n// through screening states and never touches Placed, Submitted, or anything a human owns.\nconst STATUS_MAP = {\n  qualified: 'Qualified - Interview Scheduled',\n  needs_review: 'Screened - Needs Review',\n  not_qualified: 'Screened - Not a Fit',\n  no_answer: null\n};\nconst newStatus = STATUS_MAP[q.outcome] || null;\n\nconst writebacks = [{\n  client_id: cfg.client_id || null,\n  ats_candidate_id: atsId,\n  action: 'add_note',\n  payload: { action: 'AI Screening', comments: note.join('\\n').slice(0, 8000) },\n  status: 'pending',\n  idempotency_key: key('add_note')\n}];\n\nif (newStatus) {\n  writebacks.push({\n    client_id: cfg.client_id || null,\n    ats_candidate_id: atsId,\n    action: 'update_status',\n    payload: { status: newStatus },\n    status: 'pending',\n    idempotency_key: key('update_status')\n  });\n}\n\n// ---------------------------------------------------------------- the recruiter's message\nconst lines = [\n  q.outcome === 'qualified'\n    ? '*Qualified candidate ready* — ' + (ev.job_title || 'your role')\n    : '*Candidate needs a look* — ' + (ev.job_title || 'your role'),\n  '',\n  (ev.candidate_name || 'Candidate') + '  ·  ' + (ev.from_number || 'no number')\n    + '  ·  score ' + q.score + '/' + q.pass_mark,\n  q.reason || ''\n];\n\nif ((ev._highlights || []).length) lines.push('', 'Strengths: ' + ev._highlights.join(', '));\nif ((ev._gaps || []).length) lines.push('Gaps: ' + ev._gaps.join(', '));\nif (b.starts_at) lines.push('', 'Booked: ' + b.human_time);\nelse if (ev._recruiter_missing) {\n  lines.push('', 'No recruiter calendar on this job order — this one needs booking by hand.');\n}\nif (ev.call_summary) lines.push('', '> ' + ev.call_summary.slice(0, 400));\nif (ev.recording_url) lines.push('', 'Recording: ' + ev.recording_url);\n\nreturn [{\n  json: Object.assign({}, ev, {\n    _write: cfg.writeback_enabled,\n    _why_not: cfg.writeback_enabled ? ''\n      : 'Only a live run writes into the client ATS or a real calendar. This run is '\n        + cfg.mode + '.',\n    writebacks: writebacks,\n    ats_note_preview: note.join('\\n'),\n    new_ats_status: newStatus,\n    slack_payload: { text: lines.filter((l) => l !== undefined).join('\\n') },\n    recruiter_email_subject: (q.outcome === 'qualified' ? 'Qualified: ' : 'Needs review: ')\n      + (ev.candidate_name || 'candidate') + ' — ' + (ev.job_title || 'role'),\n    recruiter_email_body: lines.join('\\n').replace(/\\*/g, '')\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "dowb",
+      "name": "writing back?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4200,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "dowb-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._write }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "qwb",
+      "name": "[cred] Supabase - queue the write-back",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Queued BEFORE it is attempted. A Bullhorn outage then delays a note instead of losing it, and a retry sweep drains the table.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4480,
+        380
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/ats_writebacks?on_conflict=client_id,idempotency_key",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.writebacks) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=representation"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "atsnote",
+      "name": "[cred] ATS - add the note",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Vendor-shaped, like the search node. The note TEXT is built in `the write-back payload` so swapping ATS never changes what is said.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4760,
+        380
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.ats_base_url }}/entity/Note",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify(Object.assign({ personReference: { id: $('the write-back payload').first().json.ats_candidate_id } }, $('the write-back payload').first().json.writebacks[0].payload)) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.ats_token }}"
+            },
+            {
+              "name": "BhRestToken",
+              "value": "={{ $('config').first().json.ats_token }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "stopwb",
+      "name": "STOP: write-back skipped",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4480,
+        570
+      ],
+      "parameters": {
+        "jsCode": "// The outcome was decided but nothing was written into the client's ATS.\n//\n// Only a LIVE run may write into a client's system. A preview or test run does everything\n// else — qualifies, picks a slot, builds the note — and stops here with the note it would\n// have written, which is exactly what you want on screen when a client asks what lands in\n// their Bullhorn.\nconst cfg = $('config').first().json;\nconst j = $input.first().json || {};\n\nreturn [{\n  json: Object.assign({}, j, {\n    _outcome: 'write-back skipped',\n    _why: j._why_not || ('this run is ' + cfg.mode),\n    would_have_written: (j.writebacks || []).map((w) => ({\n      action: w.action,\n      ats_candidate_id: w.ats_candidate_id,\n      idempotency_key: w.idempotency_key\n    })),\n    the_note_it_would_write: j.ats_note_preview,\n    the_status_it_would_set: j.new_ats_status,\n    _next_step: 'Set TEST_RUN = false (and DEMO_MODE = false) to write for real. The rows '\n      + 'are queued to ats_writebacks first, so an ATS outage delays them rather than '\n      + 'losing them.'\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "tellslack",
+      "name": "tell the recruiter?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5040,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "tellslack-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.slack_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "slack3",
+      "name": "Post the recruiter alert",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5320,
+        380
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.slack_webhook_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($('the write-back payload').first().json.slack_payload) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "tellmail",
+      "name": "email the recruiter?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5600,
+        570
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "tellmail-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.notify_recruiter_email && $('config').first().json.writeback_enabled && !!$('the write-back payload').first().json.booking.recruiter_email }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "gmail3",
+      "name": "[cred] Gmail - tell the recruiter",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        5880,
+        570
+      ],
+      "parameters": {
+        "sendTo": "={{ $('the write-back payload').first().json.booking.recruiter_email }}",
+        "message": "={{ $('the write-back payload').first().json.recruiter_email_body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $('the write-back payload').first().json.recruiter_email_subject }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "dolog",
+      "name": "logging the event?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        6160,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "dolog-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.supabase_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "logev",
+      "name": "[cred] Supabase - log the event",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Every event is logged, including the ones nothing was done about. The unique key is the provider's own event id, so Twilio and Retell retrying a webhook writes one row.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        6440,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/inbound_events?on_conflict=client_id,source,provider_event_id",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify([{ client_id: $('config').first().json.client_id, source: $('read the event').first().json.source, event_type: $('read the event').first().json.event_type, from_number: $('read the event').first().json.from_number, body: $('read the event').first().json.body_text, intent: $('read the event').first().json.intent, provider_event_id: $('read the event').first().json.provider_event_id, payload: $('read the event').first().json._raw }]) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=minimal"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "resp",
+      "name": "the webhook response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6720,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// What Twilio and Retell get back, and how fast.\n//\n// Twilio gives a webhook 15 seconds and Retell about 10. An ATS write-back behind a slow\n// OAuth refresh can take longer than that on its own, and a timed-out webhook is retried —\n// which is how one candidate reply becomes four identical ATS notes.\n//\n// So this responds immediately with the minimum the provider needs. Everything slow\n// downstream of it is already done by the time this node runs in the happy path, and where\n// it is not, the queue in `ats_writebacks` carries it.\nconst j = $input.first().json || {};\nconst status = Number(j._http_status) || 200;\n\n// Empty TwiML: acknowledged, no auto-reply. Any reply we do want to send goes out through\n// the API instead, so it is logged as an attempt like every other outbound message rather\n// than vanishing into a webhook response nothing records.\nconst twiml = '<?xml version=\"1.0\" encoding=\"UTF-8\"?><Response></Response>';\n\nconst isTwilio = String(j.source || '').indexOf('twilio') === 0;\n\nreturn [{\n  json: {\n    _http_status: status,\n    _content_type: isTwilio ? 'text/xml' : 'application/json',\n    body: isTwilio ? twiml : JSON.stringify({\n      ok: status < 400,\n      outcome: j._outcome || 'processed',\n      handled_at: new Date().toISOString()\n    }),\n    // Echoed so the execution list shows what was decided without opening three nodes.\n    _summary: [j.source, j._outcome, j.headline || j.why || j.reason]\n      .filter(Boolean).join(' · ')\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "respond3",
+      "name": "Respond to the provider",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        7000,
+        190
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $json._http_status }}",
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "={{ $json._content_type }}"
+              }
+            ]
+          }
+        },
+        "respondWith": "text",
+        "responseBody": "={{ $json.body }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-00",
+      "name": "Template overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -1608
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 660,
+        "height": 1148,
+        "content": "## Qualify inbound candidate replies and book interviews in Google Calendar\n\n**Who's it for**\nRecruitment teams running SMS or voice outreach who need every inbound reply handled the moment it\nlands — the sequence stopped, the candidate qualified, an interview booked and the ATS updated —\nwithout a recruiter watching an inbox.\n\n**How it works**\nOne public endpoint takes three kinds of event: a candidate's SMS reply, a Twilio delivery receipt\nand Retell's `call_analyzed` webhook. Every request is signature-verified and fails closed, because\nthis URL can opt a candidate out and write into the client's ATS. Any inbound message stops the\nsequence, whatever it says. Opt-outs are handled in a single transaction. Everyone else is scored\nagainst the `QUALIFY` rules in `config`; a pass picks the right recruiter and an open slot, books it\nin Google Calendar and records the appointment. The outcome is queued back to the ATS as a note, the\nrecruiter is alerted by Slack and Gmail, and the provider always gets a well-formed response.\n\n**How to set up**\n1. Run `supabase/schema.sql` then `supabase/seed.sql`.\n2. Open **`config`** and set `CLIENT_ID`, `SUPABASE_URL` and the `QUALIFY` rules.\n3. Put this workflow's **production** URL into the Twilio console and the Retell dashboard, and the\n   same value into `TWILIO_STATUS_CALLBACK` — Twilio signs the exact public URL it posted to.\n4. Attach Google Calendar, Gmail and Supabase credentials to the `[cred]` nodes.\n5. Set `DEMO_MODE = false` and `TEST_RUN = false` only when you are ready to write for real.\n\n**Requirements**\nA Supabase project with the bundled schema, a Twilio number, and Google Calendar and Gmail accounts.\nRetell and the Slack alert are optional.\n\n**How to customize**\nThe qualification bar is `QUALIFY` in `config`, so changing it is a config edit rather than a prompt\nrewrite. To add a recruiter or a routing rule, edit **`pick the recruiter and slot`**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-01",
+      "name": "1. Receive and verify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -374
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1320,
+        "height": 334,
+        "content": "### 1. Receive and verify\n\nOne public endpoint, three kinds of event: a candidate's SMS reply, a Twilio\ndelivery receipt, and Retell's `call_analyzed` webhook.\n\n**It is signed, and it fails closed.** This URL can opt a candidate out and\nwrite into the client's ATS, so an unsigned request is refused — and a *missing*\nsecret is refused too, not trusted. Only preview mode lets a curl through.\n\n**Any inbound message stops the sequence**, whatever it says. Someone who wrote\nback is a conversation, and a robot texting over the top of a human reply is the\nmost visible way this kind of system embarrasses an agency."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-02",
+      "name": "2. Opt-out is one database call",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -308
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1040,
+        "height": 268,
+        "content": "### 2. `stop_all_outreach(client_id, phone)` — in a single transaction the number goes\non the opt-out list **and** every enrollment for that number, in every campaign,\nhas `next_attempt_at` set to null.\n\nNot four calls that could half-succeed. There is no window in which the opt-out\nis recorded but a text is still sitting in the queue.\n\nIt is keyed on the **phone**, not the candidate — one human with three ATS\nrecords opts out once."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-03",
+      "name": "3. The AI fills in the blanks",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1960,
+        330
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 480,
+        "height": 444,
+        "content": "### 3. The AI fills in the blanks. It does not decide.\n\nRetell is asked structured questions and returns typed answers. **This node**\ncomputes pass/fail from `QUALIFY` in the config node — so changing the bar is a\nconfig edit rather than a prompt rewrite, and a decision from last quarter can\nbe re-explained against the rules in force at the time.\n\n**null never passes.** A question the agent could not establish is not an\nassumed yes — it routes to `needs_review`, which a human sees, rather than to a\nsilent rejection."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-04",
+      "name": "4. Book the interview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2520,
+        -646
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1320,
+        "height": 246,
+        "content": "### 4. Book the interview\n\n**`pick the recruiter and slot`** chooses the owning recruiter and the first slot that fits the candidate's stated availability.\n\n**`can we book?`** is the last gate — with no calendar credential, or outside preview mode, a qualified candidate still lands at **`STOP: qualified - not booked`** with the reason attached, rather than being lost.\n\n**`one outcome`** folds the booked and not-booked paths into a single shape for the write-back."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-05",
+      "name": "5. Write back to the ATS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3920,
+        710
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 224,
+        "content": "### 5. Write back to the ATS\n\n**`the write-back payload`** builds the note once, then **`writing back?`** decides whether it leaves the building.\n\nThe Supabase queue row is written *before* the ATS call, so a failed ATS write is retryable from the queue instead of being lost with the run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-06",
+      "name": "6. Alert, log and respond",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5040,
+        -220
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2160,
+        "height": 180,
+        "content": "### 6. Alert, log and respond\n\nSlack and Gmail are both optional and independent — leave either blank in `config` and that branch is skipped, not failed.\n\n**`Respond to the provider`** always runs. Twilio and Retell retry an endpoint that does not answer cleanly, so every path, including a rejected signature, ends in a well-formed response."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "config": {
+      "main": [
+        [
+          {
+            "node": "verify the signature",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "opted out?": {
+      "main": [
+        [
+          {
+            "node": "handle the opt-out",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "qualify the candidate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "qualified?": {
+      "main": [
+        [
+          {
+            "node": "pick the recruiter and slot",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: not qualified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "actionable?": {
+      "main": [
+        [
+          {
+            "node": "opted out?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: event ignored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one outcome": {
+      "main": [
+        [
+          {
+            "node": "the write-back payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "can we book?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Google Calendar - book the interview",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: qualified - not booked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "signature ok?": {
+      "main": [
+        [
+          {
+            "node": "read the event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: signature rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "writing back?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - queue the write-back",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: write-back skipped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read the event": {
+      "main": [
+        [
+          {
+            "node": "actionable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inbound webhook": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "handle the opt-out": {
+      "main": [
+        [
+          {
+            "node": "database connected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "logging the event?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - log the event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "the webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: event ignored": {
+      "main": [
+        [
+          {
+            "node": "logging the event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: not qualified": {
+      "main": [
+        [
+          {
+            "node": "one outcome",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "database connected?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - stop all outreach",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: opt-out not persisted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "tell the recruiter?": {
+      "main": [
+        [
+          {
+            "node": "Post the recruiter alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "email the recruiter?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "email the recruiter?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Gmail - tell the recruiter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "logging the event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "the webhook response": {
+      "main": [
+        [
+          {
+            "node": "Respond to the provider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "verify the signature": {
+      "main": [
+        [
+          {
+            "node": "signature ok?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "qualify the candidate": {
+      "main": [
+        [
+          {
+            "node": "qualified?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "the write-back payload": {
+      "main": [
+        [
+          {
+            "node": "writing back?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post the recruiter alert": {
+      "main": [
+        [
+          {
+            "node": "email the recruiter?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: signature rejected": {
+      "main": [
+        [
+          {
+            "node": "the webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: write-back skipped": {
+      "main": [
+        [
+          {
+            "node": "tell the recruiter?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] ATS - add the note": {
+      "main": [
+        [
+          {
+            "node": "tell the recruiter?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: opt-out not persisted": {
+      "main": [
+        [
+          {
+            "node": "logging the event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pick the recruiter and slot": {
+      "main": [
+        [
+          {
+            "node": "can we book?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: qualified - not booked": {
+      "main": [
+        [
+          {
+            "node": "one outcome",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - log the event": {
+      "main": [
+        [
+          {
+            "node": "the webhook response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Gmail - tell the recruiter": {
+      "main": [
+        [
+          {
+            "node": "logging the event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - stop all outreach": {
+      "main": [
+        [
+          {
+            "node": "logging the event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - queue the write-back": {
+      "main": [
+        [
+          {
+            "node": "[cred] ATS - add the note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - record the appointment": {
+      "main": [
+        [
+          {
+            "node": "one outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Google Calendar - book the interview": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - record the appointment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

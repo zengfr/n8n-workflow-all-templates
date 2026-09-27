@@ -1,0 +1,791 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Audit Notion wiki health and send weekly digests to Slack",
+    "wechat": "youandme10086",
+    "id": 17809,
+    "update_time": "2026-09-27"
+  },
+  "name": "Audit Notion wiki health for orphan, stale and thin pages using Notion and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c5a27367-0216-4472-9221-d2aad80cd006",
+      "name": "Every Monday at 7 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -16,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "dbecb966-35d5-4aa3-9968-d4f476be9206",
+      "name": "Set Wiki Audit Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "wiki-search-text",
+              "name": "wikiSearchText",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Text that matches your wiki page titles, or leave blank to audit every page the integration can read__>"
+            },
+            {
+              "id": "wiki-health-database-id",
+              "name": "wikiHealthDatabaseId",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Notion database ID of your Wiki Health database, 32 hex characters__>"
+            },
+            {
+              "id": "slack-channel-id",
+              "name": "slackChannelId",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Slack channel ID for the weekly digest, for example C0123456789__>"
+            },
+            {
+              "id": "page-id-property",
+              "name": "pageIdPropertyName",
+              "type": "string",
+              "value": "Page ID"
+            },
+            {
+              "id": "stale-after-days",
+              "name": "staleAfterDays",
+              "type": "number",
+              "value": 90
+            },
+            {
+              "id": "thin-word-count",
+              "name": "thinWordCount",
+              "type": "number",
+              "value": 120
+            },
+            {
+              "id": "digest-size",
+              "name": "digestSize",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "orphan-weight",
+              "name": "orphanWeight",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "stale-weight",
+              "name": "staleWeight",
+              "type": "number",
+              "value": 2
+            },
+            {
+              "id": "thin-weight",
+              "name": "thinWeight",
+              "type": "number",
+              "value": 1
+            },
+            {
+              "id": "broken-link-weight",
+              "name": "brokenLinkWeight",
+              "type": "number",
+              "value": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8e8b85b8-b07e-4e16-bedc-a7071d8b1394",
+      "name": "Search Wiki Pages In Notion",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.wikiSearchText }}",
+        "simple": false,
+        "options": {
+          "sort": {
+            "sortValue": {}
+          },
+          "filter": {
+            "filters": {
+              "value": "page"
+            }
+          }
+        },
+        "operation": "search",
+        "returnAll": true
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_YOUR_NOTION_CREDENTIAL",
+          "name": "Notion account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2bc506dc-4161-4d6c-8f6a-b474fef7dd6e",
+      "name": "Build Wiki Link Graph",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1312,
+        -16
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $(\"Set Wiki Audit Config\").first().json;\nconst staleDays = Number(cfg.staleAfterDays) || 90;\nconst thinWords = Number(cfg.thinWordCount) || 120;\nconst orphanWeight = Number(cfg.orphanWeight) || 3;\nconst staleWeight = Number(cfg.staleWeight) || 2;\nconst thinWeight = Number(cfg.thinWeight) || 1;\nconst brokenWeight = Number(cfg.brokenLinkWeight) || 2;\nconst fetchFailedWeight = 1;\n\nconst pages = $input.all().map(item => item.json).filter(p => p && p.pageId);\nconst known = new Set(pages.map(p => p.pageId));\n\nconst inbound = new Map();\nconst brokenByPage = new Map();\nfor (const p of pages) inbound.set(p.pageId, 0);\n\nfor (const p of pages) {\n  const broken = [];\n  for (const target of p.outboundLinks || []) {\n    if (known.has(target)) inbound.set(target, (inbound.get(target) || 0) + 1);\n    else broken.push(target);\n  }\n  brokenByPage.set(p.pageId, broken);\n}\n\nconst now = Date.now();\nconst auditedAt = new Date(now).toISOString();\n\nconst rows = pages.map(p => {\n  const edited = p.lastEditedTime ? new Date(p.lastEditedTime).getTime() : null;\n  const daysSinceEdit = edited ? Math.floor((now - edited) / 86400000) : null;\n  const inboundLinks = inbound.get(p.pageId) || 0;\n  const broken = brokenByPage.get(p.pageId) || [];\n  // A page the integration could not read has no usable body, so the orphan and\n  // thin thresholds would only be measuring the failed fetch. Flag the failure\n  // and skip both checks. Stale still applies, last_edited_time comes from the\n  // page search rather than the blocks.\n  const fetchFailed = !!p.fetchFailed;\n  const isOrphan = !fetchFailed && inboundLinks === 0;\n  const isStale = daysSinceEdit !== null && daysSinceEdit >= staleDays;\n  const isThin = !fetchFailed && Number(p.wordCount || 0) < thinWords;\n  const score = (fetchFailed ? fetchFailedWeight : 0) + (isOrphan ? orphanWeight : 0) + (isStale ? staleWeight : 0) + (isThin ? thinWeight : 0) + broken.length * brokenWeight;\n  const flags = [];\n  if (fetchFailed) flags.push(\"Fetch failed\");\n  if (isOrphan) flags.push(\"Orphan\");\n  if (isStale) flags.push(\"Stale\");\n  if (isThin) flags.push(\"Thin\");\n  if (broken.length) flags.push(\"Unreachable mentions\");\n  return {\n    pageId: p.pageId,\n    title: p.title || \"Untitled\",\n    url: p.url || \"\",\n    status: flags.length ? flags.join(\", \") : \"Healthy\",\n    isOrphan: isOrphan,\n    isStale: isStale,\n    isThin: isThin,\n    wordCount: Number(p.wordCount || 0),\n    inboundLinks: inboundLinks,\n    outboundLinkCount: (p.outboundLinks || []).length,\n    brokenLinkCount: broken.length,\n    brokenLinkTargets: broken.join(\", \"),\n    daysSinceEdit: daysSinceEdit,\n    lastEditedTime: p.lastEditedTime || null,\n    score: score,\n    fetchFailed: fetchFailed,\n    auditedAt: auditedAt\n  };\n});\n\nconst totals = {\n  totalPages: rows.length,\n  orphanCount: rows.filter(r => r.isOrphan).length,\n  staleCount: rows.filter(r => r.isStale).length,\n  thinCount: rows.filter(r => r.isThin).length,\n  brokenLinkPages: rows.filter(r => r.brokenLinkCount > 0).length,\n  healthyCount: rows.filter(r => r.score === 0).length\n};\n\nrows.sort((a, b) => b.score - a.score);\nreturn rows.map(r => ({ json: Object.assign({}, r, totals) }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3bec8438-5047-424d-84c0-7d98ac6b18cd",
+      "name": "Filter Pages Needing Review",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1600,
+        -16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "score-above-zero",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.score }}",
+              "rightValue": 0
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "ee07c4bc-4fe4-4dd5-981a-a03b5447803b",
+      "name": "Fetch Health Rows From Notion",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        1952,
+        -112
+      ],
+      "parameters": {
+        "simple": false,
+        "options": {},
+        "resource": "databasePage",
+        "operation": "getAll",
+        "returnAll": true,
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Wiki Audit Config\").first().json.wikiHealthDatabaseId }}"
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_YOUR_NOTION_CREDENTIAL",
+          "name": "Notion account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 2.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "caa6d1e5-7c48-4488-9485-8af2db31631d",
+      "name": "Match Findings To Health Rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2192,
+        -112
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $(\"Set Wiki Audit Config\").first().json;\nconst keyProperty = cfg.pageIdPropertyName || \"Page ID\";\nconst findings = $(\"Filter Pages Needing Review\").all().map(item => item.json);\nconst existing = $input.all().map(item => item.json);\n\nfunction plainText(prop) {\n  if (!prop) return \"\";\n  const runs = prop.rich_text || prop.title || [];\n  return runs.map(run => run.plain_text || \"\").join(\"\").trim();\n}\n\nconst rowByPageId = new Map();\nfor (const row of existing) {\n  const value = plainText((row.properties || {})[keyProperty]);\n  if (value) rowByPageId.set(value.toLowerCase(), row.id);\n}\n\nreturn findings.map(finding => ({\n  json: Object.assign({}, finding, {\n    healthRowId: rowByPageId.get(String(finding.pageId || \"\").toLowerCase()) || \"\"\n  })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "02321d93-9505-41dc-839e-00e9665aae62",
+      "name": "Check If Health Row Exists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2416,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "health-row-present",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{ $json.healthRowId }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c402b22a-683b-4514-b491-44f3b7b5694f",
+      "name": "Update Health Row In Notion",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2048,
+        400
+      ],
+      "parameters": {
+        "pageId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.healthRowId }}"
+        },
+        "options": {},
+        "resource": "databasePage",
+        "operation": "update",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Status|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.status }}"
+            },
+            {
+              "key": "Score|number",
+              "type": "number",
+              "numberValue": "={{ $json.score }}"
+            },
+            {
+              "key": "Word Count|number",
+              "type": "number",
+              "numberValue": "={{ $json.wordCount }}"
+            },
+            {
+              "key": "Inbound Links|number",
+              "type": "number",
+              "numberValue": "={{ $json.inboundLinks }}"
+            },
+            {
+              "key": "Broken Links|number",
+              "type": "number",
+              "numberValue": "={{ $json.brokenLinkCount }}"
+            },
+            {
+              "key": "Last Audited|date",
+              "date": "={{ $json.auditedAt }}",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_YOUR_NOTION_CREDENTIAL",
+          "name": "Notion account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6e5a7ecb-8e59-42d5-a712-ab22e1e5f2f4",
+      "name": "Create Health Row In Notion",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2352,
+        400
+      ],
+      "parameters": {
+        "title": "={{ $json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Wiki Audit Config\").first().json.wikiHealthDatabaseId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Page ID|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.pageId }}"
+            },
+            {
+              "key": "Page URL|url",
+              "type": "url",
+              "urlValue": "={{ $json.url }}",
+              "ignoreIfEmpty": true
+            },
+            {
+              "key": "Status|rich_text",
+              "type": "rich_text",
+              "textContent": "={{ $json.status }}"
+            },
+            {
+              "key": "Score|number",
+              "type": "number",
+              "numberValue": "={{ $json.score }}"
+            },
+            {
+              "key": "Word Count|number",
+              "type": "number",
+              "numberValue": "={{ $json.wordCount }}"
+            },
+            {
+              "key": "Inbound Links|number",
+              "type": "number",
+              "numberValue": "={{ $json.inboundLinks }}"
+            },
+            {
+              "key": "Broken Links|number",
+              "type": "number",
+              "numberValue": "={{ $json.brokenLinkCount }}"
+            },
+            {
+              "key": "Last Audited|date",
+              "date": "={{ $json.auditedAt }}",
+              "type": "date"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_YOUR_NOTION_CREDENTIAL",
+          "name": "Notion account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e7a5f2e5-683c-4a9b-abb0-86525ea79e84",
+      "name": "Get Page Blocks From Notion",
+      "type": "n8n-nodes-base.notion",
+      "onError": "continueRegularOutput",
+      "position": [
+        640,
+        384
+      ],
+      "parameters": {
+        "blockId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        },
+        "resource": "block",
+        "operation": "getAll",
+        "returnAll": true,
+        "simplifyOutput": false,
+        "fetchNestedBlocks": true
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "REPLACE_WITH_YOUR_NOTION_CREDENTIAL",
+          "name": "Notion account"
+        }
+      },
+      "typeVersion": 2.2,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "9ee2d8ad-5592-47cd-a3a2-227b40786d77",
+      "name": "Extract Links And Word Count",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        960,
+        384
+      ],
+      "parameters": {
+        "jsCode": "const page = $(\"Loop Over Wiki Pages\").first().json;\nconst raw = $input.all().map(item => item.json);\nconst blocks = raw.filter(b => b && b.type && !b.error);\nconst fetchFailed = raw.some(b => b && b.error);\n\nconst UUID_DASH = /[0-9a-fA-F]{8}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{4}-[0-9a-fA-F]{12}/;\nconst HEX32 = /[0-9a-fA-F]{32}/;\nconst URL_RE = /https?:\\/\\/[^\\s)\\]]+/g;\n\nfunction normalise(value) {\n  const hex = String(value || \"\").replace(/-/g, \"\").toLowerCase();\n  if (hex.length !== 32) return null;\n  return hex.slice(0, 8) + \"-\" + hex.slice(8, 12) + \"-\" + hex.slice(12, 16) + \"-\" + hex.slice(16, 20) + \"-\" + hex.slice(20);\n}\n\nfunction idFromUrl(value) {\n  const url = String(value || \"\");\n  if (!/notion\\.(so|site)/i.test(url)) return null;\n  const match = url.match(UUID_DASH) || url.match(HEX32);\n  return match ? normalise(match[0]) : null;\n}\n\nfunction pageTitle(source) {\n  const props = source.properties || {};\n  for (const key of Object.keys(props)) {\n    const prop = props[key];\n    if (prop && prop.type === \"title\" && Array.isArray(prop.title)) {\n      const text = prop.title.map(run => run.plain_text || \"\").join(\"\").trim();\n      if (text) return text;\n    }\n  }\n  return \"Untitled\";\n}\n\nconst links = new Set();\nlet words = 0;\n\nfunction readRichText(runs) {\n  for (const run of runs || []) {\n    const text = run.plain_text != null ? run.plain_text : ((run.text && run.text.content) || \"\");\n    if (text) words += text.split(/\\s+/).filter(Boolean).length;\n    if (run.type === \"mention\" && run.mention && run.mention.type === \"page\" && run.mention.page) {\n      const mentioned = normalise(run.mention.page.id);\n      if (mentioned) links.add(mentioned);\n    }\n    const href = run.href || (run.text && run.text.link && run.text.link.url) || \"\";\n    const linked = idFromUrl(href);\n    if (linked) links.add(linked);\n    for (const found of text.match(URL_RE) || []) {\n      const pasted = idFromUrl(found);\n      if (pasted) links.add(pasted);\n    }\n  }\n}\n\nfor (const block of blocks) {\n  if (block.type === \"child_page\") {\n    const child = normalise(block.id);\n    if (child) links.add(child);\n    continue;\n  }\n  if (block.type === \"link_to_page\" && block.link_to_page && block.link_to_page.page_id) {\n    const target = normalise(block.link_to_page.page_id);\n    if (target) links.add(target);\n  }\n  const body = block[block.type];\n  if (!body || typeof body !== \"object\") continue;\n  if (Array.isArray(body.rich_text)) readRichText(body.rich_text);\n  if (Array.isArray(body.caption)) readRichText(body.caption);\n  if (Array.isArray(body.cells)) for (const cell of body.cells) readRichText(cell);\n}\n\nconst self = normalise(page.id);\nlinks.delete(self);\n\nreturn [{ json: {\n  pageId: self,\n  title: pageTitle(page),\n  url: page.url || \"\",\n  lastEditedTime: page.last_edited_time || null,\n  wordCount: words,\n  outboundLinks: Array.from(links),\n  blockCount: blocks.length,\n  fetchFailed: fetchFailed\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "68fd9aa8-aabe-48b7-9622-645be602906b",
+      "name": "Loop Over Wiki Pages",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        928,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "39652535-1099-4fc3-bd4b-26a1e720cf07",
+      "name": "Rank Worst Offenders",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1360,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $(\"Set Wiki Audit Config\").first().json;\nconst digestSize = Number(cfg.digestSize) || 10;\nconst rows = $input.all().map(item => item.json);\nconst totals = rows[0] || {};\n\nconst flagged = rows\n  .filter(r => Number(r.score || 0) > 0)\n  .sort((a, b) => (b.score - a.score) || (b.brokenLinkCount - a.brokenLinkCount));\nconst top = flagged.slice(0, digestSize);\n\nconst lines = top.map((r, index) => {\n  const bits = [\"score \" + r.score];\n  if (r.fetchFailed) bits.push(\"could not be read, check integration access\");\n  if (r.isOrphan) bits.push(\"no inbound links\");\n  if (r.isStale) bits.push(r.daysSinceEdit + \" days since edit\");\n  if (r.isThin) bits.push(r.wordCount + \" words\");\n  if (r.brokenLinkCount) bits.push(r.brokenLinkCount + \" unreachable mentions\");\n  const label = r.url ? \"<\" + r.url + \"|\" + (r.title || \"Untitled\") + \">\" : (r.title || \"Untitled\");\n  return (index + 1) + \". \" + label + \" - \" + bits.join(\", \");\n});\n\nconst header = \"*Wiki health sweep* \" + String(totals.auditedAt || \"\").slice(0, 10)\n  + \"\\n\" + (totals.totalPages || 0) + \" pages audited, \" + (totals.healthyCount || 0) + \" healthy, \" + flagged.length + \" need attention\"\n  + \"\\nOrphan \" + (totals.orphanCount || 0) + \"  |  Stale \" + (totals.staleCount || 0) + \"  |  Thin \" + (totals.thinCount || 0) + \"  |  Unreachable mentions on \" + (totals.brokenLinkPages || 0) + \" pages\";\n\nconst body = lines.length\n  ? \"\\n\\n*Worst offenders*\\n\" + lines.join(\"\\n\")\n  : \"\\n\\nNothing crossed a threshold this week.\";\n\nreturn [{ json: { digest: header + body, flaggedCount: flagged.length, rankedCount: top.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2fa6100a-d4ce-4b6e-b28d-846b35abcb28",
+      "name": "Post Digest To Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1616,
+        480
+      ],
+      "parameters": {
+        "text": "={{ $json.digest }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Wiki Audit Config\").first().json.slackChannelId }}"
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "unfurl_links": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_SLACK_CREDENTIAL",
+          "name": "Slack account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 2.5
+    },
+    {
+      "id": "f4bff7d0-8ee0-413f-b794-2a8dd055c518",
+      "name": "Sticky Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -1168
+      ],
+      "parameters": {
+        "width": 1800,
+        "height": 720,
+        "content": "## Audit Notion wiki health for orphan, stale and thin pages\n\nRuns a weekly rule-based sweep of a Notion wiki, builds the internal link graph from page content, and flags pages that nobody links to, nobody has edited, or nobody has written. Findings land in a Notion database and a ranked digest goes to Slack. No AI is involved, every classification is a threshold you set.\n\n### How it works\n\n1. A weekly schedule fires and one Set node supplies the wiki search text, the `Wiki Health` database, the Slack channel and every threshold.\n2. Notion page search returns every page the integration can read, with `simple` off so `last_edited_time` survives.\n3. The workflow loops one page at a time and pulls all blocks recursively with `simplifyOutput` off, so page mentions keep their target ids.\n4. A Code node counts words and collects outbound links from mentions, `link_to_page` blocks, child pages and pasted notion.so URLs.\n5. A second Code node inverts those edges into inbound counts, then labels each page orphan, stale, thin or healthy and adds a weighted score.\n6. Flagged pages are matched against existing `Wiki Health` rows, written back as an update or a create, and the ranked digest posts to Slack.\n\n### Setup steps\n\n- [ ] Connect a Notion internal integration credential and share only the wiki root page with it, so page search returns the wiki and nothing else.\n- [ ] Connect a Slack credential with `chat:write` and invite the bot to the digest channel.\n- [ ] Create a `Wiki Health` database with `Page` (title), `Page ID` (rich text), `Status` (rich text), `Score` (number), `Word Count` (number), `Inbound Links` (number), `Broken Links` (number), `Page URL` (url) and `Last Audited` (date).\n- [ ] Open `Set Wiki Audit Config` and fill in the wiki search text, the `Wiki Health` database ID and the Slack channel ID.\n- [ ] The Notion API allows about three requests per second, so a 200 to 400 page wiki finishes comfortably. Point the integration at a narrower root above that size.\n\n### Customization\n\n`staleAfterDays`, `thinWordCount` and `digestSize` set the thresholds. `orphanWeight`, `staleWeight`, `thinWeight` and `brokenLinkWeight` decide how the digest ranks, so raise `orphanWeight` if unlinked pages matter most to your team."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e36fa5d4-fbd5-4880-9dd1-c1b7e7accd28",
+      "name": "Sticky Schedule",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 556,
+        "height": 420,
+        "content": "## Weekly schedule and config\n\nFires every Monday morning. `Set Wiki Audit Config` holds the only user-specific values, the wiki search text, the `Wiki Health` database ID, the Slack channel and all thresholds."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3f801d48-7f1c-4962-8477-650557df9cc5",
+      "name": "Sticky Crawl",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 868,
+        "content": "## Crawl pages and blocks\n\nPage search runs with `simple` off so `last_edited_time` comes back. The loop pulls blocks one page at a time with `fetchNestedBlocks` on and `simplifyOutput` off, then counts words and collects link targets. Empty pages still emit an item so the loop keeps moving."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d4f6425-9649-4640-82b4-bd569e3e20d5",
+      "name": "Sticky Score",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        -320
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 572,
+        "height": 532,
+        "content": "## Score every page\n\nInverts outbound links into inbound counts, then labels each page orphan, stale, thin or healthy. The weighted score decides digest order.\n\nA page the integration could not read is flagged Fetch failed and skips the orphan and thin checks, so a permissions problem does not read as a content problem."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "683a4ae6-e4e9-4569-811e-281db52f10b5",
+      "name": "Sticky Digest",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 604,
+        "height": 388,
+        "content": "## Rank and post the digest\n\nRuns once on the whole result set. Sorts flagged pages by score, keeps the top `digestSize`, and posts one Slack message with the totals above the list."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67264a0a-c9ea-4ec2-826b-a9ed9bc3077d",
+      "name": "Sticky Match",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1872,
+        -304
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 736,
+        "height": 452,
+        "content": "## Match findings to existing rows\n\nNotion has no upsert. The database is queried once, findings are matched on the `Page ID` property, and the branch decides between update and create."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2ba6213-9cd4-4fec-8198-fd6cb7c678ea",
+      "name": "Sticky Write",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1936,
+        208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 636,
+        "height": 420,
+        "content": "## Write rows back to Notion\n\nUpdate keeps the existing row and refreshes `Status`, `Score` and the counts. Create adds `Page ID` and `Page URL` as well, so the next run can match it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "570e5f69-5b1b-45fc-a942-00408f96e9a8",
+      "name": "Sticky Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        1120
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 700,
+        "height": 400,
+        "content": "## Two settings that silently break this\n\n`Get Page Blocks From Notion` must keep `simplifyOutput` off. Simplified output flattens rich text into a plain string and drops the mention page ids, so the link graph empties and every page reads as an orphan.\n\n`Search Wiki Pages In Notion` must keep `simple` off. Simplified output returns only id, name and url, with no `last_edited_time`, so nothing is ever stale."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Every Monday at 7 AM": {
+      "main": [
+        [
+          {
+            "node": "Set Wiki Audit Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Wiki Pages": {
+      "main": [
+        [
+          {
+            "node": "Build Wiki Link Graph",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get Page Blocks From Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rank Worst Offenders": {
+      "main": [
+        [
+          {
+            "node": "Post Digest To Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Wiki Link Graph": {
+      "main": [
+        [
+          {
+            "node": "Filter Pages Needing Review",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Rank Worst Offenders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Wiki Audit Config": {
+      "main": [
+        [
+          {
+            "node": "Search Wiki Pages In Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Health Row Exists": {
+      "main": [
+        [
+          {
+            "node": "Update Health Row In Notion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Health Row In Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Pages Needing Review": {
+      "main": [
+        [
+          {
+            "node": "Fetch Health Rows From Notion",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Page Blocks From Notion": {
+      "main": [
+        [
+          {
+            "node": "Extract Links And Word Count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Wiki Pages In Notion": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Wiki Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Links And Word Count": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Wiki Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Health Rows From Notion": {
+      "main": [
+        [
+          {
+            "node": "Match Findings To Health Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Findings To Health Rows": {
+      "main": [
+        [
+          {
+            "node": "Check If Health Row Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

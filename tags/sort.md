@@ -1,4 +1,4 @@
-# sort : 10
+# sort : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |15248|[15248_Automatically_sort_stucco_leads_by_SLA_priority_in_NinjaPipe_with_StuccoOS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15248_Automatically_sort_stucco_leads_by_SLA_priority_in_NinjaPipe_with_StuccoOS.json)|
 |16305|[16305_Sort_customer_feedback_by_rating_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16305_Sort_customer_feedback_by_rating_with_Google_Sheets_and_Slack.json)|
 |16757|[16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json)|
+|17236|[17236_Sort_Gmail_leads__meetings__and_trash_with_OpenAI_classification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17236_Sort_Gmail_leads__meetings__and_trash_with_OpenAI_classification.json)|
+|19195|[19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json)|

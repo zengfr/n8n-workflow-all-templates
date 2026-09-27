@@ -1,4 +1,4 @@
-# sql : 32
+# sql : 33
 
 |id|file|
 |----|----|
@@ -34,3 +34,4 @@
 |15256|[15256_Send_weekly_SQL_Server_health_reports_via_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15256_Send_weekly_SQL_Server_health_reports_via_email.json)|
 |16294|[16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json)|
 |16784|[16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json)|
+|17206|[17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json)|

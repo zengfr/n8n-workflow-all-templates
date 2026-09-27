@@ -1,0 +1,515 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Probe AISIX model aliases and generate health reports for SRE teams",
+    "wechat": "youandme10086",
+    "id": 19649,
+    "update_time": "2026-09-27"
+  },
+  "name": "Probe AISIX AI Gateway model aliases and flag unhealthy endpoints",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "694c915f-c91a-4a9e-83fb-9797e06b25d1",
+      "name": "Workflow Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        -432
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 760,
+        "content": "# Probe AISIX AI Gateway model aliases and flag unhealthy endpoints\n\n## Who's it for\nPlatform and SRE teams that expose shared model aliases through AISIX and need a lightweight synthetic check.\n\n## How it works\n1. Lists model aliases visible to the AISIX caller key.\n2. Caps the run at `max_models` and sends one small Chat Completions probe per alias.\n3. Classifies valid responses, rate limits, policy blocks, authentication failures, malformed responses, and upstream failures without stopping at the HTTP node.\n4. Builds one report and routes healthy runs separately from results that need attention.\n\n## Setup\n1. Run AISIX 1.2.0 or later with a Chat Completions model alias.\n2. Set the gateway origin, prompt, and alias limit in **Set AISIX Probe Config**.\n3. Create an n8n Header Auth credential. Use `Authorization` as the header and `Bearer <your AISIX caller API key>` as the value.\n4. Select it in both AISIX HTTP Request nodes and run the workflow.\n\n## Requirements\nn8n 2.39.6+, AISIX 1.2.0+, and a caller key that can list and call at least one model alias.\n\nReplace the Manual Trigger with a Schedule Trigger and connect the attention path to your incident channel after testing. A successful probe does not replace production monitoring.\n\nAISIX is an Apache-2.0-licensed open-source AI gateway maintained by API7.ai. It is an independent project and is not an Apache Software Foundation project.\n\nAISIX repository: https://github.com/api7/aisix\nChat Completions documentation: https://docs.api7.ai/ai-gateway/endpoints/openai-compatible-chat"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b1ce5aaf-13d0-42f8-83cb-31f8cf97beb0",
+      "name": "Configuration Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        -432
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 1136,
+        "height": 176,
+        "content": "## 1. Configure the synthetic probe\n\nUse the AISIX gateway origin without `/v1`. `max_models` prevents an unexpectedly broad caller key from creating a large probe run. Keep the caller key in an n8n Header Auth credential."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "94e73a75-d0a7-413b-920d-c1636fc50754",
+      "name": "Run Synthetic Check",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -640,
+        -160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "34dc257b-a427-42a8-ac8a-54c653fbf16a",
+      "name": "Set AISIX Probe Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -400,
+        -160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "64cc5871-6ef4-4dde-a1e7-e6513dc9ad44",
+              "name": "aisix_base_url",
+              "type": "string",
+              "value": "https://YOUR_AISIX_GATEWAY"
+            },
+            {
+              "id": "b102dfef-1f8e-47ce-b523-2cfa69416a7f",
+              "name": "probe_prompt",
+              "type": "string",
+              "value": "Reply with exactly: AISIX probe OK"
+            },
+            {
+              "id": "e07b3b56-d4e2-45a9-a208-a7f8e706588e",
+              "name": "max_models",
+              "type": "number",
+              "value": 10
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3b7b7020-5b22-4b3b-a695-2fb7848384a5",
+      "name": "List AISIX Model Aliases",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -144,
+        -160
+      ],
+      "parameters": {
+        "url": "={{ $json.aisix_base_url.replace(/\\/$/, '') + '/v1/models' }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f9ddbdeb-eded-48f6-bc3f-6d9dc977f612",
+      "name": "Build Model Probe Queue",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        96,
+        -160
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Set AISIX Probe Config').first().json;\nconst response = $input.first().json;\nconst statusCode = Number(response.statusCode ?? 0);\nconst body = response.body ?? {};\n\nif (statusCode < 200 || statusCode >= 300) {\n  return [{ json: { workflow_path: 'discovery_failure', overall_status: 'attention', stage: 'model_discovery', status_code: statusCode || null, error_type: body?.error?.type ?? 'model_discovery_failed', reason: 'AISIX did not return a usable model list.' } }];\n}\n\nconst maxModels = Math.max(1, Math.min(Number(config.max_models) || 10, 50));\nconst aliases = Array.isArray(body.data)\n  ? body.data.map((item) => item?.id).filter((id) => typeof id === 'string' && id.length > 0).slice(0, maxModels)\n  : [];\n\nif (aliases.length === 0) {\n  return [{ json: { workflow_path: 'discovery_failure', overall_status: 'attention', stage: 'model_discovery', status_code: statusCode, error_type: 'no_visible_models', reason: 'The caller key can access no concrete model aliases.' } }];\n}\n\nreturn aliases.map((modelAlias) => ({\n  json: {\n    workflow_path: 'probe',\n    aisix_base_url: config.aisix_base_url,\n    probe_prompt: config.probe_prompt,\n    model_alias: modelAlias,\n    probe_started_at: new Date().toISOString(),\n  },\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "61acc701-125b-4f38-a37f-72766d202a16",
+      "name": "Route Discovery Result",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        352,
+        -160
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "bfe57c04-2db5-48e8-b8b9-2691a667227c",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.workflow_path }}",
+                    "rightValue": "probe"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "7592755b-aafb-4a28-af98-25057c319c08",
+      "name": "Probe Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        -432
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 912,
+        "height": 176,
+        "content": "## 2. Probe every visible alias\n\nThe first request discovers only aliases allowed for the caller key. The second request sends one small non-streaming Chat Completions probe per alias. Both HTTP nodes return headers and status codes without throwing on non-2xx responses."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a2dcaa63-bd5d-4876-a105-662d7276612e",
+      "name": "Probe Model via AISIX",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        720,
+        -208
+      ],
+      "parameters": {
+        "url": "={{ $json.aisix_base_url.replace(/\\/$/, '') + '/v1/chat/completions' }}",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ { model: $json.model_alias, messages: [ { role: 'user', content: $json.probe_prompt } ], temperature: 0, stream: false } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b9d5d8a5-d47e-4a22-8567-eb87e1a07534",
+      "name": "Classify Probe Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        960,
+        -208
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const response = $json;\nconst source = $('Build Model Probe Queue').item.json;\nconst statusCode = Number(response.statusCode ?? 0);\nconst headers = response.headers ?? {};\nconst body = response.body ?? {};\nconst header = (name) => headers[name] ?? headers[name.toLowerCase()] ?? headers[name.toUpperCase()] ?? null;\nconst content = body?.choices?.[0]?.message?.content;\nconst latencyMs = Math.max(0, Date.now() - Date.parse(source.probe_started_at));\n\nlet probeStatus = 'unhealthy';\nif (statusCode >= 200 && statusCode < 300 && typeof content === 'string' && content.length > 0) probeStatus = 'healthy';\nelse if (statusCode === 429) probeStatus = 'rate_limited';\nelse if (statusCode === 422) probeStatus = 'policy_blocked';\nelse if (statusCode === 401 || statusCode === 403) probeStatus = 'auth_failed';\n\nreturn { json: {\n  model_alias: source.model_alias,\n  probe_status: probeStatus,\n  status_code: statusCode || null,\n  latency_ms: latencyMs,\n  retry_after_seconds: header('retry-after'),\n  aisix_request_id: header('x-aisix-request-id'),\n  error_type: body?.error?.type ?? null,\n} };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "065d653b-d87b-4a1c-93af-40d367921b5c",
+      "name": "Build AISIX Health Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1200,
+        -208
+      ],
+      "parameters": {
+        "jsCode": "const checks = $input.all().map((item) => item.json);\nconst counts = checks.reduce((acc, check) => {\n  acc[check.probe_status] = (acc[check.probe_status] ?? 0) + 1;\n  return acc;\n}, {});\nconst needsAttention = checks.some((check) => check.probe_status !== 'healthy');\n\nreturn [{ json: {\n  overall_status: needsAttention ? 'attention' : 'healthy',\n  checked_at: new Date().toISOString(),\n  summary: { total: checks.length, ...counts },\n  checks,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b3845657-e75c-4677-b4a8-f476bfeeb180",
+      "name": "Route Health Status",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1440,
+        -208
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "15b914e1-4495-4841-a667-086516485ebe",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.overall_status }}",
+                    "rightValue": "healthy"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "23be137a-049e-470d-b01b-14ad69a15ab1",
+      "name": "Return Healthy Report",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1696,
+        -272
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "4785fdeb-d272-4713-8fcc-024f68157514",
+              "name": "status",
+              "type": "string",
+              "value": "healthy"
+            },
+            {
+              "id": "f6f52a56-f0db-4504-b01d-c674e00b3f4e",
+              "name": "report",
+              "type": "object",
+              "value": "={{ $json }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "4df84465-b0cd-4782-b73c-5f2e971c377b",
+      "name": "Return Attention Report",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1696,
+        -144
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "944c8bd3-e744-4df5-b3ef-101f2e2a83ef",
+              "name": "status",
+              "type": "string",
+              "value": "attention"
+            },
+            {
+              "id": "4a47c4f8-cec4-47dc-a9aa-55c9f4ff8abe",
+              "name": "report",
+              "type": "object",
+              "value": "={{ $json }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ac6d1d88-baba-456d-88a6-c7d89612c9ad",
+      "name": "Return Discovery Failure",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        720,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a3947fda-b26d-492f-b479-c594c6d0d1a6",
+              "name": "status",
+              "type": "string",
+              "value": "attention"
+            },
+            {
+              "id": "bb3eadc4-55db-4a47-aa11-637dfc2a33c2",
+              "name": "stage",
+              "type": "string",
+              "value": "={{ $json.stage }}"
+            },
+            {
+              "id": "cc1d6a67-5eb3-4d36-bb24-829175037e59",
+              "name": "reason",
+              "type": "string",
+              "value": "={{ $json.reason }}"
+            },
+            {
+              "id": "a76af4d0-c9ed-4b58-b38f-ad573f87edab",
+              "name": "error_type",
+              "type": "string",
+              "value": "={{ $json.error_type }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3f08b91c-fae6-4729-bddd-0b231f0b14f9",
+      "name": "Result Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        48
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 816,
+        "height": 224,
+        "content": "## 3. Connect the result to your operations workflow\n\nThe healthy path contains the complete report. The attention path retains per-alias status, latency, retry hints, AISIX request IDs, and non-sensitive error types. Add Slack, PagerDuty, email, or a Data Table only after checking your organization's incident policy."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "66f995f5-bd66-430c-843a-48c5e355560c",
+  "connections": {
+    "Route Health Status": {
+      "main": [
+        [
+          {
+            "node": "Return Healthy Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Attention Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Synthetic Check": {
+      "main": [
+        [
+          {
+            "node": "Set AISIX Probe Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Probe Result": {
+      "main": [
+        [
+          {
+            "node": "Build AISIX Health Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Probe Model via AISIX": {
+      "main": [
+        [
+          {
+            "node": "Classify Probe Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Discovery Result": {
+      "main": [
+        [
+          {
+            "node": "Probe Model via AISIX",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Discovery Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set AISIX Probe Config": {
+      "main": [
+        [
+          {
+            "node": "List AISIX Model Aliases",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Model Probe Queue": {
+      "main": [
+        [
+          {
+            "node": "Route Discovery Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List AISIX Model Aliases": {
+      "main": [
+        [
+          {
+            "node": "Build Model Probe Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AISIX Health Report": {
+      "main": [
+        [
+          {
+            "node": "Route Health Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

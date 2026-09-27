@@ -1,4 +1,4 @@
-# hunter : 34
+# hunter : 39
 
 |id|file|
 |----|----|
@@ -36,3 +36,8 @@
 |15557|[15557_Qualify_and_route_B2B_leads_with_GPT-4o-mini__Hunter.io__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15557_Qualify_and_route_B2B_leads_with_GPT-4o-mini__Hunter.io__Slack__Gmail_and_Sheets.json)|
 |16209|[16209_Generate_Shopify_review_outreach_drafts_with_Apify__Hunter__GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16209_Generate_Shopify_review_outreach_drafts_with_Apify__Hunter__GPT-4o_and_Gmail.json)|
 |16225|[16225_Enrich_LinkedIn_leads_in_Google_Sheets_with_PhantomBuster__Hunter_and_Dropcontact.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16225_Enrich_LinkedIn_leads_in_Google_Sheets_with_PhantomBuster__Hunter_and_Dropcontact.json)|
+|17360|[17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json)|
+|17670|[17670_Scrape_Google_Maps_business_leads_with_SearchApi__Hunter__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17670_Scrape_Google_Maps_business_leads_with_SearchApi__Hunter__and_Google_Sheets.json)|
+|19043|[19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json)|
+|19622|[19622_Send_dental_clinic_audit_outreach_with_DeepSeek__SerpAPI__Hunter_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19622_Send_dental_clinic_audit_outreach_with_DeepSeek__SerpAPI__Hunter_and_Gmail.json)|
+|19655|[19655_Generate_Angi_roofing_contractor_leads_with_Apify__SerpApi__Hunter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19655_Generate_Angi_roofing_contractor_leads_with_Apify__SerpApi__Hunter_and_Google_Sheets.json)|

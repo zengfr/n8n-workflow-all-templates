@@ -1,4 +1,4 @@
-# value : 18
+# value : 21
 
 |id|file|
 |----|----|
@@ -20,3 +20,6 @@
 |13403|[13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13403_Route_Typeform_responses_to_Google_Sheets__Slack__and_Gmail_with_confirmations.json)|
 |13442|[13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json)|
 |15477|[15477_Average_property_value_estimates_from_Zillow__Redfin__and_Realtor.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15477_Average_property_value_estimates_from_Zillow__Redfin__and_Realtor.com.json)|
+|18101|[18101_Find_high-value_expired_domains_with_DomainKits_and_Moz_and_email_a_CSV_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18101_Find_high-value_expired_domains_with_DomainKits_and_Moz_and_email_a_CSV_report.json)|
+|18713|[18713_Log_property_search_results_from_Searchbug_into_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18713_Log_property_search_results_from_Searchbug_into_Google_Sheets.json)|
+|19054|[19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json)|

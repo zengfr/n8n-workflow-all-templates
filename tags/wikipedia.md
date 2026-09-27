@@ -1,4 +1,4 @@
-# wikipedia : 8
+# wikipedia : 15
 
 |id|file|
 |----|----|
@@ -10,3 +10,10 @@
 |6972|[6972_Build_Comprehensive_Entity_Profiles_with_GPT-4__Wikipedia___Vector_DB_for_Content.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/69/6972_Build_Comprehensive_Entity_Profiles_with_GPT-4__Wikipedia___Vector_DB_for_Content.json)|
 |9018|[9018_Automated_Blog_Post_Generator_with_GPT-4__DALL-E__and_Wikipedia_for_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/90/9018_Automated_Blog_Post_Generator_with_GPT-4__DALL-E__and_Wikipedia_for_WordPress.json)|
 |11482|[11482_Automate_Niche_Research_with_Wikipedia__GPT-4o-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11482_Automate_Niche_Research_with_Wikipedia__GPT-4o-mini__and_Google_Sheets.json)|
+|17376|[17376_Build_a_multimodal_WhatsApp_assistant_with_GPT-5__Gemini__and_Wikipedia.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17376_Build_a_multimodal_WhatsApp_assistant_with_GPT-5__Gemini__and_Wikipedia.json)|
+|17437|[17437_Reply_to_WhatsApp_text__audio__image__and_video_with_Google_Gemini_and_Wikipedia.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17437_Reply_to_WhatsApp_text__audio__image__and_video_with_Google_Gemini_and_Wikipedia.json)|
+|17516|[17516_Chat_with_a_research_assistant_using_Google_Gemini__Wikipedia__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17516_Chat_with_a_research_assistant_using_Google_Gemini__Wikipedia__and_Sheets.json)|
+|17692|[17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json)|
+|17905|[17905_Answer_Telegram_messages_with_GPT-5__Perplexity__Wikipedia__and_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17905_Answer_Telegram_messages_with_GPT-5__Perplexity__Wikipedia__and_memory.json)|
+|19074|[19074_Watch_brand_edits_on_Wikipedia_and_Wikidata_with_OpenAI_and_email_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19074_Watch_brand_edits_on_Wikipedia_and_Wikidata_with_OpenAI_and_email_summaries.json)|
+|19710|[19710_Generate_structured_research_reports_with_OpenAI__Wikipedia__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19710_Generate_structured_research_reports_with_OpenAI__Wikipedia__Google_Sheets__and_Slack.json)|

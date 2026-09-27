@@ -1,4 +1,4 @@
-# logs : 19
+# logs : 24
 
 |id|file|
 |----|----|
@@ -21,3 +21,8 @@
 |15305|[15305_Analyze_error_logs_with_GPT-4o_and_create_GitHub_issues_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15305_Analyze_error_logs_with_GPT-4o_and_create_GitHub_issues_plus_Slack_alerts.json)|
 |15478|[15478_Analyze_OpenObserve_logs_and_traces_with_an_AI_MCP_observability_toolkit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15478_Analyze_OpenObserve_logs_and_traces_with_an_AI_MCP_observability_toolkit.json)|
 |15773|[15773_Mask_PII_before_GPT-5.5_analysis_with_Google_Sheets_audit_logs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15773_Mask_PII_before_GPT-5.5_analysis_with_Google_Sheets_audit_logs.json)|
+|17808|[17808_Archive_Discord_audit_logs_to_Google_Sheets_and_send_weekly_Slack_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17808_Archive_Discord_audit_logs_to_Google_Sheets_and_send_weekly_Slack_digests.json)|
+|18400|[18400_Auto-file_emailed_documents_to_Clio_matters_in_Google_Drive_with_compliance_logs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18400_Auto-file_emailed_documents_to_Clio_matters_in_Google_Drive_with_compliance_logs.json)|
+|18451|[18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json)|
+|18452|[18452_Monitor_exposed_secrets_in_GitHub_and_CI_logs_with_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18452_Monitor_exposed_secrets_in_GitHub_and_CI_logs_with_WhatsApp_alerts.json)|
+|19626|[19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json)|

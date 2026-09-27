@@ -1,4 +1,4 @@
-# profiles : 46
+# profiles : 55
 
 |id|file|
 |----|----|
@@ -48,3 +48,12 @@
 |16012|[16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json)|
 |16530|[16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json)|
 |16732|[16732_Enrich_LinkedIn_profiles_into_full_contacts_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16732_Enrich_LinkedIn_profiles_into_full_contacts_with_Tomba_and_Google_Sheets.json)|
+|16846|[16846_Analyze_LinkedIn_profiles_and_posts_with_Apify_and_OpenAI_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16846_Analyze_LinkedIn_profiles_and_posts_with_Apify_and_OpenAI_GPT-4.json)|
+|17086|[17086_Enrich_LinkedIn_profiles_in_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17086_Enrich_LinkedIn_profiles_in_Google_Sheets_with_Apify.json)|
+|17676|[17676_Export_TikTok_profiles_to_Google_Sheets_with_the_Apify_FetchCat_scraper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17676_Export_TikTok_profiles_to_Google_Sheets_with_the_Apify_FetchCat_scraper.json)|
+|17836|[17836_Scrape_Instagram_profiles_with_Apify_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17836_Scrape_Instagram_profiles_with_Apify_and_log_results_to_Google_Sheets.json)|
+|17923|[17923_Search_people_and_log_profiles_from_forms_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17923_Search_people_and_log_profiles_from_forms_with_Searchbug_and_Google_Sheets.json)|
+|18238|[18238_Find_weak_local_Google_Business_profiles_with_Bright_Data__GPT-5.6__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18238_Find_weak_local_Google_Business_profiles_with_Bright_Data__GPT-5.6__Sheets_and_Slack.json)|
+|18302|[18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json)|
+|18881|[18881_Qualify_LinkedIn_leads_with_Apify__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18881_Qualify_LinkedIn_leads_with_Apify__OpenAI__and_Google_Sheets.json)|
+|19159|[19159_Build_a_Reels_swipe_file_from_Instagram_with_Apify__Groq__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19159_Build_a_Reels_swipe_file_from_Instagram_with_Apify__Groq__Sheets_and_Telegram.json)|

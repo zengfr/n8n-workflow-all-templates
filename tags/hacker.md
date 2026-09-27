@@ -1,4 +1,4 @@
-# hacker : 17
+# hacker : 25
 
 |id|file|
 |----|----|
@@ -19,3 +19,11 @@
 |12748|[12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12748_Send_24-hour_Hacker_News_trends_to_Telegram_with_OpenRouter_AI_translation.json)|
 |16093|[16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json)|
 |16634|[16634_Scrape_Hacker_News_hiring_threads_with_OpenAI_GPT-4o-mini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16634_Scrape_Hacker_News_hiring_threads_with_OpenAI_GPT-4o-mini_and_Airtable.json)|
+|17133|[17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json)|
+|17311|[17311_Create_AI_news_shorts_from_Hacker_News_with_OpenAI__AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17311_Create_AI_news_shorts_from_Hacker_News_with_OpenAI__AtlasCloud_and_Blotato.json)|
+|17373|[17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json)|
+|17562|[17562_Draft_and_publish_Hacker_News_GitHub_posts_to_X_and_LinkedIn_with_OpenAI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17562_Draft_and_publish_Hacker_News_GitHub_posts_to_X_and_LinkedIn_with_OpenAI_and_Airtable.json)|
+|17875|[17875_Send_a_daily_AI_news_digest_from_Hacker_News_with_OpenRouter_GPT-5_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17875_Send_a_daily_AI_news_digest_from_Hacker_News_with_OpenRouter_GPT-5_and_Telegram.json)|
+|18980|[18980_Find_reply-worthy_Hacker_News_and_Stack_Overflow_threads_with_GPT_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18980_Find_reply-worthy_Hacker_News_and_Stack_Overflow_threads_with_GPT_and_Discord.json)|
+|19541|[19541_Send_keyword-based_Hacker_News_Slack_alerts_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19541_Send_keyword-based_Hacker_News_Slack_alerts_with_Groq_and_Google_Sheets.json)|
+|19834|[19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json)|

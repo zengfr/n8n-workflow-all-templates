@@ -1,4 +1,4 @@
-# transcription : 33
+# transcription : 37
 
 |id|file|
 |----|----|
@@ -35,3 +35,7 @@
 |15355|[15355_Summarize_Zoom_meetings_with_GPT-4o__Whisper__Supabase_RAG_and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15355_Summarize_Zoom_meetings_with_GPT-4o__Whisper__Supabase_RAG_and_email_reports.json)|
 |15927|[15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json)|
 |16706|[16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json)|
+|17095|[17095_Transcribe_and_summarize_Twilio_calls_with_Smallest.ai__Gemini__Slack__and_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17095_Transcribe_and_summarize_Twilio_calls_with_Smallest.ai__Gemini__Slack__and_GoHighLevel.json)|
+|17656|[17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json)|
+|18862|[18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json)|
+|18984|[18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json)|

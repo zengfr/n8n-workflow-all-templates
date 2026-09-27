@@ -1,4 +1,4 @@
-# sub : 17
+# sub : 25
 
 |id|file|
 |----|----|
@@ -19,3 +19,11 @@
 |10524|[10524_Phase-Based_Blog_Creation_System_with_Specialized_AI_Sub-Agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/05/10524_Phase-Based_Blog_Creation_System_with_Specialized_AI_Sub-Agents.json)|
 |14863|[14863_Upload_images_to_Webflow_via_API_as_a_reusable_sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14863_Upload_images_to_Webflow_via_API_as_a_reusable_sub-workflow.json)|
 |15100|[15100_Generate_AI_images_with_Gemini_and_upload_them_to_WordPress__sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15100_Generate_AI_images_with_Gemini_and_upload_them_to_WordPress__sub-workflow.json)|
+|16874|[16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16874_Handle_Shopify_Admin_GraphQL_requests_with_error_handling_and_retries.json)|
+|16967|[16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json)|
+|18120|[18120_Summarise_reusable_text_blocks_with_Google_Gemini_from_any_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18120_Summarise_reusable_text_blocks_with_Google_Gemini_from_any_workflow.json)|
+|18630|[18630_Fetch_and_cache_web_pages_with_Bright_Data_Web_Unlocker_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18630_Fetch_and_cache_web_pages_with_Bright_Data_Web_Unlocker_and_data_tables.json)|
+|19316|[19316_Render_LinkedIn_carousel_slides_with_Google_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19316_Render_LinkedIn_carousel_slides_with_Google_Gemini_and_Google_Drive.json)|
+|19338|[19338_Watch_vendor_sub-processor_pages_for_changes_with_Groq__Discord_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19338_Watch_vendor_sub-processor_pages_for_changes_with_Groq__Discord_and_data_tables.json)|
+|19499|[19499_Redact_personal_data_from_any_item_with_data_tables__audit_log_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19499_Redact_personal_data_from_any_item_with_data_tables__audit_log_and_Discord.json)|
+|19741|[19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json)|

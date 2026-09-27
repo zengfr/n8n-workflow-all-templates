@@ -1,4 +1,4 @@
-# hvac : 6
+# hvac : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |15104|[15104_Triage_HVAC_issues_and_AI_diagnosis_with_Gemini_Vision__GoHighLevel_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15104_Triage_HVAC_issues_and_AI_diagnosis_with_Gemini_Vision__GoHighLevel_and_WhatsApp.json)|
 |15598|[15598_Trigger_HVAC_upsell_campaigns_from_weather_data_and_handle_bookings_with_GoHighLevel__WhatsApp__WeatherAPI_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15598_Trigger_HVAC_upsell_campaigns_from_weather_data_and_handle_bookings_with_GoHighLevel__WhatsApp__WeatherAPI_and_Gemini.json)|
 |15777|[15777_Book_HVAC_service_appointments_via_WhatsApp_with_GoHighLevel_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15777_Book_HVAC_service_appointments_via_WhatsApp_with_GoHighLevel_and_Gemini.json)|
+|17512|[17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json)|
+|17618|[17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json)|
+|17761|[17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json)|
+|18608|[18608_Score_HVAC_leads_and_send_Gmail_replies_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18608_Score_HVAC_leads_and_send_Gmail_replies_with_Claude_and_Google_Sheets.json)|

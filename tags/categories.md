@@ -1,4 +1,4 @@
-# categories : 6
+# categories : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |10031|[10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10031_Export_WordPress_Posts_with_Categories_and_Tags_to_Google_Sheets_for_SEO_Audits.json)|
 |13380|[13380_Monitor_Clutch_categories_for_new_agencies_with_BrowserAct__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13380_Monitor_Clutch_categories_for_new_agencies_with_BrowserAct__Gemini__and_Slack.json)|
 |13667|[13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13667_Track_Telegram_expenses_with_GPT-4_and_Google_Sheets__self-learning_categories.json)|
+|17037|[17037_Migrate_visible_product_categories_from_Lightspeed_to_Shopify_via_GraphQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17037_Migrate_visible_product_categories_from_Lightspeed_to_Shopify_via_GraphQL.json)|

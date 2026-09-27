@@ -1,4 +1,4 @@
-# reminder : 48
+# reminder : 52
 
 |id|file|
 |----|----|
@@ -50,3 +50,7 @@
 |16312|[16312_Send_due-date_reminders_from_Google_Sheets_with_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16312_Send_due-date_reminders_from_Google_Sheets_with_Gmail_and_Slack.json)|
 |16469|[16469_Send_escalating_invoice_reminders_with_Notion__Claude__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16469_Send_escalating_invoice_reminders_with_Notion__Claude__Gmail_and_Telegram.json)|
 |16784|[16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json)|
+|17059|[17059_Send_Google_review_request_and_reminder_emails_via_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17059_Send_Google_review_request_and_reminder_emails_via_Gmail_and_Google_Sheets.json)|
+|17461|[17461_Send_invoice_reminders_and_partner_escalations_with_Clio_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17461_Send_invoice_reminders_and_partner_escalations_with_Clio_and_SMTP.json)|
+|18988|[18988_Manage_medical_appointment_bookings_and_reminders_with_Google_Sheets__Calendar__Gmail__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18988_Manage_medical_appointment_bookings_and_reminders_with_Google_Sheets__Calendar__Gmail__and_Supabase.json)|
+|19319|[19319_Process_Gmail_invoices_with_OpenAI__Google_Sheets__and_Slack_reminders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19319_Process_Gmail_invoices_with_OpenAI__Google_Sheets__and_Slack_reminders.json)|

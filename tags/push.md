@@ -1,4 +1,4 @@
-# push : 17
+# push : 20
 
 |id|file|
 |----|----|
@@ -19,3 +19,6 @@
 |12336|[12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json)|
 |14032|[14032_Scrape_Shopify_store_leads_with_ScraperCity_and_push_verified_contacts_to_HubSpot_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14032_Scrape_Shopify_store_leads_with_ScraperCity_and_push_verified_contacts_to_HubSpot_CRM.json)|
 |15163|[15163_Generate_and_push_AI_SEO_product_content_to_PrestaShop_with_Google_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15163_Generate_and_push_AI_SEO_product_content_to_PrestaShop_with_Google_Gemini_and_Sheets.json)|
+|18590|[18590_Sync_workflows_to_GitHub_repository_files_using_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18590_Sync_workflows_to_GitHub_repository_files_using_the_n8n_API.json)|
+|18961|[18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json)|
+|19270|[19270_Deploy_workflows_from_GitHub_pushes_to_a_production_n8n_instance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19270_Deploy_workflows_from_GitHub_pushes_to_a_production_n8n_instance.json)|

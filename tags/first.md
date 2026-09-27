@@ -1,4 +1,4 @@
-# first : 23
+# first : 26
 
 |id|file|
 |----|----|
@@ -25,3 +25,6 @@
 |15867|[15867_Get_Taobao_and_Tmall_shop_products_and_first_product_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15867_Get_Taobao_and_Tmall_shop_products_and_first_product_details_with_JustOneAPI.json)|
 |15878|[15878_Search_Douyin_videos_by_keyword_and_get_the_first_video_detail_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15878_Search_Douyin_videos_by_keyword_and_get_the_first_video_detail_with_JustOneAPI.json)|
 |15882|[15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json)|
+|17014|[17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json)|
+|17133|[17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json)|
+|19433|[19433_Capture_and_follow_up_on_Tally_inquiries_with_Salesforce__Sent__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19433_Capture_and_follow_up_on_Tally_inquiries_with_Salesforce__Sent__and_OpenAI.json)|

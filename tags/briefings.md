@@ -1,4 +1,4 @@
-# briefings : 15
+# briefings : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |16351|[16351_Send_pre-meeting_Slack_briefings_with_Google_Calendar_and_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16351_Send_pre-meeting_Slack_briefings_with_Google_Calendar_and_GitHub.json)|
 |16429|[16429_Send_daily_World_Cup_2026_briefings_to_Slack_with_OpenAI_GPT-5_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16429_Send_daily_World_Cup_2026_briefings_to_Slack_with_OpenAI_GPT-5_Mini.json)|
 |16459|[16459_Send_daily_executive_financial_briefings_with_Google_Sheets__GPT-4o-mini__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16459_Send_daily_executive_financial_briefings_with_Google_Sheets__GPT-4o-mini__Notion_and_Telegram.json)|
+|17038|[17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json)|
+|18451|[18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json)|
+|19244|[19244_Generate_legal_ops_briefings_with_Claude__Clio__Plaid__AppFolio___Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19244_Generate_legal_ops_briefings_with_Claude__Clio__Plaid__AppFolio___Google.json)|
+|19377|[19377_Enrich_legal_leads_and_send_attorney_briefings_with_webhooks_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19377_Enrich_legal_leads_and_send_attorney_briefings_with_webhooks_and_Google_Sheets.json)|
+|19457|[19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json)|

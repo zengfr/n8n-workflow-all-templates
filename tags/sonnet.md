@@ -1,4 +1,4 @@
-# sonnet : 29
+# sonnet : 39
 
 |id|file|
 |----|----|
@@ -31,3 +31,13 @@
 |16091|[16091_Extract_and_log_Gmail_invoices_with_Claude_Sonnet__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16091_Extract_and_log_Gmail_invoices_with_Claude_Sonnet__Google_Sheets_and_Slack.json)|
 |16658|[16658_Generate_workflow_audit_docs_from_JSON_with_Claude_Sonnet_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16658_Generate_workflow_audit_docs_from_JSON_with_Claude_Sonnet_and_Notion.json)|
 |16748|[16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json)|
+|16929|[16929_Triage_support_tickets_with_Claude_Sonnet__Infini_Analytics__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16929_Triage_support_tickets_with_Claude_Sonnet__Infini_Analytics__and_Slack.json)|
+|17554|[17554_Triage_Gmail_inbox_emails_and_draft_AI_replies_with_Claude_Sonnet_4.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17554_Triage_Gmail_inbox_emails_and_draft_AI_replies_with_Claude_Sonnet_4.6.json)|
+|17557|[17557_Run_a_RAG_support_copilot_with_Claude_Sonnet_and_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17557_Run_a_RAG_support_copilot_with_Claude_Sonnet_and_OpenAI_embeddings.json)|
+|17564|[17564_Screen_candidate_CVs_with_Claude_Sonnet__Google_Drive__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17564_Screen_candidate_CVs_with_Claude_Sonnet__Google_Drive__Google_Sheets__and_Gmail.json)|
+|17570|[17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json)|
+|17575|[17575_Send_Stripe_payment_thank-you_receipts_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17575_Send_Stripe_payment_thank-you_receipts_with_Claude_Sonnet_and_Gmail.json)|
+|17577|[17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json)|
+|17947|[17947_Monitor_regulatory_website_changes_with_Claude_Sonnet_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17947_Monitor_regulatory_website_changes_with_Claude_Sonnet_and_Gmail_alerts.json)|
+|18102|[18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json)|
+|19235|[19235_Answer_Telegram_support_questions_using_Google_Docs_and_Claude_Sonnet.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19235_Answer_Telegram_support_questions_using_Google_Docs_and_Claude_Sonnet.json)|

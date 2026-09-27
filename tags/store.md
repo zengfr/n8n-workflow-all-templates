@@ -1,4 +1,4 @@
-# store : 111
+# store : 123
 
 |id|file|
 |----|----|
@@ -113,3 +113,15 @@
 |16231|[16231_Build_a_Slack_knowledge_graph_with_Claude__Neo4j_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16231_Build_a_Slack_knowledge_graph_with_Claude__Neo4j_and_Google_Sheets.json)|
 |16313|[16313_Generate_and_store_Supabase_images_with_Claude_and_Cloudflare_Workers_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16313_Generate_and_store_Supabase_images_with_Claude_and_Cloudflare_Workers_AI.json)|
 |16370|[16370_Reindex_markdown_RAG_chunks_with_Supabase_pgvector_and_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16370_Reindex_markdown_RAG_chunks_with_Supabase_pgvector_and_webhooks.json)|
+|17131|[17131_Start_ScraperAPI_crawler_jobs_from_webhooks_and_store_results_in_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17131_Start_ScraperAPI_crawler_jobs_from_webhooks_and_store_results_in_data_tables.json)|
+|17303|[17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json)|
+|17430|[17430_Monitor_RSS_feeds_with_Apify_and_store_new_items_in_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17430_Monitor_RSS_feeds_with_Apify_and_store_new_items_in_data_tables.json)|
+|17907|[17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json)|
+|18030|[18030_Monitor_EU_TED_tenders_with_Apify_and_store_notices_in_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18030_Monitor_EU_TED_tenders_with_Apify_and_store_notices_in_n8n_Data_Tables.json)|
+|18069|[18069_Log_App_Store_reviews_and_build_weekly_scorecards_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18069_Log_App_Store_reviews_and_build_weekly_scorecards_with_Apify_and_Google_Sheets.json)|
+|18103|[18103_Monitor_Bluesky_keyword_posts_with_Apify_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18103_Monitor_Bluesky_keyword_posts_with_Apify_and_data_tables.json)|
+|18550|[18550_Collect_and_store_webhook_leads_in_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18550_Collect_and_store_webhook_leads_in_n8n_Data_Tables.json)|
+|18775|[18775_Track_competitor_App_Store_listing_changes_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18775_Track_competitor_App_Store_listing_changes_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|19348|[19348_Run_a_WooCommerce_store_assistant_with_Telegram__OpenRouter_and_order_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19348_Run_a_WooCommerce_store_assistant_with_Telegram__OpenRouter_and_order_digests.json)|
+|19352|[19352_Route_app_store_bug_reviews_to_engineering_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19352_Route_app_store_bug_reviews_to_engineering_with_Claude_and_Slack.json)|
+|19447|[19447_Process_store_webhook_orders_with_supplier__shipping__CRM_and_ERP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19447_Process_store_webhook_orders_with_supplier__shipping__CRM_and_ERP_APIs.json)|

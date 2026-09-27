@@ -1,4 +1,4 @@
-# prevention : 7
+# prevention : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |12686|[12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
 |13969|[13969_Score_churn_risk_and_send_retention_emails_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13969_Score_churn_risk_and_send_retention_emails_with_Google_Sheets_and_Gmail.json)|
+|18349|[18349_Publish_a_booking_page_with_forms__data_tables__and_.ics_calendar_invites.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18349_Publish_a_booking_page_with_forms__data_tables__and_.ics_calendar_invites.json)|
+|18537|[18537_Predict_and_prevent_service_failures_with_Claude__ClickUp__and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18537_Predict_and_prevent_service_failures_with_Claude__ClickUp__and_WhatsApp_alerts.json)|

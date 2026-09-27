@@ -1,0 +1,727 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Add internal links to WordPress posts with OpenAI, Notion, and Slack",
+    "wechat": "youandme10086",
+    "id": 16985,
+    "update_time": "2026-09-27"
+  },
+  "name": "Add internal links to WordPress posts with AI embeddings",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "lite-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -40,
+        240
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "lite-sched",
+      "name": "Weekly Monday 9AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -40,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "lite-config",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        320
+      ],
+      "parameters": {
+        "jsCode": "// ┌─────────────────────────────────────────────┐\n// │  Edit the values below, then click Test workflow │\n// └─────────────────────────────────────────────┘\nconst config = {\n  brandName: 'Acme Analytics',     // used in Slack alerts\n  wpUrl:     'https://acme.com'    // your WordPress site\n};\nreturn [{ json: config }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ee537680-ade4-4608-84f1-c6ec03779f29",
+      "name": "Fetch All Posts",
+      "type": "n8n-nodes-base.wordpress",
+      "notes": "Fetches all published posts from WordPress.",
+      "maxTries": 3,
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {
+        "filter": {
+          "status": "publish",
+          "perPage": 100,
+          "postType": "post"
+        },
+        "resource": "post",
+        "operation": "getAll"
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "WP_CRED_ID",
+          "name": "WordPress API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "8d03e356-dbe6-4326-9fa5-319212cf6955",
+      "name": "Extract Post Data",
+      "type": "n8n-nodes-base.code",
+      "notes": "Cleans and extracts post data for embedding.",
+      "position": [
+        900,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Extract title + first 500 chars of content for embedding\nconst items = $input.all();\nreturn items.map(item => {\n  const json = item.json;\n  return {\n    json: {\n      id: json.id,\n      title: json.title?.rendered || json.title || '',\n      excerpt: (json.excerpt?.rendered || '').replace(/<[^>]+>/g, '').slice(0, 500),\n      url: json.link,\n      content: (json.content?.rendered || '').replace(/<[^>]+>/g, '').slice(0, 2000),\n      brandName: $('Configuration').first().json.brandName\n    }\n  };\n});\n"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "fef737b1-45d3-45b6-95c9-ac24ff30ef39",
+      "name": "Loop Embeddings",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        1120,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 20
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ffbb33a-789e-41a2-ae47-7bb8c334f450",
+      "name": "OpenAI Embeddings",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Generates embeddings for each post using text-embedding-3-small (cost-effective).",
+      "maxTries": 3,
+      "position": [
+        1640,
+        300
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/embeddings",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={\"model\": \"text-embedding-3-small\", \"input\": \"{{ $json.title + ' ' + $json.excerpt }}\"}",
+        "sendBody": true,
+        "sendQuery": false,
+        "contentType": "json",
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "queryParameters": {},
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CRED_ID",
+          "name": "OpenAI API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "62e88ec0-c124-4c7b-94a8-24a58356139d",
+      "name": "Build Link Graph",
+      "type": "n8n-nodes-base.code",
+      "notes": "Computes cosine similarity and identifies orphans + hub candidates.",
+      "position": [
+        1860,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build similarity matrix using cosine similarity\nconst items = $input.all();\n\n// Cosine similarity function\nfunction cosineSim(a, b) {\n  let dot = 0, magA = 0, magB = 0;\n  for (let i = 0; i < a.length; i++) {\n    dot += a[i] * b[i];\n    magA += a[i] * a[i];\n    magB += b[i] * b[i];\n  }\n  return dot / (Math.sqrt(magA) * Math.sqrt(magB));\n}\n\n// Compute pairwise similarities (top 5 per post)\nconst suggestions = [];\nfor (let i = 0; i < items.length; i++) {\n  const post = items[i].json;\n  const embedding = post.data?.[0]?.embedding || [];\n  if (embedding.length === 0) continue;\n\n  const sims = [];\n  for (let j = 0; j < items.length; j++) {\n    if (i === j) continue;\n    const other = items[j].json;\n    const otherEmb = other.data?.[0]?.embedding || [];\n    if (otherEmb.length === 0) continue;\n    const sim = cosineSim(embedding, otherEmb);\n    sims.push({targetPost: other, similarity: sim});\n  }\n\n  // Top 5 most similar\n  const top5 = sims.sort((a, b) => b.similarity - a.similarity).slice(0, 5);\n\n  // Identify orphans (no existing internal links pointing to this post)\n  suggestions.push({\n    sourcePost: {id: post.id, title: post.title, url: post.url, content: post.content},\n    suggestions: top5.filter(s => s.similarity > 0.7).map(s => ({\n      targetId: s.targetPost.id,\n      targetTitle: s.targetPost.title,\n      targetUrl: s.targetPost.url,\n      similarity: Math.round(s.similarity * 100) / 100\n    })),\n    isOrphan: top5.every(s => s.similarity < 0.6),\n    isHubCandidate: top5.filter(s => s.similarity > 0.8).length >= 5\n  });\n}\n\nreturn suggestions.map(s => ({json: s}));\n"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "a149120b-4c16-4482-b54c-065f85ed0cb3",
+      "name": "Has Suggestions?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2080,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ ($json.suggestions || []).length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a4a7093b-51ba-489a-905f-0a0a4512fd82",
+      "name": "Pick Anchor Text",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "notes": "Picks natural anchor text from source content.",
+      "maxTries": 3,
+      "position": [
+        2300,
+        300
+      ],
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.3,
+          "responseFormat": "json_object"
+        },
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "content": "You pick natural anchor text for internal links. Output JSON."
+            },
+            {
+              "role": "user",
+              "content": "=Source post: {{$json.sourcePost.title}}\nSource content (first 1000 chars): {{$json.sourcePost.content.slice(0, 1000)}}\nTarget posts: {{JSON.stringify($json.suggestions)}}\n\nFor each target, return JSON: [{\"targetId\": ..., \"targetTitle\": ..., \"anchorText\": \"<natural phrase from source content>\", \"suggestedSentence\": \"<the sentence in source where link should go>\"}]"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CRED_ID",
+          "name": "OpenAI API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "d2b3e102-8ff9-451f-ad6f-2e07f5ce6915",
+      "name": "Build Update Payload",
+      "type": "n8n-nodes-base.code",
+      "notes": "Builds updated content with injected internal links.",
+      "position": [
+        2820,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Build WP update payload with internal links injected\nconst json = $input.first().json;\nconst links = JSON.parse(json.message?.content || '[]');\n\n// Get original content and inject links\nlet updatedContent = json.sourcePost.content;\nlinks.forEach(link => {\n  if (link.anchorText && link.suggestedSentence) {\n    // Find the sentence and replace with linked version\n    const linkedSentence = link.suggestedSentence.replace(\n      link.anchorText,\n      `<a href=\"${link.targetUrl}\">${link.anchorText}</a>`\n    );\n    updatedContent = updatedContent.replace(link.suggestedSentence, linkedSentence);\n  }\n});\n\nreturn [{\n  json: {\n    ...json,\n    postId: json.sourcePost.id,\n    updatedContent,\n    injectedLinks: links.length\n  }\n}];\n"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "f3f1f456-e2ef-4a93-b3e0-fadd95a894e3",
+      "name": "Update WP Post",
+      "type": "n8n-nodes-base.wordpress",
+      "notes": "Updates post with new internal links. Set to draft first for review if preferred.",
+      "maxTries": 3,
+      "position": [
+        3040,
+        300
+      ],
+      "parameters": {
+        "postId": "={{ $json.postId }}",
+        "resource": "post",
+        "operation": "update",
+        "additionalFields": {
+          "content": "={{ $json.updatedContent }}"
+        }
+      },
+      "credentials": {
+        "wordpressApi": {
+          "id": "WP_CRED_ID",
+          "name": "WordPress API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "1e38a30d-d07e-49a7-adda-f24744bd8f73",
+      "name": "Log Link Updates",
+      "type": "n8n-nodes-base.notion",
+      "notes": "Logs internal link injections.",
+      "maxTries": 3,
+      "position": [
+        3260,
+        300
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "YOUR_LINK_LOG_DB",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Date|date",
+              "date": "={{ $today.toISODate() }}"
+            },
+            {
+              "key": "Post|title",
+              "title": "={{ $json.sourcePost.title }}"
+            },
+            {
+              "key": "Links Added|number",
+              "number": "={{ $json.injectedLinks }}"
+            },
+            {
+              "key": "Is Orphan|checkbox",
+              "checkbox": "={{ $json.isOrphan }}"
+            },
+            {
+              "key": "Is Hub Candidate|checkbox",
+              "checkbox": "={{ $json.isHubCandidate }}"
+            },
+            {
+              "key": "Client|select",
+              "select_name": "={{ $('Configuration').first().json.brandName }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "NOTION_CRED_ID",
+          "name": "Notion API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "a2b2025a-f385-429a-a877-37a0d016b247",
+      "name": "Is Orphan?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3480,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "eq"
+              },
+              "leftValue": "={{ $json.isOrphan }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aa36e4b5-b002-4344-a843-ec95944302dc",
+      "name": "Orphan Page Alert",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Alerts on orphan pages with no internal links.",
+      "maxTries": 3,
+      "position": [
+        3700,
+        300
+      ],
+      "parameters": {
+        "text": "=:warning: *Orphan page detected!*\n*Post*: {{$json.sourcePost.title}}\n*URL*: {{$json.sourcePost.url}}\n\nThis page has no semantic siblings above 0.6 similarity threshold. Consider:\n- Creating supporting cluster content\n- Adding manual internal links from pillar page\n- Improving content to align with topical cluster",
+        "select": "channel",
+        "channelId": "YOUR_SLACK_CHANNEL_ID",
+        "operation": "post",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "SLACK_CRED_ID",
+          "name": "Slack API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "b1e76ee5-97df-4ebc-885e-721786a6000a",
+      "name": "Hub Candidate?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3920,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "eq"
+              },
+              "leftValue": "={{ $json.isHubCandidate }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "32ff6b95-f651-4f26-b91a-fe9b43152964",
+      "name": "Hub Candidate Alert",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Alerts on hub page candidates.",
+      "maxTries": 3,
+      "position": [
+        4140,
+        300
+      ],
+      "parameters": {
+        "text": "=:star: *Hub page candidate identified!*\n*Post*: {{$json.sourcePost.title}}\n*URL*: {{$json.sourcePost.url}}\n\nThis post has 5+ semantic siblings above 0.8 similarity. Consider:\n- Upgrading to a comprehensive pillar page\n- Building a topic cluster around it\n- Adding a 'Related Posts' section",
+        "select": "channel",
+        "channelId": "YOUR_SLACK_CHANNEL_ID",
+        "operation": "post",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "SLACK_CRED_ID",
+          "name": "Slack API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "main",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -817
+      ],
+      "parameters": {
+        "width": 760,
+        "height": 967,
+        "content": "## Add Internal Links to WordPress Posts with AI\n\nReads every published post on your WordPress site, uses AI embeddings to find the posts that are genuinely related, writes natural anchor-text links between them, and flags orphan pages (no internal links in) and hub candidates (strong link targets). Internal linking is one of the highest-impact on-page SEO tasks, and this runs it for you every week.\n\n**Who's it for:** WordPress site owners and content teams who want internal linking handled automatically.\n\n## How it works\n1. Fetches all published WordPress posts.\n2. Creates OpenAI embeddings for each post.\n3. Ranks the most semantically related posts for every article.\n4. Picks natural anchor text with AI and updates the post.\n5. Logs each change to Notion and alerts Slack on orphan and hub pages.\n\n## Setup\n1. Add credentials: WordPress, OpenAI (Header Auth, Bearer token), Notion, Slack.\n2. Open the Configuration node and set your brand and site URL.\n3. Create a Notion 'Link Updates' database with columns: Date (date), Post (title), Links Added (number), Is Orphan (checkbox), Is Hub Candidate (checkbox), Client (select). Select it in Log Link Updates.\n4. Set your Slack channel.\n5. Run with Test workflow first to preview link edits, then activate. Tip: disable Update WP Post to preview before writing live changes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sec0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        170
+      ],
+      "parameters": {
+        "color": "color7",
+        "width": 700,
+        "height": 90,
+        "content": "## 1. Read all posts"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sec1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        170
+      ],
+      "parameters": {
+        "color": "color7",
+        "width": 920,
+        "height": 90,
+        "content": "## 2. Embed & match"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sec2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2780,
+        170
+      ],
+      "parameters": {
+        "color": "color7",
+        "width": 1580,
+        "height": 90,
+        "content": "## 3. Link, log & alert"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Is Orphan?": {
+      "main": [
+        [
+          {
+            "node": "Orphan Page Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Hub Candidate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Fetch All Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hub Candidate?": {
+      "main": [
+        [
+          {
+            "node": "Hub Candidate Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update WP Post": {
+      "main": [
+        [
+          {
+            "node": "Log Link Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch All Posts": {
+      "main": [
+        [
+          {
+            "node": "Extract Post Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Embeddings": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Link Graph": {
+      "main": [
+        [
+          {
+            "node": "Has Suggestions?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Suggestions?": {
+      "main": [
+        [
+          {
+            "node": "Pick Anchor Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Link Updates": {
+      "main": [
+        [
+          {
+            "node": "Is Orphan?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick Anchor Text": {
+      "main": [
+        [
+          {
+            "node": "Build Update Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Post Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Embeddings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Embeddings": {
+      "main": [
+        [
+          {
+            "node": "Build Link Graph",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Orphan Page Alert": {
+      "main": [
+        [
+          {
+            "node": "Hub Candidate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Monday 9AM": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Update Payload": {
+      "main": [
+        [
+          {
+            "node": "Update WP Post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

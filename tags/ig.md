@@ -1,4 +1,4 @@
-# ig : 11
+# ig : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |9388|[9388_AI-Powered_Social_Media_Ad_Creation_With_Website_Scraping_for_FB__IG___Pinterest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9388_AI-Powered_Social_Media_Ad_Creation_With_Website_Scraping_for_FB__IG___Pinterest.json)|
 |14031|[14031_Generate_TikTok_and_Instagram_reel_clips_from_YouTube_videos_with_Vizard_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14031_Generate_TikTok_and_Instagram_reel_clips_from_YouTube_videos_with_Vizard_AI.json)|
 |14825|[14825_Turn_top_Instagram_reels_into_7_new_scripts_using_Apify__OpenAI__Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14825_Turn_top_Instagram_reels_into_7_new_scripts_using_Apify__OpenAI__Claude_and_Google_Sheets.json)|
+|17021|[17021_Post_TikTok__YouTube_Shorts_and_Instagram_Reels_with_Airtable__OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17021_Post_TikTok__YouTube_Shorts_and_Instagram_Reels_with_Airtable__OpenAI_and_Google.json)|

@@ -1,0 +1,573 @@
+{
+  "name": "Track Bing keyword rankings week over week in Google Sheets",
+  "nodes": [
+    {
+      "id": "c4f7086b-0001-4d01-e001-000000000001",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "c4f7086b-0002-4d02-e002-000000000002",
+      "name": "Read the rank history",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "c4f7086b-0003-4d03-e003-000000000003",
+      "name": "Set the keywords to track",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        300,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c4f7086b-0011-4d11-e011-+1234567890",
+              "name": "keywords",
+              "type": "array",
+              "value": "[\"web scraping tutorial\", \"how to scrape a website\"]"
+            },
+            {
+              "id": "c4f7086b-0012-4d12-e012-+1234567890",
+              "name": "yourDomain",
+              "type": "string",
+              "value": "apify.com"
+            },
+            {
+              "id": "c4f7086b-0013-4d13-e013-+1234567890",
+              "name": "market",
+              "type": "string",
+              "value": "en-US"
+            },
+            {
+              "id": "c4f7086b-0014-4d14-e014-+1234567890",
+              "name": "device",
+              "type": "string",
+              "value": "desktop"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c4f7086b-0004-4d04-e004-000000000004",
+      "name": "One search per keyword",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        560,
+        700
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "keywords"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0005-4d05-e005-000000000005",
+      "name": "Search Bing",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        820,
+        700
+      ],
+      "parameters": {
+        "memory": 128,
+        "actorId": "johnvc~bing-search-api",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ query: $json.keywords, max_pages: 1, market: $json.market, device: $json.device }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0006-4d06-e006-000000000006",
+      "name": "Keep organic results",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1080,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c4f7086b-0041-4d41-e041-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.resultType }}",
+              "rightValue": "organic"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c4f7086b-0007-4d07-e007-000000000007",
+      "name": "Compare with last week",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1340,
+        700
+      ],
+      "parameters": {
+        "jsCode": "// One row per organic result, with your own domain flagged, then compared\n// against the last snapshot already in the sheet so the row says which way it\n// moved instead of just where it sits today.\nconst cfg = $('Set the keywords to track').first().json;\nconst domain = String(cfg.yourDomain || '').trim().toLowerCase().replace(/^www\\./, '');\nconst weekOf = $now.toFormat('yyyy-MM-dd');\n\nconst clip = (s, n) => {\n  const v = String(s || '').replace(/\\s+/g, ' ').trim();\n  return v.length > n ? v.slice(0, n - 3) + '...' : v;\n};\n\n// Match on hostname so a path or a www prefix does not break the flag.\n// Parsed with a regex rather than new URL(), which is not available in the\n// n8n Code sandbox and fails silently inside a try/catch.\nconst hostOf = (u) => {\n  const m = String(u || '').match(/^https?:\\/\\/([^/?#]+)/i);\n  return m ? m[1].toLowerCase().replace(/^www\\./, '') : '';\n};\n\n// The sheet holds every week that has ever run, so reduce it to the most recent\n// snapshot that is not today's, keyed by keyword and URL. Empty on the first\n// run, and the node is set to carry on if the tab does not exist yet.\nlet history = [];\ntry {\n  history = $('Read the rank history').all().map((i) => i.json);\n} catch (e) {\n  history = [];\n}\n\nconst previous = {};\nfor (const h of history) {\n  const week = String(h['Week of'] || '');\n  const rank = Number(h.Rank);\n  if (!week || week >= weekOf || !isFinite(rank)) continue;\n  const key = `${h.Keyword}||${h.URL}`;\n  if (!previous[key] || week > previous[key].week) {\n    previous[key] = { week, rank };\n  }\n}\n\nreturn $input.all().map((item) => {\n  const r = item.json;\n  const host = hostOf(r.url);\n  const mine = domain !== '' && (host === domain || host.endsWith('.' + domain));\n  const rank = Number(r.position);\n  const prev = previous[`${r.query || ''}||${r.url || ''}`];\n\n  // Rank counts upward while position improves downward, so last week minus\n  // this week is positive when a result has climbed.\n  const movement = prev && isFinite(rank) ? prev.rank - rank : '';\n  let status = 'New';\n  if (prev && isFinite(rank)) {\n    status = rank < prev.rank ? 'Up' : rank > prev.rank ? 'Down' : 'Flat';\n  }\n\n  return {\n    json: {\n      'Week of': weekOf,\n      Keyword: r.query || '',\n      Page: r.page ?? '',\n      Rank: r.position ?? '',\n      'Last week': prev ? prev.rank : '',\n      Movement: movement,\n      Status: status,\n      'Is your site': mine ? 'YES' : '',\n      Title: clip(r.title, 180),\n      Domain: host,\n      Snippet: clip(r.snippet, 300),\n      URL: r.url || '',\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4f7086b-0008-4d08-e008-000000000008",
+      "name": "Append this week's ranks",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1600,
+        700
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "c4f7086b-0021-4d21-e021-000000000021",
+      "name": "Optional: only the results that slipped",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        400,
+        1850
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c4f7086b-0081-4d81-e081-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.Status }}",
+              "rightValue": "Down"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c4f7086b-0022-4d22-e022-000000000022",
+      "name": "Optional: post movers to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        700,
+        1850
+      ],
+      "parameters": {
+        "text": "=:chart_with_downwards_trend: {{ $json.Keyword }}: {{ $json.Domain }} moved {{ $json.Movement }} to position {{ $json.Rank }} (was {{ $json['Last week'] }})\n{{ $json.URL }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": ""
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "c4f7086b-0023-4d23-e023-000000000023",
+      "name": "Optional: average position per keyword",
+      "type": "n8n-nodes-base.summarize",
+      "position": [
+        1000,
+        1850
+      ],
+      "parameters": {
+        "options": {},
+        "fieldsToSplitBy": "Keyword",
+        "fieldsToSummarize": {
+          "values": [
+            {
+              "field": "Rank",
+              "aggregation": "average"
+            },
+            {
+              "field": "URL",
+              "aggregation": "count"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c4f7086b-0101-4d01-f001-000000000101",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1700,
+        "content": "## Track Bing keyword rankings week over week\n\nMost rank trackers charge per keyword per month. This runs on a schedule you own, writes to a sheet you own, and costs a fraction of a cent per keyword per week.\n\nThe part that matters is the comparison. Before searching, the workflow **reads the rank history back out of your sheet**, finds the last snapshot for each keyword and URL, and writes three extra columns: where the result sat last week, how many places it moved, and whether that is Up, Down, Flat or New. A rank list tells you where you are. This tells you what changed.\n\n**Who's it for**\nSEO teams who track Bing alongside Google, agencies reporting movement to clients, and anyone who wants a rank history they own rather than a dashboard subscription.\n\n**How it works**\n1. A schedule trigger fires once a week\n2. One branch reads the existing history out of the sheet\n3. The other sets your keywords and searches Bing for each\n4. A Code node flags your own domain and works out the movement against the last snapshot\n5. Everything appends to the sheet, which becomes next week's history\n\n**Setup**\n1. Create a free Apify account and add your API token to the Apify credential\n2. Connect your Google account and point **both** Sheets nodes at the same spreadsheet and tab\n3. Replace the example keywords and set your own domain\n\n**The first run**\nThere is no history yet, so every row comes back as New and the movement columns stay empty. That is expected. The read node is set to carry on if the tab does not exist, so the first run creates it and the second run starts reporting movement.\n\n**Make it yours**\nThree optional nodes sit unconnected at the bottom. Wire them off **Compare with last week** to alert only on results that slipped, post movers to Slack, or roll the run up into an average position per keyword.\n\n**Good to know**\nCommercial queries return far fewer organic rows because Bing gives ads the space, so a thin result set is the search engine, not the workflow.\nActor: https://apify.com/johnvc/bing-search-api?fpr=9n7kx3&fp_sid=n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0102-4d02-f002-000000000102",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 1. Schedule\nRuns every Monday morning. Change the cadence, or swap in a manual trigger while you test."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0103-4d03-f003-000000000103",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        260,
+        -20
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 340,
+        "height": 320,
+        "content": "### 2. Last week's numbers\nReads the history back out of the same sheet you write to. This is what makes movement possible. Point it at the same spreadsheet and tab as the append node at the end.\n\nIt is set to carry on if the tab is not there yet, so the very first run cannot fail here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0104-4d04-f004-000000000104",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 270,
+        "content": "### 3. Your input\nThe keywords to track, your own domain, and the market and device to search as. This is the only node you edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0105-4d05-f005-000000000105",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        540,
+        900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 270,
+        "content": "### 4. Fan out\nTurns your keyword list into one Bing search each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0106-4d06-f006-000000000106",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 270,
+        "content": "### 5. Fetch\nRuns the Bing Search actor for one keyword. Add your Apify credential here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0107-4d07-f007-000000000107",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1060,
+        900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 270,
+        "content": "### 6. Clean\nKeeps only organic results, so ads and answer boxes never enter the rank history."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0108-4d08-f008-000000000108",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        900
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 240,
+        "height": 270,
+        "content": "### 7. Compare\nFlags your domain, then looks up each keyword and URL in the history to fill in Last week, Movement and Status. Positive movement means it climbed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0109-4d09-f009-000000000109",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1580,
+        900
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 270,
+        "content": "### 8. Deliver\nAppends this week's rows, which become the history the next run reads. Columns map automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0110-4d10-f010-000000000110",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        1180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 330,
+        "content": "### Reading Movement\nRank counts upward but a better position is a smaller number, so the column is last week's rank minus this week's. **Positive means it climbed.** Status says the same thing in a word, and New means the URL was not in the last snapshot at all, which is either a genuine arrival or a result that dropped out and came back."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0111-4d11-f011-000000000111",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        1180
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 330,
+        "content": "### Both Sheets nodes, one tab\nThe read at the start and the append at the end must point at the same spreadsheet and the same tab. If they diverge the history is always empty and every row reads as New forever, which is the one silent way to misconfigure this."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0112-4d12-f012-000000000112",
+      "name": "Sticky Note11",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        1180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 330,
+        "content": "### Prefer a dedicated node?\nThere is a community node for this actor: `n8n-nodes-bing-search-api`. Install it from Settings then Community nodes if you would rather configure Bing with typed fields than a JSON body. This template uses the official verified Apify node so it runs on n8n Cloud with nothing to install."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4f7086b-0113-4d13-f013-000000000113",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        200,
+        1560
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1120,
+        "height": 440,
+        "content": "## Optional add-ons, not wired up\n\nThese three are deliberately left unconnected. Wire whichever you want off **Compare with last week**, and delete the rest.\n\n**Only the results that slipped** keeps the Down rows, which is the short list worth reading on a Monday. **Slack** posts those movers into a channel and needs its own credential. **Average position per keyword** collapses the run into one line per keyword, which is the number clients ask for."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Search Bing": {
+      "main": [
+        [
+          {
+            "node": "Keep organic results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Read the rank history",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set the keywords to track",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep organic results": {
+      "main": [
+        [
+          {
+            "node": "Compare with last week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare with last week": {
+      "main": [
+        [
+          {
+            "node": "Append this week's ranks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One search per keyword": {
+      "main": [
+        [
+          {
+            "node": "Search Bing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set the keywords to track": {
+      "main": [
+        [
+          {
+            "node": "One search per keyword",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Track weekly Bing keyword rankings with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 17909,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# tweet : 14
+# tweet : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |8223|[8223_Auto-Post_Platform-Optimized_Content_to_X_and_Threads_with_Late_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8223_Auto-Post_Platform-Optimized_Content_to_X_and_Threads_with_Late_API_and_Google_Sheets.json)|
 |8435|[8435_Automated_Content___Promo_Tweet_Scheduler_with_Gemini_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8435_Automated_Content___Promo_Tweet_Scheduler_with_Gemini_AI_and_Google_Sheets.json)|
 |9355|[9355_Daily_Competitor_Tweet_Summarizer_with_X_API__GPT-5-Nano__and_Gmail_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9355_Daily_Competitor_Tweet_Summarizer_with_X_API__GPT-5-Nano__and_Gmail_Delivery.json)|
+|18463|[18463_Generate_blog_posts_and_tweet_threads_from_YouTube_with_Supadata_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18463_Generate_blog_posts_and_tweet_threads_from_YouTube_with_Supadata_and_OpenAI.json)|

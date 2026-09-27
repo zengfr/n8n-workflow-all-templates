@@ -1,4 +1,4 @@
-# overview : 6
+# overview : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |7539|[7539_Extract_Citation_Sources_from_Google_AI_Overview_to_Google_Sheets_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7539_Extract_Citation_Sources_from_Google_AI_Overview_to_Google_Sheets_with_DataForSEO.json)|
 |12291|[12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12291_Summarize_SE_Ranking_AI_search_visibility_using_OpenAI_GPT-4.1-mini.json)|
 |13431|[13431_Get_new_ranked_Google_AI_Overview_keywords_via_email_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13431_Get_new_ranked_Google_AI_Overview_keywords_via_email_with_DataForSEO.json)|
+|18465|[18465_Track_Google_AI_Overview_citations_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18465_Track_Google_AI_Overview_citations_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|
+|18577|[18577_Monitor_Google_AI_Overview_visibility_and_SEO_alerts_with_Pangolinfo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18577_Monitor_Google_AI_Overview_visibility_and_SEO_alerts_with_Pangolinfo.json)|

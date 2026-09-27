@@ -1,4 +1,4 @@
-# llama : 42
+# llama : 49
 
 |id|file|
 |----|----|
@@ -44,3 +44,10 @@
 |16551|[16551_Send_daily_LinkedIn_post_drafts_with_Tavily__Groq_Llama_3.3_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16551_Send_daily_LinkedIn_post_drafts_with_Tavily__Groq_Llama_3.3_and_Gmail.json)|
 |16577|[16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json)|
 |16660|[16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json)|
+|17265|[17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json)|
+|17299|[17299_Score_leads_and_send_personal_shopper_emails_with_Llama_3.2__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17299_Score_leads_and_send_personal_shopper_emails_with_Llama_3.2__Gmail__and_Sheets.json)|
+|17365|[17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17365_Label_Gmail_emails_by_priority_with_Groq_Llama_3.3.json)|
+|17477|[17477_Draft_Gmail_reply_suggestions_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17477_Draft_Gmail_reply_suggestions_with_Groq_Llama_3.3.json)|
+|17801|[17801_Generate_personalized_wealth_plans_from_Google_Sheets_using_Groq_Llama_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17801_Generate_personalized_wealth_plans_from_Google_Sheets_using_Groq_Llama_3.json)|
+|18393|[18393_Analyze_procurement_spend_with_Google_Sheets__Groq_Llama_3.3__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18393_Analyze_procurement_spend_with_Google_Sheets__Groq_Llama_3.3__Notion__and_Gmail.json)|
+|18493|[18493_Match_and_approve_invoices_with_Google_Sheets__Groq_Llama_3.3__Notion_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18493_Match_and_approve_invoices_with_Google_Sheets__Groq_Llama_3.3__Notion_and_Gmail.json)|

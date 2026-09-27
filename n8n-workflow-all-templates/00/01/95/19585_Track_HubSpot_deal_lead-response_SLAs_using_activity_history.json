@@ -1,0 +1,1218 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track HubSpot deal lead-response SLAs using activity history",
+    "wechat": "youandme10086",
+    "id": 19585,
+    "update_time": "2026-09-27"
+  },
+  "name": "Monitor HubSpot lead response SLAs",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "cfb8b940-54aa-4d59-a7a1-c4dc7b7952dd",
+      "name": "Manual Test Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -2120,
+        220
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "fa30674d-7b38-4e12-b054-ccfbd850f954",
+      "name": "Every 5 Minutes (Disabled Until Publish)",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "disabled": true,
+      "position": [
+        -2120,
+        420
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 5
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "968aabb6-54e2-404f-98be-8d3bdce120b1",
+      "name": "Find Deals to Monitor",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -1840,
+        300
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/objects/2026-03/deals/search",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 250
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ { filterGroups: [{ filters: [{ propertyName: \"lead_response_sla_status\", operator: \"EQ\", value: \"AWAITING_RESPONSE\" }, { propertyName: \"delivery_status\", operator: \"EQ\", value: \"DELIVERED\" }] }, { filters: [{ propertyName: \"lead_response_sla_status\", operator: \"EQ\", value: \"BREACHED\" }, { propertyName: \"delivery_status\", operator: \"EQ\", value: \"DELIVERED\" }, { propertyName: \"first_human_response_at\", operator: \"NOT_HAS_PROPERTY\" }] }], properties: [\"hs_object_id\",\"lead_received_at\",\"first_human_response_at\",\"lead_response_sla_status\",\"delivery_status\",\"hubspot_owner_id\",\"dealname\"], sorts: [{ propertyName: \"lead_received_at\", direction: \"ASCENDING\" }], limit: 200 } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4c8820d8-0874-444b-82c4-5e05d8ddf26c",
+      "name": "Parse Deal Search",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1580,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const status = Number($json.statusCode) || 0;\n    const parseJson = value => {\n      if (value === undefined || value === null || value === '') return null;\n      if (typeof value === 'object') return value;\n      if (typeof value !== 'string') return null;\n      try { return JSON.parse(value); } catch { return null; }\n    };\n    const failure = (reason, upstreamStatus = status) => ({\n      json: {\n        result: 'hubspot_failure',\n        step: 'Find Deals to Monitor',\n        reason,\n        retryable: !upstreamStatus || upstreamStatus === 429 || upstreamStatus >= 500,\n        upstream_status: upstreamStatus || null\n      }\n    });\n    if (status !== 200) {\n      return [failure('HubSpot Deal search failed; no SLA records were changed.')];\n    }\n    const response = parseJson($json.body ?? $json.data);\n    if (!response || !Array.isArray(response.results) || !Number.isInteger(Number(response.total))) {\n      return [failure('HubSpot returned an unreadable Deal search response.')];\n    }\n    if (response.paging?.next?.after) {\n      return [failure('More than 200 Deals need SLA tracking. This run stopped without writes; reduce the backlog or add reviewed pagination.', 422)];\n    }\n    if (Number(response.total) !== response.results.length) {\n      return [failure('HubSpot Deal search response was internally inconsistent.')];\n    }\n    if (!response.results.length) {\n      return [{ json: { result: 'no_deals_to_monitor' } }];\n    }\n    const run_started_at = new Date().toISOString();\n    return response.results.map(deal => ({\n      json: {\n        deal_id: String(deal?.id ?? deal?.properties?.hs_object_id ?? ''),\n        deal_properties: deal?.properties ?? {},\n        run_started_at\n      }\n    }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9e59fcd3-e6e0-4b91-a92f-42d32cef688b",
+      "name": "Deal Search Succeeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1320,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "87b375c0-b8f1-44b8-93ee-f62fb4795ffd",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.result !== \"hubspot_failure\" }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "1eef6f7f-5f7f-4049-b364-124ed2c9feed",
+      "name": "Deals Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1080,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "13145732-cbab-4c24-a014-5204aaef7dee",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.result !== \"no_deals_to_monitor\" }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0ed7ecf9-3ccb-449e-9697-55c5a71c0c19",
+      "name": "Return No Deals to Monitor",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -840,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "return { json: { result: 'no_deals_to_monitor' } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c27d0744-efb1-482f-b86d-d7f87d5b0eb5",
+      "name": "Validate SLA Case",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -820,
+        180
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = { ...$json };\n    const properties = data.deal_properties ?? {};\n    const errors = [];\n    const dealId = String(data.deal_id ?? '').trim();\n    const receivedRaw = properties.lead_received_at;\n    const receivedMs = Date.parse(receivedRaw);\n    const runStartedMs = Date.parse(data.run_started_at);\n    const ownerId = String(properties.hubspot_owner_id ?? '').trim();\n    const currentStatus = String(properties.lead_response_sla_status ?? '').trim();\n    if (!dealId) errors.push('Deal ID is missing.');\n    if (!receivedRaw || !Number.isFinite(receivedMs)) errors.push('lead_received_at is missing or malformed.');\n    if (!Number.isFinite(runStartedMs)) errors.push('run_started_at is missing or malformed.');\n    if (Number.isFinite(receivedMs) && Number.isFinite(runStartedMs) && receivedMs > runStartedMs) errors.push('lead_received_at is in the future.');\n    if (!ownerId) errors.push('hubspot_owner_id is missing; assigned-salesperson activity cannot be qualified.');\n    if (!['AWAITING_RESPONSE', 'BREACHED'].includes(currentStatus)) errors.push('Deal is not awaiting response tracking.');\n    if (properties.delivery_status !== 'DELIVERED') errors.push('Deal is not DELIVERED.');\n    if (properties.first_human_response_at) errors.push('first_human_response_at is already populated while monitoring is active.');\n    if (errors.length) {\n      return {\n        json: {\n          result: 'manual_review_required',\n          deal_id: dealId || undefined,\n          reason: errors.join(' ')\n        }\n      };\n    }\n    data.deal_id = dealId;\n    data.owner_id = ownerId;\n    data.current_sla_status = currentStatus;\n    data.lead_received_at = new Date(receivedMs).toISOString();\n    data.sla_deadline_at = new Date(receivedMs + 30 * 60 * 1000).toISOString();\n    data.case_valid = true;\n    delete data.deal_properties;\n    return { json: data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4f7a7351-8115-4ed8-96b5-c75776b5babc",
+      "name": "SLA Case Valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -580,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f5f696f6-2fd6-477f-94cb-1fdaf52535d8",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.case_valid === true }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "d1ef7f5e-cb21-49dc-9685-ddd57c6bc973",
+      "name": "Return Manual Review",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -340,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const result = { result: 'manual_review_required', reason: $json.reason || 'Deal state is invalid.' };\n    if ($json.deal_id) result.deal_id = String($json.deal_id);\n    return { json: result };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2fe8267f-ba54-484c-a0a3-5183ef25feee",
+      "name": "Find Deal Emails",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -320,
+        80
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/objects/2026-03/emails/search",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 250
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ { filterGroups: [{ filters: [{ propertyName: \"associations.deal\", operator: \"EQ\", value: String($json.deal_id) }] }], properties: [\"hs_timestamp\",\"hs_email_direction\",\"hs_email_status\",\"hubspot_owner_id\"], sorts: [{ propertyName: \"hs_timestamp\", direction: \"ASCENDING\" }], limit: 200 } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c3ebf308-c04a-4a58-9d6b-3fdaea299d34",
+      "name": "Parse Email Search",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -60,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = { ...$('Validate SLA Case').item.json };\n    const status = Number($json.statusCode) || 0;\n    const parseJson = value => {\n      if (value === undefined || value === null || value === '') return null;\n      if (typeof value === 'object') return value;\n      if (typeof value !== 'string') return null;\n      try { return JSON.parse(value); } catch { return null; }\n    };\n    const fail = reason => ({\n      ...data,\n      result: 'hubspot_failure',\n      step: 'Find Deal Emails',\n      reason,\n      retryable: !status || status === 429 || status >= 500,\n      upstream_status: status || null\n    });\n    if (status !== 200) return { json: fail('HubSpot email search failed; Deal state was preserved.') };\n    const response = parseJson($json.body ?? $json.data);\n    if (!response || !Array.isArray(response.results)) return { json: fail('HubSpot returned an unreadable email search response.') };\n    if (response.paging?.next?.after) return { json: fail('More than 200 Deal emails require review; no SLA update was made.') };\n    data.email_activities = response.results;\n    return { json: data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "acb26d92-13ce-4855-a193-a0773ae4be25",
+      "name": "Email Search Succeeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        200,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ffde1b12-817e-41d1-a8e2-1f8fcb5adb10",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.result !== \"hubspot_failure\" }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "bad8f1c3-1d1d-44c2-aee1-9ef290cbc693",
+      "name": "Find Deal Calls",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        440,
+        80
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/objects/2026-03/calls/search",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 250
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ { filterGroups: [{ filters: [{ propertyName: \"associations.deal\", operator: \"EQ\", value: String($json.deal_id) }] }], properties: [\"hs_timestamp\",\"hs_call_status\",\"hubspot_owner_id\"], sorts: [{ propertyName: \"hs_timestamp\", direction: \"ASCENDING\" }], limit: 200 } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ed3300bb-754a-48b9-a8d3-ae6d657e7bba",
+      "name": "Parse Call Search",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        700,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = { ...$('Parse Email Search').item.json };\n    const status = Number($json.statusCode) || 0;\n    const parseJson = value => {\n      if (value === undefined || value === null || value === '') return null;\n      if (typeof value === 'object') return value;\n      if (typeof value !== 'string') return null;\n      try { return JSON.parse(value); } catch { return null; }\n    };\n    const fail = reason => ({\n      ...data,\n      result: 'hubspot_failure',\n      step: 'Find Deal Calls',\n      reason,\n      retryable: !status || status === 429 || status >= 500,\n      upstream_status: status || null\n    });\n    if (status !== 200) return { json: fail('HubSpot call search failed; Deal state was preserved.') };\n    const response = parseJson($json.body ?? $json.data);\n    if (!response || !Array.isArray(response.results)) return { json: fail('HubSpot returned an unreadable call search response.') };\n    if (response.paging?.next?.after) return { json: fail('More than 200 Deal calls require review; no SLA update was made.') };\n    data.call_activities = response.results;\n    return { json: data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cdb2442b-5d18-40c9-b0ab-67a8e53e32f6",
+      "name": "Call Search Succeeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        960,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8e4ff6a4-56cf-4d6c-976f-58daf17c47a6",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.result !== \"hubspot_failure\" }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "1793748a-0b26-4e02-9db9-bd2fca2b1434",
+      "name": "Find Deal Meetings",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1200,
+        80
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/objects/2026-03/meetings/search",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 250
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ { filterGroups: [{ filters: [{ propertyName: \"associations.deal\", operator: \"EQ\", value: String($json.deal_id) }] }], properties: [\"hs_timestamp\",\"hs_meeting_start_time\",\"hs_meeting_outcome\",\"hubspot_owner_id\"], sorts: [{ propertyName: \"hs_timestamp\", direction: \"ASCENDING\" }], limit: 200 } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b7a93da6-b887-4e59-8cd3-dad2221a01e9",
+      "name": "Parse Meeting Search",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1460,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = { ...$('Parse Call Search').item.json };\n    const status = Number($json.statusCode) || 0;\n    const parseJson = value => {\n      if (value === undefined || value === null || value === '') return null;\n      if (typeof value === 'object') return value;\n      if (typeof value !== 'string') return null;\n      try { return JSON.parse(value); } catch { return null; }\n    };\n    const fail = reason => ({\n      ...data,\n      result: 'hubspot_failure',\n      step: 'Find Deal Meetings',\n      reason,\n      retryable: !status || status === 429 || status >= 500,\n      upstream_status: status || null\n    });\n    if (status !== 200) return { json: fail('HubSpot meeting search failed; Deal state was preserved.') };\n    const response = parseJson($json.body ?? $json.data);\n    if (!response || !Array.isArray(response.results)) return { json: fail('HubSpot returned an unreadable meeting search response.') };\n    if (response.paging?.next?.after) return { json: fail('More than 200 Deal meetings require review; no SLA update was made.') };\n    data.meeting_activities = response.results;\n    return { json: data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6d5494ae-cb04-4f16-94e4-efaad40a57e3",
+      "name": "Meeting Search Succeeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1720,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bbcea351-e6d3-4717-84ce-4b870404a8f7",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.result !== \"hubspot_failure\" }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e56ccdda-41b9-4aa3-af6c-4513111b672e",
+      "name": "Normalize Qualifying Responses",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1960,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = { ...$json };\n    const candidates = [];\n    const receivedMs = Date.parse(data.lead_received_at);\n    const runStartedMs = Date.parse(data.run_started_at);\n    const normalize = (value, type, activityId) => {\n      const ms = Date.parse(value);\n      if (!Number.isFinite(ms) || ms < receivedMs || ms > runStartedMs) return;\n      candidates.push({ type, activity_id: String(activityId), timestamp: new Date(ms).toISOString(), ms });\n    };\n    const explicitlyNonSentEmailStatuses = new Set(['BOUNCED', 'FAILED', 'SCHEDULED', 'SENDING']);\n    for (const activity of data.email_activities ?? []) {\n      const p = activity?.properties ?? {};\n      const owned = String(p.hubspot_owner_id ?? '') === data.owner_id;\n      const direction = String(p.hs_email_direction ?? '').trim().toUpperCase();\n      const status = String(p.hs_email_status ?? '').trim().toUpperCase();\n      if (owned && direction === 'EMAIL' && !explicitlyNonSentEmailStatuses.has(status)) {\n        normalize(p.hs_timestamp, 'email', activity.id);\n      }\n    }\n    for (const activity of data.call_activities ?? []) {\n      const p = activity?.properties ?? {};\n      const owned = String(p.hubspot_owner_id ?? '') === data.owner_id;\n      if (owned && String(p.hs_call_status ?? '').toUpperCase() === 'COMPLETED') {\n        normalize(p.hs_timestamp, 'call', activity.id);\n      }\n    }\n    const explicitlyNonCompletedMeetingOutcomes = new Set(['CANCELED', 'CANCELLED', 'NO_SHOW', 'RESCHEDULED', 'SCHEDULED']);\n    for (const activity of data.meeting_activities ?? []) {\n      const p = activity?.properties ?? {};\n      const owned = String(p.hubspot_owner_id ?? '') === data.owner_id;\n      const outcome = String(p.hs_meeting_outcome ?? '').trim().toUpperCase().replace(/[\\s-]+/g, '_');\n      const meetingTimestamp = Number.isFinite(Date.parse(p.hs_meeting_start_time)) ? p.hs_meeting_start_time : p.hs_timestamp;\n      if (owned && !explicitlyNonCompletedMeetingOutcomes.has(outcome)) {\n        normalize(meetingTimestamp, 'meeting', activity.id);\n      }\n    }\n    candidates.sort((a, b) => a.ms - b.ms || a.type.localeCompare(b.type) || a.activity_id.localeCompare(b.activity_id));\n    const earliest = candidates[0];\n    data.qualifying_response_count = candidates.length;\n    data.first_human_response_at = earliest?.timestamp;\n    data.first_response_type = earliest?.type;\n    data.first_response_activity_id = earliest?.activity_id;\n    delete data.email_activities;\n    delete data.call_activities;\n    delete data.meeting_activities;\n    return { json: data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "90e0d1d1-9ad7-4a9f-a84f-92e33f8b6143",
+      "name": "Earliest Response Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2220,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "84ddeaf8-4a1a-4500-a5b1-62b605afe243",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ Boolean($json.first_human_response_at) }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "58bf5e78-956f-4876-8430-2a0ae2c41fe3",
+      "name": "Evaluate SLA",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2460,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = { ...$json };\n    const deadlineMs = Date.parse(data.sla_deadline_at);\n    const responseMs = data.first_human_response_at ? Date.parse(data.first_human_response_at) : null;\n    const nowMs = Date.now();\n    if (!Number.isFinite(deadlineMs) || (responseMs !== null && !Number.isFinite(responseMs))) {\n      return { json: { result: 'manual_review_required', deal_id: data.deal_id, reason: 'SLA deadline or qualifying response timestamp is malformed.' } };\n    }\n    if (responseMs !== null) {\n      if (responseMs <= deadlineMs) {\n        data.result = 'responded_in_sla';\n        data.lead_response_sla_status = 'RESPONDED_IN_SLA';\n      } else {\n        data.result = 'late_response';\n        data.lead_response_sla_status = 'BREACHED';\n      }\n      data.update_properties = {\n        first_human_response_at: data.first_human_response_at,\n        lead_response_sla_status: data.lead_response_sla_status\n      };\n      data.requires_update = true;\n      return { json: data };\n    }\n    if (data.current_sla_status === 'BREACHED') {\n      data.result = 'sla_breached_awaiting_response';\n      data.lead_response_sla_status = 'BREACHED';\n      data.requires_update = false;\n      return { json: data };\n    }\n    if (nowMs > deadlineMs) {\n      data.result = 'sla_breached';\n      data.lead_response_sla_status = 'BREACHED';\n      data.update_properties = { lead_response_sla_status: 'BREACHED' };\n      data.requires_update = true;\n      return { json: data };\n    }\n    data.result = 'sla_within_target';\n    data.lead_response_sla_status = 'AWAITING_RESPONSE';\n    data.requires_update = false;\n    return { json: data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4de11e73-91d8-460f-a62f-88abf72cd629",
+      "name": "HubSpot Update Required?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2700,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e1428a3d-ea9c-48d9-9086-7f39f05533fd",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.requires_update === true }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c2adeaa8-b6b5-4ac8-8f45-bbb33dc8f437",
+      "name": "Update Deal SLA State",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        2940,
+        0
+      ],
+      "parameters": {
+        "url": "={{ \"https://api.hubapi.com/crm/objects/2026-03/deals/\" + encodeURIComponent($json.deal_id) }}",
+        "method": "PATCH",
+        "options": {
+          "timeout": 15000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 250
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ { properties: $json.update_properties } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4c463f00-b583-48bb-83d8-58fce70dc6af",
+      "name": "Parse Deal Update",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3200,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const data = { ...$('Evaluate SLA').item.json };\n    const status = Number($json.statusCode) || 0;\n    const parseJson = value => {\n      if (value === undefined || value === null || value === '') return null;\n      if (typeof value === 'object') return value;\n      if (typeof value !== 'string') return null;\n      try { return JSON.parse(value); } catch { return null; }\n    };\n    const failure = reason => ({\n      result: 'hubspot_failure',\n      step: 'Update Deal SLA State',\n      deal_id: data.deal_id,\n      reason,\n      retryable: !status || status === 429 || status >= 500,\n      upstream_status: status || null\n    });\n    if (![200, 201, 204].includes(status)) {\n      return { json: failure('HubSpot Deal update failed or was uncertain. Do not infer a new SLA state from this execution.') };\n    }\n    if (status !== 204) {\n      const response = parseJson($json.body ?? $json.data);\n      if (!response || String(response.id ?? '') !== data.deal_id || typeof response.properties !== 'object') {\n        return { json: failure('HubSpot returned an unreadable or mismatched Deal update response.') };\n      }\n      const actualStatus = response.properties.lead_response_sla_status;\n      if (actualStatus !== data.update_properties.lead_response_sla_status) {\n        return { json: failure('HubSpot did not confirm the requested SLA status.') };\n      }\n      if (data.update_properties.first_human_response_at) {\n        const expected = Date.parse(data.update_properties.first_human_response_at);\n        const actual = Date.parse(response.properties.first_human_response_at);\n        if (!Number.isFinite(actual) || actual !== expected) {\n          return { json: failure('HubSpot did not confirm first_human_response_at.') };\n        }\n      }\n    }\n    data.update_confirmed = true;\n    delete data.update_properties;\n    return { json: data };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6df4893b-bf49-4d18-a3d5-33a33d86e72a",
+      "name": "Deal Update Succeeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3460,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0667e74c-5d7c-4896-b8ff-15baa5b97aaf",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.result !== \"hubspot_failure\" }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0755f196-381b-41d9-b9d3-e61a3697f469",
+      "name": "Return SLA Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3700,
+        140
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const allowed = ['result', 'deal_id', 'first_human_response_at', 'lead_response_sla_status'];\n    const output = Object.fromEntries(allowed.filter(key => $json[key] !== undefined).map(key => [key, $json[key]]));\n    return { json: output };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d48ec204-cf1e-4413-a77e-062e389473f5",
+      "name": "Return HubSpot Failure",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3700,
+        360
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const allowed = ['result', 'step', 'deal_id', 'reason', 'retryable', 'upstream_status'];\n    const output = Object.fromEntries(allowed.filter(key => $json[key] !== undefined).map(key => [key, $json[key]]));\n    if (output.result !== 'hubspot_failure') {\n      output.result = 'hubspot_failure';\n      output.reason = output.reason || 'An unexpected HubSpot failure occurred.';\n      output.retryable = false;\n    }\n    return { json: output };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c8fe19a0-b438-4e09-89ca-655f51f466e3",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2160,
+        -780
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 760,
+        "height": 620,
+        "content": "## Monitor HubSpot lead response SLAs\n\n**Who it's for:** Sales and RevOps teams that create inbound-enquiry Deals in HubSpot and need consistent response-time tracking.\n\n**What it does:** Every five minutes, the workflow finds delivered Deals awaiting a response or breached Deals still missing their first response. It checks Deal-associated emails, calls, and meetings from the assigned owner, ignores invalid and future activity, records the earliest qualifying response, and updates only the SLA fields.\n\n### How it works\n1. Find eligible Deals\n2. Validate timestamps and ownership\n3. Check associated activity\n4. Apply the 30-minute calendar SLA\n5. Update and verify HubSpot\n\n### Setup\nCreate the required SLA Deal properties, connect one HubSpot credential to all five HTTP Request nodes, and test manually. Keep the schedule disabled until the results are verified.\n\nHubSpot remains the source of truth. Contact = person; Deal = enquiry."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0fe2973f-65c8-40cf-9768-7f12cc5ebba1",
+      "name": "Qualifying Human Response",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -260,
+        -520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 300,
+        "content": "## Qualifying human response\n\nOnly Deal-associated activity from the current Deal owner and between `lead_received_at` and the run start qualifies. Count outbound emails without a non-sent status, completed calls, and meetings without an explicit non-completed outcome. The earliest valid UTC timestamp wins."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3c261ef-ebab-46bd-934d-8313eaa7234b",
+      "name": "Test Before Activation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2580,
+        -520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 320,
+        "content": "## Test before activation\n\nConnect the same HubSpot credential to all five HTTP Request nodes. Required scopes: Deals read/write plus email, call, and meeting activity read. Run manual tests before enabling the disabled schedule. Requests are throttled for HubSpot search limits. V1 uses calendar minutes and sends no notifications."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3278f95e-877c-43ca-aa42-490198c857ee",
+      "name": "Stage 1 - Select SLA Cases",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2160,
+        620
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1000,
+        "height": 440,
+        "content": "## 1 — Select Deals to monitor\n\nRuns manually for testing or every **5 minutes** after publishing.\n\nThe HubSpot search selects only delivered Deals that are:\n- `AWAITING_RESPONSE`, or\n- already `BREACHED` but still missing `first_human_response_at`\n\nDeals are processed oldest first. The run stops without writes if HubSpot fails, returns inconsistent data, or reports more than the reviewed 200-record limit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cbd6e541-e17f-45d6-b83a-004b27db0b44",
+      "name": "Stage 2 - Validate SLA Case",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        620
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 760,
+        "height": 440,
+        "content": "## 2 — Validate each SLA case\n\nBefore checking activity, confirm:\n- Deal ID exists\n- `lead_received_at` is valid and not in the future\n- assigned `hubspot_owner_id` exists\n- delivery status is `DELIVERED`\n- SLA status is `AWAITING_RESPONSE` or `BREACHED`\n- first-response timestamp is still empty\n\nThe deadline is **lead received time + 30 calendar minutes**. Invalid records go to manual review and are not updated."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5181f9d-f252-4104-af3c-505e3f566460",
+      "name": "Stage 3 - Find Human Response",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        620
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 2200,
+        "height": 440,
+        "content": "## 3 — Collect response evidence\n\nSearch Deal-associated emails, calls, and meetings, then normalize them into one timeline.\n\nA response qualifies only when it:\n- belongs to the Deal\n- belongs to the currently assigned owner\n- occurred from `lead_received_at` through this run's start time\n- represents a sent email, completed call, or non-cancelled/completed meeting\n\nInvalid, pre-lead, and future activities are ignored. The earliest qualifying UTC timestamp becomes `first_human_response_at`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "43ef6774-3088-4086-97d5-762ed21d9403",
+      "name": "Stage 4 - SLA Decision Table",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1920,
+        620
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 920,
+        "height": 440,
+        "content": "## 4 — SLA decision rules\n\n- **Response ≤ deadline:** save timestamp and set `RESPONDED_IN_SLA`\n- **Response > deadline:** save timestamp and keep/set `BREACHED`\n- **No response + deadline passed:** set `BREACHED`\n- **No response + deadline open:** remain `AWAITING_RESPONSE`; no write\n- **Already breached + no response:** remain `BREACHED`; no repeated write\n\nThe response timestamp—not the monitor run time—determines whether the SLA was met."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0b2c08ce-af45-4e16-89cc-21f0f083ce09",
+      "name": "Stage 5 - Safe Update and Outcomes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        620
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1000,
+        "height": 440,
+        "content": "## 5 — Update safely and return outcome\n\nPatch HubSpot only when the calculated state changed. The update is accepted only after HubSpot confirms the Deal ID, SLA status, and response timestamp when present.\n\nPossible outcomes:\n- `responded_in_sla`\n- `late_response`\n- `sla_breached`\n- `sla_breached_awaiting_response`\n- `sla_within_target`\n- `manual_review_required`\n- `hubspot_failure`\n- `no_deals_to_monitor`\n\nV1 boundary: calendar minutes, current-owner activity only, maximum 200 results per search, and no notifications."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "6b6c93a4-32c3-4ca9-afde-2a9cfd11831a",
+  "connections": {
+    "Deals Found?": {
+      "main": [
+        [
+          {
+            "node": "Validate SLA Case",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return No Deals to Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate SLA": {
+      "main": [
+        [
+          {
+            "node": "HubSpot Update Required?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Deal Calls": {
+      "main": [
+        [
+          {
+            "node": "Parse Call Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Call Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SLA Case Valid?": {
+      "main": [
+        [
+          {
+            "node": "Find Deal Emails",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Manual Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Deal Emails": {
+      "main": [
+        [
+          {
+            "node": "Parse Email Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Email Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Call Search": {
+      "main": [
+        [
+          {
+            "node": "Call Search Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Deal Search": {
+      "main": [
+        [
+          {
+            "node": "Deal Search Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Deal Update": {
+      "main": [
+        [
+          {
+            "node": "Deal Update Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate SLA Case": {
+      "main": [
+        [
+          {
+            "node": "SLA Case Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Deal Meetings": {
+      "main": [
+        [
+          {
+            "node": "Parse Meeting Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Meeting Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Email Search": {
+      "main": [
+        [
+          {
+            "node": "Email Search Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Test Trigger": {
+      "main": [
+        [
+          {
+            "node": "Find Deals to Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Meeting Search": {
+      "main": [
+        [
+          {
+            "node": "Meeting Search Succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Deals to Monitor": {
+      "main": [
+        [
+          {
+            "node": "Parse Deal Search",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Deal Search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Deal SLA State": {
+      "main": [
+        [
+          {
+            "node": "Parse Deal Update",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Deal Update",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Call Search Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Find Deal Meetings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return HubSpot Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deal Search Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Deals Found?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return HubSpot Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deal Update Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Return SLA Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return HubSpot Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Search Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Find Deal Calls",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return HubSpot Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Earliest Response Found?": {
+      "main": [
+        [
+          {
+            "node": "Evaluate SLA",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evaluate SLA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot Update Required?": {
+      "main": [
+        [
+          {
+            "node": "Update Deal SLA State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return SLA Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting Search Succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Normalize Qualifying Responses",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return HubSpot Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Qualifying Responses": {
+      "main": [
+        [
+          {
+            "node": "Earliest Response Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 5 Minutes (Disabled Until Publish)": {
+      "main": [
+        [
+          {
+            "node": "Find Deals to Monitor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

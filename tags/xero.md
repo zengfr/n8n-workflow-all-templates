@@ -1,4 +1,4 @@
-# xero : 13
+# xero : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |12695|[12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12695_Automate_Xero_invoices_and_payments_using_webhooks__PostgreSQL_and_WhatsApp.json)|
 |16467|[16467_Count_Xero_invoices__bills__and_credit_notes_with_a_voided_deleted_filter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16467_Count_Xero_invoices__bills__and_credit_notes_with_a_voided_deleted_filter.json)|
 |16787|[16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json)|
+|16856|[16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json)|
+|16926|[16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json)|
+|18960|[18960_Send_branded_overdue_invoice_statements_from_Xero_with_PDFMint_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18960_Send_branded_overdue_invoice_statements_from_Xero_with_PDFMint_and_Gmail.json)|

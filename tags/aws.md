@@ -1,4 +1,4 @@
-# aws : 51
+# aws : 56
 
 |id|file|
 |----|----|
@@ -53,3 +53,8 @@
 |15314|[15314_Detect_and_remediate_leaked_secret_on_repo_with_GitHub__AWS__Jira__Slack__Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15314_Detect_and_remediate_leaked_secret_on_repo_with_GitHub__AWS__Jira__Slack__Claude.json)|
 |15321|[15321_Collect_SOC_2_AWS_IAM_evidence_to_Google_Sheets_with_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15321_Collect_SOC_2_AWS_IAM_evidence_to_Google_Sheets_with_Gmail_alerts.json)|
 |16050|[16050_Sync_OpenAI_vector_stores_from_Google_Sheets_with_Drive_and_AWS_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16050_Sync_OpenAI_vector_stores_from_Google_Sheets_with_Drive_and_AWS_S3.json)|
+|18094|[18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json)|
+|18407|[18407_Create_reviewable_LinkedIn_posts_from_RSS_with_Notion__Slack__and_AWS_Bedrock.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18407_Create_reviewable_LinkedIn_posts_from_RSS_with_Notion__Slack__and_AWS_Bedrock.json)|
+|18987|[18987_Run_an_AI_Telegram_shopping_assistant_with_AWS_Bedrock__Paystack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18987_Run_an_AI_Telegram_shopping_assistant_with_AWS_Bedrock__Paystack_and_Google_Sheets.json)|
+|19257|[19257_Assess_AWS_security_posture_changes_with_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19257_Assess_AWS_security_posture_changes_with_Claude_and_Slack_alerts.json)|
+|19258|[19258_Triage_AWS_security_posture_changes_with_Claude__Slack__email__and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19258_Triage_AWS_security_posture_changes_with_Claude__Slack__email__and_WhatsApp_alerts.json)|

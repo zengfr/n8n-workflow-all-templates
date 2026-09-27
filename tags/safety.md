@@ -1,4 +1,4 @@
-# safety : 11
+# safety : 17
 
 |id|file|
 |----|----|
@@ -13,3 +13,9 @@
 |15698|[15698_Monitor_Facebook_post_safety_with_Apify__Google_Gemini_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15698_Monitor_Facebook_post_safety_with_Apify__Google_Gemini_and_Telegram_alerts.json)|
 |16374|[16374_Manage_construction_work_permits_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16374_Manage_construction_work_permits_with_GPT-4o__Google_Sheets_and_Gmail.json)|
 |16458|[16458_Check_prescription_safety_and_drug_interactions_with_GPT-4o__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16458_Check_prescription_safety_and_drug_interactions_with_GPT-4o__Sheets__and_Telegram.json)|
+|16909|[16909_Send_crowd_safety_SMS_reroute_alerts_with_OpenAI__Twilio__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16909_Send_crowd_safety_SMS_reroute_alerts_with_OpenAI__Twilio__and_Google_Sheets.json)|
+|17982|[17982_Triage_scam_messages_and_alert_family_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17982_Triage_scam_messages_and_alert_family_with_Claude_and_Google_Sheets.json)|
+|18188|[18188_Log_food_safety_temperatures_with_DeepSeek_and_GPT_email_reports_to_Sheets__Telegram_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18188_Log_food_safety_temperatures_with_DeepSeek_and_GPT_email_reports_to_Sheets__Telegram_and_Discord.json)|
+|18761|[18761_Manage_safety_inspections_and_corrective_actions_with_DeepSeek__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18761_Manage_safety_inspections_and_corrective_actions_with_DeepSeek__Sheets__Gmail_and_Telegram.json)|
+|19134|[19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json)|
+|19354|[19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json)|

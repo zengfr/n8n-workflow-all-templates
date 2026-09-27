@@ -1,0 +1,701 @@
+{
+  "name": "Back up Linux servers to a remote server with Borg Backup",
+  "nodes": [
+    {
+      "id": "ba739b64-c2c2-4b90-89ec-289c33135678",
+      "name": "Create Borg Backup and Push to Second Server",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        3072,
+        416
+      ],
+      "parameters": {
+        "command": "=set -e\nSRC=\"{{ $('Load Backup Configuration').item.json.sourceDir }}\"\nDEST_USER=\"borg_backup\"\nDEST_HOST=\"{{ $('Load Backup Configuration').item.json.remoteHost }}\"\nDEST_PORT=\"{{ $('Load Backup Configuration').item.json.remotePort }}\"\nDEST_DIR=\"/home/borg_backup{{ $('Load Backup Configuration').item.json.destDir }}\"\nENCRYPTED=\"{{ $('Load Backup Configuration').item.json.encrypted }}\"\nKEY_PATH=\"$HOME/.ssh/borg_backup_key\"\nPASSPHRASE_FILE=\"$HOME/.borg/passphrase\"\nARCHIVE=\"backup-$(date -u +%Y%m%dT%H%M%SZ)\"\n\nexport BORG_RSH=\"ssh -i $KEY_PATH -p $DEST_PORT -o StrictHostKeyChecking=no\"\nREPO=\"ssh://$DEST_USER@$DEST_HOST:$DEST_PORT$DEST_DIR\"\n\nif [ \"$ENCRYPTED\" = \"true\" ]; then\n  if [ ! -f \"$PASSPHRASE_FILE\" ]; then\n    echo \"Passphrase file not found at $PASSPHRASE_FILE\" >&2\n    exit 1\n  fi\n  export BORG_PASSPHRASE=\"$(cat \"$PASSPHRASE_FILE\")\"\n  ENCRYPTION_MODE=\"repokey-blake2\"\nelse\n  ENCRYPTION_MODE=\"none\"\nfi\n\nborg init --encryption=\"$ENCRYPTION_MODE\" \"$REPO\" 2>/dev/null || true\nborg create --stats --compression zstd \"$REPO::$ARCHIVE\" \"$SRC\"\n\nunset BORG_RSH\nunset BORG_PASSPHRASE\necho \"versioned-done\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95b9a0c3-c805-4285-a0d8-93797124e330",
+      "name": "Create Single Up-to-date Backup (Borg, pruned)",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        3072,
+        224
+      ],
+      "parameters": {
+        "command": "=set -e\nSRC=\"{{ $('Load Backup Configuration').item.json.sourceDir }}\"\nDEST_USER=\"borg_backup\"\nDEST_HOST=\"{{ $('Load Backup Configuration').item.json.remoteHost }}\"\nDEST_PORT=\"{{ $('Load Backup Configuration').item.json.remotePort }}\"\nDEST_DIR=\"/home/borg_backup{{ $('Load Backup Configuration').item.json.destDir }}\"\nENCRYPTED=\"{{ $('Load Backup Configuration').item.json.encrypted }}\"\nKEY_PATH=\"$HOME/.ssh/borg_backup_key\"\nPASSPHRASE_FILE=\"$HOME/.borg/passphrase\"\nARCHIVE=\"backup-$(date -u +%Y%m%dT%H%M%SZ)\"\n\nexport BORG_RSH=\"ssh -i $KEY_PATH -p $DEST_PORT -o StrictHostKeyChecking=no\"\nREPO=\"ssh://$DEST_USER@$DEST_HOST:$DEST_PORT$DEST_DIR\"\n\nif [ \"$ENCRYPTED\" = \"true\" ]; then\n  if [ ! -f \"$PASSPHRASE_FILE\" ]; then\n    echo \"Passphrase file not found at $PASSPHRASE_FILE\" >&2\n    exit 1\n  fi\n  export BORG_PASSPHRASE=\"$(cat \"$PASSPHRASE_FILE\")\"\n  ENCRYPTION_MODE=\"repokey-blake2\"\nelse\n  ENCRYPTION_MODE=\"none\"\nfi\n\nborg init --encryption=\"$ENCRYPTION_MODE\" \"$REPO\" 2>/dev/null || true\n\nborg create --stats --compression zstd \"$REPO::$ARCHIVE\" \"$SRC\"\nborg prune --keep-last 1 \"$REPO\"\nborg compact \"$REPO\"\n\nunset BORG_RSH\nunset BORG_PASSPHRASE\necho \"sync-done\"",
+        "authentication": "privateKey"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9e1b3571-7d20-4546-88d8-602c084907fe",
+      "name": "Install Borg on Source Server",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        1728,
+        320
+      ],
+      "parameters": {
+        "command": "=#!/bin/bash\nset -e\n\nif command -v borg >/dev/null 2>&1; then\n\techo \"Borg installed:\"\n\tborg --version\n\texit 0\nfi\n\necho \"Borg is not installed.\"\n\nif [ ! -f /etc/os-release ]; then\n\techo \"Unsupported OS\"\n\texit 1\nfi\n\n. /etc/os-release\n\nOS_ID=\"${ID:-unknown}\"\n\ncase \"$OS_ID\" in\nubuntu | debian)\n\tsudo apt-get update\n\tsudo apt-get install -y borgbackup\n\t;;\n\nfedora)\n\tsudo dnf install -y borgbackup\n\t;;\n\nrocky | rhel | centos | almalinux)\n\tif command -v dnf >/dev/null 2>&1; then\n\t\tsudo dnf install -y dnf-plugins-core\n\t\tVERSION_ID=\"${VERSION_ID:-0}\"\n\t\t# Rocky/RHEL 9+\n\t\tif [ \"${VERSION_ID%%.*}\" -ge 9 ]; then\n\t\t\tsudo dnf install -y epel-release\n\t\t\tsudo dnf config-manager --set-enabled crb\n\t\telse\n\t\t\t# Rocky/RHEL 8\n\t\t\tsudo dnf install -y epel-release\n\t\t\tsudo dnf config-manager --set-enabled powertools\n\t\tfi\n\n\t\tsudo dnf install -y borgbackup\n\n\telif command -v yum >/dev/null 2>&1; then\n\n\t\tsudo yum install -y epel-release\n\t\tsudo yum install -y borgbackup\n\n\telse\n\t\techo \"ERROR: Neither dnf nor yum is available.\"\n\t\texit 1\n\tfi\n\t;;\n\n*)\n\techo \"Unsupported OS: $OS_ID\"\n\texit 1\n\t;;\nesac\n\necho \"Borg installed:\"\nborg --version\n",
+        "authentication": "privateKey"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ecfba9bd-051c-46dc-9c02-9d0e2b1bec61",
+      "name": "Install Borg on Destination Server",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        1968,
+        320
+      ],
+      "parameters": {
+        "command": "=#!/bin/bash\nset -e\n\nif command -v borg >/dev/null 2>&1; then\n\techo \"Borg installed:\"\n\tborg --version\n\texit 0\nfi\n\necho \"Borg is not installed.\"\n\nif [ ! -f /etc/os-release ]; then\n\techo \"Unsupported OS\"\n\texit 1\nfi\n\n. /etc/os-release\n\nOS_ID=\"${ID:-unknown}\"\n\ncase \"$OS_ID\" in\nubuntu | debian)\n\tsudo apt-get update\n\tsudo apt-get install -y borgbackup\n\t;;\n\nfedora)\n\tsudo dnf install -y borgbackup\n\t;;\n\nrocky | rhel | centos | almalinux)\n\tif command -v dnf >/dev/null 2>&1; then\n\t\tsudo dnf install -y dnf-plugins-core\n\t\tVERSION_ID=\"${VERSION_ID:-0}\"\n\t\t# Rocky/RHEL 9+\n\t\tif [ \"${VERSION_ID%%.*}\" -ge 9 ]; then\n\t\t\tsudo dnf install -y epel-release\n\t\t\tsudo dnf config-manager --set-enabled crb\n\t\telse\n\t\t\t# Rocky/RHEL 8\n\t\t\tsudo dnf install -y epel-release\n\t\t\tsudo dnf config-manager --set-enabled powertools\n\t\tfi\n\n\t\tsudo dnf install -y borgbackup\n\n\telif command -v yum >/dev/null 2>&1; then\n\n\t\tsudo yum install -y epel-release\n\t\tsudo yum install -y borgbackup\n\n\telse\n\t\techo \"ERROR: Neither dnf nor yum is available.\"\n\t\texit 1\n\tfi\n\t;;\n\n*)\n\techo \"Unsupported OS: $OS_ID\"\n\texit 1\n\t;;\nesac\n\necho \"Borg installed:\"\nborg --version\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "311f923e-ae4f-498f-b8fa-cf0e907ae284",
+      "name": "Source: Check & Get SSH Key",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2192,
+        320
+      ],
+      "parameters": {
+        "command": "=set -e\n\nKEY_PATH=\"$HOME/.ssh/borg_backup_key\"\nDEST_HOST=\"{{ $('Load Backup Configuration').item.json.remoteHost }}\"\nDEST_USER=\"borg_backup\"\n\n# Skip everything if source can already SSH into destination as borg_backup\nif [ -f \"$KEY_PATH\" ] && ssh -o BatchMode=yes -o StrictHostKeyChecking=no -o ConnectTimeout=5 \\\n     -i \"$KEY_PATH\" \"$DEST_USER@$DEST_HOST\" \"echo ok\" 2>/dev/null | grep -q \"^ok$\"; then\n  echo \"already_connected=true\"\n  exit 0\nfi\n\n# Generate a dedicated ed25519 key pair only if it does not exist yet\n# ssh-keygen behaves identically on Ubuntu, Fedora and RHEL (part of openssh-clients)\nif [ ! -f \"$KEY_PATH\" ]; then\n  ssh-keygen -t ed25519 -f \"$KEY_PATH\" -N \"\" -C \"borg_backup@source\" >/dev/null\nfi\n\necho \"already_connected=false\"\necho \"public_key=$(cat \"$KEY_PATH.pub\")\"\n",
+        "authentication": "privateKey"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4fcd4fc0-d55d-4125-91f6-7c97d67880b5",
+      "name": "Destination: Create Restricted borg_backup User",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2640,
+        320
+      ],
+      "parameters": {
+        "command": "=set -e\n\nALREADY_CONNECTED=\"{{ $json.already_connected }}\"\nPUB_KEY=\"{{ $json.public_key }}\"\nUSERNAME=\"borg_backup\"\n\nif [ \"$ALREADY_CONNECTED\" = \"true\" ]; then\n  echo \"SSH access already works, nothing to do.\"\n  exit 0\nfi\n\nif [ -z \"$PUB_KEY\" ]; then\n  echo \"No public key received from source node, aborting.\" >&2\n  exit 1\nfi\n\n# Make sure passwordless sudo works\nif ! sudo -n true 2>/dev/null; then\n  echo \"Passwordless sudo is not configured for the current SSH user.\" >&2\n  echo \"Add this user to sudoers with NOPASSWD permissions.\" >&2\n  exit 1\nfi\n\n# Create the backup user with a REAL shell.\n# IMPORTANT: do NOT use nologin here — nologin blocks forced commands\n# (command=\"...\" in authorized_keys) too, not just interactive logins.\n# Restriction is handled entirely by the \"restrict\" + command= prefix below.\nif ! id \"$USERNAME\" >/dev/null 2>&1; then\n  sudo -n useradd -m -s /bin/bash \"$USERNAME\"\nfi\n\nHOME_DIR=\"$(getent passwd \"$USERNAME\" | cut -d: -f6)\"\nif [ -z \"$HOME_DIR\" ]; then\n  echo \"Could not determine home directory for $USERNAME.\" >&2\n  exit 1\nfi\n\nsudo -n mkdir -p \"$HOME_DIR/.ssh\"\nsudo -n chmod 700 \"$HOME_DIR/.ssh\"\nsudo -n touch \"$HOME_DIR/.ssh/authorized_keys\"\n\n# Add restricted Borg SSH key\nAUTHORIZED_KEYS=\"$HOME_DIR/.ssh/authorized_keys\"\nKEY_LINE=\"command=\\\"borg serve --restrict-to-path $HOME_DIR\\\",restrict $PUB_KEY\"\n\nif ! sudo -n grep -qF \"$PUB_KEY\" \"$AUTHORIZED_KEYS\" 2>/dev/null; then\n  printf '%s\\n' \"$KEY_LINE\" | sudo -n tee -a \"$AUTHORIZED_KEYS\" >/dev/null\nfi\n\nsudo -n chmod 600 \"$AUTHORIZED_KEYS\"\nsudo -n chown -R \"$USERNAME:$USERNAME\" \"$HOME_DIR/.ssh\"\n\n# Fix SELinux context if applicable\nif command -v getenforce >/dev/null 2>&1; then\n  if [ \"$(getenforce)\" != \"Disabled\" ] && command -v restorecon >/dev/null 2>&1; then\n    sudo -n restorecon -R \"$HOME_DIR/.ssh\" || true\n  fi\nfi\n\necho \"Setup complete for $USERNAME\"\necho \"home: $HOME_DIR\"",
+        "authentication": "privateKey"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4f430dd1-6c2f-4b59-9cf6-a6bb7b76c93b",
+      "name": "Store Borg Passphrase on Source Server",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        784,
+        224
+      ],
+      "parameters": {
+        "command": "=set -e\n\nENCRYPTED=\"{{ $json.config.encrypted }}\"\nPASSPHRASE_DIR=\"$HOME/.borg\"\nPASSPHRASE_FILE=\"$PASSPHRASE_DIR/passphrase\"\n\nmkdir -p \"$PASSPHRASE_DIR\"\nchmod 700 \"$PASSPHRASE_DIR\"\n\nif [ \"$ENCRYPTED\" = \"true\" ]; then\n  printf '%s' \"{{ $json.borgPassphrase }}\" > \"$PASSPHRASE_FILE\"\n  chmod 600 \"$PASSPHRASE_FILE\"\n  echo \"passphrase-saved\"\nelse\n  rm -f \"$PASSPHRASE_FILE\"\n  echo \"no-encryption-configured\"\nfi",
+        "authentication": "privateKey"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67e380da-ff92-400e-b22a-f0295f3972b7",
+      "name": "Initialize Configuration Table",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        1056,
+        224
+      ],
+      "parameters": {
+        "columns": {
+          "column": [
+            {
+              "name": "sourceDir"
+            },
+            {
+              "name": "destDir"
+            },
+            {
+              "name": "mode"
+            },
+            {
+              "name": "encrypted",
+              "type": "boolean"
+            },
+            {
+              "name": "remoteHost"
+            },
+            {
+              "name": "remotePort",
+              "type": "number"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "table",
+        "operation": "create",
+        "tableName": "Backup_Config_SSH"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c51bef6a-4412-41d8-96ff-c694d2da3e1b",
+      "name": "Run Scheduled Backup",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1280,
+        416
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "367e8499-1316-4aab-a938-4029ff45a11b",
+      "name": "Route by Backup Mode",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2848,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-mode-sync",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Load Backup Configuration').item.json.mode }}",
+              "rightValue": "sync"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "12bf3ce7-4cc0-47cb-9f1a-7533225ad51f",
+      "name": "Parse SSH Setup Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2416,
+        320
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.stdout\nconst lines = raw.split('\\n').filter(Boolean);\nconst result = { already_connected: 'false', public_key: '' };\n\nfor (const line of lines) {\n  if (line.startsWith('already_connected=')) {\n    result.already_connected = line.replace('already_connected=', '').trim();\n  }\n  if (line.startsWith('public_key=')) {\n    result.public_key = line.replace('public_key=', '').trim();\n  }\n}\n\nresult.destination_host =$('Load Backup Configuration').first().json.remoteHost\n  \n\nreturn [{ json: result }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "620ed3c4-ca43-401b-8fe8-77e0cf1da590",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        -288
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 640,
+        "content": "## Quick Setup\n\n **Before activating the workflow:**\n\n 1. Configure the SSH credentials for both the **source** and **destination** servers.\n 2. Open the **Backup Setup Form** and submit your backup settings **once**.\n 3. The workflow will save your configuration automatically.\n 4. Open the **Schedule Trigger** node and set how often backups should run.\n 5. Activate the workflow.\n\n **Requirements**\n\n * The SSH user must have **passwordless sudo** privileges.\n * Both servers must be reachable over SSH.\n * If encryption is enabled, provide a Borg passphrase in the setup form.\n\n Once the initial setup is complete, all scheduled backups will use the saved configuration automatically.\n\n\n💡 Tip\n\nThis form is publicly reachable with basic auth only.\nFor extra safety, consider publishing the workflow only\nwhen you need to submit the form, then unpublishing it\nright after."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a29c816d-0723-4ee0-9900-c8bbe53a8efa",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -320,
+        384
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 464,
+        "content": "# Restore a Backup\n\n1. Connect to the destination server.\n2. List the available backup archives:\n```bash\nborg list /path/to/repository\n```\n\n3. Restore the archive you want:\n```bash\nborg extract /path/to/repository::<archive-name>\n```\n\nFor more restore options and examples:\nhttps://borgbackup.readthedocs.io/en/stable/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a8c3e752-7461-4e5a-bc83-35d0d4aec62f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        288,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 320,
+        "content": "## Collect backup settings\n\nReceives setup input from the form, prepares the configuration payload, and stores the Borg passphrase securely on the source server before persistence."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66463227-23bf-4d97-9fa4-3c17aa97904e",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 692,
+        "height": 512,
+        "content": "## Persist and load config\n\nInitializes the configuration table, saves the prepared settings, and provides the stored configuration to both immediate setup runs and scheduled backup executions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d108c93-9264-42a1-bf15-a7daed9c778d",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 320,
+        "content": "## Install Borg and key\n\nConnects to the Linux servers to install Borg on the source and destination, then checks or retrieves the source server SSH key needed for remote backup access."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec279e84-bc95-46a7-a56a-6040b2d653fa",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 320,
+        "content": "## Configure destination access\n\nParses the SSH setup result and creates a restricted borg_backup user on the destination server so backups can be pushed safely."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "656c50b8-b799-4832-9ff4-a24e75015fc7",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2800,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 528,
+        "content": "## Run selected backup\n\nBranches based on the configured backup mode and runs the corresponding Borg command: either a single pruned up-to-date backup or a backup pushed to the second server."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e8decb7-8b27-4cea-9f7f-f83baafc762f",
+      "name": "Build Backup Config Code",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        224
+      ],
+      "parameters": {
+        "jsCode": "const form = $('When Backup Setup Form Submitted').item.json;\n\nfunction fail(msg) {\n  throw new Error(`Invalid input: ${msg}`);\n}\n\n// Absolute Linux path, only letters/digits/-/_/./  — no spaces, quotes, $, backticks, ; | & etc.\nconst SAFE_PATH_RE = /^\\/[A-Za-z0-9_\\-./]*$/;\n\n// Valid hostname (RFC1123)\nconst SAFE_HOSTNAME_RE = /^(?=.{1,253}$)(?!-)[A-Za-z0-9-]{1,63}(?<!-)(\\.(?!-)[A-Za-z0-9-]{1,63}(?<!-))*$/;\n\n// Dangerous characters for the passphrase (it gets embedded inside a double-quoted shell string)\nconst UNSAFE_PASSPHRASE_RE = /[\"'`$\\\\;|&<>\\n\\r]/;\n\n// --- Backup mode ---\nconst modeLabel = form['Backup mode'] || '';\nconst ALLOWED_MODES = ['Versioned backups', 'Sync (Only one backup at a time)'];\nif (!ALLOWED_MODES.includes(modeLabel)) fail('Invalid \"Backup mode\" value.');\nconst mode = modeLabel.toLowerCase().includes('sync') ? 'sync' : 'versioned';\n\n// --- Encrypted ---\nconst encryptLabel = form['Encrypt the backup?'] || '';\nconst ALLOWED_ENCRYPT = ['Yes (recommended)', 'No'];\nif (!ALLOWED_ENCRYPT.includes(encryptLabel)) fail('Invalid \"Encrypt the backup?\" value.');\nconst encrypted = encryptLabel.startsWith('Yes');\n\n// --- Source directory ---\nconst sourceDir = (form['Source directory on the server'] || '').trim();\nif (!SAFE_PATH_RE.test(sourceDir)) {\n  fail('\"Source directory\" must be an absolute Linux path containing only letters, digits, \"-\", \"_\", \".\" and \"/\" (no spaces, quotes, $, backticks, ;, | etc.).');\n}\n\n// --- Destination directory (created under the borg_backup user's home) ---\nconst destDir = (form['Destination directory on the second server'] || '').trim();\nif (!SAFE_PATH_RE.test(destDir)) {\n  fail('\"Destination directory\" must start with \"/\" and contain only letters, digits, \"-\", \"_\", \".\" and \"/\".');\n}\n\n// --- Remote host (IPv4 or hostname) ---\nconst remoteHost = (form['Second server host or IP'] || '').trim();\nconst octets = remoteHost.split('.');\nconst isIPv4 = octets.length === 4 && octets.every(o => /^\\d{1,3}$/.test(o) && Number(o) <= 255);\nif (!isIPv4 && !SAFE_HOSTNAME_RE.test(remoteHost)) {\n  fail('\"Second server host or IP\" must be a valid IPv4 address or hostname.');\n}\n\n// --- Remote port ---\nconst rawPort = form['Second server SSH port'];\nconst remotePort = rawPort === undefined || rawPort === '' ? 22 : Number(rawPort);\nif (!Number.isInteger(remotePort) || remotePort < 1 || remotePort > 65535) {\n  fail('\"Second server SSH port\" must be an integer between 1 and 65535.');\n}\n\n// --- Borg passphrase ---\nconst borgPassphrase = form['Borg encryption passphrase'] || '';\nif (encrypted) {\n  if (!borgPassphrase) fail('\"Borg encryption passphrase\" is required when encryption is enabled.');\n  if (UNSAFE_PASSPHRASE_RE.test(borgPassphrase)) {\n    fail('\"Borg encryption passphrase\" must not contain the characters \" \\' ` $ \\\\ ; | & < > or newlines.');\n  }\n  if (borgPassphrase.length > 256) fail('\"Borg encryption passphrase\" is too long.');\n}\n\nconst config = {\n  sourceDir,\n  destDir,\n  mode,\n  encrypted,\n  remoteHost,\n  remotePort,\n};\n\nreturn [{\n  json: {\n    config,\n    borgPassphrase\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c06f24b5-0262-46f4-b567-689c3c9c0d77",
+      "name": "When Backup Setup Form Submitted",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        336,
+        224
+      ],
+      "webhookId": "46b19c57-2637-47aa-a113-0a5046399fab",
+      "parameters": {
+        "path": "backup",
+        "options": {
+          "buttonLabel": "Start backup"
+        },
+        "formTitle": "Borg Backup to Remote Server",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Source directory on the server",
+              "placeholder": "/home/ubuntu/data",
+              "requiredField": true
+            },
+            {
+              "html": "<p>The backup destination user (<code>borg_backup</code>) only has access to its own home directory on the second server. The path you enter below will be created <strong>relative to that home directory</strong>, i.e. it will end up at <code>/home/borg_backup&lt;your path&gt;</code>.</p>",
+              "fieldType": "html"
+            },
+            {
+              "fieldLabel": "Destination directory on the second server",
+              "placeholder": "/backups",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Backup mode",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Versioned backups"
+                  },
+                  {
+                    "option": "Sync (Only one backup at a time)"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Encrypt the backup?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes (recommended)"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "password",
+              "fieldLabel": "Borg encryption passphrase",
+              "placeholder": "leave blank if you chose \"No\" above"
+            },
+            {
+              "fieldLabel": "Second server host or IP",
+              "placeholder": "203.0.113.10",
+              "requiredField": true
+            },
+            {
+              "fieldType": "number",
+              "fieldLabel": "Second server SSH port",
+              "placeholder": "22"
+            }
+          ]
+        },
+        "authentication": "basicAuth",
+        "formDescription": "Enter the details needed to back up a directory using Borg and send it to a second server over SSH (key-based auth).\nAll paths must be absolute Linux paths"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3cc8fd68-9bbe-4f97-b8be-7ce0a86a2b0a",
+      "name": "Save Backup Configuration",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1280,
+        224
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "mode": "={{ $('Build Backup Config Code').item.json.config.mode }}",
+            "destDir": "={{ $('Build Backup Config Code').item.json.config.destDir }}",
+            "encrypted": "={{ $('Build Backup Config Code').item.json.config.encrypted }}",
+            "sourceDir": "={{ $('Build Backup Config Code').item.json.config.sourceDir }}",
+            "remoteHost": "={{ $('Build Backup Config Code').item.json.config.remoteHost }}",
+            "remotePort": "={{ $('Build Backup Config Code').item.json.config.remotePort }}"
+          },
+          "schema": [
+            {
+              "id": "sourceDir",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "sourceDir",
+              "defaultMatch": false
+            },
+            {
+              "id": "destDir",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "destDir",
+              "defaultMatch": false
+            },
+            {
+              "id": "mode",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "mode",
+              "defaultMatch": false
+            },
+            {
+              "id": "encrypted",
+              "type": "boolean",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "encrypted",
+              "defaultMatch": false
+            },
+            {
+              "id": "remoteHost",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "remoteHost",
+              "defaultMatch": false
+            },
+            {
+              "id": "remotePort",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "remotePort",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "1"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Backup_Config_SSH"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d044feac-4b3f-4961-8338-323f01b9e03a",
+      "name": "Load Backup Configuration",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1504,
+        320
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "1"
+            }
+          ]
+        },
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Backup_Config_SSH"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Route by Backup Mode": {
+      "main": [
+        [
+          {
+            "node": "Create Single Up-to-date Backup (Borg, pruned)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Borg Backup and Push to Second Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Scheduled Backup": {
+      "main": [
+        [
+          {
+            "node": "Load Backup Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse SSH Setup Result": {
+      "main": [
+        [
+          {
+            "node": "Destination: Create Restricted borg_backup User",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Backup Config Code": {
+      "main": [
+        [
+          {
+            "node": "Store Borg Passphrase on Source Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Backup Configuration": {
+      "main": [
+        [
+          {
+            "node": "Install Borg on Source Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Backup Configuration": {
+      "main": [
+        [
+          {
+            "node": "Load Backup Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Source: Check & Get SSH Key": {
+      "main": [
+        [
+          {
+            "node": "Parse SSH Setup Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Install Borg on Source Server": {
+      "main": [
+        [
+          {
+            "node": "Install Borg on Destination Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Initialize Configuration Table": {
+      "main": [
+        [
+          {
+            "node": "Save Backup Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Backup Setup Form Submitted": {
+      "main": [
+        [
+          {
+            "node": "Build Backup Config Code",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Install Borg on Destination Server": {
+      "main": [
+        [
+          {
+            "node": "Source: Check & Get SSH Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Borg Passphrase on Source Server": {
+      "main": [
+        [
+          {
+            "node": "Initialize Configuration Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Destination: Create Restricted borg_backup User": {
+      "main": [
+        [
+          {
+            "node": "Route by Backup Mode",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Back up Linux servers to a remote server using Borg and SSH",
+    "wechat": "youandme10086",
+    "id": 18799,
+    "update_time": "2026-09-27"
+  }
+}

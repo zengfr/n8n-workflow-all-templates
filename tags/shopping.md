@@ -1,4 +1,4 @@
-# shopping : 15
+# shopping : 21
 
 |id|file|
 |----|----|
@@ -17,3 +17,9 @@
 |14095|[14095_Create_a_weekly_Mealie_dinner_plan_and_generate_a_smart_shopping_list.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14095_Create_a_weekly_Mealie_dinner_plan_and_generate_a_smart_shopping_list.json)|
 |14330|[14330_Compare_product_prices_from_Amazon__Walmart_and_Google_Shopping_via_Telegram_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14330_Compare_product_prices_from_Amazon__Walmart_and_Google_Shopping_via_Telegram_using_OpenAI.json)|
 |16436|[16436_Track_Google_Shopping_price_alerts_with_ScraperAPI__Airtable_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16436_Track_Google_Shopping_price_alerts_with_ScraperAPI__Airtable_and_Gmail.json)|
+|17327|[17327_Track_lowest_Google_Shopping_prices_with_Bright_Data__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17327_Track_lowest_Google_Shopping_prices_with_Bright_Data__Claude__and_Google_Sheets.json)|
+|17777|[17777_Track_weekly_Google_Shopping_prices_and_log_summaries_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17777_Track_weekly_Google_Shopping_prices_and_log_summaries_to_Google_Sheets.json)|
+|17821|[17821_Monitor_competitor_prices_from_Google_Shopping_via_SearchApi_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17821_Monitor_competitor_prices_from_Google_Shopping_via_SearchApi_with_Google_Sheets_and_Slack.json)|
+|18152|[18152_Compare_Amazon_prices_with_Google_Shopping_using_Bright_Data__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18152_Compare_Amazon_prices_with_Google_Shopping_using_Bright_Data__OpenAI_and_Slack.json)|
+|18185|[18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json)|
+|18987|[18987_Run_an_AI_Telegram_shopping_assistant_with_AWS_Bedrock__Paystack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18987_Run_an_AI_Telegram_shopping_assistant_with_AWS_Bedrock__Paystack_and_Google_Sheets.json)|

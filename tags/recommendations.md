@@ -1,4 +1,4 @@
-# recommendations : 34
+# recommendations : 36
 
 |id|file|
 |----|----|
@@ -36,3 +36,5 @@
 |12767|[12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12767_Analyze_website_SEO_and_log_AI_recommendations_to_Google_Sheets_with_OpenAI.json)|
 |12950|[12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12950_Generate_hotel_guest_upsell_recommendations_with_OpenAI__Sheets_and_Slack.json)|
 |14264|[14264_Generate_personalized_trip_recommendations_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14264_Generate_personalized_trip_recommendations_with_Claude_AI_and_Google_Sheets.json)|
+|18029|[18029_Assess_Wazuh_platform_health_and_email_HTML_reports_with_SSH_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18029_Assess_Wazuh_platform_health_and_email_HTML_reports_with_SSH_and_SMTP.json)|
+|19197|[19197_Send_daily_TMDB_movie_recommendations_to_a_Telegram_channel_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19197_Send_daily_TMDB_movie_recommendations_to_a_Telegram_channel_with_OpenAI.json)|

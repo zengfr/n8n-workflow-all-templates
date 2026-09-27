@@ -1,4 +1,4 @@
-# haiku : 5
+# haiku : 11
 
 |id|file|
 |----|----|
@@ -7,3 +7,9 @@
 |13677|[13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13677_Watch_GitHub_releases_and_Docker_tags__analyze_changelogs_with_Claude_Haiku__and_send_update_digests_to_Slack__Discord__Telegram__and_ntfy.json)|
 |14135|[14135_Track_expenses_via_chat_with_Claude_Haiku_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14135_Track_expenses_via_chat_with_Claude_Haiku_and_Google_Sheets.json)|
 |15902|[15902_Qualify_inbound_email_leads_with_Claude_Haiku__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15902_Qualify_inbound_email_leads_with_Claude_Haiku__Gmail__and_Google_Sheets.json)|
+|17297|[17297_Log_Gmail_invoice_emails_to_data_tables_with_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17297_Log_Gmail_invoice_emails_to_data_tables_with_Claude_Haiku.json)|
+|17315|[17315_Create_WordPress_drafts_with_Claude_Haiku_and_Pexels_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17315_Create_WordPress_drafts_with_Claude_Haiku_and_Pexels_images.json)|
+|17408|[17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json)|
+|17432|[17432_Send_important_Gmail_alerts_to_Telegram_with_filters_and_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17432_Send_important_Gmail_alerts_to_Telegram_with_filters_and_Claude_Haiku.json)|
+|17881|[17881_Monitor_web_pages_for_relevant_listings_with_Claude_Haiku_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17881_Monitor_web_pages_for_relevant_listings_with_Claude_Haiku_and_Gmail.json)|
+|18918|[18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json)|

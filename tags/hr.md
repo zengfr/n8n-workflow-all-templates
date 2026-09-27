@@ -1,4 +1,4 @@
-# hr : 45
+# hr : 52
 
 |id|file|
 |----|----|
@@ -47,3 +47,10 @@
 |16706|[16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json)|
 |16707|[16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json)|
 |16708|[16708_Answer_HR_policy_and_benefits_questions_with_BambooHR__OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16708_Answer_HR_policy_and_benefits_questions_with_BambooHR__OpenAI_and_Supabase.json)|
+|16925|[16925_Onboard_employees_and_manage_Slack_access_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16925_Onboard_employees_and_manage_Slack_access_with_Google_Sheets_and_Gmail.json)|
+|17705|[17705_Score_and_route_job_candidates_with_Mistral__Gemini__Google_Sheets__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17705_Score_and_route_job_candidates_with_Mistral__Gemini__Google_Sheets__and_Drive.json)|
+|17969|[17969_Send_HR_job_application_auto-replies_with_Gmail_and_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17969_Send_HR_job_application_auto-replies_with_Gmail_and_OpenAI_GPT-4o.json)|
+|18126|[18126_Send_weekly_HR_job_and_contact_digests_to_Slack_with_Coresignal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18126_Send_weekly_HR_job_and_contact_digests_to_Slack_with_Coresignal.json)|
+|18177|[18177_Score_and_triage_job_applicants_with_Airtable__Google_Drive_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18177_Score_and_triage_job_applicants_with_Airtable__Google_Drive_and_OpenAI.json)|
+|18288|[18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json)|
+|18353|[18353_Manage_HR_offboarding_and_archival_with_Odoo__Google_Calendar__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18353_Manage_HR_offboarding_and_archival_with_Odoo__Google_Calendar__Gmail__and_Slack.json)|

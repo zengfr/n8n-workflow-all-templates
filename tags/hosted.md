@@ -1,4 +1,4 @@
-# hosted : 17
+# hosted : 22
 
 |id|file|
 |----|----|
@@ -19,3 +19,8 @@
 |14925|[14925_Sync_self-hosted_workflow_backups_to_GitHub_for_version_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14925_Sync_self-hosted_workflow_backups_to_GitHub_for_version_control.json)|
 |15683|[15683_Back_up_self-hosted_workflows_to_Google_Drive_on_a_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15683_Back_up_self-hosted_workflows_to_Google_Drive_on_a_schedule.json)|
 |15740|[15740_Update_self_hosted_instance_via_GitHub__Coolify_and_Mattermost.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15740_Update_self_hosted_instance_via_GitHub__Coolify_and_Mattermost.json)|
+|16867|[16867_Mask_PII_in_hosted_chat_with_OpenAI__Claude__and_Saklam_Bridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16867_Mask_PII_in_hosted_chat_with_OpenAI__Claude__and_Saklam_Bridge.json)|
+|17014|[17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json)|
+|17223|[17223_Manage_a_self-hosted_grocery_list_with_webhooks_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17223_Manage_a_self-hosted_grocery_list_with_webhooks_and_Data_Tables.json)|
+|17566|[17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json)|
+|19842|[19842_Send_weekly_self-hosted_instance_health_reports_via_Prometheus__GitHub_and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19842_Send_weekly_self-hosted_instance_health_reports_via_Prometheus__GitHub_and_SMTP_email.json)|

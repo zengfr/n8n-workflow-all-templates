@@ -1,4 +1,4 @@
-# metrics : 26
+# metrics : 29
 
 |id|file|
 |----|----|
@@ -28,3 +28,6 @@
 |15093|[15093_Send_weekly_Fireflies_meeting_reports_to_Gmail_and_log_metrics_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15093_Send_weekly_Fireflies_meeting_reports_to_Gmail_and_log_metrics_in_Google_Sheets.json)|
 |15134|[15134_Score_customer_support_AI_responses_with_GPT_4_judge_metrics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15134_Score_customer_support_AI_responses_with_GPT_4_judge_metrics.json)|
 |15791|[15791_Generate_a_weekly_business_metrics_report_with_Stripe__Notion__Sheets__Claude__SendGrid__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15791_Generate_a_weekly_business_metrics_report_with_Stripe__Notion__Sheets__Claude__SendGrid__and_Slack.json)|
+|17546|[17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json)|
+|18554|[18554_Collect_form-based_report_requests_and_send_pdfmill_PDFs_via_Gmail_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18554_Collect_form-based_report_requests_and_send_pdfmill_PDFs_via_Gmail_and_Drive.json)|
+|19307|[19307_Create_sustained_capacity_review_tasks_from_OpenObserve_metrics_to_Twenty_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19307_Create_sustained_capacity_review_tasks_from_OpenObserve_metrics_to_Twenty_CRM.json)|

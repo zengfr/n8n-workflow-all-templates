@@ -1,4 +1,4 @@
-# tag : 23
+# tag : 28
 
 |id|file|
 |----|----|
@@ -25,3 +25,8 @@
 |15354|[15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json)|
 |15939|[15939_Score_and_route_GoHighLevel_leads_with_Claude_Sonnet__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15939_Score_and_route_GoHighLevel_leads_with_Claude_Sonnet__Slack__and_Google_Sheets.json)|
 |16522|[16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json)|
+|17101|[17101_Create_Shopify_product_videos_from_tagged_photos_with_Dreem.ai_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17101_Create_Shopify_product_videos_from_tagged_photos_with_Dreem.ai_and_Slack.json)|
+|17320|[17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json)|
+|17537|[17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json)|
+|19181|[19181_Route_fire_sprinkler_deficiencies_with_Gmail__OpenAI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19181_Route_fire_sprinkler_deficiencies_with_Gmail__OpenAI__Telegram_and_Sheets.json)|
+|19389|[19389_Send_CSAT_WhatsApp_surveys_after_qualifying_calls_with_NUACOM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19389_Send_CSAT_WhatsApp_surveys_after_qualifying_calls_with_NUACOM.json)|

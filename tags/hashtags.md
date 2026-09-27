@@ -1,4 +1,4 @@
-# hashtags : 7
+# hashtags : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |7373|[7373_Generate_Qualified_Instagram_Leads_from_Hashtags_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7373_Generate_Qualified_Instagram_Leads_from_Hashtags_with_Apify_and_Google_Sheets.json)|
 |11994|[11994_Optimize_Instagram_hashtags_with_GPT-4o___real_engagement_data_via_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11994_Optimize_Instagram_hashtags_with_GPT-4o___real_engagement_data_via_Graph_API.json)|
 |12057|[12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12057_Generate_beauty_brand_hashtags_with_Gemini_AI__website_analysis_and_SerpAPI.json)|
+|18265|[18265_Find_high-engagement_TikTok_hashtags_and_sounds_with_Bright_Data__OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18265_Find_high-engagement_TikTok_hashtags_and_sounds_with_Bright_Data__OpenAI__Sheets_and_Slack.json)|

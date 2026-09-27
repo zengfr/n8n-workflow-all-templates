@@ -1,4 +1,4 @@
-# curated : 15
+# curated : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |15136|[15136_Send_an_AI_curated_weekly_sports_newsletter_with_Reddit__GPT_4o-mini__Gemini_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15136_Send_an_AI_curated_weekly_sports_newsletter_with_Reddit__GPT_4o-mini__Gemini_and_Outlook.json)|
 |16037|[16037_Send_a_weekly_AI_curated_RSS_digest_email_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16037_Send_a_weekly_AI_curated_RSS_digest_email_with_OpenAI_and_Gmail.json)|
 |16675|[16675_Send_weekly_curated_news_newsletters_with_Bright_Data__Claude__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16675_Send_weekly_curated_news_newsletters_with_Bright_Data__Claude__and_Gmail.json)|
+|17032|[17032_Deploy_curated_Docker_app_stacks_to_a_Hostinger_VPS_via_forms_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17032_Deploy_curated_Docker_app_stacks_to_a_Hostinger_VPS_via_forms_and_email.json)|
+|17248|[17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json)|
+|17901|[17901_Send_a_curated_daily_X_tech_digest_to_Telegram_with_Claude_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17901_Send_a_curated_daily_X_tech_digest_to_Telegram_with_Claude_and_DeepSeek.json)|
+|18252|[18252_Create_and_publish_AI_news_LinkedIn_posts_from_RSS_with_OpenAI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18252_Create_and_publish_AI_news_LinkedIn_posts_from_RSS_with_OpenAI_and_Airtable.json)|
+|19408|[19408_Send_a_curated_AI_tech_news_digest_from_RSS_and_sitemaps_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19408_Send_a_curated_AI_tech_news_digest_from_RSS_and_sitemaps_with_OpenAI_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# signup : 7
+# signup : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |10040|[10040_Create_a_Complete_User_Authentication_System_with_PostgreSQL___Webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10040_Create_a_Complete_User_Authentication_System_with_PostgreSQL___Webhooks.json)|
 |10138|[10138_Newsletter_Signup_Flow_with_Email_Verification_API__Gmail___Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10138_Newsletter_Signup_Flow_with_Email_Verification_API__Gmail___Google_Sheets_Tracking.json)|
 |12069|[12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12069_Recover_abandoned_onboarding_users_with_personalized_emails_via_Postgres__Gmail___Slack.json)|
+|18978|[18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json)|

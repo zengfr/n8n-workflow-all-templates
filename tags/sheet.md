@@ -1,4 +1,4 @@
-# sheet : 91
+# sheet : 102
 
 |id|file|
 |----|----|
@@ -93,3 +93,14 @@
 |16348|[16348_Post_scheduled_social_content_from_Google_Sheets_to_Instagram__Facebook__and_LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16348_Post_scheduled_social_content_from_Google_Sheets_to_Instagram__Facebook__and_LinkedIn.json)|
 |16474|[16474_Sync_check_due_dates_from_Google_Sheets_to_Google_Calendar_with_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16474_Sync_check_due_dates_from_Google_Sheets_to_Google_Calendar_with_Telegram_alerts.json)|
 |16622|[16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json)|
+|16956|[16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json)|
+|17306|[17306_Sync_Asana_project_tasks_with_a_mirrored_Google_Sheets_tab.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17306_Sync_Asana_project_tasks_with_a_mirrored_Google_Sheets_tab.json)|
+|17341|[17341_Answer_WhatsApp_keyword_FAQs_with_Twilio_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17341_Answer_WhatsApp_keyword_FAQs_with_Twilio_and_Google_Sheets.json)|
+|17546|[17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json)|
+|17548|[17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json)|
+|17658|[17658_Manage_CRM_leads_by_chat_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17658_Manage_CRM_leads_by_chat_with_Google_Gemini_and_Google_Sheets.json)|
+|17812|[17812_Suggest_SEO_internal_links_using_Google_Search_Console__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17812_Suggest_SEO_internal_links_using_Google_Search_Console__Claude__and_Google_Sheets.json)|
+|17826|[17826_Answer_FAQ_questions_from_Google_Sheets_with_Gemini_and_log_unanswered_gaps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17826_Answer_FAQ_questions_from_Google_Sheets_with_Gemini_and_log_unanswered_gaps.json)|
+|18050|[18050_Edit_Google_Sheets_by_chat_using_GPT-4o-mini_with_approval_and_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18050_Edit_Google_Sheets_by_chat_using_GPT-4o-mini_with_approval_and_audit_log.json)|
+|18576|[18576_Create_native_multi-platform_social_video_posts_with_PostWire.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18576_Create_native_multi-platform_social_video_posts_with_PostWire.json)|
+|19202|[19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json)|

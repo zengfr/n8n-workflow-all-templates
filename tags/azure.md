@@ -1,4 +1,4 @@
-# azure : 60
+# azure : 61
 
 |id|file|
 |----|----|
@@ -62,3 +62,4 @@
 |14977|[14977_Generate_daily_business_briefing_podcasts_with_OpenAI__Azure_TTS__HubSpot__Zendesk__Pipedrive__Discord__Twilio_and_Confluence.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14977_Generate_daily_business_briefing_podcasts_with_OpenAI__Azure_TTS__HubSpot__Zendesk__Pipedrive__Discord__Twilio_and_Confluence.json)|
 |16425|[16425_Source_and_approve_emergency_equipment_rentals_with_Telegram__Gmail_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16425_Source_and_approve_emergency_equipment_rentals_with_Telegram__Gmail_and_Azure_OpenAI.json)|
 |16426|[16426_Generate_construction_bid_estimates_with_Azure_OpenAI__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16426_Generate_construction_bid_estimates_with_Azure_OpenAI__Google_Docs_and_Sheets.json)|
+|18399|[18399_Send_daily_Azure_IoT_Hub_fleet_health_reports_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18399_Send_daily_Azure_IoT_Hub_fleet_health_reports_with_OpenAI_and_Gmail.json)|

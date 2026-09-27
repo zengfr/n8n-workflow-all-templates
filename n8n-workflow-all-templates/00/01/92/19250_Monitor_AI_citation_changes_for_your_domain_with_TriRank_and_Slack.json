@@ -1,0 +1,308 @@
+{
+  "name": "Monitor AI citation changes for a domain with TriRank and Slack",
+  "nodes": [
+    {
+      "id": "sticky-overview",
+      "name": "Overview & Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -700,
+        -60
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 620,
+        "height": 760,
+        "content": "## Monitor AI citation changes for a domain with TriRank and Slack\n\nEvery Monday this workflow reads a domain's AI-citation reading from TriRank (https://trirankai.com) and posts to Slack **only when the reading changed** since last week. No database, no AI spend — the free TriRank API is read-only and rate-limited per IP (60 reads/day), so a weekly run uses one.\n\n### How it works\n1. **Schedule** fires weekly.\n2. **Configure domain** holds the one value you edit.\n3. **Read TriRank signals** calls `GET /api/signals/<domain>` — which of ChatGPT, Claude, Gemini and Perplexity cited the domain, the 0–100 visibility score and when it was measured.\n4. **Compare with last run** stores the reading in workflow static data and emits a message only on change (or on the first run, as a baseline).\n5. **Post to Slack** delivers it.\n\n### Setup\n1. TriRank only reports domains it has measured. Run the free audit for your domain once at https://trirankai.com/audit (it takes a minute and a human captcha — that is what seeds the measurement).\n2. Put that domain in **Configure domain**.\n3. Add a Slack credential in **Post to Slack** and pick a channel.\n4. Activate the workflow. Static data only persists on active (scheduled) runs, not on manual test runs.\n\nOptional: a TriRank API key (Settings → API keys on trirankai.com) raises the daily allowance. Add it as a **Header Auth** credential named `x-api-key` on the HTTP node — never paste it into the node.\n\n### Honesty note\n\"No citation on record\" is not \"not cited\": the message says which one you are looking at.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-1",
+      "name": "Section 1 · Schedule & config",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 340,
+        "content": "## 1 · Schedule & config\nWeekly trigger, then the single value you edit: the domain to watch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-2",
+      "name": "Section 2 · Read TriRank",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        520,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 340,
+        "content": "## 2 · Read TriRank\nOne read-only GET. 4xx/5xx do not stop the run; they are reported as a state."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-3",
+      "name": "Section 3 · Compare",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 340,
+        "content": "## 3 · Compare with last run\nStores the reading in workflow static data; emits a message only when it changed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-4",
+      "name": "Section 4 · Notify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 340,
+        "content": "## 4 · Notify\nSlack gets the message. Quiet weeks stay quiet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "schedule-weekly",
+      "name": "Every Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        80
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "configure-domain",
+      "name": "Configure domain",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-domain",
+              "name": "domain",
+              "type": "string",
+              "value": "example.com"
+            },
+            {
+              "id": "cfg-first-run",
+              "name": "notifyOnFirstRun",
+              "type": "string",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "read-trirank",
+      "name": "Read TriRank signals",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        560,
+        80
+      ],
+      "parameters": {
+        "url": "=https://trirankai.com/api/signals/{{ $json.domain }}",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "compare-last-run",
+      "name": "Compare with last run",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        900,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Reduces TriRank's /api/signals response to ONE honest reading for the\n// configured domain, compares it with the reading stored on the previous run\n// (workflow static data, no database), and emits `message` only on change.\n//\n// RED LINE (TriRank's, and this template's): \"no citation on record\" is NOT\n// \"not cited\". `citation.state === 'none'` means no fresh measurement exists —\n// never that the engines declined to cite. Only `state === 'scored'` with an\n// empty `cited` list is a real \"not cited\", because that is the one case where\n// all four engines carry a fresh verdict.\n\nconst cfg = $('Configure domain').first().json;\nconst domain = String(cfg.domain || '').trim().toLowerCase();\nconst notifyOnFirstRun = String(cfg.notifyOnFirstRun) !== 'false';\nconst res = $input.first().json; // full response: { statusCode, headers, body }\nconst status = Number(res.statusCode);\nconst body = res.body && typeof res.body === 'object' ? res.body : null;\n\nconst AUDIT_URL = 'https://trirankai.com/audit';\nconst REPORT_URL = 'https://trirankai.com/site/' + domain;\nconst ENGINES = 'ChatGPT, Claude, Gemini, Perplexity';\n\nfunction day(iso) {\n  return iso ? String(iso).slice(0, 10) : 'unknown date';\n}\n\n// -> { key, text }. `key` is the change signature; `text` is what people read.\nfunction reading() {\n  if (status === 429) {\n    return {\n      key: 'limited',\n      text: 'TriRank read was rate-limited (HTTP 429). The daily allowance resets at 00:00 UTC; nothing was measured this run.',\n    };\n  }\n  if (!body || status !== 200) {\n    return {\n      key: 'error:' + status,\n      text: 'TriRank read failed (HTTP ' + status + '). Nothing was measured this run.',\n    };\n  }\n  const c = body.citation || {};\n  const a = body.audit || {};\n  if (c.state === 'scored') {\n    const cited = Array.isArray(c.cited) ? c.cited.slice().sort() : [];\n    const when = day(c.checkedAt);\n    if (cited.length > 0) {\n      return {\n        key: 'cited:' + cited.join(','),\n        text: 'cited by ' + cited.join(', ') + ' — AI visibility score ' + c.score + '/100 (measured ' + when + ')',\n      };\n    }\n    return {\n      key: 'not-cited',\n      text: 'measured ' + when + ': none of ' + ENGINES + ' cited it (score ' + c.score + '/100)',\n    };\n  }\n  if (c.state === 'partial') {\n    const missing = Array.isArray(c.missing) ? c.missing.slice().sort() : [];\n    return {\n      key: 'partial:' + missing.join(','),\n      text: 'partially measured — not yet checked on ' + missing.join(', '),\n    };\n  }\n  // 'none' — no fresh citation measurement on record. Say why, never \"not cited\".\n  if (a.state === 'not_measured') {\n    return {\n      key: 'none:unaudited',\n      text: 'no citation measurement on record — TriRank has never audited this domain. Run the free audit once: ' + AUDIT_URL,\n    };\n  }\n  return {\n    key: 'none:stale',\n    text: 'no fresh citation measurement on record (probes expire after 14 days). Re-run the free audit: ' + AUDIT_URL,\n  };\n}\n\nconst now = reading();\n// A rejected API key silently downgrades to anonymous; say so once, not weekly.\nif (body && body.authError === 'invalid_key') {\n  now.key += '|invalid_key';\n  now.text += ' ⚠️ The TriRank API key on the HTTP node was rejected; this ran as anonymous.';\n}\n\nconst store = $getWorkflowStaticData('global');\nif (!store.trirankCitationWatch) store.trirankCitationWatch = {};\nconst prev = store.trirankCitationWatch[domain];\nconst at = new Date().toISOString();\nstore.trirankCitationWatch[domain] = { key: now.key, text: now.text, at };\n\nlet message = null;\nif (!prev) {\n  if (notifyOnFirstRun) {\n    message = '📌 TriRank baseline for ' + domain + ': ' + now.text + '\\n' + REPORT_URL;\n  }\n} else if (prev.key !== now.key) {\n  message =\n    '🔔 AI citation change for ' + domain + '\\n' +\n    'Before (' + day(prev.at) + '): ' + prev.text + '\\n' +\n    'Now: ' + now.text + '\\n' +\n    REPORT_URL;\n}\n\nreturn [{ json: { domain, changed: Boolean(prev) && prev.key !== now.key, reading: now.text, message } }];\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "anything-to-report",
+      "name": "Anything to report?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1240,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-has-message",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.message }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "post-to-slack",
+      "name": "Post to Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1500,
+        80
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#ai-visibility",
+          "cachedResultName": "#ai-visibility"
+        },
+        "operation": "post",
+        "messageType": "text",
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.4,
+      "waitBetweenTries": 5000
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Configure domain": {
+      "main": [
+        [
+          {
+            "node": "Read TriRank signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 09:00": {
+      "main": [
+        [
+          {
+            "node": "Configure domain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything to report?": {
+      "main": [
+        [
+          {
+            "node": "Post to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Read TriRank signals": {
+      "main": [
+        [
+          {
+            "node": "Compare with last run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare with last run": {
+      "main": [
+        [
+          {
+            "node": "Anything to report?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Monitor AI citation changes for your domain with TriRank and Slack",
+    "wechat": "youandme10086",
+    "id": 19250,
+    "update_time": "2026-09-27"
+  }
+}

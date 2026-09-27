@@ -1,4 +1,4 @@
-# ecommerce : 18
+# ecommerce : 22
 
 |id|file|
 |----|----|
@@ -20,3 +20,7 @@
 |15855|[15855_Provide_ecommerce_support_with_Qdrant_RAG__WooCommerce__and_human_backup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15855_Provide_ecommerce_support_with_Qdrant_RAG__WooCommerce__and_human_backup.json)|
 |16354|[16354_Extract_ecommerce_product_data_with_Google_Sheets__ScrapingBee_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16354_Extract_ecommerce_product_data_with_Google_Sheets__ScrapingBee_and_Gemini.json)|
 |16361|[16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json)|
+|16887|[16887_Route_ecommerce_review_alerts_from_Gmail_to_Slack_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16887_Route_ecommerce_review_alerts_from_Gmail_to_Slack_with_OpenAI_and_Google_Sheets.json)|
+|17774|[17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json)|
+|19548|[19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json)|
+|19549|[19549_Resolve_ecommerce_order_exceptions_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19549_Resolve_ecommerce_order_exceptions_with_Anthropic_Claude_and_Slack.json)|

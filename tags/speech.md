@@ -1,4 +1,4 @@
-# speech : 19
+# speech : 27
 
 |id|file|
 |----|----|
@@ -21,3 +21,11 @@
 |11982|[11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11982_Video_speech_enhancement_with_OpenAI_Whisper_and_GPT-4o_TTS_for_multilingual_delivery.json)|
 |12383|[12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12383_Create_multilingual_localized_speech_audio_with_GPT-4_and_ElevenLabs.json)|
 |12384|[12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12384_Convert_Japanese_scripts_to_multilingual_speech_with_GPT-4_and_ElevenLabs.json)|
+|16816|[16816_Transcribe_audio_to_text_via_webhook_with_Smallest.ai_speech-to-text.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16816_Transcribe_audio_to_text_via_webhook_with_Smallest.ai_speech-to-text.json)|
+|16819|[16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json)|
+|17651|[17651_Transcribe_online_audio_files_to_text_with_Online_Speech_to_Text_Cloud_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17651_Transcribe_online_audio_files_to_text_with_Online_Speech_to_Text_Cloud_API.json)|
+|17726|[17726_Transcribe_Telegram_voice_messages_with_Palatine_Speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17726_Transcribe_Telegram_voice_messages_with_Palatine_Speech.json)|
+|17773|[17773_Expose_a_speech-to-text__transcribe_API_with_Palatine_Speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17773_Expose_a_speech-to-text__transcribe_API_with_Palatine_Speech.json)|
+|18186|[18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json)|
+|18212|[18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json)|
+|18487|[18487_Detect_silence_and_speech_segments_in_audio_files_with_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18487_Detect_silence_and_speech_segments_in_audio_files_with_FFmpeg.json)|

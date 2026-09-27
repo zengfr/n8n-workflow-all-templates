@@ -1,0 +1,916 @@
+{
+  "id": "c67PaJnbnn59tvk9",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Gate film and TV music cue rights clearance with Gmail, OpenAI, and Google Drive/Sheets",
+    "wechat": "youandme10086",
+    "id": 19579,
+    "update_time": "2026-09-27"
+  },
+  "name": "Film and TV Music Cue Rights Clearance Gate",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "d567c65e-2269-417c-9978-0768c8cd3f4e",
+      "name": "Watch Incoming Cue Sheets",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        736,
+        352
+      ],
+      "parameters": {
+        "filters": {
+          "q": "subject:(cue sheet OR music clearance) has:attachment"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9d6bb44c-4ee4-465a-ac85-cf23fb1ac398",
+      "name": "Normalize Production and Cue Text",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1024,
+        352
+      ],
+      "parameters": {
+        "jsCode": "const input=$input.all();if(input.length!==1)throw Error('This approval template accepts one email per execution. Separate a multi-email batch before retrying.');const j=input[0].json;const text=j.textPlain||j.snippet;if(typeof text!=='string'||text.trim().length<20)throw Error('Cue details must be in the email body; attachments are not parsed');return [{json:{cueText:text,messageId:j.id||null}}];"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "4425ff22-9063-40b5-a88b-38c597378558",
+      "name": "Power Cue Sheet Extractor",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1312,
+        352
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b5f188b5-2645-41c5-90f6-c791168198b0",
+      "name": "Extract Music Cue Rights",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        736,
+        576
+      ],
+      "parameters": {
+        "text": "={{$json.cueText}}",
+        "options": {
+          "systemPromptTemplate": "Extract the production and each cue ID/title from the email. Do not invent identifiers. Missing identifiers must remain empty for validation."
+        },
+        "schemaType": "manual",
+        "inputSchema": "{\"type\":\"object\",\"properties\":{\"production\":{\"type\":\"string\"},\"cues\":{\"type\":\"array\",\"minItems\":1,\"items\":{\"type\":\"object\",\"properties\":{\"cueId\":{\"type\":\"string\"},\"title\":{\"type\":\"string\"}},\"required\":[\"cueId\",\"title\"],\"additionalProperties\":false}}},\"required\":[\"production\",\"cues\"],\"additionalProperties\":false}"
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.1
+    },
+    {
+      "id": "920b3932-34be-4c0e-86b3-aa31dc459723",
+      "name": "Fetch PRO Work Registrations",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1856,
+        352
+      ],
+      "parameters": {
+        "url": "https://rights.example/api/works/batch",
+        "body": "={{ JSON.stringify($json) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "authentication": "genericCredentialType",
+        "rawContentType": "application/json",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "05c38667-ca0d-4e0c-8031-c082111c222b",
+      "name": "Fetch Master Ownership Claims",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2144,
+        352
+      ],
+      "parameters": {
+        "url": "https://labels.example/api/master-claims/batch",
+        "body": "={{ JSON.stringify($json) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "authentication": "genericCredentialType",
+        "rawContentType": "application/json",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f4d501ea-9ef4-4938-b428-6eb624492744",
+      "name": "Merge Rights Evidence",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2432,
+        352
+      ],
+      "parameters": {},
+      "retryOnFail": false,
+      "typeVersion": 3.2
+    },
+    {
+      "id": "99b770df-46db-45b3-9e7f-667ff5cec0b8",
+      "name": "Calculate Clearance Gaps",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1856,
+        576
+      ],
+      "parameters": {
+        "jsCode": "const source=$('Validate Extracted Cues').first().json;const pro=$('Fetch PRO Work Registrations').first().json;const master=$('Fetch Master Ownership Claims').first().json;if(!Array.isArray(pro.cues)||!Array.isArray(master.cues))throw Error('Both rights APIs must return a cues array');const find=(rows,id)=>{const hits=rows.filter(c=>c.cueId===id);if(hits.length>1)throw Error('Duplicate rights evidence for '+id);return hits[0]||{};};const gaps=[];const cues=source.cues.map(c=>{const p=find(pro.cues,c.cueId),m=find(master.cues,c.cueId);if(typeof p.writerShareTotal!=='number'||p.writerShareTotal!==100)gaps.push(c.cueId+':WRITER_SHARES');if(typeof m.masterOwner!=='string'||!m.masterOwner.trim())gaps.push(c.cueId+':MASTER_OWNER');if(typeof p.syncQuote!=='string'||!p.syncQuote.trim())gaps.push(c.cueId+':SYNC_QUOTE');return {...c,writerShareTotal:p.writerShareTotal??null,masterOwner:m.masterOwner||null,syncQuote:p.syncQuote||null};});return [{json:{production:source.production,cues,gaps,risk:gaps.length>2?'HIGH':gaps.length?'REVIEW':'CLEAR',packetId:'MC-'+$execution.id}}];"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "b38d35a1-1f2d-4b44-832d-12246c3d8569",
+      "name": "Power Clearance Packet Drafter",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2976,
+        352
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.3
+    },
+    {
+      "id": "352b049f-ef6e-43ed-9590-96fb7b518be2",
+      "name": "Draft Rights Clearance Packet",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        3264,
+        352
+      ],
+      "parameters": {
+        "text": "=Prepare a concise supervisor review using only this packet: {{JSON.stringify($json)}}. Preserve every gap. Do not state that legal rights have been obtained or that a licence has been issued.",
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a film/TV music clearance coordinator. Never represent missing rights as cleared."
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.5
+    },
+    {
+      "id": "48f9f970-e5ef-4b94-b969-fb5665b318a0",
+      "name": "Send Packet for Music Supervisor Approval",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2976,
+        576
+      ],
+      "webhookId": "5b4b27dc-f6cc-4a8b-bfcd-412007655108",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=Review this evidence packet:\n{{JSON.stringify($json,null,2)}}\n\nApproval service: POST JSON to {{$execution.resumeUrl}} using the configured approval header credential. Body: {\"packetId\":\"{{$json.packetId}}\",\"approved\":true,\"reviewer\":\"your reviewer ID\"}. Use approved:false to return it for follow-up. Do not forward this execution-specific URL outside the review team. This template does not issue a licence.",
+        "options": {},
+        "subject": "={{'Approve rights packet '+$json.packetId}}",
+        "emailType": "text"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a591f890-74a2-4b29-9e49-366ac22259ca",
+      "name": "Wait for Supervisor Approval",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        4096,
+        352
+      ],
+      "webhookId": "e392bc1e-e7d2-40d2-b859-c2846d34b801",
+      "parameters": {
+        "resume": "webhook",
+        "options": {},
+        "httpMethod": "POST",
+        "incomingAuthentication": "headerAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f89f9471-8584-48d4-979e-625a981e9945",
+      "name": "Route Clearance Approval",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4672,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f96b4d9e-3637-40b9-bb69-5f4f36be8324",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{$json.approved}}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "df7d8ee1-9f7e-44e4-a29b-7f7d1f4dd89a",
+      "name": "Commit Approved Cue Clearance",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4096,
+        576
+      ],
+      "parameters": {
+        "url": "https://production.example/api/music-clearances",
+        "body": "={{ JSON.stringify($json) }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "authentication": "genericCredentialType",
+        "rawContentType": "application/json",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5d96356b-cff8-4f47-b61e-fbd4954ff16a",
+      "name": "Return Packet for Rights Follow-Up",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        4384,
+        576
+      ],
+      "webhookId": "16964b19-d8b9-4361-8779-797061cb56a5",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{JSON.stringify($json.gaps)}}",
+        "options": {},
+        "subject": "={{'Rights follow-up '+$json.packetId}}"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "9260158d-80a8-4af3-80b6-db96dd7a61ee",
+      "name": "Archive Clearance Evidence",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        5792,
+        352
+      ],
+      "parameters": {
+        "name": "={{'music-clearance-'+$json.packetId+'.json'}}",
+        "content": "={{JSON.stringify($json,null,2)}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_FOLDER_ID"
+        },
+        "operation": "createFromText"
+      },
+      "retryOnFail": false,
+      "typeVersion": 3
+    },
+    {
+      "id": "81669fcb-6011-4cda-b7e4-7bb3aa2b460d",
+      "name": "Append Cue Clearance Ledger",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        5216,
+        576
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "gaps": "={{JSON.stringify($('Validate Supervisor Response').item.json.gaps)}}",
+            "risk": "={{ $('Validate Supervisor Response').item.json.risk }}",
+            "approved": "={{ $('Validate Supervisor Response').item.json.approved }}",
+            "packetId": "={{ $('Validate Supervisor Response').item.json.packetId }}",
+            "reviewer": "={{ $('Validate Supervisor Response').item.json.reviewer }}",
+            "production": "={{ $('Validate Supervisor Response').item.json.production }}",
+            "reviewedAt": "={{ $('Validate Supervisor Response').item.json.reviewedAt }}",
+            "driveFileId": "={{$json.id}}",
+            "requestedApproval": "={{ $('Validate Supervisor Response').item.json.requestedApproval }}"
+          },
+          "schema": [
+            {
+              "id": "packetId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "packetId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "production",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "production",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "risk",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approved",
+              "type": "boolean",
+              "display": true,
+              "required": false,
+              "displayName": "approved",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requestedApproval",
+              "type": "boolean",
+              "display": true,
+              "required": false,
+              "displayName": "requestedApproval",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewer",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reviewer",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reviewedAt",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reviewedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "gaps",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "gaps",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "driveFileId",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "driveFileId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Audit Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_GOOGLE_SHEET_ID"
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.7
+    },
+    {
+      "id": "14b788d4-ba18-422f-97b7-bb0ff2476146",
+      "name": "Validate Extracted Cues",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1024,
+        576
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const j=$json.output||$json;if(typeof j.production!=='string'||!j.production.trim()||!Array.isArray(j.cues)||j.cues.length===0)throw Error('Missing production or cues');const seen=new Set();for(const c of j.cues){if(!c.cueId||!c.title||seen.has(c.cueId))throw Error('Each cue requires a unique cueId and title');seen.add(c.cueId);}return {json:j};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ed1d474e-13e6-47d7-98dd-58c37d33641d",
+      "name": "Build Supervisor Review Packet",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3552,
+        352
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const record = $('Calculate Clearance Gaps').item.json;\nreturn {json:{...record, providerResult:$json}};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5e453572-1f03-4732-aaf0-b74c408cb1fd",
+      "name": "Validate Supervisor Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4384,
+        352
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const packet=$('Build Supervisor Review Packet').first().json;const response=$json.body;if(!response||response.packetId!==packet.packetId||typeof response.approved!=='boolean'||typeof response.reviewer!=='string'||!response.reviewer.trim())throw Error('Approval callback must contain matching packetId, boolean approved and reviewer');return {json:{...packet,requestedApproval:response.approved,approved:response.approved&&packet.gaps.length===0,reviewer:response.reviewer,reviewedAt:new Date().toISOString()}};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2c6bf017-1929-497b-9dd0-e5936b11ef38",
+      "name": "Keep Committed Clearance",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5216,
+        352
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const record = $('Validate Supervisor Response').item.json;\nreturn {json:{...record, providerResult:$json}};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0011912b-c836-46a4-80fa-6cad80dac43d",
+      "name": "Keep Follow-up Clearance",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5504,
+        352
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const record = $('Validate Supervisor Response').item.json;\nreturn {json:{...record, providerResult:$json}};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3c93807a-a378-4e31-ad8d-f84fd7beda6b",
+      "name": "Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 328,
+        "content": "## Start here\n\nPrepare an evidence packet for a music supervisor to review. The workflow reads cue details from an email body, checks two rights sources, lists gaps, and records the supervisor's decision.\n\nIt does not obtain a licence or prove complete legal clearance. The production write requires an authenticated approval and no gaps in this limited checklist. Keep licensed-rights verification with the responsible supervisor."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb20ce9f-bfc1-4335-802d-6e9ed94f8dbc",
+      "name": "Connect and configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        416
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 524,
+        "content": "## Connect and configure\n\n1. Connect Gmail and OpenAI. Review the Gmail cue-sheet search. This version accepts one email per execution and reads textPlain or snippet, not the attachment. Separate batches before this workflow.\n2. Replace the work-registration, master-ownership and production example API URLs; select their Header Auth credentials.\n3. Both lookup APIs must return a cues array keyed by cueId. Work records include numeric writerShareTotal and a syncQuote reference. Master records include masterOwner.\n4. Configure the supervisor and coordinator recipients. Select Header Auth on Wait for Supervisor Approval. Your trusted approval service must POST packetId, boolean approved and reviewer to the execution-specific URL.\n5. Select the Drive folder and Audit Log spreadsheet. Use columns packetId, production, risk, approved, requestedApproval, reviewer, reviewedAt, gaps and driveFileId."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "be53d96a-209a-4cdf-957c-59aca9f49b67",
+      "name": "Before switching on",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        1024
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 560,
+        "height": 372,
+        "content": "## Before switching on\n\nTest an empty cue list, incomplete writer shares, a missing master owner, a rejected callback and an approved callback with unresolved gaps. Only a matching authenticated approval with zero gaps may reach the production endpoint.\n\nUse sandbox endpoints and inboxes. Failed service calls stop the run; writes do not retry automatically. Inspect previous writes before replaying.\n\nThe wait has no automatic timeout. Monitor waiting executions and cancel abandoned reviews. No external services or licensing evidence are included with this template."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2fec3279-2e45-4a43-a0d8-90620604d7a8",
+      "name": "1. Extract cue identifiers from the email body",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 820,
+        "content": "## 1. Extract cue identifiers from the email body\n\nRead one cue email and extract its production name, cue IDs and titles. Validation rejects missing identifiers, duplicate cue IDs and an empty list before any rights lookup.\n\nThe Gmail filter may match emails with attachments, but this workflow does not parse those files. Put the cue details in the body or add a verified attachment-reading stage upstream."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d98b9b97-c22a-4c6b-8a46-8b0ec34b8b71",
+      "name": "2. Match rights evidence to each cue",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1760,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1040,
+        "height": 820,
+        "content": "## 2. Match rights evidence to each cue\n\nThe two APIs receive the extracted cue list. Their results are matched by cueId. A missing record creates a gap; duplicate records stop the run.\n\nThe checklist asks for writer shares totalling 100, a master owner and a sync-quote reference. CLEAR means this checklist has no gaps; it does not verify every territory, use, term or licence condition."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55b9c5b4-42ab-40ce-809a-8f68093c7ca2",
+      "name": "3. Prepare a review without changing the evidence",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 820,
+        "content": "## 3. Prepare a review without changing the evidence\n\nThe model summarizes the calculated packet. Build Supervisor Review Packet retains the original cues, gaps and packet ID alongside that explanation.\n\nThe email contains the evidence and the execution-specific callback URL. Configure a trusted approval service to authenticate and send the response. Replying to the email alone will not resume the workflow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3df74ccb-ec1f-4531-ad6b-37ba8dbf97e5",
+      "name": "4. Validate the supervisor's decision",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4000,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1040,
+        "height": 820,
+        "content": "## 4. Validate the supervisor's decision\n\nWait accepts an authenticated POST. The response must include the matching packetId, boolean approved and a reviewer identifier. Invalid responses stop the run.\n\nAn approval request cannot override unresolved gaps: approved stays false when the checklist contains gaps. The false path asks the rights coordinator for follow-up; the true path records the approved packet in your production system."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "acb21947-63f4-47ca-b60a-0cb53949c28e",
+      "name": "5. Preserve the review and archive its outcome",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5120,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 820,
+        "content": "## 5. Preserve the review and archive its outcome\n\nBoth paths retain the supervisor response and source packet alongside the service result. Drive creates a text file containing the JSON. Sheets records the decision, gap list and Drive file ID.\n\nDuring testing, open the saved file and ledger row. A service acknowledgement by itself is not the packet. Archive or ledger failures stop the execution for review."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "3c86f327-ca2d-4a08-8f4c-797174ea9fb5",
+  "connections": {
+    "Merge Rights Evidence": {
+      "main": [
+        [
+          {
+            "node": "Calculate Clearance Gaps",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Extracted Cues": {
+      "main": [
+        [
+          {
+            "node": "Fetch PRO Work Registrations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Master Ownership Claims",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Clearance Gaps": {
+      "main": [
+        [
+          {
+            "node": "Draft Rights Clearance Packet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Music Cue Rights": {
+      "main": [
+        [
+          {
+            "node": "Validate Extracted Cues",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Committed Clearance": {
+      "main": [
+        [
+          {
+            "node": "Archive Clearance Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep Follow-up Clearance": {
+      "main": [
+        [
+          {
+            "node": "Archive Clearance Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Clearance Approval": {
+      "main": [
+        [
+          {
+            "node": "Commit Approved Cue Clearance",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Packet for Rights Follow-Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Power Cue Sheet Extractor": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Music Cue Rights",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch Incoming Cue Sheets": {
+      "main": [
+        [
+          {
+            "node": "Normalize Production and Cue Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Clearance Evidence": {
+      "main": [
+        [
+          {
+            "node": "Append Cue Clearance Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch PRO Work Registrations": {
+      "main": [
+        [
+          {
+            "node": "Merge Rights Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Supervisor Response": {
+      "main": [
+        [
+          {
+            "node": "Route Clearance Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Supervisor Approval": {
+      "main": [
+        [
+          {
+            "node": "Validate Supervisor Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Approved Cue Clearance": {
+      "main": [
+        [
+          {
+            "node": "Keep Committed Clearance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Rights Clearance Packet": {
+      "main": [
+        [
+          {
+            "node": "Build Supervisor Review Packet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Master Ownership Claims": {
+      "main": [
+        [
+          {
+            "node": "Merge Rights Evidence",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Build Supervisor Review Packet": {
+      "main": [
+        [
+          {
+            "node": "Send Packet for Music Supervisor Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Power Clearance Packet Drafter": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Rights Clearance Packet",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Production and Cue Text": {
+      "main": [
+        [
+          {
+            "node": "Extract Music Cue Rights",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return Packet for Rights Follow-Up": {
+      "main": [
+        [
+          {
+            "node": "Keep Follow-up Clearance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Packet for Music Supervisor Approval": {
+      "main": [
+        [
+          {
+            "node": "Wait for Supervisor Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

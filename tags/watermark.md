@@ -1,4 +1,4 @@
-# watermark : 9
+# watermark : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |13892|[13892_Watermark_and_password-protect_new_Google_Drive_PDFs_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13892_Watermark_and_password-protect_new_Google_Drive_PDFs_with_Autype.json)|
 |13896|[13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json)|
 |15249|[15249_Watermark_images_between_Google_Drive_source_and_destination_folders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15249_Watermark_images_between_Google_Drive_source_and_destination_folders.json)|
+|16912|[16912_Upscale_and_watermark_real_estate_photos_with_Google_Drive__Gemini__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16912_Upscale_and_watermark_real_estate_photos_with_Google_Drive__Gemini__and_Sheets.json)|
+|16937|[16937_Repost_watermark-free_TikTok_videos_to_YouTube_via_Telegram_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16937_Repost_watermark-free_TikTok_videos_to_YouTube_via_Telegram_and_Blotato.json)|
+|19783|[19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json)|

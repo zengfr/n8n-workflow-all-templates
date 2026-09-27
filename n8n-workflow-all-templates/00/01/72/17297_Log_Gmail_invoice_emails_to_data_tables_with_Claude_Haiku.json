@@ -1,0 +1,309 @@
+{
+  "name": "Auto-log invoices from Gmail into a table with Claude",
+  "nodes": [
+    {
+      "id": "ecd69096-a582-46cb-91ee-acfb46c0af48",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -352,
+        160
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 880,
+        "content": "## Auto-log invoices from Gmail into a table with Claude\n\n### How it works\n\nThis workflow runs every morning, searches Gmail for invoice emails, and prepares their contents for extraction. It sends a strict prompt to Claude to extract invoice fields, validates the returned data to discard guesses, then appends valid invoice records to a table. Finally, it labels the processed emails in Gmail to prevent repeat handling or to keep an audit trail.\n\n### Setup steps\n\n- Connect Gmail credentials for both the inbox search and processed-label steps.\n- Configure the Gmail search query to match the invoice emails you want to log, and ensure the processed label exists or can be created.\n- Add Anthropic API access to the HTTP Request node, including the correct API key and required headers for https://api.anthropic.com/v1/messages.\n- Create or select the target data table and make sure its columns match the validated invoice fields produced by the workflow.\n- Set the schedule trigger to the desired daily run time and timezone.\n\n### Customization\n\nAdjust the Gmail query, extraction prompt, validation rules, table schema, and processed label name to match your invoice formats and accounting process."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6cbd809f-d28a-4b75-846f-4bc901122378",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 304,
+        "content": "## Schedule invoice search\n\nStarts the workflow each morning and searches Gmail for invoice-related messages to process."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd26a138-ea42-4665-8430-ce0a82c07b00",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        688,
+        176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 320,
+        "content": "## Extract invoice details\n\nBuilds a strict batch extraction prompt from the found emails and sends it to Claude through the Anthropic Messages API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2370cef4-d454-4be7-b399-f4b2b4c72731",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        176
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 320,
+        "content": "## Validate and store rows\n\nChecks Claude's response to remove guesses or invalid invoice data, then appends the accepted records to the configured table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "efdee115-cf4e-4d60-b112-508267015822",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1648,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 336,
+        "content": "## Mark emails processed\n\nApplies a Gmail label to the processed messages so they can be excluded or recognized in future runs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c56c63e2-a43f-4c7a-aa5b-7826ac5c929e",
+      "name": "Every Morning at 6:45 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        260,
+        340
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "45 6 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "0b746757-f022-4215-a2cd-a8d20ef0aa0e",
+      "name": "Fetch Invoices from Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        500,
+        340
+      ],
+      "parameters": {
+        "limit": 40,
+        "simple": false,
+        "filters": {
+          "q": "-label:Processed newer_than:90d (subject:(rechnung OR invoice OR receipt OR beleg OR quittung OR zahlungsbestätigung) OR \"ihre rechnung\" OR \"payment receipt\" OR \"receipt for your payment\" OR \"kauf bestätigt\" OR \"zahlung erhalten\" OR \"invoice is available\" OR \"your invoice\")"
+        },
+        "options": {},
+        "resource": "message",
+        "operation": "getAll",
+        "returnAll": false
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "443edb20-9e10-447f-b13f-9bd06af25467",
+      "name": "Create Extraction Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        740,
+        340
+      ],
+      "parameters": {
+        "jsCode": "// One prompt for the whole batch. Strict rules keep the model from inventing numbers.\nconst mails = $input.all().map(i => ({\n  id: i.json.id,\n  from: i.json.From || '',\n  subject: i.json.Subject || '',\n  text: String(i.json.text || i.json.snippet || '').slice(0, 4000),\n  mailDate: i.json.date || '',\n}));\nconst sys = \"You extract paid business invoices and payment receipts from emails. \"\n  + \"STRICT RULES, this feeds bookkeeping: \"\n  + \"1) Only take an amount that appears LITERALLY in the text. NEVER guess. \"\n  + \"2) If there is no clear amount with a currency, skip the mail entirely. \"\n  + \"3) Always take the TOTAL (gross). Never the VAT share, never a single line item. \"\n  + \"4) Skip: order confirmations without an amount, newsletters, ads, password mails, \"\n  + \"payment reminders without a sum. \"\n  + \"5) date as full YYYY-MM-DD. Prefer the invoice date in the text, else mailDate. \"\n  + \"Return ONLY a JSON array, one object per confirmed invoice: \"\n  + '[{\\\"id\\\":\\\"<mail id>\\\",\\\"vendor\\\":\\\"\\\",\\\"amount\\\":<number>,'\n  + '\\\"currency\\\":\\\"EUR|USD\\\",\\\"date\\\":\\\"YYYY-MM-DD\\\",\\\"description\\\":\\\"\\\"}]. \"\n  + \"No invoices found: return []\";\nconst body = JSON.stringify({\n  model: 'claude-haiku-4-5',\n  max_tokens: 2000,\n  system: sys,\n  messages: [{ role: 'user', content: JSON.stringify(mails).slice(0, 20000) }],\n});\nreturn [{ json: { anthropicBody: body } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4bee91fc-e215-45e9-8d4f-a1f144363b58",
+      "name": "Post to Claude API",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        980,
+        340
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.anthropicBody }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        },
+        "nodeCredentialType": "anthropicApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1590d97c-04b7-4f6f-838a-54ad553cd087",
+      "name": "Validate Extracted Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1220,
+        340
+      ],
+      "parameters": {
+        "jsCode": "// Second safety net: whatever the model returns still has to survive these checks.\nlet raw = '';\ntry { raw = $json.content[0].text; } catch (e) {}\nlet arr = [];\ntry { arr = JSON.parse(String(raw).replace(/```json|```/g, '').trim()); } catch (e) {}\nif (!Array.isArray(arr)) arr = [];\nconst out = [];\nfor (const o of arr) {\n  const amount = Number(String(o.amount).replace(',', '.'));\n  const date = String(o.date || '');\n  if (!o.id || !amount || amount <= 0) continue;        // no amount -> drop\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(date)) continue;      // no clean date -> drop\n  out.push({ json: {\n    msgId: o.id,\n    vendor: String(o.vendor || '').slice(0, 80),\n    amount: amount,\n    currency: (o.currency === 'USD' ? 'USD' : 'EUR'),\n    date: date,\n    description: String(o.description || '').slice(0, 200),\n  } });\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b59d7986-badb-46ee-99bc-0234ca697791",
+      "name": "Add Invoices to Table",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1460,
+        340
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $json.date }}",
+            "amount": "={{ $json.amount }}",
+            "vendor": "={{ $json.vendor }}",
+            "currency": "={{ $json.currency }}",
+            "description": "={{ $json.description }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "resource": "row",
+        "operation": "insert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_TABLE_ID"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79991fce-d7ab-4dcd-ae2f-7681a1406895",
+      "name": "Mark Email as Processed",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1700,
+        340
+      ],
+      "parameters": {
+        "labelIds": [
+          "YOUR_LABEL_ID"
+        ],
+        "resource": "message",
+        "messageId": "={{ $json.msgId }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Post to Claude API": {
+      "main": [
+        [
+          {
+            "node": "Validate Extracted Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add Invoices to Table": {
+      "main": [
+        [
+          {
+            "node": "Mark Email as Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Extracted Data": {
+      "main": [
+        [
+          {
+            "node": "Add Invoices to Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Extraction Prompt": {
+      "main": [
+        [
+          {
+            "node": "Post to Claude API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Morning at 6:45 AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Invoices from Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Invoices from Gmail": {
+      "main": [
+        [
+          {
+            "node": "Create Extraction Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Log Gmail invoice emails to data tables with Claude Haiku",
+    "wechat": "youandme10086",
+    "id": 17297,
+    "update_time": "2026-09-27"
+  }
+}

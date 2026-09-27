@@ -1,4 +1,4 @@
-# tools : 38
+# tools : 47
 
 |id|file|
 |----|----|
@@ -40,3 +40,12 @@
 |16093|[16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json)|
 |16165|[16165_Build_and_operate_n8n_workflows_from_Claude_with_Gemini_and_MCP_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16165_Build_and_operate_n8n_workflows_from_Claude_with_Gemini_and_MCP_tools.json)|
 |16638|[16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json)|
+|17611|[17611_Validate_and_reconcile_CRM_lead_CSV_imports_with_built-in_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17611_Validate_and_reconcile_CRM_lead_CSV_imports_with_built-in_tools.json)|
+|17843|[17843_Expose_Google_Blogger_management_tools_to_Claude_via_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17843_Expose_Google_Blogger_management_tools_to_Claude_via_MCP_server.json)|
+|18003|[18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18279|[18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json)|
+|18570|[18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json)|
+|18935|[18935_Search_ROCKIMG_image_tools_with_form_input_and_the_public_ROCKIMG_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18935_Search_ROCKIMG_image_tools_with_form_input_and_the_public_ROCKIMG_API.json)|
+|19395|[19395_Run_a_Slack_research_agent_with_OpenAI_and_Apify_MCP_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19395_Run_a_Slack_research_agent_with_OpenAI_and_Apify_MCP_tools.json)|
+|19742|[19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json)|

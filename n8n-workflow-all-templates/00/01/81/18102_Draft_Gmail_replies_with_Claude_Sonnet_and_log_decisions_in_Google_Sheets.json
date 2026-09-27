@@ -1,0 +1,1129 @@
+{
+  "name": "Draft context-aware Gmail replies with Claude, approve by label to auto-send",
+  "nodes": [
+    {
+      "id": "2372f71f-f659-4371-9ebc-e82f67108a5c",
+      "name": "When Email is Received",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        0,
+        112
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "q": "in:inbox -category:promotions -category:social",
+          "readStatus": "unread"
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "1adcd93d-f69a-46e0-a886-ef6e56fbf88d",
+      "name": "Normalize Email Content",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        224,
+        112
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json;\nconst fromValue = raw.from?.value?.[0] || {};\nconst from_address = String(fromValue.address || raw.From || raw.from || '').replace(/^.*</, '').replace(/>.*$/, '').trim();\nconst from_name = String(fromValue.name || '').trim() || from_address;\nconst subject = String(raw.subject || raw.Subject || '');\nconst body = String(raw.text || raw.textPlain || raw.snippet || '');\nreturn [{ json: {\n  received_at: $now.toISO(),\n  message_id: String(raw.id || ''),\n  thread_id: String(raw.threadId || ''),\n  from_address,\n  from_name,\n  subject,\n  body: body.slice(0, 8000)\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ce391505-c440-4c4d-9391-947ed5fd47a9",
+      "name": "Fetch Full Thread History",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        448,
+        112
+      ],
+      "webhookId": "54faa80d-6161-4667-982f-5d57f688b655",
+      "parameters": {
+        "simple": false,
+        "options": {
+          "returnOnlyMessages": true
+        },
+        "resource": "thread",
+        "threadId": "={{ $json.thread_id }}",
+        "operation": "get"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5185c393-9e0c-49a3-9360-a36ca67291c4",
+      "name": "Build Conversation Transcript",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        672,
+        112
+      ],
+      "parameters": {
+        "jsCode": "const base = $('Normalize Email Content').first().json;\n\nconst decode = (data) => {\n  try { return Buffer.from(String(data || '').replace(/-/g, '+').replace(/_/g, '/'), 'base64').toString('utf8'); } catch (e) { return ''; }\n};\n\nconst findPlainText = (payload) => {\n  if (!payload) return '';\n  if (payload.mimeType === 'text/plain' && payload.body && payload.body.data) { return decode(payload.body.data); }\n  const parts = Array.isArray(payload.parts) ? payload.parts : [];\n  for (const p of parts) {\n    const found = findPlainText(p);\n    if (found) return found;\n  }\n  return '';\n};\n\nlet msgs = [];\nconst first = $input.first().json || {};\nif (Array.isArray(first.messages)) {\n  msgs = first.messages;\n} else {\n  msgs = $input.all().map(i => i.json).filter(m => m && m.id);\n}\nmsgs.sort((a, b) => Number(a.internalDate || 0) - Number(b.internalDate || 0));\n\nconst lines = [];\nfor (const m of msgs) {\n  if (String(m.id) === String(base.message_id)) continue;\n  const from = String(m.From || m.from || 'unknown sender');\n  const date = String(m.Date || m.date || '');\n  let body = String(m.text || m.textPlain || '') || findPlainText(m.payload) || String(m.snippet || '');\n  body = body.split('\\n').filter(l => !l.trim().startsWith('>') && !/^On .+ wrote:\\s*$/.test(l.trim())).join('\\n');\n  body = body.replace(/\\s+/g, ' ').trim();\n  if (!body) continue;\n  if (body.length > 700) { body = body.slice(0, 700) + ' [trimmed]'; }\n  lines.push('From: ' + from + (date ? ' on ' + date : '') + '\\n' + body);\n}\n\nlet thread_history = lines.join('\\n---\\n');\nif (thread_history.length > 6000) { thread_history = '[earlier messages trimmed]\\n' + thread_history.slice(-6000); }\nif (!lines.length) { thread_history = 'This is the first message in the thread, there is no earlier history.'; }\nreturn [{ json: { ...base, thread_history } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b3ee4adf-5909-4e10-82a8-216d3f363a26",
+      "name": "Set Business Profile",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        880,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "bp-1",
+              "name": "business_name",
+              "type": "string",
+              "value": "Your Business"
+            },
+            {
+              "id": "bp-2",
+              "name": "tone",
+              "type": "string",
+              "value": "friendly, warm and concise"
+            },
+            {
+              "id": "bp-3",
+              "name": "key_facts",
+              "type": "string",
+              "value": "We are open Monday to Friday 9:00 to 17:00. We reply within one business day. Detailed pricing is shared on a call or via our website."
+            },
+            {
+              "id": "bp-4",
+              "name": "signature_name",
+              "type": "string",
+              "value": "The Team"
+            },
+            {
+              "id": "bp-5",
+              "name": "example_replies",
+              "type": "string",
+              "value": "Paste 2 or 3 real replies you have sent before, so drafts match how you actually write. Example: Hi Anna, yes that works, Thursday at 2pm is perfect. See you then! Mark"
+            },
+            {
+              "id": "bp-6",
+              "name": "owner_alert_email",
+              "type": "string",
+              "value": "you@example.com"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c36b5969-f63e-427c-b712-18ee8ec89c9d",
+      "name": "Process with Claude AI",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1104,
+        112
+      ],
+      "parameters": {
+        "text": "=You handle the inbox for {{ $json.business_name }}. Tone: {{ $json.tone }}.\n\nBusiness facts you may use, and the ONLY facts you may use:\n{{ $json.key_facts }}\n\nExamples of how this business actually writes. Mirror their greeting style, sentence length and sign-off:\n{{ $json.example_replies }}\n\nConversation history for this thread, oldest first. Use it to understand context, promises already made, and where the discussion stands:\n{{ $json.thread_history }}\n\nThe newest incoming email, from {{ $json.from_name }} ({{ $json.from_address }}):\nSubject: {{ $json.subject }}\nBody:\n{{ $json.body }}\n\nStep 1, decide: does this email need a reply from a human business? Newsletters, automated notifications, receipts, no-reply senders and cold outreach get needs_reply false.\n\nStep 2, if a reply is needed, draft it under these rules.\n\nVoice rules, these override everything else:\n- Write like a real person typing a quick reply between 2 tasks. Contractions are fine. Short sentences that flow naturally when read out loud.\n- Never use em dashes or semicolons anywhere.\n- Banned phrases and anything resembling them: I hope this finds you well, I wanted to reach out, I am reaching out, please do not hesitate, at your earliest convenience, I trust this helps, thank you for your patience, just circling back.\n- No corporate filler, no restating their question back to them, no bullet lists, at most 1 exclamation mark in the whole reply.\n- Write numbers as digits.\n\nContext rules:\n- Read the conversation history before drafting. Continue the conversation naturally, never re-ask anything already answered in the thread, never contradict earlier messages, and reference agreements already made when relevant.\n\nContent rules:\n- Match the sender: short email in, short reply out. The reply is never longer than twice their email.\n- Answer only what was asked.\n- Category rules. question: answer directly from the facts. request (quote, booking, scheduling): confirm what they want, ask at most 1 clarifying question, and never commit to a price, date or promise that is not in the facts or the thread history. complaint: acknowledge specifically what went wrong for them, no defensiveness, no blame, offer 1 concrete next step, and set escalate to true when they mention refunds, legal action, or are clearly angry.\n- When they ask something the facts and history do not cover, write the reply anyway and insert [CHECK: what to verify] exactly where the missing detail belongs, so the reviewer fills it in before sending.\n- Sign with {{ $json.signature_name }}. Never mention being an AI.\n\nReturn strict JSON only, no prose: {\"needs_reply\": true or false, \"category\": \"question\" | \"request\" | \"complaint\" | \"newsletter\" | \"automated\" | \"other\", \"urgency\": \"high\" | \"medium\" | \"low\", \"escalate\": true or false, \"reply_subject\": \"\", \"reply_body\": \"the complete draft, ready to send after review\", \"reason\": \"one line explaining the decision\"}",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "720e3738-09e4-4cc0-997f-b6ab1945135f",
+      "name": "Claude Sonnet Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        1088,
+        320
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {
+          "effort": "low",
+          "thinkingMode": "adaptive",
+          "maxTokensToSample": 2048
+        }
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "1e50b73b-fbb4-455a-b3cf-848e7886f56a",
+      "name": "Parse and Validate Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1328,
+        112
+      ],
+      "parameters": {
+        "jsCode": "const base = $('Build Conversation Transcript').first().json;\nlet ai = {};\ntry { ai = JSON.parse($input.first().json.text.replace(/```json|```/g, '').trim()); } catch (e) { ai = { needs_reply: false, category: 'other', urgency: 'low', escalate: true, reply_subject: '', reply_body: '', reason: 'AI response could not be parsed, review this email manually' }; }\nif (typeof ai.escalate === 'undefined') { ai.escalate = false; }\nif (!ai.reply_subject && base.subject) { ai.reply_subject = 'Re: ' + base.subject; }\nconst strip = s => String(s || '').replace(/\\u2014|\\u2013/g, ', ').replace(/;/g, ',');\nai.reply_subject = strip(ai.reply_subject);\nai.reply_body = strip(ai.reply_body);\nai.reason = strip(ai.reason);\nreturn [{ json: { ...base, ...ai } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3d69a70d-d1b8-40ce-9911-30710e7282f9",
+      "name": "Escalation Needed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1552,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.escalate }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "58c0ef11-1dce-4c5b-8feb-fd7a5b5da38d",
+      "name": "Send Escalation Alert",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1760,
+        -80
+      ],
+      "webhookId": "1a429c65-9c1d-4590-9497-3a96f537e5be",
+      "parameters": {
+        "sendTo": "={{ $('Set Business Profile').item.json.owner_alert_email }}",
+        "message": "=An incoming email needs your attention.\n\nFrom: {{ $('Build Conversation Transcript').item.json.from_name }} ({{ $('Build Conversation Transcript').item.json.from_address }})\nUrgency: {{ $('Parse and Validate Response').item.json.urgency }}\nReason: {{ $('Parse and Validate Response').item.json.reason }}\n\nOpen the thread in Gmail to review. If a reply was drafted, it is waiting there.",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Escalation: {{ $('Build Conversation Transcript').item.json.subject }}",
+        "resource": "message",
+        "emailType": "text",
+        "operation": "send"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "011b943b-7440-49fc-a2d9-a17f30e1cab8",
+      "name": "Check if Reply is Needed",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1984,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('Parse and Validate Response').item.json.needs_reply }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "77b3e785-3e49-44a0-aa9c-9779db3a6389",
+      "name": "Create Draft Reply in Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2208,
+        0
+      ],
+      "webhookId": "e1a9ab06-47c5-4a8c-82ff-2487d27b4122",
+      "parameters": {
+        "message": "={{ $('Parse and Validate Response').item.json.reply_body }}",
+        "options": {
+          "sendTo": "={{ $('Parse and Validate Response').item.json.from_address }}",
+          "threadId": "={{ $('Parse and Validate Response').item.json.thread_id }}"
+        },
+        "subject": "={{ $('Parse and Validate Response').item.json.reply_subject }}",
+        "resource": "draft",
+        "operation": "create"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "50e724fb-c8f1-4fc8-9bea-ee35798c3bdf",
+      "name": "Save Pending Reply for Approval",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2432,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "to": "={{ $('Parse and Validate Response').item.json.from_address }}",
+            "body": "={{ $('Parse and Validate Response').item.json.reply_body }}",
+            "status": "pending",
+            "subject": "={{ $('Parse and Validate Response').item.json.reply_subject }}",
+            "draft_id": "={{ $json.id }}",
+            "thread_id": "={{ $('Parse and Validate Response').item.json.thread_id }}",
+            "created_at": "={{ $now.toISO() }}",
+            "message_id": "={{ $('Parse and Validate Response').item.json.message_id }}"
+          },
+          "schema": [
+            {
+              "id": "thread_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "thread_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "message_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "message_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "draft_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "draft_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "to",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "to",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "subject",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "subject",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "body",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "body",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "thread_id"
+          ]
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Pending Replies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "0fe18631-d219-438c-ba49-4cf55da73a53",
+      "name": "Append to Email Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2640,
+        224
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "from": "={{ $('Build Conversation Transcript').item.json.from_address }}",
+            "reason": "={{ $('Parse and Validate Response').item.json.reason }}",
+            "subject": "={{ $('Build Conversation Transcript').item.json.subject }}",
+            "urgency": "={{ $('Parse and Validate Response').item.json.urgency }}",
+            "category": "={{ $('Parse and Validate Response').item.json.category }}",
+            "escalate": "={{ $('Parse and Validate Response').item.json.escalate }}",
+            "timestamp": "={{ $('Build Conversation Transcript').item.json.received_at }}",
+            "draft_created": "={{ $('Parse and Validate Response').item.json.needs_reply }}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "from",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "from",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "subject",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "urgency",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "urgency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "draft_created",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "draft_created",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "escalate",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "escalate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Email Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "5083f496-72e0-4789-82a5-aba23a3d44ee",
+      "name": "Check for Approved Replies",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        640
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "e28e5390-7142-4758-a652-a9c110e82a9a",
+      "name": "Find Threads Labeled send-approved",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        224,
+        640
+      ],
+      "webhookId": "e6d7f2af-24ec-4f4d-8acb-97dcb006a62d",
+      "parameters": {
+        "limit": 50,
+        "simple": true,
+        "filters": {
+          "q": "label:send-approved",
+          "readStatus": "both"
+        },
+        "resource": "message",
+        "operation": "getAll"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f36daa83-aa5a-4cfd-89e2-8a668cb1073e",
+      "name": "Extract Approved Thread IDs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        448,
+        640
+      ],
+      "parameters": {
+        "jsCode": "const seen = new Set();\nconst out = [];\nfor (const item of $input.all()) {\n  const tid = String(item.json.threadId || '');\n  if (tid && !seen.has(tid)) { seen.add(tid); out.push({ json: { thread_id: tid } }); }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e9ee8175-0391-4fc2-b4d5-c4a6214043e5",
+      "name": "Read Pending Replies",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 3,
+      "position": [
+        672,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Pending Replies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "67691f85-e26a-499c-be41-bfaba56e38d3",
+      "name": "Match Approved to Pending",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        640
+      ],
+      "parameters": {
+        "jsCode": "const approved = $('Extract Approved Thread IDs').all().map(i => String(i.json.thread_id));\nconst out = [];\nfor (const item of $input.all()) {\n  const r = item.json;\n  if (String(r.status || '').toLowerCase() === 'pending' && approved.includes(String(r.thread_id || ''))) {\n    out.push({ json: r });\n  }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1e59ddb0-32be-4dc8-aeb8-44860f45749d",
+      "name": "Send Approved Reply in Thread",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1104,
+        640
+      ],
+      "webhookId": "a8884c3a-fdf2-4436-9436-2df57d9dc447",
+      "parameters": {
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "resource": "message",
+        "emailType": "text",
+        "messageId": "={{ $json.message_id }}",
+        "operation": "reply"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fc135e79-2e57-420a-90b0-8219461d548e",
+      "name": "Mark Reply as Sent",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1328,
+        640
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "sent",
+            "thread_id": "={{ $('Match Approved to Pending').item.json.thread_id }}"
+          },
+          "schema": [
+            {
+              "id": "thread_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "thread_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "thread_id"
+          ]
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Pending Replies"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "da95c8d6-9f25-428f-8fd8-3a15fec289a3",
+      "name": "Clean Up the Leftover Draft",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1552,
+        640
+      ],
+      "webhookId": "7e63137a-6349-4cc9-9253-f336c86694e3",
+      "parameters": {
+        "resource": "draft",
+        "messageId": "={{ $('Match Approved to Pending').item.json.draft_id }}",
+        "operation": "delete"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c7e2ca39-1d4b-419c-ab15-dd32c977659b",
+      "name": "Fetch Gmail Labels",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1776,
+        640
+      ],
+      "webhookId": "35d17256-514b-4781-86c1-15690f537b52",
+      "parameters": {
+        "resource": "label",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "executeOnce": true,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "869db1c6-f0dc-4fef-803f-9d7d07d03c01",
+      "name": "Prepare Label Removal",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1996,
+        640
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const labels = $input.all().map(i => i.json);\nconst target = labels.find(l => String(l.name || '').toLowerCase() === 'send-approved');\nconst seen = new Set();\nconst out = [];\nfor (const item of $('Match Approved to Pending').all()) {\n  const tid = String(item.json.thread_id || '');\n  if (target && tid && !seen.has(tid)) {\n    seen.add(tid);\n    out.push({ json: { thread_id: tid, label_id: String(target.id) } });\n  }\n}\nreturn out;",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1fd4ac2c-c116-4330-be1e-240a54363524",
+      "name": "Remove Approval Label from Thread",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        2216,
+        640
+      ],
+      "webhookId": "5727d142-4ad2-432f-9ef8-728a0a058650",
+      "parameters": {
+        "labelIds": [
+          "={{ $json.label_id }}"
+        ],
+        "resource": "thread",
+        "threadId": "={{ $json.thread_id }}",
+        "operation": "removeLabels"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "87fb3abe-9833-4a12-8436-f2d6c863b39b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        -120
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 1000,
+        "content": "## Draft context-aware Gmail replies with Claude, approve by label to auto-send\n\n### How it works\n\nThis workflow drafts replies to incoming Gmail with the full conversation history in mind and never sends anything on its own. New unread emails are normalized, the entire thread is fetched and condensed, and Claude classifies the email, skips noise, and drafts a reply that mirrors your real writing examples under strict per-category rules. Drafts wait in the Gmail thread while a state row is saved to the Pending Replies sheet, 1 row per thread, so if another email arrives before you approve, the newest draft replaces the stale one. Complaints and urgent emails alert you immediately. A second flow polls for threads you label send-approved, sends the matching pending reply in the thread, marks the row sent, deletes the leftover draft, and removes the approval label so future replies in that thread wait for a fresh approval.\n\n### Setup steps\n\n- Connect Gmail credentials in the Gmail nodes and Anthropic credentials in the Claude model node.\n- Create a Google Sheet with 2 tabs. Email Log with header row: timestamp, from, subject, category, urgency, draft_created, escalate, reason. Pending Replies with header row: thread_id, message_id, draft_id, to, subject, body, status, created_at. Select it in the 4 Google Sheets nodes.\n- Create a Gmail label named send-approved.\n- Edit Set Business Profile: business name, tone, key facts, signature, alert email, and paste 2 or 3 real replies you have written.\n- Test with an email to yourself: leave it unread, run the flow, review the draft, apply the label, run the approval flow.\n\n### Customization\n\nTune the tone, facts and writing examples in Set Business Profile, swap the escalation alert for Slack, tighten the trigger query to specific senders, or change the approval polling frequency."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81804375-5782-4096-bd41-378616b116a8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 910,
+        "height": 400,
+        "content": "## Understand the email in context\n\nCatches new unread inbox emails, pulls the entire Gmail conversation history, and condenses it into a transcript so Claude replies with full context instead of restarting the discussion. If the thread fetch ever fails, drafting still proceeds without history."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f3b37fa-633d-4b0a-a547-82fb615e19ff",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        870,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 600,
+        "content": "## Draft under strict rules\n\nClaude mirrors your real writing examples, follows per-category rules for questions, requests and complaints, and marks anything it cannot verify with [CHECK: ...] for the reviewer. Malformed AI output routes to manual review instead of breaking the flow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "78e5519d-f91f-4383-81c6-31933edeced7",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1530,
+        -260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 560,
+        "content": "## Escalate what matters\n\nComplaints mentioning refunds or legal action, and clearly angry emails, fire an immediate alert email to the owner address set in the business profile."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9d663cd7-e44d-4106-89ca-e3477cb1dbd0",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1970,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 900,
+        "height": 620,
+        "content": "## Draft, record, log\n\nReal emails get a ready-to-review draft in their Gmail thread plus a state row in Pending Replies that powers the approval flow. Everything, including skipped noise, is logged to Email Log with the decision reason."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21118d2b-6538-49ca-962a-bb033e55942e",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2500,
+        "height": 360,
+        "content": "## Approve by label to send\n\nApply the send-approved label to a thread in Gmail. Within a minute this flow matches it to the pending reply, sends it in the thread, marks the row sent, deletes the leftover draft, and removes the approval label so the next reply in that thread waits for a fresh approval. Only rows with status pending are ever eligible, so nothing can send twice."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Escalation Needed?": {
+      "main": [
+        [
+          {
+            "node": "Send Escalation Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check if Reply is Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Gmail Labels": {
+      "main": [
+        [
+          {
+            "node": "Prepare Label Removal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Reply as Sent": {
+      "main": [
+        [
+          {
+            "node": "Clean Up the Leftover Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Sonnet Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Process with Claude AI",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Pending Replies": {
+      "main": [
+        [
+          {
+            "node": "Match Approved to Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Business Profile": {
+      "main": [
+        [
+          {
+            "node": "Process with Claude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Label Removal": {
+      "main": [
+        [
+          {
+            "node": "Remove Approval Label from Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Escalation Alert": {
+      "main": [
+        [
+          {
+            "node": "Check if Reply is Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process with Claude AI": {
+      "main": [
+        [
+          {
+            "node": "Parse and Validate Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Email is Received": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Email Content": {
+      "main": [
+        [
+          {
+            "node": "Fetch Full Thread History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if Reply is Needed": {
+      "main": [
+        [
+          {
+            "node": "Create Draft Reply in Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append to Email Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Full Thread History": {
+      "main": [
+        [
+          {
+            "node": "Build Conversation Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Approved to Pending": {
+      "main": [
+        [
+          {
+            "node": "Send Approved Reply in Thread",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Approved Replies": {
+      "main": [
+        [
+          {
+            "node": "Find Threads Labeled send-approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Up the Leftover Draft": {
+      "main": [
+        [
+          {
+            "node": "Fetch Gmail Labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Draft Reply in Gmail": {
+      "main": [
+        [
+          {
+            "node": "Save Pending Reply for Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Approved Thread IDs": {
+      "main": [
+        [
+          {
+            "node": "Read Pending Replies",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and Validate Response": {
+      "main": [
+        [
+          {
+            "node": "Escalation Needed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Conversation Transcript": {
+      "main": [
+        [
+          {
+            "node": "Set Business Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Approved Reply in Thread": {
+      "main": [
+        [
+          {
+            "node": "Mark Reply as Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Pending Reply for Approval": {
+      "main": [
+        [
+          {
+            "node": "Append to Email Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Threads Labeled send-approved": {
+      "main": [
+        [
+          {
+            "node": "Extract Approved Thread IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Draft Gmail replies with Claude Sonnet and log decisions in Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18102,
+    "update_time": "2026-09-27"
+  }
+}

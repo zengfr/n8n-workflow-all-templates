@@ -1,4 +1,4 @@
-# retention : 11
+# retention : 17
 
 |id|file|
 |----|----|
@@ -13,3 +13,9 @@
 |13969|[13969_Score_churn_risk_and_send_retention_emails_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13969_Score_churn_risk_and_send_retention_emails_with_Google_Sheets_and_Gmail.json)|
 |15198|[15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json)|
 |15877|[15877_Detect_Mixpanel_churn_and_create_HubSpot__ClickUp__and_Slack_retention_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15877_Detect_Mixpanel_churn_and_create_HubSpot__ClickUp__and_Slack_retention_alerts.json)|
+|16871|[16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json)|
+|17601|[17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json)|
+|18276|[18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json)|
+|18763|[18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json)|
+|19099|[19099_Schedule_client_data_retention_reviews_with_Clio_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19099_Schedule_client_data_retention_reviews_with_Clio_and_Google_Sheets.json)|
+|19502|[19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json)|

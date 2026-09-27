@@ -1,4 +1,4 @@
-# agentic : 11
+# agentic : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |11580|[11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11580_Automated_Customer_Support_System_with_Gemini_AI__RAG___Security_Guardrails.json)|
 |15365|[15365_Classify_and_route_uploaded_documents_to_Google_Drive_with_an_AI_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15365_Classify_and_route_uploaded_documents_to_Google_Drive_with_an_AI_agent.json)|
 |16342|[16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json)|
+|19817|[19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json)|

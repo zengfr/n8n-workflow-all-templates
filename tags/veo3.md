@@ -1,4 +1,4 @@
-# veo3 : 38
+# veo3 : 40
 
 |id|file|
 |----|----|
@@ -40,3 +40,5 @@
 |12122|[12122_Create_AI-powered_3D_product_videos_from_images_with_VEO3_for_Shopify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12122_Create_AI-powered_3D_product_videos_from_images_with_VEO3_for_Shopify.json)|
 |14554|[14554_Create_AI_Instagram_Reels_with_GPT-4.1__Veo3__Google_Sheets_and_Bloatato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14554_Create_AI_Instagram_Reels_with_GPT-4.1__Veo3__Google_Sheets_and_Bloatato.json)|
 |16508|[16508_Generate_VEO3_videos_from_form_ideas_with_ChatGPT__fal.ai__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16508_Generate_VEO3_videos_from_form_ideas_with_ChatGPT__fal.ai__Drive_and_Gmail.json)|
+|16890|[16890_Generate_Google_Veo_3.1_AI_videos_from_form_prompts_using_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16890_Generate_Google_Veo_3.1_AI_videos_from_form_prompts_using_Pollo_API.json)|
+|19416|[19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json)|

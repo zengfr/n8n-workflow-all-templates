@@ -1,0 +1,811 @@
+{
+  "id": "oMT9UG5YnNraDozg",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Triage and reply to Gmail with Claude and log priority alerts to Slack",
+    "wechat": "youandme10086",
+    "id": 19183,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Email Management Agent",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "90db1e3d-0d38-46ce-bb1a-4473cfb202b2",
+      "name": "Gmail Trigger",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -448,
+        832
+      ],
+      "parameters": {
+        "filters": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jEODfgLRGuHrhFjo",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "614b9a85-559d-414e-a9ab-64ebe1f147b6",
+      "name": "Extract Email Data",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -224,
+        832
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "messageId",
+              "type": "string",
+              "value": "={{ $json.id }}"
+            },
+            {
+              "id": "a2",
+              "name": "threadId",
+              "type": "string",
+              "value": "={{ $json.threadId }}"
+            },
+            {
+              "id": "a3",
+              "name": "from",
+              "type": "string",
+              "value": "={{ $json.from }}"
+            },
+            {
+              "id": "a4",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ $json.subject }}"
+            },
+            {
+              "id": "a5",
+              "name": "bodyText",
+              "type": "string",
+              "value": "={{ $json.text }}"
+            },
+            {
+              "id": "a6",
+              "name": "receivedDate",
+              "type": "string",
+              "value": "={{ $json.date }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "44c568c1-51c1-41ce-9c41-757a74e987b3",
+      "name": "Check If Already Processed",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "OPTIONAL dedup guard. Point this at your Supabase/Airtable table keyed on messageId. Replace with a Supabase/Airtable node if you prefer native nodes.",
+      "position": [
+        0,
+        832
+      ],
+      "parameters": {
+        "url": "=https://your-supabase-or-airtable-endpoint/check?messageId={{ $json.messageId }}",
+        "options": {}
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8181d847-da23-434e-8dab-bba36154c69c",
+      "name": "Classify Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Set up an 'Anthropic API' generic credential (header auth or the built-in Anthropic credential type if available in your n8n version) and select it in the node's Authentication settings.",
+      "position": [
+        224,
+        832
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({\n  model: \"claude-sonnet-5\",\n  max_tokens: 500,\n  system: \"You are an email triage assistant. Classify the email into exactly one category: Urgent, Important, Normal, or Promotional. Urgent = time-sensitive, needs action within hours (deadlines, client escalations, payment issues, outages). Important = needs a response but not time-critical (client questions, proposals, meeting requests). Normal = FYI or routine correspondence needing a light reply. Promotional = marketing, newsletters, automated notifications with no reply needed. Also extract a one-sentence summary, a list of action items, whether a response is required, and sentiment. Respond with ONLY valid JSON, no markdown fences, no preamble, in this exact shape: {\\\"category\\\":\\\"Urgent|Important|Normal|Promotional\\\",\\\"summary\\\":\\\"string\\\",\\\"action_items\\\":[\\\"string\\\"],\\\"requires_response\\\":true,\\\"sentiment\\\":\\\"string\\\"}\",\n  messages: [\n    {\n      role: \"user\",\n      content: \"From: \" + $json.from + \"\\nSubject: \" + $json.subject + \"\\n\\n\" + $json.bodyText\n    }\n  ]\n}) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApi.apiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b449e7d5-1a5f-4693-b809-aace35b66cc0",
+      "name": "Parse Classification",
+      "type": "n8n-nodes-base.code",
+      "notes": "Falls back to 'Normal' if the AI response isn't valid JSON, so nothing gets silently dropped.",
+      "position": [
+        448,
+        832
+      ],
+      "parameters": {
+        "jsCode": "const original = $('Extract Email Data').first().json;\nconst raw = $json.content[0].text;\nlet parsed;\ntry {\n  parsed = JSON.parse(raw.replace(/```json|```/g, '').trim());\n} catch (e) {\n  parsed = {\n    category: 'Normal',\n    summary: 'Could not parse AI classification, defaulted to Normal.',\n    action_items: [],\n    requires_response: true,\n    sentiment: 'unknown'\n  };\n}\nreturn [{\n  json: {\n    ...original,\n    category: parsed.category,\n    summary: parsed.summary,\n    action_items: parsed.action_items,\n    requires_response: parsed.requires_response,\n    sentiment: parsed.sentiment\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1e3430d4-fa14-4f0b-9ac0-3ca65b283ccd",
+      "name": "Route by Category",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        672,
+        800
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Urgent",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Urgent"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Important",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Important"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Normal",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Normal"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Promotional",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.category }}",
+                    "rightValue": "Promotional"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "Normal"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "e4c79e9e-688c-4fb0-b285-5923867bfc44",
+      "name": "Label Promotional",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1120,
+        976
+      ],
+      "webhookId": "70c0d0bd-dd4d-45d4-8f0d-c89688988ef9",
+      "parameters": {
+        "resource": "label",
+        "operation": "addLabels"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jEODfgLRGuHrhFjo",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "fa29f18e-54f1-4aa5-a924-845dd512a404",
+      "name": "Archive Promotional",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1344,
+        976
+      ],
+      "webhookId": "deeaefaf-19a1-4e4a-a26d-a68fc1bfbda7",
+      "parameters": {
+        "resource": "thread",
+        "operation": "archive"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jEODfgLRGuHrhFjo",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "db8ffb0d-6bc5-478c-bf55-6105643d3d68",
+      "name": "Log Promotional Sender",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Optional: track promotional senders for future unsubscribe cleanup.",
+      "position": [
+        1568,
+        976
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $json.receivedDate }}",
+            "from": "={{ $json.from }}",
+            "subject": "={{ $json.subject }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "mode": "name",
+          "value": "Promotional Log"
+        },
+        "documentId": {
+          "mode": "id",
+          "value": "REPLACE_WITH_YOUR_SHEET_ID"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "91854008-0c09-4311-9480-baabdfdebd18",
+      "name": "Draft Reply",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Receives merged input from the Urgent, Important, and Normal outputs of Route by Category.",
+      "position": [
+        1104,
+        640
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({\n  model: \"claude-sonnet-5\",\n  max_tokens: 400,\n  system: \"You draft concise, professional email replies on behalf of the user. Match a warm but efficient tone. Use the provided summary and action items as context. Output ONLY the reply body text, no subject line, no markdown, no preamble.\",\n  messages: [\n    {\n      role: \"user\",\n      content: \"Original email from: \" + $json.from + \"\\nSubject: \" + $json.subject + \"\\nBody: \" + $json.bodyText + \"\\n\\nSummary: \" + $json.summary + \"\\nAction items: \" + JSON.stringify($json.action_items) + \"\\n\\nDraft a reply.\"\n    }\n  ]\n}) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $credentials.anthropicApi.apiKey }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e58a2693-017a-4c79-b4ef-53ef2d457626",
+      "name": "Merge Draft With Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1328,
+        640
+      ],
+      "parameters": {
+        "jsCode": "const email = $('Parse Classification').first().json;\nconst draftText = $json.content[0].text;\nreturn [{ json: { ...email, draftText } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8dd80bd8-8522-419c-a0b0-3725a9030f71",
+      "name": "Create Gmail Draft",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1552,
+        640
+      ],
+      "webhookId": "42dc6335-ef18-4833-9c33-d47b81b7169d",
+      "parameters": {
+        "message": "={{ $json.draftText }}",
+        "options": {
+          "threadId": "={{ $json.threadId }}"
+        },
+        "subject": "=Re: {{ $json.subject }}",
+        "resource": "draft"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "jEODfgLRGuHrhFjo",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5fbcbabf-2485-499a-b920-13f210a6982c",
+      "name": "Is Priority?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1776,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.category }}",
+              "rightValue": "Normal"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c4de6461-bf38-4f44-b308-6935d2584208",
+      "name": "Send Alert",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Swap for your WhatsApp/Twilio node if you prefer that channel for Urgent alerts.",
+      "position": [
+        2352,
+        352
+      ],
+      "webhookId": "3a69f626-1e6a-4a70-9e86-2ca91c22f3eb",
+      "parameters": {
+        "text": "={{ ($json.category === 'Urgent' ? '🔴 URGENT: ' : '🟡 ') + $json.subject + '\\nFrom: ' + $json.from + '\\nSummary: ' + $json.summary }}",
+        "select": "channel",
+        "channelId": {
+          "mode": "id",
+          "value": "={{ $json.category === 'Urgent' ? 'REPLACE_WITH_URGENT_CHANNEL_ID' : 'REPLACE_WITH_GENERAL_CHANNEL_ID' }}"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "A19hObL6VVSMn3Xh",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fbfe5722-b017-42ef-a1be-36d4a437ba0a",
+      "name": "Create Task",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        2352,
+        736
+      ],
+      "parameters": {
+        "base": {
+          "mode": "id",
+          "value": "REPLACE_WITH_YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "mode": "id",
+          "value": "REPLACE_WITH_YOUR_TASKS_TABLE_ID"
+        },
+        "columns": {
+          "value": {
+            "Due": "={{ $json.category === 'Urgent' ? $today : $today.plus({days: 3}) }}",
+            "From": "={{ $json.from }}",
+            "Title": "={{ $json.subject }}",
+            "Status": "Open",
+            "Summary": "={{ $json.summary }}",
+            "Category": "={{ $json.category }}",
+            "Action Items": "={{ $json.action_items.join(', ') }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "create"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "59bd6398-2d45-4bb1-ab3c-22a10ec72761",
+      "name": "Log Normal Email",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2352,
+        928
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "date": "={{ $json.receivedDate }}",
+            "from": "={{ $json.from }}",
+            "subject": "={{ $json.subject }}",
+            "summary": "={{ $json.summary }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "mode": "name",
+          "value": "Normal Log"
+        },
+        "documentId": {
+          "mode": "id",
+          "value": "REPLACE_WITH_YOUR_SHEET_ID"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3db618b1-8388-4bc8-b553-f08fa7cd894d",
+      "name": "Mark Message Processed",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "OPTIONAL — pairs with 'Check If Already Processed' for dedup. Replace with your Supabase/Airtable node.",
+      "position": [
+        2352,
+        544
+      ],
+      "parameters": {
+        "url": "=https://your-supabase-or-airtable-endpoint/mark-processed",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ messageId: $json.messageId }) }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "78037f4d-1f2f-4019-aae2-135efd1a32bd",
+      "name": "Sticky - sticky-main",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1264,
+        304
+      ],
+      "parameters": {
+        "color": "#F3EF77",
+        "width": 714,
+        "height": 916,
+        "content": "## **AI Email Management Agent**\n\n**Who it's for:** Anyone drowning in inbox triage who wants urgent emails flagged, replies drafted, and promotional clutter cleared automatically.\n\n**What it does:** Watches your Gmail inbox, classifies every new email by urgency, drafts a reply for anything that needs one, alerts you on Slack for the important ones, and keeps a log of everything so nothing slips through.\n\n**How it works**\n1. Gmail Trigger polls for new mail every minute\n2. Extracts sender, subject, body, and checks it hasn't been processed already\n3. Claude classifies it: Urgent, Important, Normal, or Promotional\n4. Promotional mail is labeled, archived, and logged\n5. Everything else gets an AI-drafted reply saved to Gmail Drafts\n6. Urgent/Important emails also trigger a Slack alert and an Airtable task\n7. Normal emails are logged to Sheets; every message is marked processed\n\n**How to set up**\n☐ Connect Gmail\n☐ Add an Anthropic API credential (generic header auth)\n☐ Connect Slack and set your Urgent + General channel IDs\n☐ Connect Airtable and create a Tasks table\n☐ Connect Google Sheets and create Promotional Log / Normal Log tabs\n☐ (Optional) Point the dedup-guard nodes at your own Supabase/Airtable endpoint\n\n**CUSTOMIZATION**\n- Adjust the classification categories or urgency rules\n- Change the reply-drafting tone in the AI prompt\n- Swap the Slack alert for WhatsApp/Twilio if preferred"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1f4bfc1d-b027-494d-ac6e-2dae2963bd50",
+      "name": "Sticky - sticky-sec",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        544
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1414,
+        "height": 658,
+        "content": "**1. Intake & Classify**\nPolls Gmail for new mail, extracts the key fields, checks for duplicates, then AI classifies each email as Urgent, Important, Normal, or Promotional."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a2f094da-6611-4fff-8845-25944484e85d",
+      "name": "Sticky - sticky-sec1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        512
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1062,
+        "height": 706,
+        "content": "**2. Route & Respond**\nPromotional mail gets labeled, archived, and logged. Everything else gets an AI-drafted reply saved to Gmail Drafts for you to review before sending."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "543c7d2b-8b12-431d-81be-15e0d115b838",
+      "name": "Sticky - sticky-sec2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2160,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 438,
+        "height": 1058,
+        "content": "**3. Alert & Log**\nUrgent/Important emails get a Slack alert and an Airtable task; Normal emails are logged to Sheets. Every processed message is marked so it's never handled twice."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "111dda4d-3ad3-407b-af63-9425f6dc9da6",
+  "nodeGroups": [],
+  "connections": {
+    "Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Merge Draft With Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Priority?": {
+      "main": [
+        [
+          {
+            "node": "Send Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Create Task",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mark Message Processed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Normal Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Mark Message Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Email": {
+      "main": [
+        [
+          {
+            "node": "Parse Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Label Promotional": {
+      "main": [
+        [
+          {
+            "node": "Archive Promotional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Category": {
+      "main": [
+        [
+          {
+            "node": "Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Label Promotional",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Gmail Draft": {
+      "main": [
+        [
+          {
+            "node": "Is Priority?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Data": {
+      "main": [
+        [
+          {
+            "node": "Check If Already Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive Promotional": {
+      "main": [
+        [
+          {
+            "node": "Log Promotional Sender",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Classification": {
+      "main": [
+        [
+          {
+            "node": "Route by Category",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Draft With Email": {
+      "main": [
+        [
+          {
+            "node": "Create Gmail Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Already Processed": {
+      "main": [
+        [
+          {
+            "node": "Classify Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

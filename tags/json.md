@@ -1,4 +1,4 @@
-# json : 62
+# json : 69
 
 |id|file|
 |----|----|
@@ -64,3 +64,10 @@
 |16310|[16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json)|
 |16658|[16658_Generate_workflow_audit_docs_from_JSON_with_Claude_Sonnet_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16658_Generate_workflow_audit_docs_from_JSON_with_Claude_Sonnet_and_Notion.json)|
 |16660|[16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json)|
+|17274|[17274_Fill_PDF_forms_from_JSON_data_with_JustFill_and_an_n8n_form_trigger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17274_Fill_PDF_forms_from_JSON_data_with_JustFill_and_an_n8n_form_trigger.json)|
+|17388|[17388_Restore_n8n_workflows_from_GitHub_JSON_backups_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17388_Restore_n8n_workflows_from_GitHub_JSON_backups_with_Data_Tables.json)|
+|17408|[17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json)|
+|17895|[17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json)|
+|17922|[17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json)|
+|18512|[18512_Back_up_workflows_to_GitHub_with_deterministic_JSON_exports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18512_Back_up_workflows_to_GitHub_with_deterministic_JSON_exports.json)|
+|19747|[19747_Validate_Pinterest_Pin_payloads_locally_with_JSON-only_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19747_Validate_Pinterest_Pin_payloads_locally_with_JSON-only_checks.json)|

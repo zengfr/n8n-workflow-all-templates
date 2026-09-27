@@ -1,4 +1,4 @@
-# notification : 51
+# notification : 55
 
 |id|file|
 |----|----|
@@ -53,3 +53,7 @@
 |15876|[15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json)|
 |16473|[16473_Manage_inventory_reorders_with_Google_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16473_Manage_inventory_reorders_with_Google_Sheets__Slack__and_Gmail.json)|
 |16749|[16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json)|
+|17860|[17860_Route_Gmail_PDF_attachments_to_Google_Drive_with_Slack_or_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17860_Route_Gmail_PDF_attachments_to_Google_Drive_with_Slack_or_Telegram_alerts.json)|
+|17867|[17867_Send_regulatory_incident_emails_from_webhook_payloads_and_Gotenberg_PDF_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17867_Send_regulatory_incident_emails_from_webhook_payloads_and_Gotenberg_PDF_reports.json)|
+|18167|[18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json)|
+|18304|[18304_Send_AI_reminders_for_content_and_important_days_with_Mistral__Supabase_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18304_Send_AI_reminders_for_content_and_important_days_with_Mistral__Supabase_and_Gmail.json)|

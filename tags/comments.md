@@ -1,4 +1,4 @@
-# comments : 64
+# comments : 74
 
 |id|file|
 |----|----|
@@ -66,3 +66,13 @@
 |16659|[16659_Reply_to_Instagram_comments_with_Groq__Telegram_approval__and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16659_Reply_to_Instagram_comments_with_Groq__Telegram_approval__and_Google_Sheets_logging.json)|
 |16693|[16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json)|
 |16697|[16697_Notify_Slack_about_Figma_library_publishes__comments_and_deletions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16697_Notify_Slack_about_Figma_library_publishes__comments_and_deletions.json)|
+|16930|[16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|17088|[17088_Analyze_YouTube_comments_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17088_Analyze_YouTube_comments_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|17484|[17484_Draft_LinkedIn_comment_reply_drafts_with_Gmail__Mistral_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17484_Draft_LinkedIn_comment_reply_drafts_with_Gmail__Mistral_AI_and_Google_Sheets.json)|
+|17839|[17839_Analyze_Facebook_post_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17839_Analyze_Facebook_post_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|18025|[18025_Analyze_YouTube_comments_and_generate_video_ideas_with_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18025_Analyze_YouTube_comments_and_generate_video_ideas_with_Gemini_and_Telegram.json)|
+|18455|[18455_Reply_to_Instagram_comments_and_send_DMs_with_Facebook_Graph_API_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18455_Reply_to_Instagram_comments_and_send_DMs_with_Facebook_Graph_API_and_Gemini.json)|
+|18570|[18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json)|
+|19370|[19370_Triage_YouTube_comments_and_track_video_health_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19370_Triage_YouTube_comments_and_track_video_health_with_Apify_and_Google_Sheets.json)|
+|19404|[19404_Mine_YouTube_buyer_objections_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19404_Mine_YouTube_buyer_objections_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|
+|19840|[19840_Score_LinkedIn_post_engagers_as_leads_with_Periodix_Actions__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19840_Score_LinkedIn_post_engagers_as_leads_with_Periodix_Actions__Claude__and_Google_Sheets.json)|

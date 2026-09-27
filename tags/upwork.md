@@ -1,4 +1,4 @@
-# upwork : 27
+# upwork : 29
 
 |id|file|
 |----|----|
@@ -29,3 +29,5 @@
 |15193|[15193_Analyze_keywords_from_top_Upwork_talent_profiles_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15193_Analyze_keywords_from_top_Upwork_talent_profiles_with_Apify_and_Google_Sheets.json)|
 |15789|[15789_Write_Upwork_proposals_from_Vollna_alerts_using_Claude__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15789_Write_Upwork_proposals_from_Vollna_alerts_using_Claude__Gmail_and_Sheets.json)|
 |16038|[16038_Monitor_Upwork_jobs_with_Apify_and_send_ntfy_phone_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16038_Monitor_Upwork_jobs_with_Apify_and_send_ntfy_phone_alerts.json)|
+|19203|[19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json)|
+|19333|[19333_Score_and_alert_Upwork_jobs_with_OpenAI_GPT-4.1-mini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19333_Score_and_alert_Upwork_jobs_with_OpenAI_GPT-4.1-mini_and_Telegram.json)|

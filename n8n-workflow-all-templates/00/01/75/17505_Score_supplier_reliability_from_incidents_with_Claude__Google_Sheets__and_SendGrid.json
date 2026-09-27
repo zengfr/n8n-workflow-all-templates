@@ -1,0 +1,749 @@
+{
+  "id": "jzGDxZ73aXnoym24",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Score supplier reliability from incidents with Claude, Google Sheets, and SendGrid",
+    "wechat": "youandme10086",
+    "id": 17505,
+    "update_time": "2026-09-27"
+  },
+  "name": "DMC & Supplier Reliability Scorecard",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b4fa9090-2c5e-4ebb-a537-5c8990532e7c",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 1040,
+        "height": 1480,
+        "content": "## DMC & Supplier Reliability Scorecard\n\nThis workflow builds a living performance score for every ground supplier (DMCs, transport operators, hotels, guides, activity operators) from incoming complaints, delays, and SLA breaches — with every incident logged for audit and trend analysis.\n\nThe reliability score is deliberately NOT left entirely to the AI. Severity, confirmed SLA breach status, root cause, and 90-day incident rate are combined into a numeric score with a plain formula in code, so the number behind every tier change is explainable and reproducible. AI is used where it adds real value: reading messy incident reports, classifying severity and root cause, and writing a clear, human-readable recommendation and corrective-action list on top of that score.\n\n### Who's it for\n- Tour operators and travel wholesalers managing a roster of ground suppliers across destinations\n- Procurement and ops teams who need obviously-fine and obviously-critical suppliers resolved instantly, so they only spend time on the middle\n- Quality and compliance teams that need a reproducible, logged rationale behind every tier change\n- Anyone replacing manual spreadsheet-based supplier scoring with automation\n\n### How it works\n1. Ops team or booking system submits an incident report (complaint, delay, SLA breach, no-show, quality issue) via webhook POST, including the supplier's current reliability score and trailing 90-day incident history\n2. AI reads the raw incident description and tour-operator notes, classifies the true severity, root cause, and SLA breach status, and flags reports that are too vague or contradictory to score confidently\n3. Reports that can't be classified with reasonable confidence are routed straight to manual review instead of scoring on bad data\n4. Code applies a weighted penalty (severity, confirmed SLA breach, root cause, 90-day incident rate) plus a small mean-reversion recovery pull to the supplier's prior score, producing a new 0-100 reliability score and tier\n5. AI reviews the incident and the new score and writes a recommendation (Retain, Monitor, Formal Warning, Probation, Terminate/Replace), a plain-language rationale, corrective actions, and whether the contract needs review\n6. Every incident is logged to Google Sheets regardless of outcome, building a full history per supplier\n7. Suppliers that cross into an escalation tier trigger an internal procurement alert and a supplier improvement notice; routine incidents are simply logged\n8. Webhook responds with the full scorecard update as JSON\n\n### How to set up\n1. Import this workflow into n8n\n2. Add Anthropic Claude credentials and attach to both Anthropic model nodes\n3. Add SendGrid credentials and replace YOUR_SENDGRID_API_KEY in both email nodes\n4. Replace procurement@youragency.com with your real internal ops/procurement address\n5. Switch the Google Sheets HTTP node to the native Google Sheets node with OAuth2, or add OAuth2 credentials directly\n6. Replace YOUR_SHEET_ID with your actual Spreadsheet ID\n7. Set up your Google Sheet with a SupplierScorecard tab (column layout below)\n8. Activate and POST a test incident to the webhook URL\n\n### Requirements\n- Anthropic Claude API key (claude-sonnet-4 recommended)\n- SendGrid API key for email delivery\n- Google Sheets with OAuth2 credentials (SupplierScorecard tab)\n- n8n instance with a publicly accessible webhook URL\n\n### How to customize\n- Adjust severity weights, SLA-breach penalty, root-cause multipliers, and frequency thresholds in JS - Calculate Updated Reliability Score to match your quality policy\n- Raise or lower the classification confidence threshold in IF - Incident Data Usable (default: confidence >= 4)\n- Feed priorReliabilityScore and the 90-day incident/booking counts from a real lookup (e.g. a Google Sheets read or database query keyed on supplierId) ahead of Stage 1, instead of relying on the payload defaults\n- Adjust which tiers/recommendations trigger escalation in IF - Escalation Required\n- Add an SMS or Slack notification alongside email for critical-tier suppliers\n\n### Important note\nThis workflow produces a recommendation to support human procurement and ops teams, not an automated final supplier-termination decision. Keep a qualified human in the loop before ending or suspending any supplier relationship, and confirm the scoring approach matches your contractual SLA definitions before production use.\n\n### Google Sheets Column Layout\n\nSupplierScorecard tab - row 1 headers:\nIncident ID | Supplier ID | Supplier Name | Supplier Type | Destination | Incident Type | Severity | SLA Breached | Root Cause | Prior Score | New Score | Score Change | Reliability Tier | Recommendation | Corrective Actions | Recorded At"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cc0ee7b1-1f08-4e04-9632-56f0b8980c78",
+      "name": "Sticky Note - Stage 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        496
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1484,
+        "height": 820,
+        "content": "## Stage 1: Intake, Incident Classification & Score Calculation\n\nAccepts supplier incident reports via webhook POST, including the raw incident description, tour-operator notes, and the supplier's current standing (prior reliability score, trailing 90-day incident count and booking count). All fields have sensible defaults so the workflow can be tested without a payload.\n\nThe classification AI (claude-sonnet-4, temperature 0.2 for accuracy) reads the raw description and notes, determines the true severity and root cause, checks whether the stated SLA terms were actually breached, and flags reports that are too vague or contradictory to score confidently.\n\nJS - Parse Incident Classification Output extracts the AI JSON with a lenient fallback that trusts the reported incident type at Moderate severity if parsing fails.\n\nIF - Incident Data Usable sends the report straight to manual review for unusable or clearly unclassifiable incidents, instead of scoring on bad data.\n\nJS - Calculate Updated Reliability Score is pure code, not AI: it applies a weighted penalty from severity, confirmed SLA breach, root cause, and 90-day incident rate — plus a small mean-reversion recovery pull — to the supplier's prior score, producing the new 0-100 reliability score and tier."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3afafab-99c8-48ee-94e1-5c8c789cb223",
+      "name": "Sticky Note - Stage 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2640,
+        448
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 844,
+        "height": 820,
+        "content": "## Stage 2: AI Performance Recommendation\n\nA Wait buffer respects API rate limits before this call.\n\nThe recommendation AI (claude-sonnet-4, temperature 0.3 for consistent, grounded judgment) reviews the incident, the confirmed severity and root cause, and the new reliability score and tier, then writes a recommendation: Retain, Monitor, Formal Warning, Probation, or Terminate/Replace.\n\nIt also returns a plain-language rationale that references the actual numbers, a list of corrective actions to require of the supplier, whether the contract needs formal review, and a confidence level.\n\nJS - Parse Recommendation Output extracts that JSON with a conservative fallback: if parsing fails, the incident defaults to Monitor with contract review flagged, rather than a silent Retain or Terminate."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4608a5d5-fa63-46aa-9219-1c6cbffa1fc7",
+      "name": "Sticky Note - Stage 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3568,
+        224
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1228,
+        "height": 1066,
+        "content": "## Stage 3: Logging & Escalation Delivery\n\nJS - Format Final Scorecard Record assembles the complete decision object and the summary row for the tracker sheet.\n\nSave Scorecard to Google Sheets Tracker appends that row — every incident is logged, regardless of outcome, building a full reliability history per supplier.\n\nIF - Escalation Required branches on the reliability tier and recommendation:\n- At Risk or Critical / Non-Compliant tier, or a Probation / Terminate-Replace recommendation: Send Escalation Alert Email gives the procurement/ops team the full context and AI rationale, Send Supplier Improvement Notice Email lets the supplier's contact know corrective action is required, and the webhook responds with the escalation detail — all three fire in parallel.\n- Any other tier or recommendation: the webhook responds directly with a routine log confirmation, no escalation emails sent."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d8c0b4b-0ea2-4234-9e6d-fed69b888c3b",
+      "name": "Webhook - Receive Supplier Incident Report",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1184,
+        928
+      ],
+      "webhookId": "b1c2d3e4-f5a6-4789-9bcd-abcdef123001",
+      "parameters": {
+        "path": "supplier-incident-inbound",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ac50ee3e-0052-45ca-8b5b-f63401f3ad79",
+      "name": "Set - Prepare Incident Context",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1408,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "supplierId",
+              "type": "string",
+              "value": "={{ $json.supplierId || $json.body?.supplierId || 'SUP-1042' }}"
+            },
+            {
+              "name": "supplierName",
+              "type": "string",
+              "value": "={{ $json.supplierName || $json.body?.supplierName || 'Sunset Ground Transfers DMC' }}"
+            },
+            {
+              "name": "supplierType",
+              "type": "string",
+              "value": "={{ $json.supplierType || $json.body?.supplierType || 'Ground Transport' }}"
+            },
+            {
+              "name": "destination",
+              "type": "string",
+              "value": "={{ $json.destination || $json.body?.destination || 'Bali, Indonesia' }}"
+            },
+            {
+              "name": "primaryContactEmail",
+              "type": "string",
+              "value": "={{ $json.primaryContactEmail || $json.body?.primaryContactEmail || 'ops@sunsetgroundtransfers.example.com' }}"
+            },
+            {
+              "name": "incidentType",
+              "type": "string",
+              "value": "={{ $json.incidentType || $json.body?.incidentType || 'Delay' }}"
+            },
+            {
+              "name": "incidentDescription",
+              "type": "string",
+              "value": "={{ $json.incidentDescription || $json.body?.incidentDescription || 'Airport transfer vehicle arrived 45 minutes after the flight landed with no advance notice to the traveler or the tour operator.' }}"
+            },
+            {
+              "name": "tourOperatorNotes",
+              "type": "string",
+              "value": "={{ $json.tourOperatorNotes || $json.body?.tourOperatorNotes || 'Third delay reported from this supplier in the last quarter. Traveler missed their pre-booked sunset cruise connection.' }}"
+            },
+            {
+              "name": "affectedPax",
+              "type": "number",
+              "value": "={{ $json.affectedPax || $json.body?.affectedPax || 4 }}"
+            },
+            {
+              "name": "delayMinutesReported",
+              "type": "number",
+              "value": "={{ $json.delayMinutesReported || $json.body?.delayMinutesReported || 45 }}"
+            },
+            {
+              "name": "slaTerms",
+              "type": "string",
+              "value": "={{ $json.slaTerms || $json.body?.slaTerms || 'Airport pickup must occur within 15 minutes of confirmed flight landing time, with proactive notice of any delay beyond that window.' }}"
+            },
+            {
+              "name": "reportedBy",
+              "type": "string",
+              "value": "={{ $json.reportedBy || $json.body?.reportedBy || 'Tour Operator Ops Desk' }}"
+            },
+            {
+              "name": "priorReliabilityScore",
+              "type": "number",
+              "value": "={{ $json.priorReliabilityScore || $json.body?.priorReliabilityScore || 85 }}"
+            },
+            {
+              "name": "totalIncidentsLast90Days",
+              "type": "number",
+              "value": "={{ $json.totalIncidentsLast90Days || $json.body?.totalIncidentsLast90Days || 3 }}"
+            },
+            {
+              "name": "totalBookingsLast90Days",
+              "type": "number",
+              "value": "={{ $json.totalBookingsLast90Days || $json.body?.totalBookingsLast90Days || 42 }}"
+            },
+            {
+              "name": "reportedAt",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "name": "incidentId",
+              "type": "string",
+              "value": "={{ 'INC-' + Date.now().toString().slice(-8) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c9c2378a-bd7c-469f-9d85-3616a82f2b48",
+      "name": "AI - Classify & Extract Incident Details",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1632,
+        928
+      ],
+      "parameters": {
+        "text": "=You are a meticulous travel operations quality analyst reviewing ground-supplier incident reports for a DMC reliability program.\n\nSupplier: {{ $json.supplierName }} ({{ $json.supplierType }}) operating in {{ $json.destination }}\nReported Incident Type: {{ $json.incidentType }}\nReported By: {{ $json.reportedBy }}\nAffected Passengers: {{ $json.affectedPax }}\nReported Delay (minutes): {{ $json.delayMinutesReported }}\n\nContractual SLA Terms:\n{{ $json.slaTerms }}\n\nIncident Description (raw, from tour operator / traveler):\n{{ $json.incidentDescription }}\n\nAdditional Tour Operator Notes:\n{{ $json.tourOperatorNotes }}\n\nYour task:\n1. Determine the true incident type and severity based on the actual description, not just the reported label.\n2. Decide whether the SLA terms above were actually breached.\n3. Identify the most likely root cause category.\n4. Extract confirmed delay minutes and passengers affected if stated or implied in the description.\n5. Note if the report is vague, contradictory, or lacks enough detail to score confidently.\n\nReturn a JSON object with EXACTLY these fields:\n{\n  \"confirmedIncidentType\": \"Delay|Complaint|SLA Breach|No-Show|Quality Issue|Other\",\n  \"severity\": \"Minor|Moderate|Severe|Critical\",\n  \"slaBreached\": true or false,\n  \"rootCauseCategory\": \"Supplier Fault|Force Majeure|Communication Failure|Traveler Error|Unclear\",\n  \"delayMinutesConfirmed\": <number>,\n  \"paxAffectedConfirmed\": <number>,\n  \"incidentSummary\": \"Two to three sentence neutral summary of what happened\",\n  \"extractionConfidence\": <number 1-10, 10 = fully clear and verifiable report>\n}\n\nReturn ONLY the JSON. No markdown, no explanation.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "dd894415-3b74-454a-8fd5-50104211d3f8",
+      "name": "Anthropic - Classification Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        1712,
+        1152
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account - test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "55315ff4-ce3e-4c92-b038-ca473ef5560b",
+      "name": "JS - Parse Incident Classification Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1984,
+        928
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nlet parsed = {};\ntry {\n  const rawText = item.output || item.text || item.response || '{}';\n  const clean = rawText.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(clean);\n} catch(e) {\n  parsed = {\n    confirmedIncidentType: item.incidentType,\n    severity: 'Moderate',\n    slaBreached: /sla/i.test(item.incidentType || ''),\n    rootCauseCategory: 'Unclear',\n    delayMinutesConfirmed: item.delayMinutesReported,\n    paxAffectedConfirmed: item.affectedPax,\n    incidentSummary: 'Auto-passed: could not parse AI classification output, trusting self-reported incident details.',\n    extractionConfidence: 5\n  };\n}\nreturn { json: { ...item, ...parsed } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "00b5784d-3910-4fd4-986a-862a64c96c7c",
+      "name": "IF - Incident Data Usable",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2208,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-extraction-confidence",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.extractionConfidence }}",
+              "rightValue": 4
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "428fc78f-5bd0-445c-8203-b39c033505a8",
+      "name": "Respond to Webhook - Needs Manual Review",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2432,
+        1024
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"incidentId\": \"{{ $json.incidentId }}\",\n  \"supplierId\": \"{{ $json.supplierId }}\",\n  \"status\": \"Needs Manual Review\",\n  \"incidentSummary\": \"{{ $json.incidentSummary }}\",\n  \"message\": \"This incident report was too vague or inconsistent to score automatically. It has been routed for manual review; please provide more specific details if possible.\"\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b9477e77-d5bd-4f0e-a57d-7e2ea7eb2949",
+      "name": "JS - Calculate Updated Reliability Score",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2432,
+        832
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nconst priorScore = (typeof item.priorReliabilityScore === 'number') ? item.priorReliabilityScore : 85;\n\n// Base penalty by confirmed severity\nconst severityPenaltyMap = { Minor: 3, Moderate: 8, Severe: 16, Critical: 28 };\nlet penalty = severityPenaltyMap[item.severity] || 8;\n\n// Additional penalty for a confirmed SLA breach\nif (item.slaBreached === true || item.slaBreached === 'true') {\n  penalty += 10;\n}\n\n// Root cause adjustment - supplier fault weighted fully, force majeure / traveler error reduce the penalty\nconst rootCause = item.rootCauseCategory || 'Unclear';\nlet rootCauseMultiplier = 0.9; // Unclear: slight benefit of the doubt\nif (rootCause === 'Supplier Fault') rootCauseMultiplier = 1;\nelse if (rootCause === 'Communication Failure') rootCauseMultiplier = 0.8;\nelse if (rootCause === 'Force Majeure') rootCauseMultiplier = 0.3;\nelse if (rootCause === 'Traveler Error') rootCauseMultiplier = 0;\n\npenalty = penalty * rootCauseMultiplier;\n\n// Frequency penalty based on trailing 90-day incident rate\nconst totalIncidents = item.totalIncidentsLast90Days || 0;\nconst totalBookings = (item.totalBookingsLast90Days && item.totalBookingsLast90Days > 0) ? item.totalBookingsLast90Days : 1;\nconst incidentRatePercent = Math.round((totalIncidents / totalBookings) * 1000) / 10;\nlet frequencyPenalty = 0;\nif (incidentRatePercent > 20) frequencyPenalty = 12;\nelse if (incidentRatePercent > 10) frequencyPenalty = 7;\nelse if (incidentRatePercent > 5) frequencyPenalty = 3;\n\n// Small mean-reversion recovery pull toward 100, so suppliers already low aren't permanently locked out of recovering\nconst recoveryPull = priorScore < 100 ? Math.round((100 - priorScore) * 0.02) : 0;\n\nconst rawScore = priorScore - penalty - frequencyPenalty + recoveryPull;\nconst newReliabilityScore = Math.max(0, Math.min(100, Math.round(rawScore)));\nconst scoreChange = Math.round((newReliabilityScore - priorScore) * 10) / 10;\n\nlet reliabilityTier = 'Excellent';\nif (newReliabilityScore < 35) reliabilityTier = 'Critical / Non-Compliant';\nelse if (newReliabilityScore < 55) reliabilityTier = 'At Risk';\nelse if (newReliabilityScore < 75) reliabilityTier = 'Watch List';\nelse if (newReliabilityScore < 90) reliabilityTier = 'Reliable';\n\nreturn {\n  json: {\n    ...item,\n    incidentRatePercent,\n    penaltyApplied: Math.round(penalty * 10) / 10,\n    frequencyPenaltyApplied: frequencyPenalty,\n    recoveryPullApplied: recoveryPull,\n    newReliabilityScore,\n    scoreChange,\n    reliabilityTier\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "203d8bc3-9b68-45bc-ac57-65639d382384",
+      "name": "Wait - Before Recommendation AI",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2720,
+        832
+      ],
+      "webhookId": "b1c2d3e4-f5a6-4789-9bcd-abcdef123002",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "400c2416-e408-4147-b110-278cd9ea7fc3",
+      "name": "AI - Generate Supplier Recommendation",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        3008,
+        832
+      ],
+      "parameters": {
+        "text": "=You are a DMC / ground-supplier performance manager producing a recommendation for a human procurement or operations lead, not an automated termination decision.\n\nSupplier: {{ $json.supplierName }} ({{ $json.supplierType }}) - {{ $json.destination }}\nIncident Type: {{ $json.confirmedIncidentType }} | Severity: {{ $json.severity }} | SLA Breached: {{ $json.slaBreached }}\nRoot Cause: {{ $json.rootCauseCategory }}\nIncident Summary: {{ $json.incidentSummary }}\n\nPrior Reliability Score: {{ $json.priorReliabilityScore }}/100\nNew Reliability Score: {{ $json.newReliabilityScore }}/100 ({{ $json.reliabilityTier }})\nScore Change This Incident: {{ $json.scoreChange }}\nTrailing 90-Day Incident Rate: {{ $json.incidentRatePercent }}% ({{ $json.totalIncidentsLast90Days }} incidents / {{ $json.totalBookingsLast90Days }} bookings)\n\nGuidance: Critical/Non-Compliant or At Risk tiers combined with a Supplier Fault root cause should generally lean toward Probation or Terminate/Replace. Watch List tier or a Communication Failure root cause can lean toward Formal Warning with specific corrective actions. Reliable or Excellent tiers with an isolated, low-severity incident can lean toward Monitor or Retain. Always ground your reasoning in the actual numbers above.\n\nReturn a JSON object with EXACTLY these fields:\n{\n  \"recommendation\": \"Retain|Monitor|Formal Warning|Probation|Terminate/Replace\",\n  \"reasoning\": \"Two to four sentences referencing the specific numbers above\",\n  \"correctiveActions\": [\"action1\", \"action2\"],\n  \"requiresContractReview\": true or false,\n  \"recommendationConfidence\": <number 0-100>\n}\n\nIf no corrective actions apply, return an empty array. Return ONLY the JSON. No markdown, no explanation.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "c09d73c3-d8fe-46cd-b318-14483e905765",
+      "name": "Anthropic - Recommendation Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        2960,
+        1056
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account - test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b02a5673-8c8d-481c-a30d-4d537a2bda5d",
+      "name": "JS - Parse Recommendation Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3344,
+        832
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nlet parsed = {};\ntry {\n  const rawText = item.output || item.text || item.response || '{}';\n  const clean = rawText.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(clean);\n} catch(e) {\n  parsed = {\n    recommendation: 'Monitor',\n    reasoning: 'Auto-flagged: could not parse AI recommendation output, routing to Monitor with a contract review as a precaution.',\n    correctiveActions: [],\n    requiresContractReview: true,\n    recommendationConfidence: 50\n  };\n}\nreturn { json: { ...item, ...parsed } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "518ffe47-f883-4370-b95c-16242b1e9d3d",
+      "name": "JS - Format Final Scorecard Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3664,
+        832
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nconst recordedAt = new Date().toISOString();\n\nreturn {\n  json: {\n    ...item,\n    recordedAt,\n    scorecardSummaryRow: [\n      item.incidentId || 'N/A',\n      item.supplierId || '',\n      item.supplierName || '',\n      item.supplierType || '',\n      item.destination || '',\n      item.confirmedIncidentType || '',\n      item.severity || '',\n      item.slaBreached ? 'Yes' : 'No',\n      item.rootCauseCategory || '',\n      item.priorReliabilityScore || 0,\n      item.newReliabilityScore || 0,\n      item.scoreChange || 0,\n      item.reliabilityTier || '',\n      item.recommendation || '',\n      JSON.stringify(item.correctiveActions || []),\n      recordedAt\n    ]\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "59535a6d-dd8f-4021-9eca-1130e9e50ebf",
+      "name": "Save Scorecard to Google Sheets Tracker",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3888,
+        832
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/SupplierScorecard!A1:append?valueInputOption=USER_ENTERED",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"values\": [{{ JSON.stringify($json.scorecardSummaryRow) }}]\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "credential-id",
+          "name": "Unnamed credential"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9bf85a53-7762-49d7-9900-5f0c438c6cdb",
+      "name": "IF - Escalation Required",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4112,
+        832
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "cond-tier-at-risk",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.reliabilityTier }}",
+              "rightValue": "At Risk"
+            },
+            {
+              "id": "cond-tier-critical",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.reliabilityTier }}",
+              "rightValue": "Critical / Non-Compliant"
+            },
+            {
+              "id": "cond-recommendation-probation",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.recommendation }}",
+              "rightValue": "Probation"
+            },
+            {
+              "id": "cond-recommendation-terminate",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.recommendation }}",
+              "rightValue": "Terminate/Replace"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e018ec9b-840d-43bd-b352-246673b2091c",
+      "name": "Send Escalation Alert Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4336,
+        544
+      ],
+      "parameters": {
+        "url": "https://api.sendgrid.com/v3/mail/send",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"personalizations\": [{\"to\": [{\"email\": \"procurement@youragency.com\"}]}],\n  \"from\": {\"email\": \"supplier-quality@youragency.com\", \"name\": \"Supplier Quality System\"},\n  \"subject\": \"{{ $json.recommendation }} required: {{ $json.supplierName }} ({{ $json.incidentId }})\",\n  \"content\": [{\n    \"type\": \"text/plain\",\n    \"value\": \"Incident {{ $json.incidentId }} for supplier {{ $json.supplierName }} ({{ $json.supplierId }}, {{ $json.destination }}) requires attention.\\n\\nRecommendation: {{ $json.recommendation }}\\nReasoning: {{ $json.reasoning }}\\nCorrective Actions: {{ JSON.stringify($json.correctiveActions) }}\\nContract Review Needed: {{ $json.requiresContractReview }}\\n\\nIncident Type: {{ $json.confirmedIncidentType }} | Severity: {{ $json.severity }} | SLA Breached: {{ $json.slaBreached }}\\nRoot Cause: {{ $json.rootCauseCategory }}\\nPrior Score: {{ $json.priorReliabilityScore }} -> New Score: {{ $json.newReliabilityScore }} ({{ $json.reliabilityTier }})\\n90-Day Incident Rate: {{ $json.incidentRatePercent }}%\\nIncident Summary: {{ $json.incidentSummary }}\"\n  }]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4d91b657-348c-4d2b-8bd5-283b3a0417af",
+      "name": "Send Supplier Improvement Notice Email",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4336,
+        736
+      ],
+      "parameters": {
+        "url": "https://api.sendgrid.com/v3/mail/send",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"personalizations\": [{\"to\": [{\"email\": \"{{ $json.primaryContactEmail }}\"}]}],\n  \"from\": {\"email\": \"supplier-quality@youragency.com\", \"name\": \"Supplier Quality Team\"},\n  \"subject\": \"Action required: recent service incident {{ $json.incidentId }}\",\n  \"content\": [{\n    \"type\": \"text/plain\",\n    \"value\": \"Hi {{ $json.supplierName }} team,\\n\\nWe are writing to follow up on incident {{ $json.incidentId }} ({{ $json.confirmedIncidentType }}) reported on {{ $json.recordedAt }}.\\n\\n{{ $json.incidentSummary }}\\n\\nBased on our review, we are requesting the following corrective actions: {{ JSON.stringify($json.correctiveActions) }}\\n\\nOur team will follow up directly regarding next steps and, if applicable, a review of our current agreement. Please reach out with any questions or additional context.\"\n  }]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "26365654-1a72-4431-adcb-534366eaeb86",
+      "name": "Respond to Webhook - Escalated",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        4336,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"incidentId\": \"{{ $json.incidentId }}\",\n  \"supplierId\": \"{{ $json.supplierId }}\",\n  \"recommendation\": \"{{ $json.recommendation }}\",\n  \"newReliabilityScore\": {{ $json.newReliabilityScore }},\n  \"reliabilityTier\": \"{{ $json.reliabilityTier }}\",\n  \"scoreChange\": {{ $json.scoreChange }},\n  \"reasoning\": \"{{ $json.reasoning }}\",\n  \"correctiveActions\": {{ JSON.stringify($json.correctiveActions) }},\n  \"requiresContractReview\": {{ $json.requiresContractReview }},\n  \"message\": \"Incident logged and escalated. The procurement/ops team and the supplier have both been notified.\"\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21ccc39a-1dac-43d1-b540-a58a90e93cc1",
+      "name": "Respond to Webhook - Routine Log",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        4336,
+        1120
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"incidentId\": \"{{ $json.incidentId }}\",\n  \"supplierId\": \"{{ $json.supplierId }}\",\n  \"recommendation\": \"{{ $json.recommendation }}\",\n  \"newReliabilityScore\": {{ $json.newReliabilityScore }},\n  \"reliabilityTier\": \"{{ $json.reliabilityTier }}\",\n  \"scoreChange\": {{ $json.scoreChange }},\n  \"reasoning\": \"{{ $json.reasoning }}\",\n  \"correctiveActions\": {{ JSON.stringify($json.correctiveActions) }},\n  \"message\": \"Incident logged to the supplier's reliability record. No escalation required at this time.\"\n}"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "58f3a731-8bfa-4d83-ac9c-523b6710fc8a",
+  "connections": {
+    "IF - Escalation Required": {
+      "main": [
+        [
+          {
+            "node": "Send Escalation Alert Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Supplier Improvement Notice Email",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond to Webhook - Escalated",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook - Routine Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Incident Data Usable": {
+      "main": [
+        [
+          {
+            "node": "JS - Calculate Updated Reliability Score",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook - Needs Manual Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Prepare Incident Context": {
+      "main": [
+        [
+          {
+            "node": "AI - Classify & Extract Incident Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Before Recommendation AI": {
+      "main": [
+        [
+          {
+            "node": "AI - Generate Supplier Recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic - Classification Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Classify & Extract Incident Details",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic - Recommendation Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Generate Supplier Recommendation",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse Recommendation Output": {
+      "main": [
+        [
+          {
+            "node": "JS - Format Final Scorecard Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Format Final Scorecard Record": {
+      "main": [
+        [
+          {
+            "node": "Save Scorecard to Google Sheets Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Generate Supplier Recommendation": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse Recommendation Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Scorecard to Google Sheets Tracker": {
+      "main": [
+        [
+          {
+            "node": "IF - Escalation Required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Classify & Extract Incident Details": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse Incident Classification Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Calculate Updated Reliability Score": {
+      "main": [
+        [
+          {
+            "node": "Wait - Before Recommendation AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse Incident Classification Output": {
+      "main": [
+        [
+          {
+            "node": "IF - Incident Data Usable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Receive Supplier Incident Report": {
+      "main": [
+        [
+          {
+            "node": "Set - Prepare Incident Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

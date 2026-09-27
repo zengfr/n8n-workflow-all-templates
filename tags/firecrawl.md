@@ -1,4 +1,4 @@
-# firecrawl : 51
+# firecrawl : 57
 
 |id|file|
 |----|----|
@@ -53,3 +53,9 @@
 |15893|[15893_Monitor_competitor_pricing_with_Firecrawl__Anthropic__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15893_Monitor_competitor_pricing_with_Firecrawl__Anthropic__Airtable_and_Slack.json)|
 |16424|[16424_Find_and_save_local_lead_prospects_with_Google_Places__Firecrawl_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16424_Find_and_save_local_lead_prospects_with_Google_Places__Firecrawl_and_Supabase.json)|
 |16665|[16665_Scrape_Tunisia_IT_job_listings_with_Groq__Firecrawl__Airtable__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16665_Scrape_Tunisia_IT_job_listings_with_Groq__Firecrawl__Airtable__and_Resend.json)|
+|17703|[17703_Send_daily_AI_YouTube_news_digests_to_Telegram_with_Firecrawl_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17703_Send_daily_AI_YouTube_news_digests_to_Telegram_with_Firecrawl_and_Claude.json)|
+|18116|[18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json)|
+|18642|[18642_Prepare_executive_meeting_briefs_with_Firecrawl__Tavily__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18642_Prepare_executive_meeting_briefs_with_Firecrawl__Tavily__OpenAI__and_Gmail.json)|
+|19360|[19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json)|
+|19662|[19662_Create_weekly_research_brief_PDFs_with_Brave_Search__Firecrawl__Claude__PDF.co__Gmail_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19662_Create_weekly_research_brief_PDFs_with_Brave_Search__Firecrawl__Claude__PDF.co__Gmail_and_Google_Drive.json)|
+|19819|[19819_Scrape_blog_posts_with_Firecrawl_and_save_cleaned_content_to_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19819_Scrape_blog_posts_with_Firecrawl_and_save_cleaned_content_to_Google_Docs.json)|

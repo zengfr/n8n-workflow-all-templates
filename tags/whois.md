@@ -1,4 +1,4 @@
-# whois : 4
+# whois : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |8672|[8672_Generate_Domain_Insights_with_WHOIS_Lookup_and_GPT-5-Nano_via_RapidAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8672_Generate_Domain_Insights_with_WHOIS_Lookup_and_GPT-5-Nano_via_RapidAPI.json)|
 |12387|[12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12387_Get_domain_expiry_reminders_with_Google_Sheets__WHOIS__Telegram__and_Ollama_AI.json)|
 |13211|[13211_Track_domain_expiry_dates_with_Google_Sheets_and_WHOIS_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13211_Track_domain_expiry_dates_with_Google_Sheets_and_WHOIS_API.json)|
+|18449|[18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json)|

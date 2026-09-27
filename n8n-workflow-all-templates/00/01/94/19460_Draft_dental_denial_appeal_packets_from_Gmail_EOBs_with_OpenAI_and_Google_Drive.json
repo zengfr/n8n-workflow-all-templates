@@ -1,0 +1,1240 @@
+{
+  "id": "3B6TaSHQAGMULtcL",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Draft dental denial appeal packets from Gmail EOBs with OpenAI and Google Drive",
+    "wechat": "youandme10086",
+    "id": 19460,
+    "update_time": "2026-09-27"
+  },
+  "name": "Draft dental denial appeal packets from Gmail EOBs with OpenAI and Drive",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5761e416-e3c0-470a-9bc5-60fce944993a",
+      "name": "Receive Payer Denial Notice",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        912,
+        512
+      ],
+      "parameters": {
+        "filters": {
+          "q": "subject:(EOB OR \"Explanation of Benefits\" OR \"Claim Denial\")"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "swapnilailabs@gmail.com"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f81f1572-1726-472e-a979-a71544915da7",
+      "name": "Normalize Denial Payload",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1280,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "patientName",
+              "type": "string",
+              "value": "={{ $json.patientName ?? 'Unknown Patient' }}"
+            },
+            {
+              "name": "payerName",
+              "type": "string",
+              "value": "={{ $json.from ?? 'Unknown Payer' }}"
+            },
+            {
+              "name": "claimNumber",
+              "type": "string",
+              "value": "={{ $json.claimNumber ?? '' }}"
+            },
+            {
+              "name": "rawEmailBody",
+              "type": "string",
+              "value": "={{ $json.text ?? $json.snippet ?? '' }}"
+            },
+            {
+              "name": "receivedAt",
+              "type": "string",
+              "value": "={{ $json.date ?? $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9de6092e-6bbe-483d-b5ee-cf8b3f221ff5",
+      "name": "Extract Denial Line Items",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1664,
+        512
+      ],
+      "parameters": {
+        "text": "={{ $json.rawEmailBody }}",
+        "options": {
+          "systemPromptTemplate": "You are a dental billing coding specialist. Extract every denied CPT/ADA procedure code line from this EOB text, its denial reason code (e.g. CO-11, CO-16, CO-197), denial reason text, denied dollar amount, and the payer's stated appeal filing deadline. Return strict JSON matching the schema. Never invent codes that are not present in the text."
+        },
+        "schemaType": "manual",
+        "inputSchema": "{\"type\":\"object\",\"properties\":{\"lineItems\":{\"type\":\"array\",\"items\":{\"type\":\"object\",\"properties\":{\"cptCode\":{\"type\":\"string\"},\"deniedAmount\":{\"type\":\"number\"},\"denialReasonCode\":{\"type\":\"string\"},\"denialReasonText\":{\"type\":\"string\"},\"filingDeadline\":{\"type\":\"string\"}}}}}}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "79389b58-af34-40de-9174-ccfc91bcb7e8",
+      "name": "Denial Extraction Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1664,
+        928
+      ],
+      "parameters": {
+        "model": {
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "6f6e0e29-3966-44f5-a4a5-63c566d74124",
+      "name": "Split Out Denied CPT Lines",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        2048,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "output.lineItems"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7c17b4ca-8a59-408c-96ed-78036dc07429",
+      "name": "Score Appeal Strategy & Deadline",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2432,
+        512
+      ],
+      "parameters": {
+        "jsCode": "const item = $json;\nconst reasonMap = {\n  'CO-11': { appealable: true, strategy: 'coding_correction', docs: ['corrected_claim_form'] },\n  'CO-16': { appealable: true, strategy: 'missing_info_resubmit', docs: ['x_rays', 'perio_chart'] },\n  'CO-50': { appealable: true, strategy: 'clinical_necessity', docs: ['clinical_narrative', 'x_rays'] },\n  'CO-197': { appealable: true, strategy: 'auth_retro_request', docs: ['pre_auth_reference'] },\n  'CO-29': { appealable: false, strategy: 'timely_filing_expired', docs: [] },\n  'CO-A1': { appealable: false, strategy: 'benefit_exhausted', docs: [] },\n};\nconst code = (item.denialReasonCode || '').toUpperCase().trim();\nconst rule = reasonMap[code] || { appealable: true, strategy: 'clinical_necessity', docs: ['clinical_narrative'] };\nlet daysUntilDeadline = 21;\nif (item.filingDeadline) {\n  const d = new Date(item.filingDeadline);\n  if (!isNaN(d.getTime())) {\n    daysUntilDeadline = Math.ceil((d.getTime() - Date.now()) / 86400000);\n  }\n}\nreturn {\n  ...item,\n  appealable: rule.appealable,\n  appealStrategy: rule.strategy,\n  requiredDocs: rule.docs,\n  daysUntilDeadline,\n  urgent: daysUntilDeadline <= 5,\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0343a22c-5da1-45cc-b869-835304b324b2",
+      "name": "Check Line Item Appealable",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2800,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              },
+              "leftValue": "={{ $json.appealable }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "76a5ee2c-09c3-4d51-9ffe-18f406a8de18",
+      "name": "Check Filing Deadline Urgency",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3184,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              },
+              "leftValue": "={{ $json.urgent }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0c28fe4f-fcf1-42f5-a04f-666a7afdcab5",
+      "name": "Tag Non-Appealable Reason",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2640,
+        1648
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "closeReason",
+              "type": "string",
+              "value": "={{ $json.appealStrategy }}"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "non_appealable"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "de6557ee-debe-4c63-8962-b9e18b49bb66",
+      "name": "Flag Priority Review",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3568,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "reviewQueue",
+              "type": "string",
+              "value": "priority"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "appealable"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d5099e30-c9c6-4e77-b986-0da3d8370dc6",
+      "name": "Tag Standard Queue",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3568,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "reviewQueue",
+              "type": "string",
+              "value": "standard"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "appealable"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "99f25ee9-64c0-4974-ae53-26c526f21a71",
+      "name": "Log Non-Appealable Denial",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3280,
+        1664
+      ],
+      "parameters": {
+        "columns": {
+          "status": "={{ $json.status }}",
+          "cptCode": "={{ $json.cptCode }}",
+          "claimNumber": "={{ $json.claimNumber }}",
+          "closeReason": "={{ $json.closeReason }}"
+        },
+        "options": {},
+        "dataTableId": "dental_denial_log"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "b26362c7-4f4e-4cbc-a82d-b4e9fcfd861d",
+      "name": "Notify Billing Manager - Non-Appealable",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3984,
+        1680
+      ],
+      "webhookId": "0c07ea5a-2b8b-449e-b5e5-542db4c129ed",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=CPT {{ $json.cptCode }} denied (reason {{ $json.appealStrategy }}) is not appealable. No action beyond write-off review.",
+        "options": {},
+        "subject": "=Non-appealable denial: claim {{ $json.claimNumber }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "swapnilailabs@gmail.com"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "757faf9f-9f20-41cc-ab46-96a191d6dd0a",
+      "name": "Merge Appealable Line Decisions",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3952,
+        512
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "1d0a924c-bad0-432e-b639-7bdeb59ade9a",
+      "name": "Draft Appeal Letter",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4320,
+        512
+      ],
+      "parameters": {
+        "text": "=Draft a formal dental insurance appeal letter for claim {{ $json.claimNumber }}, CPT {{ $json.cptCode }}, denial reason {{ $json.denialReasonText }} ({{ $json.denialReasonCode }}). Strategy: {{ $json.appealStrategy }}. Required supporting docs: {{ $json.requiredDocs.join(', ') }}. Cite clinical necessity where applicable. Keep to one page, professional tone, addressed to {{ $json.payerName }}.",
+        "options": {
+          "systemMessage": "You are a dental insurance appeals specialist. Write concise, evidence-based appeal letters that reference the specific denial reason code and the ADA procedure code. Never fabricate clinical findings not provided."
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.7,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "272e9514-3706-4364-bad7-3c4025ee1d58",
+      "name": "Appeal Drafting Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4320,
+        768
+      ],
+      "parameters": {
+        "model": {
+          "value": "gpt-4o"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "OpenAI account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "ddff6a77-555d-4573-9d26-47ad4acd63ce",
+      "name": "Aggregate Appeal Packet Lines",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        4704,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81fc2cc4-8100-4e01-ae2f-72c99074a764",
+      "name": "Shape Appeal Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        5088,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "claimNumber",
+              "type": "string",
+              "value": "={{ $json.data[0].claimNumber }}"
+            },
+            {
+              "name": "payerName",
+              "type": "string",
+              "value": "={{ $json.data[0].payerName }}"
+            },
+            {
+              "name": "lineCount",
+              "type": "number",
+              "value": "={{ $json.data.length }}"
+            },
+            {
+              "name": "appealPacketText",
+              "type": "string",
+              "value": "={{ $json.data.map(d => d.output).join('\\n\\n---\\n\\n') }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "02fc411e-0d81-422f-ae8a-7d5324bdfd0a",
+      "name": "Save Appeal Packet to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5472,
+        512
+      ],
+      "parameters": {
+        "name": "=Appeal_{{ $('Shape Appeal Record').item.json.claimNumber }}.txt",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "mode": "list",
+          "value": "Dental Appeals Packets"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Drive account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 3,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "46cb578f-fbe5-4d5b-9388-300d72b2a617",
+      "name": "Log Appeal Decision",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5840,
+        512
+      ],
+      "parameters": {
+        "columns": {
+          "lineCount": "={{ $('Shape Appeal Record').item.json.lineCount }}",
+          "payerName": "={{ $('Shape Appeal Record').item.json.payerName }}",
+          "claimNumber": "={{ $('Shape Appeal Record').item.json.claimNumber }}",
+          "draftFileId": "={{ $json.id }}"
+        },
+        "options": {},
+        "dataTableId": "dental_appeal_log"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "5d3fef47-85d3-46c4-a863-960c4ea81ad1",
+      "name": "Update Practice Management System",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        6224,
+        512
+      ],
+      "parameters": {
+        "url": "https://api.practicemgmt.example.com/v1/claims/status",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "claimNumber",
+              "value": "={{ $('Shape Appeal Record').item.json.claimNumber }}"
+            },
+            {
+              "name": "status",
+              "value": "appeal_drafted"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "fc74eeda-1c47-4ae0-9018-dca22d0c2872",
+      "name": "Notify Front Desk of Drafted Appeal",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        6608,
+        512
+      ],
+      "webhookId": "2f3faedd-cb82-4b47-8a62-6d313f982495",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=A {{ $('Shape Appeal Record').item.json.lineCount }}-line appeal packet for {{ $('Shape Appeal Record').item.json.payerName }} is drafted and saved to Drive. Please review, attach supporting X-rays, and submit within the payer deadline.",
+        "options": {},
+        "subject": "=Appeal ready for review: claim {{ $('Shape Appeal Record').item.json.claimNumber }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "swapnilailabs@gmail.com"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "ea78760d-d1a9-493e-b723-3b0ff24b94eb",
+      "name": "DOC 1 - Workflow Details",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -1104
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 794,
+        "height": 1273,
+        "content": "# Draft dental denial appeal packets from Gmail EOBs with OpenAI and Drive\n\n## What this workflow does\nThis workflow automates the operational process represented by **Draft dental denial appeal packets from Gmail EOBs with OpenAI and Drive** while keeping decisions, audit records, and notifications traceable.\n\n## Who it is for\nOperations teams, reviewers, and process owners configuring the connected services.\n\n## How it works\n1. **Receive Payer Denial Notice** — Starts the workflow when the configured gmailTrigger event occurs.\n2. **Normalize Denial Payload** — Normalizes, validates, or reshapes data for the next workflow step.\n3. **Extract Denial Line Items** — Applies the workflow's AI prompt or model to the current business record.\n4. **Denial Extraction Model** — Applies the workflow's AI prompt or model to the current business record.\n5. **Split Out Denied CPT Lines** — Controls routing, joining, batching, or approval state for this execution.\n6. **Score Appeal Strategy & Deadline** — Normalizes, validates, or reshapes data for the next workflow step.\n7. **Check Line Item Appealable** — Controls routing, joining, batching, or approval state for this execution.\n8. **Check Filing Deadline Urgency** — Controls routing, joining, batching, or approval state for this execution.\n9. **Tag Non-Appealable Reason** — Normalizes, validates, or reshapes data for the next workflow step.\n10. **Flag Priority Review** — Normalizes, validates, or reshapes data for the next workflow step.\n11. **Tag Standard Queue** — Normalizes, validates, or reshapes data for the next workflow step.\n12. **Log Non-Appealable Denial** — Reads or writes the operational record in the configured system of record.\n13. **Notify Billing Manager - Non-Appealable** — Sends the relevant decision, request, or exception to its recipient.\n14. **Merge Appealable Line Decisions** — Controls routing, joining, batching, or approval state for this execution.\n15. **Draft Appeal Letter** — Applies the workflow's AI prompt or model to the current business record.\n16. **Appeal Drafting Model** — Applies the workflow's AI prompt or model to the current business record.\n17. **Aggregate Appeal Packet Lines** — Normalizes, validates, or reshapes data for the next workflow step.\n18. **Shape Appeal Record** — Normalizes, validates, or reshapes data for the next workflow step.\n19. **Save Appeal Packet to Drive** — Reads or writes the operational record in the configured system of record.\n20. **Log Appeal Decision** — Reads or writes the operational record in the configured system of record.\n21. **Update Practice Management System** — Normalizes, validates, or reshapes data for the next workflow step.\n22. **Notify Front Desk of Drafted Appeal** — Sends the relevant decision, request, or exception to its recipient.\n\n## Expected result\nA routed, logged, and reviewable operational outcome using the configured integrations."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "76057367-9529-4d0e-bd94-747e79cc12ff",
+      "name": "DOC 2 - Setup Guide",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 650,
+        "height": 591,
+        "content": "# Setup guide\n\n1. Import the workflow JSON into n8n.\n2. Open every node with a warning icon and select the required credential.\n3. Replace placeholder IDs, URLs, recipients, channel IDs, table/sheet names, and thresholds.\n4. Run a manual test using a non-production record.\n5. Confirm each branch, storage write, and notification before activation.\n\n## Credential map\n- **Receive Payer Denial Notice** → swapnilailabs@gmail.com\n- **Denial Extraction Model** → OpenAI account\n- **Notify Billing Manager - Non-Appealable** → swapnilailabs@gmail.com\n- **Appeal Drafting Model** → OpenAI account\n- **Save Appeal Packet to Drive** → Google Drive account\n- **Notify Front Desk of Drafted Appeal** → swapnilailabs@gmail.com\n\nEstimated setup time: 20–40 minutes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "11311a1f-63c1-4607-8d2e-bbe063666831",
+      "name": "DOC 3 - Customization",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        912
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 650,
+        "height": 292,
+        "content": "# Customization\n\n- Change policy thresholds in Code, If, and Switch nodes.\n- Replace the notification node while preserving its incoming expressions.\n- Add a human approval step before irreversible external actions.\n- Add a second audit sink for reporting or compliance retention.\n- Update AI prompts and schemas for your organization’s terminology."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f4382c75-0e44-439b-92a6-1a61df02c1f2",
+      "name": "DOC 4 - Additional Information",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        1280
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 650,
+        "height": 420,
+        "content": "# Additional information\n\nExternal calls may fail because of credentials, rate limits, or changed API schemas. Review execution logs and enable retries where appropriate.\n\nAI cost depends on model and input length. Minimize personal or confidential data sent to models and stores.\n\nBuilt for local import and first-run verification. Re-check node versions if your n8n release differs materially.\n\nCreator: Swapnil AI Labs — swapnil.mandloi7@gmail.com — swapnilailabs.netlify.app"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "05547dd7-b1a2-4622-b32b-82a6eb91c828",
+      "name": "NOTE - Receive Payer Denial Notice",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        272
+      ],
+      "parameters": {
+        "width": 320,
+        "height": 150,
+        "content": "**Receive Payer Denial Notice**\nStarts the workflow when the configured gmailTrigger event occurs.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15555fce-ac58-4e61-ba40-a0cd4a1075cc",
+      "name": "NOTE - Normalize Denial Payload",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1264,
+        272
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Normalize Denial Payload**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37888726-95d3-4c2b-a344-d0e09adf56ee",
+      "name": "NOTE - Extract Denial Line Items",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1648,
+        272
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 150,
+        "content": "**Extract Denial Line Items**\nApplies the workflow's AI prompt or model to the current business record.\nKey setting: model, prompt, output schema, and credential selection."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "280a887e-f1fc-4e61-8080-a0fa4409bc1a",
+      "name": "NOTE - Denial Extraction Model",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1600,
+        1168
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 150,
+        "content": "**Denial Extraction Model**\nApplies the workflow's AI prompt or model to the current business record.\nKey setting: model, prompt, output schema, and credential selection."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37df8994-7524-48cb-9247-5639e2018d38",
+      "name": "NOTE - Split Out Denied CPT Lines",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2032,
+        272
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 320,
+        "height": 150,
+        "content": "**Split Out Denied CPT Lines**\nControls routing, joining, batching, or approval state for this execution.\nKey setting: branch conditions, thresholds, and fallback output."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ad40bf6-fcd1-4c9c-bf5b-67bf4c0d959e",
+      "name": "NOTE - Score Appeal Strategy & Deadline",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2400,
+        272
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Score Appeal Strategy & Deadline**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9db1dd2-1b0f-4302-a521-9d35f8c48dab",
+      "name": "NOTE - Check Line Item Appealable",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2784,
+        272
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 320,
+        "height": 150,
+        "content": "**Check Line Item Appealable**\nControls routing, joining, batching, or approval state for this execution.\nKey setting: branch conditions, thresholds, and fallback output."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "63fefc76-6694-4e0e-87cb-6d826ca75ffd",
+      "name": "NOTE - Check Filing Deadline Urgency",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3168,
+        272
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 320,
+        "height": 150,
+        "content": "**Check Filing Deadline Urgency**\nControls routing, joining, batching, or approval state for this execution.\nKey setting: branch conditions, thresholds, and fallback output."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c55ded81-8c33-4c39-a3d5-1d76b7a1039e",
+      "name": "NOTE - Tag Non-Appealable Reason",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2528,
+        1888
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Tag Non-Appealable Reason**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d7c507b6-f3e4-476b-b8b4-90888519daf2",
+      "name": "NOTE - Flag Priority Review",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3552,
+        272
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Flag Priority Review**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "691955ac-9cee-46f2-b7d9-dfe5c50207d7",
+      "name": "NOTE - Tag Standard Queue",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3488,
+        1104
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Tag Standard Queue**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6304f201-d476-4b55-af51-da1c6985fecf",
+      "name": "NOTE - Log Non-Appealable Denial",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3184,
+        1888
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 320,
+        "height": 150,
+        "content": "**Log Non-Appealable Denial**\nReads or writes the operational record in the configured system of record.\nKey setting: destination ID, resource, operation, and mapped fields."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9177df1-2d99-40b5-9b1d-ccdae7fd7ff4",
+      "name": "NOTE - Notify Billing Manager - Non-Appealable",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3856,
+        1920
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 320,
+        "height": 150,
+        "content": "**Notify Billing Manager - Non-Appealable**\nSends the relevant decision, request, or exception to its recipient.\nKey setting: recipient/channel, subject, and message expressions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "399d2496-0bb7-406e-95df-5e40e60d922c",
+      "name": "NOTE - Merge Appealable Line Decisions",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3920,
+        272
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 320,
+        "height": 150,
+        "content": "**Merge Appealable Line Decisions**\nControls routing, joining, batching, or approval state for this execution.\nKey setting: branch conditions, thresholds, and fallback output."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8bcfa472-1672-40e8-874d-7488f472d272",
+      "name": "NOTE - Draft Appeal Letter",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4304,
+        272
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 150,
+        "content": "**Draft Appeal Letter**\nApplies the workflow's AI prompt or model to the current business record.\nKey setting: model, prompt, output schema, and credential selection."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8715663a-e620-4801-9c7d-e360881d0cd9",
+      "name": "NOTE - Appeal Drafting Model",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4304,
+        1008
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 320,
+        "height": 150,
+        "content": "**Appeal Drafting Model**\nApplies the workflow's AI prompt or model to the current business record.\nKey setting: model, prompt, output schema, and credential selection."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0925c680-3b80-4db3-a2b8-589b4befaffc",
+      "name": "NOTE - Aggregate Appeal Packet Lines",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4688,
+        272
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Aggregate Appeal Packet Lines**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e1e3556-61a0-4d34-8e19-ca39ec5a64d8",
+      "name": "NOTE - Shape Appeal Record",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5072,
+        272
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Shape Appeal Record**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: expressions and required input-field mappings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "866ccf75-f06b-4a87-9d3a-7eef4cba7ad3",
+      "name": "NOTE - Save Appeal Packet to Drive",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5440,
+        272
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 320,
+        "height": 150,
+        "content": "**Save Appeal Packet to Drive**\nReads or writes the operational record in the configured system of record.\nKey setting: destination ID, resource, operation, and mapped fields."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "09dd9bf4-c64b-4692-b482-cd01d50dbd86",
+      "name": "NOTE - Log Appeal Decision",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5824,
+        272
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 320,
+        "height": 150,
+        "content": "**Log Appeal Decision**\nReads or writes the operational record in the configured system of record.\nKey setting: destination ID, resource, operation, and mapped fields."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6fcf0dac-1947-4758-a3de-fb33e8adb6d3",
+      "name": "NOTE - Update Practice Management System",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6208,
+        272
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 320,
+        "height": 150,
+        "content": "**Update Practice Management System**\nNormalizes, validates, or reshapes data for the next workflow step.\nKey setting: endpoint https://api.practicemgmt.example.com/v1/claims/status."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7e18a327-790a-4dee-a690-af029e5638e0",
+      "name": "NOTE - Notify Front Desk of Drafted Appeal",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6592,
+        272
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 320,
+        "height": 150,
+        "content": "**Notify Front Desk of Drafted Appeal**\nSends the relevant decision, request, or exception to its recipient.\nKey setting: recipient/channel, subject, and message expressions."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "e2966519-95a6-4da9-985a-48c432ed63ae",
+  "connections": {
+    "Tag Standard Queue": {
+      "main": [
+        [
+          {
+            "node": "Merge Appealable Line Decisions",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Draft Appeal Letter": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Appeal Packet Lines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Appeal Decision": {
+      "main": [
+        [
+          {
+            "node": "Update Practice Management System",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Appeal Record": {
+      "main": [
+        [
+          {
+            "node": "Save Appeal Packet to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag Priority Review": {
+      "main": [
+        [
+          {
+            "node": "Merge Appealable Line Decisions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Appeal Drafting Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Appeal Letter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Denial Extraction Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Denial Line Items",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Denial Payload": {
+      "main": [
+        [
+          {
+            "node": "Extract Denial Line Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Denial Line Items": {
+      "main": [
+        [
+          {
+            "node": "Split Out Denied CPT Lines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Non-Appealable Denial": {
+      "main": [
+        [
+          {
+            "node": "Notify Billing Manager - Non-Appealable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Non-Appealable Reason": {
+      "main": [
+        [
+          {
+            "node": "Log Non-Appealable Denial",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Line Item Appealable": {
+      "main": [
+        [
+          {
+            "node": "Check Filing Deadline Urgency",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag Non-Appealable Reason",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Denied CPT Lines": {
+      "main": [
+        [
+          {
+            "node": "Score Appeal Strategy & Deadline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Payer Denial Notice": {
+      "main": [
+        [
+          {
+            "node": "Normalize Denial Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Appeal Packet to Drive": {
+      "main": [
+        [
+          {
+            "node": "Log Appeal Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Appeal Packet Lines": {
+      "main": [
+        [
+          {
+            "node": "Shape Appeal Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Filing Deadline Urgency": {
+      "main": [
+        [
+          {
+            "node": "Flag Priority Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag Standard Queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Appealable Line Decisions": {
+      "main": [
+        [
+          {
+            "node": "Draft Appeal Letter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Appeal Strategy & Deadline": {
+      "main": [
+        [
+          {
+            "node": "Check Line Item Appealable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Practice Management System": {
+      "main": [
+        [
+          {
+            "node": "Notify Front Desk of Drafted Appeal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

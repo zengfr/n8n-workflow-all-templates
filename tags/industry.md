@@ -1,4 +1,4 @@
-# industry : 8
+# industry : 16
 
 |id|file|
 |----|----|
@@ -10,3 +10,11 @@
 |13374|[13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13374_Scrape_industry_growth_signals_with_BrowserAct__OpenRouter__and_Slack_reports.json)|
 |13899|[13899_Analyze_and_modernize_university_curricula_with_GPT-4o_and_employment_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13899_Analyze_and_modernize_university_curricula_with_GPT-4o_and_employment_data.json)|
 |13992|[13992_Build_a_Reddit_no-API_weekly_digest_with_ScrapeOps_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13992_Build_a_Reddit_no-API_weekly_digest_with_ScrapeOps_and_Google_Sheets.json)|
+|16873|[16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json)|
+|17077|[17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json)|
+|17160|[17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json)|
+|17330|[17330_Generate_procurement_knowledge_base_articles_with_Groq__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17330_Generate_procurement_knowledge_base_articles_with_Groq__Gmail__and_Google_Sheets.json)|
+|17709|[17709_Send_a_weekly_legal_tech_AI_digest_with_GPT-4o-mini__Gemini__WordPress_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17709_Send_a_weekly_legal_tech_AI_digest_with_GPT-4o-mini__Gemini__WordPress_and_Outlook.json)|
+|18396|[18396_Score_and_shortlist_suppliers_with_Google_Sheets__Google_Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18396_Score_and_shortlist_suppliers_with_Google_Sheets__Google_Gemini__and_Gmail.json)|
+|18721|[18721_Monitor_supplier_risk_with_Notion__NewsAPI__Groq__MongoDB__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18721_Monitor_supplier_risk_with_Notion__NewsAPI__Groq__MongoDB__Gmail_and_Slack.json)|
+|18895|[18895_Prioritize_sourcing_projects_with_Notion__Groq__Slack__and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18895_Prioritize_sourcing_projects_with_Notion__Groq__Slack__and_Gmail_alerts.json)|

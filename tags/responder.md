@@ -1,4 +1,4 @@
-# responder : 22
+# responder : 27
 
 |id|file|
 |----|----|
@@ -24,3 +24,8 @@
 |12883|[12883_Send_instant_replies_to_new_Yelp_leads_with_LeadResponder.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12883_Send_instant_replies_to_new_Yelp_leads_with_LeadResponder.ai.json)|
 |14924|[14924_Auto-respond_to_job_opportunities_with_Gmail__LinkedIn__GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14924_Auto-respond_to_job_opportunities_with_Gmail__LinkedIn__GPT-4.1-mini_and_Google_Sheets.json)|
 |16592|[16592_Categorize_emails_and_draft_Gmail_replies_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16592_Categorize_emails_and_draft_Gmail_replies_with_Groq_and_Google_Sheets.json)|
+|17263|[17263_Triage_Gmail_and_draft_email_replies_with_OpenAI__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17263_Triage_Gmail_and_draft_email_replies_with_OpenAI__Slack__and_Google_Sheets.json)|
+|17437|[17437_Reply_to_WhatsApp_text__audio__image__and_video_with_Google_Gemini_and_Wikipedia.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17437_Reply_to_WhatsApp_text__audio__image__and_video_with_Google_Gemini_and_Wikipedia.json)|
+|17577|[17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json)|
+|18401|[18401_Triage_Gmail__draft_replies__upload_to_Drive__and_alert_via_Telegram_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18401_Triage_Gmail__draft_replies__upload_to_Drive__and_alert_via_Telegram_with_OpenRouter.json)|
+|18440|[18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json)|

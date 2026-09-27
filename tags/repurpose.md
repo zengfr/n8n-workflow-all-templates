@@ -1,4 +1,4 @@
-# repurpose : 25
+# repurpose : 29
 
 |id|file|
 |----|----|
@@ -27,3 +27,7 @@
 |16158|[16158_Repurpose_RSS_blog_posts_into_social_content_with_OpenAI__Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16158_Repurpose_RSS_blog_posts_into_social_content_with_OpenAI__Sheets__Gmail_and_Slack.json)|
 |16349|[16349_Create_AI_social_posts_from_Telegram_links_with_OpenAI__Grok_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16349_Create_AI_social_posts_from_Telegram_links_with_OpenAI__Grok_and_Blotato.json)|
 |16579|[16579_Repurpose_YouTube_Shorts_from_Telegram_to_Facebook__Instagram_and_TikTok_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16579_Repurpose_YouTube_Shorts_from_Telegram_to_Facebook__Instagram_and_TikTok_with_Apify_and_OpenAI.json)|
+|17164|[17164_Repurpose_blog_posts_into_social_content_with_Gemini__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17164_Repurpose_blog_posts_into_social_content_with_Gemini__Google_Sheets__and_Slack.json)|
+|17460|[17460_Repurpose_law_firm_field_notes_into_compliant_marketing_content_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17460_Repurpose_law_firm_field_notes_into_compliant_marketing_content_with_Anthropic_Claude.json)|
+|19219|[19219_Repurpose_YouTube_captions_into_social__community__and_email_content_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19219_Repurpose_YouTube_captions_into_social__community__and_email_content_with_OpenAI_and_Notion.json)|
+|19369|[19369_Repurpose_YouTube_videos_into_social_posts_and_thumbnails_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19369_Repurpose_YouTube_videos_into_social_posts_and_thumbnails_with_OpenAI.json)|

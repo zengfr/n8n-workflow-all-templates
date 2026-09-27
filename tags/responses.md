@@ -1,4 +1,4 @@
-# responses : 66
+# responses : 70
 
 |id|file|
 |----|----|
@@ -68,3 +68,7 @@
 |15237|[15237_Send_post-delivery_CSAT_surveys_and_log_responses_with_Gmail__Google_Sheets_and_Typeform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15237_Send_post-delivery_CSAT_surveys_and_log_responses_with_Gmail__Google_Sheets_and_Typeform.json)|
 |15957|[15957_Reply_to_LinkedIn_leads_with_Aimfox__OpenAI_GPT-4.1-mini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15957_Reply_to_LinkedIn_leads_with_Aimfox__OpenAI_GPT-4.1-mini__and_Slack.json)|
 |16757|[16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16757_Triage_Typeform_survey_feedback_with_GPT-4o-mini__Slack__Gmail__and_Sheets.json)|
+|17148|[17148_Handle_NPS_survey_responses_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17148_Handle_NPS_survey_responses_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|17602|[17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json)|
+|18751|[18751_Score_GeM_tender_compliance_and_draft_bid_responses_with_OpenAI__Sheets__Telegram__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18751_Score_GeM_tender_compliance_and_draft_bid_responses_with_OpenAI__Sheets__Telegram__Slack_and_Gmail.json)|
+|19658|[19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json)|

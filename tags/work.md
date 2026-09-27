@@ -1,4 +1,4 @@
-# work : 8
+# work : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |10430|[10430_Automate_Employee_Birthdays___Work_Anniversaries_with_Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/04/10430_Automate_Employee_Birthdays___Work_Anniversaries_with_Google_Gemini_and_Slack.json)|
 |10945|[10945_Discord_to_Google_Sheets_Task_Manager_with_GPT_Prioritization_and_Deep_Work_Focus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10945_Discord_to_Google_Sheets_Task_Manager_with_GPT_Prioritization_and_Deep_Work_Focus.json)|
 |16374|[16374_Manage_construction_work_permits_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16374_Manage_construction_work_permits_with_GPT-4o__Google_Sheets_and_Gmail.json)|
+|17074|[17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json)|
+|17880|[17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json)|
+|18066|[18066_Turn_vague_work_requests_into_scoped_briefs_with_adaptive_Forms_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18066_Turn_vague_work_requests_into_scoped_briefs_with_adaptive_Forms_and_Gemini.json)|
+|19283|[19283_Search_and_outreach_to_top-fit_jobs_with_LinkedIn__RemoteOK__WWR__Claude_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19283_Search_and_outreach_to_top-fit_jobs_with_LinkedIn__RemoteOK__WWR__Claude_and_Sheets.json)|

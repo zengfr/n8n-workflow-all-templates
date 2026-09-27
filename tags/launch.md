@@ -1,4 +1,4 @@
-# launch : 12
+# launch : 15
 
 |id|file|
 |----|----|
@@ -14,3 +14,6 @@
 |16361|[16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json)|
 |16371|[16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json)|
 |16670|[16670_Generate_digital_product_launch_content_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16670_Generate_digital_product_launch_content_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json)|
+|17468|[17468_Audit_and_auto-restructure_ad_campaigns_with_Spendict__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17468_Audit_and_auto-restructure_ad_campaigns_with_Spendict__OpenAI__and_Google_Sheets.json)|
+|18272|[18272_Launch_off-boarding_access_reviews_with_Probo__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18272_Launch_off-boarding_access_reviews_with_Probo__email_and_Slack.json)|
+|19817|[19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json)|

@@ -1,4 +1,4 @@
-# backend : 11
+# backend : 15
 
 |id|file|
 |----|----|
@@ -13,3 +13,7 @@
 |4645|[4645_Create_AI-Powered_Website_Chatbot_with_Langflow_Backend_and_Custom_Branding.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/46/4645_Create_AI-Powered_Website_Chatbot_with_Langflow_Backend_and_Custom_Branding.json)|
 |9280|[9280_Event_Ticketing_Backend__Auto_QR_Tickets_with_Google_Sheets___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9280_Event_Ticketing_Backend__Auto_QR_Tickets_with_Google_Sheets___Gmail.json)|
 |15226|[15226_Filter_AI_slop_from_your_LinkedIn_feed__backend_for_StopSlopIn_Chrome_extension.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15226_Filter_AI_slop_from_your_LinkedIn_feed__backend_for_StopSlopIn_Chrome_extension.json)|
+|17191|[17191_Send_hashed_backend_conversions_to_Meta_Conversions_API_and_Google_Ads.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17191_Send_hashed_backend_conversions_to_Meta_Conversions_API_and_Google_Ads.json)|
+|18376|[18376_Track_IBM_Quantum_backend_drift_with_Bell_tests__Sheets__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18376_Track_IBM_Quantum_backend_drift_with_Bell_tests__Sheets__Gmail_and_OpenAI.json)|
+|19669|[19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json)|
+|19670|[19670_Generate_AI_text_and_images_with_Claude_and_Stripe_metered_billing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19670_Generate_AI_text_and_images_with_Claude_and_Stripe_metered_billing.json)|

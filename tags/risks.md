@@ -1,4 +1,4 @@
-# risks : 11
+# risks : 19
 
 |id|file|
 |----|----|
@@ -13,3 +13,11 @@
 |14434|[14434_Route_legal_contract_risks_with_GPT-4o__Slack__Google_Sheets_and_a_regulatory_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14434_Route_legal_contract_risks_with_GPT-4o__Slack__Google_Sheets_and_a_regulatory_API.json)|
 |15847|[15847_Monitor_Gmail_for_compliance_risks_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15847_Monitor_Gmail_for_compliance_risks_with_Google_Gemini_and_Google_Sheets.json)|
 |16660|[16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16660_Review_workflow_JSON_for_risks_and_best_practices_with_Groq__Llama_3.3.json)|
+|17195|[17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json)|
+|17265|[17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json)|
+|17349|[17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json)|
+|18196|[18196_Review_contract_risks_and_route_approvals_with_Google_Drive__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18196_Review_contract_risks_and_route_approvals_with_Google_Drive__OpenAI__and_Gmail.json)|
+|18325|[18325_Review_M_A_data_room_risks_with_OpenAI__Google_Drive__Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18325_Review_M_A_data_room_risks_with_OpenAI__Google_Drive__Sheets__Gmail_and_Slack.json)|
+|18348|[18348_Review_security_architecture_risks_and_route_alerts_with_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18348_Review_security_architecture_risks_and_route_alerts_with_OpenAI_GPT-4.1.json)|
+|18678|[18678_Screen_German_job_ads_for_AGG_risks_with_Groq_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18678_Screen_German_job_ads_for_AGG_risks_with_Groq_and_data_tables.json)|
+|19489|[19489_Triage_contract_auto-renewal_risks_with_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19489_Triage_contract_auto-renewal_risks_with_Google_Sheets__Groq__and_Slack.json)|

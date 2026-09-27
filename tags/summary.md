@@ -1,4 +1,4 @@
-# summary : 106
+# summary : 116
 
 |id|file|
 |----|----|
@@ -108,3 +108,13 @@
 |16433|[16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json)|
 |16477|[16477_Summarize_daily_Slack_standups_with_OpenAI__Notion__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16477_Summarize_daily_Slack_standups_with_OpenAI__Notion__and_Google_Sheets.json)|
 |16496|[16496_Track_Slack_EOD_updates_and_post_executive_summaries_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16496_Track_Slack_EOD_updates_and_post_executive_summaries_with_Google_Sheets_and_Gemini.json)|
+|16817|[16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json)|
+|16882|[16882_Send_a_daily_Holded_sales_summary_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16882_Send_a_daily_Holded_sales_summary_to_Slack.json)|
+|17375|[17375_Create_Notion_page_summaries_from_URLs_with_Snapshot_Site_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17375_Create_Notion_page_summaries_from_URLs_with_Snapshot_Site_and_Slack_alerts.json)|
+|17495|[17495_Monitor_website_and_RSS_changes_with_Apify__GPT-4o_mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17495_Monitor_website_and_RSS_changes_with_Apify__GPT-4o_mini_and_Slack_alerts.json)|
+|17657|[17657_Watch_web_pages_for_changes_with_Google_Gemini__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17657_Watch_web_pages_for_changes_with_Google_Gemini__Google_Sheets__and_Slack.json)|
+|17827|[17827_Send_weekly_KPI_summary_emails_from_Google_Sheets_using_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17827_Send_weekly_KPI_summary_emails_from_Google_Sheets_using_Gemini_and_Gmail.json)|
+|18174|[18174_Search_criminal_records_with_Searchbug_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18174_Search_criminal_records_with_Searchbug_and_log_results_to_Google_Sheets.json)|
+|19312|[19312_Send_weekly_KPI_executive_summaries_from_Google_Sheets_via_Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19312_Send_weekly_KPI_executive_summaries_from_Google_Sheets_via_Gemini__Gmail_and_Slack.json)|
+|19317|[19317_Summarize_school_circular_emails_with_Gmail__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19317_Summarize_school_circular_emails_with_Gmail__Gemini__and_Google_Sheets.json)|
+|19626|[19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19626_Turn_Fireflies_meeting_transcripts_into_ClickUp_tasks__Sheets_logs__Gmail_and_Slack_alerts_with_OpenAI.json)|

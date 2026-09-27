@@ -1,7 +1,16 @@
-# enquiries : 3
+# enquiries : 12
 
 |id|file|
 |----|----|
 |4057|[4057_Auto-Respond_to_Gmail_Enquiries_using_GPT-4o__Dumpling_AI___LangChain_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/40/4057_Auto-Respond_to_Gmail_Enquiries_using_GPT-4o__Dumpling_AI___LangChain_Agent.json)|
 |12946|[12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12946_Classify_guest_enquiries_and_send_replies_with_GPT-4o__Gmail_and_Slack.json)|
 |14593|[14593_Triage_contact_form_enquiries_with_GPT-4.1__Gmail__Telegram_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14593_Triage_contact_form_enquiries_with_GPT-4.1__Gmail__Telegram_and_Data_Tables.json)|
+|17761|[17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json)|
+|17832|[17832_Classify_Gmail_enquiries_with_GPT_4o_mini_and_log_them_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17832_Classify_Gmail_enquiries_with_GPT_4o_mini_and_log_them_to_Google_Sheets.json)|
+|18798|[18798_Triage_and_answer_college_WhatsApp_enquiries_with_OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18798_Triage_and_answer_college_WhatsApp_enquiries_with_OpenAI_and_Supabase.json)|
+|19147|[19147_Qualify_property_enquiries_with_OpenAI_and_book_viewings_via_Google_Calendar__WhatsApp__and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19147_Qualify_property_enquiries_with_OpenAI_and_book_viewings_via_Google_Calendar__WhatsApp__and_HubSpot.json)|
+|19493|[19493_Route_inbound_enquiries_to_HubSpot_deals_with_duplicate_protection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19493_Route_inbound_enquiries_to_HubSpot_deals_with_duplicate_protection.json)|
+|19543|[19543_Capture_cleaning_enquiries_from_WordPress_forms_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19543_Capture_cleaning_enquiries_from_WordPress_forms_with_Google_Sheets_and_Gmail.json)|
+|19546|[19546_Chase_stalled_enquiries_and_send_a_weekday_morning_digest_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19546_Chase_stalled_enquiries_and_send_a_weekday_morning_digest_with_Google_Sheets_and_Gmail.json)|
+|19663|[19663_Capture_and_reply_to_cleaning_enquiries_with_webhooks__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19663_Capture_and_reply_to_cleaning_enquiries_with_webhooks__Google_Sheets_and_Gmail.json)|
+|19708|[19708_Score_and_route_property_enquiries_with_Groq__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19708_Score_and_route_property_enquiries_with_Groq__Google_Sheets__and_Gmail.json)|

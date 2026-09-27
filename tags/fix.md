@@ -1,4 +1,4 @@
-# fix : 7
+# fix : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |6715|[6715_Magento_2__Auto-Fix_Missing_Image_Alt_Tags_with_Product_Name.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/67/6715_Magento_2__Auto-Fix_Missing_Image_Alt_Tags_with_Product_Name.json)|
 |9375|[9375_AI-Powered_Workflow_Error_Analysis___Fix_Suggestions_with_Gemini_2.5_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9375_AI-Powered_Workflow_Error_Analysis___Fix_Suggestions_with_Gemini_2.5_Pro.json)|
 |15305|[15305_Analyze_error_logs_with_GPT-4o_and_create_GitHub_issues_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15305_Analyze_error_logs_with_GPT-4o_and_create_GitHub_issues_plus_Slack_alerts.json)|
+|17610|[17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json)|
+|17784|[17784_Diagnose_failed_n8n_workflows_with_Claude_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17784_Diagnose_failed_n8n_workflows_with_Claude_and_Gmail_alerts.json)|
+|18094|[18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json)|
+|18367|[18367_Fix_striking_distance_SEO_keywords_with_Google_Search_Console__Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18367_Fix_striking_distance_SEO_keywords_with_Google_Search_Console__Bright_Data__GPT-5.6_and_Slack.json)|
+|18622|[18622_Auto-fix_ClickUp_bug_reports_with_OpenAI__Cursor__GitHub_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18622_Auto-fix_ClickUp_bug_reports_with_OpenAI__Cursor__GitHub_and_Slack.json)|
+|18857|[18857_Audit_landing_page_conversions_with_DeepSeek__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18857_Audit_landing_page_conversions_with_DeepSeek__Google_Sheets__Gmail_and_Telegram.json)|

@@ -1,0 +1,849 @@
+{
+  "id": "Xvp6dmhU4qPk0AHP",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Detect and escalate Salesforce bottlenecks with Gemini, Slack, Gmail",
+    "wechat": "youandme10086",
+    "id": 18111,
+    "update_time": "2026-09-27"
+  },
+  "name": "Internal Sales Dependency Bottleneck Detector",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "98d58417-8a2f-4a1c-9d67-7f244bfec570",
+      "name": "Daily Bottleneck Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        96,
+        976
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "eee38bd7-6862-45ba-83ca-7c39e1038ac3",
+      "name": "Fetch Open Opportunities",
+      "type": "n8n-nodes-base.salesforce",
+      "position": [
+        400,
+        800
+      ],
+      "parameters": {
+        "query": "SELECT Id, Name, StageName, CloseDate, Amount, Probability, OwnerId, CreatedDate, LastActivityDate FROM Opportunity WHERE IsClosed = false",
+        "resource": "search"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "75897252-64d3-4765-a37b-b329301a534d",
+      "name": "Fetch Opportunity Tasks (SOQL)",
+      "type": "n8n-nodes-base.salesforce",
+      "position": [
+        400,
+        1152
+      ],
+      "parameters": {
+        "query": "SELECT Id, Subject, Status, Priority, ActivityDate, WhatId, OwnerId, Description, CreatedDate FROM Task WHERE WhatId != null",
+        "resource": "search"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "04b2090c-e8f4-4329-aa0c-6a5a068fc40e",
+      "name": "Merge Opportunities with Tasks",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        736,
+        976
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "advanced": true,
+        "mergeByFields": {
+          "values": [
+            {
+              "field1": "Id",
+              "field2": "WhatId"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "d33de2e8-9f81-4550-a70e-fa481fc70528",
+      "name": "Detect Bottlenecks and SLA Breaches",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1024,
+        976
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\n\nconst results = items.map((item) => {\n  const task = item.json;\n\n  const dueDate = task.ActivityDate ? new Date(task.ActivityDate) : null;\n  if (dueDate) dueDate.setHours(0, 0, 0, 0);\n\n  const isCompleted = ['Completed', 'Closed'].includes(task.Status);\n  const isOverdue = dueDate && dueDate < today && !isCompleted;\n  const isHighPriority = task.Priority === 'High';\n\n  const subject = (task.Subject || '').toLowerCase();\n\n  const dependencyType =\n    subject.includes('legal') ? 'Legal Review' :\n    subject.includes('proposal') ? 'Proposal Approval' :\n    subject.includes('technical') ? 'Technical Input' :\n    subject.includes('finance') ? 'Finance Approval' :\n    'Internal Dependency';\n\n  const bottleneckFound = isOverdue || (isHighPriority && !isCompleted);\n\n  let severity = 'Low';\n  if (isOverdue && isHighPriority) {\n    severity = 'High';\n  } else if (isOverdue || isHighPriority) {\n    severity = 'Medium';\n  }\n\n  return {\n    json: {\n      opportunity_id: task.WhatId,\n      task_id: task.Id,\n      opportunity_name: task.Name,\n      stage: task.StageName,\n      close_date: task.CloseDate,\n      amount: task.Amount,\n      probability: task.Probability,\n      task_subject: task.Subject,\n      task_status: task.Status,\n      task_priority: task.Priority,\n      due_date: task.ActivityDate,\n      task_description: task.Description,\n      dependency_type: dependencyType,\n      is_overdue: isOverdue,\n      is_high_priority: isHighPriority,\n      bottleneck_found: bottleneckFound,\n      severity,\n      blocker_reason: bottleneckFound\n        ? `${dependencyType} is ${isOverdue ? 'overdue' : 'high priority and still open'}.`\n        : 'No active bottleneck detected for this task.'\n    }\n  };\n});\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5e11cde7-92bb-4c3b-80ad-4a0edf7c435e",
+      "name": "Check Bottleneck Found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1248,
+        976
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fdca174c-0b8d-47eb-a6ec-59d004b0df45",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.bottleneck_found }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "61860f8f-9a65-45fa-ac08-e809524ea63e",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        2048,
+        1200
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-flash-lite-latest"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "77ca82c6-6913-459a-a937-d72d6804d476",
+      "name": "Generate Bottleneck Summary (AI)",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        2048,
+        1024
+      ],
+      "parameters": {
+        "text": "=You are an internal sales operations assistant.\n\nAnalyze the following deal bottleneck and generate a structured response.\n\nOpportunity Details:\n- Name: {{ $json.opportunity_name }}\n- Stage: {{ $json.stage }}\n- Close Date: {{ $json.close_date }}\n- Amount: {{ $json.amount }}\n- Probability: {{ $json.probability }}\n\nInternal Dependency:\n- Type: {{ $json.dependency_type }}\n- Task: {{ $json.task_subject }}\n- Status: {{ $json.task_status }}\n- Priority: {{ $json.task_priority }}\n- Due Date: {{ $json.due_date }}\n- Description: {{ $json.task_description }}\n\nRule-based Detection:\n- Severity: {{ $json.severity }}\n- Reason: {{ $json.blocker_reason }}\n\nInstructions:\n1. Summarize the bottleneck clearly in 1–2 sentences\n2. Explain why escalation is needed\n3. Suggest a concrete next action\n4. Identify the responsible team\n\nReturn ONLY valid JSON in this format:\n\n{\n  \"summary\": \"...\",\n  \"escalation_reason\": \"...\",\n  \"recommended_action\": \"...\",\n  \"owner_team\": \"...\",\n  \"severity\": \"High/Medium/Low\"\n}",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "41318f96-dfc7-4ed2-8785-eda31ca84c5d",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2368,
+        1024
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const raw = $json.text;\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = {\n    summary: 'Parsing failed',\n    escalation_reason: raw,\n    recommended_action: 'Check AI output format',\n    owner_team: 'Unknown',\n    severity: 'Low'\n  };\n}\n\nreturn {\n  ai_summary: parsed.summary,\n  ai_escalation_reason: parsed.escalation_reason,\n  ai_recommended_action: parsed.recommended_action,\n  ai_owner_team: parsed.owner_team,\n  ai_severity: parsed.severity\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "28243764-279d-4223-9bed-02c1c5846743",
+      "name": "Merge Bottleneck Data with AI Output",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2576,
+        912
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "957be510-9ca2-4764-8164-931dd5d21b52",
+      "name": "Send Slack Bottleneck Alert",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        3184,
+        672
+      ],
+      "webhookId": "583d05d3-b148-4215-b6cd-d6e28869fbf4",
+      "parameters": {
+        "text": "=*Internal Sales Bottleneck Detected*\n\n*Opportunity:* {{ $json.opportunity_name }}\n*Stage:* {{ $json.stage }}\n*Close Date:* {{ $json.close_date }}\n*Amount:* ${{ $json.amount }}\n*Probability:* {{ $json.probability }}%\n\n*Dependency:* {{ $json.dependency_type }}\n*Task:* {{ $json.task_subject }}\n*Status:* {{ $json.task_status }}\n*Priority:* {{ $json.task_priority }}\n*Due Date:* {{ $json.due_date }}\n\n*Severity:* {{ $json.ai_severity }}\n\n*Summary:* {{ $json.ai_summary }}\n\n*Escalation Reason:* {{ $json.ai_escalation_reason }}\n\n*Recommended Action:* {{ $json.ai_recommended_action }}\n\n*Owner Team:* {{ $json.ai_owner_team }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0B0AEYV886",
+          "cachedResultName": "sales-bottleneck-alerts"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "retryOnFail": false,
+      "typeVersion": 2.4
+    },
+    {
+      "id": "ec279eb2-ba6f-47bd-bf02-a077a5fba607",
+      "name": "Prepare Notification and Update Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2896,
+        912
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "70ac4ed6-fe7a-4007-b63c-79c656190b00",
+              "name": "salesforce_update_note",
+              "type": "string",
+              "value": "=Bottleneck detected: {{ $json.ai_summary }}\n\nSeverity: {{ $json.ai_severity }}\nOwner Team: {{ $json.ai_owner_team }}\nRecommended Action: {{ $json.ai_recommended_action }}\nEscalation Reason: {{ $json.ai_escalation_reason }}"
+            },
+            {
+              "id": "139e4abc-5d9d-407c-91cc-4046500805d5",
+              "name": "bottleneck_status",
+              "type": "string",
+              "value": "Escalated"
+            },
+            {
+              "id": "97db396a-6ee0-4464-9be9-ba094bc506c0",
+              "name": "last_bottleneck_check",
+              "type": "string",
+              "value": "={{ $now }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2e2431ce-ed54-490a-8be7-f5861cc741e7",
+      "name": "Send Bottleneck Email Alert",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        3184,
+        1152
+      ],
+      "webhookId": "8387421c-24d7-4195-9608-2640b1bba01a",
+      "parameters": {
+        "message": "=Internal Sales Bottleneck Detected\n\nOpportunity: {{ $json.opportunity_name }}\nStage: {{ $json.stage }}\nClose Date: {{ $json.close_date }}\nAmount: ${{ $json.amount }}\nProbability: {{ $json.probability }}%\n\nDependency: {{ $json.dependency_type }}\nTask: {{ $json.task_subject }}\nStatus: {{ $json.task_status }}\nPriority: {{ $json.task_priority }}\nDue Date: {{ $json.due_date }}\n\nSeverity: {{ $json.ai_severity }}\n\nSummary:\n{{ $json.ai_summary }}\n\nEscalation Reason:\n{{ $json.ai_escalation_reason }}\n\nRecommended Action:\n{{ $json.ai_recommended_action }}\n\nOwner Team:\n{{ $json.ai_owner_team }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Sales Bottleneck: {{ $json.opportunity_name }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "76dc423b-c503-4c98-8080-8034ac605dce",
+      "name": "Update Opportunity with Bottleneck Info",
+      "type": "n8n-nodes-base.salesforce",
+      "position": [
+        3184,
+        912
+      ],
+      "parameters": {
+        "resource": "opportunity",
+        "operation": "update",
+        "updateFields": {
+          "nextStep": "={{ `Bottleneck: ${$json.dependency_type}. Severity: ${$json.ai_severity}. Owner: ${$json.ai_owner_team}. Action: ${$json.ai_recommended_action}`.slice(0, 255) }}"
+        },
+        "opportunityId": "={{ $json.opportunity_id }}"
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "4a065aea-13a4-4cc9-af39-b3159f5a8a68",
+      "name": "Log Bottleneck Audit Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3440,
+        912
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Stage": "={{ $('Prepare Notification and Update Fields').item.json.stage }}",
+            "Task ID": "={{ $('Prepare Notification and Update Fields').item.json.task_id }}",
+            "Due Date": "={{ $('Prepare Notification and Update Fields').item.json.due_date }}",
+            "Severity": "={{ $('Prepare Notification and Update Fields').item.json.ai_severity }}",
+            "Owner Team": "={{ $('Prepare Notification and Update Fields').item.json.ai_owner_team }}",
+            "Detected At": "={{ $now }}",
+            "Task Status": "={{ $('Prepare Notification and Update Fields').item.json.task_status }}",
+            "Task Subject": "={{ $('Prepare Notification and Update Fields').item.json.task_subject }}",
+            "Task Priority": "={{ $('Prepare Notification and Update Fields').item.json.task_priority }}",
+            "Opportunity ID": "={{ $('Prepare Notification and Update Fields').item.json.opportunity_id }}",
+            "Dependency Type": "={{ $('Prepare Notification and Update Fields').item.json.dependency_type }}",
+            "Opportunity Name": "={{ $('Prepare Notification and Update Fields').item.json.opportunity_name }}",
+            "Recommended Action": "={{ $('Prepare Notification and Update Fields').item.json.ai_recommended_action }}",
+            "Salesforce Updated": "Yes"
+          },
+          "schema": [
+            {
+              "id": "Detected At",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Detected At",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Opportunity Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Opportunity Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Stage",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Stage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Dependency Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Dependency Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Task Subject",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Task Subject",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Task Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Task Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Task Priority",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Task Priority",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Due Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Due Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Severity",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Severity",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Owner Team",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Owner Team",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Recommended Action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Recommended Action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Salesforce Updated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Salesforce Updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Opportunity ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Opportunity ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Task ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Task ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kPT7p9ix0HEQys6UOK35eclpbASeubD7F2NP8Cvgktk/edit#gid=0",
+          "cachedResultName": "Bottleneck Logs"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1kPT7p9ix0HEQys6UOK35eclpbASeubD7F2NP8Cvgktk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1kPT7p9ix0HEQys6UOK35eclpbASeubD7F2NP8Cvgktk/edit?usp=drivesdk",
+          "cachedResultName": "Sales Bottleneck Audit Log"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "823119b5-b07a-4674-b63b-95b150961c18",
+      "name": "Prepare Bottleneck Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1840,
+        960
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "11216fa1-f691-46d0-83f5-950c75d204f6",
+              "name": "opportunity_id",
+              "type": "string",
+              "value": "={{ $json.opportunity_id }}"
+            },
+            {
+              "id": "597ee446-02a6-479f-a948-d15275bf6cf8",
+              "name": "task_id",
+              "type": "string",
+              "value": "={{ $json.task_id }}"
+            },
+            {
+              "id": "4caa4ab0-fc5a-4cb5-a7cf-091df0876cf6",
+              "name": "opportunity_name",
+              "type": "string",
+              "value": "={{ $json.opportunity_name }}"
+            },
+            {
+              "id": "7afb1671-ee2b-45de-ad2d-c1fefbdf12a9",
+              "name": "stage",
+              "type": "string",
+              "value": "={{ $json.stage }}"
+            },
+            {
+              "id": "3c58c6b6-88ca-4e06-89a5-621fdcbec4b4",
+              "name": "close_date",
+              "type": "string",
+              "value": "={{ $json.close_date }}"
+            },
+            {
+              "id": "dd41eaf4-8810-4c84-9b90-5f7063a08a0c",
+              "name": "amount",
+              "type": "number",
+              "value": "={{ $json.amount }}"
+            },
+            {
+              "id": "77fc4d91-80cb-4561-ac82-2caccdfaa6bc",
+              "name": "probability",
+              "type": "number",
+              "value": "={{ $json.probability }}"
+            },
+            {
+              "id": "a0aef401-702a-4855-9482-9f82a6df5c08",
+              "name": "dependency_type",
+              "type": "string",
+              "value": "={{ $json.dependency_type }}"
+            },
+            {
+              "id": "6f390f66-43a0-45f3-bc3f-151c09b9ec65",
+              "name": "task_subject",
+              "type": "string",
+              "value": "={{ $json.task_subject }}"
+            },
+            {
+              "id": "69e900f3-ec91-4b6a-8d35-120d9210bef9",
+              "name": "task_status",
+              "type": "string",
+              "value": "={{ $json.task_status }}"
+            },
+            {
+              "id": "3efae516-4e00-4811-b921-31b6855d8ab7",
+              "name": "task_priority",
+              "type": "string",
+              "value": "={{ $json.task_priority }}"
+            },
+            {
+              "id": "45c2e37a-c188-495d-95ac-a050ee1c5aac",
+              "name": "due_date",
+              "type": "string",
+              "value": "={{ $json.due_date }}"
+            },
+            {
+              "id": "09f2cb49-ca0c-4cc0-9240-ee2a779e34d0",
+              "name": "task_description",
+              "type": "string",
+              "value": "={{ $json.task_description }}"
+            },
+            {
+              "id": "3a5b1bcd-7b7e-4f58-9846-2c0f10a8e3c3",
+              "name": "severity",
+              "type": "string",
+              "value": "={{ $json.severity }}"
+            },
+            {
+              "id": "6ba2d5f1-30b1-422b-8877-db7cbeee2da5",
+              "name": "blocker_reason",
+              "type": "string",
+              "value": "={{ $json.blocker_reason }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ca500733-9a7b-4080-98ac-cf1eed4a67f2",
+      "name": "No Bottleneck Found",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1488,
+        1072
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "560b5ecc-2502-4ac1-94d4-f08096a3f650",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        0
+      ],
+      "parameters": {
+        "width": 1696,
+        "height": 576,
+        "content": "# Internal Sales Dependency Bottleneck Detector\n\n## How it works:\nThis workflow runs daily to detect internal sales blockers across open Salesforce opportunities. It fetches open opportunities and related tasks, merges them, and checks for overdue or high-priority unfinished tasks. When a bottleneck is found, the workflow classifies the dependency type, prepares key deal and task fields, and uses AI to generate a clear bottleneck summary, escalation reason, recommended action, owner team, and severity. The result is merged back with the original bottleneck data, then used to notify stakeholders via Slack and email, update the Salesforce opportunity, and log the escalation in Google Sheets.\n\n## Setup steps:\n1. Connect Salesforce and ensure opportunities/tasks are accessible  \n2. Connect Gemini credentials for AI bottleneck summaries  \n3. Connect Slack and choose the sales bottleneck alert channel  \n4. Connect Gmail for email escalation alerts  \n5. Create a Google Sheet for bottleneck audit logs  \n6. Review dependency detection rules and severity logic  \n7. Verify Salesforce update field mapping  \n8. Test with sample overdue/high-priority tasks  \n9. Activate the daily schedule trigger"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "86114805-9734-420e-a02f-751c9c08919b",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 704,
+        "content": "## Opportunity & Task Collection\nRuns the daily check, fetches open Salesforce opportunities and related tasks, then merges them so each task can be evaluated in the context of its associated deal."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b509bdf7-0dee-495c-8904-1a3dad2f1333",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 752,
+        "height": 704,
+        "content": "## Bottleneck Detection\nApplies rule-based logic to identify overdue or high-priority open tasks, classify dependency type, assign severity, and route only detected bottlenecks forward for escalation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb8a1e7e-8b4e-4e53-a88c-89bbc9a10255",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1776,
+        640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 976,
+        "height": 704,
+        "content": "## AI Bottleneck Summary\nPrepares bottleneck fields, sends the issue to AI for summary and escalation guidance, parses the JSON response, and merges AI output back with the original deal/task context."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6138191e-beeb-42ba-b4ea-2c93aacc8339",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2816,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 864,
+        "height": 896,
+        "content": "## Notifications, Salesforce Update & Audit Log\nPrepares final notification fields, sends Slack and email alerts, updates the Salesforce opportunity with bottleneck details, and logs the escalation in Google Sheets for tracking."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "fd73479e-bdd3-40b5-9928-baf4b333f2f6",
+  "nodeGroups": [],
+  "connections": {
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "Merge Bottleneck Data with AI Output",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Check Bottleneck Found": {
+      "main": [
+        [
+          {
+            "node": "Prepare Bottleneck Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Bottleneck Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Bottleneck Check": {
+      "main": [
+        [
+          {
+            "node": "Fetch Opportunity Tasks (SOQL)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Open Opportunities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Open Opportunities": {
+      "main": [
+        [
+          {
+            "node": "Merge Opportunities with Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Bottleneck Summary (AI)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Bottleneck Fields": {
+      "main": [
+        [
+          {
+            "node": "Generate Bottleneck Summary (AI)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Bottleneck Data with AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Opportunity Tasks (SOQL)": {
+      "main": [
+        [
+          {
+            "node": "Merge Opportunities with Tasks",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Opportunities with Tasks": {
+      "main": [
+        [
+          {
+            "node": "Detect Bottlenecks and SLA Breaches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Bottleneck Summary (AI)": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect Bottlenecks and SLA Breaches": {
+      "main": [
+        [
+          {
+            "node": "Check Bottleneck Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Bottleneck Data with AI Output": {
+      "main": [
+        [
+          {
+            "node": "Prepare Notification and Update Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Notification and Update Fields": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Bottleneck Alert",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Update Opportunity with Bottleneck Info",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Bottleneck Email Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Opportunity with Bottleneck Info": {
+      "main": [
+        [
+          {
+            "node": "Log Bottleneck Audit Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

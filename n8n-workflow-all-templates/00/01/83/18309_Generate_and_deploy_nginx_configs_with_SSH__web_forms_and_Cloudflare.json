@@ -1,0 +1,547 @@
+{
+  "name": "Generate and Deploy Nginx Configurations from a Web Form",
+  "nodes": [
+    {
+      "id": "f32da001-c42b-43ab-a294-4205655fc3a2",
+      "name": "Validate Routes",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1376,
+        944
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first().json.body ?? $input.first().json;\nconst errors = [];\n\nconst domainRegex =\n  /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;\nif (!input.domain || !domainRegex.test(input.domain)) {\n  errors.push(\"Invalid or missing domain.\");\n}\n\nif (!Array.isArray(input.routes) || input.routes.length === 0) {\n  errors.push(\"At least one route is required.\");\n}\n\nconst pathRegex = /^\\/[a-zA-Z0-9_\\-\\/]*$/;\nconst fsPathRegex = /^\\/[a-zA-Z0-9_\\-\\/.]*$/;\nconst seenPaths = new Set();\n\n(input.routes || []).forEach((route, i) => {\n  if (!route.path || !pathRegex.test(route.path) || route.path.includes(\"..\")) {\n    errors.push(`Route ${i}: invalid path \"${route.path}\".`);\n  } else if (seenPaths.has(route.path)) {\n    errors.push(`Route ${i}: duplicate path \"${route.path}\".`);\n  } else {\n    seenPaths.add(route.path);\n  }\n\n  if (route.type === \"proxy\") {\n    const port = Number(route.port);\n    if (!Number.isInteger(port) || port < 1 || port > 65535) {\n      errors.push(`Route ${i}: invalid port \"${route.port}\".`);\n    }\n  } else if (route.type === \"static\") {\n    if (\n      !route.filesystemPath ||\n      !fsPathRegex.test(route.filesystemPath) ||\n      route.filesystemPath.includes(\"..\")\n    ) {\n      errors.push(\n        `Route ${i}: invalid filesystem path \"${route.filesystemPath}\".`,\n      );\n    }\n  } else {\n    errors.push(`Route ${i}: unknown type \"${route.type}\".`);\n  }\n});\n\n// --- Custom (raw) nginx config block — user-provided, entered at their own risk ---\nconst customConfig =\n  typeof input.customConfig === \"string\" ? input.customConfig.trim() : \"\";\nconst MAX_CUSTOM_CONFIG_LENGTH = 20000;\nif (customConfig.length > MAX_CUSTOM_CONFIG_LENGTH) {\n  errors.push(\n    `Custom config exceeds maximum length of ${MAX_CUSTOM_CONFIG_LENGTH} characters.`,\n  );\n}\n// basic brace-balance sanity check to catch obviously broken snippets early\n// (this is NOT a security check, just a syntax sanity check)\nconst openBraces = (customConfig.match(/{/g) || []).length;\nconst closeBraces = (customConfig.match(/}/g) || []).length;\nif (customConfig && openBraces !== closeBraces) {\n  errors.push(\"Custom config has unbalanced curly braces.\");\n}\n\n\nconst useCloudflare = input.useCloudflare === true;\nconst allowNginxRootAccess = input.allowNginxRootAccess === true;\n\nreturn [\n  {\n    json: {\n      valid: errors.length === 0,\n      errors,\n      domain: input.domain,\n      serverAddress: input.serverAddress,\n      routes: input.routes,\n      customConfig,\n      useCloudflare,\n      enableSSL: input.enableSSL,\n      allowNginxRootAccess,\n      sslEmail: input.sslEmail,\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6337679e-24d5-482a-b484-33b3983eee6a",
+      "name": "Generate nginx Config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2032,
+        944
+      ],
+      "parameters": {
+        "jsCode": "const { domain, routes, customConfig, useCloudflare, cloudflare_api_key } = $input.first().json;\n\nfunction generateLocationBlock(route) {\n  if (route.type === 'proxy') {\n    return `    location ${route.path} {\n        proxy_pass http://127.0.0.1:${route.port};\n        proxy_set_header Host $host;\n        proxy_set_header X-Real-IP $remote_addr;\n        proxy_set_header X-Forwarded-For $proxy_add_x_forwarded_for;\n        proxy_set_header X-Forwarded-Proto $scheme;\n    }`;\n  }\n\n  if (route.type === 'static') {\n    return `    location ${route.path} {\n        alias ${route.filesystemPath};\n        index index.html;\n        try_files $uri $uri/ =404;\n    }`;\n  }\n\n  throw new Error(`Unknown route type: ${route.type}`);\n}\n\nconst locationBlocks = routes.map(generateLocationBlock).join('\\n\\n');\n\n// Raw config the user typed manually (advanced / unvalidated, use at own risk).\n// Indented and appended inside the server block, after the generated routes.\nconst customBlock = customConfig\n  ? '\\n\\n    # --- Custom config (user-provided, unvalidated) ---\\n' +\n    customConfig.split('\\n').map(line => '    ' + line).join('\\n')\n  : '';\n\nconst serverBlock = `server {\n    listen 80;\n    server_name ${domain};\n\n${locationBlocks}${customBlock}\n}\n`;\n\nreturn [{\n  json: {\n    domain,\n    nginxConfig: serverBlock,\n    useCloudflare,\n    cloudflare_api_key\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "90d0f1bb-cea3-4dd7-84e1-17950a2fb736",
+      "name": "Respond Success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3360,
+        944
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ {  success:  true, domain: $json.domain, config: $json.nginxConfig } }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "e60a3284-303d-446b-9738-eee1f8536cfc",
+      "name": "Respond Error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1824,
+        944
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { success: false, errors: $json.errors } }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "02a7519d-3d05-46a1-9008-d4085c032dbd",
+      "name": "Start  Workflow",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        912,
+        944
+      ],
+      "webhookId": "9c265b4c-2556-4ddf-b118-924e4f4399e9",
+      "parameters": {
+        "path": "nginx",
+        "options": {},
+        "responseMode": "responseNode",
+        "authentication": "basicAuth",
+        "multipleMethods": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "72844761-c81a-4bc2-905a-b9423d27e0b7",
+      "name": "Respond to Webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1136,
+        944
+      ],
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Type",
+                "value": "text/html"
+              }
+            ]
+          }
+        },
+        "respondWith": "text",
+        "responseBody": "=<!doctype html>\n<html lang=\"en\">\n  <head>\n    <meta charset=\"UTF-8\" />\n    <title>Nginx route configuration</title>\n    <style>\n      :root {\n        --border: #d8d5cc;\n        --border-strong: #b8b4a8;\n        --text-primary: #1f1e1c;\n        --text-secondary: #6b6a63;\n        --surface-1: #f7f6f2;\n        --surface-2: #ffffff;\n        --accent: #b8532f;\n        --danger: #b0392f;\n        --radius: 8px;\n      }\n      * {\n        box-sizing: border-box;\n      }\n      body {\n        font-family: -apple-system, BlinkMacSystemFont, \"Segoe UI\", sans-serif;\n        background: var(--surface-1);\n        color: var(--text-primary);\n        max-width: 760px;\n        margin: 0 auto;\n        padding: 2.5rem 1.5rem 4rem;\n        line-height: 1.5;\n      }\n      h1 {\n        font-size: 20px;\n        font-weight: 600;\n        margin: 0 0 0.25rem;\n      }\n      .subtitle {\n        color: var(--text-secondary);\n        font-size: 14px;\n        margin: 0 0 1.75rem;\n      }\n      label {\n        display: block;\n        font-size: 13px;\n        color: var(--text-secondary);\n        margin-bottom: 4px;\n      }\n      input,\n      select,\n      textarea {\n        width: 100%;\n        padding: 8px 10px;\n        border: 1px solid var(--border);\n        border-radius: var(--radius);\n        font-size: 14px;\n        background: var(--surface-2);\n        color: var(--text-primary);\n        font-family: inherit;\n      }\n      textarea {\n        font-family: \"SFMono-Regular\", Consolas, monospace;\n        font-size: 13px;\n        min-height: 140px;\n        resize: vertical;\n      }\n      input:focus,\n      select:focus,\n      textarea:focus {\n        outline: none;\n        border-color: var(--accent);\n        box-shadow: 0 0 0 2px rgba(184, 83, 47, 0.15);\n      }\n      .field-error {\n        border-color: var(--danger) !important;\n      }\n      .error-msg {\n        color: var(--danger);\n        font-size: 12px;\n        margin-top: 3px;\n        min-height: 14px;\n      }\n\n      .domain-block {\n        background: var(--surface-2);\n        border: 1px solid var(--border);\n        border-radius: 12px;\n        padding: 1rem 1.25rem;\n        margin-bottom: 1.5rem;\n      }\n\n      .route-card {\n        background: var(--surface-2);\n        border: 1px solid var(--border);\n        border-radius: 12px;\n        padding: 1rem 1.25rem;\n        margin-bottom: 0.85rem;\n        position: relative;\n      }\n      .route-card-header {\n        display: flex;\n        justify-content: space-between;\n        align-items: center;\n        margin-bottom: 0.75rem;\n      }\n      .route-card-header span {\n        font-size: 13px;\n        font-weight: 600;\n        color: var(--text-secondary);\n      }\n      .remove-btn {\n        background: none;\n        border: none;\n        color: var(--danger);\n        font-size: 13px;\n        cursor: pointer;\n        padding: 2px 6px;\n      }\n      .remove-btn:hover {\n        text-decoration: underline;\n      }\n\n      .field-row {\n        display: grid;\n        grid-template-columns: 1fr 1fr;\n        gap: 0.75rem;\n        margin-bottom: 0.75rem;\n      }\n      .field {\n        margin-bottom: 0;\n      }\n\n      .add-btn {\n        width: 100%;\n        padding: 10px;\n        border: 1px dashed var(--border-strong);\n        border-radius: var(--radius);\n        background: transparent;\n        color: var(--text-secondary);\n        font-size: 14px;\n        cursor: pointer;\n        margin-bottom: 1.5rem;\n      }\n      .add-btn:hover {\n        border-color: var(--accent);\n        color: var(--accent);\n      }\n\n      .advanced-block {\n        background: var(--surface-2);\n        border: 1px solid var(--border);\n        border-radius: 12px;\n        padding: 1rem 1.25rem;\n        margin-bottom: 1.5rem;\n      }\n      .advanced-block + .advanced-block {\n        margin-top: -0.75rem;\n      }\n      .checkbox-row {\n        display: flex;\n        align-items: center;\n        gap: 8px;\n        margin-bottom: 0.25rem;\n      }\n      .checkbox-row input[type=\"checkbox\"] {\n        width: auto;\n      }\n      .checkbox-row label {\n        margin-bottom: 0;\n        font-size: 14px;\n        color: var(--text-primary);\n      }\n      .warning-text {\n        font-size: 12px;\n        color: var(--danger);\n        margin: 2px 0 10px;\n      }\n      .hidden {\n        display: none;\n      }\n\n      .submit-row {\n        display: flex;\n        gap: 0.75rem;\n        align-items: center;\n      }\n      .submit-btn {\n        background: var(--accent);\n        color: #fff;\n        border: none;\n        padding: 10px 20px;\n        border-radius: var(--radius);\n        font-size: 14px;\n        font-weight: 600;\n        cursor: pointer;\n      }\n      .submit-btn:hover {\n        opacity: 0.92;\n      }\n      .submit-btn:disabled {\n        opacity: 0.5;\n        cursor: not-allowed;\n      }\n      .status {\n        font-size: 13px;\n      }\n      .status.ok {\n        color: #2f7a3d;\n      }\n      .status.err {\n        color: var(--danger);\n      }\n\n      .preview {\n        margin-top: 2rem;\n      }\n      .preview h2 {\n        font-size: 14px;\n        font-weight: 600;\n        margin: 0 0 0.5rem;\n      }\n      pre {\n        background: #1e1d1a;\n        color: #e8e6de;\n        padding: 1rem;\n        border-radius: var(--radius);\n        font-size: 12.5px;\n        overflow-x: auto;\n        white-space: pre-wrap;\n        word-break: break-word;\n      }\n    </style>\n  </head>\n  <body>\n    <h1>Nginx route configuration</h1>\n    <p class=\"subtitle\">\n      Add proxy or static routes, then submit to generate and deploy the nginx\n      config.\n    </p>\n\n    <div class=\"domain-block\">\n      <label for=\"domain\">Domain / server_name</label>\n      <input id=\"domain\" type=\"text\" placeholder=\"example.com\" />\n      <div class=\"error-msg\" id=\"domain-error\"></div>\n    </div>\n    <div class=\"domain-block\">\n      <label for=\"server-address\">Server address</label>\n      <input\n        id=\"server-address\"\n        type=\"text\"\n        placeholder=\"203.0.113.10 or server.example.com\"\n      />\n      <div class=\"error-msg\" id=\"server-address-error\"></div>\n    </div>\n\n    <div id=\"routes-container\"></div>\n\n    <button class=\"add-btn\" id=\"add-route-btn\" type=\"button\">\n      + Add route\n    </button>\n\n    <div class=\"advanced-block hidden\" id=\"root-access-block\">\n      <p class=\"warning-text\">\n        Some filesystem paths are outside /var/www. nginx needs permission to\n        access these directories.\n      </p>\n\n      <div class=\"checkbox-row\">\n        <input type=\"checkbox\" id=\"root-access-confirm\" />\n        <label> I understand and allow nginx access to these paths </label>\n      </div>\n    </div>\n\n    <div class=\"advanced-block\">\n      <div class=\"checkbox-row\">\n        <input type=\"checkbox\" id=\"use-cloudflare\" />\n        <label for=\"use-cloudflare\"\n          >Use Cloudflare for DNS (creates/updates an A record\n          automatically)</label\n        >\n      </div>\n    </div>\n\n    <div class=\"advanced-block\">\n      <div class=\"checkbox-row\">\n        <input type=\"checkbox\" id=\"enable-ssl\" />\n        <label for=\"enable-ssl\">\n          Enable SSL (automatically configure HTTPS with TLS certificate)\n        </label>\n      </div>\n      <div id=\"ssl-email-field\" class=\"hidden\">\n        <label for=\"ssl-email\">Certificate notification email</label>\n        <input id=\"ssl-email\" type=\"email\" placeholder=\"admin@example.com\" />\n        <p class=\"warning-text\">\n          This email will be used to receive certificate status and renewal\n          notifications.\n        </p>\n        <div class=\"error-msg\" id=\"ssl-email-error\"></div>\n      </div>\n    </div>\n\n    <div class=\"advanced-block\">\n      <label for=\"custom-config\">Custom nginx config block (advanced)</label>\n      <p class=\"warning-text\">\n        This text is injected as-is into the server block and is NOT validated.\n        Only use this if you know what you're doing — mistakes here can break or\n        expose your server. Use at your own risk.\n      </p>\n      <textarea\n        id=\"custom-config\"\n        placeholder=\"# optional raw nginx directives, e.g. extra headers, rewrites, etc.\"\n      ></textarea>\n    </div>\n\n    <div class=\"submit-row\">\n      <button class=\"submit-btn\" id=\"submit-btn\" type=\"button\">\n        Generate & deploy\n      </button>\n      <span class=\"status\" id=\"status\"></span>\n    </div>\n\n    <div class=\"preview\" id=\"preview-block\" style=\"display: none\">\n      <h2>Response</h2>\n      <pre id=\"preview-output\"></pre>\n    </div>\n\n    <script>\n      // ---- Configuration ----\n      // Point this at your n8n POST webhook URL (the \"Webhook Submit\" node below)\n      const WEBHOOK_URL = window.location.href.split(\"?\")[0];\n\n      // ---- State ----\n      let routes = [];\n      let idCounter = 0;\n\n      const container = document.getElementById(\"routes-container\");\n      const addBtn = document.getElementById(\"add-route-btn\");\n      const submitBtn = document.getElementById(\"submit-btn\");\n      const statusEl = document.getElementById(\"status\");\n      const domainInput = document.getElementById(\"domain\");\n      const domainError = document.getElementById(\"domain-error\");\n      const serverAddressInput = document.getElementById(\"server-address\");\n      const serverAddressError = document.getElementById(\n        \"server-address-error\",\n      );\n\n      const useCloudflareCheckbox = document.getElementById(\"use-cloudflare\");\n      const cloudflareKeyField = document.getElementById(\n        \"cloudflare-key-field\",\n      );\n      const cloudflareApiKeyInput =\n        document.getElementById(\"cloudflare-api-key\");\n      const cloudflareKeyError = document.getElementById(\n        \"cloudflare-key-error\",\n      );\n      const customConfigInput = document.getElementById(\"custom-config\");\n      const enableSslCheckbox = document.getElementById(\"enable-ssl\");\n      const sslEmailField = document.getElementById(\"ssl-email-field\");\n      const sslEmailInput = document.getElementById(\"ssl-email\");\n      const sslEmailError = document.getElementById(\"ssl-email-error\");\n      let rootAccessAccepted = false;\n      const rootAccessBlock = document.getElementById(\"root-access-block\");\n      const rootAccessCheckbox = document.getElementById(\"root-access-confirm\");\n\n      rootAccessCheckbox.addEventListener(\"change\", () => {\n        rootAccessAccepted = rootAccessCheckbox.checked;\n      });\n\n      enableSslCheckbox.addEventListener(\"change\", () => {\n        sslEmailField.classList.toggle(\"hidden\", !enableSslCheckbox.checked);\n        sslEmailError.textContent = \"\";\n        sslEmailInput.classList.remove(\"field-error\");\n\n        if (!enableSslCheckbox.checked) {\n          sslEmailInput.value = \"\";\n        }\n      });\n\n      function addRoute() {\n        routes.push({\n          id: idCounter++,\n          type: \"proxy\",\n          path: \"\",\n          port: \"\",\n          filesystemPath: \"\",\n        });\n        render();\n      }\n\n      function removeRoute(id) {\n        routes = routes.filter((r) => r.id !== id);\n        render();\n      }\n\n      function updateRoute(id, field, value) {\n        const route = routes.find((r) => r.id === id);\n        if (route) route[field] = value;\n      }\n\n      function render() {\n        container.innerHTML = \"\";\n        routes.forEach((route, index) => {\n          const card = document.createElement(\"div\");\n          card.className = \"route-card\";\n\n          const isProxy = route.type === \"proxy\";\n\n          card.innerHTML = `\n      <div class=\"route-card-header\">\n        <span>Route ${index + 1}</span>\n        <button class=\"remove-btn\" type=\"button\" data-remove=\"${route.id}\">Remove</button>\n      </div>\n      <div class=\"field-row\">\n        <div class=\"field\">\n          <label>Type</label>\n          <select data-field=\"type\" data-id=\"${route.id}\">\n            <option value=\"proxy\" ${isProxy ? \"selected\" : \"\"}>Proxy to backend</option>\n            <option value=\"static\" ${!isProxy ? \"selected\" : \"\"}>Static files</option>\n          </select>\n        </div>\n        <div class=\"field\">\n          <label>Location path</label>\n          <input type=\"text\" data-field=\"path\" data-id=\"${route.id}\" placeholder=\"/api\" value=\"${route.path}\" />\n          <div class=\"error-msg\" id=\"path-error-${route.id}\"></div>\n        </div>\n      </div>\n${\n  isProxy\n    ? `\n  <div class=\"field\">\n    <label>Backend port</label>\n    <input type=\"number\" data-field=\"port\" data-id=\"${route.id}\" placeholder=\"3000\" value=\"${route.port}\" min=\"1\" max=\"65535\" />\n    <div class=\"error-msg\" id=\"port-error-${route.id}\"></div>\n  </div>\n`\n    : `\n  <div class=\"field\">\n    <label>Filesystem path</label>\n    <input type=\"text\" data-field=\"filesystemPath\" data-id=\"${route.id}\" placeholder=\"/var/www/blog\" value=\"${route.filesystemPath}\" />\n    <div class=\"error-msg\" id=\"fs-error-${route.id}\"></div>\n\n   \n  </div>\n`\n}\n    `;\n          container.appendChild(card);\n        });\n\n        container.querySelectorAll(\"[data-remove]\").forEach((btn) => {\n          btn.addEventListener(\"click\", () =>\n            removeRoute(Number(btn.dataset.remove)),\n          );\n        });\n        container.querySelectorAll(\"[data-field]\").forEach((el) => {\n          el.addEventListener(\"input\", () => {\n            const id = Number(el.dataset.id);\n\n            updateRoute(id, el.dataset.field, el.value);\n\n            if (el.dataset.field === \"type\") {\n              render();\n              return;\n            }\n            if (el.dataset.field === \"filesystemPath\") {\n              updateRootAccessVisibility();\n            }\n          });\n        });\n      }\n      container.querySelectorAll(\"[data-root-confirm]\").forEach((el) => {\n        el.addEventListener(\"change\", () => {\n          rootAccessAccepted = el.checked;\n        });\n      });\n\n      addBtn.addEventListener(\"click\", addRoute);\n\n      function requiresRootAccess() {\n        return routes.some(\n          (route) =>\n            route.type === \"static\" &&\n            route.filesystemPath.trim() !== \"\" &&\n            !route.filesystemPath.startsWith(\"/var/www\"),\n        );\n      }\n\n      function updateRootAccessVisibility() {\n        const needed = requiresRootAccess();\n\n        rootAccessBlock.classList.toggle(\"hidden\", !needed);\n\n        if (!needed) {\n          rootAccessAccepted = false;\n          rootAccessCheckbox.checked = false;\n        }\n      }\n\n      // ---- Client-side validation (mirrors server-side checks) ----\n      function validate() {\n        let valid = true;\n        document\n          .querySelectorAll(\".error-msg\")\n          .forEach((e) => (e.textContent = \"\"));\n        document\n          .querySelectorAll(\".field-error\")\n          .forEach((e) => e.classList.remove(\"field-error\"));\n\n        const domain = domainInput.value.trim();\n        const domainRegex =\n          /^[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?(\\.[a-zA-Z0-9]([a-zA-Z0-9-]{0,61}[a-zA-Z0-9])?)+$/;\n        if (!domainRegex.test(domain)) {\n          domainError.textContent = \"Enter a valid domain name.\";\n          domainInput.classList.add(\"field-error\");\n          valid = false;\n        }\n\n        const serverAddress = serverAddressInput.value.trim();\n        if (!serverAddress) {\n          serverAddressError.textContent = \"Server address is required.\";\n          serverAddressInput.classList.add(\"field-error\");\n          valid = false;\n        }\n\n        if (routes.length === 0) {\n          statusEl.textContent = \"Add at least one route.\";\n          statusEl.className = \"status err\";\n          valid = false;\n        }\n\n        const seenPaths = new Set();\n        const pathRegex = /^\\/[a-zA-Z0-9_\\-\\/]*$/;\n\n        routes.forEach((route) => {\n          const path = route.path.trim();\n          if (!pathRegex.test(path) || path.includes(\"..\")) {\n            document.getElementById(`path-error-${route.id}`).textContent =\n              \"Path must start with / and contain only letters, numbers, - _ /.\";\n            valid = false;\n          } else if (seenPaths.has(path)) {\n            document.getElementById(`path-error-${route.id}`).textContent =\n              \"Duplicate path.\";\n            valid = false;\n          } else {\n            seenPaths.add(path);\n          }\n\n          if (route.type === \"proxy\") {\n            const port = Number(route.port);\n            if (!Number.isInteger(port) || port < 1 || port > 65535) {\n              document.getElementById(`port-error-${route.id}`).textContent =\n                \"Port must be an integer between 1 and 65535.\";\n              valid = false;\n            }\n          } else {\n            const fsPath = route.filesystemPath.trim();\n            const fsRegex = /^\\/[a-zA-Z0-9_\\-\\/.]*$/;\n            if (!fsRegex.test(fsPath) || fsPath.includes(\"..\")) {\n              document.getElementById(`fs-error-${route.id}`).textContent =\n                'Enter a valid absolute path with no \"..\" segments.';\n              valid = false;\n            }\n            if (!fsPath.startsWith(\"/var/www\") && !rootAccessAccepted) {\n              document.getElementById(`fs-error-${route.id}`).textContent =\n                \"You must confirm nginx root access permission for paths outside /var/www.\";\n              valid = false;\n            }\n          }\n        });\n\n        if (enableSslCheckbox.checked) {\n          const sslEmail = sslEmailInput.value.trim();\n          const emailRegex = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/;\n\n          if (sslEmail && !emailRegex.test(sslEmail)) {\n            sslEmailError.textContent =\n              \"Enter a valid email address for certificate notifications.\";\n            sslEmailInput.classList.add(\"field-error\");\n            valid = false;\n          }\n        }\n\n        updateRootAccessVisibility();\n        return valid;\n      }\n\n      submitBtn.addEventListener(\"click\", async () => {\n        if (!validate()) {\n          statusEl.textContent = \"Fix the errors above.\";\n          statusEl.className = \"status err\";\n          return;\n        }\n\n        const payload = {\n          domain: domainInput.value.trim(),\n          serverAddress: serverAddressInput.value.trim(),\n          routes: routes.map((r) =>\n            r.type === \"proxy\"\n              ? { type: \"proxy\", path: r.path.trim(), port: Number(r.port) }\n              : {\n                  type: \"static\",\n                  path: r.path.trim(),\n                  filesystemPath: r.filesystemPath.trim(),\n                },\n          ),\n          customConfig: customConfigInput.value.trim(),\n          useCloudflare: useCloudflareCheckbox.checked,\n\n          enableSSL: enableSslCheckbox.checked,\n          sslEmail: enableSslCheckbox.checked ? sslEmailInput.value.trim() : \"\",\n          allowNginxRootAccess: rootAccessAccepted,\n        };\n\n        submitBtn.disabled = true;\n        statusEl.textContent = \"Submitting...\";\n        statusEl.className = \"status\";\n\n        try {\n          const res = await fetch(WEBHOOK_URL, {\n            method: \"POST\",\n            headers: { \"Content-Type\": \"application/json\" },\n            body: JSON.stringify(payload),\n          });\n          const data = await res.json().catch(() => ({}));\n\n          document.getElementById(\"preview-block\").style.display = \"block\";\n          document.getElementById(\"preview-output\").textContent =\n            JSON.stringify(data, null, 2);\n\n          if (res.ok) {\n            statusEl.textContent = \"Deployed successfully.\";\n            statusEl.className = \"status ok\";\n          } else {\n            statusEl.textContent = \"Deployment failed - see response below.\";\n            statusEl.className = \"status err\";\n          }\n        } catch (err) {\n          statusEl.textContent = \"Request failed: \" + err.message;\n          statusEl.className = \"status err\";\n        } finally {\n          submitBtn.disabled = false;\n        }\n      });\n\n      // Start with one empty route\n      addRoute();\n    </script>\n  </body>\n</html>\n"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "1db2acdc-cefa-4ae9-9677-cf629b383077",
+      "name": "Deploy Nginx Server",
+      "type": "n8n-nodes-base.ssh",
+      "onError": "continueErrorOutput",
+      "position": [
+        3136,
+        944
+      ],
+      "parameters": {
+        "command": "=set -e\n\n\nsource /etc/os-release\n\n\ncase \"$ID\" in\n\ndebian|ubuntu|linuxmint|pop)\n\n    NGINX_CONFIG=\"/etc/nginx/sites-available/{{ $('Generate nginx Config').item.json.domain }}\"\n\n    sudo tee \"$NGINX_CONFIG\" <<'EOF'\n{{ $('Generate nginx Config').item.json.nginxConfig }}\nEOF\n\n\n    sudo ln -sf \\\n    \"$NGINX_CONFIG\" \\\n    \"/etc/nginx/sites-enabled/{{ $('Generate nginx Config').item.json.domain }}\"\n\n\n    ;;\n\n\n*)\n\n    NGINX_CONFIG=\"/etc/nginx/conf.d/{{ $('Generate nginx Config').item.json.domain }}.conf\"\n\n\n    sudo tee \"$NGINX_CONFIG\" <<'EOF'\n{{ $('Generate nginx Config').item.json.nginxConfig }}\nEOF\n\n    ;;\n\n\nesac\n\n\n\nsudo nginx -t\n\nsudo systemctl reload nginx\n\n\n\nif [ \"{{ $('Validate Routes').item.json.enableSSL }}\" = \"true\" ]; then\n\n\nsudo certbot \\\n    --nginx \\\n    -d {{ $('Generate nginx Config').item.json.domain }} \\\n    --non-interactive \\\n    --agree-tos \\\n    -m '{{ $('Validate Routes').item.json.sslEmail }}'\n\n\nfi\n\n\necho \"Deployment completed\"",
+        "authentication": "privateKey"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a2d7e0e-10a4-4b1e-a405-8efbf29ca979",
+      "name": "Prepare Machine",
+      "type": "n8n-nodes-base.ssh",
+      "onError": "continueErrorOutput",
+      "position": [
+        2912,
+        944
+      ],
+      "parameters": {
+        "command": "=set -e\n\nexport DEBIAN_FRONTEND=noninteractive\n\n\n# -------------------------------\n# Detect OS\n# -------------------------------\n\nif [ ! -f /etc/os-release ]; then\n    echo \"Unsupported Linux distribution\"\n    exit 1\nfi\n\nsource /etc/os-release\n\n\nPKG_MANAGER=\"\"\nNGINX_USER=\"\"\nNGINX_CONF_DIR=\"\"\nSELINUX_ENABLED=false\n\n\ncase \"$ID\" in\n\n    debian|ubuntu|linuxmint|pop)\n\n        PKG_MANAGER=\"apt\"\n        NGINX_USER=\"www-data\"\n        NGINX_CONF_DIR=\"/etc/nginx/sites-available\"\n        \n        ;;\n\n\n    rhel|centos|fedora|rocky|almalinux)\n\n        PKG_MANAGER=\"dnf\"\n        NGINX_USER=\"nginx\"\n        NGINX_CONF_DIR=\"/etc/nginx/conf.d\"\n        SELINUX_ENABLED=true\n\n        ;;\n\n\n    arch|manjaro)\n\n        PKG_MANAGER=\"pacman\"\n        NGINX_USER=\"http\"\n        NGINX_CONF_DIR=\"/etc/nginx/conf.d\"\n\n        ;;\n\n\n    opensuse*|sles)\n\n        PKG_MANAGER=\"zypper\"\n        NGINX_USER=\"nginx\"\n        NGINX_CONF_DIR=\"/etc/nginx/conf.d\"\n        \n        ;;\n\n\n    *)\n\n        echo \"Unsupported distro: $ID\"\n        exit 1\n\n        ;;\n\nesac\n\n\necho \"Detected:\"\necho \"OS: $ID\"\necho \"Package manager: $PKG_MANAGER\"\necho \"Nginx user: $NGINX_USER\"\n\n\n\n# -------------------------------\n# Package installer\n# -------------------------------\n\ninstall_package()\n{\n\n    package=\"$1\"\n\n\n    case \"$PKG_MANAGER\" in\n\n        apt)\n\n            sudo apt update -y\n            sudo apt install -y \"$package\"\n\n            ;;\n\n\n        dnf)\n\n            sudo dnf install -y \"$package\"\n\n            ;;\n\n\n        pacman)\n\n            sudo pacman -Sy --noconfirm \"$package\"\n\n            ;;\n\n\n        zypper)\n\n                sudo zypper refresh\n\n                if grep -qi tumbleweed /etc/os-release; then\n                    sudo zypper dup -y\n                fi\n\n                sudo zypper --non-interactive  install --allow-vendor-change \"$package\"\n\n            ;;\n\n    esac\n\n}\n\n\n\n# -------------------------------\n# Install ACL\n# -------------------------------\n\nif ! command -v setfacl >/dev/null 2>&1; then\n\n    echo \"Installing ACL...\"\n\n    install_package acl\n\nfi\n\n\n\n# -------------------------------\n# Install jq\n# -------------------------------\n\nif ! command -v jq >/dev/null 2>&1; then\n\n    echo \"Installing jq...\"\n\n    install_package jq\n\nfi\n\n\n\n# -------------------------------\n# Install SELinux tools\n# -------------------------------\n\nif [ \"$SELINUX_ENABLED\" = true ]; then\n\n\n    if ! command -v semanage >/dev/null 2>&1; then\n\n        echo \"Installing SELinux utilities...\"\n\n        install_package policycoreutils-python-utils\n\n    fi\n\n\nfi\n\n\n\n# -------------------------------\n# Install nginx\n# -------------------------------\n\nif ! command -v nginx >/dev/null 2>&1; then\n\n    echo \"Installing nginx\"\n\n    install_package nginx\n\nfi\n\n\n\nsudo systemctl enable nginx\nsudo systemctl start nginx\n\n\n\n# -------------------------------\n# Install certbot using snap\n# -------------------------------\n\nif ! command -v certbot >/dev/null 2>&1; then\n\n    echo \"Installing certbot using snap\"\n\n\n    if ! command -v snap >/dev/null 2>&1; then\n\n        echo \"Installing snapd\"\n\n        if [ \"$PKG_MANAGER\" = \"apt\" ]; then\n\n            sudo apt update -y\n            sudo apt install -y snapd\n\n        elif [ \"$PKG_MANAGER\" = \"dnf\" ]; then\n\n            echo \"Enabling EPEL repository\"\n\n            sudo dnf install -y epel-release || true\n\n            sudo dnf install -y snapd\n\n            sudo systemctl enable --now snapd.socket\n\n            sudo ln -sf /var/lib/snapd/snap /snap\n\n        elif [ \"$PKG_MANAGER\" = \"zypper\" ]; then\n\n            echo \"Installing snapd on openSUSE\"\n\n            sudo zypper addrepo --refresh \\\n                https://download.opensuse.org/repositories/system:/snappy/openSUSE_Tumbleweed \\\n                snappy\n\n            sudo zypper --gpg-auto-import-keys refresh\n\n            sudo zypper dup --from snappy\n\n            sudo zypper refresh\n\n            sudo zypper install -y snapd\n\n            sudo systemctl enable --now snapd\n\n            sudo ln -sf /var/lib/snapd/snap /snap\n\n        fi\n\n\n    fi\n\n\n    sudo snap install core || true\n\n    sudo snap refresh core || true\n\n\n    sudo snap install --classic certbot\n\n\n    sudo ln -sf /snap/bin/certbot /usr/bin/certbot\n\n\nfi\n\n\n\n# -------------------------------\n# Create nginx directories\n# -------------------------------\n\nsudo mkdir -p \"$NGINX_CONF_DIR\"\n\n\n\nif [ \"$PKG_MANAGER\" = \"apt\" ]; then\n\n    sudo mkdir -p \\\n        /etc/nginx/sites-available \\\n        /etc/nginx/sites-enabled\n\nfi\n\n\n\n# -------------------------------\n# Firewall\n# -------------------------------\n\n\nif command -v ufw >/dev/null 2>&1; then\n\n\n    sudo ufw allow 'Nginx Full' || true\n\n\n\nelif command -v firewall-cmd >/dev/null 2>&1; then\n\n\n    sudo firewall-cmd \\\n        --permanent \\\n        --add-service=http || true\n\n\n    sudo firewall-cmd \\\n        --permanent \\\n        --add-service=https || true\n\n\n    sudo firewall-cmd --reload || true\n\n\n\nelif command -v nft >/dev/null 2>&1; then\n\n\n    echo \"nftables detected. Firewall rules skipped.\"\n\n\nfi\n\n\n\n\n\n# -------------------------------\n# Nginx filesystem permissions\n# -------------------------------\n\n\nallowNginxRootAccess='{{ $('Validate Routes').item.json.allowNginxRootAccess }}'\n\nroutes='{{ JSON.stringify($('Validate Routes').item.json.routes) }}'\n\n\n\nif [ \"$allowNginxRootAccess\" = \"true\" ]; then\n\n\necho \"Configuring nginx filesystem permissions...\"\n\n\n\necho \"$routes\" | jq -r '\n    .[]\n    | select(.type == \"static\" and .filesystemPath != null)\n    | .filesystemPath\n' | while read -r path; do\n\n\n\n    if [ -z \"$path\" ]; then\n        continue\n    fi\n\n\n\n    if [ ! -d \"$path\" ]; then\n\n        echo \"Skipping missing path: $path\"\n        continue\n\n    fi\n\n\n\n    echo \"Granting access to $NGINX_USER: $path\"\n\n\n\n    # ---------------------------\n    # Linux permissions\n    # ---------------------------\n\n\n    current=\"$path\"\n\n\n    while [ \"$current\" != \"/\" ]; do\n\n\n        sudo setfacl \\\n            -m u:$NGINX_USER:x \\\n            \"$current\"\n\n\n\n        current=$(dirname \"$current\")\n\n\n    done\n\n\n\n    sudo setfacl \\\n        -R \\\n        -m u:$NGINX_USER:rX \\\n        \"$path\"\n\n\n\n\n    # ---------------------------\n    # SELinux permissions\n    # ---------------------------\n\n\n    if [ \"$SELINUX_ENABLED\" = true ]; then\n\n\n        if command -v getenforce >/dev/null 2>&1; then\n\n\n            if [ \"$(getenforce)\" != \"Disabled\" ]; then\n\n\n                echo \"Applying SELinux context: $path\"\n\n\n\n                sudo semanage fcontext \\\n                    -a \\\n                    -t httpd_sys_content_t \\\n                    \"$path(/.*)?\" \\\n                    || true\n\n\n\n                sudo restorecon \\\n                    -Rv \\\n                    \"$path\"\n\n\n\n            fi\n\n\n        fi\n\n\n    fi\n\n\n\ndone\n\n\n\nelse\n\n\necho \"Filesystem permissions skipped.\"\n\n\nfi\n\n\n\n\n# -------------------------------\n# SELinux nginx proxy permission\n# -------------------------------\n\n\nif [ \"$SELINUX_ENABLED\" = true ]; then\n\n\n    if command -v getenforce >/dev/null 2>&1; then\n\n\n        if [ \"$(getenforce)\" != \"Disabled\" ]; then\n\n\n            echo \"Allowing nginx network connections...\"\n\n            sudo setsebool \\\n                -P \\\n                httpd_can_network_connect \\\n                1\n\n\n        fi\n\n\n    fi\n\n\nfi\n\n\n\n\n\necho \"Restarting nginx\"\n\nsudo nginx -t\n\nsudo systemctl restart nginx\n\n\n\necho \"Server prepared:\"\necho \"$(nginx -v 2>&1)\"\necho \"$(certbot --version 2>&1 || true)\"",
+        "authentication": "privateKey"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "37d4a4ac-e743-42db-8671-973e4db6c473",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 736,
+        "height": 1744,
+        "content": "# 🚀 Quick Start\n\n### 1. Configure SSH Credentials\n\nOpen the **`Prepare Machine`** node and create an **SSH Credential** using your server connection details.\n\nThen open **`Deploy Nginx Server`** and select the same credential.\n\n---\n\n### 2. Configure Webhook Authentication\n\nOpen the **`Start Workflow`** node and create an **HTTP Basic Auth Credential**.\n\nChoose a username and password. You will use these credentials to access the configuration form.\n\n---\n\n### 3. Configure Cloudflare Credentials — Optional\n\nThis step is only required if you want the workflow to automatically create or update the domain’s DNS record in Cloudflare.\n\nOpen the Cloudflare-related nodes in the workflow and configure their **Cloudflare Credential**.\n\nUse a Cloudflare API token with permission to manage DNS records for the required zone.\n\nMake sure the same Cloudflare credential is selected in all Cloudflare nodes.\n\nIf Cloudflare is not configured, leave the **Use Cloudflare for DNS** checkbox disabled in the configuration form.\n\n---\n\n### 4. Open the Configuration Form\n\nFrom the **`Start Workflow`** node, copy the **Production URL**.\n\nIt will look similar to:\n\n```text\nhttps://<your-n8n-domain>/webhook/nginx\n```\n\nOpen this URL in your browser and sign in using the username and password you created in the previous step.\n\n---\n\n### 5. Run the Workflow\n\nMake sure the workflow is **active** in n8n before opening and using the production webhook.\n\nFor better security, keep this workflow active only while you are using the configuration form. When you have finished deploying your Nginx configuration, **deactivate the workflow** so the production webhook is no longer available.\n\n> **Security recommendation:** Only activate this workflow when you need to configure or deploy Nginx, and deactivate it again when you are finished.\n\n---\n\n### 6. Deploy\n\nComplete the configuration form.\n\nEnable **Use Cloudflare for DNS** only if you have configured the Cloudflare nodes and credentials.\n\nThen click **Generate & Deploy**.\n\n🎉 Your Nginx configuration will be generated and deployed automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c13e2fa-1682-44cd-b261-9e39cf662fc7",
+      "name": "Get Cloudflare Zone ID",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        2464,
+        944
+      ],
+      "parameters": {
+        "url": "=https://api.cloudflare.com/client/v4/zones?name={{ $('Validate Routes').item.json.domain }}",
+        "options": {},
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "cloudflareApi"
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.4
+    },
+    {
+      "id": "e02ce8a2-3699-4e3b-9a6a-c2adf008a5fb",
+      "name": "Create Cloudflare DNS Record",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        2688,
+        864
+      ],
+      "parameters": {
+        "url": "=https://api.cloudflare.com/client/v4/zones/{{ $json.result[0].id }}/dns_records",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"name\": \"{{ $('Validate Routes').item.json.domain }}\",\n  \"ttl\": 3600,\n  \"type\": \"A\",\n  \"comment\": \"Domain verification record\",\n  \"content\": \"{{ $('Validate Routes').item.json.serverAddress }}\",\n  \"private_routing\": false,\n  \"proxied\": true\n} ",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "cloudflareApi"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "b6990c6b-0d5a-4c46-be11-926c0a6acbda",
+      "name": "Is Input Valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1600,
+        944
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "543149f5-b613-431c-bbca-fe29906d7e3d",
+      "name": "Should Create DNS Record?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2256,
+        944
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a46cec8b-2f6f-4765-bf4b-b345071153e3",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Validate Routes').item.json.useCloudflare }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "371f596a-d9a5-4189-afc6-894b8e614b56",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2416,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 400,
+        "content": "# Optional DNS Setup\n\nConfigure the Cloudflare credentials in the nodes below if you want the workflow to automatically manage the domain's DNS record."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "04aa1d90-c250-410f-9f4b-11e090bd541e",
+      "name": "Respond Failure",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2720,
+        1520
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { success: false, error:  $json.errors} }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "05bf63ed-fcd9-4341-921c-5533a0831d38",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        832,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 400,
+        "content": "# Webhook intake\n\nReceives the web form submission and sends the initial webhook acknowledgement before the longer provisioning path continues."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3c31dad6-b834-476b-a74b-779b304c5f43",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 400,
+        "content": "# Validate form input\n\nChecks the submitted route data and branches between the valid deployment path and an immediate validation error response."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f65a66d-e66c-454d-b7a1-59c2259d4b3c",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1984,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 400,
+        "content": "# Generate deployment plan\n\nBuilds the nginx configuration from the validated input and decides whether a Cloudflare DNS record needs to be created before server deployment."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56199be8-b665-4ed3-a9b4-d779896b74b7",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2864,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 400,
+        "content": "# Deploy nginx server\n\nPrepares the remote machine, deploys the generated nginx configuration over SSH, and returns the success response when deployment completes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5c77bc75-099a-43e8-b654-bc813886a5d7",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2592,
+        1264
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 416,
+        "content": "## Handle provisioning failure\n\nCollects failures from DNS creation and SSH deployment paths into a final webhook failure response."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Is Input Valid?": {
+      "main": [
+        [
+          {
+            "node": "Generate nginx Config",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Machine": {
+      "main": [
+        [
+          {
+            "node": "Deploy Nginx Server",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start  Workflow": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Validate Routes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Routes": {
+      "main": [
+        [
+          {
+            "node": "Is Input Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Deploy Nginx Server": {
+      "main": [
+        [
+          {
+            "node": "Respond Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate nginx Config": {
+      "main": [
+        [
+          {
+            "node": "Should Create DNS Record?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Cloudflare Zone ID": {
+      "main": [
+        [
+          {
+            "node": "Create Cloudflare DNS Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should Create DNS Record?": {
+      "main": [
+        [
+          {
+            "node": "Get Cloudflare Zone ID",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Machine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Cloudflare DNS Record": {
+      "main": [
+        [
+          {
+            "node": "Prepare Machine",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Generate and deploy nginx configs with SSH, web forms and Cloudflare",
+    "wechat": "youandme10086",
+    "id": 18309,
+    "update_time": "2026-09-27"
+  }
+}

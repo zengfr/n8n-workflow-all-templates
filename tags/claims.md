@@ -1,4 +1,4 @@
-# claims : 7
+# claims : 10
 
 |id|file|
 |----|----|
@@ -9,3 +9,6 @@
 |12494|[12494_Automate_actuarial_premium_adjustments_and_claims_reporting_with_GPT-4.1__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12494_Automate_actuarial_premium_adjustments_and_claims_reporting_with_GPT-4.1__Gmail_and_Slack.json)|
 |13589|[13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json)|
 |16229|[16229_Score_resume_authenticity_with_GitHub__LinkedIn__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16229_Score_resume_authenticity_with_GitHub__LinkedIn__OpenAI_and_Google_Sheets.json)|
+|18731|[18731_Fact-check_ChatGPT_product_claims_with_Bright_Data__GPT-5.6__Data_Tables_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18731_Fact-check_ChatGPT_product_claims_with_Bright_Data__GPT-5.6__Data_Tables_and_Gmail.json)|
+|18919|[18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json)|
+|19688|[19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# edit : 14
+# edit : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |15760|[15760_Generate_and_edit_images_using_Havis_AI_GPT_Image_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15760_Generate_and_edit_images_using_Havis_AI_GPT_Image_2.json)|
 |16555|[16555_Notify_and_manage_podcast_edit_status_with_WizCut_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16555_Notify_and_manage_podcast_edit_status_with_WizCut_and_Slack.json)|
 |16789|[16789_Edit_and_post_TikTok_videos_with_Gemini_Omni_Flash_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16789_Edit_and_post_TikTok_videos_with_Gemini_Omni_Flash_and_OpenAI.json)|
+|18050|[18050_Edit_Google_Sheets_by_chat_using_GPT-4o-mini_with_approval_and_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18050_Edit_Google_Sheets_by_chat_using_GPT-4o-mini_with_approval_and_audit_log.json)|
+|18664|[18664_Generate_marketing_images_in_a_webhook_image_studio_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18664_Generate_marketing_images_in_a_webhook_image_studio_with_Google_Gemini.json)|

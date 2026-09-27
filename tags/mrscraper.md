@@ -1,4 +1,4 @@
-# mrscraper : 7
+# mrscraper : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |13818|[13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13818_Monitor_news_sentiment_trends_with_GPT-4o-mini__MrScraper__Slack_and_Notion.json)|
 |13819|[13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13819_Monitor_ecommerce_reviews_with_MrScraper__GPT-4o-mini__Slack_and_Notion.json)|
 |15460|[15460_Turn_ecommerce_product_URLs_into_leads_with_Google_Sheets_and_MrScraper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15460_Turn_ecommerce_product_URLs_into_leads_with_Google_Sheets_and_MrScraper.json)|
+|19056|[19056_Screen_and_auto-apply_to_remote_jobs_with_MrScraper__Gemini__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19056_Screen_and_auto-apply_to_remote_jobs_with_MrScraper__Gemini__and_Telegram.json)|
+|19611|[19611_Find_and_qualify_B2B_leads_with_MrScraper__Gemini__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19611_Find_and_qualify_B2B_leads_with_MrScraper__Gemini__Google_Sheets__and_Slack.json)|

@@ -1,4 +1,4 @@
-# lists : 25
+# lists : 30
 
 |id|file|
 |----|----|
@@ -27,3 +27,8 @@
 |16618|[16618_Build_hospitality_lead_lists_from_Booking.com_using_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16618_Build_hospitality_lead_lists_from_Booking.com_using_Apify_and_Google_Sheets.json)|
 |16732|[16732_Enrich_LinkedIn_profiles_into_full_contacts_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16732_Enrich_LinkedIn_profiles_into_full_contacts_with_Tomba_and_Google_Sheets.json)|
 |16765|[16765_Create_daily_ClickUp_task_reports_with_OpenRouter_o3-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16765_Create_daily_ClickUp_task_reports_with_OpenRouter_o3-mini.json)|
+|17355|[17355_Verify_US_contractor_licenses_in_lead_lists_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17355_Verify_US_contractor_licenses_in_lead_lists_with_Apify.json)|
+|17656|[17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17656_Turn_voice_memos_into_structured_task_lists_with_Google_Gemini_and_Google_Sheets.json)|
+|18357|[18357_Plan_daily_restaurant_prep_lists_with_DeepSeek__Google_Sheets__Telegram_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18357_Plan_daily_restaurant_prep_lists_with_DeepSeek__Google_Sheets__Telegram_and_Gmail.json)|
+|18428|[18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json)|
+|18877|[18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json)|

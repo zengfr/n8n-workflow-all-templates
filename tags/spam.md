@@ -1,4 +1,4 @@
-# spam : 10
+# spam : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |12846|[12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json)|
 |13280|[13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13280_Route_Gmail_support_emails_to_Zendesk_with_spam_filtering_and_duplicate_checks.json)|
 |14028|[14028_Filter_spam_from_webhook_form_submissions_using_honeypot_and_timing_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14028_Filter_spam_from_webhook_form_submissions_using_honeypot_and_timing_checks.json)|
+|19206|[19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json)|

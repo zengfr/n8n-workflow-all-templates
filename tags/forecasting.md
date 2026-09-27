@@ -1,4 +1,4 @@
-# forecasting : 12
+# forecasting : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |12735|[12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12735_Forecast_and_report_multi-channel_tax_liabilities_with_OpenAI__Gmail__Sheets_and_Airtable.json)|
 |14438|[14438_Govern_energy_portfolios_with_GPT-4o__Perplexity__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14438_Govern_energy_portfolios_with_GPT-4o__Perplexity__Slack__Gmail_and_Sheets.json)|
 |15027|[15027_Forecast_property_CAPEX_and_ROI_weekly_using_Google_Sheets_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15027_Forecast_property_CAPEX_and_ROI_weekly_using_Google_Sheets_and_GPT-4o.json)|
+|17683|[17683_Forecast_inventory_and_route_purchase_orders_with_Google_Sheets__OpenAI__Telegram__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17683_Forecast_inventory_and_route_purchase_orders_with_Google_Sheets__OpenAI__Telegram__Slack__and_Gmail.json)|
+|18246|[18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json)|

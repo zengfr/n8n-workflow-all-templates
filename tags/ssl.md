@@ -1,4 +1,4 @@
-# ssl : 14
+# ssl : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |12607|[12607_Monitor_SSL_certificate_expiry_with_Google_Sheets_and_SMTP_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12607_Monitor_SSL_certificate_expiry_with_Google_Sheets_and_SMTP_email_alerts.json)|
 |15312|[15312_Monitor_SSL_certificate_expiries_with_Google_Sheets__Slack_and_Linear.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15312_Monitor_SSL_certificate_expiries_with_Google_Sheets__Slack_and_Linear.json)|
 |16196|[16196_Monitor_SSL_certificate_expiry_with_Google_Sheets__Slack__Gmail_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16196_Monitor_SSL_certificate_expiry_with_Google_Sheets__Slack__Gmail_and_Jira.json)|
+|18059|[18059_Monitor_website_uptime_and_SSL_expiry_with_Cert_Spotter_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18059_Monitor_website_uptime_and_SSL_expiry_with_Cert_Spotter_and_Telegram_alerts.json)|
+|18450|[18450_Monitor_SSL_TLS_certificate_expiry_via_an_HTTP_certificate_inventory_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18450_Monitor_SSL_TLS_certificate_expiry_via_an_HTTP_certificate_inventory_API.json)|
+|18650|[18650_Monitor_website_domain__SSL__and_uptime_with_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18650_Monitor_website_domain__SSL__and_uptime_with_Google_Sheets_and_Telegram.json)|

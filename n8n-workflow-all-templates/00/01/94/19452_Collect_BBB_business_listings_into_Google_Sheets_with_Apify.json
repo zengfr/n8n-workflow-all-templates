@@ -1,0 +1,962 @@
+{
+  "name": "Collect BBB business listings into Google Sheets with Apify",
+  "nodes": [
+    {
+      "id": "bbb-1",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "bbb-2",
+      "name": "Configure search",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "search",
+              "name": "search",
+              "type": "string",
+              "value": "Plumber"
+            },
+            {
+              "id": "location",
+              "name": "location",
+              "type": "string",
+              "value": "Austin, TX"
+            },
+            {
+              "id": "distanceMiles",
+              "name": "distanceMiles",
+              "type": "number",
+              "value": 5
+            },
+            {
+              "id": "maxChargeUsd",
+              "name": "maxChargeUsd",
+              "type": "number",
+              "value": 0.04
+            },
+            {
+              "id": "spreadsheetId",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "resumeRunId",
+              "name": "resumeRunId",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "bbb-3",
+      "name": "Validate configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nreturn [{json:config($json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-4",
+      "name": "Read destination",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        780,
+        300
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '?fields=spreadsheetId,sheets(properties)' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-5",
+      "name": "Prepare tabs and lock",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nreturn [{json:prepareSheet($json.body)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-6",
+      "name": "Acquire destination lock",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. This mutation is deliberately not retried automatically.",
+      "maxTries": 3,
+      "position": [
+        1300,
+        300
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + ':batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-7",
+      "name": "Read existing rows",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1560,
+        300
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '/values:batchGet?ranges=' + encodeURIComponent(\"'BBB Businesses'!A1:P5002\") + '&ranges=' + encodeURIComponent(\"'BBB Runs'!A1:R5002\") }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-8",
+      "name": "Validate existing tables",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nconst ranges=$json.body.valueRanges;\nconst existing=validateTable(ranges[0].values,BUSINESS_HEADERS,BUSINESS_TAB);\nconst ledger=validateTable(ranges[1].values,RUN_HEADERS,RUN_TAB);\nif(ledger.length>=MAX_EXISTING && !$('Validate configuration').first().json.resumeRunId)throw new Error('Run log is full; archive before starting paid work.');\nreturn [{json:{existing,ledger}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-9",
+      "name": "Resume an existing run?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        0,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Resume an existing run?",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Validate configuration').first().json.resumeRunId !== '' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bbb-10",
+      "name": "Load recovery run",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        260,
+        620
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $('Validate configuration').first().json.resumeRunId }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-11",
+      "name": "Start bounded BBB run",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. This mutation is deliberately not retried automatically.",
+      "maxTries": 3,
+      "position": [
+        260,
+        820
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/acts/b0AZEdG2WGln6jZux/runs?timeout=180&build=0.0.12&maxTotalChargeUsd=' + $('Validate configuration').first().json.maxChargeUsd }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ { search: $('Validate configuration').first().json.search, location: $('Validate configuration').first().json.location, distance: $('Validate configuration').first().json.distanceMiles } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-12",
+      "name": "Capture run",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nconst run=$json.body.data;\nif(run.actId!==ACTOR_ID)throw new Error('Recovery ID belongs to another Actor.');\nreturn [{json:run}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-13",
+      "name": "Read original run input",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        780,
+        700
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/key-value-stores/' + $('Capture run').first().json.defaultKeyValueStoreId + '/records/INPUT' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-14",
+      "name": "Prepare run checkpoint",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nconst run=$('Capture run').first().json,input=$json.body;\nif(!input.search||!input.location)throw new Error('Run INPUT is missing search or location.');\nconst ctx={run,input,executionId:$execution.id};\nconst ledger=$('Validate existing tables').first().json.ledger;\nconst found=ledger.findIndex(r=>r[0]===run.id), row=found>=0?found+2:ledger.length+2;\nif(row>MAX_EXISTING+1)throw new Error('Run log is full.');\nconst data=[{range:\"'BBB Runs'!A1:R1\",values:[RUN_HEADERS]}];\nif(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:\"'BBB Runs'!A\"+row+':R'+row,values:[ledgerRow(ctx,'PROCESSING',{},'Run saved. If interrupted, set resumeRunId to this run ID; clear a stale lock only after checking active executions.') ]});\nreturn [{json:{ctx,body:{valueInputOption:'RAW',data}}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-15",
+      "name": "Save run checkpoint",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1300,
+        700
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '/values:batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-16",
+      "name": "Wait for Actor status",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1560,
+        700
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $('Capture run').first().json.id + '?waitForFinish=30' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-17",
+      "name": "Inspect Actor status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        700
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nconst run=$json.body.data;\nconst finished=checkRun(run);\nif(!finished&&$runIndex>=7)throw new Error('Stopped waiting for run '+run.id+'. Check Apify; n8n cancellation does not abort it. Resume this run, do not start another.');\nreturn [{json:{run,finished}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-18",
+      "name": "Actor succeeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2080,
+        700
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Actor succeeded?",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.finished }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bbb-19",
+      "name": "Fetch complete bounded dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        520,
+        1120
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $('Inspect Actor status').last().json.run.defaultDatasetId + '/items?format=json&limit=1001' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-20",
+      "name": "Plan deduplicated rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        780,
+        1120
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nconst ctx={...$('Prepare run checkpoint').first().json.ctx,run:$('Inspect Actor status').last().json.run};\nconst {existing,ledger}=$('Validate existing tables').first().json;\nconst count=checkDataset({itemCount:$json.body.length});\nreturn [{json:planWrites(ctx,$json.body,existing,ledger,count)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-21",
+      "name": "Write businesses and run log",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1040,
+        1120
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '/values:batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-22",
+      "name": "Prepare lock release",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        1120
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nconst replies=$('Acquire destination lock').first().json.body.replies;\nconst lock=replies[0].addSheet.properties;\nif(lock.title!==LOCK_TAB)throw new Error('Unexpected lock response; inspect destination.');\nreturn [{json:{requests:[{deleteSheet:{sheetId:lock.sheetId}}]}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-23",
+      "name": "Release destination lock",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. This mutation is deliberately not retried automatically.",
+      "maxTries": 3,
+      "position": [
+        1560,
+        1120
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + ':batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bbb-24",
+      "name": "Run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        1120
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='b0AZEdG2WGln6jZux';\nconst BUSINESS_TAB='BBB Businesses';\nconst RUN_TAB='BBB Runs';\nconst LOCK_TAB='_BBB_WORKFLOW_LOCK';\nconst BUSINESS_HEADERS=['sourceUrl','businessName','address','city','state','postalCode','bbbRating','accreditationStatus','bbbMember','categories','phone','firstSeenAt','lastSeenAt','lastRunId','search','searchLocation'];\nconst RUN_HEADERS=['runId','status','search','location','distanceMiles','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nconst MAX_EXISTING=5000;\nconst MAX_DATASET=1000;\nfunction config(input){\n const c={...input};\n for(const k of ['search','location','spreadsheetId','resumeRunId'])c[k]=String(c[k]??'').trim();\n if(!c.search||!c.location)throw new Error('Fill in search and location in Configure search.');\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.distanceMiles=Number(c.distanceMiles);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.distanceMiles)||c.distanceMiles<1||c.distanceMiles>100)throw new Error('distanceMiles must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD for this small-batch template.');\n return c;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('BBB destination is locked. Another execution may be running. Inspect n8n and the BBB Runs tab; only after it is stopped, delete _BBB_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore the documented managed columns; no paid run has started.');\n const rows=values.slice(1);\n if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive into a separate spreadsheet before continuing.');\n const seen=new Set();\n for(const row of rows){\n  if(!row[0]){if(row.some(v=>v!==''&&v!==null))throw new Error(label+' contains a row without its key.');continue;}\n  if(seen.has(String(row[0])))throw new Error(label+' contains duplicate keys. Resolve duplicates before running.');\n  seen.add(String(row[0]));\n }\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('The recovery run belongs to a different Actor. Use a BBB Advanced Scraper run.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No business rows were written. Inspect its log; do not treat partial results as a complete observation.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<0)throw new Error('Dataset itemCount missing or invalid.');\n if(meta.itemCount===0)throw new Error('BBB returned zero rows. This Actor can also return zero after extraction failure, so inspect its log before calling this an empty search. No business rows changed.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety limit. No silent truncation: use a smaller bounded run.');\n return meta.itemCount;\n}\nfunction normalize(item){\n if(typeof item.businessName!=='string'||!item.businessName.trim()||typeof item.reportUrl!=='string')return null;\n // BBB returns relative /us/.../profile/... URLs. Reject external/invalid identities.\n const match=item.reportUrl.match(/^(?:https:\\/\\/(?:www\\.)?bbb\\.org)?(\\/(?:us|ca)\\/[^?#]*\\/profile\\/[^?#]+)(?:[?#].*)?$/i);\n if(!match)return null;\n const sourceUrl='https://www.bbb.org'+match[1].replace(/\\/+$/,'');\n const scalar=v=>v==null?'':String(v).replace(/<\\/?em>/gi,'').slice(0,2000);\n const list=v=>Array.isArray(v)?v.map(scalar).join('; '):scalar(v);\n return [sourceUrl,scalar(item.businessName).trim(),scalar(item.address),scalar(item.city),scalar(item.state),scalar(item.postalcode),scalar(item.rating),scalar(item.accreditationStatus),item.bbbMember===true?'true':item.bbbMember===false?'false':'',list(item.categories),list(item.phone)];\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;\n const event=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const count=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const cost=typeof event?.eventPriceUsd==='number'&&typeof count==='number'?Math.round(event.eventPriceUsd*count*1e8)/1e8:'';\n return [run.id,status,input.search,input.location,input.distance??'',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',cost,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No business rows written.');\n if(!ctx.run.finishedAt||!Number.isFinite(Date.parse(ctx.run.finishedAt)))throw new Error('Completed run timestamp missing.');\n const byKey=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));\n const known=ledger.findIndex(r=>r[0]===ctx.run.id);\n const ledgerIndex=known>=0?known+2:ledger.length+2;\n if(ledgerIndex>MAX_EXISTING+1)throw new Error('Run log is full. Archive to a new destination.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:P1`,values:[BUSINESS_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n const seen=new Set();const counts={read:items.length,rejected:0,added:0,updated:0,duplicates:0,unchanged:0};\n let nextRow=existing.length+2;\n for(const item of items){\n  const base=normalize(item);if(!base){counts.rejected++;continue;}\n  const key=base[0];if(seen.has(key)){counts.duplicates++;continue;}seen.add(key);\n  const old=byKey.get(key);\n  if(old?.row[12]&&!Number.isFinite(Date.parse(old.row[12])))throw new Error('Invalid lastSeenAt in destination; restore the ISO timestamp before replay.');\n  if(old?.row[13]===ctx.run.id || (old?.row[12]&&Date.parse(old.row[12])>Date.parse(ctx.run.finishedAt))){counts.unchanged++;continue;}\n  const first=old?.row[11]||ctx.run.finishedAt;\n  const values=[...base,first,ctx.run.finishedAt,ctx.run.id,ctx.input.search,ctx.input.location];\n  const index=old?.index??nextRow++;\n  if(index>MAX_EXISTING+1)throw new Error('Business table is full. Archive to a new destination before continuing.');\n  data.push({range:`'${BUSINESS_TAB}'!A${index}:P${index}`,values:[values]});\n  if(old)counts.updated++;else counts.added++;\n }\n if(seen.size===0)throw new Error('No valid BBB identities found. Possible schema drift; no business rows written.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';\n const capped=typeof ctx.run.options?.maxItems==='number'&&items.length>=ctx.run.options.maxItems;\n const notes=(capped?'Charge/result cap reached; bounded sample, not exhaustive. ':'Bounded search observation; not proof of exhaustive coverage. ')+`Replay-safe; ${counts.unchanged} already imported or newer rows preserved.`;\n // Preserve the original successful ledger on same-run replay.\n if(!(known>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[known][1])))data.push({range:`'${RUN_TAB}'!A${ledgerIndex}:R${ledgerIndex}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,capped,notes}};\n}\n\nreturn [{json:{...$('Plan deduplicated rows').first().json.summary,spreadsheetUrl:'https://docs.google.com/spreadsheets/d/'+$('Validate configuration').first().json.spreadsheetId}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbb-25",
+      "name": "Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -700
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 1100,
+        "height": 800,
+        "content": "# Collect BBB business listings into Google Sheets with Apify\n\nMaintain a business-research table from Better Business Bureau searches without manually copying listings into a spreadsheet. This workflow is useful for local-market research, competitor comparisons, and reviewing business profiles by keyword and location.\n\nIt runs [FalconScrape's BBB Advanced Scraper](https://apify.com/piotrv1001/bbb-advanced-scraper) through your Apify account, waits for the run to finish, and imports the results into Google Sheets. Businesses are matched by their BBB profile URL, so repeated observations update existing rows. The table retains first-seen dates and provides space for your own notes. A separate run log records the source run and lets you retry an import without purchasing another scrape.\n\n## Setup\n\nInstall the official Apify integration, connect your Apify API and Google Sheets OAuth2 credentials, and create a destination spreadsheet. Enter its ID, search term, location, distance, and maximum Actor charge in **Configure search**. Start manually; the workflow creates its two output tabs automatically.\n\nThe template is free; Apify Actor runs and your n8n service may incur charges. We maintain the paid FalconScrape Actor used here. Results are bounded observations, not an exhaustive directory. Empty or failed extractions stop for review.\n\nTested on self-hosted n8n 2.38.5 with the Apify integration 0.7.0. See the setup guide for costs, recovery, and scheduling considerations.\n\n\n### Recovery\nIf execution fails, inspect the saved run before retrying. Set **resumeRunId** to reuse its dataset. Remove a stale lock only after confirming no execution is active. Keep user notes in column Q onward."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bbb-26",
+      "name": "1. Validate before spending",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        170
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2150,
+        "height": 330,
+        "content": "### 1 · Prepare the destination\nValidate settings and managed columns. Create missing tabs and acquire an atomic sheet-title lock before paid work. Keep scraped columns unchanged; use column Q onward for your own notes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bbb-27",
+      "name": "2. One bounded Actor run",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        520
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2460,
+        "height": 470,
+        "content": "### 2 · Start or recover\nNew runs have a dollar cap and a 180-second timeout. Recovery loads the supplied run ID. Never automatically retry the paid start request. The run checkpoint records the original input and run ID before polling."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bbb-28",
+      "name": "3. Import and summarize",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        1020
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2150,
+        "height": 340,
+        "content": "### 3 · Validate and write\nReject empty or oversized datasets. Deduplicate by BBB profile URL, preserve newer observations and first-seen dates, and write literal values. Commit the run log with business updates, then release the destination lock."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bbb-29",
+      "name": "Failure recovery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2200,
+        1040
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 600,
+        "height": 240,
+        "content": "### If a node fails\nOpen its error and the BBB Runs tab. Check whether the Actor is still running. Once no execution is active, delete only **_BBB_WORKFLOW_LOCK**, set **resumeRunId**, and run again. Never delete business/run tabs to fix an error."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "executionOrder": "v1",
+    "executionTimeout": 600,
+    "saveExecutionProgress": true
+  },
+  "connections": {
+    "Capture run": {
+      "main": [
+        [
+          {
+            "node": "Read original run input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Configure search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actor succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Fetch complete bounded dataset",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Actor status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure search": {
+      "main": [
+        [
+          {
+            "node": "Validate configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read destination": {
+      "main": [
+        [
+          {
+            "node": "Prepare tabs and lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load recovery run": {
+      "main": [
+        [
+          {
+            "node": "Capture run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing rows": {
+      "main": [
+        [
+          {
+            "node": "Validate existing tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save run checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Wait for Actor status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inspect Actor status": {
+      "main": [
+        [
+          {
+            "node": "Actor succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare lock release": {
+      "main": [
+        [
+          {
+            "node": "Release destination lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare tabs and lock": {
+      "main": [
+        [
+          {
+            "node": "Acquire destination lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start bounded BBB run": {
+      "main": [
+        [
+          {
+            "node": "Capture run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Actor status": {
+      "main": [
+        [
+          {
+            "node": "Inspect Actor status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan deduplicated rows": {
+      "main": [
+        [
+          {
+            "node": "Write businesses and run log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare run checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Save run checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate configuration": {
+      "main": [
+        [
+          {
+            "node": "Read destination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read original run input": {
+      "main": [
+        [
+          {
+            "node": "Prepare run checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume an existing run?": {
+      "main": [
+        [
+          {
+            "node": "Load recovery run",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start bounded BBB run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acquire destination lock": {
+      "main": [
+        [
+          {
+            "node": "Read existing rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release destination lock": {
+      "main": [
+        [
+          {
+            "node": "Run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate existing tables": {
+      "main": [
+        [
+          {
+            "node": "Resume an existing run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write businesses and run log": {
+      "main": [
+        [
+          {
+            "node": "Prepare lock release",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch complete bounded dataset": {
+      "main": [
+        [
+          {
+            "node": "Plan deduplicated rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Collect BBB business listings into Google Sheets with Apify",
+    "wechat": "youandme10086",
+    "id": 19452,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# writer : 13
+# writer : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |15952|[15952_Draft_and_revise_technical_articles_with_OpenRouter_in_a_content_pipeline.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15952_Draft_and_revise_technical_articles_with_OpenRouter_in_a_content_pipeline.json)|
 |15989|[15989_Generate_and_refine_technical_drafts_with_OpenRouter_writer_and_critic_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15989_Generate_and_refine_technical_drafts_with_OpenRouter_writer_and_critic_agents.json)|
 |15994|[15994_Orchestrate_iterative_content_drafting_with_research__writer_and_reviewer_flows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15994_Orchestrate_iterative_content_drafting_with_research__writer_and_reviewer_flows.json)|
+|18475|[18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json)|

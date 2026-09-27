@@ -1,4 +1,4 @@
-# session : 10
+# session : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |14708|[14708_Send_post-event_session_digest_emails_with_WayinVideo__OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14708_Send_post-event_session_digest_emails_with_WayinVideo__OpenAI_and_Gmail.json)|
 |16052|[16052_Run_a_multi-session_chat_agent_with_OpenAI_and_data_table_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16052_Run_a_multi-session_chat_agent_with_OpenAI_and_data_table_memory.json)|
 |16117|[16117_Run_a_skills-based_knowledge_chatbot_with_Google_Sheets_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16117_Run_a_skills-based_knowledge_chatbot_with_Google_Sheets_and_GPT-4o-mini.json)|
+|17520|[17520_Power_your_website_chat_with_OpenAI_GPT-4o-mini_and_session_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17520_Power_your_website_chat_with_OpenAI_GPT-4o-mini_and_session_memory.json)|
+|17983|[17983_Validate_staff_certifications_for_upcoming_sessions_with_Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17983_Validate_staff_certifications_for_upcoming_sessions_with_Google_Calendar_and_Slack.json)|
+|18908|[18908_Qualify_and_approve_live_face-swap_session_requests_with_LiveFaceSwap_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18908_Qualify_and_approve_live_face-swap_session_requests_with_LiveFaceSwap_forms.json)|
+|18940|[18940_Manage_AI_agent_chat_sessions_with_timeouts__handoff__and_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18940_Manage_AI_agent_chat_sessions_with_timeouts__handoff__and_webhooks.json)|

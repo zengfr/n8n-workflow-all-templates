@@ -1,4 +1,4 @@
-# guide : 9
+# guide : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |9306|[9306_Beginner_s_Guide_to_Workflow_Automation_with_OpenAI__LangChain___API_Integrations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9306_Beginner_s_Guide_to_Workflow_Automation_with_OpenAI__LangChain___API_Integrations.json)|
 |12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
 |14291|[14291_Guide_students_with_an_AI_tutor_chatbot_using_RAG__intent_classification_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14291_Guide_students_with_an_AI_tutor_chatbot_using_RAG__intent_classification_and_GPT-4o-mini.json)|
+|19242|[19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json)|

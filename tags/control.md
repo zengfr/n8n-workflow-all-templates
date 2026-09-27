@@ -1,4 +1,4 @@
-# control : 43
+# control : 50
 
 |id|file|
 |----|----|
@@ -45,3 +45,10 @@
 |15566|[15566_Control_SwitchBot_devices_via_chat_with_OpenRouter_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15566_Control_SwitchBot_devices_via_chat_with_OpenRouter_AI.json)|
 |15795|[15795_Deploy_n8n_workflows_with_GitHub-based_version_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15795_Deploy_n8n_workflows_with_GitHub-based_version_control.json)|
 |16224|[16224_Coordinate_autonomous_UAV_missions_with_multi-agent_AI_and_Microsoft_Dynamics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16224_Coordinate_autonomous_UAV_missions_with_multi-agent_AI_and_Microsoft_Dynamics.json)|
+|18246|[18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json)|
+|18887|[18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json)|
+|18975|[18975_Monitor_engineering_health_with_ClickUp__GitHub__security_and_APM_APIs__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18975_Monitor_engineering_health_with_ClickUp__GitHub__security_and_APM_APIs__and_WhatsApp.json)|
+|19332|[19332_Route_purchase_requisition_approvals_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19332_Route_purchase_requisition_approvals_with_Google_Sheets_and_Gmail.json)|
+|19507|[19507_Manage_vendor_onboarding_and_compliance_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19507_Manage_vendor_onboarding_and_compliance_with_Google_Sheets_and_Gmail.json)|
+|19548|[19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json)|
+|19760|[19760_Triage_backflow_compliance_notices_with_Google_Sheets__Gmail__Slack__OpenAI__and_a_state_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19760_Triage_backflow_compliance_notices_with_Google_Sheets__Gmail__Slack__OpenAI__and_a_state_API.json)|

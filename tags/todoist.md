@@ -1,4 +1,4 @@
-# todoist : 18
+# todoist : 20
 
 |id|file|
 |----|----|
@@ -20,3 +20,5 @@
 |9564|[9564_Prioritize_Todoist_Tasks_with_OpenRouter_AI_and_Send_Daily_Summaries_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/95/9564_Prioritize_Todoist_Tasks_with_OpenRouter_AI_and_Send_Daily_Summaries_to_Slack.json)|
 |12010|[12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12010_Track___alert_public_transport_delays_using_ScrapeGraphAI__Teams_and_Todoist.json)|
 |12018|[12018_AI-powered_productivity_coach_using_Google_Calendar__Todoist__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12018_AI-powered_productivity_coach_using_Google_Calendar__Todoist__Slack_and_Sheets.json)|
+|16833|[16833_Run_a_Telegram_productivity_assistant_with_OpenRouter__Google_Calendar__and_Todoist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16833_Run_a_Telegram_productivity_assistant_with_OpenRouter__Google_Calendar__and_Todoist.json)|
+|16947|[16947_Track_asset_warranty_deadlines_with_Google_Sheets__Gmail__Todoist__Slack__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16947_Track_asset_warranty_deadlines_with_Google_Sheets__Gmail__Todoist__Slack__and_OpenAI.json)|

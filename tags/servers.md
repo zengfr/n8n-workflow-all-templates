@@ -1,4 +1,4 @@
-# servers : 5
+# servers : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |8272|[8272_Dynamic_MCP_Server_Selection_with_OpenAI_GPT-4.1_and_Contextual_AI_Reranker.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8272_Dynamic_MCP_Server_Selection_with_OpenAI_GPT-4.1_and_Contextual_AI_Reranker.json)|
 |9852|[9852_Automated_Server_Health_Check_with_SSH__Azure_GPT-4_Analysis___Email_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9852_Automated_Server_Health_Check_with_SSH__Azure_GPT-4_Analysis___Email_Alerts.json)|
 |12194|[12194_Find_the_best_Roblox_server_for_your_game_using_a_webhook_and_Roblox_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12194_Find_the_best_Roblox_server_for_your_game_using_a_webhook_and_Roblox_API.json)|
+|17218|[17218_Run_a_personal_assistant_for_calendar__Gmail_and_utilities_with_OpenAI_and_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17218_Run_a_personal_assistant_for_calendar__Gmail_and_utilities_with_OpenAI_and_MCP.json)|
+|18799|[18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json)|

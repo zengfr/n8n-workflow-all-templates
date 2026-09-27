@@ -1,4 +1,4 @@
-# engineering : 10
+# engineering : 17
 
 |id|file|
 |----|----|
@@ -12,3 +12,10 @@
 |15898|[15898_Send_weekly_GitHub_digests_to_Telegram_with_Qwen_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15898_Send_weekly_GitHub_digests_to_Telegram_with_Qwen_via_OpenRouter.json)|
 |16251|[16251_Build_a_cost_engineering_RAG_with_Google_Drive__OpenAI__and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16251_Build_a_cost_engineering_RAG_with_Google_Drive__OpenAI__and_Pinecone.json)|
 |16549|[16549_Discover_and_score_engineering_candidates_with_Groq__GitHub__LinkedIn__Stack_Overflow__HN_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16549_Discover_and_score_engineering_candidates_with_Groq__GitHub__LinkedIn__Stack_Overflow__HN_and_Supabase.json)|
+|17570|[17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json)|
+|18535|[18535_Build_an_engineering_knowledge_graph_with_ClickUp__GitHub__Claude__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18535_Build_an_engineering_knowledge_graph_with_ClickUp__GitHub__Claude__and_Slack.json)|
+|18863|[18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json)|
+|18887|[18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json)|
+|18975|[18975_Monitor_engineering_health_with_ClickUp__GitHub__security_and_APM_APIs__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18975_Monitor_engineering_health_with_ClickUp__GitHub__security_and_APM_APIs__and_WhatsApp.json)|
+|19352|[19352_Route_app_store_bug_reviews_to_engineering_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19352_Route_app_store_bug_reviews_to_engineering_with_Claude_and_Slack.json)|
+|19731|[19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json)|

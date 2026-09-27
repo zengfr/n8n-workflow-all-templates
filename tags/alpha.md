@@ -1,4 +1,4 @@
-# alpha : 10
+# alpha : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |13701|[13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13701_Generate_institutional-grade_stock_price_targets_and_BUY_HOLD_SELL_signals_with_GPT-5__Gemini__Alpha_Vantage_and_Google_Sheets.json)|
 |15569|[15569_Profile_investors_and_send_AI_investment_reports_with_Google_Sheets__Alpha_Vantage__Groq__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15569_Profile_investors_and_send_AI_investment_reports_with_Google_Sheets__Alpha_Vantage__Groq__Gmail_and_Slack.json)|
 |15669|[15669_Generate_daily_stock_market_insights_with_Alpha_Vantage__Google_Gemini_AI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15669_Generate_daily_stock_market_insights_with_Alpha_Vantage__Google_Gemini_AI_and_Slack.json)|
+|19784|[19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json)|

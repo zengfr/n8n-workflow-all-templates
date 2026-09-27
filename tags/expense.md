@@ -1,4 +1,4 @@
-# expense : 43
+# expense : 52
 
 |id|file|
 |----|----|
@@ -45,3 +45,12 @@
 |14901|[14901_Track_and_analyze_Google_Sheets_expenses_with_Gemini_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14901_Track_and_analyze_Google_Sheets_expenses_with_Gemini_and_Gmail_alerts.json)|
 |16431|[16431_Track_email_expenses_from_Gmail_with_OpenAI__Google_Sheets__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16431_Track_email_expenses_from_Gmail_with_OpenAI__Google_Sheets__and_Slack_alerts.json)|
 |16520|[16520_Track_expenses_from_phone_notifications_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16520_Track_expenses_from_phone_notifications_with_Google_Gemini_and_Google_Sheets.json)|
+|17134|[17134_Extract_and_log_Gmail_receipt_expenses_with_OpenAI__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17134_Extract_and_log_Gmail_receipt_expenses_with_OpenAI__Sheets_and_Airtable.json)|
+|17421|[17421_Send_daily_AI_credits_report_with_FAL_AI__OpenRouter__Apify__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17421_Send_daily_AI_credits_report_with_FAL_AI__OpenRouter__Apify__and_Telegram.json)|
+|17753|[17753_Create_interactive_bank_expense_reports_from_statements_with_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17753_Create_interactive_bank_expense_reports_from_statements_with_OpenAI_GPT-4o.json)|
+|18286|[18286_Track_receipt_expenses_from_Telegram_using_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18286_Track_receipt_expenses_from_Telegram_using_Google_Gemini_and_Google_Sheets.json)|
+|18919|[18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json)|
+|19130|[19130_Track_and_classify_expenses_with_Mindee_OCR__GPT-4o__PostgreSQL_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19130_Track_and_classify_expenses_with_Mindee_OCR__GPT-4o__PostgreSQL_and_Google_Drive.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|
+|19406|[19406_Route_expense_reimbursement_approvals_with_forms_and_Duo_Security.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19406_Route_expense_reimbursement_approvals_with_forms_and_Duo_Security.json)|
+|19619|[19619_Log_receipt_expenses_in_Notion_with_Gmail__Telegram__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19619_Log_receipt_expenses_in_Notion_with_Gmail__Telegram__and_OpenAI.json)|

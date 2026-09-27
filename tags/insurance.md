@@ -1,4 +1,4 @@
-# insurance : 7
+# insurance : 11
 
 |id|file|
 |----|----|
@@ -9,3 +9,7 @@
 |12987|[12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12987_Orchestrate_hospital_event_responses_with_Anthropic_Claude_and_scheduling__task__and_insurance_APIs.json)|
 |15232|[15232_Automate_vehicle_insurance_claim_approvals_with_OpenAI__OCR_and_PDF_API_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15232_Automate_vehicle_insurance_claim_approvals_with_OpenAI__OCR_and_PDF_API_Hub.json)|
 |16007|[16007_Qualify_WhatsApp_insurance_leads_with_OpenAI__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16007_Qualify_WhatsApp_insurance_leads_with_OpenAI__HubSpot__and_Slack.json)|
+|17075|[17075_Route_insurance_quote_leads_with_OpenAI__Airtable__Sheets__Teams__Slack_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17075_Route_insurance_quote_leads_with_OpenAI__Airtable__Sheets__Teams__Slack_and_Twilio.json)|
+|17720|[17720_Send_Florida_insurance_and_legal_news_digest_with_GPT-4o-mini_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17720_Send_Florida_insurance_and_legal_news_digest_with_GPT-4o-mini_and_Outlook.json)|
+|18553|[18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18553_Track_vendor_insurance_COIs_and_renewals_with_Gmail__DeepSeek__Sheets__Discord__and_Telegram.json)|
+|18832|[18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json)|

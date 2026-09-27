@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Issue cohort completion certificates with pdfmill, Gmail and Google Drive",
+    "wechat": "youandme10086",
+    "id": 18709,
+    "update_time": "2026-09-27"
+  },
+  "name": "Issue cohort certificates with pdfmill, Gmail, and Google Drive",
+  "tags": [
+    {
+      "name": "pdfmill"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "59265c42-b3f6-4d19-8b62-2c20a9552c77",
+      "name": "When a cohort completes",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        1000
+      ],
+      "webhookId": "5b84e142-16b3-48b4-866b-210c8cc39f80",
+      "parameters": {
+        "path": "cohort-completed",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d14e59e6-8aad-43d8-884c-c934cb0da7fd",
+      "name": "Validate and build the cohort certificates",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        1000
+      ],
+      "parameters": {
+        "jsCode": "// Validate the WHOLE roster before creating any attendee items.\n// Required cohort identity: program, organization, issuer name/title, and completion date.\n// Required per attendee: name, one standard mailbox address, and positive hours.\n// No certificate is rendered or sent when any certificate fact is malformed.\nconst body = ($json.body && typeof $json.body === 'object') ? $json.body : $json;\nconst clean = (value) => String(value ?? '').trim();\nconst firstNonEmpty = (...values) => values.map(clean).find(Boolean) ?? '';\nconst isValidEmail = (email) => {\n  if (!email || email.length > 254) return false;\n  const at = email.indexOf('@');\n  if (at <= 0 || at !== email.lastIndexOf('@') || at === email.length - 1) return false;\n\n  const local = email.slice(0, at);\n  const domain = email.slice(at + 1);\n  if (local.length > 64 || local.startsWith('.') || local.endsWith('.') || local.includes('..')) return false;\n  if (!/^[A-Za-z0-9.!#$%&'*+/=?^_{|}~-]+$/.test(local)) return false;\n\n  const labels = domain.split('.');\n  if (labels.length < 2) return false;\n  return labels.every((label) =>\n    label.length > 0 &&\n    label.length <= 63 &&\n    /^[A-Za-z0-9](?:[A-Za-z0-9-]*[A-Za-z0-9])?$/.test(label)\n  );\n};\nconst isIsoDate = (value) => {\n  if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(value)) return false;\n  const parsed = new Date(value + 'T00:00:00.000Z');\n  return !Number.isNaN(parsed.getTime()) && parsed.toISOString().slice(0, 10) === value;\n};\nconst attendees = Array.isArray(body.attendees) ? body.attendees : [];\n\nif (attendees.length === 0) {\n  return [{\n    json: {\n      isValid: false,\n      error: 'The request must include a non-empty attendees array.',\n      invalidCohortFields: [],\n      invalidAttendees: [],\n      issued: 0,\n    },\n    pairedItem: { item: 0 },\n  }];\n}\n\nconst programName = firstNonEmpty(body.program, body.programName, body.course);\nconst organization = firstNonEmpty(body.organization, body.org);\nconst issuer = (body.issuer && typeof body.issuer === 'object') ? body.issuer : {};\nconst issuerName = firstNonEmpty(issuer.name, body.issuerName);\nconst issuerTitle = firstNonEmpty(issuer.title, body.issuerTitle);\nconst cohortCompletedAt = firstNonEmpty(body.completedAt, body.completionDate);\nconst invalidCohortFields = [];\nif (!programName) invalidCohortFields.push('program');\nif (!organization) invalidCohortFields.push('organization');\nif (!issuerName) invalidCohortFields.push('issuer.name');\nif (!issuerTitle) invalidCohortFields.push('issuer.title');\nif (!isIsoDate(cohortCompletedAt)) invalidCohortFields.push('completedAt (YYYY-MM-DD)');\n\nconst invalidAttendees = [];\nconst normalizedAttendees = attendees.map((value, index) => {\n  const attendee = (value && typeof value === 'object') ? value : {};\n  const recipientName = firstNonEmpty(attendee.name, attendee.recipientName, attendee.fullName);\n  const email = firstNonEmpty(attendee.email, attendee.emailAddress);\n  const hoursRaw = clean(attendee.hours) ? attendee.hours : attendee.duration;\n  const hours = Number(hoursRaw);\n  const completedAt = firstNonEmpty(attendee.completedAt, attendee.completionDate);\n  const invalidFields = [];\n\n  if (!recipientName) invalidFields.push('name');\n  if (!isValidEmail(email)) invalidFields.push('email');\n  if (clean(hoursRaw) === '' || !Number.isFinite(hours) || hours <= 0) invalidFields.push('hours');\n  if (completedAt && !isIsoDate(completedAt)) invalidFields.push('completedAt (YYYY-MM-DD)');\n  if (invalidFields.length > 0) invalidAttendees.push({ position: index + 1, fields: invalidFields });\n\n  return { attendee, recipientName, email, hours, completedAt };\n});\n\nif (invalidCohortFields.length > 0 || invalidAttendees.length > 0) {\n  const details = [];\n  if (invalidCohortFields.length > 0) details.push('cohort fields: ' + invalidCohortFields.join(', '));\n  for (const invalid of invalidAttendees) {\n    details.push('attendee ' + invalid.position + ': ' + invalid.fields.join(', '));\n  }\n  return [{\n    json: {\n      isValid: false,\n      error: 'The cohort request is invalid. Check ' + details.join('; ') + '.',\n      invalidCohortFields,\n      invalidAttendees,\n      issued: 0,\n    },\n    pairedItem: { item: 0 },\n  }];\n}\n\nconst executionId = clean($execution && $execution.id);\nif (!/^[A-Za-z0-9_-]+$/.test(executionId)) {\n  throw new Error('n8n execution ID is unavailable or malformed; collision-resistant certificate numbers cannot be created.');\n}\nconst executionToken = executionId;\nconst issuedAtDate = new Date();\nconst issuedAt = issuedAtDate.toISOString().slice(0, 10);\nconst year = issuedAtDate.getUTCFullYear();\n\nreturn normalizedAttendees.map(({ attendee, recipientName, email, hours, completedAt }, index) => ({\n  json: {\n    isValid: true,\n    certificateNumber: 'CERT-' + year + '-' + executionToken + '-' + String(index + 1).padStart(3, '0'),\n    organization,\n    recipientName,\n    programName,\n    hours,\n    grade: firstNonEmpty(attendee.grade, attendee.result) || 'Completed',\n    completedAt: completedAt || cohortCompletedAt,\n    issuedAt,\n    issuerName,\n    issuerTitle,\n    email,\n  },\n  pairedItem: { item: 0 },\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4812bad8-e7e0-4be3-88f2-7fccbdf0dea9",
+      "name": "Is the entire roster valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        600,
+        1000
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "0872dbad-0d45-471d-8b3d-b6621ed62a7c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isValid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b4f607fe-e522-4d8d-81af-7940e85b746a",
+      "name": "Generate each certificate PDF",
+      "type": "n8n-nodes-pdfmill.pdfmill",
+      "position": [
+        880,
+        1000
+      ],
+      "parameters": {
+        "data": "={{ $json }}",
+        "format": "pdf",
+        "options": {},
+        "template": "certificate",
+        "operation": "template",
+        "binaryPropertyName": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0857f765-b0a3-48a9-88d6-f558b46a1354",
+      "name": "Email each certificate to its attendee",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1180,
+        860
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Validate and build the cohort certificates').item.json.email }}",
+        "message": "=Hi {{ $('Validate and build the cohort certificates').item.json.recipientName }},\n\nCongratulations on completing {{ $('Validate and build the cohort certificates').item.json.programName }} ({{ $('Validate and build the cohort certificates').item.json.hours }} hours, grade {{ $('Validate and build the cohort certificates').item.json.grade }}).\n\nYour certificate ({{ $('Validate and build the cohort certificates').item.json.certificateNumber }}) from {{ $('Validate and build the cohort certificates').item.json.organization }} is attached as a PDF.\n\nWith congratulations,\n{{ $('Validate and build the cohort certificates').item.json.issuerName }}\n{{ $('Validate and build the cohort certificates').item.json.issuerTitle }}, {{ $('Validate and build the cohort certificates').item.json.organization }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "=Your certificate for {{ $('Validate and build the cohort certificates').item.json.programName }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5e466d67-a6fa-4a4b-8118-35cedd5b185a",
+      "name": "Archive each certificate in Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1180,
+        1120
+      ],
+      "parameters": {
+        "name": "=Certificate - {{ $('Validate and build the cohort certificates').item.json.recipientName }} - {{ $('Validate and build the cohort certificates').item.json.certificateNumber }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "87a69c65-6511-4ad2-8c5c-e22cd92b0f10",
+      "name": "Wait for email and archive",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1480,
+        1000
+      ],
+      "parameters": {
+        "mode": "chooseBranch",
+        "output": "empty",
+        "numberInputs": 2,
+        "chooseBranchMode": "waitForAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "0fd0cda9-7712-4815-8b00-d44b06d83997",
+      "name": "Return the issued count",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1760,
+        1000
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ { \"issued\": $('Validate and build the cohort certificates').all().length, \"program\": $('Validate and build the cohort certificates').first().json.programName, \"organization\": $('Validate and build the cohort certificates').first().json.organization, \"status\": \"issued\" } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c28289fa-ae39-4fed-854f-605a5f569e98",
+      "name": "Return one 400 roster error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        880,
+        1620
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": $json.error, \"issued\": 0 } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9029b05a-f29a-4de6-88ce-dfbb28307733",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        20
+      ],
+      "parameters": {
+        "width": 1160,
+        "height": 680,
+        "content": "## 🎓 Cohort completion → certificate PDFs\n\n**Who it's for:** course, bootcamp, training, and webinar teams that issue personalized completion certificates to a whole cohort.\n\n**What it does:** receives one cohort payload, validates **all certificate identity fields and every attendee mailbox before any work starts**, fans the valid roster out into one item per attendee, and generates a branded certificate PDF with pdfmill.\n\nEach PDF goes **directly and in parallel** to Gmail and Google Drive. The Merge node waits for both delivery branches to finish before the webhook returns the issued count. Gmail output is never used as the source of the Drive upload.\n\n**Control flow**\n1. Receive and validate the complete roster and certificate facts.\n2. Reject an empty roster or any invalid field with one 400 response.\n3. Fan out the valid roster and render one PDF per attendee.\n4. Email and archive the same pdfmill binary.\n5. Wait for both branches, then return the issued count.\n\n**Setup:** connect pdfmill, Gmail, and Google Drive credentials; choose an archive folder; then POST the documented payload to the Production webhook URL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71c0dea0-a09e-4f80-8367-a33f60f93deb",
+      "name": "Section: Validate the whole roster",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        760
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 640,
+        "content": "## 1. Validate the whole roster\nThe Code node checks the complete batch before fan-out. Cohort identity fields and a non-empty `attendees` array are required; every attendee needs a name, one valid `email`/`emailAddress`, and positive hours. One bad field rejects the whole cohort, so a malformed request can never be partially sent."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5f9ae2a7-a964-4bea-8d31-1f61cba5c0c1",
+      "name": "Section: Render each certificate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        760
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 640,
+        "content": "## 2. Render each certificate\nA valid roster becomes one item per attendee. pdfmill renders the Certificate template once for each item and writes the PDF binary to `data`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a9a6a76-f911-4e18-8ca0-cf4e940d449e",
+      "name": "Section: Deliver, join, and respond",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        700
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 920,
+        "height": 720,
+        "content": "## 3. Deliver, join, and respond\nThe pdfmill output fans out directly to Gmail and Drive. Both nodes consume the same `data` binary. The Merge node waits for **both** successful branches before a single webhook response reports how many certificates were issued."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "38c1a4a4-fd4e-4a22-8b20-d7e571c4fe73",
+      "name": "Section: Reject the batch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        780,
+        1440
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 400,
+        "content": "## Invalid roster → one 400\nAn empty roster, malformed mailbox, missing certificate identity, non-positive hours, or invalid completion date rejects the complete cohort with one clear 400 response. Nothing is rendered, emailed, or archived."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ace338f8-84e7-4b61-8bc4-df08c7e479ed",
+      "name": "Setup: expected cohort payload",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        1460
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 800,
+        "height": 920,
+        "content": "## Expected payload\n\nPOST a cohort to the Production webhook URL:\n\n```json\n{\n  \"program\": \"Automation 101\",\n  \"organization\": \"Acme Academy\",\n  \"issuer\": { \"name\": \"Ada Lovelace\", \"title\": \"Head of Training\" },\n  \"completedAt\": \"2026-08-01\",\n  \"attendees\": [\n    { \"name\": \"Alan Turing\", \"email\": \"alan@example.com\", \"hours\": 12 },\n    { \"name\": \"Grace Hopper\", \"email\": \"grace@example.com\", \"hours\": 12, \"grade\": \"Distinction\" }\n  ]\n}\n```\n\n### Required cohort fields\n- `program` (or `programName` / `course`)\n- `organization` (or `org`)\n- `issuer.name` and `issuer.title` (top-level aliases are accepted)\n- `completedAt` as `YYYY-MM-DD` (or `completionDate`)\n\n### Required attendee fields\n- `attendees` must be a non-empty array.\n- Every attendee needs `name`, one standard mailbox in `email` (or `emailAddress`), and positive numeric `hours` (or `duration`).\n\n`recipientName`/`fullName`, `result`, and `completionDate` are accepted aliases. Attendee `grade` is optional and defaults to `Completed`; an attendee completion date may override the cohort date. Certificate numbers include the n8n execution ID, preventing adjacent workflow executions from sharing numbers.\n\nConnect a pdfmill API credential, Gmail, and Google Drive. Select the Drive folder where certificates should be archived."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "When a cohort completes": {
+      "main": [
+        [
+          {
+            "node": "Validate and build the cohort certificates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for email and archive": {
+      "main": [
+        [
+          {
+            "node": "Return the issued count",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is the entire roster valid?": {
+      "main": [
+        [
+          {
+            "node": "Generate each certificate PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return one 400 roster error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate each certificate PDF": {
+      "main": [
+        [
+          {
+            "node": "Email each certificate to its attendee",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Archive each certificate in Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email each certificate to its attendee": {
+      "main": [
+        [
+          {
+            "node": "Wait for email and archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive each certificate in Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Wait for email and archive",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Validate and build the cohort certificates": {
+      "main": [
+        [
+          {
+            "node": "Is the entire roster valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

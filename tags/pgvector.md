@@ -1,4 +1,4 @@
-# pgvector : 12
+# pgvector : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |16182|[16182_Answer_business_FAQs_with_Claude__Supabase_pgvector_and_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16182_Answer_business_FAQs_with_Claude__Supabase_pgvector_and_OpenAI_embeddings.json)|
 |16370|[16370_Reindex_markdown_RAG_chunks_with_Supabase_pgvector_and_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16370_Reindex_markdown_RAG_chunks_with_Supabase_pgvector_and_webhooks.json)|
 |16706|[16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json)|
+|17661|[17661_Route_omnichannel_customer_support_with_Ollama_and_Postgres_pgvector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17661_Route_omnichannel_customer_support_with_Ollama_and_Postgres_pgvector.json)|
+|19639|[19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json)|

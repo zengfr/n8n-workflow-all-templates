@@ -1,4 +1,4 @@
-# cases : 9
+# cases : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |15658|[15658_Reply_to_LinkedIn_messages_with_OpenAI_GPT_and_escalate_complex_cases_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15658_Reply_to_LinkedIn_messages_with_OpenAI_GPT_and_escalate_complex_cases_to_Discord.json)|
 |15879|[15879_Classify_and_log_AI_use_cases_with_Anthropic_and_Supabase_for_AU-aligned_governance.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15879_Classify_and_log_AI_use_cases_with_Anthropic_and_Supabase_for_AU-aligned_governance.json)|
 |16749|[16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json)|
+|18340|[18340_Deduplicate_security_alerts_into_unified_cases_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18340_Deduplicate_security_alerts_into_unified_cases_with_Claude_and_Slack.json)|
+|18561|[18561_Route_SMS_conflict_case_commands_via_webhook_using_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18561_Route_SMS_conflict_case_commands_via_webhook_using_Google_Sheets_and_Telegram.json)|
+|18697|[18697_Triage_and_escalate_Twenty_CRM_support_cases_with_owner_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18697_Triage_and_escalate_Twenty_CRM_support_cases_with_owner_tasks.json)|
+|19355|[19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json)|

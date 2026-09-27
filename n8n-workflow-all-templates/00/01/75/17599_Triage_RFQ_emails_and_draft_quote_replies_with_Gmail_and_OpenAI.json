@@ -1,0 +1,533 @@
+{
+  "name": "RFQ Intake: AI Extraction, Completeness Check & Quote Draft (template)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "d7767db4-ace9-44c0-8a11-e9cf828211b0",
+      "name": "New RFQ Email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        16,
+        32
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "q": "subject:(RFQ OR \"request for quote\" OR quote)",
+          "readStatus": "unread"
+        },
+        "options": {
+          "downloadAttachments": true,
+          "dataPropertyAttachmentsPrefixName": "attachment_"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "bce57e34-c2de-4a1b-9b0b-b53c51c29d6d",
+      "name": "Normalize Email",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        32
+      ],
+      "parameters": {
+        "options": {
+          "stripBinary": false
+        },
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "email_text",
+              "type": "string",
+              "value": "={{ $json.text ?? $json.textAsHtml ?? $json.snippet ?? \"\" }}"
+            },
+            {
+              "id": "a2",
+              "name": "from_email",
+              "type": "string",
+              "value": "={{ $json.from?.value?.[0]?.address ?? $json.from?.text ?? \"\" }}"
+            },
+            {
+              "id": "a3",
+              "name": "subject_line",
+              "type": "string",
+              "value": "={{ $json.subject ?? \"\" }}"
+            },
+            {
+              "id": "a4",
+              "name": "thread_id",
+              "type": "string",
+              "value": "={{ $json.threadId ?? $json.id }}"
+            },
+            {
+              "id": "a5",
+              "name": "received_at",
+              "type": "string",
+              "value": "={{ $json.date ?? $now.toISO() }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8d47dbfc-5b72-40ca-b289-ba13b2282a16",
+      "name": "Has PDF Attachment?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        448,
+        32
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ !!$binary?.attachment_0 }}",
+              "rightValue": true
+            },
+            {
+              "id": "c2",
+              "operator": {
+                "type": "string",
+                "operation": "contains"
+              },
+              "leftValue": "={{ $binary?.attachment_0?.mimeType ?? \"\" }}",
+              "rightValue": "pdf"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e422b607-560e-4f27-b21b-8e9843464c30",
+      "name": "Extract PDF Text",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        672,
+        32
+      ],
+      "parameters": {
+        "options": {
+          "joinPages": true
+        },
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6546d509-68a1-4454-9302-5bde892a7830",
+      "name": "Combine Email + PDF Text",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        864,
+        32
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "b1",
+              "name": "rfq_text",
+              "type": "string",
+              "value": "={{ $('Normalize Email').item.json.email_text }}\n\n--- ATTACHED PDF ---\n{{ $json.text }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7369ac4c-6180-4f81-800f-296b85a1577c",
+      "name": "Extract RFQ Fields",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "position": [
+        1104,
+        32
+      ],
+      "parameters": {
+        "text": "={{ $json.rfq_text }}",
+        "options": {
+          "systemPromptTemplate": "You extract manufacturing RFQ data. Extract every value that is explicitly present in the text, exactly as written - part numbers, quantities, names, dates, addresses, packaging, prices. Use null ONLY for fields the text does not state. Never estimate, infer, or invent a value - a fabricated date, address, price, or packaging spec is a critical failure. Partial information is normal: extract what is there, null the rest."
+        },
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"company\": { \"type\": [\"string\", \"null\"], \"description\": \"Requesting company name, only if explicitly written in the text. Null otherwise.\" },\n    \"contact_name\": { \"type\": [\"string\", \"null\"], \"description\": \"Sender name, only if explicitly written. Null otherwise.\" },\n    \"line_items\": {\n      \"type\": \"array\",\n      \"description\": \"One entry per requested part. Only parts explicitly mentioned in the text.\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"part_number\": { \"type\": [\"string\", \"null\"], \"description\": \"Exact part number as written. Null if none given.\" },\n          \"description\": { \"type\": [\"string\", \"null\"], \"description\": \"Part description as written. Null if none given.\" },\n          \"quantity\": { \"type\": [\"number\", \"null\"], \"description\": \"Quantity explicitly stated for this part. Null if not stated.\" },\n          \"unit\": { \"type\": [\"string\", \"null\"], \"description\": \"Unit as written (pcs, kg, sets). Null if not stated.\" },\n          \"target_price\": { \"type\": [\"string\", \"null\"], \"description\": \"Target price ONLY if the text states one for this part. Null if not stated.\" }\n        }\n      }\n    },\n    \"need_by_date\": { \"type\": [\"string\", \"null\"], \"description\": \"Required delivery date, only if a date appears in the text. Null otherwise.\" },\n    \"ship_to_address\": { \"type\": [\"string\", \"null\"], \"description\": \"Delivery address, only if one appears in the text. Null otherwise.\" },\n    \"packaging_spec\": { \"type\": [\"string\", \"null\"], \"description\": \"Packaging requirements, only if stated in the text. Null otherwise.\" },\n    \"incoterms\": { \"type\": [\"string\", \"null\"], \"description\": \"Incoterms, only if stated. Null otherwise.\" },\n    \"special_requirements\": { \"type\": [\"string\", \"null\"], \"description\": \"Certs, finishes, inspection requirements explicitly stated. Null otherwise.\" }\n  }\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9a26c6d8-b9b4-45bf-861b-6733c9d8b74a",
+      "name": "OpenAI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1104,
+        272
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.4-mini",
+          "cachedResultName": "gpt-5.4-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c3db9863-db61-4c33-a1fc-ff5402bd3c74",
+      "name": "Use Email Text Only",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        768,
+        256
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "d1",
+              "name": "rfq_text",
+              "type": "string",
+              "value": "={{ $json.email_text }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c3bad62c-f941-4561-918a-359e2e880511",
+      "name": "Completeness Gate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1472,
+        32
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// EDIT: fields required before an RFQ is quotable\nconst REQUIRED = [\n  { key: \"line_items\", label: \"part numbers and quantities\" },\n  { key: \"need_by_date\", label: \"need-by date\" },\n  { key: \"ship_to_address\", label: \"ship-to address\" },\n  { key: \"packaging_spec\", label: \"packaging requirements\" },\n];\n\nconst extracted = $json.output ?? $json;\nconst meta = $(\"Normalize Email\").item.json;\nconst isEmpty = (v) => v === null || v === undefined || (typeof v === \"string\" && v.trim() === \"\") || (Array.isArray(v) && v.length === 0);\n\nconst missing = [];\nfor (const req of REQUIRED) {\n  if (isEmpty(extracted[req.key])) missing.push(req.label);\n}\nconst items = Array.isArray(extracted.line_items) ? extracted.line_items : [];\nif (items.length > 0 && items.some((li) => !li.quantity)) missing.push(\"quantity for every line item\");\n\nconst itemLines = items.map((li) =>\n  \"- \" + (li.part_number || li.description || \"item\") + \" | qty: \" + (li.quantity || \"?\") + (li.unit ? \" \" + li.unit : \"\") + (li.target_price ? \" | target: \" + li.target_price : \"\") + \" | unit price: ____ | lead time: ____\"\n).join(\"\\n\");\n\nreturn { json: {\n  ...extracted,\n  line_items_json: JSON.stringify(items),\n  line_items_text: itemLines,\n  missing,\n  missing_text: missing.map((m) => \"- \" + m).join(\"\\n\"),\n  complete: missing.length === 0,\n  from_email: meta.from_email,\n  subject_line: meta.subject_line,\n  thread_id: meta.thread_id,\n  received_at: meta.received_at,\n} };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "45153586-78ad-4bea-a3fc-d769ce197944",
+      "name": "All Info Present?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1680,
+        32
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e1",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.complete }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0548361d-b5f6-4af0-8493-97b8bd0145dd",
+      "name": "Draft Quote Skeleton",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1968,
+        32
+      ],
+      "parameters": {
+        "message": "=Hi,\n\nThanks for the RFQ - we have everything needed to quote. Working it up now.\n\nLine items:\n{{ $json.line_items_text }}\n\nNeed-by: {{ $json.need_by_date }}\nShip-to: {{ $json.ship_to_address }}\nPackaging: {{ $json.packaging_spec }}\n\n[INTERNAL: fill unit prices and lead times, delete this line, then send.]\n\nRegards,",
+        "options": {
+          "sendTo": "={{ $json.from_email }}",
+          "threadId": "={{ $json.thread_id }}"
+        },
+        "subject": "=Re: {{ $json.subject_line }}",
+        "resource": "draft"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "837ebb25-4a46-450a-8914-8906e2f7e672",
+      "name": "Draft Missing-Info Request",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1968,
+        224
+      ],
+      "parameters": {
+        "message": "=Hi,\n\nThanks for the RFQ. To quote accurately we still need:\n\n{{ $json.missing_text }}\n\nReply with the above and we will turn the quote around quickly.\n\nRegards,",
+        "options": {
+          "sendTo": "={{ $json.from_email }}",
+          "threadId": "={{ $json.thread_id }}"
+        },
+        "subject": "=Re: {{ $json.subject_line }}",
+        "resource": "draft"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6af4fedb-b74b-4fdd-9900-4a28c9078ece",
+      "name": "Main Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -176
+      ],
+      "parameters": {
+        "width": 440,
+        "height": 960,
+        "content": "# RFQ Intake → Quote Prep\n\nReads incoming RFQ emails, extracts the fields a quote needs, and checks completeness. Complete RFQs get a quote reply draft; incomplete ones get a draft asking only for what is missing.\n\n## How it works\n1. Gmail polls for unread emails matching your RFQ search query.\n2. PDF attachments are extracted and appended to the email body.\n3. AI extracts line items, quantities, need-by date, ship-to, packaging and incoterms. Fields not stated stay null.\n4. A Code node compares the result against an editable REQUIRED list.\n5. Complete: the quote reply is drafted with all line items; you just add prices and lead times.\n6. Incomplete: a reply draft asks only for the missing fields.\n\nReplies are Gmail drafts only. Nothing sends without human review.\n\n## Setup\n1. Connect Gmail and OpenAI credentials.\n2. Adjust the trigger search query to match your RFQ emails.\n3. Edit the REQUIRED list in \"Completeness Gate\" to match your quoting needs.\n\n## Customize\n- Add or remove fields in the extraction schema and the gate.\n- Reword the two reply drafts.\n- Log each RFQ to a Data Table, sheet or CRM after the drafts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "047a3036-54af-4909-b6f5-8288b5f620a9",
+      "name": "Section Ingest",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 320,
+        "content": "### 1. Ingest\nPolls Gmail for unread RFQs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "86f58d65-ac9a-4c1f-8052-a079471e9212",
+      "name": "Section Build Text",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 608,
+        "height": 544,
+        "content": "### 2. Build the RFQ text\nPDF text is appended to the email body."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c1c76aa5-c48f-4ecb-abf9-d7fc39a520c4",
+      "name": "Section Extract Gate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 784,
+        "height": 544,
+        "content": "### 3. Extract and gate\nAI pulls the quote fields, stated values only. The Code node lists anything missing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0f4cbad5-c422-4e21-8ac9-1b865000de85",
+      "name": "Section Draft",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1856,
+        -128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 352,
+        "height": 544,
+        "content": "### 4. Draft the reply\nQuote or missing-info request, created as a Gmail draft on the thread."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "nodeGroups": [],
+  "connections": {
+    "OpenAI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract RFQ Fields",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New RFQ Email": {
+      "main": [
+        [
+          {
+            "node": "Normalize Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Email": {
+      "main": [
+        [
+          {
+            "node": "Has PDF Attachment?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Combine Email + PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "All Info Present?": {
+      "main": [
+        [
+          {
+            "node": "Draft Quote Skeleton",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Draft Missing-Info Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Completeness Gate": {
+      "main": [
+        [
+          {
+            "node": "All Info Present?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract RFQ Fields": {
+      "main": [
+        [
+          {
+            "node": "Completeness Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has PDF Attachment?": {
+      "main": [
+        [
+          {
+            "node": "Extract PDF Text",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Use Email Text Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use Email Text Only": {
+      "main": [
+        [
+          {
+            "node": "Extract RFQ Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Email + PDF Text": {
+      "main": [
+        [
+          {
+            "node": "Extract RFQ Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Triage RFQ emails and draft quote replies with Gmail and OpenAI",
+    "wechat": "youandme10086",
+    "id": 17599,
+    "update_time": "2026-09-27"
+  }
+}

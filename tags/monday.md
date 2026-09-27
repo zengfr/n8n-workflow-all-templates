@@ -1,4 +1,4 @@
-# monday : 26
+# monday : 30
 
 |id|file|
 |----|----|
@@ -28,3 +28,7 @@
 |12267|[12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12267_Onboard_new_employees_with_Monday.com__Asana__Zoom__and_Gmail.json)|
 |12269|[12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12269_Monitor_daily_HR_risks_and_standup_summaries_with_Monday.com_and_GPT-4o-mini.json)|
 |14226|[14226_Auto-fill_Monday.com_lead_boards_with_FullEnrich_People_Search_results.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14226_Auto-fill_Monday.com_lead_boards_with_FullEnrich_People_Search_results.json)|
+|16967|[16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json)|
+|18570|[18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json)|
+|18571|[18571_Migrate_SmartSuite_record_attachments_into_Monday.com_file_columns.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18571_Migrate_SmartSuite_record_attachments_into_Monday.com_file_columns.json)|
+|19310|[19310_Generate_monthly_PDF_lead_reports_from_Monday.com_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19310_Generate_monthly_PDF_lead_reports_from_Monday.com_with_Gemini_and_Gmail.json)|

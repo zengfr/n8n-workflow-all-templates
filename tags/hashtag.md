@@ -1,4 +1,4 @@
-# hashtag : 6
+# hashtag : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |14302|[14302_Monitor_Instagram_hashtag_trends_and_email_reports_with_Apify_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14302_Monitor_Instagram_hashtag_trends_and_email_reports_with_Apify_and_Gmail.json)|
 |15074|[15074_Monitor_TikTok_hashtag_trends_with_Apify_and_send_ranked_reports_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15074_Monitor_TikTok_hashtag_trends_with_Apify_and_send_ranked_reports_via_Gmail.json)|
 |16287|[16287_Score_Instagram_hashtag_engagement_with_Apify__Telegram__and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16287_Score_Instagram_hashtag_engagement_with_Apify__Telegram__and_Airtable.json)|
+|18756|[18756_Collect_TikTok_video_transcripts_by_hashtag_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18756_Collect_TikTok_video_transcripts_by_hashtag_with_Apify.json)|
+|19298|[19298_Monitor_Instagram_hashtag_mentions_with_RecentReborn_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19298_Monitor_Instagram_hashtag_mentions_with_RecentReborn_and_Telegram_alerts.json)|

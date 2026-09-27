@@ -1,4 +1,4 @@
-# table : 30
+# table : 43
 
 |id|file|
 |----|----|
@@ -32,3 +32,16 @@
 |16031|[16031_Send_personalized_B2B_cold_outreach_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16031_Send_personalized_B2B_cold_outreach_emails_with_Google_Gemini_and_Gmail.json)|
 |16052|[16052_Run_a_multi-session_chat_agent_with_OpenAI_and_data_table_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16052_Run_a_multi-session_chat_agent_with_OpenAI_and_data_table_memory.json)|
 |16800|[16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json)|
+|17133|[17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json)|
+|17167|[17167_Serve_a_notes_web_app_via_webhooks_and_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17167_Serve_a_notes_web_app_via_webhooks_and_n8n_Data_Tables.json)|
+|17297|[17297_Log_Gmail_invoice_emails_to_data_tables_with_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17297_Log_Gmail_invoice_emails_to_data_tables_with_Claude_Haiku.json)|
+|17424|[17424_ETL_Pipeline_for_Oracle.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17424_ETL_Pipeline_for_Oracle.json)|
+|17441|[17441_Stream_daily_tech_trends_from_an_n8n_Data_Table_to_SwiftBar_via_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17441_Stream_daily_tech_trends_from_an_n8n_Data_Table_to_SwiftBar_via_webhook.json)|
+|17547|[17547_Issue_sequential_invoice_and_ticket_numbers_via_webhook_and_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17547_Issue_sequential_invoice_and_ticket_numbers_via_webhook_and_Data_Table.json)|
+|17743|[17743_Build_a_LinkedIn_hiring-signal_data_table_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17743_Build_a_LinkedIn_hiring-signal_data_table_with_Apify_and_Slack.json)|
+|17886|[17886_Stream_daily_tech_trends_from_a_Data_Table_to_the_macOS_menu_bar_with_SwiftBar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17886_Stream_daily_tech_trends_from_a_Data_Table_to_the_macOS_menu_bar_with_SwiftBar.json)|
+|17922|[17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json)|
+|17927|[17927_Manage_VIP_table_reservations_with_Google_Sheets_and_OpenRouter_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17927_Manage_VIP_table_reservations_with_Google_Sheets_and_OpenRouter_Gemini.json)|
+|18550|[18550_Collect_and_store_webhook_leads_in_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18550_Collect_and_store_webhook_leads_in_n8n_Data_Tables.json)|
+|19277|[19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json)|
+|19635|[19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json)|

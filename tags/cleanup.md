@@ -1,4 +1,4 @@
-# cleanup : 26
+# cleanup : 29
 
 |id|file|
 |----|----|
@@ -28,3 +28,6 @@
 |15233|[15233_Audit_Android_feature_flags_from_GitHub_with_Firebase_and_send_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15233_Audit_Android_feature_flags_from_GitHub_with_Firebase_and_send_Slack_reports.json)|
 |16041|[16041_Govern_stale_Entra_ID_guest_accounts_with_SharePoint_and_Microsoft_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16041_Govern_stale_Entra_ID_guest_accounts_with_SharePoint_and_Microsoft_Teams.json)|
 |16220|[16220_Report_and_clean_up_stale_GitHub_branches_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16220_Report_and_clean_up_stale_GitHub_branches_with_Slack_notifications.json)|
+|17533|[17533_Clean_up_archived_workflows_with_the_n8n_API_on_a_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17533_Clean_up_archived_workflows_with_the_n8n_API_on_a_schedule.json)|
+|18186|[18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json)|
+|19783|[19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json)|

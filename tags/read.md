@@ -1,4 +1,4 @@
-# read : 21
+# read : 25
 
 |id|file|
 |----|----|
@@ -23,3 +23,7 @@
 |14288|[14288_Read_palm_lines_and_send_AI_reports_via_LINE__Gemini__Gmail_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14288_Read_palm_lines_and_send_AI_reports_via_LINE__Gemini__Gmail_and_Calendar.json)|
 |16081|[16081_Manage_job_records_via_webhook_REST_API_with_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16081_Manage_job_records_via_webhook_REST_API_with_PostgreSQL.json)|
 |16153|[16153_Manage_SMC_Screener_analyses_with_n8n_forms_and_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16153_Manage_SMC_Screener_analyses_with_n8n_forms_and_HTTP_API.json)|
+|16934|[16934_Triage_network_read_and_commit_requests_via_Slack_with_Anthropic_and_pyATS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16934_Triage_network_read_and_commit_requests_via_Slack_with_Anthropic_and_pyATS.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18121|[18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json)|
+|18623|[18623_Extract_Amazon_invoice_data_with_Airtop__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18623_Extract_Amazon_invoice_data_with_Airtop__OpenAI__and_Google_Sheets.json)|

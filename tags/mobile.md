@@ -1,4 +1,4 @@
-# mobile : 6
+# mobile : 13
 
 |id|file|
 |----|----|
@@ -8,3 +8,10 @@
 |12368|[12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12368_Analyze_mobile_app_build-time_hotspots_with_Gradle__CocoaPods__Airtable__GitHub__Gmail_and_GPT-4.1-mini.json)|
 |13213|[13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13213_Track_MPESA_and_Airtel_mobile_payments_in_a_fundraising_WhatsApp_group.json)|
 |14383|[14383_Find_mobile_numbers_with_ScraperCity_from_LinkedIn_and_notify_sales_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14383_Find_mobile_numbers_with_ScraperCity_from_LinkedIn_and_notify_sales_in_Slack.json)|
+|17796|[17796_Send_daily_Core_Web_Vitals_email_reports_with_PageSpeed_Insights_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17796_Send_daily_Core_Web_Vitals_email_reports_with_PageSpeed_Insights_and_Gmail.json)|
+|18457|[18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json)|
+|19259|[19259_Manage_mobile_canary_rollouts_with_Anthropic_Claude_and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19259_Manage_mobile_canary_rollouts_with_Anthropic_Claude_and_WhatsApp_alerts.json)|
+|19355|[19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json)|
+|19356|[19356_Investigate_Alertmanager_incidents_with_GPT-4.1__ClickUp__Slack__and_PagerDuty.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19356_Investigate_Alertmanager_incidents_with_GPT-4.1__ClickUp__Slack__and_PagerDuty.json)|
+|19463|[19463_Route_Alertmanager_incidents_with_OpenAI_GPT-4.1__Slack__PagerDuty__and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19463_Route_Alertmanager_incidents_with_OpenAI_GPT-4.1__Slack__PagerDuty__and_ClickUp.json)|
+|19464|[19464_Correlate_mobile_crash_reports_with_GitHub_commits_using_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19464_Correlate_mobile_crash_reports_with_GitHub_commits_using_Claude_and_Slack.json)|

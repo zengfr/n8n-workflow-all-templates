@@ -1,4 +1,4 @@
-# onboard : 6
+# onboard : 13
 
 |id|file|
 |----|----|
@@ -8,3 +8,10 @@
 |14142|[14142_Onboard_employees_automatically_with_Google_Workspace__Slack__Notion_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14142_Onboard_employees_automatically_with_Google_Workspace__Slack__Notion_and_Gmail.json)|
 |14221|[14221_Onboard_employees_from_Google_Forms_with_Slack__Jira__and_GitHub_access.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14221_Onboard_employees_from_Google_Forms_with_Slack__Jira__and_GitHub_access.json)|
 |16108|[16108_Onboard_new_clients_from_forms_with_OpenAI__Google_Sheets__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16108_Onboard_new_clients_from_forms_with_OpenAI__Google_Sheets__Gmail__and_Slack.json)|
+|16925|[16925_Onboard_employees_and_manage_Slack_access_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16925_Onboard_employees_and_manage_Slack_access_with_Google_Sheets_and_Gmail.json)|
+|17473|[17473_Onboard_new_consulting_clients_with_Gmail__Google_Calendar__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17473_Onboard_new_consulting_clients_with_Gmail__Google_Calendar__Sheets_and_Slack.json)|
+|17576|[17576_Onboard_new_clients_via_forms_with_Google_Sheets__Drive__Notion_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17576_Onboard_new_clients_via_forms_with_Google_Sheets__Drive__Notion_and_Gmail.json)|
+|18457|[18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json)|
+|18592|[18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json)|
+|19472|[19472_Onboard_new_hires_with_Google_Workspace__Google_Calendar__Google_Sheets__and_Clio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19472_Onboard_new_hires_with_Google_Workspace__Google_Calendar__Google_Sheets__and_Clio.json)|
+|19770|[19770_Onboard_frontline_workers_via_Telegram_using_DeepSeek_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19770_Onboard_frontline_workers_via_Telegram_using_DeepSeek_and_Notion.json)|

@@ -1,0 +1,626 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Monitor Google rankings and search intent with SerpAPI, OpenAI, Notion, and Slack",
+    "wechat": "youandme10086",
+    "id": 16970,
+    "update_time": "2026-09-27"
+  },
+  "name": "Monitor Google rankings and search intent with SerpAPI and Notion",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "lite-manual",
+      "name": "Manual Trigger",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -40,
+        200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "lite-sched",
+      "name": "Daily 6AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -40,
+        360
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "lite-config",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        200,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// ┌─────────────────────────────────────────────┐\n// │  Edit the values below, then click Test workflow │\n// └─────────────────────────────────────────────┘\nconst config = {\n  brandName:  'Acme Analytics',          // your brand, as it appears in titles/URLs\n  wpUrl:      'https://acme.com',         // your site (used to detect YOUR ranking)\n  competitors: ['competitor1.com', 'competitor2.com']  // who you're racing\n};\nreturn [{ json: config }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0f88cb7e-eb71-4106-8d26-14097dffca13",
+      "name": "Load Tracked Keywords",
+      "type": "n8n-nodes-base.notion",
+      "notes": "Loads all tracked keywords from Notion.",
+      "maxTries": 3,
+      "position": [
+        620,
+        300
+      ],
+      "parameters": {
+        "filter": {
+          "filters": [
+            {
+              "key": "TrackSERP",
+              "type": "checkbox",
+              "checkbox": true
+            }
+          ]
+        },
+        "resource": "database",
+        "operation": "getAll",
+        "databaseId": "YOUR_TRACKED_KEYWORDS_DB"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "NOTION_CRED_ID",
+          "name": "Notion API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "6be76fba-7fa1-4450-b00e-7d998d5112b3",
+      "name": "Loop Keywords",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        830,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 5
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aee31651-b32c-4381-b6a1-e27d5ec43248",
+      "name": "SerpAPI SERP Fetch",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Fetches full SERP for the keyword.",
+      "maxTries": 3,
+      "position": [
+        1040,
+        300
+      ],
+      "parameters": {
+        "url": "=https://serpapi.com/search?engine=google&q={{encodeURIComponent($json.keyword)}}&num=20",
+        "method": "GET",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": false,
+        "sendQuery": false,
+        "sendHeaders": false,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpQueryAuth",
+        "queryParameters": {}
+      },
+      "credentials": {
+        "httpQueryAuth": {
+          "id": "REPLACE_CRED_ID",
+          "name": "SerpAPI Key"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "2b0984cc-b00e-4f66-9503-a63bfbc4b57f",
+      "name": "Parse SERP",
+      "type": "n8n-nodes-base.code",
+      "notes": "Parses SERP features, our rank, PAA questions, featured snippet.",
+      "position": [
+        1250,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Parse SERP: rank, features, PAA, competitors\nconst json = $input.first().json;\nconst organic = (json.organic_results || []).map((r, i) => ({\n  position: r.position || i + 1,\n  title: r.title,\n  url: r.link,\n  domain: r.link ? r.link.split('/')[2] : '',\n  snippet: r.snippet,\n  isUs: (r.link || '').includes($json.brandName?.toLowerCase().replace(/[^a-z]/g, '') || 'XXX') || False\n}));\n\nconst ourPosition = organic.find(r => r.isUs)?.position || 0;\n\n// Detect SERP features\nconst features = [];\nif (json.answer_box) features.push('answer_box');\nif (json.knowledge_graph) features.push('knowledge_graph');\nif (json.featured_snippet) features.push('featured_snippet');\nif (json.people_also_ask) features.push('paa');\nif (json.video_results) features.push('video');\nif (json.image_results) features.push('images');\nif (json.news_results) features.push('news');\nif (json.shopping_results) features.push('shopping');\nif (json.local_pack) features.push('local_pack');\n\n// Extract PAA questions\nconst paaQuestions = (json.people_also_ask || []).slice(0, 8).map(p => p.question).filter(Boolean);\n\n// Featured snippet owner\nconst snippetOwner = json.featured_snippet?.links?.[0]?.url || json.answer_box?.links?.[0]?.url || null;\n\nreturn [{\n  json: {\n    ...json,\n    keyword: json.search_parameters?.q || $json.keyword,\n    ourPosition,\n    totalResults: json.search_information?.total_results,\n    features,\n    paaQuestions,\n    snippetOwner,\n    organicResults: organic.slice(0, 10),\n    checkedAt: new Date().toISOString()\n  }\n}];\n"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "e5542b38-a6a0-48db-9a70-6d0fe9e4dc6d",
+      "name": "Classify Intent",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "notes": "Classifies search intent using GPT-4o-mini (cost-effective).",
+      "maxTries": 3,
+      "position": [
+        1460,
+        300
+      ],
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.2,
+          "responseFormat": "json_object"
+        },
+        "messages": {
+          "messageValues": [
+            {
+              "role": "system",
+              "content": "Classify search intent based on SERP features. Output JSON."
+            },
+            {
+              "role": "user",
+              "content": "=Keyword: {{$json.keyword}}\nSERP features: {{$json.features.join(', ')}}\nTop result titles: {{$json.organicResults.map(r => r.title).join(' | ')}}\n\nReturn JSON: {\"intent\": \"informational|commercial|transactional|navigational\", \"buyerJourneyStage\": \"awareness|consideration|decision|retention\", \"contentFormat\": \"guide|listicle|comparison|review|tutorial|definition|faq\", \"volatilityRisk\": \"low|medium|high\"}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OPENAI_CRED_ID",
+          "name": "OpenAI API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "8c57ee81-2b20-4340-9736-597f401378bb",
+      "name": "Get Yesterday's Snapshot",
+      "type": "n8n-nodes-base.notion",
+      "notes": "Fetches yesterday's SERP snapshot for comparison.",
+      "maxTries": 3,
+      "position": [
+        1670,
+        300
+      ],
+      "parameters": {
+        "filter": {
+          "filters": [
+            {
+              "key": "Keyword",
+              "text": {
+                "equals": "={{ $json.keyword }}"
+              },
+              "type": "rich_text"
+            },
+            {
+              "key": "Date",
+              "date": {
+                "equals": "={{ $today.minus(1, 'days').toISODate() }}"
+              },
+              "type": "date"
+            }
+          ]
+        },
+        "resource": "database",
+        "operation": "getAll",
+        "databaseId": "YOUR_SERP_SNAPSHOTS_DB"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "NOTION_CRED_ID",
+          "name": "Notion API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "2f012524-d87e-4f42-bb3b-d278171263de",
+      "name": "Compute Movement",
+      "type": "n8n-nodes-base.code",
+      "notes": "Computes rank movement and new SERP features.",
+      "position": [
+        1880,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Compare today vs yesterday\nconst today = $input.first().json;\nconst yesterdayItems = $input.all().slice(1);\nconst yesterday = yesterdayItems[0]?.json;\n\nlet movement = 0;\nlet alertNeeded = False;\n\nif (yesterday?.properties?.Position?.number) {\n  movement = (yesterday.properties.Position.number) - (today.ourPosition || 0);\n  // Positive movement = improved rank (lower number = better)\n  if (Math.abs(movement) >= 3) {\n    alertNeeded = True;\n  }\n}\n\nreturn [{\n  json: {\n    ...today,\n    yesterdayPosition: yesterday?.properties?.Position?.number || null,\n    movement,\n    alertNeeded,\n    newFeatures: yesterday?.properties?.Features?.rich_text?.[0]?.plain_text ?\n      today.features.filter(f => !yesterday.properties.Features.rich_text[0].plain_text.includes(f)) : today.features\n  }\n}];\n"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "8b20d4c0-4c81-428a-905e-f585f27e1f69",
+      "name": "Store Today's Snapshot",
+      "type": "n8n-nodes-base.notion",
+      "notes": "Stores today's SERP snapshot.",
+      "maxTries": 3,
+      "position": [
+        2090,
+        300
+      ],
+      "parameters": {
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": "YOUR_SERP_SNAPSHOTS_DB",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Date|date",
+              "date": "={{ $today.toISODate() }}"
+            },
+            {
+              "key": "Keyword|title",
+              "title": "={{ $json.keyword }}"
+            },
+            {
+              "key": "Position|number",
+              "number": "={{ $json.ourPosition }}"
+            },
+            {
+              "key": "Movement|number",
+              "number": "={{ $json.movement }}"
+            },
+            {
+              "key": "Features|rich_text",
+              "richText": "={{ $json.features.join(', ') }}"
+            },
+            {
+              "key": "PAA Count|number",
+              "number": "={{ $json.paaQuestions.length }}"
+            },
+            {
+              "key": "Client|select",
+              "select_name": "={{ $('Configuration').first().json.brandName }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "NOTION_CRED_ID",
+          "name": "Notion API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "dd8af542-4a61-41c4-a9ea-454e163254a5",
+      "name": "Big Movement?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2300,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "eq"
+              },
+              "leftValue": "={{ $json.alertNeeded }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1e6dac56-8335-4e03-bf1b-dd37b993e40c",
+      "name": "Alert Rank Change",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Alerts on rank movement >3 positions.",
+      "maxTries": 3,
+      "position": [
+        2510,
+        300
+      ],
+      "parameters": {
+        "text": "={{$json.movement > 0 ? ':arrow_up:' : ':arrow_down:'}} *Rank movement detected!*\n*Keyword*: `{{$json.keyword}}`\n*Yesterday*: {{$json.yesterdayPosition || 'N/A'}}\n*Today*: {{$json.ourPosition || 'Not ranking'}}\n*Change*: {{$json.movement > 0 ? '+' + $json.movement : $json.movement}} positions\n*New features*: {{$json.newFeatures.join(', ') || 'none'}}\n*Action needed*: {{$json.movement < 0 ? 'Investigate ranking drop - check content, backlinks, technical SEO' : 'Capitalize on improvement - build links, expand content'}}",
+        "select": "channel",
+        "channelId": "YOUR_SLACK_CHANNEL_ID",
+        "operation": "post",
+        "otherOptions": {}
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "SLACK_CRED_ID",
+          "name": "Slack API"
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "d089099a-a9a3-4ea0-91e5-30ccbedb35cd",
+      "name": "Loop Continue",
+      "type": "n8n-nodes-base.code",
+      "notes": "Passes through for loop iteration.",
+      "position": [
+        2720,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return $input.all();"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "main",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -140,
+        -847
+      ],
+      "parameters": {
+        "width": 760,
+        "height": 967,
+        "content": "## Monitor Google Rankings and Search Intent\n\nTracks where your site ranks on Google for the keywords you care about, classifies the search intent behind each one with AI, compares today against yesterday, and posts a Slack alert the moment a keyword makes a big move. A daily rank snapshot is saved to Notion so you keep a full history without checking anything by hand.\n\n**Who's it for:** SEO owners and agencies who want daily rank tracking with intent, without checking tools by hand.\n\n## How it works\n1. Reads your tracked keywords from a Notion database.\n2. Fetches the live Google SERP for each keyword via SerpAPI.\n3. Classifies search intent with OpenAI and reads your position and SERP features.\n4. Compares today's position to yesterday's snapshot.\n5. Saves the snapshot to Notion and alerts Slack only on significant moves.\n\n## Setup\n1. Add credentials: SerpAPI (Query Auth, key name api_key), OpenAI, Notion, Slack.\n2. Open the Configuration node and set your brand, site URL and competitors.\n3. Create a Notion 'Tracked Keywords' database (a Keyword title column) and select it in Load Tracked Keywords.\n4. Create a Notion 'SERP Snapshots' database with columns: Date (date), Keyword (title), Position (number), Movement (number), Features (text), PAA Count (number), Client (select). Select it in both snapshot nodes.\n5. Set your Slack channel, run once with Test workflow, then activate."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bg0",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        575,
+        205
+      ],
+      "parameters": {
+        "color": "color7",
+        "width": 870,
+        "height": 300,
+        "content": "## 1. Pull live SERP"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bg1",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1415,
+        205
+      ],
+      "parameters": {
+        "color": "color7",
+        "width": 660,
+        "height": 300,
+        "content": "## 2. Analyze intent & movement"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bg2",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2045,
+        205
+      ],
+      "parameters": {
+        "color": "color7",
+        "width": 870,
+        "height": 300,
+        "content": "## 3. Store & alert"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Daily 6AM": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse SERP": {
+      "main": [
+        [
+          {
+            "node": "Classify Intent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Big Movement?": {
+      "main": [
+        [
+          {
+            "node": "Alert Rank Change",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Continue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Load Tracked Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Continue": {
+      "main": [
+        [
+          {
+            "node": "Loop Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Keywords": {
+      "main": [
+        [
+          {
+            "node": "SerpAPI SERP Fetch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Intent": {
+      "main": [
+        [
+          {
+            "node": "Get Yesterday's Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Movement": {
+      "main": [
+        [
+          {
+            "node": "Store Today's Snapshot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Rank Change": {
+      "main": [
+        [
+          {
+            "node": "Loop Continue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SerpAPI SERP Fetch": {
+      "main": [
+        [
+          {
+            "node": "Parse SERP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Tracked Keywords": {
+      "main": [
+        [
+          {
+            "node": "Loop Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Today's Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Big Movement?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Yesterday's Snapshot": {
+      "main": [
+        [
+          {
+            "node": "Compute Movement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

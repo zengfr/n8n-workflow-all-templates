@@ -1,0 +1,568 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Log daily unanswered Discord help questions from Discord to Google Sheets",
+    "wechat": "youandme10086",
+    "id": 17613,
+    "update_time": "2026-09-27"
+  },
+  "name": "Post a daily digest of unanswered Discord help questions to Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "04a8bea7-b93c-43eb-9046-c44f31abd7c5",
+      "name": "Run Daily At 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        48,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "2097e874-66a7-4a11-acce-0cb3de1ef986",
+      "name": "Set Digest Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        288,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "guild-id",
+              "name": "guildId",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Discord server (guild) ID, e.g. 1029384756102938475__>"
+            },
+            {
+              "id": "help-channel-id",
+              "name": "helpChannelId",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Help channel ID to scan, e.g. 1122334455667788990__>"
+            },
+            {
+              "id": "help-channel-label",
+              "name": "helpChannelLabel",
+              "type": "string",
+              "value": "help"
+            },
+            {
+              "id": "mod-channel-id",
+              "name": "moderatorChannelId",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Moderator channel ID that receives the digest, e.g. 9988776655443322110__>"
+            },
+            {
+              "id": "log-sheet-url",
+              "name": "logSheetUrl",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Google Sheet URL for the log, e.g. https://docs.google.com/spreadsheets/d/1AbCdEf/edit__>"
+            },
+            {
+              "id": "log-sheet-tab",
+              "name": "logSheetTab",
+              "type": "string",
+              "value": "Unanswered"
+            },
+            {
+              "id": "lookback-hours",
+              "name": "lookbackHours",
+              "type": "number",
+              "value": 24
+            },
+            {
+              "id": "fetch-limit",
+              "name": "messageFetchLimit",
+              "type": "number",
+              "value": 100
+            },
+            {
+              "id": "question-words",
+              "name": "questionWords",
+              "type": "string",
+              "value": "how,what,why,when,where,who,which,can,does,is,are,should"
+            },
+            {
+              "id": "min-question-length",
+              "name": "minQuestionLength",
+              "type": "number",
+              "value": 12
+            },
+            {
+              "id": "max-in-message",
+              "name": "maxQuestionsInMessage",
+              "type": "number",
+              "value": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c57aa825-9a59-4012-af55-e3eb4c43a1b5",
+      "name": "Get Recent Messages",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "limit": "={{ $(\"Set Digest Settings\").first().json.messageFetchLimit }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Digest Settings\").first().json.guildId }}"
+        },
+        "options": {
+          "simplify": false
+        },
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Digest Settings\").first().json.helpChannelId }}"
+        },
+        "operation": "getAll"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "REPLACE_WITH_YOUR_DISCORD_CREDENTIAL",
+          "name": "Discord Bot account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d8af1074-2231-4bde-924e-32d54662f2cc",
+      "name": "Find Unanswered Questions",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const settings = $('Set Digest Settings').first().json;\nconst lookbackHours = Number(settings.lookbackHours) || 24;\nconst minLength = Number(settings.minQuestionLength) || 12;\nconst fetchLimit = Number(settings.messageFetchLimit) || 100;\nconst questionWords = String(settings.questionWords || '')\n  .split(',')\n  .map(function (w) { return w.trim().toLowerCase(); })\n  .filter(function (w) { return w.length > 0; });\n\nconst cutoffMs = Date.now() - lookbackHours * 60 * 60 * 1000;\nconst messages = $input.all().map(function (i) { return i.json; });\n\nconst repliedToIds = new Set();\nfor (const m of messages) {\n  const ref = m.message_reference || {};\n  if (ref.message_id) { repliedToIds.add(String(ref.message_id)); }\n}\n\nfunction isHumanMessage(m) {\n  const isBot = Boolean(m.author && m.author.bot === true);\n  const isSystem = m.type !== 0 && m.type !== 19;\n  return !isBot && !isSystem;\n}\n\nfunction looksLikeQuestion(text) {\n  const t = text.trim();\n  if (t.length < minLength) { return false; }\n  if (t.endsWith('?')) { return true; }\n  const lower = t.toLowerCase();\n  return questionWords.some(function (w) {\n    return lower.indexOf(w + ' ') === 0 || lower.indexOf(w + \"'\") === 0;\n  });\n}\n\nfunction hasThread(m) {\n  const flags = Number(m.flags || 0);\n  return Boolean(m.thread) || (flags & 32) === 32;\n}\n\nfunction answeredByMention(m) {\n  const authorId = m.author && m.author.id ? String(m.author.id) : '';\n  if (!authorId) { return false; }\n  const askedAt = new Date(m.timestamp).getTime();\n  return messages.some(function (other) {\n    if (String(other.id) === String(m.id)) { return false; }\n    if (new Date(other.timestamp).getTime() <= askedAt) { return false; }\n    const mentions = Array.isArray(other.mentions) ? other.mentions : [];\n    return mentions.some(function (u) { return String(u.id) === authorId; });\n  });\n}\n\nconst unanswered = [];\nlet messagesInWindow = 0;\nlet withContent = 0;\n\nfor (const m of messages) {\n  if (String(m.content || '').length > 0) { withContent = withContent + 1; }\n  const askedAt = new Date(m.timestamp).getTime();\n  if (!(askedAt >= cutoffMs)) { continue; }\n  messagesInWindow = messagesInWindow + 1;\n  if (!isHumanMessage(m)) { continue; }\n  const content = String(m.content || '');\n  if (!looksLikeQuestion(content)) { continue; }\n  if (repliedToIds.has(String(m.id))) { continue; }\n  if (hasThread(m)) { continue; }\n  if (answeredByMention(m)) { continue; }\n  unanswered.push({\n    messageId: String(m.id),\n    authorName: (m.author && (m.author.global_name || m.author.username)) || 'unknown',\n    authorId: (m.author && String(m.author.id)) || '',\n    askedAt: m.timestamp,\n    ageHours: Math.round(((Date.now() - askedAt) / 3600000) * 10) / 10,\n    question: content.replace(/\\s+/g, ' ').slice(0, 300)\n  });\n}\n\nunanswered.sort(function (a, b) {\n  return new Date(a.askedAt).getTime() - new Date(b.askedAt).getTime();\n});\n\n// Coverage evidence. Discord returns newest first and offers no before/after cursor,\n// so the only honest thing to do is state how far back this run actually reached.\nconst oldestScannedAt = messages.length ? messages[messages.length - 1].timestamp : null;\nconst oldestMs = oldestScannedAt ? new Date(oldestScannedAt).getTime() : null;\nconst truncated = messages.length >= fetchLimit && oldestMs !== null && oldestMs > cutoffMs;\n\n// A bot without the MESSAGE CONTENT intent still gets a 200, just with every content\n// field blank. Without this check that looks identical to a quiet day.\nconst contentBlind = messages.length > 0 && withContent === 0;\n\nlet coverageNote;\nif (messages.length === 0) {\n  coverageNote = 'No messages returned at all. Check the channel ID and the bot View Channel permission.';\n} else if (contentBlind) {\n  coverageNote = 'WARNING: ' + messages.length + ' messages read but every content field was empty. The MESSAGE CONTENT privileged intent is almost certainly OFF, so no question can ever be detected.';\n} else if (truncated) {\n  coverageNote = 'PARTIAL COVERAGE: read the newest ' + messages.length + ' messages, back to ' + oldestScannedAt + ', which is still inside the ' + lookbackHours + 'h window. Older questions in the window were never read. Raise messageFetchLimit or run more often.';\n} else {\n  coverageNote = 'Full coverage: read ' + messages.length + ' messages back to ' + oldestScannedAt + ', past the ' + lookbackHours + 'h cutoff.';\n}\n\nreturn [{\n  json: {\n    unansweredCount: unanswered.length,\n    messagesScanned: messages.length,\n    messagesInWindow: messagesInWindow,\n    messagesWithContent: withContent,\n    fetchLimit: fetchLimit,\n    oldestScannedAt: oldestScannedAt,\n    truncated: truncated,\n    contentBlind: contentBlind,\n    coverageNote: coverageNote,\n    lookbackHours: lookbackHours,\n    scannedAt: new Date().toISOString(),\n    questions: unanswered\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "469b8c9b-22b6-4924-a18c-e2bd01039306",
+      "name": "Check For Unanswered Questions",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1136,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-unanswered",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.unansweredCount }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "6de5f9c9-e3a3-4a46-aefb-9410fb7b52d1",
+      "name": "Format Digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        -16
+      ],
+      "parameters": {
+        "jsCode": "const settings = $('Set Digest Settings').first().json;\nconst data = $input.first().json;\nconst guildId = String(settings.guildId || '');\nconst helpChannelId = String(settings.helpChannelId || '');\nconst helpChannelLabel = String(settings.helpChannelLabel || 'help');\nconst maxInMessage = Number(settings.maxQuestionsInMessage) || 15;\nconst digestDate = new Date().toISOString().slice(0, 10);\n\nconst questions = (data.questions || []).map(function (q) {\n  return Object.assign({}, q, {\n    digestDate: digestDate,\n    jumpUrl: 'https://discord.com/channels/' + guildId + '/' + helpChannelId + '/' + q.messageId\n  });\n});\n\nconst shown = questions.slice(0, maxInMessage);\nconst lines = [];\nlines.push('**Unanswered questions in #' + helpChannelLabel + '** (last ' + data.lookbackHours + 'h)');\n\n// Report against what was actually read, never against a total this workflow cannot know.\nlines.push(String(data.unansweredCount) + ' unanswered, out of ' + String(data.messagesInWindow) +\n           ' messages read inside the window.');\nif (data.truncated) {\n  lines.push('WARNING: only the newest ' + String(data.fetchLimit) + ' messages were read, back to ' +\n             String(data.oldestScannedAt) + '. Older questions in this window were NOT checked. ' +\n             'Raise messageFetchLimit in Set Digest Settings.');\n}\nlines.push('');\n\nshown.forEach(function (q, idx) {\n  lines.push(String(idx + 1) + '. **' + q.authorName + '** (' + String(q.ageHours) + 'h ago): ' + q.question.slice(0, 160));\n  lines.push(q.jumpUrl);\n});\n\nif (questions.length > shown.length) {\n  lines.push('');\n  lines.push('...and ' + String(questions.length - shown.length) + ' more. The full list is in the log sheet.');\n}\n\nlet digestMessage = lines.join('\\n');\nif (digestMessage.length > 1900) {\n  digestMessage = digestMessage.slice(0, 1890) + '\\n...truncated';\n}\n\nreturn [{\n  json: {\n    digestMessage: digestMessage,\n    digestDate: digestDate,\n    unansweredCount: questions.length,\n    coverageNote: data.coverageNote,\n    truncated: data.truncated,\n    questions: questions\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9eabcd4b-3f33-4bec-8794-9c340fb30240",
+      "name": "Post All Clear Notice",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1552,
+        240
+      ],
+      "parameters": {
+        "content": "=**Scan receipt for #{{ $('Set Digest Settings').first().json.helpChannelLabel }}** (last {{ $('Set Digest Settings').first().json.lookbackHours }}h)\nNo unanswered questions found.\n{{ $json.coverageNote }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Digest Settings\").first().json.guildId }}"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Digest Settings\").first().json.moderatorChannelId }}"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "REPLACE_WITH_YOUR_DISCORD_CREDENTIAL",
+          "name": "Discord Bot account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1c2a94dd-2943-4430-8d8b-52e036ac1cc6",
+      "name": "Post Digest To Moderators",
+      "type": "n8n-nodes-base.discord",
+      "position": [
+        1888,
+        -144
+      ],
+      "parameters": {
+        "content": "={{ $json.digestMessage }}",
+        "guildId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Digest Settings\").first().json.guildId }}"
+        },
+        "options": {},
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $(\"Set Digest Settings\").first().json.moderatorChannelId }}"
+        }
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "REPLACE_WITH_YOUR_DISCORD_CREDENTIAL",
+          "name": "Discord Bot account"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "edf7decc-b1a4-4a20-8c8a-cc51378fcca4",
+      "name": "Split Questions Into Rows",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1888,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "questions"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90591073-a230-45c8-af69-3510993ef453",
+      "name": "Log Unanswered To Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        2160,
+        112
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Author": "={{ $json.authorName }}",
+            "Asked At": "={{ $json.askedAt }}",
+            "Question": "={{ $json.question }}",
+            "Age Hours": "={{ $json.ageHours }}",
+            "Jump Link": "={{ $json.jumpUrl }}",
+            "Message ID": "={{ $json.messageId }}",
+            "Digest Date": "={{ $json.digestDate }}"
+          },
+          "schema": [
+            {
+              "id": "Digest Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Digest Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Asked At",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Asked At",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Age Hours",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Age Hours",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Author",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Author",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Question",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Question",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Jump Link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Jump Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Message ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $(\"Set Digest Settings\").first().json.logSheetTab }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $(\"Set Digest Settings\").first().json.logSheetUrl }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "f01748f9-d9ff-49c9-ad02-f9877d3159e2",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1056,
+        -416
+      ],
+      "parameters": {
+        "width": 908,
+        "height": 964,
+        "content": "## Post a daily digest of unanswered Discord help questions to Google Sheets\n\nYour help channel is a support queue nobody measures. Every morning this reads one Discord channel, finds the questions that got no reply, no later mention of the asker and no thread, then posts them with jump links to your moderator channel and logs every one to a Google Sheet.\n\n### How it works\n1. A schedule fires at 09:00 and `Set Digest Settings` supplies every ID, sheet reference and tuning constant from one node.\n2. `Get Recent Messages` reads the help channel with Simplify OFF, so the raw `message_reference` field survives and reply detection stays a fact rather than a guess.\n3. `Find Unanswered Questions` keeps messages inside the lookback window that look like questions, then drops any that were replied to, that mention the asker in a later message, or that already have a thread.\n4. The same node measures its own coverage: how far back the read actually reached, and whether message content came through at all.\n5. `Format Digest` builds one message with a jump link per question, carrying a warning when the read was truncated.\n6. The sheet log is written first, then the digest posts to the moderator channel. A clean day still posts a scan receipt.\n\n### Setup steps\n- [ ] Create a Discord application, add a bot, and invite it to your server with View Channel and Read Message History on the help channel.\n- [ ] Turn ON the MESSAGE CONTENT privileged intent in the Discord developer portal, Bot tab. The question test reads message text, so without it every digest finds nothing.\n- [ ] Give the bot Send Messages on your moderator channel.\n- [ ] Connect the Discord Bot credential on all three Discord nodes and your Google Sheets credential on the log node.\n- [ ] Fill in `Set Digest Settings`: guild ID, help channel ID, moderator channel ID and log sheet URL.\n- [ ] Create the log sheet tab with the headers Digest Date, Asked At, Age Hours, Author, Question, Jump Link, Message ID.\n- [ ] Run the workflow once by hand, read the digest and the coverage line, then activate.\n\n### Customization\n`questionWords` and `minQuestionLength` decide what counts as a question and are meant to be edited for your channel's voice. `lookbackHours` sets the window and `messageFetchLimit` sets how far back a single run can see, so keep the limit comfortably above your channel's daily traffic. `maxQuestionsInMessage` trims the Discord post without trimming the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2e3f2cde-5530-4efd-adb7-c49e2b7bf839",
+      "name": "Section Configure Once",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 544,
+        "height": 456,
+        "content": "## Schedule and one place to configure\nEvery server ID, channel ID, sheet reference and tuning constant lives in Set Digest Settings. Nothing downstream is hardcoded, so configuring this template means editing one node.\nTunable constants: lookbackHours, messageFetchLimit, questionWords, minQuestionLength, maxQuestionsInMessage."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "639b6d25-45f1-40e2-9c42-4c90c0ab4569",
+      "name": "Section Read And Score",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        -256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 824,
+        "height": 456,
+        "content": "## Read the channel and score it\nSimplify is OFF on Get Recent Messages so the raw payload keeps message_reference. A message counts as ANSWERED if any of these is true: another message replies to it, a later message mentions its author, or it has a thread. Everything else that passes the question test is unanswered.\nThe question test is a heuristic and it is meant to be edited: text ends with a question mark, or opens with a word from questionWords."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e60b5738-7e7b-4f54-ab94-bff559842b25",
+      "name": "Section Publish And Log",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        -416
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 972,
+        "height": 870,
+        "content": "## Publish the digest and log it\n\nThe sheet log runs first, then the Discord post, so a Discord failure cannot cost you the log. The post is deliberately left on stop-on-error: if the digest cannot reach moderators, the run should go red rather than green.\n\nA clean day still posts a scan receipt carrying the coverage line, so silence always means broken and never means healthy."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1e5aafaa-766e-478d-bf22-f4b8e4933129",
+      "name": "Warning Before First Run",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        320
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1036,
+        "height": 468,
+        "content": "## Read this before the first run\n\n**MESSAGE CONTENT intent is mandatory.** In the Discord developer portal open your application, go to Bot, and switch ON Message Content Intent. For bots in fewer than 100 servers this is a toggle, not an approval queue, but it is where most installs die. Leave it off and every content field arrives empty and the question test matches nothing. The scan receipt names that case explicitly rather than letting it look like a quiet day.\n\n**Simplify must stay OFF** on Get Recent Messages. With Simplify on, Discord strips message_reference and reply detection stops being a fact and becomes a guess.\n\n**The question test is a heuristic, not an oracle.** A digest that names the wrong messages generates support noise fast. Tune questionWords and minQuestionLength in Set Digest Settings and read one digest by hand before you activate the schedule.\n\n**One page, no pagination.** The Discord message list has no before or after cursor, so this reads only the most recent messageFetchLimit messages. Every run reports how far back it actually reached, so a truncated scan says so instead of hiding it. If your help channel takes more traffic than that in a day, raise the limit or run the schedule more often."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Format Digest": {
+      "main": [
+        [
+          {
+            "node": "Split Questions Into Rows",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Digest To Moderators",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Daily At 09:00": {
+      "main": [
+        [
+          {
+            "node": "Set Digest Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Recent Messages": {
+      "main": [
+        [
+          {
+            "node": "Find Unanswered Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Digest Settings": {
+      "main": [
+        [
+          {
+            "node": "Get Recent Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Unanswered Questions": {
+      "main": [
+        [
+          {
+            "node": "Check For Unanswered Questions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Questions Into Rows": {
+      "main": [
+        [
+          {
+            "node": "Log Unanswered To Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check For Unanswered Questions": {
+      "main": [
+        [
+          {
+            "node": "Format Digest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post All Clear Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

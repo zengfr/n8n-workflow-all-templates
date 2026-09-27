@@ -1,0 +1,748 @@
+{
+  "id": "hE7mRYxdjQieIMIx",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Classify purchase requisitions with Google Gemini, Gmail, Slack and Sheets",
+    "wechat": "youandme10086",
+    "id": 18492,
+    "update_time": "2026-09-27"
+  },
+  "name": "Intelligent Purchase Requisition Categorization",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "90f71414-09de-4205-89e2-aa9f0a23e408",
+      "name": "Trigger: New PR Submitted",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        160,
+        1216
+      ],
+      "webhookId": "4a3951e1-361a-44b5-a5bc-a74db4d2854e",
+      "parameters": {
+        "path": "/pr-submission",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c7d6d687-65f1-421c-9214-e90674be01f0",
+      "name": "Validate & Normalize PR Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        368,
+        1216
+      ],
+      "parameters": {
+        "jsCode": "const pr = $input.first().json.body;\n\n// Required fields\nconst requiredFields = [\n  \"pr_id\",\n  \"requester\",\n  \"description\",\n  \"amount\"\n];\n\n// Check for missing required fields\nconst missingFields = requiredFields.filter(\n  field => !pr[field]\n);\n\n// Stop workflow if required data missing\nif (missingFields.length > 0) {\n  throw new Error(\n    `Missing required field(s): ${missingFields.join(\", \")}`\n  );\n}\n\n// Normalize data\nconst normalizedPR = {\n  pr_id: pr.pr_id,\n  requester: pr.requester,\n  department: pr.department || \"Unknown Department\",\n  description: pr.description.trim(),\n  amount: Number(pr.amount) || 0,\n  currency: pr.currency || \"USD\",\n  items: Array.isArray(pr.items) ? pr.items : [],\n  suggested_category: pr.suggested_category || \"Uncategorized\",\n\n  // Metadata\n  received_at: new Date().toISOString(),\n\n  // Derived values\n  item_count: Array.isArray(pr.items)\n    ? pr.items.length\n    : 0\n};\n\nreturn [\n  {\n    json: normalizedPR\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "42e8c118-8e60-44a5-b573-2b1f61939608",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        736,
+        976
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YjMToIWaaQ2guKzB",
+          "name": "Gemini (PAID) (AI-ML Team)"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "c9534404-40f8-4494-bada-7fae75f2c588",
+      "name": "AI: Categorize Purchase Requisition",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        736,
+        752
+      ],
+      "parameters": {
+        "text": "=You are an enterprise procurement classification assistant.\n\nAnalyze the following purchase requisition and determine the best procurement category.\n\nPurchase Requisition Details:\n- PR ID: {{$json.pr_id}}\n- Requester: {{$json.requester}}\n- Department: {{$json.department}}\n- Description: {{$json.description}}\n- Amount: {{$json.amount}} {{$json.currency}}\n- Suggested Category: {{$json.suggested_category}}\n\nItems:\n{{ JSON.stringify($json.items, null, 2) }}\n\nAllowed Categories:\n- IT Equipment\n- Office Supplies\n- Software\n- Facilities\n- Marketing\n- HR & Training\n- Professional Services\n- Logistics\n- Uncategorized\n\nTasks:\n1. Determine the most appropriate category.\n2. Detect whether the suggested category may be incorrect.\n3. Provide a confidence score between 0 and 100.\n4. Suggest corrected category if needed.\n5. Explain reasoning briefly.\n\nReturn ONLY valid JSON in this exact structure:\n\n{\n  \"final_category\": \"\",\n  \"confidence_score\": 0,\n  \"misclassification_risk\": \"\",\n  \"suggested_correction\": \"\",\n  \"reasoning\": \"\"\n}",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "26810a53-34be-4298-ad6f-44cd8ef90f34",
+      "name": "Parse AI Classification Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1088,
+        752
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.text;\n\nlet parsed;\n\ntry {\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = {\n    final_category: \"Uncategorized\",\n    confidence_score: 0,\n    misclassification_risk: \"Unknown\",\n    suggested_correction: \"Manual Review Required\",\n    reasoning: \"Unable to parse AI response\"\n  };\n}\n\nreturn {\n  json: {\n    ...parsed\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8a7c41f1-e49e-43d7-bf4b-40363eb143cf",
+      "name": "Calculate Classification Confidence",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1296,
+        752
+      ],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nconst confidence = Number(data.confidence_score) || 0;\n\nlet confidence_level;\nlet auto_approve;\nlet review_reason = \"\";\n\nif (confidence >= 85) {\n  confidence_level = \"High\";\n  auto_approve = true;\n} else if (confidence >= 60) {\n  confidence_level = \"Medium\";\n  auto_approve = false;\n  review_reason = \"Moderate AI confidence\";\n} else {\n  confidence_level = \"Low\";\n  auto_approve = false;\n  review_reason = \"Low AI confidence\";\n}\n\n// Additional procurement risk rule\nif (data.misclassification_risk === \"High\") {\n  auto_approve = false;\n  review_reason = \"Potential category mismatch detected\";\n}\n\nreturn {\n  json: {\n    ...data,\n    confidence_level,\n    auto_approve,\n    review_reason\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "12fed525-c9d5-43c3-b87c-ef3c5296aa1d",
+      "name": "Create Manual Review Ticket",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2224,
+        960
+      ],
+      "webhookId": "63121d76-f0a4-448b-88e8-9106148030c4",
+      "parameters": {
+        "message": "=A purchase requisition requires manual procurement review.\n\nPR Category:\n{{$json.final_category}}\n\nConfidence Level:\n{{$json.confidence_level}}\n\nMisclassification Risk:\n{{$json.misclassification_risk}}\n\nSuggested Correction:\n{{$json.suggested_correction}}\n\nReview Reason:\n{{$json.review_reason}}\n\nAI Reasoning:\n{{$json.reasoning}}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Manual Procurement Review Required - {{$json.final_category}}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2931c67a-60ad-44e8-a558-1109aab2c170",
+      "name": "Set Final Procurement Category",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1872,
+        736
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "04f80064-cc45-49e2-a39f-f46c04d81a96",
+              "name": "approval_status",
+              "type": "string",
+              "value": "Auto Approved"
+            },
+            {
+              "id": "1fc3f0fe-4088-48ac-b62b-795b9ed323cf",
+              "name": "routing_status",
+              "type": "string",
+              "value": "Ready for ERP Update"
+            },
+            {
+              "id": "c3d08026-8823-4f6c-b3af-a751b23bc513",
+              "name": "processed_timestamp",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "e666f114-5006-403d-84fd-05a99d1a32d3",
+      "name": "Merge Procurement Outcomes",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2224,
+        752
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "8266176f-d3ab-46a8-a39d-1331a0db7222",
+      "name": "Store Procurement Record",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2896,
+        1072
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "pr_id": "={{ $json.pr_id }}",
+            "amount": "={{ $json.amount }}",
+            "currency": "={{ $json.currency }}",
+            "requester": "={{ $json.requester }}",
+            "department": "={{ $json.department }}",
+            "description": "={{ $json.description }}",
+            "ai_reasoning": "={{ $json.reasoning }}",
+            "review_reason": "={{ $json.review_reason }}",
+            "final_category": "={{ $json.final_category }}",
+            "routing_status": "={{ $json.routing_status }}",
+            "approval_status": "={{ $json.approval_status }}",
+            "confidence_level": "={{ $json.confidence_level }}",
+            "confidence_score": "={{ $json.confidence_score }}",
+            "processed_timestamp": "={{ new Date().toISOString() }}",
+            "suggested_correction": "={{ $json.suggested_correction }}",
+            "misclassification_risk": "={{ $json.misclassification_risk }}"
+          },
+          "schema": [
+            {
+              "id": "pr_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "pr_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requester",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "requester",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "department",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "department",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "currency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "final_category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "final_category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence_level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "confidence_level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence_score",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "confidence_score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approval_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "approval_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "misclassification_risk",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "misclassification_risk",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "suggested_correction",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "suggested_correction",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "routing_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "routing_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "review_reason",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "review_reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ai_reasoning",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ai_reasoning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "processed_timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "processed_timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "pr_id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "",
+          "cachedResultName": "PR_Records"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1MyZQugRfkOkNfg-7F2TB966M6QXrjXOKyc60D7ZYCes",
+          "cachedResultUrl": "",
+          "cachedResultName": "Procurement_PR_Database"
+        }
+      },
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "a45a8043-21b0-4e3b-a47d-a3ff0ba77f4e",
+      "name": "Merge PR Data With AI Result",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2656,
+        1200
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "8ab057b2-2abe-4a61-8b98-32a6171fba1a",
+      "name": "Set Manual Review Status",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1872,
+        960
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "61f4baae-7615-4f9d-91a3-b5b503c1337c",
+              "name": "approval_status",
+              "type": "string",
+              "value": "Pending Manual Review"
+            },
+            {
+              "id": "73100d06-9763-48b8-9f90-dcefa6603ca2",
+              "name": "routing_status",
+              "type": "string",
+              "value": "Escalated to Procurement Team"
+            },
+            {
+              "id": "61e2f086-45bb-4acf-8f6a-b6cae4b798e8",
+              "name": "processed_timestamp",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "79ab9140-2f64-453d-ade9-b44b605156cc",
+      "name": "Notify Procurement Approver",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3120,
+        976
+      ],
+      "webhookId": "37bd345d-0462-481d-b9ac-55408a05dfe7",
+      "parameters": {
+        "message": "=Purchase Requisition Processed Successfully\n\nPR ID:\n{{$json.pr_id}}\n\nRequester:\n{{$json.requester}}\n\nDepartment:\n{{$json.department}}\n\nFinal Procurement Category:\n{{$json.final_category}}\n\nConfidence Level:\n{{$json.confidence_level}}\n\nApproval Status:\n{{$json.approval_status}}\n\nMisclassification Risk:\n{{$json.misclassification_risk}}\n\nSuggested Correction:\n{{$json.suggested_correction}}\n\nRouting Status:\n{{$json.routing_status}}\n\nProcessed Timestamp:\n{{$json.processed_timestamp}}\n\nAI Reasoning:\n{{ $json.ai_reasoning }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Procurement Request Processed - {{$json.pr_id}}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d6b195a3-ef90-4206-99f1-43d300fb8948",
+      "name": "Check Auto Approval Eligibility",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1584,
+        752
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "96f936fe-4fd9-44e1-a863-73ad4ebcdc67",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.auto_approve }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "aa8460dd-825b-4ac8-b226-30e8a388043e",
+      "name": "Send Procurement Slack Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3120,
+        1168
+      ],
+      "webhookId": "a256afbc-1b75-4551-8450-8268ad0e47e9",
+      "parameters": {
+        "text": "=Procurement Request Processed!\n\nPR ID: {{$json.pr_id}}\n\nRequester: {{$json.requester}}\n\nDepartment: {{$json.department}}\n\nFinal Category: {{$json.final_category}}\n\nApproval Status: {{$json.approval_status}}\n\nConfidence Level: {{$json.confidence_level}}\n\nMisclassification Risk: {{$json.misclassification_risk}}\n\nRouting Status: {{$json.routing_status}}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0B6DABRWM6",
+          "cachedResultName": "procurement-alerts"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "db688d9c-77c7-4eab-95fa-4771a4aec0a9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        560
+      ],
+      "parameters": {
+        "width": 688,
+        "height": 848,
+        "content": "# Intelligent Purchase Requisition Categorization\n\n## How it works:\nThis workflow automates procurement request classification using AI. When a new purchase requisition (PR) is submitted through the webhook, the workflow validates and normalizes the incoming data before sending the requisition details to Google Gemini for intelligent category classification. The AI returns the final procurement category, confidence score, misclassification risk, suggested correction, and reasoning. Based on the confidence level and detected risk, the workflow automatically decides whether the PR should be auto-approved or escalated for manual procurement review. Approved and review-required requests are assigned routing statuses, stored in Google Sheets for audit tracking, and distributed through Gmail and Slack notifications so procurement teams stay informed about approvals, escalations, and processing outcomes in real time.\n\n## Setup steps:\n1. Connect Google Gemini API credentials  \n2. Configure Gmail OAuth2 credentials for email notifications  \n3. Connect Slack OAuth2 credentials for procurement alerts  \n4. Connect Google Sheets and create the PR tracking spreadsheet  \n5. Configure the webhook endpoint for PR submissions  \n6. Update email recipients and Slack channel IDs as needed  \n7. Customize procurement categories if required  \n8. Test the workflow with sample PR payloads  \n9. Activate the workflow after validation  "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f82f5009-f6dc-431a-a59b-7e2fa70ccdc8",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        976
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 496,
+        "height": 432,
+        "content": "## PR Intake & Validation\nReceives new purchase requisitions through the webhook, validates required fields, normalizes request data, and prepares structured procurement information for AI-based categorization."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dd6666ba-0d84-4b99-bd33-7da12485028a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        560
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 784,
+        "height": 592,
+        "content": "## AI Procurement Classification\nUses Google Gemini to analyze PR details, assign procurement categories, calculate confidence scores, detect classification risks, and generate structured AI reasoning."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2d829bf-e448-414b-b0df-b9650dd4558d",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        560
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 928,
+        "height": 592,
+        "content": "## Approval Decision & Review Routing\nDetermines whether requisitions qualify for auto-approval or require manual procurement review, then assigns routing and approval statuses accordingly."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "32ef6d57-05e8-4660-a76a-a36eb96d0427",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        848
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 784,
+        "height": 560,
+        "content": "## Record Storage & Notifications\nCombines procurement results, stores finalized records in Google Sheets, and sends email and Slack notifications for visibility and audit tracking."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "1483b2a1-54d4-44df-a93f-cfb447fad719",
+  "nodeGroups": [],
+  "connections": {
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI: Categorize Purchase Requisition",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Manual Review Status": {
+      "main": [
+        [
+          {
+            "node": "Create Manual Review Ticket",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Procurement Outcomes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Store Procurement Record": {
+      "main": [
+        [
+          {
+            "node": "Notify Procurement Approver",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Procurement Slack Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger: New PR Submitted": {
+      "main": [
+        [
+          {
+            "node": "Validate & Normalize PR Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Procurement Outcomes": {
+      "main": [
+        [
+          {
+            "node": "Merge PR Data With AI Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge PR Data With AI Result": {
+      "main": [
+        [
+          {
+            "node": "Store Procurement Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Normalize PR Data": {
+      "main": [
+        [
+          {
+            "node": "AI: Categorize Purchase Requisition",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge PR Data With AI Result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Parse AI Classification Result": {
+      "main": [
+        [
+          {
+            "node": "Calculate Classification Confidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Final Procurement Category": {
+      "main": [
+        [
+          {
+            "node": "Merge Procurement Outcomes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Auto Approval Eligibility": {
+      "main": [
+        [
+          {
+            "node": "Set Final Procurement Category",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set Manual Review Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI: Categorize Purchase Requisition": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Classification Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Classification Confidence": {
+      "main": [
+        [
+          {
+            "node": "Check Auto Approval Eligibility",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

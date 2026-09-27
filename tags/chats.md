@@ -1,4 +1,4 @@
-# chats : 12
+# chats : 17
 
 |id|file|
 |----|----|
@@ -14,3 +14,8 @@
 |15491|[15491_Handle_WhatsApp_customer_chats_with_Evolution_API__Claude__Notion__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15491_Handle_WhatsApp_customer_chats_with_Evolution_API__Claude__Notion__and_Sheets.json)|
 |15659|[15659_Auto-reply_to_WhatsApp_with_OpenAI_and_escalate_complex_chats_to_Discord_via_Unipile.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15659_Auto-reply_to_WhatsApp_with_OpenAI_and_escalate_complex_chats_to_Discord_via_Unipile.json)|
 |16039|[16039_Route_Chatwoot_customer_chats_to_AI_and_live_agents_with_Groq_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16039_Route_Chatwoot_customer_chats_to_AI_and_live_agents_with_Groq_and_Gemini.json)|
+|17046|[17046_Handle_WhatsApp_support_chats_with_OpenRouter__Pinecone__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17046_Handle_WhatsApp_support_chats_with_OpenRouter__Pinecone__and_Gemini.json)|
+|17159|[17159_Handle_WhatsApp_customer_service_chats_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17159_Handle_WhatsApp_customer_service_chats_with_Google_Gemini_and_Google_Sheets.json)|
+|17952|[17952_Reply_to_LINE_customer_chats_with_Google_Gemini_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17952_Reply_to_LINE_customer_chats_with_Google_Gemini_and_log_to_Google_Sheets.json)|
+|18701|[18701_Answer_WhatsApp_support_chats_with_OpenRouter__Pinecone__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18701_Answer_WhatsApp_support_chats_with_OpenRouter__Pinecone__Gemini_and_Gmail.json)|
+|18825|[18825_Handle_AI_customer_support_chats_via_WhatsApp__web_chat__Ollama__and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18825_Handle_AI_customer_support_chats_via_WhatsApp__web_chat__Ollama__and_Qdrant.json)|

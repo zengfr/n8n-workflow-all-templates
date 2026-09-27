@@ -1,4 +1,4 @@
-# retrieve : 20
+# retrieve : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |14268|[14268_Retrieve_and_answer_Gmail_email_queries_with_Llama_3.2__mxbai-embed__and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14268_Retrieve_and_answer_Gmail_email_queries_with_Llama_3.2__mxbai-embed__and_Qdrant.json)|
 |15811|[15811_Retrieve_Xiaohongshu_comment_replies_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15811_Retrieve_Xiaohongshu_comment_replies_with_JustOneAPI.json)|
 |15971|[15971_Retrieve_Kuaishou_video_details_from_keywords_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15971_Retrieve_Kuaishou_video_details_from_keywords_with_JustOneAPI.json)|
+|18974|[18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json)|

@@ -1,4 +1,4 @@
-# receptionist : 10
+# receptionist : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |12004|[12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12004_Restaurant_GPT-4_receptionist_for_bookings___delivery_using_Vapi__Telegram__Airtable.json)|
 |12956|[12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12956_Generate_AI_voice_receptionists_for_local_businesses_with_Claude__VAPI_and_Google_Maps.json)|
 |16638|[16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json)|
+|17234|[17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json)|
+|17490|[17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json)|
+|17609|[17609_Manage_salon_and_barbershop_appointments_with_Google_Calendar_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17609_Manage_salon_and_barbershop_appointments_with_Google_Calendar_and_Sheets.json)|
+|18798|[18798_Triage_and_answer_college_WhatsApp_enquiries_with_OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18798_Triage_and_answer_college_WhatsApp_enquiries_with_OpenAI_and_Supabase.json)|

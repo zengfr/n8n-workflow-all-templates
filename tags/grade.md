@@ -1,4 +1,4 @@
-# grade : 5
+# grade : 9
 
 |id|file|
 |----|----|
@@ -7,3 +7,7 @@
 |13710|[13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13710_Grade_exam_answers_with_GPT_4.1_mini__plagiarism_checks__Slack_alerts_and_Google_Sheets_logging.json)|
 |13806|[13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json)|
 |16488|[16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16488_Grade_system_prompts_in_Google_Sheets_with_a_Gemini_LLM_judge.json)|
+|17456|[17456_Grade_cold_outreach_emails_and_generate_an_HTML_report_with_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17456_Grade_cold_outreach_emails_and_generate_an_HTML_report_with_OpenAI_GPT-4.1.json)|
+|18322|[18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json)|
+|18920|[18920_Grade_POPIA_website_compliance_using_homepage_and_privacy_policy_HTML.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18920_Grade_POPIA_website_compliance_using_homepage_and_privacy_policy_HTML.json)|
+|19720|[19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json)|

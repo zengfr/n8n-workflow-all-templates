@@ -1,4 +1,4 @@
-# excel : 63
+# excel : 71
 
 |id|file|
 |----|----|
@@ -65,3 +65,11 @@
 |16379|[16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json)|
 |16616|[16616_Generate_personalized_franchise_PDF_letters_from_Excel_with_Google_Drive_and_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16616_Generate_personalized_franchise_PDF_letters_from_Excel_with_Google_Drive_and_Docs.json)|
 |16692|[16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json)|
+|17188|[17188_Export_Google_Sheets_data_to_CSV_or_Excel_and_send_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17188_Export_Google_Sheets_data_to_CSV_or_Excel_and_send_via_Gmail.json)|
+|17189|[17189_Export_Google_Sheets_to_CSV_or_Excel_and_email_files_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17189_Export_Google_Sheets_to_CSV_or_Excel_and_email_files_with_Gmail.json)|
+|17763|[17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17763_Import_CSV_or_Excel_campaigns_and_schedule_social_posts_with_PinFlow.json)|
+|18722|[18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json)|
+|18765|[18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json)|
+|18787|[18787_Generate_regional_sales_reports_from_CRM_exports_with_DocMint_and_Excel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18787_Generate_regional_sales_reports_from_CRM_exports_with_DocMint_and_Excel.json)|
+|19313|[19313_Sync_Shopify_inventory_and_prices_with_supplier_CSV_or_Excel_files.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19313_Sync_Shopify_inventory_and_prices_with_supplier_CSV_or_Excel_files.json)|
+|19810|[19810_Extract_and_validate_invoice_PDFs_into_Excel_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19810_Extract_and_validate_invoice_PDFs_into_Excel_with_OpenAI_GPT-4o-mini.json)|

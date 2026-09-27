@@ -1,4 +1,4 @@
-# anomaly : 14
+# anomaly : 21
 
 |id|file|
 |----|----|
@@ -16,3 +16,10 @@
 |11909|[11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json)|
 |12385|[12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12385_Detect_financial_anomalies_and_reconcile_revenue_with_GPT-4o_and_API_integrations.json)|
 |12792|[12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12792_Optimize_fleet_routes_and_anomaly_alerts_with_GPT-4__Slack_and_Postgres.json)|
+|18094|[18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json)|
+|18148|[18148_Send_daily_ops_digests_and_age-based_anomaly_alerts_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18148_Send_daily_ops_digests_and_age-based_anomaly_alerts_with_OpenAI_and_Gmail.json)|
+|18247|[18247_Monitor_grid_frequency_anomalies_and_incidents_with_SCADA_and_ops_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18247_Monitor_grid_frequency_anomalies_and_incidents_with_SCADA_and_ops_APIs.json)|
+|18491|[18491_Detect_smart_meter_anomalies_and_route_critical_alerts_via_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18491_Detect_smart_meter_anomalies_and_route_critical_alerts_via_HTTP_API.json)|
+|18820|[18820_Detect_and_self-heal_data_pipeline_incidents_with_PostgreSQL__Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18820_Detect_and_self-heal_data_pipeline_incidents_with_PostgreSQL__Claude_and_Slack.json)|
+|19059|[19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json)|
+|19804|[19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json)|

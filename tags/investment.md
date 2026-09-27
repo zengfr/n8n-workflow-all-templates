@@ -1,4 +1,4 @@
-# investment : 19
+# investment : 21
 
 |id|file|
 |----|----|
@@ -21,3 +21,5 @@
 |15569|[15569_Profile_investors_and_send_AI_investment_reports_with_Google_Sheets__Alpha_Vantage__Groq__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15569_Profile_investors_and_send_AI_investment_reports_with_Google_Sheets__Alpha_Vantage__Groq__Gmail_and_Slack.json)|
 |16260|[16260_Send_commodity_investment_briefings_from_CNBC_RSS_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16260_Send_commodity_investment_briefings_from_CNBC_RSS_with_Gemini_and_Slack.json)|
 |16308|[16308_Simulate_investment_scenarios_with_Groq_and_live_Google_News_RSS_feeds.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16308_Simulate_investment_scenarios_with_Groq_and_live_Google_News_RSS_feeds.json)|
+|17347|[17347_Score_Zillow_investment_properties_with_ScrapeUnblocker__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17347_Score_Zillow_investment_properties_with_ScrapeUnblocker__Gemini__and_Google_Sheets.json)|
+|17678|[17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json)|

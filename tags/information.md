@@ -1,4 +1,4 @@
-# information : 36
+# information : 38
 
 |id|file|
 |----|----|
@@ -38,3 +38,5 @@
 |7074|[7074_Multi-Platform_Source_Discovery_with_SerpAPI__DuckDuckGo__GitHub__Reddit___Bluesky.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7074_Multi-Platform_Source_Discovery_with_SerpAPI__DuckDuckGo__GitHub__Reddit___Bluesky.json)|
 |9212|[9212_Extract_Contact_Information_from_Business_Cards_with_Mistral_OCR_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/92/9212_Extract_Contact_Information_from_Business_Cards_with_Mistral_OCR_and_GPT-4o-mini.json)|
 |12507|[12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12507_Build_person_OSINT_profiles_using_Humantic_AI__Hunter__CourtListener_and_GPT-5.json)|
+|19134|[19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json)|
+|19518|[19518_Qualify_property_leads_on_WhatsApp_with_Google_Sheets__Gemini__and_HighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19518_Qualify_property_leads_on_WhatsApp_with_Google_Sheets__Gemini__and_HighLevel.json)|

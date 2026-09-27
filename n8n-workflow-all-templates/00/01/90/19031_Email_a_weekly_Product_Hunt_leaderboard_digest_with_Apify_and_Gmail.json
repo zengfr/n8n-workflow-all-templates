@@ -1,0 +1,443 @@
+{
+  "name": "Email yourself the week's best product launches with Apify",
+  "nodes": [
+    {
+      "id": "sched",
+      "name": "Every Friday at 5",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 17 * * 5"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfg",
+      "name": "What you care about",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "topics",
+              "type": "string",
+              "value": "productivity, developer-tools"
+            },
+            {
+              "id": "a2",
+              "name": "minVotes",
+              "type": "number",
+              "value": 150
+            },
+            {
+              "id": "a3",
+              "name": "maxItems",
+              "type": "number",
+              "value": 120
+            },
+            {
+              "id": "a4",
+              "name": "digestEmail",
+              "type": "string",
+              "value": "you@example.com"
+            },
+            {
+              "id": "a5",
+              "name": "keep",
+              "type": "number",
+              "value": 10
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "apify",
+      "name": "Read the week of launches",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        520,
+        520
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~producthunt-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ leaderboardPeriod: 'weekly', topics: $json.topics.split(',').map(s => s.trim()), maxItems: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "flt",
+      "name": "Keep the ones with traction",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ Number($json.votesCount || $json.votes || 0) }}",
+              "rightValue": "={{ $('What you care about').first().json.minVotes }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "sort",
+      "name": "Best first",
+      "type": "n8n-nodes-base.sort",
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "order": "descending",
+              "fieldName": "votesCount"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "digest",
+      "name": "Build one email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// One email, not one per launch. A digest people actually read is short, ranked, and says why\n// each thing is on the list — so the tagline comes along and the ranking is visible.\nconst cfg = $('What you care about').first().json;\nconst keep = Math.max(1, Number(cfg.keep) || 10);\nconst rows = $input.all().map((i) => i.json).slice(0, keep);\nif (!rows.length) return [{ json: { count: 0, subject: 'No launches cleared the bar this week', html: 'Nothing passed your vote floor of ' + cfg.minVotes + '. Lower it, or widen the topics.' } }];\n\nconst esc = (s) => String(s || '').replace(/[<>&]/g, (c) => ({ '<': '&lt;', '>': '&gt;', '&': '&amp;' }[c]));\nconst items = rows.map((r, n) => {\n  const votes = Number(r.votesCount || r.votes || 0);\n  const name = esc(r.name || r.productName || 'Untitled');\n  const tag = esc(r.tagline || r.description || '');\n  const url = r.url || r.productUrl || '';\n  return '<li style=\"margin:0 0 14px\"><b>' + (n + 1) + '. ' + (url ? '<a href=\"' + url + '\">' + name + '</a>' : name) + '</b>'\n    + ' <span style=\"color:#888\">— ' + votes.toLocaleString() + ' votes</span>'\n    + (tag ? '<br><span style=\"color:#444\">' + tag + '</span>' : '') + '</li>';\n}).join('');\n\nreturn [{\n  json: {\n    count: rows.length,\n    subject: 'This week in ' + cfg.topics + ' — ' + rows.length + ' launches worth a look',\n    html: '<p>Launches above ' + Number(cfg.minVotes).toLocaleString() + ' votes in <b>' + esc(cfg.topics) + '</b>, best first.</p><ol style=\"padding-left:18px\">' + items + '</ol>',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "mail",
+      "name": "Send the digest",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1560,
+        520
+      ],
+      "parameters": {
+        "sendTo": "={{ $('What you care about').first().json.digestEmail }}",
+        "message": "={{ $json.html }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.subject }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "opt-slack",
+      "name": "Optional: post the digest to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        900,
+        1080
+      ],
+      "parameters": {
+        "text": "=*{{ $json.subject }}*\n{{ $json.count }} launches",
+        "select": "channel",
+        "channelId": "#launches",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "opt-sheet",
+      "name": "Optional: keep a launch archive",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1240,
+        1080
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "st0",
+      "name": "Sticky Note s0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 1. Friday afternoon\n\nWeekly, at the end of the week. A launch digest that arrives hourly is a notification problem, not a digest."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st1",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 2. What you care about\n\nTopics, the vote floor, and how many to keep. `minVotes` is the whole filter — raise it until the list is short enough to read."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st2",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 3. Read the week\n\nThe weekly leaderboard for your topics."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st3",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 4. Keep the ones with traction\n\nBelow your vote floor, nothing gets through. Most launches are below it, which is the point."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st4",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 5. Best first\n\nRanked by votes, so the top of the email is the part worth reading."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st5",
+      "name": "Sticky Note s5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 6. Build one email\n\nOne email, ranked, with each tagline. Not one message per launch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st6",
+      "name": "Sticky Note s6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 320,
+        "content": "### 7. Send it\n\nGmail by default. Swap in Slack below if that is where you read things."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-opt",
+      "name": "Sticky Note optional",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        860,
+        900
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 760,
+        "height": 170,
+        "content": "## Optional — other endings\n\nWired to nothing on purpose. Hang **Slack** off the digest to post it to a channel, or **Sheets** off the ranking step to keep an archive of everything that cleared the bar."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-desc",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        40
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1400,
+        "content": "## Email yourself the week's best product launches with Apify\n\nA Friday digest of the launches in your topics that actually got traction, ranked, in one email.\n\n**Who is this for?**\nAnyone who wants to keep an eye on what is shipping in their space but will not open a launch feed daily, and does not want twenty notifications a week.\n\n**What problem is this workflow solving?**\nLaunch feeds are firehoses. Most of what ships gets a handful of votes and is gone, so following them live means reading fifty things to find two. A weekly cut with a traction floor inverts that: you read ten, and they are the ten that people actually voted for.\n\n**What this workflow does**\n- Reads the weekly leaderboard for the topics you name.\n- Drops everything below your vote floor.\n- Ranks what is left, keeps the top few, and builds one HTML email with each tagline.\n- Sends it Friday afternoon.\n\n**Setup**\n1. Add an Apify credential and a Gmail credential.\n2. Set `topics`, `minVotes` and `digestEmail` in \"What you care about\".\n3. Run it once by hand; if the list is too long, raise `minVotes` rather than lowering `keep`.\n\n**Requirements**\nAn Apify account and API token, and a Gmail credential. No OpenAI key — this ranks by votes, it does not summarise.\n\n**How to customize this workflow to your needs**\n\nTwo nodes sit below the row wired to nothing: **Slack** to post the digest to a channel instead, **Sheets** off the ranking step to keep an archive of everything that cleared the bar, which is more useful than the email after a couple of months.\n\nThe email itself is built in \"Build one email\" as plain HTML. If you want the archive rather than the digest, wire Sheets to the *ranking* step, not the digest step — the digest collapses everything into one row on purpose.\n\n**Good to know**\nVotes measure attention on one platform in one week, not quality and not traction anywhere else. A tool with 400 votes may have launched to an existing audience, and a good one with 60 will never appear here. The floor is a noise filter, not a judgement — and if a week is quiet you will get an email saying nothing cleared the bar, which is the honest answer rather than a padded list."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Best first": {
+      "main": [
+        [
+          {
+            "node": "Build one email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build one email": {
+      "main": [
+        [
+          {
+            "node": "Send the digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Friday at 5": {
+      "main": [
+        [
+          {
+            "node": "What you care about",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "What you care about": {
+      "main": [
+        [
+          {
+            "node": "Read the week of launches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the week of launches": {
+      "main": [
+        [
+          {
+            "node": "Keep the ones with traction",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep the ones with traction": {
+      "main": [
+        [
+          {
+            "node": "Best first",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Email a weekly Product Hunt leaderboard digest with Apify and Gmail",
+    "wechat": "youandme10086",
+    "id": 19031,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# prospects : 9
+# prospects : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |12227|[12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12227_Turn_closed-won_HubSpot_deals_into_lookalike_prospects_with_CompanyEnrich.json)|
 |14986|[14986_Research_LinkedIn_prospects_before_sales_calls_with_Bright_Data_and_GPT-5.4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14986_Research_LinkedIn_prospects_before_sales_calls_with_Bright_Data_and_GPT-5.4.json)|
 |16424|[16424_Find_and_save_local_lead_prospects_with_Google_Places__Firecrawl_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16424_Find_and_save_local_lead_prospects_with_Google_Places__Firecrawl_and_Supabase.json)|
+|19237|[19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json)|
+|19327|[19327_Find_Google_Maps_prospects_and_draft_cold_emails_with_Apify__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19327_Find_Google_Maps_prospects_and_draft_cold_emails_with_Apify__OpenAI_and_Sheets.json)|
+|19430|[19430_Find_local_business_prospects_with_OpenMart_and_Twenty_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19430_Find_local_business_prospects_with_OpenMart_and_Twenty_CRM.json)|
+|19431|[19431_Enrich_business_prospects_and_prioritize_outreach_with_OpenMart_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19431_Enrich_business_prospects_and_prioritize_outreach_with_OpenMart_and_Google_Sheets.json)|

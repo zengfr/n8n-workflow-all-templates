@@ -1,4 +1,4 @@
-# my : 149
+# my : 155
 
 |id|file|
 |----|----|
@@ -151,3 +151,9 @@
 |15509|[15509_Create_a_daily_Jira_to-do_email_with_Gmail_and_OpenRouter_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15509_Create_a_daily_Jira_to-do_email_with_Gmail_and_OpenRouter_GPT.json)|
 |16214|[16214_Parse_WhatsApp_invoice_images_with_Gemini_and_sync_payments_to_HubSpot_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16214_Parse_WhatsApp_invoice_images_with_Gemini_and_sync_payments_to_HubSpot_and_Slack.json)|
 |16650|[16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json)|
+|16926|[16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json)|
+|17023|[17023_Extract_invoice_data_from_Google_Drive_images_with_GPT-4o_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17023_Extract_invoice_data_from_Google_Drive_images_with_GPT-4o_and_Postgres.json)|
+|17617|[17617_Capture_CTO_job_leads_from_LinkedIn_with_RapidAPI__Seamless__BounceBan_and_PlusVibe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17617_Capture_CTO_job_leads_from_LinkedIn_with_RapidAPI__Seamless__BounceBan_and_PlusVibe.json)|
+|17690|[17690_Triage_and_reply_to_Gmail_emails_with_GPT-4.1_mini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17690_Triage_and_reply_to_Gmail_emails_with_GPT-4.1_mini_and_Telegram.json)|
+|18141|[18141_Generate_competitive_deal_strategies_in_Salesforce_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18141_Generate_competitive_deal_strategies_in_Salesforce_with_Google_Sheets_and_Gemini.json)|
+|18533|[18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json)|

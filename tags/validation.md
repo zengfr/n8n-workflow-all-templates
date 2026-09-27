@@ -1,4 +1,4 @@
-# validation : 46
+# validation : 51
 
 |id|file|
 |----|----|
@@ -48,3 +48,8 @@
 |14274|[14274_Upload_documents_with_validation__deduplication_and_Postgres_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14274_Upload_documents_with_validation__deduplication_and_Postgres_storage.json)|
 |14434|[14434_Route_legal_contract_risks_with_GPT-4o__Slack__Google_Sheets_and_a_regulatory_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14434_Route_legal_contract_risks_with_GPT-4o__Slack__Google_Sheets_and_a_regulatory_API.json)|
 |14486|[14486_Secure_AI_agent_webhook_with_HMAC__replay_protection__and_OpenAI_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14486_Secure_AI_agent_webhook_with_HMAC__replay_protection__and_OpenAI_GPT-5.json)|
+|16873|[16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json)|
+|16908|[16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json)|
+|17416|[17416_Validate_compliance_records_with_OpenAI__Google_Sheets__Telegram__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17416_Validate_compliance_records_with_OpenAI__Google_Sheets__Telegram__and_Slack.json)|
+|17525|[17525_Validate_invoice_readiness_with_Gmail__Google_Sheets_and_Groq_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17525_Validate_invoice_readiness_with_Gmail__Google_Sheets_and_Groq_OpenAI.json)|
+|19354|[19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json)|

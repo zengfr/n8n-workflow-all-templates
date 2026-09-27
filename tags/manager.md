@@ -1,4 +1,4 @@
-# manager : 53
+# manager : 60
 
 |id|file|
 |----|----|
@@ -55,3 +55,10 @@
 |16050|[16050_Sync_OpenAI_vector_stores_from_Google_Sheets_with_Drive_and_AWS_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16050_Sync_OpenAI_vector_stores_from_Google_Sheets_with_Drive_and_AWS_S3.json)|
 |16078|[16078_Manage_B2B_referral_leads_with_Gmail__Slack__HubSpot__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16078_Manage_B2B_referral_leads_with_Gmail__Slack__HubSpot__and_Google_Sheets.json)|
 |16654|[16654_Manage_Etsy_OAuth_2.0_tokens_and_API_headers_between_workflows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16654_Manage_Etsy_OAuth_2.0_tokens_and_API_headers_between_workflows.json)|
+|16952|[16952_Match_product_manager_jobs_with_Supabase__Anthropic_Claude__Adzuna__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16952_Match_product_manager_jobs_with_Supabase__Anthropic_Claude__Adzuna__and_Resend.json)|
+|17054|[17054_Manage_Google_and_Trustpilot_reviews_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17054_Manage_Google_and_Trustpilot_reviews_with_OpenAI_and_Slack.json)|
+|17232|[17232_Triage_Gmail_and_draft_replies_with_GPT-5_Mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17232_Triage_Gmail_and_draft_replies_with_GPT-5_Mini_and_Google_Sheets.json)|
+|18055|[18055_Manage_Google_Contacts_from_Telegram_using_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18055_Manage_Google_Contacts_from_Telegram_using_OpenAI_GPT-4o-mini.json)|
+|18401|[18401_Triage_Gmail__draft_replies__upload_to_Drive__and_alert_via_Telegram_with_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18401_Triage_Gmail__draft_replies__upload_to_Drive__and_alert_via_Telegram_with_OpenRouter.json)|
+|18940|[18940_Manage_AI_agent_chat_sessions_with_timeouts__handoff__and_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18940_Manage_AI_agent_chat_sessions_with_timeouts__handoff__and_webhooks.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|

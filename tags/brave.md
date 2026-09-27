@@ -1,4 +1,4 @@
-# brave : 13
+# brave : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |14676|[14676_Send_a_daily_AI_crypto_news_digest_from_Brave_Search_to_Telegram_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14676_Send_a_daily_AI_crypto_news_digest_from_Brave_Search_to_Telegram_with_GPT-4.1-mini.json)|
 |14690|[14690_Publish_WordPress_SEO_blog_drafts_from_trending_news_with_Brave_Search_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14690_Publish_WordPress_SEO_blog_drafts_from_trending_news_with_Brave_Search_and_OpenAI.json)|
 |15390|[15390_Generate_Brave_Search_Goggles_with_DataForSEO__Firecrawl__OpenAI_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15390_Generate_Brave_Search_Goggles_with_DataForSEO__Firecrawl__OpenAI_and_Postgres.json)|
+|17757|[17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json)|
+|19662|[19662_Create_weekly_research_brief_PDFs_with_Brave_Search__Firecrawl__Claude__PDF.co__Gmail_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19662_Create_weekly_research_brief_PDFs_with_Brave_Search__Firecrawl__Claude__PDF.co__Gmail_and_Google_Drive.json)|

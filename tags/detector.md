@@ -1,4 +1,4 @@
-# detector : 25
+# detector : 32
 
 |id|file|
 |----|----|
@@ -27,3 +27,10 @@
 |16198|[16198_Detect_cloud_cost_spikes_with_Google_Sheets__Slack__Gmail__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16198_Detect_cloud_cost_spikes_with_Google_Sheets__Slack__Gmail__and_Jira.json)|
 |16393|[16393_Detect_and_route_customer_escalations_with_Claude__Slack_and_Linear.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16393_Detect_and_route_customer_escalations_with_Claude__Slack_and_Linear.json)|
 |16475|[16475_Flag_delayed_Shopify_orders_with_Slack__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16475_Flag_delayed_Shopify_orders_with_Slack__Google_Sheets_and_Gmail.json)|
+|17042|[17042_Detect_revenue_leakage_with_Salesforce__Google_Sheets__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17042_Detect_revenue_leakage_with_Salesforce__Google_Sheets__Gemini__and_Slack.json)|
+|17936|[17936_Score_client_toxicity_from_form_submissions_with_GPT-4o_Mini_and_n8n_Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17936_Score_client_toxicity_from_form_submissions_with_GPT-4o_Mini_and_n8n_Forms.json)|
+|18111|[18111_Detect_and_escalate_Salesforce_bottlenecks_with_Gemini__Slack__Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18111_Detect_and_escalate_Salesforce_bottlenecks_with_Gemini__Slack__Gmail.json)|
+|18680|[18680_Detect_pipeline_stall_risk_with_HubSpot__Slack__OpenRouter_and_Anthropic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18680_Detect_pipeline_stall_risk_with_HubSpot__Slack__OpenRouter_and_Anthropic.json)|
+|18828|[18828_Detect_recurring_ServiceNow_incidents_with_Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18828_Detect_recurring_ServiceNow_incidents_with_Google_Gemini_and_Slack.json)|
+|19314|[19314_Detect_at-risk_gym_clients_with_Supabase__Gemini__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19314_Detect_at-risk_gym_clients_with_Supabase__Gemini__Slack__Gmail__and_Sheets.json)|
+|19450|[19450_Triage_stale_property_listings_with_Google_Sheets__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19450_Triage_stale_property_listings_with_Google_Sheets__Gemini__and_Slack.json)|

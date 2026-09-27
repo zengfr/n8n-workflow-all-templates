@@ -1,4 +1,4 @@
-# subscription : 11
+# subscription : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |13193|[13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13193_Send_subscription_renewal_reminders_via_Telegram_with_Supabase.json)|
 |13259|[13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13259_Send_subscription_renewal_reminders_with_Email_and_ClickUp.json)|
 |15945|[15945_Audit_SaaS_subscription_waste_from_Gmail_with_GPT-4.1-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15945_Audit_SaaS_subscription_waste_from_Gmail_with_GPT-4.1-mini_and_Google_Sheets.json)|
+|16951|[16951_Send_LemonSqueezy_subscription_alerts_to_Slack__Discord__Telegram_and_log_them_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16951_Send_LemonSqueezy_subscription_alerts_to_Slack__Discord__Telegram_and_log_them_in_Google_Sheets.json)|
+|18937|[18937_Audit_and_cancel_unused_SaaS_seats_with_Google_Sheets__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18937_Audit_and_cancel_unused_SaaS_seats_with_Google_Sheets__OpenAI_and_Slack.json)|
+|19487|[19487_Manage_subscription_renewals_with_Supabase__Gmail__and_a_payment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19487_Manage_subscription_renewals_with_Supabase__Gmail__and_a_payment_API.json)|

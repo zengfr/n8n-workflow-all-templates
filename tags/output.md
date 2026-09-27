@@ -1,4 +1,4 @@
-# output : 13
+# output : 15
 
 |id|file|
 |----|----|
@@ -15,3 +15,5 @@
 |6405|[6405_Scrape_Twitter_Profiles_with_Bright_Data_API_and_Export_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/64/6405_Scrape_Twitter_Profiles_with_Bright_Data_API_and_Export_to_Google_Sheets.json)|
 |10316|[10316_Automate_Assignment_Grading_with_GPT-4-Turbo_and_Multi-Format_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10316_Automate_Assignment_Grading_with_GPT-4-Turbo_and_Multi-Format_Reports.json)|
 |12833|[12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12833_Create_a_Business_Model_Canvas_and_infographic_image_with_Gemini.json)|
+|18914|[18914_Monitor_empty_successful_workflows_via_the_n8n_API__Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18914_Monitor_empty_successful_workflows_via_the_n8n_API__Data_Tables_and_Slack.json)|
+|19784|[19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json)|

@@ -1,4 +1,4 @@
-# buffer : 10
+# buffer : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |14768|[14768_Auto-post_trending_X_tweets_with_Gemini_AI_images__FLUX_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14768_Auto-post_trending_X_tweets_with_Gemini_AI_images__FLUX_and_Buffer.json)|
 |14961|[14961_Generate_trending_X__Facebook__and_Threads_posts_with_Apify__Gemini__and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14961_Generate_trending_X__Facebook__and_Threads_posts_with_Apify__Gemini__and_Buffer.json)|
 |15639|[15639_Auto-post_Amazon_India_affiliate_videos_to_6_platforms_with_FLUX__Shotstack_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15639_Auto-post_Amazon_India_affiliate_videos_to_6_platforms_with_FLUX__Shotstack_and_Buffer.json)|
+|17103|[17103_Post_daily_LinkedIn_and_Instagram_content_with_Airtable__Claude__OpenAI_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17103_Post_daily_LinkedIn_and_Instagram_content_with_Airtable__Claude__OpenAI_and_Buffer.json)|
+|17119|[17119_Publish_weekly_AI_social_videos_with_Airtable__Claude__Sora__Cloudinary__and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17119_Publish_weekly_AI_social_videos_with_Airtable__Claude__Sora__Cloudinary__and_Buffer.json)|
+|17644|[17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json)|
+|19116|[19116_Debounce_and_buffer_WhatsApp_AI_replies_with_Redis_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19116_Debounce_and_buffer_WhatsApp_AI_replies_with_Redis_and_Google_Gemini.json)|

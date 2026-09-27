@@ -1,4 +1,4 @@
-# delivery : 85
+# delivery : 95
 
 |id|file|
 |----|----|
@@ -87,3 +87,13 @@
 |15464|[15464_Send_digital_products_after_Stripe_payments_with_Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15464_Send_digital_products_after_Stripe_payments_with_Google_Drive_and_email.json)|
 |15673|[15673_Optimize_delivery_routes_for_carriers_from_Google_Sheets_using_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15673_Optimize_delivery_routes_for_carriers_from_Google_Sheets_using_Google_Maps.json)|
 |16154|[16154_Plan_delivery_routes_from_Notion_orders_with_Nominatim_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16154_Plan_delivery_routes_from_Notion_orders_with_Nominatim_and_email.json)|
+|17143|[17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json)|
+|17161|[17161_Deliver_workflows_after_Stripe_checkout_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17161_Deliver_workflows_after_Stripe_checkout_with_Gmail_and_Google_Sheets.json)|
+|17342|[17342_Log_Twilio_SMS_delivery_statuses_to_Google_Sheets_and_alert_Slack_on_failures.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17342_Log_Twilio_SMS_delivery_statuses_to_Google_Sheets_and_alert_Slack_on_failures.json)|
+|17401|[17401_Summarize_daily_Twilio_SMS_delivery_rates_to_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17401_Summarize_daily_Twilio_SMS_delivery_rates_to_Google_Sheets_and_Slack.json)|
+|17973|[17973_Generate_LMS_completion_certificates_with_Groq__PDFShift__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17973_Generate_LMS_completion_certificates_with_Groq__PDFShift__Gmail_and_Slack.json)|
+|18758|[18758_Monitor_competitor_marketplace_delivery_prices_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18758_Monitor_competitor_marketplace_delivery_prices_with_Apify_and_Google_Sheets.json)|
+|19066|[19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json)|
+|19083|[19083_Track_purchase_order_delivery_status_and_amount_variances_with_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19083_Track_purchase_order_delivery_status_and_amount_variances_with_GoHighLevel.json)|
+|19122|[19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json)|
+|19440|[19440_Verify_photo_proof_of_delivery_with_gpt-5.6-terra__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19440_Verify_photo_proof_of_delivery_with_gpt-5.6-terra__Google_Sheets__Gmail_and_Telegram.json)|

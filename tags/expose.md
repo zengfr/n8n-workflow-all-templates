@@ -1,4 +1,4 @@
-# expose : 11
+# expose : 20
 
 |id|file|
 |----|----|
@@ -13,3 +13,12 @@
 |5565|[5565_Expose_eBay_Taxonomy_API_to_AI_Agents_for_Category_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/55/5565_Expose_eBay_Taxonomy_API_to_AI_Agents_for_Category_Management.json)|
 |15978|[15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json)|
 |16093|[16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json)|
+|17314|[17314_Expose_workflows_as_an_MCP_server_for_Claude_and_OpenAI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17314_Expose_workflows_as_an_MCP_server_for_Claude_and_OpenAI_agents.json)|
+|17546|[17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17546_Expose_Google_Sheet_KPIs_as_Prometheus_metrics_for_Grafana.json)|
+|17736|[17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json)|
+|17773|[17773_Expose_a_speech-to-text__transcribe_API_with_Palatine_Speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17773_Expose_a_speech-to-text__transcribe_API_with_Palatine_Speech.json)|
+|17843|[17843_Expose_Google_Blogger_management_tools_to_Claude_via_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17843_Expose_Google_Blogger_management_tools_to_Claude_via_MCP_server.json)|
+|18003|[18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18279|[18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json)|
+|19742|[19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json)|

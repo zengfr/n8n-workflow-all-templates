@@ -1,4 +1,4 @@
-# briefing : 19
+# briefing : 24
 
 |id|file|
 |----|----|
@@ -21,3 +21,8 @@
 |15979|[15979_Create_daily_AI_news_briefings_from_Google_Sheets_with_Claude__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15979_Create_daily_AI_news_briefings_from_Google_Sheets_with_Claude__Notion__and_Slack.json)|
 |16271|[16271_Summarize_and_triage_your_daily_Gmail_inbox_into_Slack_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16271_Summarize_and_triage_your_daily_Gmail_inbox_into_Slack_with_Groq_Llama_3.3.json)|
 |16429|[16429_Send_daily_World_Cup_2026_briefings_to_Slack_with_OpenAI_GPT-5_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16429_Send_daily_World_Cup_2026_briefings_to_Slack_with_OpenAI_GPT-5_Mini.json)|
+|17099|[17099_Create_a_Gmail_morning_audio_briefing_with_Google_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17099_Create_a_Gmail_morning_audio_briefing_with_Google_Gemini_and_Google_Drive.json)|
+|17370|[17370_Send_a_daily_tech_and_world_news_briefing_from_RSS_and_YouTube_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17370_Send_a_daily_tech_and_world_news_briefing_from_RSS_and_YouTube_to_Telegram.json)|
+|17519|[17519_Send_a_daily_AI_morning_briefing_with_Google_Gemini__RSS__Sheets__Gmail_and_weather.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17519_Send_a_daily_AI_morning_briefing_with_Google_Gemini__RSS__Sheets__Gmail_and_weather.json)|
+|18451|[18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json)|
+|19457|[19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json)|

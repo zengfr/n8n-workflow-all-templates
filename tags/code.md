@@ -1,4 +1,4 @@
-# code : 54
+# code : 67
 
 |id|file|
 |----|----|
@@ -56,3 +56,16 @@
 |14539|[14539_Generate_Google_Forms_quizzes_from_Excel_files_sent_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14539_Generate_Google_Forms_quizzes_from_Excel_files_sent_via_Telegram.json)|
 |15238|[15238_Send_promo_code_expiry_alerts_using_Webhook__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15238_Send_promo_code_expiry_alerts_using_Webhook__Google_Sheets__Gmail_and_Slack.json)|
 |16609|[16609_Build_self-improving_agent_skills_with_cognee.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16609_Build_self-improving_agent_skills_with_cognee.json)|
+|17985|[17985_Check_in_participants_via_QR_code_with_Google_Sheets_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17985_Check_in_participants_via_QR_code_with_Google_Sheets_and_Slack_alerts.json)|
+|18211|[18211_Explain_pasted_code_and_follow-up_questions_with_GPT-4.1_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18211_Explain_pasted_code_and_follow-up_questions_with_GPT-4.1_and_Slack.json)|
+|18437|[18437_Find_nearby_ZIP_codes_by_radius_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18437_Find_nearby_ZIP_codes_by_radius_with_Searchbug_and_Google_Sheets.json)|
+|18536|[18536_Assess_GitHub_bus-factor_risk_in_GitHub_with_Claude__tickets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18536_Assess_GitHub_bus-factor_risk_in_GitHub_with_Claude__tickets_and_Slack.json)|
+|18538|[18538_Diagnose_incident_root_causes_and_plan_remediation_with_Claude_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18538_Diagnose_incident_root_causes_and_plan_remediation_with_Claude_and_WhatsApp.json)|
+|18693|[18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json)|
+|18806|[18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json)|
+|18896|[18896_Build_faceless_video_briefs_from_webhook_requests_for_Faceless_Reels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18896_Build_faceless_video_briefs_from_webhook_requests_for_Faceless_Reels.json)|
+|18905|[18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json)|
+|19180|[19180_Triage_elevator_callbacks_and_compliance_alerts_with_OpenAI__Telegram__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19180_Triage_elevator_callbacks_and_compliance_alerts_with_OpenAI__Telegram__and_Gmail.json)|
+|19423|[19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json)|
+|19464|[19464_Correlate_mobile_crash_reports_with_GitHub_commits_using_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19464_Correlate_mobile_crash_reports_with_GitHub_commits_using_Claude_and_Slack.json)|
+|19575|[19575_Reconcile_claimed_workflow_successes_with_provider_HTTP_APIs_and_code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19575_Reconcile_claimed_workflow_successes_with_provider_HTTP_APIs_and_code.json)|

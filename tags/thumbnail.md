@@ -1,4 +1,4 @@
-# thumbnail : 6
+# thumbnail : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |7595|[7595_Automate_Video_Uploads_to_Thumbnails_with_FFmpeg_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/75/7595_Automate_Video_Uploads_to_Thumbnails_with_FFmpeg_and_Google_Drive.json)|
 |10126|[10126_Automate_YouTube_Thumbnail_Creation___Social_Publishing_with_Templated.io___Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10126_Automate_YouTube_Thumbnail_Creation___Social_Publishing_with_Templated.io___Blotato.json)|
 |13889|[13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13889_Summarize_YouTube_videos_and_generate_thumbnails_using_Anthropic_and_deAPI.json)|
+|17758|[17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json)|
+|19214|[19214_Generate_quality-checked_YouTube_thumbnails_with_OpenAI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19214_Generate_quality-checked_YouTube_thumbnails_with_OpenAI_and_Google_Drive.json)|

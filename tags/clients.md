@@ -1,4 +1,4 @@
-# clients : 13
+# clients : 23
 
 |id|file|
 |----|----|
@@ -15,3 +15,13 @@
 |14217|[14217_Re-engage_old_clients_with_Claude_3.7_Sonnet__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14217_Re-engage_old_clients_with_Claude_3.7_Sonnet__Gmail_and_Google_Sheets.json)|
 |15065|[15065_Generate_weekly_client_FAQ_updates_using_NewsAPI__GPT-4.1_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15065_Generate_weekly_client_FAQ_updates_using_NewsAPI__GPT-4.1_and_Sheets.json)|
 |16108|[16108_Onboard_new_clients_from_forms_with_OpenAI__Google_Sheets__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16108_Onboard_new_clients_from_forms_with_OpenAI__Google_Sheets__Gmail__and_Slack.json)|
+|17473|[17473_Onboard_new_consulting_clients_with_Gmail__Google_Calendar__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17473_Onboard_new_consulting_clients_with_Gmail__Google_Calendar__Sheets_and_Slack.json)|
+|17576|[17576_Onboard_new_clients_via_forms_with_Google_Sheets__Drive__Notion_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17576_Onboard_new_clients_via_forms_with_Google_Sheets__Drive__Notion_and_Gmail.json)|
+|17793|[17793_Notify_clients_of_delayed_trade_settlements_with_Google_Sheets__Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17793_Notify_clients_of_delayed_trade_settlements_with_Google_Sheets__Gemini__Slack_and_Gmail.json)|
+|18279|[18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json)|
+|18592|[18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json)|
+|19047|[19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json)|
+|19227|[19227_Chase_missing_tax_documents_with_Airtable__gpt-5.6-terra__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19227_Chase_missing_tax_documents_with_Airtable__gpt-5.6-terra__Gmail_and_Telegram.json)|
+|19314|[19314_Detect_at-risk_gym_clients_with_Supabase__Gemini__Slack__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19314_Detect_at-risk_gym_clients_with_Supabase__Gemini__Slack__Gmail__and_Sheets.json)|
+|19679|[19679_Kick_off_new_clients_with_Google_Drive__Clio__Google_Sheets__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19679_Kick_off_new_clients_with_Google_Drive__Clio__Google_Sheets__and_email.json)|
+|19742|[19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json)|

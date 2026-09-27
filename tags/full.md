@@ -1,4 +1,4 @@
-# full : 41
+# full : 48
 
 |id|file|
 |----|----|
@@ -43,3 +43,10 @@
 |15784|[15784_Turn_Podium_conversations_into_a_full_CRM_with_Claude__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15784_Turn_Podium_conversations_into_a_full_CRM_with_Claude__Sheets_and_Gmail.json)|
 |16310|[16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json)|
 |16732|[16732_Enrich_LinkedIn_profiles_into_full_contacts_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16732_Enrich_LinkedIn_profiles_into_full_contacts_with_Tomba_and_Google_Sheets.json)|
+|17226|[17226_Monitor_weekly_LLM_share_of_voice_with_OpenRouter__Google_Sheets__and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17226_Monitor_weekly_LLM_share_of_voice_with_OpenRouter__Google_Sheets__and_email_reports.json)|
+|17362|[17362_Enrich_Google_Maps_business_and_lead_data_with_CoreClaw_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17362_Enrich_Google_Maps_business_and_lead_data_with_CoreClaw_and_Google_Sheets.json)|
+|17383|[17383_Run_a_full_lead-to-meeting_pipeline_with_Google_Sheets__Gmail__Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17383_Run_a_full_lead-to-meeting_pipeline_with_Google_Sheets__Gmail__Gemini_and_OpenAI.json)|
+|17736|[17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json)|
+|18834|[18834_Generate_a_full_startup_plan_from_one_sentence_with_OpenAI__Postgres__Notion_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18834_Generate_a_full_startup_plan_from_one_sentence_with_OpenAI__Postgres__Notion_and_Sheets.json)|
+|19082|[19082_Build_a_company_knowledge_brain_with_Google_Drive__Cognee__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19082_Build_a_company_knowledge_brain_with_Google_Drive__Cognee__OpenAI__and_Slack.json)|
+|19735|[19735_Generate_fact-checked_LinkedIn_posts_with_Groq__Gemini__Pinecone__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19735_Generate_fact-checked_LinkedIn_posts_with_Groq__Gemini__Pinecone__and_Slack.json)|

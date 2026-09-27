@@ -1,4 +1,4 @@
-# verified : 17
+# verified : 24
 
 |id|file|
 |----|----|
@@ -19,3 +19,10 @@
 |15684|[15684_Fetch_and_enrich_Apollo_leads_and_sync_verified_contacts_to_MeldFlow_GHL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15684_Fetch_and_enrich_Apollo_leads_and_sync_verified_contacts_to_MeldFlow_GHL.json)|
 |16280|[16280_Generate_verified_local_leads_from_Google_Maps_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16280_Generate_verified_local_leads_from_Google_Maps_with_Apify_and_Google_Sheets.json)|
 |16609|[16609_Build_self-improving_agent_skills_with_cognee.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16609_Build_self-improving_agent_skills_with_cognee.json)|
+|17695|[17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json)|
+|17757|[17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json)|
+|17817|[17817_Compute_verified_campaign_statistics_with_Amazon_Bedrock_AgentCore_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17817_Compute_verified_campaign_statistics_with_Amazon_Bedrock_AgentCore_and_Slack.json)|
+|18009|[18009_Verify_AppsMax_lead_webhooks_and_forward_new_leads_to_an_external_HTTPS_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18009_Verify_AppsMax_lead_webhooks_and_forward_new_leads_to_an_external_HTTPS_API.json)|
+|18293|[18293_Enrich_Google_Sheets_domains_with_verified_decision_makers_via_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18293_Enrich_Google_Sheets_domains_with_verified_decision_makers_via_Apify.json)|
+|19644|[19644_Create_verified_image_derivatives_and_print_reports_with_native_resizing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19644_Create_verified_image_derivatives_and_print_reports_with_native_resizing.json)|
+|19783|[19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json)|

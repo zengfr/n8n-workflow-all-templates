@@ -1,0 +1,977 @@
+{
+  "id": "jDsblvHxwDpJIQgk",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Process invoices securely with OpenAI, Slack, and ERP webhooks",
+    "wechat": "youandme10086",
+    "id": 17806,
+    "update_time": "2026-09-27"
+  },
+  "name": "IDP - Secure Invoice Processing",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "eb433f1d-d606-4f7c-a0a2-595d2a9c81c1",
+      "name": "Note - Secure Intake",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        -192
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 760,
+        "height": 596,
+        "content": "## 1. Secure Intake & Document Validation\n\nReceives invoices through the webhook and performs initial validation before any downstream processing.\n\n### Responsibilities\n• Accept document upload\n• Validate supported file types (PDF, PNG, JPG)\n• Validate maximum file size\n• Verify malware scan status\n• Generate Correlation ID\n• Preserve binary document\n• Create standardized metadata\n\n### Expected Output\n✔ Validated document\n✔ Metadata\n✔ Correlation ID\n✔ Source information\n\nInvalid documents are routed directly to the exception queue."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "475d7ba6-8410-4fd3-b3f0-6c894388617e",
+      "name": "Ingest Document (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -656,
+        576
+      ],
+      "webhookId": "9b9087ea-0994-43ff-8d19-4595e6cf1e4a",
+      "parameters": {
+        "path": "idp-ingest",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "358c20a3-c0c6-4dfc-9435-a6cc8b26b022",
+      "name": "Validate File & Create Metadata",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -240,
+        576
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.item;\n\n// Preserve the binary file\nconst binaryKey = Object.keys(input.binary || {})[0];\nconst binary = binaryKey ? input.binary[binaryKey] : null;\n\nconst supplied = input.json.body ?? input.json;\n\nconst allowedMimes = [\n  'application/pdf',\n  'image/jpeg',\n  'image/png'\n];\n\nconst maxBytes = 10 * 1024 * 1024;\n\nconst mime = binary?.mimeType ?? supplied.mime_type ?? '';\nconst fileName = binary?.fileName ?? supplied.file_name ?? 'unknown';\n\n// n8n stores the numeric size in bytes\nconst size = Number(\n  binary?.bytes ??\n  binary?.size ??\n  supplied.file_size ??\n  0\n);\n\nconst violations = [];\n\nif (!allowedMimes.includes(mime)) {\n  violations.push('INT-01: Unsupported or missing file type');\n}\n\nif (size > maxBytes) {\n  violations.push('INT-02: File exceeds 10 MB limit');\n}\n\nif (\n  supplied.malware_scan_status &&\n  supplied.malware_scan_status !== 'clean'\n) {\n  violations.push('INT-03: Malware scan did not pass');\n}\n\nconst correlation_id = supplied.correlation_id || $execution.id;\nconst source_id = supplied.source_id || `SRC-${correlation_id}-${fileName}`;\n\nreturn [{\n  json: {\n    correlation_id,\n    source_id,\n\n    document_metadata: {\n      file_name: fileName,\n      mime_type: mime,\n      file_size: size,\n      received_at: new Date().toISOString(),\n      source_sha256: supplied.source_sha256 || null\n    },\n\n    intake_validation: {\n      passed: violations.length === 0,\n      violations\n    },\n\n    test_mode: supplied.test_mode === true,\n    force_duplicate: supplied.force_duplicate === true\n  },\n\n  // ⭐ Preserve the binary for downstream nodes\n  binary: input.binary\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "07ebeda9-63d6-43e0-87e8-78d8d2d4170c",
+      "name": "Route Intake Status",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -64,
+        576
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Valid intake",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "7ba9421e-7677-4d66-8556-415da2a01cbc",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.intake_validation.passed }}",
+                    "rightValue": true
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "00495324-23ae-485d-8d19-1fd44d80d415",
+      "name": "Note - Evidence & Idempotency",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        432
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 438,
+        "height": 338,
+        "content": "🟩 2. Evidence Store & Duplicate Detection"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7b2233b-e188-43dd-b6c7-895e4de91b70",
+      "name": "Duplicate Check (Replace With DB)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        176,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// DEMO ONLY: replace with an atomic database insert/lookup on source_sha256.\n// Production should use a UNIQUE(source_sha256) constraint.\n\nconst input = $input.item;\n\nconst item = input.json;\n\n// Simulate duplicate detection\nconst duplicate = item.force_duplicate === true;\n\nreturn [{\n  json: {\n    ...item,\n    duplicate_check: {\n      is_duplicate: duplicate,\n      key: item.document_metadata.source_sha256 || item.source_id,\n      checked_at: new Date().toISOString()\n    }\n  },\n\n  // Preserve binary for downstream nodes\n  binary: input.binary\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "68f5b858-e07b-4c14-92bc-b659f7246b37",
+      "name": "Route Duplicate Status",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        352,
+        560
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "New document",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fb9b0896-adba-4dff-9ae5-d2f4e7e402da",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "false",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.duplicate_check.is_duplicate }}",
+                    "rightValue": false
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "8a8a00fa-e97e-4a4e-9358-7d4f95b55e2b",
+      "name": "Note - AI Control",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        432
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 620,
+        "height": 340,
+        "content": "🟥 3. OCR & AI Invoice Extraction"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "442df7ac-98d6-4749-9dad-a776bfa34f7d",
+      "name": "Validation Policy Engine",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1248,
+        544
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\n\nconst violations = [];\n\n// ---------- Vendor Validation ----------\nif (!item.vendor?.name) {\n  violations.push(\"VAL-01: Vendor name is missing\");\n}\n\nif (!item.vendor?.id) {\n  violations.push(\"VAL-02: Vendor ID not found in Vendor Master\");\n}\n\n// ---------- Invoice Validation ----------\nif (!item.invoice?.number) {\n  violations.push(\"VAL-03: Invoice number is missing\");\n}\n\nif (!item.invoice?.issue_date) {\n  violations.push(\"VAL-04: Invoice date is missing\");\n}\n\nif (!item.invoice?.due_date) {\n  violations.push(\"VAL-05: Due date is missing\");\n}\n\nif (!item.invoice?.currency) {\n  violations.push(\"VAL-06: Currency is missing\");\n}\n\n// ---------- Amount Validation ----------\nif (item.amounts?.subtotal == null || item.amounts.subtotal < 0) {\n  violations.push(\"VAL-07: Invalid subtotal\");\n}\n\nif (item.amounts?.tax == null || item.amounts.tax < 0) {\n  violations.push(\"VAL-08: Invalid tax amount\");\n}\n\nif (item.amounts?.total == null || item.amounts.total <= 0) {\n  violations.push(\"VAL-09: Invalid total amount\");\n}\n\n// ---------- Line Items ----------\nif (!Array.isArray(item.line_items) || item.line_items.length === 0) {\n  violations.push(\"VAL-10: No line items found\");\n}\n\n// ---------- Confidence ----------\nconst confidence = item.confidence || {};\n\nif (\n  confidence.vendor_name != null &&\n  confidence.vendor_name < 0.80\n) {\n  violations.push(\"VAL-11: Low confidence on Vendor Name\");\n}\n\nif (\n  confidence.invoice_number != null &&\n  confidence.invoice_number < 0.80\n) {\n  violations.push(\"VAL-12: Low confidence on Invoice Number\");\n}\n\nif (\n  confidence.total_amount != null &&\n  confidence.total_amount < 0.80\n) {\n  violations.push(\"VAL-13: Low confidence on Total Amount\");\n}\n\nreturn [{\n  json: {\n    ...item,\n\n    validation_policy: {\n      version: \"2.0\",\n      passed: violations.length === 0,\n      violations,\n      evaluated_at: new Date().toISOString()\n    }\n  },\n\n  binary: $input.item.binary\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9aaea83a-bec5-42a0-9c69-96190cd36895",
+      "name": "Route by Policy Status",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1440,
+        544
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Auto-approved",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "6f44ba6b-9b62-4504-ba64-7bf338e3350d",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.validation_policy.passed }}",
+                    "rightValue": true
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "1737a3c3-cb72-4259-8b03-628b78d8aa40",
+      "name": "Note - Human Review",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        432
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1124,
+        "height": 348,
+        "content": "🟪 5. Human Review & Exception Handling"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd7cb31d-a1f0-4474-8793-2627c1fb6227",
+      "name": "Create Exception Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1792,
+        592
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nreturn [{ json: { ...item, exception: { queue: 'IDP_MANUAL_REVIEW', status: 'PENDING_REVIEW', reasons: item.validation_policy?.violations || item.intake_validation?.violations || ['Duplicate document'], raised_at: new Date().toISOString() } } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "35321ac2-de9d-4d5d-831c-b6415097a697",
+      "name": "Wait for Human Review",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2240,
+        592
+      ],
+      "webhookId": "9b9087ea-0994-43ff-8d19-4595e6cf1e5b",
+      "parameters": {
+        "resume": "webhook",
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "eb62fe36-44e8-4d16-a695-b7381a791ad2",
+      "name": "Validate Review Decision",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2496,
+        592
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nconst review = item.review_decision ?? item.body?.review_decision;\nconst reviewer = item.reviewer_id ?? item.body?.reviewer_id;\nconst decision = review === 'approved' && reviewer ? 'approved' : 'rejected';\nreturn [{ json: { ...item, human_review: { decision, reviewer_id: reviewer || 'UNVERIFIED', correction_reason: item.correction_reason ?? item.body?.correction_reason ?? null, decided_at: new Date().toISOString() } } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1f5463ec-ef39-4dd1-b4d1-a11cb6cc9208",
+      "name": "Route Review Decision",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2704,
+        592
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Approved",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.human_review.decision }}",
+                    "rightValue": "approved"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "0ed83c22-360d-4ecb-b286-13ef489ad786",
+      "name": "Note - ERP & Recovery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        -192
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 692,
+        "height": 595,
+        "content": "## 6. ERP Posting & Recovery\n\nPosts approved invoices to ERP using idempotent transactions.\n\n### Integration Controls\n• Idempotency-Key\n• Approved Credentials\n• Correlation ID\n• Retry Strategy\n• Timeout Handling\n\nProduction Recommendations\n• Retry only 429/5xx\n• Exponential Backoff\n• Dead Letter Queue\n• Reconciliation before retry"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6e8296ff-e6d4-4037-85f4-a32d348cc067",
+      "name": "Idempotent ERP Post (Configure Credential)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2992,
+        464
+      ],
+      "parameters": {
+        "url": "https://REPLACE_WITH_ERP_ENDPOINT",
+        "options": {
+          "timeout": 15000
+        },
+        "jsonBody": "={{ { erp_system: 'SAP_PROD', idempotency_key: $json.document_id || $json.source_id, vendor_id: $json.vendor_id, invoice_number: $json.invoice_number, total_amount: $json.total_amount, currency: $json.currency, correlation_id: $json.correlation_id } }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.document_id || $json.source_id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "383068fa-e646-48bd-b23c-61f096502731",
+      "name": "Generate Sanitized Audit Log",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3216,
+        464
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nreturn [{ json: { audit_version: '1.0', correlation_id: item.correlation_id || $execution.id, source_id: item.source_id, document_id: item.document_id || item.source_id, decision: item.human_review?.decision || (item.validation_policy?.passed ? 'auto_approved' : 'exception'), validation: item.validation_policy || item.intake_validation, duplicate_check: item.duplicate_check, ai_provenance: item.ai_provenance, erp_integration_execution: { target_system: 'SAP_ERP_PROD', posted_at: new Date().toISOString(), status: 'SUCCESS', idempotency_key: item.document_id || item.source_id } } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ed4320fb-ca87-47ef-abe9-d6df11549a38",
+      "name": "Record Rejection / Duplicate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2992,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.item.json;\nreturn [{ json: { audit_version: '1.0', correlation_id: item.correlation_id || $execution.id, source_id: item.source_id || item.document_id, status: 'CLOSED_NO_POST', reason: item.human_review?.decision === 'rejected' ? 'REVIEW_REJECTED' : (item.exception?.reasons || item.intake_validation?.violations || ['DUPLICATE']).join('; '), closed_at: new Date().toISOString() } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f2206618-4a2e-4f99-9208-d0218b15dafb",
+      "name": "Note - Deployment Checklist",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -672,
+        816
+      ],
+      "parameters": {
+        "color": "#DCC1C1",
+        "width": 674,
+        "height": 389,
+        "content": "## Mandatory Deployment Checklist\n\n□ Replace demo nodes with production OCR/AI services\n□ Configure ERP credentials\n□ Configure notification credentials\n□ Secure webhook authentication\n□ Enable retry workflow\n□ Enable monitoring\n□ Test duplicate scenarios\n□ Test low confidence routing\n□ Test ERP outage recovery\n□ Verify audit logs"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1af7480d-19f0-4b41-b6ef-80318fefdd03",
+      "name": "Convert to File",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        -448,
+        576
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "toBinary",
+        "sourceProperty": "body.fileContent"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "979be42a-ad72-4e9e-9072-95e585692a98",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2000,
+        592
+      ],
+      "webhookId": "f1fed7eb-e631-4c3c-b828-83ee8014315c",
+      "parameters": {
+        "text": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"header\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \"🚨 Invoice Requires Manual Review\",\n\t\t\t\t\"emoji\": true\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Invoice Number:*\\n{{$json.invoice.number}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status:*\\n{{$json.exception.status}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Vendor:*\\n{{$json.vendor.name}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Customer:*\\n{{$json.customer.name}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Invoice Date:*\\n{{$json.invoice.issue_date}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Due Date:*\\n{{$json.invoice.due_date}}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Currency:*\\n{{$json.invoice.currency}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Total Amount:*\\n{{$json.amounts.total}} {{$json.invoice.currency}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Queue:*\\n{{$json.exception.queue}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Raised At:*\\n{{$json.exception.raised_at}}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"*Validation Failure(s):*\\n• {{$json.exception.reasons.join('\\n• ')}}\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"actions\",\n\t\t\t\"block_id\": \"invoice_review_actions\",\n\t\t\t\"elements\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"button\",\n\t\t\t\t\t\"action_id\": \"approve_invoice\",\n\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\"text\": \"✅ Approve\",\n\t\t\t\t\t\t\"emoji\": true\n\t\t\t\t\t},\n\t\t\t\t\t\"style\": \"primary\",\n\t\t\t\t\t\"value\": \"{{$json.invoice.number}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"button\",\n\t\t\t\t\t\"action_id\": \"reject_invoice\",\n\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\"text\": \"❌ Reject\",\n\t\t\t\t\t\t\"emoji\": true\n\t\t\t\t\t},\n\t\t\t\t\t\"style\": \"danger\",\n\t\t\t\t\t\"value\": \"{{$json.invoice.number}}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"context\",\n\t\t\t\"elements\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"Please review this invoice before ERP posting.\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "user": {
+          "__rl": true,
+          "mode": "list",
+          "value": "U0BM3KHD9GF",
+          "cachedResultName": "jaindeepesh205"
+        },
+        "select": "user",
+        "blocksUi": "={\n\t\"blocks\": [\n\t\t{\n\t\t\t\"type\": \"header\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\"text\": \"🚨 Invoice Requires Manual Review\",\n\t\t\t\t\"emoji\": true\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Invoice Number:*\\n{{$json.invoice.number}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Status:*\\n{{$json.exception.status}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Vendor:*\\n{{$json.vendor.name}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Customer:*\\n{{$json.customer.name}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Invoice Date:*\\n{{$json.invoice.issue_date}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Due Date:*\\n{{$json.invoice.due_date}}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"fields\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Currency:*\\n{{$json.invoice.currency}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Total Amount:*\\n{{$json.amounts.total}} {{$json.invoice.currency}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Queue:*\\n{{$json.exception.queue}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"*Raised At:*\\n{{$json.exception.raised_at}}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"section\",\n\t\t\t\"text\": {\n\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\"text\": \"*Validation Failure(s):*\\n• {{$json.exception.reasons.join('\\n• ')}}\"\n\t\t\t}\n\t\t},\n\t\t{\n\t\t\t\"type\": \"divider\"\n\t\t},\n\t\t{\n\t\t\t\"type\": \"actions\",\n\t\t\t\"block_id\": \"invoice_review_actions\",\n\t\t\t\"elements\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"button\",\n\t\t\t\t\t\"action_id\": \"approve_invoice\",\n\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\"text\": \"✅ Approve\",\n\t\t\t\t\t\t\"emoji\": true\n\t\t\t\t\t},\n\t\t\t\t\t\"style\": \"primary\",\n\t\t\t\t\t\"value\": \"{{$json.invoice.number}}\"\n\t\t\t\t},\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"button\",\n\t\t\t\t\t\"action_id\": \"reject_invoice\",\n\t\t\t\t\t\"text\": {\n\t\t\t\t\t\t\"type\": \"plain_text\",\n\t\t\t\t\t\t\"text\": \"❌ Reject\",\n\t\t\t\t\t\t\"emoji\": true\n\t\t\t\t\t},\n\t\t\t\t\t\"style\": \"danger\",\n\t\t\t\t\t\"value\": \"{{$json.invoice.number}}\"\n\t\t\t\t}\n\t\t\t]\n\t\t},\n\t\t{\n\t\t\t\"type\": \"context\",\n\t\t\t\"elements\": [\n\t\t\t\t{\n\t\t\t\t\t\"type\": \"mrkdwn\",\n\t\t\t\t\t\"text\": \"Please review this invoice before ERP posting.\"\n\t\t\t\t}\n\t\t\t]\n\t\t}\n\t]\n}",
+        "messageType": "block",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "X1zJWFDETKVGfQdX",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "7195bd8d-6c09-49eb-b3ba-03ce8d960a45",
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        544
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.item;\n\n// Extract the structured invoice returned by the AI\nconst invoice = input.json.output[0].content[0].text;\n\nreturn [{\n  json: {\n    ...invoice\n  },\n  binary: input.binary\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5b3077d0-c36b-436c-bae8-3334386fd5c8",
+      "name": "Note - Secure Intake1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        432
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 760,
+        "height": 340,
+        "content": "🟦 1. Secure Intake & Document Validation"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e54039fb-6454-4f30-a44d-b4af5b772a22",
+      "name": "Note - Evidence & Idempotency1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        -192
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 438,
+        "height": 594,
+        "content": "## 2. Evidence Store & Duplicate Detection\n\nEnsures the same invoice cannot be processed multiple times.\n\n### Responsibilities\n• Generate document fingerprint\n• Lookup previous submissions\n• Maintain immutable evidence\n• Preserve idempotency\n• Detect duplicate invoices\n\nProduction Recommendation\nReplace demo duplicate logic with:\n• PostgreSQL UNIQUE(source_sha256)\nor\n• Redis SETNX\n\nDuplicate invoices bypass processing and enter the review queue."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "defdd7e9-e47a-4e68-8f28-d5e9767108f2",
+      "name": "Extract from File (OCR)",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        592,
+        544
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "={{ Object.keys($binary)[0] }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "eb47c423-fabe-4dd2-b66c-167d8ccff1ba",
+      "name": "Return Key Information",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "position": [
+        752,
+        544
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "meta-llama/llama-3.1-70b-instruct",
+          "cachedResultName": "META-LLAMA/LLAMA-3.1-70B-INSTRUCT"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "role": "system",
+              "content": "=You are an Enterprise Intelligent Document Processing (IDP) engine specialized in invoice extraction.\n\nYour responsibility is to accurately extract structured invoice information from OCR text.\n\nRules:\n- Extract only information explicitly present in the document.\n- Never hallucinate or fabricate values.\n- If a value is not present, return null.\n- Return exactly one valid JSON object.\n- Do not include markdown, explanations, comments, or code fences.\n- Convert dates to ISO format (YYYY-MM-DD).\n- Convert monetary values to numbers (remove currency symbols and commas).\n- Convert quantities to integers where applicable.\n- Preserve the order of line items.\n- Detect vendor, customer, invoice details, payment terms, taxes, totals, and all line items.\n- Estimate confidence scores between 0.00 and 1.00 for important extracted fields."
+            },
+            {
+              "content": "=Extract the following OCR text into a structured invoice JSON.\n\nOCR DOCUMENT\n\n{{ $json.text }}\n\nReturn ONLY a valid JSON object matching the schema below.\n\n{\n  \"document_type\": \"invoice\",\n\n  \"vendor\": {\n    \"id\": null,\n    \"name\": null,\n    \"address\": null,\n    \"email\": null,\n    \"phone\": null,\n    \"tax_id\": null\n  },\n\n  \"customer\": {\n    \"name\": null,\n    \"address\": null\n  },\n\n  \"invoice\": {\n    \"number\": null,\n    \"issue_date\": null,\n    \"due_date\": null,\n    \"currency\": null,\n    \"payment_terms\": null,\n    \"purchase_order\": null\n  },\n\n  \"amounts\": {\n    \"subtotal\": null,\n    \"tax\": null,\n    \"discount\": null,\n    \"shipping\": null,\n    \"total\": null\n  },\n\n  \"line_items\": [\n    {\n      \"line_no\": null,\n      \"description\": null,\n      \"quantity\": null,\n      \"unit_price\": null,\n      \"amount\": null\n    }\n  ],\n\n  \"confidence\": {\n    \"vendor_name\": null,\n    \"invoice_number\": null,\n    \"invoice_date\": null,\n    \"due_date\": null,\n    \"currency\": null,\n    \"subtotal\": null,\n    \"tax\": null,\n    \"total_amount\": null\n  }\n}\n\nValidation Rules\n\n- document_type must always be \"invoice\".\n- Monetary values must be numeric.\n- Dates must be YYYY-MM-DD.\n- Currency must be the ISO currency code (USD, INR, EUR, etc.).\n- If an email or phone number is not present, return null.\n- If no discount or shipping charge exists, return 0.\n- Do not omit any fields.\n- Return only JSON."
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "emVGufz7CWmEsAgd",
+          "name": "OpenAI account 2"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "80819509-8e7e-4afd-87dc-bb6928ad0a98",
+      "name": "Note - AI Control1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        -192
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 620,
+        "height": 596,
+        "content": "## 3. OCR & AI Invoice Extraction\n\nExtracts invoice information using OCR and AI while enforcing structured output.\n\n### AI Extraction\n• Vendor\n• Customer\n• Invoice Details\n• Line Items\n• Currency\n• Tax\n• Totals\n• Confidence Scores\n\n### AI Controls\n• Approved LLM\n• Fixed Prompt Version\n• JSON Schema Output\n• Model Provenance\n• Confidence Tracking\n\nOutput is validated before ERP integration."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cc1c3e27-989e-4829-a965-32ba02319ef6",
+      "name": "Note - Human Review1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        -192
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1124,
+        "height": 588,
+        "content": "## 5. Human Review & Exception Handling\n\nRoutes invoices requiring manual verification before ERP posting.\n\n### Review Triggers\n• Low AI confidence\n• Validation failures\n• Duplicate documents\n• Invalid intake\n• ERP retry exhaustion\n\n### Reviewer Actions\n✔ Approve\n✔ Reject\n✔ Add Correction Reason\n✔ Capture Reviewer ID\n\nAll review actions are fully audited."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe11a587-f6c7-4d98-adc4-7b8d5f0a5c28",
+      "name": "Note - AI Control3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        -192
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 596,
+        "content": "## 4. Business Validation Engine\n\nValidates extracted invoice data using deterministic business rules.\n\n### Validation Rules\n• Vendor Exists\n• Invoice Number\n• Invoice Date\n• Due Date\n• Currency\n• Tax\n• Total Amount\n• Line Items\n• Confidence Threshold\n\nEach failure produces a standardized validation code.\n\nExamples\nVAL-01 Vendor Missing\nVAL-03 Invoice Number Missing\nVAL-09 Invalid Total\nVAL-13 Low Confidence"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0979e966-669c-4f06-ac98-2e71122b9882",
+      "name": "Note - AI Control4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        432
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 340,
+        "content": "🟨 4. Business Validation Engine"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa148761-892b-4efb-915b-0f960031d03e",
+      "name": "Note - ERP & Recovery1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        432
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 692,
+        "height": 339,
+        "content": "🟧 6. ERP Posting & Recovery"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d988542a-c215-4a42-bf64-378e8b238b96",
+      "name": "Note - Deployment Checklist1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        816
+      ],
+      "parameters": {
+        "color": "#FFF0FF",
+        "width": 674,
+        "height": 389,
+        "content": "## 7. Audit Logging & Compliance\n\nCreates a sanitized audit trail without storing document contents.\n\nCaptured Information\n• Correlation ID\n• Processing Status\n• Validation Result\n• Duplicate Status\n• Review Decision\n• ERP Posting Result\n• AI Model Version\n\nSupports compliance, troubleshooting, and traceability."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7fe09c8f-361f-4e49-9c28-a589b809ed5b",
+      "name": "Note - Secure Intake2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        -992
+      ],
+      "parameters": {
+        "color": "#E8F8F6",
+        "width": 2584,
+        "height": 772,
+        "content": "# Intelligent Invoice Processing Workflow\n\n## Purpose\n\nThis workflow automates the complete invoice processing lifecycle by securely ingesting invoices, extracting structured information using AI, validating business rules, routing exceptions for human review, and posting approved invoices to the ERP system.\n\nThe solution minimizes manual effort, reduces processing time, prevents duplicate invoice creation, and maintains a complete audit trail for compliance and operational transparency.\n\n---\n\n## Business Objectives\n\n• Automate invoice processing from document upload to ERP posting.\n• Eliminate duplicate invoice processing using immutable evidence.\n• Improve extraction accuracy through AI-assisted document understanding.\n• Enforce deterministic business validation before ERP integration.\n• Enable Human-in-the-Loop review for low-confidence or exceptional cases.\n• Maintain secure, traceable, and auditable processing.\n• Ensure reliable ERP integration using idempotent requests and recovery mechanisms.\n\n---\n\n## Expected Outcome\n✔ Faster invoice processing\n✔ Reduced manual intervention\n✔ Higher extraction accuracy\n✔ Controlled exception handling\n✔ Complete auditability\n✔ Enterprise-ready document processing"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9be070a9-118e-43a7-8538-6d9c72c66c5a",
+      "name": "Note - Secure Intake3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1744,
+        -592
+      ],
+      "parameters": {
+        "color": "#F5EBEB",
+        "width": 1000,
+        "height": 1796,
+        "content": "# Workflow Operation Guide\n\n## Step 1 – Configure Credentials\n\nBefore execution, configure:\n\n• AI Model Credentials\n• ERP API Credentials\n• Slack / Teams Notification Credentials\n• Database Credentials\n• Storage Credentials (if applicable)\n\n---\n\n## Step 2 – Submit Invoice\n\nSend an invoice using the webhook endpoint.\n\nSupported formats:\n• PDF\n• PNG\n• JPG\n\nThe workflow automatically validates the uploaded document.\n\n---\n\n## Step 3 – Automated Processing\n\nThe workflow automatically performs:\n\n• Intake Validation\n• Duplicate Detection\n• OCR Extraction\n• AI Data Extraction\n• Business Validation\n\nNo manual intervention is required during this stage.\n\n---\n\n## Step 4 – Human Review (If Required)\n\nInvoices are routed to the review queue when:\n\n• AI confidence is below threshold\n• Validation rules fail\n• Duplicate documents are detected\n• Intake validation fails\n\nThe reviewer can:\n\n✔ Approve\n✔ Reject\n✔ Provide correction reason\n✔ Record reviewer comments\n\n---\n\n## Step 5 – ERP Posting\n\nApproved invoices are posted to the ERP system using an idempotent API request.\nSuccessful posting generates an audit record.\n\n---\n\n## Step 6 – Audit & Monitoring\n\nAfter completion the workflow stores:\n\n• Correlation ID\n• Processing Status\n• Validation Result\n• Review Decision\n• ERP Response\n• Processing Timestamp\n• AI Model Information\n\nThese records support monitoring, troubleshooting, and compliance reporting."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Ingest Document (Webhook)": [
+      {
+        "json": {
+          "body": {
+            "fileName": "",
+            "fileContent": "JVBERi0xLjQKJZOMi54gUmVwb3J0TGFiIEdlbmVyYXRlZCBQREYgZG9jdW1lbnQgKG9wZW5zb3VyY2UpCjEgMCBvYmoKPDwKL0YxIDIgMCBSIC9GMiAzIDAgUgo+PgplbmRvYmoKMiAwIG9iago8PAovQmFzZUZvbnQgL0hlbHZldGljYSAvRW5jb2RpbmcgL1dpbkFuc2lFbmNvZGluZyAvTmFtZSAvRjEgL1N1YnR5cGUgL1R5cGUxIC9UeXBlIC9Gb250Cj4+CmVuZG9iagozIDAgb2JqCjw8Ci9CYXNlRm9udCAvSGVsdmV0aWNhLUJvbGQgL0VuY29kaW5nIC9XaW5BbnNpRW5jb2RpbmcgL05hbWUgL0YyIC9TdWJ0eXBlIC9UeXBlMSAvVHlwZSAvRm9udAo+PgplbmRvYmoKNCAwIG9iago8PAovQ29udGVudHMgOCAwIFIgL01lZGlhQm94IFsgMCAwIDU5NS4yNzU2IDg0MS44ODk4IF0gL1BhcmVudCA3IDAgUiAvUmVzb3VyY2VzIDw8Ci9Gb250IDEgMCBSIC9Qcm9jU2V0IFsgL1BERiAvVGV4dCAvSW1hZ2VCIC9JbWFnZUMgL0ltYWdlSSBdCj4+IC9Sb3RhdGUgMCAvVHJhbnMgPDwKCj4+IAogIC9UeXBlIC9QYWdlCj4+CmVuZG9iago1IDAgb2JqCjw8Ci9QYWdlTW9kZSAvVXNlTm9uZSAvUGFnZXMgNyAwIFIgL1R5cGUgL0NhdGFsb2cKPj4KZW5kb2JqCjYgMCBvYmoKPDwKL0F1dGhvciAoXChhbm9ueW1vdXNcKSkgL0NyZWF0aW9uRGF0ZSAoRDoyMDI2MDgwNDEyMTA1NSswNScwMCcpIC9DcmVhdG9yIChcKHVuc3BlY2lmaWVkXCkpIC9LZXl3b3JkcyAoKSAvTW9kRGF0ZSAoRDoyMDI2MDgwNDEyMTA1NSswNScwMCcpIC9Qcm9kdWNlciAoUmVwb3J0TGFiIFBERiBMaWJyYXJ5IC0gXChvcGVuc291cmNlXCkpIAogIC9TdWJqZWN0IChcKHVuc3BlY2lmaWVkXCkpIC9UaXRsZSAoXChhbm9ueW1vdXNcKSkgL1RyYXBwZWQgL0ZhbHNlCj4+CmVuZG9iago3IDAgb2JqCjw8Ci9Db3VudCAxIC9LaWRzIFsgNCAwIFIgXSAvVHlwZSAvUGFnZXMKPj4KZW5kb2JqCjggMCBvYmoKPDwKL0ZpbHRlciBbIC9BU0NJSTg1RGVjb2RlIC9GbGF0ZURlY29kZSBdIC9MZW5ndGggMTY3Ngo+PgpzdHJlYW0KR2F0bTs5NjhpSSUpMW4raS9qTEw0I04/OE0nQCNvOiIrMjNTTmA0amZ0SSMlYkkiJDYmJEpBWWMrYm5bbGZIJ0JkcVJoZjEnSjYpIzY+bnAicic7J3JaQHM6WU5QRTw+Nl4mKEhqLl89Km1FTlpxPkJJVixNJFEpTikyLFBMT2FfPjhdYm9uTUo0WHBlamxoRz4kS3BHcC5HdG5uSjldcEpLQGFzXnNSTEc1cmY9OmUkQlNKbkVLPnBNbUlKbD8hZ3BQXkdxayFKR0U5Nl5OQVZBbjIjMSZsLi0iTV4vUnUxbllqZylpdFg0QE5dQ1tEQ1MuP3BxOlIkNVw0QCRtZVJrI2BWTSVyVV5vIzI+PEZrLS4jLTgtW0VcbitoImQoISpfIzVTc1dbWkMwI1xQXU00cUptTko7c2lPSkxfT3JXLGpATF9LZ1pVMFgiLTo+XlpKRCdCWiQzNTI/czdhMjM5cUBQNHMpR29SXkNFV1IqIVBaJzM0TilJKTMoW3BrXi5taXVxaVo+W240UmRhXU5lcCQ6a0M4TE9nYDl0Nl5EJmReJjtDaC04NzVLUShvJE1QVlkkWl5LSkdjMj1LX0FKVlFYXjNKNyg3ZCpnUyJ0IVZcYTo9JU5NVTNPJGY4PGtbTkJWUV9iWUhNUkpqPFkyV2UoaF5RTnFlVSY/XD5Ab0M8OHRCSj1NKGM7XSUvVUBZTiRsL1J1YGpMN1NiPCRxIVtoLDUwQl8sQEBXOG0xUDRELmdiZ1VrRy41S1YxPixoUU5zZDlWbz45QT5gUnRtZDdDWTFuZXVBNyVARyYlMl9XJy1LUitdPW5nUF1ZalpvMFlCaTRpMzxAJyQ/OD4nLT1TZWd0ZjJCWyZNZzUnT2FMYUAwNjRRb1hlYmlgYyJcUS8lIi1LZyllJF1mXmhvQzBkK3VKXTpobSdJSmIrOlotUW1WU0BOc2hQVl4sYT1wJWRUIm1paUxuTmVhVjxXNCpVKGskUEcqYSE0YSlyMm1cOC4iTWNzTzsnJTV1WFltOzpTQyU1ZGRKJCRIRztDUFpKNGxgPDBmW3FQSnBwOidNNmRGUyNZNEBsQSYrUWgoIkQyak82VDJsM09IJmtfSCcvJFFiY3VpJiJtNEtyQjZcWz5wVD08Izxua2B1LmsrVE09PjlZITgxIiYvSGdIcUxFMGtGPiYpXVJ0blRQYXRWZ25WZ1pXI2s8OVdsISEicDQhI0dfJ0IpRGhJKSElNDwwL0orVCZXbTFhI11sSyxwayg/PWU7UXJLKFdgS1ZvYjFTIig7XDRObDI1SyJKTkhNKCkqLTI+PCJrLz0lTW9bODNVbF1cV2M1NXErZmhiKDhFU25kMi07cGo+XHVwO0s6ZCJhIV5MSlghOzI/bEVcKiU0bk03YzxVLVlOaypBbCI0P2w/OCMiJD4makdkV05ucjk9aVYyWDFpI0UyNVcoLTZdMFBPZGcmRVRENmkwYyJLaTtZSG83SzM4L01aWE1PKXJCJFNUW1B0PGNUb2ltQSlCTSVKQzFlaW51L1E7W2AjOCZDTV5DQEVQaSZaQ3I1RTArSDRVLXMib1swbiFLMFZlXFVJV25NbXFXcmM8Mk1mUGVSR0RZWWojbWhQUlFybTZhOmNfMVcyWFUkQHIrTWgmLjVba109RTdHPGpjQCJYPUAsWl1VPWZTJjhtQG9ZLjpwaFNxLWdxZlFcXmlWP2VgLF88LmlmV3AhbEdRZGEyOGM/VykiLEYucWJGTmk5OmtNXWo5RGw+V2g9b1xQb2klLSEoX2NDMTIwJi1NcEdsImtrdWZYbkZKcjczQGlCREQxVWBlSV5DSUQibyJZVEAjbUNsQ1Fzaz4+UjA2Q2pURVpjJDQhWyo7OU5mN1EsSDU/cy9LNSRsN2NzUV5HZidhJkIpb3JhKkZQP0pzXEVHLkA7PV9ybFJwTUAwKEAhN0U7ZV5KanBIKFRHVHJLVlxePiJBLSJDZkIwY0g4ZixSSDQwTVtFa2ovYzZrRVRRM3FKXSFgV1xVQ2luRSIiclE9aSs3LzFnOSIsMG5iaExKX2ZgcS5iV0dNInIqaFMmQ0U5VU4kZVI6S2BpcjRjVVAuW1QzKWttJ0FgJD1MTD9ZaFE4VCFfKnFyRkBUXjZoKkQnVFJIJV0qL09oaz0wZ29jaDwlYVctIzUkSlxmaG8kaSFEakZUNVorbU5TVS0pLkUmXU9PUThhOFw4RTphNk1KXlM2fj5lbmRzdHJlYW0KZW5kb2JqCnhyZWYKMCA5CjAwMDAwMDAwMDAgNjU1MzUgZiAKMDAwMDAwMDA2MSAwMDAwMCBuIAowMDAwMDAwMTAyIDAwMDAwIG4gCjAwMDAwMDAyMDkgMDAwMDAgbiAKMDAwMDAwMDMyMSAwMDAwMCBuIAowMDAwMDAwNTI0IDAwMDAwIG4gCjAwMDAwMDA1OTIgMDAwMDAgbiAKMDAwMDAwMDg3MiAwMDAwMCBuIAowMDAwMDAwOTMxIDAwMDAwIG4gCnRyYWlsZXIKPDwKL0lEIApbPDMzMDQ1ZjZjZWZlZWJjZjY0Nzk2OTlmZWNmNmQ3ODdmPjwzMzA0NWY2Y2VmZWViY2Y2NDc5Njk5ZmVjZjZkNzg3Zj5dCiUgUmVwb3J0TGFiIGdlbmVyYXRlZCBQREYgZG9jdW1lbnQgLS0gZGlnZXN0IChvcGVuc291cmNlKQoKL0luZm8gNiAwIFIKL1Jvb3QgNSAwIFIKL1NpemUgOQo+PgpzdGFydHhyZWYKMjY5OAolJUVPRgo="
+          },
+          "query": {},
+          "params": {},
+          "headers": {
+            "host": "deepesh-n8n.duckdns.org",
+            "x-real-ip": "52.140.109.156",
+            "connection": "upgrade",
+            "user-agent": "azure-logic-apps/1.0 (workflow 17abb50908d84574bef62543e5ad1e53; version 08584157813439450745) microsoft-flow/1.0",
+            "content-type": "application/json; charset=utf-8",
+            "content-length": "4152",
+            "accept-encoding": "gzip, deflate",
+            "accept-language": "en-US",
+            "x-forwarded-for": "52.140.109.156",
+            "x-forwarded-host": "deepesh-n8n.duckdns.org",
+            "x-ms-tracking-id": "e7ce3950-e24a-445b-9837-da67649d3c93",
+            "x-ms-workflow-id": "17abb50908d84574bef62543e5ad1e53",
+            "x-forwarded-proto": "https",
+            "x-ms-workflow-name": "8cfc6f1a-cad9-4dd1-b218-49ea96963b20",
+            "x-ms-correlation-id": "e7ce3950-e24a-445b-9837-da67649d3c93",
+            "x-ms-activity-vector": "00.00.IN.2N.IN.27",
+            "x-ms-workflow-run-id": "08584157810667464114230643856CU21",
+            "x-ms-workflow-version": "08584157813439450745",
+            "x-ms-client-request-id": "e7ce3950-e24a-445b-9837-da67649d3c93",
+            "x-ms-action-tracking-id": "362e6826-ef1e-4330-8bac-bc3902346435",
+            "x-ms-client-tracking-id": "08584157810667464115230643856CU09",
+            "x-ms-execution-location": "centralindia",
+            "x-ms-workflow-system-id": "/locations/centralindia/scaleunits/prod-00/workflows/17abb50908d84574bef62543e5ad1e53",
+            "x-ms-workflow-operation-name": "HTTP",
+            "x-ms-workflow-run-tracking-id": "7923b388-ee1c-4f67-8954-85f2c991f802",
+            "x-ms-workflow-subscription-id": "Default-e388d6da-c391-4e14-b2b3-1df356c587ed",
+            "x-ms-workflow-resourcegroup-name": "selfhostingresourcegroup"
+          },
+          "webhookUrl": "https://deepesh-n8n.duckdns.org/webhook-test/idp-ingest",
+          "executionMode": "test"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "4a453b69-426f-460d-9c5b-93db54ecf52f",
+  "nodeGroups": [],
+  "connections": {
+    "Send a message": {
+      "main": [
+        [
+          {
+            "node": "Wait for Human Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert to File": {
+      "main": [
+        [
+          {
+            "node": "Validate File & Create Metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Validation Policy Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Intake Status": {
+      "main": [
+        [
+          {
+            "node": "Duplicate Check (Replace With DB)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Exception Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Review Decision": {
+      "main": [
+        [
+          {
+            "node": "Idempotent ERP Post (Configure Credential)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Rejection / Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Human Review": {
+      "main": [
+        [
+          {
+            "node": "Validate Review Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return Key Information": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Duplicate Status": {
+      "main": [
+        [
+          {
+            "node": "Extract from File (OCR)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Exception Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Policy Status": {
+      "main": [
+        [
+          {
+            "node": "Idempotent ERP Post (Configure Credential)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Exception Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Exception Record": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File (OCR)": {
+      "main": [
+        [
+          {
+            "node": "Return Key Information",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Review Decision": {
+      "main": [
+        [
+          {
+            "node": "Route Review Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validation Policy Engine": {
+      "main": [
+        [
+          {
+            "node": "Route by Policy Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ingest Document (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "Convert to File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate File & Create Metadata": {
+      "main": [
+        [
+          {
+            "node": "Route Intake Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate Check (Replace With DB)": {
+      "main": [
+        [
+          {
+            "node": "Route Duplicate Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Idempotent ERP Post (Configure Credential)": {
+      "main": [
+        [
+          {
+            "node": "Generate Sanitized Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

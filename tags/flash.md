@@ -1,4 +1,4 @@
-# flash : 32
+# flash : 33
 
 |id|file|
 |----|----|
@@ -34,3 +34,4 @@
 |15475|[15475_Generate_competitive_product_roadmap_reports_with_Gemini_2.5_Flash__Olostep_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15475_Generate_competitive_product_roadmap_reports_with_Gemini_2.5_Flash__Olostep_and_Google_Drive.json)|
 |16223|[16223_Enrich_company_records_in_Google_Sheets_with_Gemini_Flash_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16223_Enrich_company_records_in_Google_Sheets_with_Gemini_Flash_and_SerpAPI.json)|
 |16789|[16789_Edit_and_post_TikTok_videos_with_Gemini_Omni_Flash_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16789_Edit_and_post_TikTok_videos_with_Gemini_Omni_Flash_and_OpenAI.json)|
+|19736|[19736_Draft_a_weekly_AI_digest_with_SerpAPI__Gemini_Flash__and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19736_Draft_a_weekly_AI_digest_with_SerpAPI__Gemini_Flash__and_WordPress.json)|

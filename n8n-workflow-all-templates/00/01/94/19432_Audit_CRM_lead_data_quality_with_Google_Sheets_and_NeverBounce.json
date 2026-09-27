@@ -1,0 +1,1049 @@
+{
+  "id": "8uEMtLOr6gRh8ixZ",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Audit CRM lead data quality with Google Sheets and NeverBounce",
+    "wechat": "youandme10086",
+    "id": 19432,
+    "update_time": "2026-09-27"
+  },
+  "name": "07 CRM Data Hygiene - workflow v3",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "4bae0e5c-0c3a-462d-816d-6ae4b8d47edf",
+      "name": "Sunday 20:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "Weekly, out of hours. The report is waiting on Monday morning.",
+      "position": [
+        112,
+        544
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 0 20 * * 0"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b76bd85a-5bbd-49a5-aad2-5c326d9c9dbd",
+      "name": "[cred] Sheets - read leads",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        560,
+        544
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.leads_sheet_id }}"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "9d251222-7e8d-4ddf-b359-962aa640f00e",
+      "name": "audit and safe autofix",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        784,
+        544
+      ],
+      "parameters": {
+        "jsCode": "// Two categories, and the line between them is the whole design:\n// SAFE FIXES are applied automatically because they cannot lose information -\n// trimming, lowercasing an address, stripping www, rebuilding a missing lead_id.\n// EVERYTHING ELSE is reported for a human. We never merge or delete a record.\nconst STALE_DAYS = Number($('config').first().json.reverify_after_days || 90);\nconst now = Date.now();\n\nconst slug = (s) => String(s || '')\n  .toLowerCase()\n  .split('')\n  .map((c) => ((c >= 'a' && c <= 'z') || (c >= '0' && c <= '9') ? c : '-'))\n  .join('')\n  .split('-')\n  .filter(Boolean)\n  .join('-');\n\nconst inputItems = $input.all();\nconst rows = inputItems.map((i) => i.json);\nconst issues = {\n  duplicate_email: [],\n  duplicate_lead_id: [],\n  missing_domain: [],\n  malformed_email: [],\n  likely_job_change: [],\n  no_owner_in_crm: [],\n  never_synced: []\n};\nconst reviewItems = [];\nconst fixes = { trimmed: 0, lowercased: 0, domain_normalised: 0, lead_id_rebuilt: 0 };\n\nconst byEmail = {};\nconst byLeadId = {};\nconst out = [];\nconst stale = [];\n\nfor (let rowIndex = 0; rowIndex < rows.length; rowIndex++) {\n  const row = rows[rowIndex];\n  const cleaned = Object.assign({}, row);\n  // Original Google Sheets row number (header is row 1).\n  cleaned._source_row_number = rowIndex + 2;\n  let changed = false;\n\n  // --- safe fixes ---\n  for (const key of ['first_name', 'last_name', 'company', 'title', 'email', 'domain']) {\n    if (typeof cleaned[key] === 'string' && cleaned[key] !== cleaned[key].trim()) {\n      cleaned[key] = cleaned[key].trim();\n      fixes.trimmed++;\n      changed = true;\n    }\n  }\n\n  if (cleaned.email && cleaned.email !== String(cleaned.email).toLowerCase()) {\n    cleaned.email = String(cleaned.email).toLowerCase();\n    fixes.lowercased++;\n    changed = true;\n  }\n\n  if (cleaned.domain) {\n    let d = String(cleaned.domain).toLowerCase();\n    d = d.split('//').pop().split('/')[0];\n    if (d.startsWith('www.')) d = d.slice(4);\n    if (d !== cleaned.domain) { cleaned.domain = d; fixes.domain_normalised++; changed = true; }\n  }\n\n  if (!cleaned.lead_id && cleaned.domain) {\n    cleaned.lead_id = slug(cleaned.domain) + '-' + slug((cleaned.first_name || '') + ' ' + (cleaned.last_name || ''));\n    fixes.lead_id_rebuilt++;\n    changed = true;\n  }\n\n  // --- reported, never auto-resolved ---\n  const label = (cleaned.lead_id || cleaned.email || 'unnamed row');\n\n  const addReview = (issue_type, details, recommended_action) => {\n    reviewItems.push({\n      audit_id: new Date(now).toISOString().slice(0, 10),\n      audited_at: new Date(now).toISOString(),\n      source_row_number: cleaned._source_row_number,\n      lead_id: cleaned.lead_id || '',\n      email: cleaned.email || '',\n      first_name: cleaned.first_name || '',\n      last_name: cleaned.last_name || '',\n      company: cleaned.company || '',\n      issue_type,\n      details,\n      recommended_action,\n      status: 'Pending'\n    });\n  };\n\n  if (cleaned.email && !String(cleaned.email).includes('@')) {\n    issues.malformed_email.push(label);\n    addReview('malformed_email', 'Email does not contain @', 'Review and correct email');\n  }\n  if (!cleaned.domain) {\n    issues.missing_domain.push(label);\n    addReview('missing_domain', 'Domain is missing', 'Research and add company domain');\n  }\n\n  if (cleaned.email) {\n    if (byEmail[cleaned.email]) {\n      issues.duplicate_email.push(cleaned.email);\n      addReview('duplicate_email', 'Email appears more than once', 'Review duplicate records; do not merge automatically');\n    }\n    byEmail[cleaned.email] = true;\n  }\n  if (cleaned.lead_id) {\n    if (byLeadId[cleaned.lead_id]) {\n      issues.duplicate_lead_id.push(cleaned.lead_id);\n      addReview('duplicate_lead_id', 'Lead ID appears more than once', 'Review duplicate records; do not merge automatically');\n    }\n    byLeadId[cleaned.lead_id] = true;\n  }\n\n  if (String(cleaned.email_status) === 'invalid' && String(cleaned.email_source || '') !== 'pattern') {\n    issues.likely_job_change.push(label);\n    addReview('likely_job_change', 'Email is invalid and may indicate a job change', 'Research current employment before reactivating');\n  }\n\n  const isLive = ['queued', 'sent', 'replied', 'booked'].indexOf(String(cleaned.stage || '')) !== -1;\n  if (isLive && !cleaned.ghl_contact_id) {\n    issues.never_synced.push(label);\n    addReview('never_synced', 'Live lead has no CRM contact ID', 'Check CRM synchronization');\n  }\n  if (isLive && cleaned.ghl_contact_id && !cleaned.crm_owner) {\n    issues.no_owner_in_crm.push(label);\n    addReview('no_owner_in_crm', 'CRM contact has no owner', 'Assign a CRM owner');\n  }\n\n  // --- decay: addresses verified long enough ago to be worth rechecking ---\n  const verifiedAt = Date.parse(cleaned.enriched_at || cleaned.updated_at || '') || 0;\n  const ageDays = verifiedAt ? Math.floor((now - verifiedAt) / 86400000) : 999;\n  if (cleaned.email && ageDays > STALE_DAYS && String(cleaned.stage || '') !== 'suppressed') {\n    stale.push({ lead_id: cleaned.lead_id, email: cleaned.email, age_days: ageDays });\n  }\n\n  if (changed) { cleaned.updated_at = new Date().toISOString(); out.push({ json: cleaned }); }\n}\n\nconst summary = {\n  total_rows: rows.length,\n  fixes: fixes,\n  issues: issues,\n  stale_count: stale.length,\n  stale_sample: stale.slice(0, Number($('config').first().json.reverify_batch || 50)),\n  review_items: reviewItems,\n  rows_changed: out.length,\n  audited_at: new Date().toISOString()\n};\n\n// IMPORTANT: summary is an internal item and is NEVER written to Leads.\nconst summaryItem = { json: { _audit_summary: summary } };\n\nif (out.length === 0) {\n  return [summaryItem];\n}\n\nreturn [\n  summaryItem,\n  ...out.map(item => ({ json: item.json }))\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "07f81bc0-a9dc-4588-9a38-cbfc38972245",
+      "name": "prepare audit results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1008,
+        544
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst summaryItem = items.find(i => i.json && i.json._audit_summary);\nconst leadItems = items.filter(i => i.json && !i.json._audit_summary);\n\nconst summary = summaryItem\n  ? summaryItem.json._audit_summary\n  : {\n      total_rows: 0,\n      fixes: {},\n      issues: {},\n      stale_count: 0,\n      stale_sample: [],\n      review_items: [],\n      rows_changed: 0,\n      audited_at: new Date().toISOString()\n    };\n\nreturn [{\n  json: {\n    _audit_summary: summary,\n    _has_fixes: leadItems.length > 0,\n    _lead_items: leadItems.map(i => i.json),\n    _review_items: summary.review_items || []\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4ccdc4df-48fb-4c1f-8aca-405d34101963",
+      "name": "[cred] Sheets - update safe fixes in place",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Updates the original Leads row using the row number captured during read. This prevents a missing lead_id from causing appendOrUpdate to create a duplicate row.",
+      "position": [
+        1904,
+        352
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData"
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.leads_sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "cebe5afe-e45b-4148-a7b9-84c75720be60",
+      "name": "sheet was already clean",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1904,
+        736
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "475d9874-f582-4f06-866e-fa1372b42411",
+      "name": "merge",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2128,
+        544
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "1b2c4ac2-fd9d-4f3d-970e-e8d2a374147d",
+      "name": "pick stale addresses",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2352,
+        544
+      ],
+      "parameters": {
+        "jsCode": "const summary = $('prepare audit results').first().json._audit_summary;\nconst sample = (summary && summary.stale_sample) || [];\n\nif (!sample.length) {\n  return [{ json: { _nothing_stale: true } }];\n}\n\nreturn sample.map(s => ({ json: s }));"
+      },
+      "executeOnce": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "7fd6d3b6-4d0c-4f49-b46f-55d559d49d71",
+      "name": "anything stale?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2800,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c3",
+              "operator": {
+                "type": "boolean",
+                "operation": "notTrue",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._nothing_stale }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0ef544c6-aa27-46e9-aa41-936e1d0cc22a",
+      "name": "nothing to recheck",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3472,
+        576
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b023e433-4c53-43c4-9599-71dc84b3d0fa",
+      "name": "merge recheck",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3696,
+        560
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "fc83d326-f53a-4304-a69f-cc2a10865d9a",
+      "name": "[cred] NeverBounce - recheck",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        3024,
+        384
+      ],
+      "parameters": {
+        "url": "https://api.neverbounce.com/v4/single/check",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "key",
+              "value": "={{ $('config').first().json.neverbounce_api_key }}"
+            },
+            {
+              "name": "email",
+              "value": "={{ $json.email }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f538664d-ece7-4f19-bd77-21c647d93bfb",
+      "name": "apply recheck results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3248,
+        384
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.all();\nconst out = [];\n\nfor (const item of input) {\n  const j = item.json || {};\n\n  const lead_id = j.lead_id || j.data?.lead_id;\n  const email = j.email || j.data?.email;\n\n  // NeverBounce v4 commonly exposes the classification as `result`.\n  const result = String(\n    j.result ||\n    j.data?.result ||\n    j.status ||\n    ''\n  ).toLowerCase();\n\n  const now = new Date().toISOString();\n\n  const patch = {\n    lead_id,\n    email_status: result,\n    reverified_at: now,\n    updated_at: now\n  };\n\n  if (result === 'invalid') {\n    patch.stage = 'suppressed';\n    patch.needs_reresearch = true;\n    patch.suppression_reason = 'address stopped verifying - likely job change';\n  }\n\n  out.push({ json: patch });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "df99929e-d335-4655-8641-14968412a56d",
+      "name": "[cred] Sheets - write recheck results",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3472,
+        384
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "lead_id"
+          ]
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.leads_sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "c51b1ca2-4b96-4ec5-8384-821383ef9abf",
+      "name": "build quality report",
+      "type": "n8n-nodes-base.code",
+      "notes": "Builds the complete quality report. Aggregate metrics go to Data Quality Summary; each human-review issue goes to Data Quality.",
+      "position": [
+        3920,
+        576
+      ],
+      "parameters": {
+        "jsCode": "const s = $('prepare audit results').first().json._audit_summary || {};\nconst reviewItems = s.review_items || [];\n\nlet rechecked = [];\ntry {\n  rechecked = $('apply recheck results').all();\n} catch (e) {\n  rechecked = [];\n}\n\nconst downgraded = rechecked.filter(\n  r => String(r.json.email_status || '').toLowerCase() === 'invalid'\n).length;\n\nconst pct = n =>\n  s.total_rows ? Math.round((n / s.total_rows) * 1000) / 10 : 0;\n\nconst i = s.issues || {};\nconst f = s.fixes || {};\n\nconst counts = {\n  duplicate_email: (i.duplicate_email || []).length,\n  duplicate_lead_id: (i.duplicate_lead_id || []).length,\n  malformed_email: (i.malformed_email || []).length,\n  missing_domain: (i.missing_domain || []).length,\n  likely_job_change: (i.likely_job_change || []).length,\n  never_synced: (i.never_synced || []).length,\n  no_owner_in_crm: (i.no_owner_in_crm || []).length\n};\n\nconst issueCount = Object.values(counts).reduce((a, b) => a + b, 0);\n\nconst fixCount =\n  Number(f.trimmed || 0) +\n  Number(f.lowercased || 0) +\n  Number(f.domain_normalised || 0) +\n  Number(f.lead_id_rebuilt || 0);\n\nconst health = Math.max(0, 100 - Math.round(pct(issueCount)));\n\nconst lines = [\n  ':broom: *Data quality - ' + String(s.audited_at || '').slice(0, 10) + '*',\n  'Health *' + health + '/100* across ' + s.total_rows + ' rows.',\n  '',\n  '*Fixed automatically* (' + fixCount + '): ' +\n    Number(f.trimmed || 0) + ' trimmed, ' +\n    Number(f.lowercased || 0) + ' lowercased, ' +\n    Number(f.domain_normalised || 0) + ' domains normalised, ' +\n    Number(f.lead_id_rebuilt || 0) + ' ids rebuilt.',\n  '',\n  '*Needs a human* (' + issueCount + ', ' + pct(issueCount) + '%):'\n];\n\nconst labels = [\n  ['duplicate email', counts.duplicate_email],\n  ['duplicate lead id', counts.duplicate_lead_id],\n  ['malformed email', counts.malformed_email],\n  ['missing domain', counts.missing_domain],\n  ['likely job change', counts.likely_job_change],\n  ['live lead never synced', counts.never_synced],\n  ['CRM contact has no owner', counts.no_owner_in_crm]\n];\n\nfor (const [label, count] of labels) {\n  if (count) lines.push('  - ' + count + ' ' + label);\n}\n\nif (issueCount === 0) lines.push('  - nothing');\n\nif ($('config').first().json.neverbounce_enabled) {\n  lines.push(\n    '',\n    '*Decay:* ' + s.stale_count +\n    ' addresses older than ' +\n    ($('config').first().json.reverify_after_days || 90) +\n    ' days; rechecked ' + rechecked.length +\n    ', ' + downgraded +\n    ' no longer valid and suppressed.'\n  );\n} else {\n  lines.push(\n    '',\n    '*Decay:* NeverBounce is disabled; ' +\n    s.stale_count +\n    ' stale addresses detected but not rechecked.'\n  );\n}\n\nlines.push(\n  '',\n  '_Individual human-review items are written to the Data Quality sheet with status Pending._'\n);\n\nreturn [{\n  json: {\n    text: lines.join('\\n'),\n    audited_at: s.audited_at,\n    total_rows: s.total_rows,\n    health_score: health,\n    auto_fixed: fixCount,\n    needs_human: issueCount,\n    rechecked: rechecked.length,\n    downgraded,\n    review_items: reviewItems\n  }\n}];"
+      },
+      "executeOnce": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "30b24bf9-3dd3-4ba3-be7d-bfb5dca2e04b",
+      "name": "[cred] Sheets - log quality summary",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "One weekly aggregate row. Required columns: audited_at, total_rows, health_score, auto_fixed, needs_human, rechecked, downgraded.",
+      "position": [
+        4144,
+        576
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "rechecked": "={{ $json.rechecked }}",
+            "audited_at": "={{ $json.audited_at }}",
+            "auto_fixed": "={{ $json.auto_fixed }}",
+            "downgraded": "={{ $json.downgraded }}",
+            "total_rows": "={{ $json.total_rows }}",
+            "needs_human": "={{ $json.needs_human }}",
+            "health_score": "={{ $json.health_score }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Data Quality Summary"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.leads_sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "62dc47fe-e211-48b3-85d7-598b2e67b902",
+      "name": "[cred] Post the report",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        5040,
+        480
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.alert_webhook_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 15000
+        },
+        "jsonBody": "={{ JSON.stringify({ text: $('build quality report').first().json.text, content: $('build quality report').first().json.text }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "da6d5e51-4a1c-4f52-bf7c-054fd506c302",
+      "name": "config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        336,
+        544
+      ],
+      "parameters": {
+        "jsCode": "// CRM DATA HYGIENE - CONFIG\n// Edit values only in this node.\n//\n// DRY_RUN true              -> the audit reports, nothing is written back.\n// NEVERBOUNCE_API_KEY blank  -> NeverBounce branch is skipped.\n// ALERT_WEBHOOK_URL blank    -> webhook branch is skipped.\n\n// Ships true. The audit runs and reports, and nothing is written back.\n// Set to false only after you have read a full dry-run report.\nconst DRY_RUN = true;\n\nconst LEADS_SHEET_ID = 'YOUR_GOOGLE_SHEET_ID';\n\nconst REVERIFY_AFTER_DAYS = 90;\nconst REVERIFY_BATCH = 50;\n\n// Optional: leave blank to skip NeverBounce completely.\nconst NEVERBOUNCE_API_KEY = '';\n\n// Optional: leave blank to skip webhook notification completely.\nconst ALERT_WEBHOOK_URL = '';\n\nreturn [{\n  json: {\n    dry_run: DRY_RUN,\n    write_enabled: DRY_RUN !== true,\n    leads_sheet_id: LEADS_SHEET_ID,\n    reverify_after_days: REVERIFY_AFTER_DAYS,\n    reverify_batch: REVERIFY_BATCH,\n    neverbounce_api_key: NEVERBOUNCE_API_KEY,\n    alert_webhook_url: ALERT_WEBHOOK_URL,\n    neverbounce_enabled: NEVERBOUNCE_API_KEY.trim() !== '',\n    webhook_enabled: ALERT_WEBHOOK_URL.trim() !== ''\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "353e7bf3-bce9-4ca6-9e5c-7cf0f3a542ec",
+      "name": "anything to write back?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1232,
+        544
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-fixes",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._has_fixes }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a277c14e-bf9c-4849-9d55-d6d40f4422e5",
+      "name": "prepare safe fixes for Leads",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1456,
+        448
+      ],
+      "parameters": {
+        "jsCode": "const rows = $('prepare audit results').first().json._lead_items || [];\n\nif (!rows.length) {\n  return [{ json: { _nothing_to_write: true } }];\n}\n\nreturn rows.map(row => ({ json: row }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d9d428b9-f235-4135-aaf5-78c28e61b5f4",
+      "name": "NeverBounce configured?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2576,
+        544
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "nb-enabled",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.neverbounce_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4bd2f86d-d14b-4175-b534-97761ed66440",
+      "name": "Webhook configured?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4816,
+        576
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "webhook-enabled",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.webhook_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e3bedc3e-3d76-4d4a-8fa4-75a842e3ff3c",
+      "name": "End",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        5264,
+        576
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "f8a49f76-d345-4453-990e-ba360bac0d8d",
+      "name": "prepare human review items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4368,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const items = $('build quality report').first().json.review_items || [];\nif (!items.length) return [{ json: { _no_review_items: true } }];\nreturn items.map(item => ({ json: item }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e7cc1317-d44d-4547-801e-c5ed599574d3",
+      "name": "[cred] Sheets - log human review items",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "One row per issue requiring human review. Required columns: audit_id, audited_at, source_row_number, lead_id, email, first_name, last_name, company, issue_type, details, recommended_action, status.",
+      "position": [
+        4592,
+        624
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Data Quality"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.leads_sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1bd0f50-014b-4d1f-9871-ec6a536ef530",
+      "name": "writes enabled?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1680,
+        448
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "write-gate",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.write_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "51a2d8a0-dd96-4476-a9e7-cac5044c6d6e",
+      "name": "STOP: dry run - nothing written",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1904,
+        544
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d4bd30a3-8192-4c7d-8ccf-d6f977f4e44e",
+      "name": "Sticky Note - Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        -496
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1040,
+        "height": 340,
+        "content": "## Start here\n\n**This workflow runs itself.** It is armed by the schedule; you never run it by hand in production.\n\n1. Open the **`config`** node. Set `LEADS_SHEET_ID`, and the two sheet tab names if yours differ.\n2. Attach a Google Sheets credential to the four `[cred]` nodes.\n3. Optional: add a NeverBounce key and a Slack or Discord webhook URL in `config`. Blank means that branch is skipped, not that the run fails.\n4. Leave **`DRY_RUN = true`** for the first run. Read the report it produces, then set it to `false`.\n\nThe sheet needs three tabs: `Leads`, `Data Quality` and `Data Quality Summary`. One row per issue goes to `Data Quality`; one weekly aggregate row goes to `Data Quality Summary`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79ae0ad6-fe96-4093-bc86-a0af0e14f119",
+      "name": "Sticky Note - Read and audit",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        1120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1000,
+        "height": 232,
+        "content": "### 1. Read the sheet and audit\n\n`config` holds every setting in one place. `[cred] Sheets - read leads` pulls the whole `Leads` tab.\n\n`audit and safe autofix` sorts every row into two lists: the fixes it can apply without losing information, and the issues a human has to look at. It also collects the addresses old enough to be worth rechecking."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9558798e-a9ed-4c68-8062-0dffccf715ba",
+      "name": "Sticky Note - Safe fixes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        -480
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 930,
+        "height": 328,
+        "content": "### 2. Safe fixes, and the gate in front of them\n\n`anything to write back?` takes the write path only when the audit actually changed something; a clean sheet skips straight to the merge.\n\n`writes enabled?` is the dry-run gate. While `DRY_RUN = true`, every fix stops at **STOP: dry run - nothing written** and nothing reaches the sheet.\n\n`[cred] Sheets - update safe fixes in place` updates each row by the row number captured on read, so a rebuilt `lead_id` cannot create a duplicate row."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aadab90a-4240-43ee-a631-5f6ad1f1706c",
+      "name": "Sticky Note - Decay recheck",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2416,
+        -496
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1300,
+        "height": 312,
+        "content": "### 3. Recheck the addresses that have gone stale\n\n`pick stale addresses` takes the sample the audit tagged as older than `REVERIFY_AFTER_DAYS` (90 by default), capped at `REVERIFY_BATCH` (50 by default) so a weekly run costs about US$0.20.\n\n`[cred] NeverBounce - recheck` verifies them. `apply recheck results` turns an invalid address into a suppression: **the contact is never deleted**, it is flagged `needs_reresearch` so the company can be re-sourced.\n\n`merge recheck` folds all the branches back together, so the report runs even when nothing was stale."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d8901fd6-c7b1-4ea3-ab92-935da2337bfa",
+      "name": "Sticky Note - Report and notify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4032,
+        -480
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1060,
+        "height": 280,
+        "content": "### 4. Report, log and notify\n\n`build quality report` writes the summary, computes the health score, and emits one review row per issue.\n\n`[cred] Sheets - log quality summary` appends one aggregate row a week, which is the trend the client sees. `[cred] Sheets - log human review items` appends the per-issue rows to `Data Quality`.\n\n`Webhook configured?` posts the same text to Slack or Discord if a URL is set, then ends either way."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb98222a-8a8c-4865-99ce-ce8135adffab",
+      "name": "Sticky Note - Design rule",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        48,
+        1072
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1040,
+        "height": 352,
+        "content": "## The line this workflow is built on\n\n**Auto-fix only what is information-preserving.** Trimming, lowercasing an address, normalising a domain, and rebuilding a missing `lead_id` are applied to the sheet.\n\nEverything else is reported instead: duplicate emails and ids, malformed addresses, missing domains, likely job changes, live leads that never reached the CRM, and CRM contacts with no owner.\n\n**It never merges and never deletes.** Merging is lossy, and a client who loses a real contact to a cleanup does not stay a client. Duplicates are listed with their ids and a human decides. The weekly health score in `Data Quality Summary` is what turns that list into a visible trend."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "372aa1e8-36c6-4c3d-9304-f32fe521db93",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1472,
+        -672
+      ],
+      "parameters": {
+        "width": 1248,
+        "height": 784,
+        "content": " ## Audit and clean CRM lead data in Google Sheets\n\n    **Who it's for**\n    Teams running outreach from a Google Sheet who need the list kept clean and cannot risk a dedupe tool eating real contacts.\n\n    **How it works**\n    Runs Sundays at 20:00. Reads the `Leads` tab and splits every row two ways. Safe fixes are applied because they cannot lose information: \n  trimming, lowercasing the email, normalising the domain, rebuilding a missing `lead_id`. Everything else is reported for a human: duplicate emails \n  and ids, malformed addresses, missing domains, likely job changes, live leads that never reached the CRM, and CRM contacts with no owner. It never \n  merges and never deletes.\n\n    Addresses older than 90 days are rechecked with NeverBounce in batches of 50; one that is now invalid is flagged `needs_reresearch`, not removed.\n   Each run appends one health-score row to `Data Quality Summary` and one row per issue to `Data Quality`, then optionally posts the report to Slack\n   or Discord.\n\n    **How to set up**\n    1. Create a sheet with three tabs: `Leads`, `Data Quality`, `Data Quality Summary`.\n    2. Attach a Google Sheets credential to the four `[cred]` nodes.\n    3. Open `config` and set `LEADS_SHEET_ID`. Optionally add a NeverBounce key and a webhook URL.\n    4. Run once with `DRY_RUN = true`, read the report, then set it to `false`.\n\n    **Requirements**\n    A Google Sheets credential and the three tabs. NeverBounce and the webhook are optional; leaving them blank disables that branch instead of \n  failing the run.\n\n    **How to customise**\n    `REVERIFY_AFTER_DAYS` and `REVERIFY_BATCH` in `config` control recheck cost. The issue rules live in `audit and safe autofix`."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "f00d3231-bd15-464c-ae00-eac640e10df6",
+  "nodeGroups": [],
+  "connections": {
+    "merge": {
+      "main": [
+        [
+          {
+            "node": "pick stale addresses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "config": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - read leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sunday 20:00": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "merge recheck": {
+      "main": [
+        [
+          {
+            "node": "build quality report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "anything stale?": {
+      "main": [
+        [
+          {
+            "node": "[cred] NeverBounce - recheck",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "nothing to recheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "writes enabled?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - update safe fixes in place",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: dry run - nothing written",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "nothing to recheck": {
+      "main": [
+        [
+          {
+            "node": "merge recheck",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Webhook configured?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Post the report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build quality report": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - log quality summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "pick stale addresses": {
+      "main": [
+        [
+          {
+            "node": "NeverBounce configured?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "apply recheck results": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - write recheck results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare audit results": {
+      "main": [
+        [
+          {
+            "node": "anything to write back?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Post the report": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "audit and safe autofix": {
+      "main": [
+        [
+          {
+            "node": "prepare audit results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NeverBounce configured?": {
+      "main": [
+        [
+          {
+            "node": "anything stale?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "merge recheck",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "anything to write back?": {
+      "main": [
+        [
+          {
+            "node": "prepare safe fixes for Leads",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "sheet was already clean",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sheet was already clean": {
+      "main": [
+        [
+          {
+            "node": "merge",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - read leads": {
+      "main": [
+        [
+          {
+            "node": "audit and safe autofix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare human review items": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - log human review items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] NeverBounce - recheck": {
+      "main": [
+        [
+          {
+            "node": "apply recheck results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "prepare safe fixes for Leads": {
+      "main": [
+        [
+          {
+            "node": "writes enabled?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: dry run - nothing written": {
+      "main": [
+        [
+          {
+            "node": "merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - log quality summary": {
+      "main": [
+        [
+          {
+            "node": "prepare human review items",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Webhook configured?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - write recheck results": {
+      "main": [
+        [
+          {
+            "node": "merge recheck",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - log human review items": {
+      "main": [
+        [
+          {
+            "node": "Webhook configured?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - update safe fixes in place": {
+      "main": [
+        [
+          {
+            "node": "merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

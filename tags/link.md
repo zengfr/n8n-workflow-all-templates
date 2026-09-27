@@ -1,4 +1,4 @@
-# link : 23
+# link : 33
 
 |id|file|
 |----|----|
@@ -25,3 +25,13 @@
 |10249|[10249_Extract_TikTok_Usernames_from_Any_Video_or_Creator_Link_Format.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10249_Extract_TikTok_Usernames_from_Any_Video_or_Creator_Link_Format.json)|
 |11253|[11253_Generate_Single-Use_Personalized_Calendly_Links_with_Google_Sheets_Tracking___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11253_Generate_Single-Use_Personalized_Calendly_Links_with_Google_Sheets_Tracking___Slack_Alerts.json)|
 |15444|[15444_Extract_sitemap_URLs_in_bulk_via_chat_and_export_them_to_a_CSV_download_link.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15444_Extract_sitemap_URLs_in_bulk_via_chat_and_export_them_to_a_CSV_download_link.json)|
+|17114|[17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json)|
+|17387|[17387_Save__search__and_summarize_Telegram_links_with_Google_Sheets_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17387_Save__search__and_summarize_Telegram_links_with_Google_Sheets_and_Supabase.json)|
+|18905|[18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json)|
+|19026|[19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json)|
+|19045|[19045_Monitor_WordPress_broken_links_weekly_and_send_alerts_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19045_Monitor_WordPress_broken_links_weekly_and_send_alerts_via_Telegram.json)|
+|19206|[19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json)|
+|19237|[19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json)|
+|19287|[19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json)|
+|19437|[19437_Manage_meeting_confirmations_with_Google_Calendar__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19437_Manage_meeting_confirmations_with_Google_Calendar__Gmail__and_Google_Sheets.json)|
+|19438|[19438_Manage_meeting_confirmations__reschedules__and_cancellations_with_Google_Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19438_Manage_meeting_confirmations__reschedules__and_cancellations_with_Google_Calendar_and_Gmail.json)|

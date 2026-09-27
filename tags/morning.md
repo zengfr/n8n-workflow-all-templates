@@ -1,4 +1,4 @@
-# morning : 8
+# morning : 14
 
 |id|file|
 |----|----|
@@ -10,3 +10,9 @@
 |13731|[13731_Send_a_personalized_WhatsApp_morning_brief_with_GPT-4o__Google_and_WATI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13731_Send_a_personalized_WhatsApp_morning_brief_with_GPT-4o__Google_and_WATI.json)|
 |15128|[15128_Get_a_morning_email_and_calendar_brief_with_Gmail__Google_Calendar__GPT-4o-mini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15128_Get_a_morning_email_and_calendar_brief_with_Gmail__Google_Calendar__GPT-4o-mini_and_Telegram.json)|
 |15913|[15913_Triage_emails_and_build_a_morning_digest_with_a_local_Ollama_LLM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15913_Triage_emails_and_build_a_morning_digest_with_a_local_Ollama_LLM.json)|
+|17099|[17099_Create_a_Gmail_morning_audio_briefing_with_Google_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17099_Create_a_Gmail_morning_audio_briefing_with_Google_Gemini_and_Google_Drive.json)|
+|17519|[17519_Send_a_daily_AI_morning_briefing_with_Google_Gemini__RSS__Sheets__Gmail_and_weather.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17519_Send_a_daily_AI_morning_briefing_with_Google_Gemini__RSS__Sheets__Gmail_and_weather.json)|
+|17687|[17687_Send_daily_business_change_digest_with_OpenAI__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17687_Send_daily_business_change_digest_with_OpenAI__Google_Sheets_and_Telegram.json)|
+|18804|[18804_Send_daily_AI_crypto_morning_brief_with_CoinGecko__Google_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18804_Send_daily_AI_crypto_morning_brief_with_CoinGecko__Google_Gemini_and_Telegram.json)|
+|19457|[19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json)|
+|19546|[19546_Chase_stalled_enquiries_and_send_a_weekday_morning_digest_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19546_Chase_stalled_enquiries_and_send_a_weekday_morning_digest_with_Google_Sheets_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# matching : 24
+# matching : 28
 
 |id|file|
 |----|----|
@@ -26,3 +26,7 @@
 |14442|[14442_Screen_resumes_and_match_candidates_with_GPT-4o__Google_Sheets_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14442_Screen_resumes_and_match_candidates_with_GPT-4o__Google_Sheets_and_email.json)|
 |16017|[16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json)|
 |16345|[16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json)|
+|17315|[17315_Create_WordPress_drafts_with_Claude_Haiku_and_Pexels_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17315_Create_WordPress_drafts_with_Claude_Haiku_and_Pexels_images.json)|
+|17858|[17858_Match_GAEB_X83_tender_positions_to_catalog_SKUs_with_flinq.ai_extract_and_rerank.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17858_Match_GAEB_X83_tender_positions_to_catalog_SKUs_with_flinq.ai_extract_and_rerank.json)|
+|18739|[18739_Triage_and_escalate_support_tickets_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18739_Triage_and_escalate_support_tickets_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|19552|[19552_Reconcile_bank_payments_with_ERP_invoices__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19552_Reconcile_bank_payments_with_ERP_invoices__Google_Sheets__and_Slack.json)|

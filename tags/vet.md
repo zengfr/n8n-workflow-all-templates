@@ -1,4 +1,4 @@
-# vet : 5
+# vet : 10
 
 |id|file|
 |----|----|
@@ -7,3 +7,8 @@
 |13018|[13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json)|
 |13095|[13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13095_Vet_new_Typeform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_Mautic.json)|
 |13864|[13864_Handle_Spanish-speaking_vet_clinic_bookings_with_GPT-4o__Sheets__Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13864_Handle_Spanish-speaking_vet_clinic_bookings_with_GPT-4o__Sheets__Calendar_and_Gmail.json)|
+|16888|[16888_Vet_community_membership_applications_with_Google_Gemini__Telegram__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16888_Vet_community_membership_applications_with_Google_Gemini__Telegram__and_Sheets.json)|
+|17064|[17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json)|
+|17374|[17374_Plan_campaign_targeting_and_pre-vet_ad_variants_with_Spendict__OpenAI__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17374_Plan_campaign_targeting_and_pre-vet_ad_variants_with_Spendict__OpenAI__Slack_and_Google_Sheets.json)|
+|18593|[18593_Vet_supplier_payments_with_Bright_Data__GPT-5.6__Slack__and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18593_Vet_supplier_payments_with_Bright_Data__GPT-5.6__Slack__and_data_tables.json)|
+|18727|[18727_Vet_Instagram_creators_for_real_engagement_with_Bright_Data__GPT-5.6_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18727_Vet_Instagram_creators_for_real_engagement_with_Bright_Data__GPT-5.6_and_Google_Sheets.json)|

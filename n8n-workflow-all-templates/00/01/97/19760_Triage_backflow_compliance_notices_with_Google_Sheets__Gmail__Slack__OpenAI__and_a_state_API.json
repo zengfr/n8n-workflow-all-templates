@@ -1,0 +1,1001 @@
+{
+  "id": "E09WOspo0TyEWnSF",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Triage backflow compliance notices with Google Sheets, Gmail, Slack, OpenAI, and a state API",
+    "wechat": "youandme10086",
+    "id": 19760,
+    "update_time": "2026-09-27"
+  },
+  "name": "Backflow Preventer Compliance Router - Water Utility Cross-Connection Control",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "81939e97-7cd7-471c-bb94-15266de57580",
+      "name": "Daily Compliance Scan",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        416,
+        480
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 6 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7d50b61b-fde4-4d77-bc02-7a1bc42a0dce",
+      "name": "Fetch Backflow Device Registry",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        784,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Device Registry"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_SHEET_ID"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "9d8fb210-062b-45f4-809a-1e89869f9054",
+      "name": "Split Out Device Records",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1136,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21474bf8-990c-47d2-b3f6-06862a3d00ce",
+      "name": "Compute Days Since Last Test",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1504,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const out = [];\nfor (const item of $input.all()) {\n  const d = item.json;\n  const lastTest = new Date(d.last_test_date || d.lastTestDate || Date.now());\n  const now = new Date();\n  const msPerDay = 1000 * 60 * 60 * 24;\n  const daysSince = Math.floor((now - lastTest) / msPerDay);\n  const hazard = (d.hazard_level || 'low').toLowerCase();\n  const testCycleDays = hazard === 'high' ? 365 : hazard === 'medium' ? 365 : 365;\n  const daysOverdue = daysSince - testCycleDays;\n  let riskScore = 0;\n  if (daysOverdue > 0) riskScore += Math.min(60, daysOverdue / 3);\n  if (hazard === 'high') riskScore += 30;\n  else if (hazard === 'medium') riskScore += 15;\n  if (d.device_type === 'RPZ' && daysOverdue > 0) riskScore += 10;\n  out.push({ json: { ...d, days_since_last_test: daysSince, days_overdue: daysOverdue,\n    next_due_date: new Date(lastTest.getTime() + testCycleDays * msPerDay).toISOString().slice(0,10),\n    risk_score: Math.round(riskScore) } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3b5d0387-006b-4688-b257-7b684256f0d0",
+      "name": "Normalize Device Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1856,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "device_id",
+              "type": "string",
+              "value": "={{$json.device_id}}"
+            },
+            {
+              "name": "address",
+              "type": "string",
+              "value": "={{$json.address}}"
+            },
+            {
+              "name": "hazard_level",
+              "type": "string",
+              "value": "={{$json.hazard_level}}"
+            },
+            {
+              "name": "days_overdue",
+              "type": "number",
+              "value": "={{$json.days_overdue}}"
+            },
+            {
+              "name": "risk_score",
+              "type": "number",
+              "value": "={{$json.risk_score}}"
+            },
+            {
+              "name": "owner_email",
+              "type": "string",
+              "value": "={{$json.owner_email}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7d475fb8-de11-400c-873b-16e390d78869",
+      "name": "Check Device Data Completeness",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2224,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{$json.device_id}}",
+              "rightValue": ""
+            },
+            {
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty"
+              },
+              "leftValue": "={{$json.owner_email}}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5b3403fd-d4cc-4ec1-8218-351c52833390",
+      "name": "Flag Data Quality Issue",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2576,
+        1312
+      ],
+      "webhookId": "b00b8741-0436-448b-92ec-9842059a67ca",
+      "parameters": {
+        "text": "=Registry row missing required fields: {{$json.device_id || 'UNKNOWN'}} / {{$json.address || 'no address'}}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#cross-connection-data-quality"
+        },
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "65d3fb55-56d0-40af-8e58-1fca3f2f6774",
+      "name": "Compliance Classifier Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2224,
+        896
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "993ce487-93a9-4bd4-8623-77141de7be80",
+      "name": "Classify Compliance Status",
+      "type": "@n8n/n8n-nodes-langchain.textClassifier",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2576,
+        480
+      ],
+      "parameters": {
+        "options": {
+          "systemPromptTemplate": "You are a municipal cross-connection control compliance officer. Classify each backflow preventer device into exactly one category using the EPA/state annual-test-cycle rule and the provided risk_score. Return only the matching category label, never invent a new one."
+        },
+        "categories": {
+          "categories": [
+            {
+              "category": "Critical Overdue",
+              "description": "High/medium hazard device more than 30 days overdue, or risk_score >= 60"
+            },
+            {
+              "category": "Due Soon",
+              "description": "Device overdue by 1-30 days, or due for retest within 30 days, risk_score 20-59"
+            },
+            {
+              "category": "Compliant",
+              "description": "Device tested within its cycle, risk_score < 20"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "bd75df65-3169-4c5f-bed9-2a9ada91b04b",
+      "name": "Route By Compliance Status",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2944,
+        480
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{$json.category}}",
+                    "rightValue": "Critical Overdue"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{$json.category}}",
+                    "rightValue": "Due Soon"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{$json.category}}",
+                    "rightValue": "Compliant"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "2ee806a2-48ec-4aab-b58a-bcf2c5fea030",
+      "name": "File State Non-Compliance Report",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3296,
+        480
+      ],
+      "parameters": {
+        "url": "https://REPLACE-state-ereporting-portal.example.gov/api/v1/noncompliance",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ { device_id: $json.device_id, address: $json.address, days_overdue: $json.days_overdue, hazard_level: $json.hazard_level } }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "08410359-51e8-4644-869f-288962323271",
+      "name": "Send Test Reminder Notice",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3504,
+        928
+      ],
+      "webhookId": "9fbbc8db-73ac-4b98-9362-a7124bab5a71",
+      "parameters": {
+        "sendTo": "={{$json.owner_email}}",
+        "message": "=Your backflow preventer at {{$json.address}} is due for its annual test within 30 days. Please schedule with a certified tester.",
+        "options": {},
+        "subject": "=Backflow Preventer Test Reminder - {{$json.address}}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "f7de1820-5a96-473d-937c-c1d1080c58d9",
+      "name": "Mark Registry Updated",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3280,
+        1680
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "audit_action",
+              "type": "string",
+              "value": "Compliant - no action"
+            },
+            {
+              "name": "audit_timestamp",
+              "type": "string",
+              "value": "={{$now.toISO()}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3d9c27d1-909c-4906-8c80-f3bb7e165b54",
+      "name": "Send Shutoff Warning Letter",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3664,
+        480
+      ],
+      "webhookId": "4ddf2a85-8c02-4285-b8d6-6312a16b1b05",
+      "parameters": {
+        "sendTo": "={{$json.owner_email}}",
+        "message": "=Your device at {{$json.address}} is {{$json.days_overdue}} days overdue for testing. Water service may be discontinued under municipal cross-connection control ordinance if not remedied within 10 days.",
+        "options": {},
+        "subject": "=URGENT: Backflow Preventer Non-Compliance - {{$json.address}}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "a002ac0e-9ce8-48fb-9cf6-43abfcbd5816",
+      "name": "Alert Compliance Team Critical Device",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4016,
+        480
+      ],
+      "webhookId": "3bb8e3e9-059b-4c2a-a2a4-11f270384bdf",
+      "parameters": {
+        "text": "=CRITICAL: {{$json.device_id}} at {{$json.address}} is {{$json.days_overdue}} days overdue (risk {{$json.risk_score}}). Shutoff letter sent.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#cross-connection-alerts"
+        },
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "54493cb9-aab7-407d-914c-bae4106116df",
+      "name": "Combine Audit Trail",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        4384,
+        896
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "507f9d38-bbc7-4238-a632-8e57ff8f64f7",
+      "name": "Append Compliance Audit Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4736,
+        896
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Audit Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_SHEET_ID"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "f7fb450e-5440-49a1-aba2-af148fbb70d4",
+      "name": "Panel: 📘 WORKFLOW DETAILS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -432,
+        208
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 604,
+        "height": 1081,
+        "content": "## 📘 WORKFLOW DETAILS\n\n**Backflow Preventer Compliance Router** turns a municipal water utility's backflow-preventer device registry into a daily, auto-triaged cross-connection-control enforcement queue.\n\n**Value prop:** Cross-connection control officers manage hundreds to thousands of testable devices (RPZ, DCVA, PVB) under EPA/state annual-test mandates. Manually scanning a spreadsheet for who is overdue, drafting warning letters, and filing state non-compliance reports takes hours weekly and is easy to fall behind on. This workflow does it automatically, every morning.\n\n**Who it's for:** Municipal/investor-owned water utility cross-connection control programs, backflow testing compliance vendors, and public works departments.\n\n**Execution walkthrough:**\n1. Schedule Trigger fires daily at 06:00.\n2. Google Sheets reads the full device registry.\n3. Split Out breaks it into one item per device.\n4. Code computes days overdue, next due date and a 0-100 risk score.\n5. Set normalises the record.\n6. If checks the row has the minimum required fields; incomplete rows are flagged to Slack and stop.\n7. Text Classifier (AI) assigns Critical Overdue / Due Soon / Compliant.\n8. Switch routes each device down a different real-world action.\n9. Critical devices get a state e-filing, a shutoff warning letter, and a Slack alert.\n10. Due Soon devices get a courtesy reminder email.\n11. Compliant devices are stamped for the log only.\n12. Merge reconverges all three branches and Google Sheets appends one audit row per device.\n\n**Node-by-node summary:** see the sticky note above every node on the canvas.\n\n**Expected input:** a Google Sheets row per device with device_id, address, hazard_level, device_type, last_test_date, owner_email.\n**Expected output:** one appended audit-log row per device plus, for overdue devices, an HTTP filing, an email, and a Slack alert.\n\n**Sticky colour legend:** yellow-ish(1)=trigger, blue(2)=transform, purple(3)=AI, orange(4)=branch, green(5)=storage, red(6)=notify (n8n's built-in numeric colour indices)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "558f24bc-fab1-40cf-8129-28766b0994fb",
+      "name": "Panel: ⚙️ SETUP GUIDE",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        1376
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 684,
+        "height": 803,
+        "content": "## ⚙️ SETUP GUIDE\n\n**Required credentials:**\n- Google Sheets OAuth2 -> nodes 'Fetch Backflow Device Registry' and 'Append Compliance Audit Log' -> credential name 'Water Utility - Google Sheets (Backflow Registry)'\n- Gmail OAuth2 -> nodes 'Send Test Reminder Notice' and 'Send Shutoff Warning Letter' -> credential name 'Water Utility - Gmail (Compliance Notices)'\n- Slack API -> nodes 'Flag Data Quality Issue' and 'Alert Compliance Team Critical Device' -> credential name 'Water Utility - Slack (Cross-Connection Alerts)'\n- HTTP Header Auth -> node 'File State Non-Compliance Report' -> credential name 'State e-Reporting Portal - API Key'\n- OpenAI API -> node 'Compliance Classifier Model' -> credential name 'Swapnil AI Labs - OpenAI API'\n\n**Setup steps:**\n1. Import this JSON via n8n -> Workflows -> Import from File.\n2. Create/attach the 5 credentials listed above under their exact placeholder names.\n3. Replace REPLACE_WITH_SHEET_ID in both Google Sheets nodes with your registry spreadsheet ID.\n4. Update the Slack channel IDs (#cross-connection-data-quality, #cross-connection-alerts) to real channels.\n5. Replace the HTTP Request URL with your state's actual e-reporting endpoint.\n6. Adjust the 365-day test cycle constant in 'Compute Days Since Last Test' if your jurisdiction differs.\n7. Set the Schedule Trigger cron to your preferred run time.\n\n**Config values to change:** Sheet ID (x2), Slack channel IDs (x2), HTTP endpoint URL, test-cycle-days constant.\n**How to test:** Pin a few sample rows in 'Fetch Backflow Device Registry' output covering all 3 categories, then Execute Workflow.\n**Estimated setup time:** 20-30 minutes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7256fbfc-e67c-421b-90d5-964db32e602b",
+      "name": "Panel: 🎨 CUSTOMISATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        2240
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 652,
+        "height": 373,
+        "content": "## 🎨 CUSTOMISATION\n\n1. **Compute Days Since Last Test** (Code): change the 365-day constant to a per-hazard-level cycle if your ordinance varies by device type.\n2. **Classify Compliance Status** (Text Classifier): tighten or loosen the category descriptions to match your local grace-period policy.\n3. **Route By Compliance Status** (Switch): add a 4th output for 'Test Failed' devices if you also ingest failed-test results.\n4. **Send Shutoff Warning Letter** (Gmail): swap in an HTML template with your utility's letterhead.\n5. **Append Compliance Audit Log** (Google Sheets): point at a Data Table instead if you prefer n8n-native storage."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "649072fe-c97c-4b88-b8a4-bb223715bad5",
+      "name": "Panel: ℹ️ ADDITIONAL INFORMATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        2688
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 652,
+        "height": 435,
+        "content": "## ℹ️ ADDITIONAL INFORMATION\n\n**Error handling:** external nodes use onError='continueRegularOutput' with 3 retries (2s backoff) so one bad device record never halts the daily scan.\n**API cost/rate limits:** 1 OpenAI classification call per device per day (small prompt, gpt-4.1-mini); Google Sheets/Slack/Gmail calls scale with device count - batch via Sheets API quotas if registry exceeds ~5,000 devices.\n**Data privacy:** device_id, address, hazard_level and days_overdue are sent to the OpenAI classifier - no personal owner names are included in the AI prompt, only the operational fields needed to categorise.\n**n8n version:** unknown - built to current stable as of build date (2026-09-20); offline-verified node types, re-check on first import.\n**Known limitations:** assumes a flat 365-day test cycle; does not yet ingest failed-test lab results directly.\n\nSwapnil AI Labs — swapnil.mandloi7@gmail.com — swapnilailabs.netlify.app"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3729a0c9-5391-4164-a682-f1d5a38c4af1",
+      "name": "Note: Daily Compliance Scan",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        384,
+        240
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 150,
+        "content": "**Daily Compliance Scan**\nFires every day at 06:00 to scan the backflow device registry for due/overdue tests.\nSchedule: daily 06:00 cron"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a77033b4-0a16-47c3-b146-2a72294f4dc5",
+      "name": "Note: Fetch Backflow Device Registry",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 150,
+        "content": "**Fetch Backflow Device Registry**\nReads every tracked backflow preventer device row from the municipal registry sheet.\nSheet: 'Device Registry' tab"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ffb19a7-09ac-45f5-ae85-beaaa8ddd384",
+      "name": "Note: Split Out Device Records",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1104,
+        240
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Split Out Device Records**\nSplits the registry read into one item per physical backflow preventer device.\nSplits on: registry rows"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "566b72f8-811d-4fce-a389-bf2f2304dbd7",
+      "name": "Note: Compute Days Since Last Test",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1472,
+        240
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Compute Days Since Last Test**\nReal logic: computes days overdue vs the annual test cycle and a 0-100 risk score by hazard class.\nCycle: 365 days; risk = overdue-days + hazard weight"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af38bf5f-3870-4967-98e2-68df7f9f28aa",
+      "name": "Note: Normalize Device Record",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1824,
+        240
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Normalize Device Record**\nShapes the enriched record down to the fields the classifier and downstream actions need.\nFields: device_id, hazard_level, days_overdue, risk_score"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "786ff098-fb36-4485-80d2-0ceb113f5ae4",
+      "name": "Note: Check Device Data Completeness",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2192,
+        240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 150,
+        "content": "**Check Device Data Completeness**\nBranch point 1: guards against incomplete registry rows before AI classification runs.\nRequires: device_id AND owner_email present\nBad data would otherwise mis-route enforcement letters."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a103f75-6c01-4099-bcc3-036787eb9422",
+      "name": "Note: Flag Data Quality Issue",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2416,
+        1680
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 150,
+        "content": "**Flag Data Quality Issue**\nTerminal path: alerts the data-entry team when a registry row is missing device_id or owner_email.\nChannel: #cross-connection-data-quality"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b31a01d-25d7-4b35-9e9b-78301f648366",
+      "name": "Note: Compliance Classifier Model",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2016,
+        1136
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 150,
+        "content": "**Compliance Classifier Model**\nChat model backing the compliance classifier; low temperature for consistent categorisation.\nModel: gpt-4.1-mini, temp 0.1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e57199a-095b-4e5f-80d6-ad666fbd1798",
+      "name": "Note: Classify Compliance Status",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2544,
+        240
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 150,
+        "content": "**Classify Compliance Status**\nAI step: classifies each device into Critical Overdue / Due Soon / Compliant per cross-connection policy.\n3 categories; strict single-label output"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47236762-cfa4-40de-9b12-9ea250c5993b",
+      "name": "Note: Route By Compliance Status",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2912,
+        240
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 150,
+        "content": "**Route By Compliance Status**\nBranch point 2: genuine 3-way Switch routing on the AI-assigned compliance category.\nOutputs: Critical Overdue / Due Soon / Compliant"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "398ad6e7-2c7c-4bda-8771-7c1f73d9a3f2",
+      "name": "Note: File State Non-Compliance Report",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3264,
+        240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 150,
+        "content": "**File State Non-Compliance Report**\nFiles the critical non-compliance record with the state cross-connection e-reporting portal.\nPOST /api/v1/noncompliance"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c5c613fc-5704-4f04-9603-a4bb7aa60e06",
+      "name": "Note: Send Test Reminder Notice",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3408,
+        1200
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 150,
+        "content": "**Send Test Reminder Notice**\nSends a courtesy reminder to property owners whose device is due soon but not yet overdue.\nTrigger: category = Due Soon"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "993ec29c-3ad7-49b9-b916-4cea102e2df7",
+      "name": "Note: Mark Registry Updated",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3200,
+        1920
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Mark Registry Updated**\nCompliant devices need no outreach; this just stamps an audit action for the log.\naudit_action = 'Compliant - no action'"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "68a9a3e1-59c1-451c-8066-44fffc60671c",
+      "name": "Note: Send Shutoff Warning Letter",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3632,
+        240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 150,
+        "content": "**Send Shutoff Warning Letter**\nSends the formal shutoff-warning letter required before enforcement on critically overdue devices.\n10-day cure notice per ordinance"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d8804d1e-e201-4631-9f3b-8932ab854a71",
+      "name": "Note: Alert Compliance Team Critical Device",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3984,
+        240
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 150,
+        "content": "**Alert Compliance Team Critical Device**\nNotifies the compliance team in real time whenever a critical overdue device is actioned.\nChannel: #cross-connection-alerts"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2c03b662-e2eb-4cdf-a0bd-f4224fd59eae",
+      "name": "Note: Combine Audit Trail",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4208,
+        1168
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Combine Audit Trail**\nReconverges all three Switch branches into a single stream for one unified audit log write.\n3 inputs merged"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3fd67f2b-f648-4f5e-9d92-0fd2e838fd49",
+      "name": "Note: Append Compliance Audit Log",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4736,
+        1168
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 150,
+        "content": "**Append Compliance Audit Log**\nAppends one audit row per device processed today to the compliance audit log tab.\nSheet: 'Audit Log' tab"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "165ca526-2c70-428b-a441-c6c1996b0bac",
+  "connections": {
+    "Combine Audit Trail": {
+      "main": [
+        [
+          {
+            "node": "Append Compliance Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Compliance Scan": {
+      "main": [
+        [
+          {
+            "node": "Fetch Backflow Device Registry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Device Record": {
+      "main": [
+        [
+          {
+            "node": "Check Device Data Completeness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Device Records": {
+      "main": [
+        [
+          {
+            "node": "Compute Days Since Last Test",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Test Reminder Notice": {
+      "main": [
+        [
+          {
+            "node": "Combine Audit Trail",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Classify Compliance Status": {
+      "main": [
+        [
+          {
+            "node": "Route By Compliance Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Compliance Status": {
+      "main": [
+        [
+          {
+            "node": "File State Non-Compliance Report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Test Reminder Notice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Registry Updated",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compliance Classifier Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Compliance Status",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Shutoff Warning Letter": {
+      "main": [
+        [
+          {
+            "node": "Alert Compliance Team Critical Device",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Days Since Last Test": {
+      "main": [
+        [
+          {
+            "node": "Normalize Device Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Device Data Completeness": {
+      "main": [
+        [
+          {
+            "node": "Classify Compliance Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag Data Quality Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Backflow Device Registry": {
+      "main": [
+        [
+          {
+            "node": "Split Out Device Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File State Non-Compliance Report": {
+      "main": [
+        [
+          {
+            "node": "Send Shutoff Warning Letter",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Compliance Team Critical Device": {
+      "main": [
+        [
+          {
+            "node": "Combine Audit Trail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

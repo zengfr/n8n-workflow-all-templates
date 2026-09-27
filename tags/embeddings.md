@@ -1,4 +1,4 @@
-# embeddings : 21
+# embeddings : 28
 
 |id|file|
 |----|----|
@@ -23,3 +23,10 @@
 |16540|[16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json)|
 |16625|[16625_Sync_Google_Drive_documents_to_Pinecone_RAG_with_Google_Gemini_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16625_Sync_Google_Drive_documents_to_Pinecone_RAG_with_Google_Gemini_embeddings.json)|
 |16720|[16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json)|
+|16835|[16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json)|
+|16985|[16985_Add_internal_links_to_WordPress_posts_with_OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16985_Add_internal_links_to_WordPress_posts_with_OpenAI__Notion__and_Slack.json)|
+|17445|[17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json)|
+|17557|[17557_Run_a_RAG_support_copilot_with_Claude_Sonnet_and_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17557_Run_a_RAG_support_copilot_with_Claude_Sonnet_and_OpenAI_embeddings.json)|
+|17628|[17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json)|
+|17764|[17764_Index_local_documents_for_RAG_using_Ollama_embeddings_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17764_Index_local_documents_for_RAG_using_Ollama_embeddings_and_Qdrant.json)|
+|18427|[18427_Seed_a_Supabase_AI_knowledge_base_from_Notion_with_Ollama_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18427_Seed_a_Supabase_AI_knowledge_base_from_Notion_with_Ollama_embeddings.json)|

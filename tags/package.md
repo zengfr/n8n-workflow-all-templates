@@ -1,4 +1,4 @@
-# package : 10
+# package : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |14911|[14911_Analyze_npm_packages_with_Firecrawl__GitHub__npm_APIs__Gemini_and_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14911_Analyze_npm_packages_with_Firecrawl__GitHub__npm_APIs__Gemini_and_GPT.json)|
 |15227|[15227_Generate_YouTube_scripts_and_full_SEO_package_with_GPT-4o-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15227_Generate_YouTube_scripts_and_full_SEO_package_with_GPT-4o-mini_and_Gmail.json)|
 |15410|[15410_AI-Powered_NPM_Package_Intelligence_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15410_AI-Powered_NPM_Package_Intelligence_Agent.json)|
+|17359|[17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json)|
+|17367|[17367_Reprice_FX-sensitive_international_packages_with_Claude__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17367_Reprice_FX-sensitive_international_packages_with_Claude__Google_Sheets_and_Slack.json)|
+|18872|[18872_Send_Slack_alerts_for_new_npm_or_PyPI_package_releases_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18872_Send_Slack_alerts_for_new_npm_or_PyPI_package_releases_with_Apify.json)|

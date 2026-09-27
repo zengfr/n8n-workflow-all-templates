@@ -1,4 +1,4 @@
-# bluesky : 16
+# bluesky : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |12634|[12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json)|
 |15678|[15678_Publish_daily_multi-platform_social_posts_from_live_web_research_with_GPT-5.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15678_Publish_daily_multi-platform_social_posts_from_live_web_research_with_GPT-5.5.json)|
 |16666|[16666_Create_social_posts_from_RSS_with_OpenAI__LinkedIn__X__and_Bluesky.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16666_Create_social_posts_from_RSS_with_OpenAI__LinkedIn__X__and_Bluesky.json)|
+|18044|[18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json)|
+|18103|[18103_Monitor_Bluesky_keyword_posts_with_Apify_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18103_Monitor_Bluesky_keyword_posts_with_Apify_and_data_tables.json)|

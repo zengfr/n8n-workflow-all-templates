@@ -1,4 +1,4 @@
-# enricher : 8
+# enricher : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |11258|[11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11258_Enrich___Qualify_Leads_with_Azure_OpenAI__Bright_Data_MCP___HubSpot_CRM.json)|
 |12345|[12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12345_Scrape_physician_profiles_from_BrowserAct_into_Google_Sheets_and_notify_Slack.json)|
 |16611|[16611_Score_and_route_inbound_leads_with_Claude__Airtable__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16611_Score_and_route_inbound_leads_with_Claude__Airtable__Slack__and_Gmail.json)|
+|16916|[16916_Enrich_LinkedIn_leads_with_Unipile_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16916_Enrich_LinkedIn_leads_with_Unipile_and_Google_Sheets.json)|
+|17637|[17637_Qualify_and_enrich_Odoo_leads_with_Tavily__Google_Gemini__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17637_Qualify_and_enrich_Odoo_leads_with_Tavily__Google_Gemini__and_Resend.json)|
+|17853|[17853_Enrich_inbound_leads_with_OpenAI__NewsAPI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17853_Enrich_inbound_leads_with_OpenAI__NewsAPI__Google_Sheets__and_Gmail.json)|

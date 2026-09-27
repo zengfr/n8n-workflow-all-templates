@@ -1,4 +1,4 @@
-# sentiment : 85
+# sentiment : 95
 
 |id|file|
 |----|----|
@@ -87,3 +87,13 @@
 |15571|[15571_Classify_sentiment_of_incoming_text_using_Hugging_Face__Google_Sheets__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15571_Classify_sentiment_of_incoming_text_using_Hugging_Face__Google_Sheets__and_Jira.json)|
 |16265|[16265_Track_commodity_news_sentiment_with_Groq__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16265_Track_commodity_news_sentiment_with_Groq__Google_Sheets__and_Slack.json)|
 |16447|[16447_Send_weekly_Reddit_sentiment_digests_to_Notion_with_ScraperAPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16447_Send_weekly_Reddit_sentiment_digests_to_Notion_with_ScraperAPI_and_OpenAI.json)|
+|16887|[16887_Route_ecommerce_review_alerts_from_Gmail_to_Slack_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16887_Route_ecommerce_review_alerts_from_Gmail_to_Slack_with_OpenAI_and_Google_Sheets.json)|
+|16930|[16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|17076|[17076_Route_supplier_risk_alerts_from_Gmail_to_Slack_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17076_Route_supplier_risk_alerts_from_Gmail_to_Slack_with_Gemini_and_Google_Sheets.json)|
+|17839|[17839_Analyze_Facebook_post_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17839_Analyze_Facebook_post_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|17848|[17848_Monitor_live_event_sentiment_and_send_alerts_with_Fanbase_MCP__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17848_Monitor_live_event_sentiment_and_send_alerts_with_Fanbase_MCP__Gemini__and_Slack.json)|
+|18149|[18149_Analyze_customer_feedback_and_alert_negative_sentiment_with_gpt-5.6-terra_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18149_Analyze_customer_feedback_and_alert_negative_sentiment_with_gpt-5.6-terra_and_Telegram.json)|
+|18548|[18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json)|
+|18564|[18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json)|
+|19405|[19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json)|
+|19834|[19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json)|

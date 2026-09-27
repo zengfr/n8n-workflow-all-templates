@@ -1,4 +1,4 @@
-# stock : 89
+# stock : 103
 
 |id|file|
 |----|----|
@@ -91,3 +91,17 @@
 |15972|[15972_Send_predictive_Shopify_low-stock_alerts_with_Google_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15972_Send_predictive_Shopify_low-stock_alerts_with_Google_Sheets__Slack__and_Gmail.json)|
 |16541|[16541_Send_low-stock_inventory_reorder_emails_from_Snowflake_with_Claude_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16541_Send_low-stock_inventory_reorder_emails_from_Snowflake_with_Claude_and_Outlook.json)|
 |16705|[16705_Send_SAP_Business_One_low_stock_alerts_via_WhatsApp_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16705_Send_SAP_Business_One_low_stock_alerts_via_WhatsApp_and_email.json)|
+|17331|[17331_Send_AI_stock_watchlist_alerts_with_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17331_Send_AI_stock_watchlist_alerts_with_Google_Sheets__Groq__and_Slack.json)|
+|17560|[17560_Generate_multi-quarter_earnings_reports_with_Google_Workspace__Gemini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17560_Generate_multi-quarter_earnings_reports_with_Google_Workspace__Gemini_and_Pinecone.json)|
+|17594|[17594_Log_US_Congress_stock_trades_for_your_watchlist_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17594_Log_US_Congress_stock_trades_for_your_watchlist_with_Apify_and_Google_Sheets.json)|
+|17624|[17624_Route_low-stock_inventory_alerts_from_Google_Sheets_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17624_Route_low-stock_inventory_alerts_from_Google_Sheets_to_Slack.json)|
+|17724|[17724_Send_low-stock_purchase_orders_with_Google_Sheets__Slack__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17724_Send_low-stock_purchase_orders_with_Google_Sheets__Slack__and_OpenAI.json)|
+|17799|[17799_Send_NSE_stock_watchlist_alerts_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17799_Send_NSE_stock_watchlist_alerts_with_Google_Sheets_and_Gmail.json)|
+|17804|[17804_Send_daily_stock_and_sales_profit_reports_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17804_Send_daily_stock_and_sales_profit_reports_with_Google_Sheets_and_Gmail.json)|
+|18168|[18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json)|
+|18208|[18208_Monitor_product_prices_and_stock_with_Google_Sheets__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18208_Monitor_product_prices_and_stock_with_Google_Sheets__OpenAI__and_Slack.json)|
+|18548|[18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json)|
+|19019|[19019_Sync_warehouse_stock_to_GoHighLevel_via_SFTP__Google_Drive__and_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19019_Sync_warehouse_stock_to_GoHighLevel_via_SFTP__Google_Drive__and_webhook.json)|
+|19120|[19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json)|
+|19313|[19313_Sync_Shopify_inventory_and_prices_with_supplier_CSV_or_Excel_files.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19313_Sync_Shopify_inventory_and_prices_with_supplier_CSV_or_Excel_files.json)|
+|19447|[19447_Process_store_webhook_orders_with_supplier__shipping__CRM_and_ERP_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19447_Process_store_webhook_orders_with_supplier__shipping__CRM_and_ERP_APIs.json)|

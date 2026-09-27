@@ -1,4 +1,4 @@
-# archive : 21
+# archive : 33
 
 |id|file|
 |----|----|
@@ -23,3 +23,15 @@
 |15524|[15524_Archive_Outlook_email_attachments_to_DATEV_DMS_with_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15524_Archive_Outlook_email_attachments_to_DATEV_DMS_with_Slack_notifications.json)|
 |15793|[15793_Archive_Outlook_email_attachments_to_OneDrive_with_SharePoint_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15793_Archive_Outlook_email_attachments_to_OneDrive_with_SharePoint_logging.json)|
 |16801|[16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json)|
+|16866|[16866_Generate__email__and_archive_PDFs_from_HTML_with_PDFBolt__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16866_Generate__email__and_archive_PDFs_from_HTML_with_PDFBolt__Gmail__and_Google_Drive.json)|
+|17245|[17245_Archive_and_index_legal_PDFs_from_Gmail_with_Gemini__Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17245_Archive_and_index_legal_PDFs_from_Gmail_with_Gemini__Sheets_and_Google_Drive.json)|
+|17604|[17604_Receive_orders__generate_branded_invoice_PDFs_with_pdfmill__email_via_Gmail__and_archive_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17604_Receive_orders__generate_branded_invoice_PDFs_with_pdfmill__email_via_Gmail__and_archive_to_Google_Drive.json)|
+|17615|[17615_Archive_Discord_attachments_to_Google_Drive_and_log_them_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17615_Archive_Discord_attachments_to_Google_Drive_and_log_them_in_Google_Sheets.json)|
+|17808|[17808_Archive_Discord_audit_logs_to_Google_Sheets_and_send_weekly_Slack_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17808_Archive_Discord_audit_logs_to_Google_Sheets_and_send_weekly_Slack_digests.json)|
+|17864|[17864_Validate_incoming_XRechnung_invoices_from_IMAP_and_archive_them_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17864_Validate_incoming_XRechnung_invoices_from_IMAP_and_archive_them_with_Data_Tables.json)|
+|18207|[18207_Archive_legal_page_compliance_snapshots_to_S3_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18207_Archive_legal_page_compliance_snapshots_to_S3_with_Google_Sheets_and_Slack.json)|
+|18284|[18284_Generate_Stripe_invoice_PDFs_with_PDFops__S3__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18284_Generate_Stripe_invoice_PDFs_with_PDFops__S3__Gmail__Sheets__and_Slack.json)|
+|18473|[18473_Handle_Certyneo_e-signature_webhooks_and_archive_signed_PDFs_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18473_Handle_Certyneo_e-signature_webhooks_and_archive_signed_PDFs_to_Google_Drive.json)|
+|18481|[18481_Archive_Instagram_stories_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18481_Archive_Instagram_stories_to_Google_Sheets_with_Apify.json)|
+|18865|[18865_Archive_weekly_web_page_snapshots_into_a_single_PDF_with_PDFMint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18865_Archive_weekly_web_page_snapshots_into_a_single_PDF_with_PDFMint.json)|
+|19756|[19756_Prepare_Whisk_AI_product_image_briefs_with_Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19756_Prepare_Whisk_AI_product_image_briefs_with_Google_Sheets_and_Google_Drive.json)|

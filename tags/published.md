@@ -1,4 +1,4 @@
-# published : 9
+# published : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |15792|[15792_Get_Xiaohongshu_user_published_notes_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15792_Get_Xiaohongshu_user_published_notes_with_JustOneAPI.json)|
 |15882|[15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15882_Get_Douyin_user_published_videos_and_first_video_details_with_JustOneAPI.json)|
 |16014|[16014_Research_Kuaishou_creator_videos_from_a_keyword_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16014_Research_Kuaishou_creator_videos_from_a_keyword_with_JustOneAPI.json)|
+|17035|[17035_Ping_IndexNow_when_new_blog_posts_are_published_from_your_RSS_feed.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17035_Ping_IndexNow_when_new_blog_posts_are_published_from_your_RSS_feed.json)|
+|17390|[17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json)|
+|17731|[17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json)|
+|18694|[18694_Create_and_publish_car_campaigns_from_one_photo_with_GPT-5__GPT_Image_2__LTX_2.3_and_Postoria.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18694_Create_and_publish_car_campaigns_from_one_photo_with_GPT-5__GPT_Image_2__LTX_2.3_and_Postoria.json)|

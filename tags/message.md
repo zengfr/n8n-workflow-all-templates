@@ -1,4 +1,4 @@
-# message : 74
+# message : 78
 
 |id|file|
 |----|----|
@@ -76,3 +76,7 @@
 |13332|[13332_Track_new_ranked_keywords_in_Google_Sheets_with_DataForSEO_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13332_Track_new_ranked_keywords_in_Google_Sheets_with_DataForSEO_and_Slack_alerts.json)|
 |14802|[14802_Send_personalized_birthday_and_anniversary_emails_with_Google_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14802_Send_personalized_birthday_and_anniversary_emails_with_Google_Sheets__Gemini__and_Gmail.json)|
 |15927|[15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json)|
+|17057|[17057_Publish_AI_social_posts_from_Telegram_to_LinkedIn__Instagram__Facebook_and_Threads_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17057_Publish_AI_social_posts_from_Telegram_to_LinkedIn__Instagram__Facebook_and_Threads_with_OpenAI_and_Blotato.json)|
+|17401|[17401_Summarize_daily_Twilio_SMS_delivery_rates_to_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17401_Summarize_daily_Twilio_SMS_delivery_rates_to_Google_Sheets_and_Slack.json)|
+|17998|[17998_Send_Russian_joke_comics_to_Telegram_with_OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17998_Send_Russian_joke_comics_to_Telegram_with_OpenRouter_and_Google_Sheets.json)|
+|19459|[19459_Classify_and_label_new_Gmail_messages_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19459_Classify_and_label_new_Gmail_messages_with_OpenAI_GPT-4o-mini.json)|

@@ -1,4 +1,4 @@
-# way : 23
+# way : 27
 
 |id|file|
 |----|----|
@@ -25,3 +25,7 @@
 |12662|[12662_Automate_3-way_invoice_matching_from_Gmail_to_Xero_with_Slack_and_Teams_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12662_Automate_3-way_invoice_matching_from_Gmail_to_Xero_with_Slack_and_Teams_alerts.json)|
 |12679|[12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12679_Sync_contacts_two-way_between_Zoho_CRM_and_KlickTipp.json)|
 |15264|[15264_Bridge_iMessage_and_Slack_threads_with_Blooio_for_two-way_messaging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15264_Bridge_iMessage_and_Slack_threads_with_Blooio_for_two-way_messaging.json)|
+|17284|[17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json)|
+|18493|[18493_Match_and_approve_invoices_with_Google_Sheets__Groq_Llama_3.3__Notion_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18493_Match_and_approve_invoices_with_Google_Sheets__Groq_Llama_3.3__Notion_and_Gmail.json)|
+|18580|[18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json)|
+|19446|[19446_Match_vendor_invoices_with_POs_and_GRNs_in_Google_Sheets_and_notify_Finance_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19446_Match_vendor_invoices_with_POs_and_GRNs_in_Google_Sheets_and_notify_Finance_via_Gmail.json)|

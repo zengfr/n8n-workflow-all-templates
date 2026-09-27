@@ -1,4 +1,4 @@
-# public : 32
+# public : 45
 
 |id|file|
 |----|----|
@@ -34,3 +34,16 @@
 |13665|[13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json)|
 |14974|[14974_Monitor_Austrian_public_tenders_daily_with_easybits_PDF_extraction_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14974_Monitor_Austrian_public_tenders_daily_with_easybits_PDF_extraction_and_Slack_alerts.json)|
 |16300|[16300_Reply_to_Instagram_and_Facebook_comments_via_Meta_webhooks_and_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16300_Reply_to_Instagram_and_Facebook_comments_via_Meta_webhooks_and_DMs.json)|
+|16895|[16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16895_Generate_AI_selfie_photos_from_Telegram_with_AtlasCloud_and_Blotato.json)|
+|17335|[17335_Draft_cited_support_replies_from_public_docs_with_You.com__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17335_Draft_cited_support_replies_from_public_docs_with_You.com__Gmail__and_Slack.json)|
+|17623|[17623_Create_weekly_SEO_blog_posts_from_Google_Sheets_with_Gemini_and_Sanity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17623_Create_weekly_SEO_blog_posts_from_Google_Sheets_with_Gemini_and_Sanity.json)|
+|17697|[17697_Qualify_Polish_public_tenders_with_Anthropic_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17697_Qualify_Polish_public_tenders_with_Anthropic_and_Telegram_alerts.json)|
+|17859|[17859_Generate_a_Sleeper_preseason_league_command_center_from_a_public_league_form.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17859_Generate_a_Sleeper_preseason_league_command_center_from_a_public_league_form.json)|
+|18003|[18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json)|
+|18151|[18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json)|
+|18589|[18589_Score_and_review_nonprofit_grant_opportunities_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18589_Score_and_review_nonprofit_grant_opportunities_with_Google_Sheets.json)|
+|18931|[18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json)|
+|18935|[18935_Search_ROCKIMG_image_tools_with_form_input_and_the_public_ROCKIMG_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18935_Search_ROCKIMG_image_tools_with_form_input_and_the_public_ROCKIMG_API.json)|
+|18962|[18962_Collect_and_theme_customer_complaints_with_Apify__OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18962_Collect_and_theme_customer_complaints_with_Apify__OpenAI_and_Notion.json)|
+|19337|[19337_Sync_a_GitHub_integration_catalog_from_GitHub_to_StudioCMS_pages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19337_Sync_a_GitHub_integration_catalog_from_GitHub_to_StudioCMS_pages.json)|
+|19498|[19498_Check_a_public_web_page_for_broken_links_and_images_with_PowMCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19498_Check_a_public_web_page_for_broken_links_and_images_with_PowMCP.json)|

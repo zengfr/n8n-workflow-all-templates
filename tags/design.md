@@ -1,4 +1,4 @@
-# design : 16
+# design : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |13536|[13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13536_Design_scalable_sync_workflows_with_Data_Tables__ProspectPro_and_HubSpot.json)|
 |13932|[13932_Manage_engineering_change_requests_via_webhooks_and_Slack_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13932_Manage_engineering_change_requests_via_webhooks_and_Slack_approvals.json)|
 |15812|[15812_Send_Stripe_purchase_templates_from_Google_Drive_via_Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15812_Send_Stripe_purchase_templates_from_Google_Drive_via_Gmail_and_Discord.json)|
+|18015|[18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json)|
+|19254|[19254_Design_UI_screens_from_chat_with_Google_Stitch__Gemini__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19254_Design_UI_screens_from_chat_with_Google_Stitch__Gemini__Telegram_and_Sheets.json)|

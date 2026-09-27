@@ -1,0 +1,1050 @@
+{
+  "name": "Clip new YouTube uploads into viral shorts with open-source OpenShorts and publish after Telegram approval",
+  "nodes": [
+    {
+      "id": "note-overview",
+      "name": "Read me first",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1060,
+        -120
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 460,
+        "height": 900,
+        "content": "## Clip your YouTube channel and publish after approval\n\n**Who's it for**\nCreators and small teams who publish long videos and want shorts from them without\nhanding the publish button to a machine. It suits anyone who already runs n8n and\ndoes not want to build the clipping and the multi-platform posting themselves.\n\n**What it does**\nOnce a day it reads your channel RSS feed and picks one video: your newest upload,\nor the next unprocessed one from the back catalogue. It sends that video to\nOpenShorts, which returns finished 9:16 clips with subtitles through a webhook, so\nthere is no polling loop. Each clip arrives in Telegram with Publish and Skip\nbuttons. Approved clips are scheduled one per day to the social accounts connected\nin your OpenShorts account, and every Sunday the workflow reports the impressions\nand best post of what it published.\n\n**How to set up**\n1. Create an API key at openshorts.app and add it as a Header Auth credential\n   (Name: Authorization, Value: Bearer osk_...).\n2. Create a Telegram bot with @BotFather and add the Telegram credential.\n3. Fill the three **Settings** nodes with your YouTube channel id and Telegram chat id.\n4. Copy the production URL of the *Clips ready* webhook node into the\n   `webhook_url` field of *Start OpenShorts job*.\n\n**Requirements**\nAn OpenShorts account (free tier covers 20 minutes of video a month, paid plans\nfrom $12/month) or a self-hosted instance, a Telegram bot, and an n8n reachable\nover https so Telegram can register the approval buttons.\n\n**How to customize**\nChange the schedule to clip more or less often, edit the platforms list in\n*Schedule social post*, widen the posting rhythm in *Pick next free slot*, or\nreplace the Telegram approval with your own review step."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-act1",
+      "name": "Act 1 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        -120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 420,
+        "content": "## ACT 1 — Watch the channel (daily)\n\nOnce a day this branch reads your channel's RSS feed and picks **one** video to clip: a new upload if there is one, otherwise the next unprocessed video from your back catalog (newest first). One video per day keeps your quota burn predictable.\n\n**Setup**: put your channel id in the *Channel RSS feed* node (`https://www.youtube.com/feeds/videos.xml?channel_id=UC...`). Find it at youtube.com → your channel → About → Share → Copy channel ID.\n\nIf OpenShorts answers 402 (out of minutes) the machine pauses and tells you on Telegram instead of failing silently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "daily-schedule",
+      "name": "Every day 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -80,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "channel-rss",
+      "name": "Channel RSS feed",
+      "type": "n8n-nodes-base.rssFeedRead",
+      "position": [
+        220,
+        0
+      ],
+      "parameters": {
+        "url": "=https://www.youtube.com/feeds/videos.xml?channel_id={{ $json.youtube_channel_id }}",
+        "options": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "pick-video",
+      "name": "Pick next video",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// One video per run: the newest video we have not processed yet.\n// A fresh upload is by definition the newest unprocessed one, so new\n// uploads win automatically; with nothing new, the back catalog drains\n// newest-first. Processed links persist in workflow static data\n// (production executions only — manual test runs do not save it).\nconst staticData = $getWorkflowStaticData('global');\nconst done = staticData.processedVideos || [];\nconst videos = $input.all().map((i) => i.json);\nconst fresh = videos.filter((v) => v.link && !done.includes(v.link));\nif (fresh.length === 0) {\n  return [];\n}\nconst pick = fresh[0];\nreturn [{ json: { url: pick.link, title: pick.title, published: pick.isoDate } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "start-job",
+      "name": "Start OpenShorts job",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        660,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.openshorts.app/api/process",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"url\": \"{{ $json.url }}\",\n  \"acknowledged\": true,\n  \"webhook_url\": \"PASTE_THE_PRODUCTION_URL_OF_THE_CLIPS-READY_WEBHOOK_NODE_HERE\",\n  \"webhook_secret\": \"change-me\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "OpenShorts API key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "mark-processed",
+      "name": "Mark video as processed",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        800,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "// Only mark the video done once OpenShorts accepted the job — a failed\n// submit (quota, downtime) leaves it unmarked so tomorrow retries it.\nconst staticData = $getWorkflowStaticData('global');\nconst done = staticData.processedVideos || [];\nconst url = $('Pick next video').first().json.url;\nif (!done.includes(url)) {\n  done.push(url);\n}\nstaticData.processedVideos = done;\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "tg-clipping",
+      "name": "Notify: clipping started",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1020,
+        -60
+      ],
+      "parameters": {
+        "text": "=🎬 Clipping started: {{ $('Pick next video').first().json.title }}\n\nI'll send the clips here for approval when they're ready.",
+        "chatId": "={{ $('Settings').first().json.telegram_chat_id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "tg-quota",
+      "name": "Notify: out of minutes",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        800,
+        120
+      ],
+      "parameters": {
+        "text": "⚠️ Autopilot paused: OpenShorts rejected the job (most likely you're out of minutes this month). The video was NOT marked as processed, so it will be retried tomorrow. Top up or upgrade at https://www.openshorts.app/",
+        "chatId": "={{ $('Settings').first().json.telegram_chat_id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "note-act2",
+      "name": "Act 2 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 380,
+        "content": "## ACT 2 — Clips arrive on your phone\n\n**No polling, no Wait-node loop.** OpenShorts calls this webhook once per job (success **and** failure, so nothing ever hangs). Each finished 9:16 clip lands in your Telegram with two buttons: ✅ publish or ❌ skip — a human approves every post, which is also what keeps you on the right side of YouTube's inauthentic-content policy.\n\n**Setup**: copy the **production** URL of the *Clips ready* webhook node and paste it as `webhook_url` inside *Start OpenShorts job*. Telegram fetches videos by URL up to ~20 MB; bigger clips fall back to a message with the download link and the same buttons."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "clips-webhook",
+      "name": "Clips ready (webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -80,
+        440
+      ],
+      "webhookId": "30f3bc66-1f03-4d2f-94b8-aed49571238d",
+      "parameters": {
+        "path": "openshorts-machine-clips",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-completed",
+      "name": "Job completed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        200,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.body.event }}",
+              "rightValue": "job.completed"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "split-clips",
+      "name": "One item per clip",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        360,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// One Telegram message per clip, carrying everything the approval\n// buttons need inside callback_data (Telegram caps it at 64 bytes:\n// action|job_id|clip_index fits).\nconst body = $json.body;\nreturn (body.clips || []).map((clip, i) => ({\n  json: {\n    job_id: body.job_id,\n    clip_index: i,\n    title: clip.title || `Clip ${i + 1}`,\n    download_url: clip.download_url || clip.video_url,\n  },\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "tg-clip-video",
+      "name": "Send clip for approval",
+      "type": "n8n-nodes-base.telegram",
+      "onError": "continueErrorOutput",
+      "position": [
+        580,
+        380
+      ],
+      "parameters": {
+        "file": "={{ $json.download_url }}",
+        "chatId": "={{ $('Settings (clips)').first().json.telegram_chat_id }}",
+        "operation": "sendVideo",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Publish",
+                    "additionalFields": {
+                      "callback_data": "=pub|{{ $json.job_id }}|{{ $json.clip_index }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Skip",
+                    "additionalFields": {
+                      "callback_data": "skip"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "caption": "={{ $json.title }}"
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "tg-clip-link",
+      "name": "Send clip link instead",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        800,
+        480
+      ],
+      "parameters": {
+        "text": "=🎬 {{ $json.title }}\n\nToo big for Telegram preview — watch it here:\n{{ $json.download_url }}",
+        "chatId": "={{ $('Settings (clips)').first().json.telegram_chat_id }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Publish",
+                    "additionalFields": {
+                      "callback_data": "=pub|{{ $json.job_id }}|{{ $json.clip_index }}"
+                    }
+                  },
+                  {
+                    "text": "❌ Skip",
+                    "additionalFields": {
+                      "callback_data": "skip"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "tg-job-failed",
+      "name": "Notify: job failed",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        360,
+        560
+      ],
+      "parameters": {
+        "text": "=❌ OpenShorts job failed: {{ $json.body.error || 'unknown error' }}\n\nNothing was published. The machine keeps running tomorrow.",
+        "chatId": "={{ $('Settings (clips)').first().json.telegram_chat_id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "note-act3",
+      "name": "Act 3 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 380,
+        "content": "## ACT 3 — Tap ✅, it gets scheduled\n\nThe Telegram trigger listens for the approval buttons. Every approved clip is scheduled through OpenShorts (which posts to every social account you connected there) at a rate of **one post per day**: approve five clips today and you just filled five days of content.\n\nThe next free slot is computed from the **queue the server actually holds** (`GET /api/social/scheduled`), not from a counter inside n8n — two clips approved seconds apart would otherwise both book the same slot and go out together.\n\n**Setup**: none beyond the Telegram credential — the chat id comes from the button tap itself. Change the platforms list in *Schedule social post* if you want fewer networks."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "tg-trigger",
+      "name": "Approval buttons",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        -80,
+        900
+      ],
+      "webhookId": "906a710d-3e76-4911-b7e6-f336e6da5d66",
+      "parameters": {
+        "updates": [
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "parse-button",
+      "name": "Parse button",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        140,
+        900
+      ],
+      "parameters": {
+        "jsCode": "const cb = $json.callback_query || {};\nconst [action, jobId, clipIndex] = String(cb.data || '').split('|');\nreturn [{\n  json: {\n    action: action || 'skip',\n    job_id: jobId || '',\n    clip_index: parseInt(clipIndex || '0', 10),\n    chat_id: cb.message && cb.message.chat ? cb.message.chat.id : null,\n    clip_title: cb.message ? (cb.message.caption || '') : '',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-approved",
+      "name": "Approved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        360,
+        900
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c2",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "pub"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "reserve-slot",
+      "name": "Pick next free slot",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        800,
+        840
+      ],
+      "parameters": {
+        "jsCode": "// One post per day, derived from the queue the server actually holds.\n// Workflow static data was the obvious place to remember the last slot, but\n// two approvals tapped seconds apart run as two executions that both read the\n// old value and book the SAME slot. The scheduled list is shared state, so\n// counting it cannot race with itself in that way.\nconst queue = $input.first().json.scheduled_posts || [];\nconst item = $('Parse button').first().json;\nconst DAY = 24 * 60 * 60 * 1000;\nconst taken = queue\n  .map((p) => Date.parse(p.scheduled_date))\n  .filter((t) => !Number.isNaN(t))\n  .sort((a, b) => a - b);\nlet slot = Date.now() + 10 * 60 * 1000;  // never schedule in the past\nfor (const t of taken) {\n  if (Math.abs(t - slot) < DAY) slot = t + DAY;\n}\nreturn [{ json: { ...item, scheduled_date: new Date(slot).toISOString() } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "social-post",
+      "name": "Schedule social post",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1020,
+        840
+      ],
+      "parameters": {
+        "url": "https://api.openshorts.app/api/social/post",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"job_id\": \"{{ $json.job_id }}\",\n  \"clip_index\": {{ $json.clip_index }},\n  \"platforms\": [\"tiktok\", \"instagram\", \"youtube\"],\n  \"scheduled_date\": \"{{ $json.scheduled_date }}\",\n  \"timezone\": \"UTC\"\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "OpenShorts API key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "tg-scheduled",
+      "name": "Confirm: scheduled",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1240,
+        780
+      ],
+      "parameters": {
+        "text": "=📅 Scheduled! Going out to your connected accounts on {{ $('Pick next free slot').first().json.scheduled_date.slice(0, 10) }}.",
+        "chatId": "={{ $('Parse button').first().json.chat_id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "tg-post-failed",
+      "name": "Confirm: posting failed",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1240,
+        900
+      ],
+      "parameters": {
+        "text": "=⚠️ Could not schedule that clip: {{ $json.error && $json.error.message ? $json.error.message : 'posting failed' }}. Make sure your social accounts are connected in your OpenShorts account page.",
+        "chatId": "={{ $('Parse button').first().json.chat_id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "tg-skipped",
+      "name": "Confirm: skipped",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        580,
+        980
+      ],
+      "parameters": {
+        "text": "🗑 Skipped. It stays in your OpenShorts dashboard if you change your mind.",
+        "chatId": "={{ $('Parse button').first().json.chat_id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "note-act4",
+      "name": "Act 4 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        1260
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 340,
+        "content": "## ACT 4 — The feedback loop: learn what worked\n\nOnce a week the machine reads the analytics of everything it published (via the OpenShorts analytics API, which aggregates TikTok/Instagram/YouTube numbers) and sends you the verdict: total impressions, per-platform split, and your best post.\n\nThe machine that posts is the machine that measures — so every approval you make next week is informed by what actually landed. Close the loop further by feeding your winners back as examples in your clip prompts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "weekly-schedule",
+      "name": "Every Sunday 18:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -80,
+        1360
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                0
+              ],
+              "triggerAtHour": 18
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "weekly-impressions",
+      "name": "Weekly impressions",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        200,
+        1360
+      ],
+      "parameters": {
+        "url": "https://api.openshorts.app/api/social/analytics/impressions",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "period",
+              "value": "last_week"
+            },
+            {
+              "name": "breakdown",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "OpenShorts API key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "weekly-posts",
+      "name": "Per-post metrics",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        360,
+        1360
+      ],
+      "parameters": {
+        "url": "https://api.openshorts.app/api/social/analytics/posts",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "since",
+              "value": "={{ $now.minus({ days: 7 }).toFormat('yyyy-MM-dd') }}"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "OpenShorts API key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "write-digest",
+      "name": "Write the digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        580,
+        1360
+      ],
+      "parameters": {
+        "jsCode": "// Turn the two analytics responses into one human digest message.\nconst impressions = $('Weekly impressions').first().json || {};\nconst postsResp = $input.first().json || {};\nconst posts = postsResp.posts || postsResp.data || postsResp.items || [];\n\nconst views = (post) => {\n  const m = post.post_metrics || post.metrics || post;\n  return Number(m.views || m.impressions || m.plays || 0);\n};\n\nconst total = impressions.total_impressions || posts.reduce((s, p) => s + views(p), 0);\nconst sorted = [...posts].sort((a, b) => views(b) - views(a));\nconst best = sorted[0];\n\nconst perPlatform = impressions.per_platform\n  ? Object.entries(impressions.per_platform)\n      .map(([p, v]) => `  • ${p}: ${Number(v).toLocaleString('en-US')}`)\n      .join('\\n')\n  : '';\n\nlet text = `📊 Your week on autopilot\\n\\n`;\ntext += `Posts published: ${posts.length}\\n`;\ntext += `Total impressions: ${Number(total).toLocaleString('en-US')}\\n`;\nif (perPlatform) {\n  text += `${perPlatform}\\n`;\n}\nif (best && views(best) > 0) {\n  const title = best.title || best.caption || best.platform_post_id || 'your top post';\n  text += `\\n🏆 Best post: \"${title}\" — ${views(best).toLocaleString('en-US')} views`;\n}\nif (posts.length === 0) {\n  text += `\\nNothing published this week. Approve some clips and the machine does the rest.`;\n}\nreturn [{ json: { digest: text } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "tg-digest",
+      "name": "Send weekly digest",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        800,
+        1360
+      ],
+      "parameters": {
+        "text": "={{ $json.digest }}",
+        "chatId": "={{ $('Settings (weekly)').first().json.telegram_chat_id }}",
+        "additionalFields": {}
+      },
+      "credentials": {
+        "telegramApi": {
+          "name": "Telegram bot"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "read-queue",
+      "name": "Read publishing queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        580,
+        840
+      ],
+      "parameters": {
+        "url": "https://api.openshorts.app/api/social/scheduled",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "name": "OpenShorts API key"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cfg-main",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        60,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s0",
+              "name": "youtube_channel_id",
+              "type": "string",
+              "value": "YOUR_CHANNEL_ID"
+            },
+            {
+              "id": "s1",
+              "name": "telegram_chat_id",
+              "type": "string",
+              "value": "YOUR_TELEGRAM_CHAT_ID"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "cfg-clips",
+      "name": "Settings (clips)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        40,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s0",
+              "name": "telegram_chat_id",
+              "type": "string",
+              "value": "YOUR_TELEGRAM_CHAT_ID"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "cfg-weekly",
+      "name": "Settings (weekly)",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        40,
+        1360
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s0",
+              "name": "telegram_chat_id",
+              "type": "string",
+              "value": "YOUR_TELEGRAM_CHAT_ID"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Channel RSS feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved?": {
+      "main": [
+        [
+          {
+            "node": "Read publishing queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirm: skipped",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse button": {
+      "main": [
+        [
+          {
+            "node": "Approved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Job completed?": {
+      "main": [
+        [
+          {
+            "node": "One item per clip",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify: job failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every day 09:00": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick next video": {
+      "main": [
+        [
+          {
+            "node": "Start OpenShorts job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approval buttons": {
+      "main": [
+        [
+          {
+            "node": "Parse button",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Channel RSS feed": {
+      "main": [
+        [
+          {
+            "node": "Pick next video",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Per-post metrics": {
+      "main": [
+        [
+          {
+            "node": "Write the digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings (clips)": {
+      "main": [
+        [
+          {
+            "node": "Job completed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the digest": {
+      "main": [
+        [
+          {
+            "node": "Send weekly digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One item per clip": {
+      "main": [
+        [
+          {
+            "node": "Send clip for approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings (weekly)": {
+      "main": [
+        [
+          {
+            "node": "Weekly impressions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Sunday 18:00": {
+      "main": [
+        [
+          {
+            "node": "Settings (weekly)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly impressions": {
+      "main": [
+        [
+          {
+            "node": "Per-post metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick next free slot": {
+      "main": [
+        [
+          {
+            "node": "Schedule social post",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule social post": {
+      "main": [
+        [
+          {
+            "node": "Confirm: scheduled",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Confirm: posting failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start OpenShorts job": {
+      "main": [
+        [
+          {
+            "node": "Mark video as processed",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify: out of minutes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clips ready (webhook)": {
+      "main": [
+        [
+          {
+            "node": "Settings (clips)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read publishing queue": {
+      "main": [
+        [
+          {
+            "node": "Pick next free slot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send clip for approval": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Send clip link instead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark video as processed": {
+      "main": [
+        [
+          {
+            "node": "Notify: clipping started",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Clip YouTube videos into shorts with OpenShorts and Telegram approval",
+    "wechat": "youandme10086",
+    "id": 18584,
+    "update_time": "2026-09-27"
+  }
+}

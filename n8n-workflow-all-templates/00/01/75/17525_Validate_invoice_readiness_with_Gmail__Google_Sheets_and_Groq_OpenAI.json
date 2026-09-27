@@ -1,0 +1,1056 @@
+{
+  "id": "9yCf1g9pZCicHTva",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Validate invoice readiness with Gmail, Google Sheets and Groq/OpenAI",
+    "wechat": "youandme10086",
+    "id": 17525,
+    "update_time": "2026-09-27"
+  },
+  "name": "Invoice Readiness Validation Workflow",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b16053f4-c0dd-46f6-9013-ba0e828a7dab",
+      "name": "3-Way Match Validator",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2512,
+        688
+      ],
+      "parameters": {
+        "jsCode": "// ===============================\n// GET DATA FROM PREVIOUS NODES\n// ===============================\n\n// Invoice extracted by AI (from Basic LLM Chain)\nconst invoice = $node[\"Clean Extracted Fields\"].json;\n\n// PO fetched from Google Sheet (previous node)\nconst poRow = $node[\"Search ERP for PO\"].json;\n\n\n// ===============================\n// NORMALIZE PO DATA FROM SHEET\n// ===============================\n\nconst po = poRow && poRow.po_number\n  ? {\n      po_number: poRow.po_number,\n      supplier_name: poRow.supplier_name,\n      currency: poRow.currency,\n      total_amount: Number(poRow.total_amount),\n      status: poRow.status\n    }\n  : null;\n\n\n// ===============================\n// INVOICE READINESS VALIDATION\n// ===============================\n\nlet issues = [];\nlet status = \"APPROVED\";\n\n\n// --- RULE 1: PO MUST EXIST ---\nif (!po) {\n  status = \"REJECTED\";\n  issues.push(\"PO not found in Purchase Order database\");\n}\n\n\n// --- RULE 2: PO NUMBER MUST MATCH ---\nif (po && invoice.po_number !== po.po_number) {\n  status = \"REJECTED\";\n  issues.push(\"Invoice PO number does not match any approved PO\");\n}\n\n\n// --- RULE 3: SUPPLIER NAME MUST MATCH PO ---\nif (po && invoice.supplier_name !== po.supplier_name) {\n  status = \"FLAGGED\";\n  issues.push(\"Supplier mismatch between Invoice and PO\");\n}\n\n\n// --- RULE 4: AMOUNT SHOULD MATCH PO ---\nif (po && Number(invoice.total_amount) !== Number(po.total_amount)) {\n  status = \"FLAGGED\";\n  issues.push(\"Invoice amount differs from PO amount\");\n}\n\n\n// --- RULE 5: CURRENCY SHOULD MATCH ---\n// --- HELPER: Normalize currency ---\nfunction normalizeCurrency(cur) {\n  if (!cur) return \"\";\n\n  cur = cur.toString().toUpperCase();\n\n  if (cur.includes(\"INR\") || cur.includes(\"₹\") || cur.includes(\"RS\")) return \"INR\";\n  if (cur.includes(\"USD\") || cur.includes(\"$\")) return \"USD\";\n  if (cur.includes(\"EUR\") || cur.includes(\"€\")) return \"EUR\";\n  if (cur.includes(\"GBP\") || cur.includes(\"£\")) return \"GBP\";\n\n  return cur.trim();\n}\n\n// --- RULE: CURRENCY MATCH ---\nif (po && normalizeCurrency(invoice.currency) !== normalizeCurrency(po.currency)) {\n  status = \"FLAGGED\";\n  issues.push(\"Currency mismatch between Invoice and PO\");\n}\n\n// --- RULE 6: PO MUST BE APPROVED ---\nif (po && po.status !== \"Approved\") {\n  status = \"FLAGGED\";\n  issues.push(\"PO exists but is not approved yet\");\n}\n\n\n// --- RULE 7: DELIVERY PROOF (GRN) MUST EXIST ON INVOICE ---\nif (!invoice.grn_number) {\n  status = \"FLAGGED\";\n  issues.push(\"Invoice missing GRN (proof of delivery)\");\n}\n\n\n// ===============================\n// FINAL OUTPUT FOR NEXT NODES\n// ===============================\n\nreturn [\n  {\n    json: {\n      status,        // APPROVED | FLAGGED | REJECTED\n      issues,        // list of problems\n      invoice,       // extracted invoice data\n      po             // matched PO data\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1a8f2a37-c8be-47c5-89b4-4a07c6b27a3f",
+      "name": "Invoice Decision",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3456,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d1bb0a99-a694-44c5-bb78-86a49adcc7e8",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('3-Way Match Validator').item.json.status }}",
+              "rightValue": "APPROVED"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3cfde57f-f37f-4ba7-827e-3db730e7f858",
+      "name": "Predict Invoice Risk",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        2880,
+        688
+      ],
+      "parameters": {
+        "text": "=Analyze this invoice validation result and predict rejection risk.\n\nValidation Status: {{$json.status}}\nIssues Found: {{$json.issues}}\n\nInvoice:\nNumber: {{$json.invoice.invoice_number}}\nSupplier: {{$json.invoice.supplier_name}}\nAmount: {{$json.invoice.total_amount}}\n\nReturn JSON in this format:\n{\n \"rejection_risk\": \"LOW | MEDIUM | HIGH\",\n \"confidence_score\": number(0-100),\n \"reason\": \"short explanation\",\n \"recommended_action\": \"what supplier should fix\"\n}",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an Accounts Payable AI assistant.  Your job is to predict the probability that an invoice will be rejected by the AP team.  Use: • 3-way match validation status • Detected issues • Invoice details  Return STRICT JSON only."
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "116624df-9e54-4b59-9915-a73939972686",
+      "name": "Check if High Risk",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3232,
+        688
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8eb80334-2c21-4c40-a26a-d952800295b2",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.output.rejection_risk }}",
+              "rightValue": "HIGH"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "a71ce8d5-6a6f-4cb9-8dab-1765a8ca326e",
+      "name": "Warn Supplier Before Submission",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3456,
+        592
+      ],
+      "webhookId": "2068b1dc-5697-460d-bd77-c08620bc5db5",
+      "parameters": {
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: 'Helvetica Neue', Helvetica, Arial, sans-serif; line-height: 1.6; color: #444444; }\n        .container { width: 100%; max-width: 600px; margin: 20px auto; border-top: 6px solid #fbc02d; border-radius: 4px; box-shadow: 0 2px 15px rgba(0,0,0,0.1); overflow: hidden; }\n        .header { background-color: #fffde7; padding: 25px; text-align: center; border-bottom: 1px solid #fff9c4; }\n        .content { padding: 30px; background-color: #ffffff; }\n        .risk-card { background-color: #fff9c4; border: 1px dashed #fbc02d; padding: 20px; border-radius: 8px; margin: 20px 0; }\n        .label { font-weight: bold; color: #827717; text-transform: uppercase; font-size: 12px; display: block; margin-bottom: 5px; }\n        .reason-text { font-style: italic; color: #333333; margin-bottom: 15px; display: block; }\n        .action-box { background-color: #f1f8e9; border-left: 4px solid #4caf50; padding: 15px; color: #2e7d32; font-weight: 500; }\n        .footer { background-color: #fafafa; padding: 20px; font-size: 11px; text-align: center; color: #9e9e9e; }\n        .warning-icon { font-size: 30px; margin-bottom: 10px; display: block; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <span class=\"warning-icon\"></span>\n            <h2 style=\"margin:0; color: #bc5100;\">Pre-Submission Risk Alert</h2>\n        </div>\n        <div class=\"content\">\n            <p>Dear Valued Supplier,</p>\n            \n            <p>Our automated pre-check system has analyzed your invoice and predicts a <strong>HIGH risk of rejection</strong> during the final approval stage.</p>\n            \n            <div class=\"risk-card\">\n                <span class=\"label\">Primary Reason:</span>\n                <span class=\"reason-text\">{{ $node[\"Check if High Risk\"].json[\"output\"][\"reason\"] }}</span>\n                \n                <span class=\"label\">Recommended Fix:</span>\n                <div class=\"action-box\">\n                    {{ $node[\"Check if High Risk\"].json[\"output\"][\"recommended_action\"] }}\n                </div>\n            </div>\n\n            <p><strong>Why you are receiving this:</strong> We want to ensure your payment is processed without delays. Invoices flagged with these issues are typically rejected by our Accounts Payable (AP) department.</p>\n            \n            <p>Please correct the issues mentioned above and resubmit the invoice to ensure a seamless payment experience.</p>\n            \n            <p style=\"margin-top: 25px;\"><strong>Best Regards,</strong><br>\n            Procurement Operations Team</p>\n        </div>\n        <div class=\"footer\">\n            <p>This is a predictive analysis provided for your convenience. Final approval is subject to manual verification by the AP department.</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "=Action Needed: Invoice {{ $('3-Way Match Validator').item.json.invoice.invoice_number }} may be rejected"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6b4b19d2-e4e8-4de1-8dd0-779d19acd28a",
+      "name": "Approve for Processing (AP System)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3680,
+        688
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Notes": "={{$node[\"3-Way Match Validator\"].json.issues.length ? $node[\"3-Way Match Validator\"].json.issues.join(\", \") : \"No Issues\"}}",
+            "Currency": "={{ $('3-Way Match Validator').item.json.invoice.currency }}",
+            "PO Match": "={{\n$('3-Way Match Validator').item.json.po &&\n$('3-Way Match Validator').item.json.invoice.po_number === $('3-Way Match Validator').item.json.po.po_number\n? \"Matched with ERP PO\"\n: \"PO Not Found\"\n}}",
+            "GRN Match": "={{\n$('3-Way Match Validator').item.json.invoice.grn_number\n? \"Provided by Supplier\"\n: \"Missing GRN\"\n}}",
+            "PO Number": "={{ $('3-Way Match Validator').item.json.invoice.po_number }}",
+            "Timestamp": "={{$now}}",
+            "GRN Number": "={{ $('3-Way Match Validator').item.json.invoice.grn_number }}",
+            "Tax Amount": "={{ $('3-Way Match Validator').item.json.invoice.tax_amount }}",
+            "Invoice Date": "={{ $('3-Way Match Validator').item.json.invoice.invoice_date }}",
+            "Source Email": "={{ $('Watch New Invoices').item.json.From }}",
+            "Total Amount": "={{ $('3-Way Match Validator').item.json.invoice.total_amount }}",
+            "AI Risk Level": "={{ $('Predict Invoice Risk').item.json.output.rejection_risk }}",
+            "AI Risk Score": "={{ $('Predict Invoice Risk').item.json.output.confidence_score }}",
+            "Supplier Name": "={{ $('3-Way Match Validator').item.json.invoice.supplier_name }}",
+            "Invoice Number": "={{ $('3-Way Match Validator').item.json.invoice.invoice_number }}",
+            "Supplier Email": "={{ $('3-Way Match Validator').item.json.invoice.supplier_email }}",
+            "Validation Status": "={{ $('3-Way Match Validator').item.json.status }}"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Invoice Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PO Number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "PO Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GRN Number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "GRN Number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Supplier Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Supplier Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Supplier Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Supplier Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Invoice Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Currency",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Currency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Total Amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Total Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Tax Amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Tax Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Validation Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Validation Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PO Match",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "PO Match",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GRN Match",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "GRN Match",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Risk Level",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "AI Risk Level",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "AI Risk Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "AI Risk Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Notes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Source Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11eEmZxhsuRX7uleMRvqIC3f1tOLi2JZHvtw2tGj0qLw/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "11eEmZxhsuRX7uleMRvqIC3f1tOLi2JZHvtw2tGj0qLw",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11eEmZxhsuRX7uleMRvqIC3f1tOLi2JZHvtw2tGj0qLw/edit?usp=drivesdk",
+          "cachedResultName": "Invoice Readiness"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "65584fb4-e02e-426b-9e54-2fde40d94ab7",
+      "name": "AI Extract Invoice",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        656,
+        880
+      ],
+      "parameters": {
+        "text": "=Here is a PDF content\n\n{{ $json.text }}",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a high-precision invoice data extraction engine. Extract structured fields from the invoice PDF and return ONLY valid JSON.  Data Rules:  If a String field is missing, return an empty string \"\".  If a Number field is missing, return 0.  Do NOT return null for any field.  Ensure total_amount and tax_amount are numbers, not strings.  Fields to extract: > - invoice_number, po_number, grn_number, supplier_name, supplier_email, invoice_date, currency, total_amount, tax_amount, line_items (array with item, quantity, unit_price)."
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "7d5f31ce-e309-47fe-b31e-c8fd7c069290",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        704
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1280,
+        "height": 640,
+        "content": "## Data Acquisition & AI Extraction\nThis initial phase monitors incoming emails, retrieves attached invoice PDFs, and uses an LLM to extract structured data fields like PO numbers and amounts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd3b7f5a-a1a3-472d-ba20-b86398b1214b",
+      "name": "Watch New Invoices",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -16,
+        880
+      ],
+      "parameters": {
+        "filters": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1c0d6503-7461-4082-81b8-6b852cca7ab7",
+      "name": "Download Email Data",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        208,
+        880
+      ],
+      "webhookId": "2c1a473b-b246-4710-a763-2040e9028a9a",
+      "parameters": {
+        "simple": false,
+        "options": {
+          "downloadAttachments": true
+        },
+        "messageId": "={{ $json.id }}",
+        "operation": "get"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6b6e1681-55cc-4707-91db-7c82daf9ba86",
+      "name": "Read PDF Content",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        432,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "493eddcc-4a41-400a-afdd-02b576074b0c",
+      "name": "Clean Extracted Fields",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1008,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "91362a8f-71e9-4ea8-88b0-ffbabcc690a0",
+              "name": "invoice_number",
+              "type": "string",
+              "value": "={{ $json.output.invoice_number }}"
+            },
+            {
+              "id": "0da2b9f9-e500-4a46-a787-666fa986d7fc",
+              "name": "po_number",
+              "type": "string",
+              "value": "={{ $json.output.po_number }}"
+            },
+            {
+              "id": "51b514e2-d5ba-48c8-ac96-2bbeb6c57c21",
+              "name": "grn_number",
+              "type": "string",
+              "value": "={{ $json.output.grn_number }}"
+            },
+            {
+              "id": "d3896d39-ff71-46d0-9f98-4a560ef14d6a",
+              "name": "supplier_name",
+              "type": "string",
+              "value": "={{ $json.output.supplier_name }}"
+            },
+            {
+              "id": "2885a4ff-c304-47bc-88d6-994ebcf5e6c4",
+              "name": "supplier_email",
+              "type": "string",
+              "value": "={{ $json.output.supplier_email }}"
+            },
+            {
+              "id": "ad8cab7d-5b48-4a8d-b1fd-1d3df893e0c0",
+              "name": "invoice_date",
+              "type": "string",
+              "value": "={{ $json.output.invoice_date }}"
+            },
+            {
+              "id": "7e806230-2be2-4bd4-8df7-ad27980b6d43",
+              "name": "currency",
+              "type": "string",
+              "value": "={{ $json.output.currency }}"
+            },
+            {
+              "id": "32a1619b-49f1-4581-9879-0f003dbe9260",
+              "name": "total_amount",
+              "type": "number",
+              "value": "={{ $json.output.total_amount }}"
+            },
+            {
+              "id": "ecb5fd99-c9a7-4e05-9217-23e5b4764bfe",
+              "name": "tax_amount",
+              "type": "number",
+              "value": "={{ $json.output.tax_amount }}"
+            },
+            {
+              "id": "d4029d43-6f2a-4553-bcce-0a2b64468b8d",
+              "name": "line_items",
+              "type": "array",
+              "value": "={{ $json.output.line_items }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "eb04d04d-7833-4c8e-b592-8ddbf19d2d64",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1264,
+        560
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 688,
+        "height": 752,
+        "content": "## ERP Record Lookup & Data Merging\nThe workflow searches your Google Sheets for a matching Purchase Order (PO) and merges the official ERP records with the AI-extracted invoice data for comparison."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7014f4cf-001e-4c73-8768-24d7478b1ee8",
+      "name": "Search ERP for PO",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1312,
+        976
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.po_number }}",
+              "lookupColumn": "po_number"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1173660361,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YyVR4h6IfZFJrXRWTVG_Zx3kbx7XQCvJOcoI24UVjZs/edit#gid=1173660361",
+          "cachedResultName": "data"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1YyVR4h6IfZFJrXRWTVG_Zx3kbx7XQCvJOcoI24UVjZs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YyVR4h6IfZFJrXRWTVG_Zx3kbx7XQCvJOcoI24UVjZs/edit?usp=drivesdk",
+          "cachedResultName": "PurchaseOrders"
+        }
+      },
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "b6d88c24-878b-4c48-8039-cbf899acaf8e",
+      "name": "Check if PO Exists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1536,
+        976
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c13315c7-755c-40fa-92d5-874c6515cb65",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $node[\"Search ERP for PO\"].json[\"po_number\"] }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "96059d06-f9b9-4bed-84a8-f2ee5a4ccdce",
+      "name": "Notify Supplier: PO Not Found",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1760,
+        1024
+      ],
+      "webhookId": "3e2c0cc9-6164-45c1-898d-fe28bced3d37",
+      "parameters": {
+        "sendTo": "={{ $node[\"Clean Extracted Fields\"].json[\"supplier_email\"] }}",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333333; }\n        .container { width: 100%; max-width: 600px; margin: 0 auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }\n        .header { background-color: #d32f2f; color: #ffffff; padding: 20px; text-align: center; }\n        .content { padding: 30px; }\n        .details-box { background-color: #f9f9f9; border-left: 4px solid #d32f2f; padding: 15px; margin: 20px 0; }\n        .footer { background-color: #f1f1f1; padding: 20px; font-size: 12px; text-align: center; color: #777777; }\n        .button { display: inline-block; padding: 10px 20px; background-color: #d32f2f; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 10px; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h2 style=\"margin:0;\">Invoice Rejection Notice</h2>\n        </div>\n        <div class=\"content\">\n            <p>Dear <strong>{{ $node[\"Clean Extracted Fields\"].json[\"supplier_name\"] }}</strong>,</p>\n            \n            <p>We were unable to process your recent invoice because the <strong>Purchase Order (PO) number</strong> provided does not match any active records in our system.</p>\n            \n            <div class=\"details-box\">\n                <h3 style=\"margin-top:0; font-size: 16px;\">Rejection Details:</h3>\n                <p style=\"margin: 5px 0;\"><strong>Invoice Number:</strong> {{ $node[\"Clean Extracted Fields\"].json[\"invoice_number\"] }}</p>\n                <p style=\"margin: 5px 0;\"><strong>PO Number Provided:</strong> <span style=\"color: #d32f2f;\">{{ $node[\"Clean Extracted Fields\"].json[\"po_number\"] }}</span></p>\n                <p style=\"margin: 5px 0;\"><strong>Status:</strong> Rejected - Invalid PO Reference</p>\n            </div>\n            \n            <h3>Next Steps:</h3>\n            <p>Please verify the PO number on your records. If this was a clerical error, please submit a corrected invoice for processing. If you believe this record exists, please contact your procurement representative directly.</p>\n            \n            <p><strong>Best Regards,</strong><br>\n            Accounts Payable Department</p>\n        </div>\n        <div class=\"footer\">\n            <p>This is an automated notification. Invoices with invalid PO numbers cannot be processed for payment.</p>\n            <p>&copy; 2026 Your Company Name Pvt. Ltd.</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "=REJECTION: Invoice #{{ $node[\"Clean Extracted Fields\"].json[\"invoice_number\"] }} - PO Record Not Found"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2c34706a-86fd-476e-8607-c58a360648e7",
+      "name": "Join Invoice & ERP Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1760,
+        800
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "joinMode": "keepEverything",
+        "fieldsToMatchString": "po_number"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "440c82e9-af92-4d24-b863-981b44abd1ab",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2016,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 704,
+        "content": "## Business Rule Validation & Decisioning\nThis segment runs automated scripts to check data integrity (e.g., non-zero amounts) and performs a deep 3-way match between the invoice, PO, and delivery status."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8bd6cd19-3336-4e64-ab28-86e5e2651ceb",
+      "name": "Run Data Integrity Checks",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2064,
+        784
+      ],
+      "parameters": {
+        "jsCode": "const item = $json;\nlet errors = [];\n\n// 1. Check for missing critical fields from the merge\nif (!item.po_number) errors.push(\"Missing PO Number\");\nif (!item.supplier_name) errors.push(\"Missing Supplier Name\");\nif (!item.total_amount || Number(item.total_amount) <= 0) {\n  errors.push(\"Invalid or Zero Amount\");\n}\n\n// 2. Check the ERP Status\n// If the PO isn't \"Approved\" in your sheet, we shouldn't process the invoice\nif (item.status !== \"Approved\") {\n  errors.push(`PO Status is ${item.status || 'Unknown'} (Expected: Approved)`);\n}\n\n// 3. Finalize Status\nitem.validation_status = errors.length > 0 ? \"INVALID\" : \"VALID\";\nitem.validation_errors = errors.join(\", \");\n\nreturn [{ json: item }];"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "41971752-2b1a-4691-b5e4-b7ce42c5ac1a",
+      "name": "Check Validation Success",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2288,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b0093ce3-038c-4d37-8240-ff02a2982242",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.validation_status }}",
+              "rightValue": "VALID"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b0c2f10c-51a5-42bd-971f-5cc623669934",
+      "name": "Notify Supplier: Format Error",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2512,
+        880
+      ],
+      "webhookId": "5f59eb3a-c852-47fa-865b-a0504a9104ad",
+      "parameters": {
+        "sendTo": "={{ $('Clean Extracted Fields').item.json.supplier_email }}",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; line-height: 1.6; color: #333333; }\n        .container { width: 100%; max-width: 600px; margin: 20px auto; border: 1px solid #eeeeee; border-radius: 12px; overflow: hidden; box-shadow: 0 4px 10px rgba(0,0,0,0.05); }\n        .header { background-color: #ff9800; color: #ffffff; padding: 25px; text-align: center; }\n        .content { padding: 30px; }\n        .error-container { background-color: #fff3e0; border: 1px solid #ffe0b2; border-radius: 8px; padding: 20px; margin: 20px 0; }\n        .error-list { color: #e65100; font-weight: bold; margin: 10px 0; padding-left: 20px; }\n        .summary-table { width: 100%; border-collapse: collapse; margin: 20px 0; }\n        .summary-table td { padding: 10px; border-bottom: 1px solid #f0f0f0; }\n        .summary-table td:first-child { font-weight: bold; color: #666666; width: 40%; }\n        .footer { background-color: #fcfcfc; padding: 20px; font-size: 12px; text-align: center; color: #999999; border-top: 1px solid #eeeeee; }\n        .status-badge { display: inline-block; padding: 4px 12px; background-color: #fff3e0; color: #e65100; border-radius: 20px; font-size: 13px; font-weight: bold; text-transform: uppercase; border: 1px solid #ffe0b2; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h2 style=\"margin:0; letter-spacing: 1px;\">Validation Action Required</h2>\n        </div>\n        <div class=\"content\">\n            <p>Dear <strong>{{ $node[\"Clean Extracted Fields\"].json[\"supplier_name\"] }}</strong>,</p>\n            \n            <p>We received your invoice, but our automated system has flagged it for the following <strong>data integrity issues</strong>:</p>\n            \n            <div class=\"error-container\">\n                <span class=\"status-badge\">Validation Errors</span>\n                <div class=\"error-list\">\n                    {{ $node[\"Run Data Integrity Checks\"].json[\"validation_errors\"] }}\n                </div>\n            </div>\n\n            <table class=\"summary-table\">\n                <tr>\n                    <td>Invoice Number</td>\n                    <td>{{ $node[\"Clean Extracted Fields\"].json[\"invoice_number\"] }}</td>\n                </tr>\n                <tr>\n                    <td>PO Number</td>\n                    <td>{{ $node[\"Clean Extracted Fields\"].json[\"po_number\"] }}</td>\n                </tr>\n            </table>\n\n            <h3 style=\"color: #444444;\">What this means:</h3>\n            <p>We cannot process this invoice for payment in its current state. Common reasons include the Purchase Order (PO) not being fully approved in our system or incorrect financial formatting.</p>\n            \n            <h3 style=\"color: #444444;\">Next Steps:</h3>\n            <p>Please coordinate with your procurement contact to ensure the Purchase Order is in <strong>Approved</strong> status and that all invoice amounts are greater than zero. Once corrected, please resubmit the invoice.</p>\n            \n            <p style=\"margin-top: 30px;\"><strong>Best Regards,</strong><br>\n            <span style=\"color: #666666;\">Accounts Payable Team</span></p>\n        </div>\n        <div class=\"footer\">\n            <p>This is an automated security and compliance notification regarding your submission.</p>\n            <p>&copy; 2026 Your Company Name Pvt. Ltd.</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "=ACTION REQUIRED: Invoice #{{ $node[\"Clean Extracted Fields\"].json[\"invoice_number\"] }} Validation Failed"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "82272887-b94c-4a7e-b3e0-baf49d2c3512",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2816,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1056,
+        "height": 784,
+        "content": "## AI Risk Scoring & Final Processing \nThe final phase predicts rejection risk using AI, warns suppliers of high-risk submissions, and logs approved invoices into the AP system for payment processing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8965a206-e4e7-403e-9c1e-517092bd08d1",
+      "name": "Request Manual Review",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3680,
+        880
+      ],
+      "webhookId": "e96ecf90-2d80-47f3-bdaf-3b46207e99c6",
+      "parameters": {
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; line-height: 1.5; color: #2c3e50; }\n        .container { width: 100%; max-width: 650px; margin: 20px auto; border: 1px solid #d1d5db; border-radius: 8px; overflow: hidden; }\n        .header { background-color: #1e40af; color: #ffffff; padding: 20px; }\n        .header h2 { margin: 0; font-size: 18px; text-transform: uppercase; letter-spacing: 0.5px; }\n        .content { padding: 25px; }\n        .risk-banner { padding: 15px; border-radius: 6px; margin-bottom: 20px; font-weight: bold; text-align: center; }\n        .risk-high { background-color: #fee2e2; color: #991b1b; border: 1px solid #fecaca; }\n        .risk-medium { background-color: #fef3c7; color: #92400e; border: 1px solid #fde68a; }\n        .data-grid { width: 100%; margin-bottom: 20px; border: 1px solid #e5e7eb; border-radius: 6px; border-collapse: separate; border-spacing: 0; }\n        .data-grid td { padding: 12px; border-bottom: 1px solid #e5e7eb; font-size: 14px; }\n        .data-grid td:first-child { background-color: #f9fafb; font-weight: 600; width: 35%; border-right: 1px solid #e5e7eb; }\n        .issue-box { background-color: #f8fafc; border: 1px solid #e2e8f0; padding: 15px; border-radius: 6px; font-size: 14px; }\n        .footer { background-color: #f3f4f6; padding: 15px; font-size: 12px; text-align: center; color: #6b7280; }\n        .action-link { display: inline-block; padding: 10px 18px; background-color: #1e40af; color: #ffffff; text-decoration: none; border-radius: 4px; font-weight: 600; margin-top: 15px; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h2> Alert: Manual Review Required</h2>\n        </div>\n        <div class=\"content\">\n            <p>An invoice has failed automated 3-Way Match Validator and requires a manual decision by the Accounts Payable team.</p>\n\n            <div class=\"risk-banner {{ $json.output.rejection_risk === 'HIGH' ? 'risk-high' : 'risk-medium' }}\">\n                AI Predicted Risk: {{ $json.output.rejection_risk }} ({{ $json.output.confidence_score }}% Confidence)\n            </div>\n\n            <table class=\"data-grid\">\n                <tr><td>Invoice Number</td><td>{{ $('3-Way Match Validator').item.json.invoice.invoice_number }}</td></tr>\n                <tr><td>Supplier</td>{{ $('3-Way Match Validator').item.json.invoice.supplier_name }}<td></td></tr>\n                <tr><td>Amount</td>{{ $('3-Way Match Validator').item.json.invoice.total_amount }}<td></td></tr>\n                <tr><td>PO Number</td><td>{{ $('3-Way Match Validator').item.json.invoice.po_number }}</td></tr>\n            </table>\n\n            <h3 style=\"font-size: 15px; margin-bottom: 8px;\">Detection Summary & AI Reasoning:</h3>\n            <div class=\"issue-box\" style=\"border-left: 4px solid #1e40af; color: #b91c1c;\">\n                {{ $json.output.reason }}\n            </div>\n\n            <p style=\"margin-top: 25px;\">Please verify these details in the <strong>Exception_Invoices</strong> sheet before proceeding with approval.</p>\n        </div>\n        <div class=\"footer\">\n            Generated by Invoice Validation Bot &bull; Timestamp: {{ $now }}\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "=Invoice Requires Review – {{ $('3-Way Match Validator').item.json.invoice.invoice_number }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d0fb381c-7783-4747-b5eb-4d98b47cf22a",
+      "name": "Invoice Field Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        800,
+        1088
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"invoice_number\": { \"type\": \"string\" },\n    \"po_number\": { \"type\": \"string\" },\n    \"grn_number\": { \"type\": \"string\" },\n    \"supplier_name\": { \"type\": \"string\" },\n    \"supplier_email\": { \"type\": \"string\" },\n    \"invoice_date\": { \"type\": \"string\" },\n    \"currency\": { \"type\": \"string\" },\n    \"total_amount\": { \"type\": \"number\" },\n    \"tax_amount\": { \"type\": \"number\" },\n    \"line_items\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"item\": { \"type\": \"string\" },\n          \"quantity\": { \"type\": \"number\" },\n          \"unit_price\": { \"type\": \"number\" }\n        },\n        \"required\": [\"item\", \"quantity\", \"unit_price\"]\n      }\n    }\n  },\n  \"required\": [\"invoice_number\", \"po_number\", \"total_amount\"]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "5c9d3326-fbfc-480c-a0cd-a537bdb0f954",
+      "name": "LLM",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        656,
+        1088
+      ],
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a646e93-104a-453e-b31e-5c0e4f0e2c3c",
+      "name": "AI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        2880,
+        896
+      ],
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af4a3d18-f18d-43bd-8301-f38d98b86de4",
+      "name": "Risk Analysis Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        3024,
+        896
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"rejection_risk\": { \"type\": \"string\" },\n    \"confidence_score\": { \"type\": \"number\" },\n    \"reason\": { \"type\": \"string\" },\n    \"recommended_action\": { \"type\": \"string\" }\n  }\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "f786f38a-73e1-48c9-bb4e-7b149ea37435",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -208
+      ],
+      "parameters": {
+        "width": 1264,
+        "height": 848,
+        "content": "\n## Workflow Overview: Invoice Readiness Validation & 3-Way Match\n\nThis workflow automates the end-to-end validation of supplier invoices to ensure financial accuracy and compliance before payment. It extracts data from emailed invoice PDFs, performs a **3-way match** against Purchase Orders (POs) and delivery records in Google Sheets, conducts AI-driven risk assessments, and routes results for approval or rejection. By proactively notifying suppliers of discrepancies and flagging high-risk invoices for manual review, the workflow enables accounts payable teams to process payments faster while significantly reducing the risk of overpayment, fraud, or data entry errors.\n\n## How it works\n\nThe workflow is triggered when a new invoice is received via **Gmail**. The system downloads the attachment and utilizes **AI (LLM)** to extract critical structured data, including the invoice number, PO reference, line items, and total amounts.\n\nOnce extracted, the workflow searches the **ERP database (Google Sheets)** for the corresponding PO. If the PO is missing or not in an \"Approved\" status, the supplier is automatically notified of the rejection. For valid POs, the system merges the invoice data with ERP records to perform a 3-way match, cross-referencing supplier details, amounts, and proof of delivery (GRN).\n\nIn the final stage, an AI model analyzes the validation results to **predict rejection risk** and assign a confidence score. Invoices passing all checks are logged for payment, while high-risk or discrepant invoices trigger alerts for manual intervention.\n\n## Setup Steps \n\n* **Watch New Invoices** — Monitor Gmail for incoming supplier invoices.  \n* **AI Invoice Data Extractor** — Use LLMs to extract structured fields from PDF attachments.  \n* **Search ERP for PO** — Locate matching PO records in Google Sheets.  \n* **Check if PO Exists** — Route to rejection if the PO reference is invalid or missing.  \n* **Join Invoice & ERP Data** — Merge extracted PDF data with official spreadsheet records.  \n* **Run Data Integrity Checks** — Validate formatting, currency, and ERP approval status.  \n* **Cross-Reference Match Logic** — Perform the 3-way match (Invoice vs. PO vs. GRN).  \n* **Predict Rejection Probability** — Use AI to score the risk level of the submission.  \n* **Final AP Approval Gate** — Route to \"Approved\" logs or \"Manual Review\" based on risk and match results."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "f684aa1f-883b-44f7-81ca-09adf3c0f6ab",
+  "nodeGroups": [],
+  "connections": {
+    "LLM": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Extract Invoice",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Predict Invoice Risk",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Decision": {
+      "main": [
+        [
+          {
+            "node": "Approve for Processing (AP System)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Request Manual Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read PDF Content": {
+      "main": [
+        [
+          {
+            "node": "AI Extract Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search ERP for PO": {
+      "main": [
+        [
+          {
+            "node": "Check if PO Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Extract Invoice": {
+      "main": [
+        [
+          {
+            "node": "Clean Extracted Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if High Risk": {
+      "main": [
+        [
+          {
+            "node": "Warn Supplier Before Submission",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Invoice Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if PO Exists": {
+      "main": [
+        [
+          {
+            "node": "Join Invoice & ERP Data",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Notify Supplier: PO Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch New Invoices": {
+      "main": [
+        [
+          {
+            "node": "Download Email Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Email Data": {
+      "main": [
+        [
+          {
+            "node": "Read PDF Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Field Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Extract Invoice",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Predict Invoice Risk": {
+      "main": [
+        [
+          {
+            "node": "Check if High Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Risk Analysis Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Predict Invoice Risk",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "3-Way Match Validator": {
+      "main": [
+        [
+          {
+            "node": "Predict Invoice Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean Extracted Fields": {
+      "main": [
+        [
+          {
+            "node": "Search ERP for PO",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Join Invoice & ERP Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Join Invoice & ERP Data": {
+      "main": [
+        [
+          {
+            "node": "Run Data Integrity Checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Validation Success": {
+      "main": [
+        [
+          {
+            "node": "3-Way Match Validator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify Supplier: Format Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Data Integrity Checks": {
+      "main": [
+        [
+          {
+            "node": "Check Validation Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

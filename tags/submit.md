@@ -1,4 +1,4 @@
-# submit : 8
+# submit : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |11948|[11948_Submit_sitemap_URLs_from_Oncrawl_to_Google_Indexing_API_and_IndexNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11948_Submit_sitemap_URLs_from_Oncrawl_to_Google_Indexing_API_and_IndexNow.json)|
 |15393|[15393_Submit_home_inventory_images_via_web_form_to_a_property_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15393_Submit_home_inventory_images_via_web_form_to_a_property_workflow.json)|
 |16018|[16018_Route_social_media_content_reviews_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16018_Route_social_media_content_reviews_with_Google_Gemini_and_Google_Sheets.json)|
+|16838|[16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json)|
+|17598|[17598_Verify_subcontractor_licenses_from_form_submissions_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17598_Verify_subcontractor_licenses_from_form_submissions_with_Apify_and_Slack.json)|
+|18315|[18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json)|
+|19435|[19435_Submit_NKSC_NIVS_cyber_incident_reports_from_a_webhook_or_XLSX_file.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19435_Submit_NKSC_NIVS_cyber_incident_reports_from_a_webhook_or_XLSX_file.json)|

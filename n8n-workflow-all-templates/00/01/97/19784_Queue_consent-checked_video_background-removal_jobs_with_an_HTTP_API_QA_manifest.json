@@ -1,0 +1,474 @@
+{
+  "name": "Queue consent-checked video background removal jobs and review alpha-output readiness",
+  "nodes": [
+    {
+      "id": "3d2782c6-8aaf-4c26-8271-be906e9444da",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0f6c2a92-1288-4d46-8864-533536e82cc1",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        250,
+        0
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\"mode\": \"demo\", \"providerBaseUrl\": \"https://api.example.com/v1/video-background-removal\", \"allowPaidProcessing\": false, \"jobs\": [{\"jobId\": \"bg-demo-001\", \"videoUrl\": \"https://example.com/owned-clip.mp4\", \"rightsConfirmed\": true, \"rightsReference\": \"production-release-001\", \"durationSeconds\": 18, \"background\": {\"type\": \"transparent\"}, \"edgeMode\": \"balanced\", \"keepAudio\": true}]}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "100b8f1e-31ed-4de3-8d57-d447b6cb7a48",
+      "name": "Validate consent and output settings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const c=$input.first().json;if(!['demo','live'].includes(c.mode))throw Error('mode must be demo or live');if(c.mode==='live'&&c.allowPaidProcessing!==true)throw Error('Set allowPaidProcessing=true after reviewing provider cost');if(c.mode==='live'&&!/^https:\\/\\/[a-z0-9.-]+(?:\\/[a-zA-Z0-9._~:/?#[\\]@!$&'()*+,;=%-]*)?$/.test(c.providerBaseUrl))throw Error('Use an HTTPS provider URL');if(!Array.isArray(c.jobs)||c.jobs.length<1||c.jobs.length>5)throw Error('Use 1-5 jobs');const seen=new Set();for(const j of c.jobs){if(!/^[a-z0-9_-]{1,64}$/i.test(j.jobId)||seen.has(j.jobId))throw Error('Unique safe jobId required');seen.add(j.jobId);if(j.rightsConfirmed!==true||typeof j.rightsReference!=='string'||j.rightsReference.trim().length<6)throw Error('Permission evidence is required');if(!/^https:\\/\\//.test(j.videoUrl))throw Error('videoUrl must use HTTPS');if(!Number.isFinite(j.durationSeconds)||j.durationSeconds<=0||j.durationSeconds>600)throw Error('Duration must be 0-600 seconds');if(!['fast','balanced','quality'].includes(j.edgeMode))throw Error('Invalid edgeMode');const b=j.background||{};if(!['transparent','blur','color'].includes(b.type))throw Error('Invalid background type');if(b.type==='color'&&!/^#[0-9a-f]{6}$/i.test(b.color||''))throw Error('Color needs #RRGGBB');}return [{json:c}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fff217c7-5601-4bb5-84e7-2aa8ddb6fba3",
+      "name": "Build provider requests",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        750,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const c=$input.first().json;return c.jobs.map(j=>({json:{jobId:j.jobId,idempotencyKey:'background-'+j.jobId,rightsReference:j.rightsReference,mode:c.mode,request:{videoUrl:j.videoUrl,background:j.background,edgeMode:j.edgeMode,keepAudio:j.keepAudio!==false,metadata:{durationSeconds:j.durationSeconds,rightsConfirmed:true,rightsReference:j.rightsReference}}},pairedItem:{item:0}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0ec1e1a6-de2f-4b16-9830-a699ebacd424",
+      "name": "Use offline demo fixtures",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bdb1cdb6-8aa5-436a-8d3f-1326b21b2c67",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.mode === 'demo' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "05a1abe1-3a64-4288-a79b-94054a6fd0fc",
+      "name": "Simulate alpha-ready result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1250,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((item,n)=>({json:{...item.json,providerJobId:'demo-'+item.json.jobId,state:'completed',httpStatus:200,attempt:1,lastBody:{status:'completed',output:{container:'webm',alpha:true,audioPreserved:true}},resultUrl:'https://example.com/demo-transparent.webm'},pairedItem:{item:n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "00cbd9d8-2127-40f6-a4bd-841842c08d7f",
+      "name": "Submit each approved job once",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1500,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $(\"Configuration\").first().json.providerBaseUrl + \"/jobs\" }}",
+        "method": "POST",
+        "options": {
+          "timeout": 60000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.request) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.idempotencyKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a729b11d-213d-40db-bacd-ecfc89c15ca5",
+      "name": "Classify submit response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1750,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const inputs=$input.all(),requests=$('Build provider requests').all();return inputs.map((item,n)=>{const r=requests[n].json,status=Number(item.json.statusCode||0),body=item.json.body||{};let state='unknown';if(status===200||status===201||status===202)state=body.jobId?'queued':'invalid_response';else if(status>=400&&status<500)state='rejected';else if(status>=500)state='provider_error';return {json:{...r,providerJobId:body.jobId||null,state,httpStatus:status,attempt:0,lastBody:body,warning:state==='unknown'||state==='provider_error'?'Check provider billing before retrying; POST retries are disabled.':null},pairedItem:{item:n}};});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ef0bc7d4-c256-4683-8867-8ae0fd6f454e",
+      "name": "Queued for bounded polling",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2000,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "57004c13-7dbf-474e-a26d-0bece4d61f10",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.state === 'queued' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "60a92acd-35d6-4d2c-9e20-fb26f1030173",
+      "name": "Wait before status check",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2250,
+        0
+      ],
+      "parameters": {
+        "unit": "seconds",
+        "amount": 15
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1d27c76b-6376-46f9-b468-ef8c6c7e45a7",
+      "name": "Read job status",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2500,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $(\"Configuration\").first().json.providerBaseUrl + \"/jobs/\" + $json.providerJobId }}",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7dfbae12-1d13-42d9-9852-6497a1b6fe99",
+      "name": "Merge poll result and cap attempts",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2750,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const inputs=$input.all(),prior=$('Classify submit response').all();return inputs.map((item,n)=>{const p=prior[n].json,body=item.json.body||{},status=Number(item.json.statusCode||0),attempt=(p.attempt||0)+1;let state=p.state;if(status>=200&&status<300){if(body.status==='completed')state='completed';else if(body.status==='failed')state='failed';else state='processing';}else if(status>=400&&status<500)state='status_rejected';else state='status_unknown';if(attempt>=4&&state==='processing')state='manual_followup';return {json:{...p,state,attempt,lastBody:body,resultUrl:state==='completed'&&typeof body.resultUrl==='string'?body.resultUrl:null},pairedItem:{item:n}};});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4387432c-dcd0-4365-a23b-beaba7b48f11",
+      "name": "Check alpha and delivery metadata",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3000,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((item,n)=>{const body=item.json.lastBody||{},output=body.output||{};let qa='manual_review';const requested=item.json.request.background?.type;if(item.json.state==='completed'){if(requested==='transparent')qa=output.alpha===true&&['webm','mov'].includes(String(output.container||'').toLowerCase())?'alpha_metadata_ready':'verify_alpha_export';else qa='review_edges_and_background';}return {json:{...item.json,qaStatus:qa,audioStatus:item.json.request.keepAudio===false?'not_requested':output.audioPreserved===true?'reported_preserved':'verify_audio'},pairedItem:{item:n}};});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2243a78b-8c02-4be7-9e70-76afdb275108",
+      "name": "Create background QA manifest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3250,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((item,n)=>({json:{jobId:item.json.jobId,providerJobId:item.json.providerJobId,state:item.json.state,attempts:item.json.attempt,resultUrl:item.json.resultUrl||null,qaStatus:item.json.qaStatus,audioStatus:item.json.audioStatus,rightsReference:item.json.rightsReference,createdAt:new Date().toISOString(),notice:'Provider metadata is not visual proof. Review edge quality, transparency and audio before publishing.'},pairedItem:{item:n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b76e28f4-9f4c-43ba-8adc-6126bf93634a",
+      "name": "Overview and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -1200
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 1100,
+        "height": 1100,
+        "content": "## Purpose\nQueue up to five consent-checked video background-removal jobs, then turn provider responses into an auditable delivery checklist. The workflow supports transparent, blurred and solid-color backgrounds; validates duration and settings before any paid request; avoids automatic POST retries; and flags transparency/audio metadata that still needs human review.\n\n## Setup\nRun the default offline demo first. It creates a transparent-WebM fixture record without credentials or network calls. For live use, replace providerBaseUrl with an authorized processing API, configure n8n Header Auth on both HTTP nodes, verify its schema and set allowPaidProcessing to true. The generic contract uses POST /jobs returning jobId and GET /jobs/{jobId} returning status, resultUrl and optional output metadata. Store all secrets in n8n credentials.\n\n## Validation and execution\nEvery job needs a unique ID, an HTTPS source, permission evidence and a duration of no more than ten minutes. Choose fast, balanced or quality edge mode. Solid colors require #RRGGBB. Each approved request receives a stable idempotency key. Submission happens once; bounded polling prevents an endless loop. Ambiguous transport outcomes remain visible so the operator can inspect provider usage before deciding whether to retry.\n\n## QA and recovery\nFor transparent output, WebM or MOV plus alpha=true is reported as metadata-ready, not visually approved. Other outcomes are flagged for alpha, edge, spill and audio review. The workflow never publishes or deletes media. Download outputs before execution retention expires and keep the rights reference with the final asset.\n\n## Attribution\nCreated by Shisan Hua, who works on [Video Background Remover](https://www.videobgremover.org/). The template uses a generic authorized provider contract and does not claim a public Video Background Remover API."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Validate consent and output settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read job status": {
+      "main": [
+        [
+          {
+            "node": "Merge poll result and cap attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build provider requests": {
+      "main": [
+        [
+          {
+            "node": "Use offline demo fixtures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify submit response": {
+      "main": [
+        [
+          {
+            "node": "Queued for bounded polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait before status check": {
+      "main": [
+        [
+          {
+            "node": "Read job status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use offline demo fixtures": {
+      "main": [
+        [
+          {
+            "node": "Simulate alpha-ready result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Submit each approved job once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queued for bounded polling": {
+      "main": [
+        [
+          {
+            "node": "Wait before status check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check alpha and delivery metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulate alpha-ready result": {
+      "main": [
+        [
+          {
+            "node": "Check alpha and delivery metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit each approved job once": {
+      "main": [
+        [
+          {
+            "node": "Classify submit response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check alpha and delivery metadata": {
+      "main": [
+        [
+          {
+            "node": "Create background QA manifest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge poll result and cap attempts": {
+      "main": [
+        [
+          {
+            "node": "Check alpha and delivery metadata",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate consent and output settings": {
+      "main": [
+        [
+          {
+            "node": "Build provider requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Queue consent-checked video background-removal jobs with an HTTP API QA manifest",
+    "wechat": "youandme10086",
+    "id": 19784,
+    "update_time": "2026-09-27"
+  }
+}

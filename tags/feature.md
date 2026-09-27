@@ -1,4 +1,4 @@
-# feature : 8
+# feature : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |12535|[12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12535_Generate_product_feature_announcements_from_Notion_to_Google_Docs_with_GPT-5_Mini_and_Claude.json)|
 |15233|[15233_Audit_Android_feature_flags_from_GitHub_with_Firebase_and_send_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15233_Audit_Android_feature_flags_from_GitHub_with_Firebase_and_send_Slack_reports.json)|
 |15482|[15482_Monitor_competitor_pages_with_Gemini__Olostep__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15482_Monitor_competitor_pages_with_Gemini__Olostep__Google_Sheets_and_Gmail.json)|
+|18520|[18520_Analyze_competitor_pricing_and_feature_changes_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18520_Analyze_competitor_pricing_and_feature_changes_with_Google_Gemini.json)|
+|19532|[19532_Find_competitor_feature_gaps_from_app_reviews_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19532_Find_competitor_feature_gaps_from_app_reviews_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|

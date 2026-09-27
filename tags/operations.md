@@ -1,4 +1,4 @@
-# operations : 134
+# operations : 137
 
 |id|file|
 |----|----|
@@ -136,3 +136,6 @@
 |14470|[14470_Orchestrate_credit_onboarding_checks_with_GPT-4o__Airtable__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14470_Orchestrate_credit_onboarding_checks_with_GPT-4o__Airtable__Gmail_and_Slack.json)|
 |14694|[14694_Orchestrate_credit_onboarding_checks_with_GPT-4o__KYC_APIs__Gmail__Slack_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14694_Orchestrate_credit_onboarding_checks_with_GPT-4o__KYC_APIs__Gmail__Slack_and_Airtable.json)|
 |16655|[16655_Generate_daily_Etsy_sales_and_ledger_reports_via_Shop_Operations_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16655_Generate_daily_Etsy_sales_and_ledger_reports_via_Shop_Operations_API.json)|
+|16880|[16880_Assist_hospital_doctors_via_Telegram_with_OpenAI__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16880_Assist_hospital_doctors_via_Telegram_with_OpenAI__Google_Sheets__Gmail_and_Slack.json)|
+|17214|[17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json)|
+|17486|[17486_Publish_LinkedIn_AI_operations_posts_from_RSS_with_OpenAI_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17486_Publish_LinkedIn_AI_operations_posts_from_RSS_with_OpenAI_and_Airtable.json)|

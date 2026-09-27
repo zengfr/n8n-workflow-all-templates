@@ -1,4 +1,4 @@
-# automatically : 191
+# automatically : 200
 
 |id|file|
 |----|----|
@@ -193,3 +193,12 @@
 |15456|[15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json)|
 |16439|[16439_Generate_and_publish_AI_home_cam_Shorts_with_OpenAI__kie.ai_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16439_Generate_and_publish_AI_home_cam_Shorts_with_OpenAI__kie.ai_and_YouTube.json)|
 |16448|[16448_Create_work4all_incoming_invoices_from_Microsoft_Outlook_supplier_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16448_Create_work4all_incoming_invoices_from_Microsoft_Outlook_supplier_emails.json)|
+|17113|[17113_Send_quote_PDFs_from_form_submissions_with_Acrewity_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17113_Send_quote_PDFs_from_form_submissions_with_Acrewity_and_Gmail.json)|
+|17222|[17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json)|
+|17368|[17368_Rebook_disrupted_flights_and_notify_passengers_with_Claude__Google_Sheets__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17368_Rebook_disrupted_flights_and_notify_passengers_with_Claude__Google_Sheets__and_Twilio.json)|
+|18064|[18064_Chase_overdue_invoice_payments_with_Google_Sheets__Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18064_Chase_overdue_invoice_payments_with_Google_Sheets__Gemini__Gmail_and_Slack.json)|
+|18272|[18272_Launch_off-boarding_access_reviews_with_Probo__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18272_Launch_off-boarding_access_reviews_with_Probo__email_and_Slack.json)|
+|18329|[18329_Match_new_property_listings_to_buyer_leads_with_Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18329_Match_new_property_listings_to_buyer_leads_with_Gemini__Gmail_and_Sheets.json)|
+|18714|[18714_Text_back_missed_calls_with_Twilio__GPT-5.6__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18714_Text_back_missed_calls_with_Twilio__GPT-5.6__Google_Sheets_and_Slack.json)|
+|18933|[18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json)|
+|19077|[19077_Send_PDF_payment_receipts_with_Stripe__EmitForge__Gmail__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19077_Send_PDF_payment_receipts_with_Stripe__EmitForge__Gmail__Google_Drive_and_Slack.json)|

@@ -1,4 +1,4 @@
-# employee : 41
+# employee : 50
 
 |id|file|
 |----|----|
@@ -43,3 +43,12 @@
 |15975|[15975_Orchestrate_employee_onboarding_with_Google_Sheets__Drive__Jira__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15975_Orchestrate_employee_onboarding_with_Google_Sheets__Drive__Jira__Gmail__and_Slack.json)|
 |15977|[15977_Generate_and_publish_approved_employee_LinkedIn_posts_with_OpenAI_and_LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15977_Generate_and_publish_approved_employee_LinkedIn_posts_with_OpenAI_and_LinkedIn.json)|
 |16403|[16403_Manage_employee_offboarding_with_Google_Workspace__Slack__HubSpot_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16403_Manage_employee_offboarding_with_Google_Workspace__Slack__HubSpot_and_Notion.json)|
+|17260|[17260_Run_AI_employee_onboarding_with_Groq__Google_Workspace__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17260_Run_AI_employee_onboarding_with_Groq__Google_Workspace__and_Gemini.json)|
+|17601|[17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json)|
+|17605|[17605_Verify_onboarding_compliance_documents_with_OpenAI__Google_Sheets__Telegram__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17605_Verify_onboarding_compliance_documents_with_OpenAI__Google_Sheets__Telegram__and_Slack.json)|
+|18134|[18134_Generate_employee_numbers_and_ID_cards_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18134_Generate_employee_numbers_and_ID_cards_with_Google_Sheets_and_Gmail.json)|
+|18153|[18153_Approve_employee_expenses_with_OpenAI__Google_Sheets__Telegram__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18153_Approve_employee_expenses_with_OpenAI__Google_Sheets__Telegram__and_Gmail.json)|
+|18315|[18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json)|
+|18587|[18587_Review_employee_overtime_compliance_with_Google_Sheets__GPT-4o-mini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18587_Review_employee_overtime_compliance_with_Google_Sheets__GPT-4o-mini__and_Gmail.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|
+|19436|[19436_Track_employee_overtime_limits_with_n8n_forms__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19436_Track_employee_overtime_limits_with_n8n_forms__Google_Sheets_and_Slack.json)|

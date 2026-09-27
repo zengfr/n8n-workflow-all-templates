@@ -1,4 +1,4 @@
-# qa : 10
+# qa : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |13354|[13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13354_Question_and_Answer_AI_Agent_Chatbot__2_2.json)|
 |15354|[15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json)|
 |16151|[16151_Monitor_quantum_fabrication_QA_with_multi-agent_OpenAI_GPT-5_and_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16151_Monitor_quantum_fabrication_QA_with_multi-agent_OpenAI_GPT-5_and_alerts.json)|
+|19355|[19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json)|
+|19740|[19740_Classify_QA_QC_compliance_issues_with_Google_Gemini__GitHub__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19740_Classify_QA_QC_compliance_issues_with_Google_Gemini__GitHub__and_Google_Sheets.json)|
+|19784|[19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json)|

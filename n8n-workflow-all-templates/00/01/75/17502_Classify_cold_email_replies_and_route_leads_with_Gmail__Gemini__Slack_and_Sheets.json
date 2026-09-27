@@ -1,0 +1,593 @@
+{
+  "id": "L8Awu03c4MKe74IC",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Classify cold email replies and route leads with Gmail, Gemini, Slack and Sheets",
+    "wechat": "youandme10086",
+    "id": 17502,
+    "update_time": "2026-09-27"
+  },
+  "name": "Cold Email Reply Classifier and Auto-Router-n8nSubmission",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f96b104e-ad5d-4437-a926-ceefc1bec7cf",
+      "name": "Watch for Outreach Replies",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        -512,
+        -16
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "labelIds": [
+            "Label_9037424523873074423"
+          ]
+        },
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DjQTb4o5QghcJviF",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "b16713a3-48a8-4bbc-a308-0ae5e786680f",
+      "name": "Extract Email Details",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -80,
+        -16
+      ],
+      "parameters": {
+        "jsCode": "const trigger = $('Watch for Outreach Replies').item.json;\nconst full = $input.first().json;\n\nfunction stripHtml(html) {\n  return html\n    .replace(/<style[^>]*>[\\s\\S]*?<\\/style>/gi, '')\n    .replace(/<script[^>]*>[\\s\\S]*?<\\/script>/gi, '')\n    .replace(/<[^>]+>/g, ' ')\n    .replace(/&nbsp;/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nfunction parseHeaderSender(headerStr, fallback) {\n  if (!headerStr) return fallback || '';\n  // Headers come as \"From: Name <email>\" — strip the \"From: \" prefix\n  const clean = headerStr.replace(/^From:\\s*/i, '').trim();\n  return clean;\n}\n\n// Strip quoted reply content (everything after \"On ... wrote:\")\nfunction stripQuotedReply(text) {\n  if (!text) return '';\n  return text\n    .replace(/\\r\\n/g, '\\n')\n    .replace(/On .+?wrote:\\n[\\s\\S]*/s, '')\n    .trim();\n}\n\n// With Simplify OFF, from/to come from headers object\nconst fromRaw = full.headers?.from || '';\nconst fromClean = parseHeaderSender(fromRaw, trigger.From);\nconst emailMatch = fromClean.match(/<(.+?)>/);\nconst fromEmail = emailMatch ? emailMatch[1] : fromClean;\nconst nameMatch = fromClean.match(/^\"?([^\"<]+)\"?\\s*</);\nconst fromName = nameMatch ? nameMatch[1].trim() : '';\n\nconst rawBody = full.text?.trim() || (full.html ? stripHtml(full.html) : '') || trigger.snippet || '';\n\n// Strip the quoted original message so Gemini only sees the actual reply\nconst cleanBody = stripQuotedReply(rawBody);\n\nreturn [{\n  json: {\n    recordId: full.id,\n    threadId: full.threadId,\n    from: fromClean,\n    fromEmail: fromEmail,\n    fromName: fromName,\n    subject: full.subject || trigger.Subject,\n    body: cleanBody,\n    receivedAt: full.date || trigger.internalDate\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "99c2ed74-2338-4a13-b65a-dd4bdd2795e3",
+      "name": "Classify Reply with AI",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "position": [
+        128,
+        -16
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-3-flash-preview"
+        },
+        "options": {},
+        "messages": {
+          "values": [
+            {
+              "content": "=You are helping a sales team triage cold email replies.\n\nGiven the email body below, respond with ONLY valid JSON, no markdown formatting, no preamble:\n\n{\n  \"classification\": \"Interested\" | \"Question\" | \"Objection\" | \"Not Interested\" | \"Auto-Reply\",\n  \"confidence\": 0-100,\n  \"reasoning\": \"one sentence\",\n  \"suggested_reply\": \"a brief, natural 2-3 sentence reply draft, or empty string if not actionable\"\n}\n\nEmail body:\n{{ $json.body }}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "oaBZTFjPqHP2QG4W",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "04ee470a-0cf5-4a4f-af49-3ffb08d07bb7",
+      "name": "Parse AI Classification",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        -16
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst raw =\n  item.content?.parts?.[0]?.text ||                          // direct candidate object (your current shape)\n  item.candidates?.[0]?.content?.parts?.[0]?.text ||          // candidates-wrapped shape\n  item.text ||\n  '';\n\nconst cleaned = raw.replace(/```json|```/g, '').trim();\n\nlet parsed;\ntry {\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  parsed = {\n    classification: 'Needs Manual Review',\n    confidence: 0,\n    reasoning: 'AI response could not be parsed',\n    suggested_reply: ''\n  };\n}\n\nreturn {\n  json: {\n    ...$('Extract Email Details').item.json,\n    ...parsed\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "132c2f5b-61f2-4dc4-9e9d-c31a36374618",
+      "name": "Log Lead to Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        688,
+        -16
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "from": "={{ $json.from }}",
+            "subject": "={{ $json.subject }}",
+            "recordId": "={{ $json.recordId }}",
+            "reasoning": "=\t{{ $json.reasoning }}",
+            "confidence": "={{ $json.confidence }}",
+            "receivedAt": "={{ $json.receivedAt }}",
+            "actionTaken": "={{ ['Interested','Question'].includes($json.classification) ? 'Notified + Draft Created' : 'Logged Only' }}",
+            "classification": "={{ $json.classification }}",
+            "suggestedReply": "={{ $json.suggested_reply }}"
+          },
+          "schema": [
+            {
+              "id": "recordId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "recordId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "from",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "from",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subject",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "subject",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "classification",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "classification",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "confidence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reasoning",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reasoning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "receivedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "receivedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "suggestedReply",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "suggestedReply",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actionTaken",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "actionTaken",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1UJsVOnyhp2lS0xGT0yabNEtxebwOQGyayjIfff-JWU4/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "0w3f0F9yW3TJbOgb",
+          "name": "Google Sheets account - HS-QM"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "bf53a941-c8be-417f-b00a-d35669c6e71f",
+      "name": "Is Lead Actionable?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        896,
+        -16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "2526ddf5-3355-4271-9978-4c756419b517",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.classification }}",
+              "rightValue": "Interested"
+            },
+            {
+              "id": "820dcb74-b8e8-407d-b969-ef11e0c90de0",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.classification }}",
+              "rightValue": "Question"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "2c5db8e6-bd31-4dd6-86a6-2aad10649341",
+      "name": "Alert Sales Rep",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1360,
+        -32
+      ],
+      "webhookId": "59d39382-a1ba-49f9-b9bd-03ec71381a8b",
+      "parameters": {
+        "text": "=:mailbox_with_mail: New actionable reply — {{ $('Parse AI Classification').item.json.classification }}\n*From:* {{ $('Parse AI Classification').item.json.from }}\n*Subject:* {{ $('Parse AI Classification').item.json.subject }}\n*AI note:* {{ $('Parse AI Classification').item.json.reasoning }}\n:pencil2: <https://mail.google.com/mail/u/0/#drafts/{{ $json.id }}|Open draft reply>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#outreach-replies"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "AXpodP9nIPIozzN8",
+          "name": "Slack API Account - QM"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "bebec4bf-bf0b-451f-9153-8c968403d28b",
+      "name": "Draft AI Suggested Reply",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1136,
+        -32
+      ],
+      "webhookId": "dfb1710d-ddaf-4507-9c94-5b5615612573",
+      "parameters": {
+        "message": "=<p>{{ $json.suggestedReply }}</p>",
+        "options": {
+          "sendTo": "={{ $json.from }}"
+        },
+        "subject": "=Re: {{ $json.subject }}",
+        "resource": "draft",
+        "emailType": "html"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DjQTb4o5QghcJviF",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a6d0f316-3b6d-4085-9d01-e11132585bd2",
+      "name": "Fetch Full Reply Body",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -304,
+        -16
+      ],
+      "webhookId": "5c588fb7-b47c-475a-8d26-c0f0071c9097",
+      "parameters": {
+        "limit": 10,
+        "simple": false,
+        "filters": {},
+        "options": {},
+        "operation": "getAll"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "DjQTb4o5QghcJviF",
+          "name": "Gmail account 2 - QM-Email"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "58ab5689-a18f-4389-85fb-c639ae4dfc20",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1440,
+        -528
+      ],
+      "parameters": {
+        "width": 800,
+        "height": 1168,
+        "content": "## Cold Email Reply Classifier & Auto-Router\n\nMost sales teams lose hot replies because they're buried under auto-replies, objections, and \"not interested\" messages. By the time someone spots a genuine lead, the prospect has already moved on.\n\nThis workflow fixes that. It watches your outreach inbox, reads every reply using AI, and instantly alerts your team but only when action is needed.\n\nEvery reply gets classified into one of five categories:\n\n- **Interested** — prospect wants to learn more or book a call\n- **Question** — prospect is asking something specific\n- **Objection** — pushback, but the conversation is still live\n- **Not Interested** — clear decline\n- **Auto-Reply** — out-of-office or automated bounce\n\nActionable replies trigger a Slack alert and an AI-written draft saved to Gmail Drafts. Your rep reviews and sends manually — the AI never sends on your behalf. Every reply is logged to Google Sheets regardless of outcome.\n\n---\n\n### Requirements\n\n- Gmail OAuth2\n- Google Gemini API Key\n- Google Sheets OAuth2\n- Slack OAuth2 (Bot Token)\n\n---\n\n### Setup\n\n1. Create a Gmail label called **Outreach-Replies**\n2. Create a Gmail filter that applies this label to inbound replies only\n3. Add **-from:me** to the filter to exclude your own sent emails\n4. Invite your Slack bot to **#outreach-replies** using `/invite @YourBotName`\n5. Create a Google Sheet with headers matching the column mapping in the storage node\n6. Activate the workflow — it polls Gmail every minute\n\n---\n\n### Customization\n\n- **Add or remove categories** — edit the prompt in the AI node and update the routing condition to match\n- **Alert on Objections** — add Objection as a second condition on the routing node\n- **Change poll frequency** — adjust the trigger interval for high-volume inboxes\n- **Widen the filter** — update the Gmail filter criteria to cover additional campaigns or aliases"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ed4cc0a-1dd7-4472-bb92-67a659ff7f2c",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -400
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "height": 704,
+        "content": "## Gmail Label Polling Trigger\n\nPolls Gmail every minute for new emails carrying the **Outreach-Replies** label. A Gmail label and filter must be created manually before executing — see the warning note beside this node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4ec59f42-2dcb-45f1-95c1-bd3089c38c38",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -352,
+        -400
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 416,
+        "height": 704,
+        "content": "## Full Reply Body Extraction\n\nFetches the complete reply by thread ID and strips the quoted original email before passing text to the AI.\nStripping quoted content is critical — without it, the AI reads your own outreach pitch as part of the reply and misclassifies it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "58204c04-ab64-4701-b5b1-20c04b5fd121",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -400
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 544,
+        "height": 704,
+        "content": "## Gemini Reply Classification\n\nGemini reads the cleaned reply and returns a category, confidence score, reasoning, and a suggested reply draft in a single call.\nIf the response fails to parse, the reply is flagged **Needs Manual Review** rather than dropped — check the execution log for that run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "64143875-9e87-4256-9f96-3f0624b37333",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        864,
+        -400
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 688,
+        "height": 704,
+        "content": "## Slack Alert and Draft Reply\n\nInterested and Question replies trigger a Gmail draft and a Slack alert with a direct link to that draft.\nAll other replies are logged only — this is intentional, not a missing step. The workflow never sends email automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1ed6f7b-4d3c-473c-a9f9-5349d30f5b22",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -400
+      ],
+      "parameters": {
+        "color": "#FFFFFF",
+        "width": 208,
+        "height": 704,
+        "content": "## Google Sheets Reply Tracker\n\nEvery reply is logged here before any routing decision — nothing is lost even if no action is taken.\nA row showing **Needs Manual Review** means the AI response failed to parse — classify that reply manually."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71520e80-9df8-4084-b75d-db50416aeac2",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -48
+      ],
+      "parameters": {
+        "color": 3,
+        "height": 592,
+        "content": "\n\n\n\n\n\n\n\n\n\n\n## Gmail Label and Filter Required\n\nCreate a Gmail label called **Outreach-Replies** and a filter that applies it to inbound replies.\nAlways add **-from:me** to the filter — without it, your own outbound emails get picked up and misclassified as prospect replies."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2075f479-5816-434a-b491-4ce9e579d8c0",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1296,
+        -80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 256,
+        "height": 560,
+        "content": "\n\n\n\n\n\n\n\n\n\n## Slack Bot Channel Access\n\nCreate a channel named **#outreach-replies**. Invite your Slack bot to **#outreach-replies** before activating: `/invite @YourBotName`\nWithout this, Slack alerts will fail silently with no error shown in the execution log."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "353358d1-44ec-4e59-b174-1abf0edab327",
+  "nodeGroups": [],
+  "connections": {
+    "Is Lead Actionable?": {
+      "main": [
+        [
+          {
+            "node": "Draft AI Suggested Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Lead to Tracker": {
+      "main": [
+        [
+          {
+            "node": "Is Lead Actionable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Email Details": {
+      "main": [
+        [
+          {
+            "node": "Classify Reply with AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Full Reply Body": {
+      "main": [
+        [
+          {
+            "node": "Extract Email Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Reply with AI": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Classification": {
+      "main": [
+        [
+          {
+            "node": "Log Lead to Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft AI Suggested Reply": {
+      "main": [
+        [
+          {
+            "node": "Alert Sales Rep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch for Outreach Replies": {
+      "main": [
+        [
+          {
+            "node": "Fetch Full Reply Body",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

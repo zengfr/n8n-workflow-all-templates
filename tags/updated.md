@@ -1,4 +1,4 @@
-# updated : 7
+# updated : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |4115|[4115_Analyze_Crypto_Market_with_CoinGecko__Volatility_Metrics___Investment_Signals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/41/4115_Analyze_Crypto_Market_with_CoinGecko__Volatility_Metrics___Investment_Signals.json)|
 |9934|[9934_Keep_RAG_System_Updated_with_Google_Drive_File_Changes_to_Supabase_Vector_DB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9934_Keep_RAG_System_Updated_with_Google_Drive_File_Changes_to_Supabase_Vector_DB.json)|
 |10194|[10194_Automated_Product_Email_Support_with_GPT-4.1__Pinecone_RAG__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10194_Automated_Product_Email_Support_with_GPT-4.1__Pinecone_RAG__and_Gmail.json)|
+|16992|[16992_Track_recurring_job_pain_points_with_SerpApi__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16992_Track_recurring_job_pain_points_with_SerpApi__Gemini__and_Google_Sheets.json)|
+|18149|[18149_Analyze_customer_feedback_and_alert_negative_sentiment_with_gpt-5.6-terra_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18149_Analyze_customer_feedback_and_alert_negative_sentiment_with_gpt-5.6-terra_and_Telegram.json)|
+|18151|[18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json)|
+|18153|[18153_Approve_employee_expenses_with_OpenAI__Google_Sheets__Telegram__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18153_Approve_employee_expenses_with_OpenAI__Google_Sheets__Telegram__and_Gmail.json)|
+|18513|[18513_Draft_and_track_incident_postmortems_with_OpenAI__Google_Sheets__Discord_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18513_Draft_and_track_incident_postmortems_with_OpenAI__Google_Sheets__Discord_and_Gmail.json)|
+|18674|[18674_Extract_purchase_orders_from_PDFs_with_easybits__Google_Sheets__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18674_Extract_purchase_orders_from_PDFs_with_easybits__Google_Sheets__and_Google_Drive.json)|

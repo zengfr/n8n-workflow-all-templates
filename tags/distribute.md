@@ -1,4 +1,4 @@
-# distribute : 6
+# distribute : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |10048|[10048_Distribute_Workflow_Execution_with_Round-Robin_Logic_using_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10048_Distribute_Workflow_Execution_with_Round-Robin_Logic_using_Data_Tables.json)|
 |10997|[10997_Automate_X-Ray_Analysis_with_VLM-agent-1_and_Distribute_to_Gmail__Telegram___Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10997_Automate_X-Ray_Analysis_with_VLM-agent-1_and_Distribute_to_Gmail__Telegram___Drive.json)|
 |12664|[12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12664_Distribute_summarized_meeting_notes_with_Microsoft_Teams_and_ClickUp.json)|
+|18263|[18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json)|
+|18290|[18290_Summarize_Japanese_regulatory_news_with_Claude__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18290_Summarize_Japanese_regulatory_news_with_Claude__Slack__and_Google_Sheets.json)|

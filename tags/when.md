@@ -1,4 +1,4 @@
-# when : 65
+# when : 75
 
 |id|file|
 |----|----|
@@ -67,3 +67,13 @@
 |13483|[13483_Notify_customers_on_WhatsApp_when_Stripe_payment_succeeds_with_MoltFlow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13483_Notify_customers_on_WhatsApp_when_Stripe_payment_succeeds_with_MoltFlow.json)|
 |14299|[14299_Automatic_AI_reply_when_mentioned_in_a_Liveblocks_comment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14299_Automatic_AI_reply_when_mentioned_in_a_Liveblocks_comment.json)|
 |16699|[16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json)|
+|17035|[17035_Ping_IndexNow_when_new_blog_posts_are_published_from_your_RSS_feed.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17035_Ping_IndexNow_when_new_blog_posts_are_published_from_your_RSS_feed.json)|
+|17247|[17247_Send_new_BookMyShow_movie_or_event_alerts_to_Telegram_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17247_Send_new_BookMyShow_movie_or_event_alerts_to_Telegram_with_Apify.json)|
+|17390|[17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json)|
+|17598|[17598_Verify_subcontractor_licenses_from_form_submissions_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17598_Verify_subcontractor_licenses_from_form_submissions_with_Apify_and_Slack.json)|
+|17731|[17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json)|
+|18725|[18725_Alert_team_health_drops_with_TeamRetro__OpenAI_GPT-5_Mini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18725_Alert_team_health_drops_with_TeamRetro__OpenAI_GPT-5_Mini__and_Slack.json)|
+|18955|[18955_Monitor_scheduled_workflow_health_with_Silent_Fail_pings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18955_Monitor_scheduled_workflow_health_with_Silent_Fail_pings.json)|
+|19075|[19075_Block_noindex_SEO_regressions_in_deploy_pipelines_with_webhook_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19075_Block_noindex_SEO_regressions_in_deploy_pipelines_with_webhook_and_Slack.json)|
+|19650|[19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json)|
+|19773|[19773_Chase_unanswered_quotes_by_SMS_with_Twilio_and_a_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19773_Chase_unanswered_quotes_by_SMS_with_Twilio_and_a_webhook.json)|

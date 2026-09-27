@@ -1,4 +1,4 @@
-# members : 9
+# members : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |11450|[11450_Extract_Premium___Verified_LinkedIn_Group_Members_to_Google_Sheets_with_ConnectSafely.AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11450_Extract_Premium___Verified_LinkedIn_Group_Members_to_Google_Sheets_with_ConnectSafely.AI.json)|
 |12298|[12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12298_Notify_Redmine_project_members_in_Slack_about_teammates__approved_Odoo_leave.json)|
 |14385|[14385_Sync_Ghost_members_with_MailerLite_subscribers_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14385_Sync_Ghost_members_with_MailerLite_subscribers_in_real_time.json)|
+|19206|[19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json)|

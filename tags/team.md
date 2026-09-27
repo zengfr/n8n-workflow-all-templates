@@ -1,4 +1,4 @@
-# team : 52
+# team : 57
 
 |id|file|
 |----|----|
@@ -54,3 +54,8 @@
 |16234|[16234_Score_content_virality_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16234_Score_content_virality_with_OpenAI__Google_Sheets_and_Slack.json)|
 |16442|[16442_Summarize_daily_standups_from_Google_Sheets_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16442_Summarize_daily_standups_from_Google_Sheets_with_Gemini_and_Slack.json)|
 |16667|[16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json)|
+|17953|[17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17953_Route_form_feedback_with_Google_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|17966|[17966_Build_a_multi-agent_support_triage_system_with_Amazon_Bedrock_AgentCore_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17966_Build_a_multi-agent_support_triage_system_with_Amazon_Bedrock_AgentCore_and_Slack.json)|
+|18725|[18725_Alert_team_health_drops_with_TeamRetro__OpenAI_GPT-5_Mini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18725_Alert_team_health_drops_with_TeamRetro__OpenAI_GPT-5_Mini__and_Slack.json)|
+|18902|[18902_Sync_nightly_TeamRetro_health_check_scores_with_Postgres_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18902_Sync_nightly_TeamRetro_health_check_scores_with_Postgres_and_Slack_alerts.json)|
+|19264|[19264_Red-team_AI_agents_with_jailbreak_probes_using_Groq__Discord__and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19264_Red-team_AI_agents_with_jailbreak_probes_using_Groq__Discord__and_data_tables.json)|

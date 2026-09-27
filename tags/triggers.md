@@ -1,4 +1,4 @@
-# triggers : 7
+# triggers : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |7784|[7784_Unify_multiple_triggers_into_a_single_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7784_Unify_multiple_triggers_into_a_single_workflow.json)|
 |7844|[7844_LinkedIn_Lead_Generation__Auto_DM_System_with_Comment_Triggers_using_Unipile___NocoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7844_LinkedIn_Lead_Generation__Auto_DM_System_with_Comment_Triggers_using_Unipile___NocoDB.json)|
 |8030|[8030_Auto-Send_PDF_Invoices_with_Stripe_Payment_Triggers_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8030_Auto-Send_PDF_Invoices_with_Stripe_Payment_Triggers_and_Gmail.json)|
+|17475|[17475_Send_workflow_failure_alerts_via_email_and_Telegram_using_error_triggers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17475_Send_workflow_failure_alerts_via_email_and_Telegram_using_error_triggers.json)|

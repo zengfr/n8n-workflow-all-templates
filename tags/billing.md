@@ -1,4 +1,4 @@
-# billing : 10
+# billing : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |11859|[11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json)|
 |12524|[12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12524_Sync_AWS_billing_invoices_with_FreeAgent_and_PostgreSQL_tracking.json)|
 |16377|[16377_Send_milestone_billing_invoices_with_Google_Sheets__GPT-4o_mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16377_Send_milestone_billing_invoices_with_Google_Sheets__GPT-4o_mini__Gmail_and_Slack.json)|
+|17308|[17308_Verify_billing-ready_completion_documents_with_OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17308_Verify_billing-ready_completion_documents_with_OpenRouter_and_Google_Sheets.json)|
+|17431|[17431_Send_Mercado_Pago_billing_links_and_reminders_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17431_Send_Mercado_Pago_billing_links_and_reminders_with_Google_Sheets_and_Gmail.json)|
+|19462|[19462_Approve_and_log_rack_power_overage_charges_with_Google_Sheets__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19462_Approve_and_log_rack_power_overage_charges_with_Google_Sheets__Gmail_and_OpenAI.json)|
+|19670|[19670_Generate_AI_text_and_images_with_Claude_and_Stripe_metered_billing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19670_Generate_AI_text_and_images_with_Claude_and_Stripe_metered_billing.json)|

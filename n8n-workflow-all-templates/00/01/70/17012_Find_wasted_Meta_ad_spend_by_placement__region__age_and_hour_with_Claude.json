@@ -1,0 +1,476 @@
+{
+  "id": "mvxVBIvdjGEVWgGX",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Find wasted Meta ad spend by placement, region, age and hour with Claude",
+    "wechat": "youandme10086",
+    "id": 17012,
+    "update_time": "2026-09-27"
+  },
+  "name": "Find wasted Meta ad spend by placement, region, age and hour with AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3f08678a-3807-4bad-b04c-94fb90890617",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32176,
+        5104
+      ],
+      "parameters": {
+        "width": 732,
+        "height": 632,
+        "content": "## Meta Ads Wasted-Spend Finder\n\nFinds the delivery slices of your Meta ad account that waste budget (by placement, age/gender, hour, and region) and gives you a prioritized, AI-ranked kill list with a recommended action for each. Works for lead-gen and ecommerce.\n\n\n### How it works\n- Pulls last-30-day account insights plus four delivery breakdowns from the Meta Marketing API.\n- Sums your configured result events (leads, registrations, purchases) per slice and computes the account cost-per-result benchmark.\n- Auto-skips any breakdown Meta does not attribute conversions to, so you never get false \"zero result\" waste.\n- Flags slices spending over a floor with zero results, or a cost-per-result far above benchmark, and scores the dollars recoverable.\n- Claude ranks the kill list and recommends pause, exclude, or reallocate.\n\n\n### Setup\n1. Add to your .env: META_ACCESS_TOKEN, META_AD_ACCOUNT_ID, META_API_VERSION, ANTHROPIC_API_KEY.\n2. Run with the manual trigger, or attach a Schedule trigger for a daily report.\n\n### Customization\nIn the Config node, set RESULT_ACTIONS to the events you optimize for, and tune SPEND_FLOOR and CPR_MULTIPLE. Swap the stdout report for a Slack or email node to auto-deliver.\n\nBuilt by https://nocode.expert - done-for-you automation & tracking. "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "289d952b-7405-4fa3-a85d-bf2f35b427d8",
+      "name": "Section: Fetch & benchmark",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        33168,
+        5200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 704,
+        "content": "## 1. Fetch & benchmark\nPull Meta spend + results per breakdown; skip breakdowns with no conversion attribution."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd9ec440-1dc9-4982-805d-495b66f1d61d",
+      "name": "Section: Detect waste",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        33984,
+        5200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 704,
+        "content": "## 2. Detect & rank waste\nFlag slices below benchmark, then Claude ranks the kill list."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21fa710c-fdb7-4583-913a-4feb21e9a85e",
+      "name": "Section: Report",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        34880,
+        5200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1740,
+        "height": 704,
+        "content": "## 3. Report\nPrint the prioritized report (swap for Slack/email)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d3def97-da0c-437e-9eb2-3004633e820c",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        32992,
+        5456
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "bdc63539-6962-4cf3-84c7-4bd51f2b324f",
+      "name": "Flag underperforming slices vs benchmark",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        34944,
+        5456
+      ],
+      "parameters": {
+        "jsCode": "// Flag slices wasting budget vs the account's own cost-per-result benchmark:\n// zero results with real spend, or a cost-per-result far above benchmark.\n// \"At risk\" = dollars spent above what benchmark efficiency would have cost.\nconst { slices, skipped, benchmarkCPR, acctSpend, acctResults, cfg } = $json;\nconst FLOOR = cfg.SPEND_FLOOR, MULT = cfg.CPR_MULTIPLE;\n\nconst wasted = (slices || [])\n  .filter((s) => s.spend >= FLOOR && (s.results === 0 || (benchmarkCPR && s.cpr > benchmarkCPR * MULT)))\n  .map((s) => ({\n    ...s,\n    waste_type: s.results === 0 ? 'zero_results' : 'high_cost_per_result',\n    at_risk: s.results === 0 ? s.spend : +Math.max(0, s.spend - s.results * benchmarkCPR).toFixed(2),\n  }))\n  .sort((a, b) => b.at_risk - a.at_risk)\n  .slice(0, 20);\n\nconst total_at_risk = +wasted.reduce((n, s) => n + s.at_risk, 0).toFixed(2);\nreturn [{ json: { wasted, total_at_risk, benchmarkCPR, acctSpend, acctResults, skipped, floor: FLOOR, cpr_multiple: MULT, considered: (slices || []).length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "653dc56a-87e2-4df2-b7c4-41a6b3f7ebe0",
+      "name": "Build AI prioritization prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        35712,
+        5248
+      ],
+      "parameters": {
+        "jsCode": "// Ask Claude to rank the kill list and recommend a concrete action per slice.\nconst { wasted, total_at_risk, benchmarkCPR } = $json;\nconst system = 'You are a senior paid-media analyst. You are given underperforming delivery slices from a Meta ad account, judged against the account cost-per-result benchmark. Rank them by dollars recoverable, and for each give a one-line rationale and one concrete action: pause, exclude, or reallocate. Be specific and terse. Return ONLY valid JSON, no prose.';\nconst user = 'Account cost-per-result benchmark: $' + benchmarkCPR + '. Total at risk: $' + total_at_risk + '.\\n\\nSlices:\\n' + JSON.stringify(wasted) + '\\n\\nReturn JSON exactly: {\"summary\":\"one sentence\",\"ranked\":[{\"slice\":\"\",\"dimension\":\"\",\"at_risk\":0,\"action\":\"pause|exclude|reallocate\",\"why\":\"\"}]}';\nconst body = { model: 'claude-haiku-4-5', max_tokens: 1500, system, messages: [{ role: 'user', content: user }] };\nreturn [{ json: { body, _ctx: $json } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b250ddda-aea3-484a-b2f0-4e0a3d5133a2",
+      "name": "Rank the kill list with Claude AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        35936,
+        5248
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6f900e46-9952-469b-bda6-1faaf8037c71",
+      "name": "Print prioritized wasted-spend report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        36256,
+        5264
+      ],
+      "parameters": {
+        "jsCode": "// Print the ranked wasted-spend report to stdout. Extract the JSON object by\n// braces so model code-fences never break parsing.\nconst ctx = $node['Flag underperforming slices vs benchmark'].json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '{}';\nconst s = raw.indexOf('{'), e = raw.lastIndexOf('}');\nlet parsed = { summary: '(could not parse model output)', ranked: [] };\ntry { parsed = JSON.parse(raw.slice(s, e + 1)); } catch (err) {}\n\nconst out = [];\nout.push('');\nout.push('==========================================================');\nout.push('  META ADS WASTED-SPEND FINDER  |  nocode.expert');\nout.push('==========================================================');\nout.push('Account cost-per-result benchmark: $' + ctx.benchmarkCPR + '  (' + ctx.acctResults.toLocaleString() + ' results on $' + ctx.acctSpend.toLocaleString() + ')');\nif (ctx.skipped && ctx.skipped.length) {\n  out.push('Skipped (no conversion attribution): ' + ctx.skipped.map((x) => x.dimension).join(', '));\n}\nout.push('Total at risk: $' + (ctx.total_at_risk || 0).toLocaleString());\nout.push('');\nout.push(parsed.summary || '');\nout.push('');\n(parsed.ranked || []).forEach((r, i) => {\n  out.push(String(i + 1).padStart(2) + '. [$' + (r.at_risk || 0).toLocaleString() + ']  ' + r.dimension + ' :: ' + r.slice);\n  out.push('     -> ' + String(r.action || '').toUpperCase() + ': ' + (r.why || ''));\n});\nout.push('==========================================================');\nconsole.log(out.join('\\n'));\nreturn [{ json: parsed }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5d1a11d8-5aa4-4001-93e8-8a03d544be9a",
+      "name": "Fetch account totals (Meta)",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        33472,
+        5456
+      ],
+      "parameters": {
+        "edge": "insights",
+        "node": "={{ ($env.META_AD_ACCOUNT_ID || '').trim() }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "level",
+                "value": "account"
+              },
+              {
+                "name": "date_preset",
+                "value": "={{ $json.DATE_PRESET }}"
+              },
+              {
+                "name": "fields",
+                "value": "spend,impressions,clicks,actions"
+              },
+              {
+                "name": "limit",
+                "value": "500"
+              }
+            ]
+          }
+        },
+        "graphApiVersion": "v21.0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "337204af-cffe-4ec8-9eeb-162cbac65659",
+      "name": "Compute benchmark",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        33680,
+        5456
+      ],
+      "parameters": {
+        "jsCode": "// Sum configured result events on the account total and compute the\n// cost-per-result benchmark. Pure data transform, no API calls.\nconst cfg = $('Set config: result events, floor').first().json;\nconst RES = new Set(cfg.RESULT_ACTIONS);\nconst resultsOf = (a) => Array.isArray(a)\n  ? a.filter(x => RES.has(x.action_type)).reduce((n,x)=>n+(Number(x.value)||0),0) : 0;\nconst acct = ($json.data && $json.data[0]) || {};\nconst acctSpend = Number(acct.spend) || 0;\nconst acctResults = resultsOf(acct.actions);\nconst benchmarkCPR = acctResults > 0 ? +(acctSpend/acctResults).toFixed(2) : null;\nreturn [{ json: { acctSpend:+acctSpend.toFixed(2), acctResults, benchmarkCPR } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4dad15a5-2d91-4bef-b683-41d2045001e5",
+      "name": "List delivery breakdowns",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        34128,
+        5456
+      ],
+      "parameters": {
+        "jsCode": "// Emit one item per delivery breakdown. The next Facebook node then runs once\n// per item, so n8n loops over the breakdowns for you. Pure data transform.\nconst cfg = $('Set config: result events, floor').first().json;\nconst BREAKDOWNS = [\n  { dim: 'placement',  breakdowns: 'publisher_platform,platform_position' },\n  { dim: 'region',     breakdowns: 'region' },\n  { dim: 'age_gender', breakdowns: 'age,gender' },\n  { dim: 'hour',       breakdowns: 'hourly_stats_aggregated_by_advertiser_time_zone' },\n];\nreturn BREAKDOWNS.map(b => ({ json: { ...b, DATE_PRESET: cfg.DATE_PRESET } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ac9c364c-569d-4c6f-8218-e209deac11b9",
+      "name": "Fetch breakdown insights (Meta)",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        34336,
+        5456
+      ],
+      "parameters": {
+        "edge": "insights",
+        "node": "={{ ($env.META_AD_ACCOUNT_ID || '').trim() }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "level",
+                "value": "account"
+              },
+              {
+                "name": "date_preset",
+                "value": "={{ $json.DATE_PRESET }}"
+              },
+              {
+                "name": "fields",
+                "value": "spend,impressions,clicks,actions"
+              },
+              {
+                "name": "breakdowns",
+                "value": "={{ $json.breakdowns }}"
+              },
+              {
+                "name": "limit",
+                "value": "500"
+              }
+            ]
+          }
+        },
+        "graphApiVersion": "v21.0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b21e500-ff29-4797-b55f-0299d3225a81",
+      "name": "Flatten & score slices",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        34576,
+        5456
+      ],
+      "parameters": {
+        "jsCode": "// Combine the four breakdown responses into per-slice rows, apply the attribution\n// gate (skip a breakdown that loses most results), attach cost-per-result.\n// Pure data transform over the Facebook node responses.\nconst cfg = $('Set config: result events, floor').first().json;\nconst bench = $('Compute benchmark').first().json;\nconst reqs = $('List delivery breakdowns').all();\nconst RES = new Set(cfg.RESULT_ACTIONS);\nconst resultsOf = (a) => Array.isArray(a)\n  ? a.filter(x => RES.has(x.action_type)).reduce((n,x)=>n+(Number(x.value)||0),0) : 0;\nconst LABEL = {\n  placement:  (r) => `${r.publisher_platform} / ${r.platform_position}`,\n  region:     (r) => r.region,\n  age_gender: (r) => `${r.age} ${r.gender}`,\n  hour:       (r) => (r.hourly_stats_aggregated_by_advertiser_time_zone || '').slice(0,5),\n};\nconst responses = $input.all();\nconst slices = [], skipped = [];\nresponses.forEach((item, i) => {\n  const dim  = reqs[i].json.dim;\n  const rows = item.json.data || [];\n  const bResults = rows.reduce((n,r)=>n+resultsOf(r.actions),0);\n  if (bench.acctResults > 0 && bResults < bench.acctResults * cfg.MIN_ATTRIBUTION) {\n    skipped.push({ dimension: dim, captured: bResults, of: bench.acctResults }); return;\n  }\n  for (const r of rows) {\n    const spend = Number(r.spend)||0, results = resultsOf(r.actions);\n    slices.push({ dimension: dim, slice: LABEL[dim](r), spend:+spend.toFixed(2), results, cpr: results>0 ? +(spend/results).toFixed(2) : null });\n  }\n});\nreturn [{ json: { slices, skipped, benchmarkCPR: bench.benchmarkCPR, acctSpend: bench.acctSpend, acctResults: bench.acctResults, cfg } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "326e79dc-c133-4316-b0c2-8de00d9d3934",
+      "name": "Any budget at risk?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        35360,
+        5456
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-atrisk",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.total_at_risk }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f0630bc4-3158-4502-8d78-cdb6e891f709",
+      "name": "Print — nothing to cut",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        35776,
+        5712
+      ],
+      "parameters": {
+        "jsCode": "// Nothing crossed the waste thresholds. Keep the shape the report expects.\nconsole.log('No delivery slices exceeded the waste thresholds. Nothing to cut.');\nreturn [{ json: { summary: 'No wasted spend found', ranked: [] } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2bec828b-29b1-44af-b943-69e80d8aa233",
+      "name": "Set config: result events, floor",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        33248,
+        5456
+      ],
+      "parameters": {
+        "jsCode": "// Tune the finder here. RESULT_ACTIONS is every event that counts as a \"result\"\n// (leads, registrations, purchases) - the workflow sums whichever are present,\n// so it works for lead-gen and ecommerce without code changes.\nreturn [{ json: {\n  DATE_PRESET: 'last_30d',\n  SPEND_FLOOR: 300,        // ignore slices below this spend\n  CPR_MULTIPLE: 2,         // flag a slice if its cost-per-result is this many times the account benchmark\n  MIN_ATTRIBUTION: 0.5,    // skip a breakdown if it captures under this share of account results (attribution gap)\n  RESULT_ACTIONS: [\n    'offsite_complete_registration_add_meta_leads', 'lead', 'leadgen_grouped',\n    'onsite_conversion.lead_grouped', 'omni_complete_registration', 'complete_registration',\n    'omni_purchase', 'offsite_conversion.fb_pixel_purchase', 'purchase',\n  ],\n} }];"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "739f7aa0-b82d-4488-bbfd-853fbbaf403b",
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Set config: result events, floor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute benchmark": {
+      "main": [
+        [
+          {
+            "node": "List delivery breakdowns",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any budget at risk?": {
+      "main": [
+        [
+          {
+            "node": "Build AI prioritization prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Print — nothing to cut",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flatten & score slices": {
+      "main": [
+        [
+          {
+            "node": "Flag underperforming slices vs benchmark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List delivery breakdowns": {
+      "main": [
+        [
+          {
+            "node": "Fetch breakdown insights (Meta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch account totals (Meta)": {
+      "main": [
+        [
+          {
+            "node": "Compute benchmark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI prioritization prompt": {
+      "main": [
+        [
+          {
+            "node": "Rank the kill list with Claude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch breakdown insights (Meta)": {
+      "main": [
+        [
+          {
+            "node": "Flatten & score slices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config: result events, floor": {
+      "main": [
+        [
+          {
+            "node": "Fetch account totals (Meta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rank the kill list with Claude AI": {
+      "main": [
+        [
+          {
+            "node": "Print prioritized wasted-spend report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag underperforming slices vs benchmark": {
+      "main": [
+        [
+          {
+            "node": "Any budget at risk?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

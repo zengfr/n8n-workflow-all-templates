@@ -1,4 +1,4 @@
-# updates : 134
+# updates : 143
 
 |id|file|
 |----|----|
@@ -136,3 +136,12 @@
 |15982|[15982_Capture_vendor_status_updates_via_tokenized_email_links_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15982_Capture_vendor_status_updates_via_tokenized_email_links_and_Google_Sheets.json)|
 |16392|[16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json)|
 |16496|[16496_Track_Slack_EOD_updates_and_post_executive_summaries_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16496_Track_Slack_EOD_updates_and_post_executive_summaries_with_Google_Sheets_and_Gemini.json)|
+|16837|[16837_Back_up_workflows_daily_to_GitHub_with_incremental_updates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16837_Back_up_workflows_daily_to_GitHub_with_incremental_updates.json)|
+|16914|[16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json)|
+|16946|[16946_Post_LinkedIn_image_updates_from_Google_Drive_with_Gemini_Vision_captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16946_Post_LinkedIn_image_updates_from_Google_Drive_with_Gemini_Vision_captions.json)|
+|18065|[18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json)|
+|18509|[18509_Log_Telegram_client_updates_to_Notion_and_Google_Sheets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18509_Log_Telegram_client_updates_to_Notion_and_Google_Sheets_with_Gemini.json)|
+|18768|[18768_Send_client_matter_status_updates_from_Clio_via_webhooks_and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18768_Send_client_matter_status_updates_from_Clio_via_webhooks_and_SMTP_email.json)|
+|19008|[19008_Post_DubBooth_voice_challenge_leaderboard_updates_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19008_Post_DubBooth_voice_challenge_leaderboard_updates_to_Slack.json)|
+|19133|[19133_Monitor_pharma_regulatory_updates_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19133_Monitor_pharma_regulatory_updates_with_Anthropic_Claude_and_Slack_alerts.json)|
+|19375|[19375_Send_client_matter_status_updates_from_Clio_via_Twilio_SMS_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19375_Send_client_matter_status_updates_from_Clio_via_Twilio_SMS_and_email.json)|

@@ -1,4 +1,4 @@
-# odoo : 28
+# odoo : 34
 
 |id|file|
 |----|----|
@@ -30,3 +30,9 @@
 |14928|[14928_Bulk_sync_products_from_Google_Sheets_to_Odoo_with_auto_image_upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14928_Bulk_sync_products_from_Google_Sheets_to_Odoo_with_auto_image_upload.json)|
 |16272|[16272_Sync_new_Shopify_customers_to_Odoo_and_notify_via_Gmail__SMS__WhatsApp_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16272_Sync_new_Shopify_customers_to_Odoo_and_notify_via_Gmail__SMS__WhatsApp_and_Telegram.json)|
 |16353|[16353_Sync_paid_Shopify_order_contacts_with_Odoo_and_remove_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16353_Sync_paid_Shopify_order_contacts_with_Odoo_and_remove_duplicates.json)|
+|17637|[17637_Qualify_and_enrich_Odoo_leads_with_Tavily__Google_Gemini__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17637_Qualify_and_enrich_Odoo_leads_with_Tavily__Google_Gemini__and_Resend.json)|
+|17989|[17989_Create_and_follow_up_Odoo_CRM_leads_from_webhook_forms_with_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17989_Create_and_follow_up_Odoo_CRM_leads_from_webhook_forms_with_Gmail_and_Slack.json)|
+|17991|[17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json)|
+|17992|[17992_Automate_inventory_reordering_and_vendor_bill_approvals_with_Odoo__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17992_Automate_inventory_reordering_and_vendor_bill_approvals_with_Odoo__Gmail__and_Slack.json)|
+|18315|[18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json)|
+|18353|[18353_Manage_HR_offboarding_and_archival_with_Odoo__Google_Calendar__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18353_Manage_HR_offboarding_and_archival_with_Odoo__Google_Calendar__Gmail__and_Slack.json)|

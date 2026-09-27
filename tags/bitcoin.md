@@ -1,4 +1,4 @@
-# bitcoin : 9
+# bitcoin : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |11396|[11396_Monitor_Bitcoin_Arbitrage_Between_Binance___Upbit_with_GPT_Analysis___Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11396_Monitor_Bitcoin_Arbitrage_Between_Binance___Upbit_with_GPT_Analysis___Email.json)|
 |14213|[14213_Summarize_Bitcoin_news_in_Japanese_and_post_to_Discord_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14213_Summarize_Bitcoin_news_in_Japanese_and_post_to_Discord_with_Gemini_AI.json)|
 |15276|[15276_Detect_Bitcoin_price_spikes_and_send_Gemini-powered_NewsAPI_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15276_Detect_Bitcoin_price_spikes_and_send_Gemini-powered_NewsAPI_Gmail_alerts.json)|
+|19422|[19422_Assess_Bitcoin_AML_risk_with_Groq_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19422_Assess_Bitcoin_AML_risk_with_Groq_and_log_results_to_Google_Sheets.json)|
+|19843|[19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json)|

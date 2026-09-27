@@ -1,4 +1,4 @@
-# server : 268
+# server : 283
 
 |id|file|
 |----|----|
@@ -270,3 +270,18 @@
 |16165|[16165_Build_and_operate_n8n_workflows_from_Claude_with_Gemini_and_MCP_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16165_Build_and_operate_n8n_workflows_from_Claude_with_Gemini_and_MCP_tools.json)|
 |16294|[16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json)|
 |16667|[16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json)|
+|17314|[17314_Expose_workflows_as_an_MCP_server_for_Claude_and_OpenAI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17314_Expose_workflows_as_an_MCP_server_for_Claude_and_OpenAI_agents.json)|
+|17674|[17674_Deduplicate_and_send_server-side_conversions_to_Meta_Conversions_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17674_Deduplicate_and_send_server-side_conversions_to_Meta_Conversions_API.json)|
+|17843|[17843_Expose_Google_Blogger_management_tools_to_Claude_via_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17843_Expose_Google_Blogger_management_tools_to_Claude_via_MCP_server.json)|
+|18003|[18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18168|[18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json)|
+|18443|[18443_Manage_LinkedIn_posts_and_engagement_with_an_MCP_server_and_AI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18443_Manage_LinkedIn_posts_and_engagement_with_an_MCP_server_and_AI_agents.json)|
+|18799|[18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json)|
+|18899|[18899_Investigate_phishing_emails_from_Google_Sheets_with_MCP_server_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18899_Investigate_phishing_emails_from_Google_Sheets_with_MCP_server_and_Telegram.json)|
+|18923|[18923_Back_up_a_Linux_server_directory_to_Backblaze_B2_with_rclone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18923_Back_up_a_Linux_server_directory_to_Backblaze_B2_with_rclone.json)|
+|18924|[18924_Back_up_Linux_server_directories_to_Google_Drive_with_Borg_over_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18924_Back_up_Linux_server_directories_to_Google_Drive_with_Borg_over_SSH.json)|
+|19199|[19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json)|
+|19401|[19401_Summarize_10-K_risk_factor_changes_with_SEC_EDGAR_MCP__OpenAI__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19401_Summarize_10-K_risk_factor_changes_with_SEC_EDGAR_MCP__OpenAI__and_Google_Docs.json)|
+|19402|[19402_Track_macro_regime_shifts_with_FRED_MCP__OpenAI__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19402_Track_macro_regime_shifts_with_FRED_MCP__OpenAI__and_Slack_alerts.json)|
+|19742|[19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19742_Expose_production_tools_to_MCP_clients_with_Slack_approval_gates.json)|

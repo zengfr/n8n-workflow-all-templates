@@ -1,4 +1,4 @@
-# care : 7
+# care : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |13308|[13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13308_Orchestrate_patient_admission__discharge_and_post-care_with_NVIDIA_and_Claude.json)|
 |14816|[14816_Handle_Vietnamese_SME_customer_care_on_Zalo_Bot_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14816_Handle_Vietnamese_SME_customer_care_on_Zalo_Bot_with_Gemini_and_Google_Sheets.json)|
 |16604|[16604_Triage_chronic_care_vitals_with_Google_Sheets__Gmail__Telegram_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16604_Triage_chronic_care_vitals_with_Google_Sheets__Gmail__Telegram_and_Slack.json)|
+|17415|[17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json)|

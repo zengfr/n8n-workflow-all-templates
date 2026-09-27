@@ -1,4 +1,4 @@
-# serper : 14
+# serper : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |14682|[14682_Generate_LinkedIn_leads_using_Google_Sheets_and_Serper_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14682_Generate_LinkedIn_leads_using_Google_Sheets_and_Serper_API.json)|
 |15154|[15154_Generate_and_qualify_B2B_leads_from_Telegram_with_Google_Maps__Serper__GPT_4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15154_Generate_and_qualify_B2B_leads_from_Telegram_with_Google_Maps__Serper__GPT_4o__and_Gmail.json)|
 |15497|[15497_Find_and_email_website-less_local_businesses_with_Google_Sheets__Serper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15497_Find_and_email_website-less_local_businesses_with_Google_Sheets__Serper_and_Gmail.json)|
+|17351|[17351_Generate_company_due_diligence_PDFs_with_Google_Gemini__SEC_EDGAR__Serper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17351_Generate_company_due_diligence_PDFs_with_Google_Gemini__SEC_EDGAR__Serper_and_Gmail.json)|
+|19145|[19145_Discover_and_score_local_B2B_leads_with_Serper_Maps_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19145_Discover_and_score_local_B2B_leads_with_Serper_Maps_and_Google_Sheets.json)|

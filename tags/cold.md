@@ -1,4 +1,4 @@
-# cold : 77
+# cold : 90
 
 |id|file|
 |----|----|
@@ -79,3 +79,16 @@
 |16289|[16289_Classify_cold_email_replies_and_triage_Gmail_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16289_Classify_cold_email_replies_and_triage_Gmail_with_Claude_and_Slack.json)|
 |16494|[16494_Find_and_log_high-quality_domain_contacts_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16494_Find_and_log_high-quality_domain_contacts_with_Tomba_and_Google_Sheets.json)|
 |16756|[16756_Draft_personalized_cold_emails_from_Google_Sheets_with_Apify_and_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16756_Draft_personalized_cold_emails_from_Google_Sheets_with_Apify_and_GPT-4o_mini.json)|
+|16855|[16855_Draft_funding-based_cold_email_openers_with_Datahyena_and_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16855_Draft_funding-based_cold_email_openers_with_Datahyena_and_OpenAI_GPT-4o.json)|
+|16858|[16858_Re-engage_dormant_real_estate_leads_with_Google_Sheets__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16858_Re-engage_dormant_real_estate_leads_with_Google_Sheets__Gemini_and_Gmail.json)|
+|16922|[16922_Send_personalized_cold_emails_from_Google_Sheets_with_Claude_MCP_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16922_Send_personalized_cold_emails_from_Google_Sheets_with_Claude_MCP_and_Gmail.json)|
+|16940|[16940_Send_daily_AI-personalized_cold_emails_with_Google_Places_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16940_Send_daily_AI-personalized_cold_emails_with_Google_Places_and_OpenAI.json)|
+|17122|[17122_Draft_and_stage_LinkedIn_re-engagements_with_HeyReach__Twain__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17122_Draft_and_stage_LinkedIn_re-engagements_with_HeyReach__Twain__and_Slack.json)|
+|17201|[17201_Draft_personalized_cold_emails_from_Google_Sheets_using_Gemini_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17201_Draft_personalized_cold_emails_from_Google_Sheets_using_Gemini_and_HubSpot.json)|
+|17456|[17456_Grade_cold_outreach_emails_and_generate_an_HTML_report_with_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17456_Grade_cold_outreach_emails_and_generate_an_HTML_report_with_OpenAI_GPT-4.1.json)|
+|17488|[17488_Send_personalized_cold_email_sequences_with_Google_Sheets__Gmail__Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17488_Send_personalized_cold_email_sequences_with_Google_Sheets__Gmail__Gemini_and_Slack.json)|
+|17502|[17502_Classify_cold_email_replies_and_route_leads_with_Gmail__Gemini__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17502_Classify_cold_email_replies_and_route_leads_with_Gmail__Gemini__Slack_and_Sheets.json)|
+|17511|[17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json)|
+|17930|[17930_Generate_spintax_cold_email_copy_per_lead_for_any_email_provider.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17930_Generate_spintax_cold_email_copy_per_lead_for_any_email_provider.json)|
+|19327|[19327_Find_Google_Maps_prospects_and_draft_cold_emails_with_Apify__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19327_Find_Google_Maps_prospects_and_draft_cold_emails_with_Apify__OpenAI_and_Sheets.json)|
+|19328|[19328_Draft_cold_email_templates_from_Google_Sheets_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19328_Draft_cold_email_templates_from_Google_Sheets_with_OpenAI_and_Gmail.json)|

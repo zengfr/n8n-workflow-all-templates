@@ -1,4 +1,4 @@
-# turbo : 5
+# turbo : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |10316|[10316_Automate_Assignment_Grading_with_GPT-4-Turbo_and_Multi-Format_Reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10316_Automate_Assignment_Grading_with_GPT-4-Turbo_and_Multi-Format_Reports.json)|
 |10994|[10994_Daily_Space_Quiz_Bot__NASA_APOD_to_Slack_with_GPT-4_Turbo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10994_Daily_Space_Quiz_Bot__NASA_APOD_to_Slack_with_GPT-4_Turbo.json)|
 |14856|[14856_Screen_resumes_with_GPT-4_Turbo_from_Gmail_and_send_shortlisted_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14856_Screen_resumes_with_GPT-4_Turbo_from_Gmail_and_send_shortlisted_to_Slack.json)|
+|18885|[18885_Generate_YouTube_Shorts_and_TikTok_videos_from_images_with_Pollo_Vidu_Q3_Turbo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18885_Generate_YouTube_Shorts_and_TikTok_videos_from_images_with_Pollo_Vidu_Q3_Turbo.json)|

@@ -1,4 +1,4 @@
-# businesses : 8
+# businesses : 16
 
 |id|file|
 |----|----|
@@ -10,3 +10,11 @@
 |15153|[15153_Scrape_and_email_business_leads_with_Claude__Apify__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15153_Scrape_and_email_business_leads_with_Claude__Apify__Google_Sheets_and_Gmail.json)|
 |15363|[15363_Find_high-mismatch_local_business_leads_with_Firecrawl_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15363_Find_high-mismatch_local_business_leads_with_Firecrawl_and_Groq.json)|
 |15497|[15497_Find_and_email_website-less_local_businesses_with_Google_Sheets__Serper_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15497_Find_and_email_website-less_local_businesses_with_Google_Sheets__Serper_and_Gmail.json)|
+|16997|[16997_Log_nearby_businesses_from_OpenStreetMap_to_Google_Sheets_by_proximity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16997_Log_nearby_businesses_from_OpenStreetMap_to_Google_Sheets_by_proximity.json)|
+|17512|[17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json)|
+|17618|[17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json)|
+|17761|[17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17761_Qualify_and_route_HVAC_and_plumbing_enquiries_with_OpenAI_and_Telegram.json)|
+|18238|[18238_Find_weak_local_Google_Business_profiles_with_Bright_Data__GPT-5.6__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18238_Find_weak_local_Google_Business_profiles_with_Bright_Data__GPT-5.6__Sheets_and_Slack.json)|
+|18375|[18375_Find_local_businesses_without_websites_from_Google_Maps_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18375_Find_local_businesses_without_websites_from_Google_Maps_with_BasedOnBusiness_and_Google_Sheets.json)|
+|18428|[18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json)|
+|19430|[19430_Find_local_business_prospects_with_OpenMart_and_Twenty_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19430_Find_local_business_prospects_with_OpenMart_and_Twenty_CRM.json)|

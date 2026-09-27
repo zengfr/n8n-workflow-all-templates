@@ -1,4 +1,4 @@
-# meetings : 33
+# meetings : 36
 
 |id|file|
 |----|----|
@@ -35,3 +35,6 @@
 |15974|[15974_Transcribe_meetings_and_log_action_items_to_Notion_with_AssemblyAI_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15974_Transcribe_meetings_and_log_action_items_to_Notion_with_AssemblyAI_and_Gemini.json)|
 |16410|[16410_Log_Fireflies_meeting_transcripts_to_Google_Sheets_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16410_Log_Fireflies_meeting_transcripts_to_Google_Sheets_CRM.json)|
 |16566|[16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json)|
+|17082|[17082_Summarize_Zoom_meetings_and_create_follow-ups_with_OpenAI__ClickUp__and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17082_Summarize_Zoom_meetings_and_create_follow-ups_with_OpenAI__ClickUp__and_Outlook.json)|
+|17236|[17236_Sort_Gmail_leads__meetings__and_trash_with_OpenAI_classification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17236_Sort_Gmail_leads__meetings__and_trash_with_OpenAI_classification.json)|
+|18984|[18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json)|

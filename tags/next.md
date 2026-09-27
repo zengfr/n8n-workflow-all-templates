@@ -1,4 +1,4 @@
-# next : 8
+# next : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |9983|[9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9983_Auto-Categorize_Blog_Posts_with_OpenAI_GPT-4__GitHub__and_Google_Sheets_for_Astro_Next.js.json)|
 |14264|[14264_Generate_personalized_trip_recommendations_with_Claude_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14264_Generate_personalized_trip_recommendations_with_Claude_AI_and_Google_Sheets.json)|
 |16714|[16714_Generate_Salesforce_opportunity_next_steps_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16714_Generate_Salesforce_opportunity_next_steps_with_Gemini_and_Slack.json)|
+|17074|[17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17074_Schedule_weekly_focus-time_blocks_with_Google_Calendar__OpenAI__and_Slack.json)|
+|18065|[18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json)|
+|18453|[18453_Park_Help_Scout_retro-tagged_tickets_for_review_with_OpenAI_and_TeamRetro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18453_Park_Help_Scout_retro-tagged_tickets_for_review_with_OpenAI_and_TeamRetro.json)|
+|19669|[19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19669_Serve_a_RAG_chat_backend_for_Next.js_using_OpenAI__Redis__and_Pinecone.json)|

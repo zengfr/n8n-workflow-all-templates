@@ -1,0 +1,855 @@
+{
+  "name": "Keep an EU AI Act inventory with an AI classifier and monthly reviews",
+  "nodes": [
+    {
+      "id": "report-an-ai-system",
+      "name": "Report an AI system",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -400,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "formTitle": "Report an AI system",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "System name",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Department",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "What does it do?",
+              "placeholder": "Plain language: what goes in, what comes out, who acts on the result",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Which data does it process?",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Does it affect people?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "It decides about people"
+                  },
+                  {
+                    "option": "It prepares a decision about people"
+                  },
+                  {
+                    "option": "It does not touch people at all"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Vendor or model",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Who is responsible?",
+              "requiredField": true
+            }
+          ]
+        },
+        "formDescription": "Every AI system used in the company has to be listed — bought, built or embedded in another tool. Two minutes now save a scramble before the next audit."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "normalize-the-report",
+      "name": "Normalize the report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -160,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Formulareingaben aufraeumen, bevor sie an das Modell gehen: getrimmt, gedeckelt\n// und mit einer stabilen ID, an der sich der Eintrag spaeter wiederfinden laesst.\nconst kuerzen = (wert, max) => String(wert ?? '').replace(/\\s+/g, ' ').trim().slice(0, max);\n\nreturn items.map((item) => {\n  const f = item.json;\n  const name = kuerzen(f['System name'], 120);\n  const kennung = (name.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-|-$/g, '') || 'system')\n    + '-' + String(Date.now()).slice(-6);\n\n  return {\n    json: {\n      record_id: kennung,\n      reported_at: new Date().toISOString(),\n      system_name: name,\n      department: kuerzen(f['Department'], 80),\n      purpose: kuerzen(f['What does it do?'], 800),\n      data_categories: kuerzen(f['Which data does it process?'], 400),\n      affects_people: kuerzen(f['Does it affect people?'], 60),\n      vendor: kuerzen(f['Vendor or model'], 120),\n      owner_email: kuerzen(f['Who is responsible?'], 120),\n      // Das Modell sieht nur diesen Block — ein Feld pro Zeile liest es zuverlaessiger\n      // als einen Fliesstext, in dem Angaben ineinanderlaufen.\n      briefing: [\n        'System: ' + name,\n        'Department: ' + kuerzen(f['Department'], 80),\n        'Purpose: ' + kuerzen(f['What does it do?'], 800),\n        'Data processed: ' + kuerzen(f['Which data does it process?'], 400),\n        'Affects people: ' + kuerzen(f['Does it affect people?'], 60),\n        'Vendor or model: ' + kuerzen(f['Vendor or model'], 120),\n      ].join('\\n'),\n    },\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "classify-against-the-eu-ai-act",
+      "name": "Classify against the EU AI Act",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        80,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $json.briefing }}",
+        "options": {
+          "systemMessage": "You are a compliance analyst classifying an AI system under Regulation (EU) 2024/1689 (the EU AI Act) for a European company.\n\nMethod — follow it in this order:\n1. Call the tool `ai_act_reference` before you decide. Query it with a single keyword such as `prohibited`, `annex_iii`, `transparency` or the application area (`employment`, `credit`, `biometric`). Never rely on memory for the wording of the Act.\n2. Check the prohibited practices of Art. 5 first. They override everything else.\n3. Then check whether the described use falls into an Annex III area. Judge the actual use, not the vendor's marketing: a general purpose model becomes high risk through what it is used for.\n4. Only then consider the transparency duties of Art. 50 (limited risk) and, if nothing applies, minimal risk.\n\nRules:\n- Classify what is described, never what you assume the company probably also does.\n- If a decisive fact is missing, say so in `missing_information`, lower your `confidence` and pick the higher of the two plausible classes. Under-classification is the expensive mistake here, not over-classification.\n- `obligations` must be actionable for the named system — 'set up a risk management system under Art. 9' rather than 'comply with the Act'.\n- Write in English, plainly, without hedging phrases. This text goes into a register that an auditor may read.\n\nYou are not giving legal advice. Your output is a first pass that a responsible human confirms or overrides."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "language-model",
+      "name": "Language model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -40,
+        300
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "structured-classification",
+      "name": "Structured classification",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        180,
+        300
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"risk_class\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"prohibited\",\n        \"high\",\n        \"limited\",\n        \"minimal\",\n        \"unclear\"\n      ]\n    },\n    \"article\": {\n      \"type\": \"string\",\n      \"description\": \"The article or annex the classification rests on, e.g. 'Annex III(4) employment'\"\n    },\n    \"reasoning\": {\n      \"type\": \"string\",\n      \"description\": \"Two or three sentences, naming the decisive fact\"\n    },\n    \"obligations\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"string\"\n      },\n      \"description\": \"Concrete duties that follow from this class\"\n    },\n    \"confidence\": {\n      \"type\": \"number\",\n      \"description\": \"0 to 1; below 0.6 the case goes to a human\"\n    },\n    \"missing_information\": {\n      \"type\": \"string\",\n      \"description\": \"What the report failed to state, empty if nothing\"\n    }\n  },\n  \"required\": [\n    \"risk_class\",\n    \"article\",\n    \"reasoning\",\n    \"obligations\",\n    \"confidence\"\n  ]\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "ai_act_reference",
+      "name": "ai_act_reference",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "name": "ai_act_reference",
+        "jsCode": "// Nachschlagewerk zum EU AI Act. Bewusst als Werkzeug und nicht als Prompt-Text:\n// so steht die Rechtsgrundlage an einer Stelle und laesst sich pflegen, ohne den\n// Systemprompt anzufassen — und das Modell muss sie nicht auswendig koennen.\nconst nachschlag = {\n  annex_iii: [\n    'Biometrics: remote biometric identification, categorisation, emotion recognition',\n    'Critical infrastructure: safety components in traffic, water, gas, heating, electricity',\n    'Education: admission, assessment, monitoring of exams',\n    'Employment: recruitment, screening, promotion, termination, task allocation',\n    'Essential services: creditworthiness, insurance pricing, emergency triage, public benefits',\n    'Law enforcement: risk assessment of persons, evidence evaluation, profiling',\n    'Migration and border control: visa and asylum assessment, risk assessment',\n    'Justice and democracy: assisting judicial decisions, influencing elections',\n  ],\n  prohibited_article_5: [\n    'Subliminal or manipulative techniques distorting behaviour to a persons detriment',\n    'Exploiting vulnerabilities of age, disability or social or economic situation',\n    'Social scoring by public or private actors leading to detrimental treatment',\n    'Predicting criminal offences solely from profiling or personality traits',\n    'Untargeted scraping of facial images to build recognition databases',\n    'Emotion recognition at the workplace or in education, outside safety or medical use',\n    'Biometric categorisation inferring race, political opinion, religion or sexual orientation',\n    'Real-time remote biometric identification in public spaces for law enforcement',\n  ],\n  transparency_article_50: [\n    'People must be told when they interact with an AI system, unless it is obvious',\n    'Synthetic audio, image, video and text must be marked as machine-readable',\n    'Deep fakes must be disclosed; emotion recognition must be disclosed to those exposed',\n  ],\n  dates: {\n    '2025-02-02': 'Prohibited practices (Art. 5) and AI literacy duty (Art. 4) apply',\n    '2025-08-02': 'GPAI obligations, governance structure and penalties apply',\n    '2026-08-02': 'Transparency duties (Art. 50) and Annex III high-risk duties apply',\n    '2027-08-02': 'High-risk duties for AI in regulated products (Annex I) apply',\n  },\n  penalties: {\n    prohibited: 'up to EUR 35m or 7% of worldwide annual turnover',\n    other_obligations: 'up to EUR 15m or 3%',\n    misleading_information: 'up to EUR 7.5m or 1%',\n  },\n};\n\n// Der Agent uebergibt ein Stichwort; ohne Treffer bekommt er alles zurueck,\n// damit eine unglueckliche Suchanfrage nicht in einer leeren Antwort endet.\nconst frage = String(query || '').toLowerCase();\nif (!frage) return JSON.stringify(nachschlag);\nconst treffer = {};\nfor (const [schluessel, wert] of Object.entries(nachschlag)) {\n  if (schluessel.includes(frage)) { treffer[schluessel] = wert; continue; }\n  if (Array.isArray(wert)) {\n    const zeilen = wert.filter((z) => z.toLowerCase().includes(frage));\n    if (zeilen.length) treffer[schluessel] = zeilen;\n  }\n}\nreturn JSON.stringify(Object.keys(treffer).length ? treffer : nachschlag);",
+        "description": "Look up the EU AI Act. Query with one keyword: prohibited, annex_iii, transparency, dates, penalties, or an application area such as employment, credit, biometric."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "cross-check-the-classification",
+      "name": "Cross-check the classification",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Deterministische Gegenpruefung. Ein Sprachmodell stuft im Zweifel zu niedrig ein,\n// weil harmlos formulierte Beschreibungen harmlos klingen. Diese Regeln duerfen die\n// Einstufung deshalb nur nach OBEN korrigieren, nie nach unten.\nconst HOCH = [\n  ['recruit', 'employment'], ['applicant', 'employment'], ['cv ', 'employment'],\n  ['resume', 'employment'], ['promotion', 'employment'], ['performance review', 'employment'],\n  ['credit', 'essential services'], ['scoring', 'essential services'],\n  ['insurance', 'essential services'], ['triage', 'essential services'],\n  ['exam', 'education'], ['admission', 'education'], ['grading', 'education'],\n  ['biometric', 'biometrics'], ['face', 'biometrics'], ['fingerprint', 'biometrics'],\n  ['emergency', 'essential services'], ['border', 'migration'], ['asylum', 'migration'],\n];\nconst VERBOTEN = [\n  ['social scoring', 'social scoring'], ['emotion', 'emotion recognition'],\n  ['predict crime', 'predictive policing'], ['scrape face', 'facial scraping'],\n];\nconst RANG = { minimal: 0, limited: 1, high: 2, prohibited: 3 };\n\nreturn items.map((item) => {\n  const d = item.json;\n  // Der Agent liefert das Ergebnis je nach n8n-Version unter output oder direkt.\n  const modell = d.output ?? d;\n  const quelle = ($('Normalize the report').first().json.briefing || '').toLowerCase();\n\n  const treffer_hoch = HOCH.filter(([w]) => quelle.includes(w)).map(([, k]) => k);\n  const treffer_verboten = VERBOTEN.filter(([w]) => quelle.includes(w)).map(([, k]) => k);\n\n  let klasse = String(modell.risk_class || 'unclear').toLowerCase();\n  const vorschlag = klasse;\n  const hinweise = [];\n\n  if (treffer_verboten.length && RANG[klasse] < RANG.prohibited) {\n    klasse = 'prohibited';\n    hinweise.push('Raised to prohibited: wording matches ' + treffer_verboten.join(', '));\n  } else if (treffer_hoch.length && RANG[klasse] < RANG.high) {\n    klasse = 'high';\n    hinweise.push('Raised to high: wording matches Annex III area ' + treffer_hoch.join(', '));\n  }\n  if (!(klasse in RANG)) { klasse = 'high'; hinweise.push('Model returned an unknown class — treated as high until reviewed'); }\n\n  const zuversicht = Number(modell.confidence ?? 0);\n  if (zuversicht < 0.6) hinweise.push('Low model confidence (' + zuversicht.toFixed(2) + ')');\n\n  return {\n    json: {\n      ...$('Normalize the report').first().json,\n      risk_class: klasse,\n      model_proposal: vorschlag,\n      article: String(modell.article || ''),\n      reasoning: String(modell.reasoning || '').slice(0, 900),\n      obligations: Array.isArray(modell.obligations) ? modell.obligations.join('; ') : String(modell.obligations || ''),\n      confidence: zuversicht,\n      // Jede Korrektur, jede unsichere Einstufung und alles ab \"high\" geht an einen Menschen.\n      human_review: hinweise.length > 0 || RANG[klasse] >= RANG.high,\n      review_notes: hinweise.join(' | ') || 'Model classification accepted without correction',\n      next_review: new Date(Date.now() + (RANG[klasse] >= RANG.high ? 90 : 180) * 864e5)\n        .toISOString().slice(0, 10),\n    },\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "route-by-risk-class",
+      "name": "Route by risk class",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        640,
+        0
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "prohibited",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "caseSensitive": false
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.risk_class }}",
+                    "rightValue": "prohibited"
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "high",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "caseSensitive": false
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.risk_class }}",
+                    "rightValue": "high"
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "limited",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "caseSensitive": false
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.risk_class }}",
+                    "rightValue": "limited"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "minimal"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "stop-and-escalate",
+      "name": "Stop and escalate",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        -480
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "duties",
+              "name": "duties",
+              "type": "string",
+              "value": "Do not put this system into use. Art. 5 practices have been banned since 2 February 2025; penalties reach EUR 35m or 7% of worldwide annual turnover. Document the decision and, if the system is already running, switch it off."
+            },
+            {
+              "id": "action",
+              "name": "action_required",
+              "type": "string",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "assign-high-risk-duties",
+      "name": "Assign high-risk duties",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        -280
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "duties",
+              "name": "duties",
+              "type": "string",
+              "value": "High-risk duties apply: risk management under Art. 9, data governance under Art. 10, technical documentation under Art. 11, logging under Art. 12, human oversight under Art. 14, and registration in the EU database. Annex III duties have applied since 2 August 2026."
+            },
+            {
+              "id": "action",
+              "name": "action_required",
+              "type": "string",
+              "value": "true"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "assign-transparency-duties",
+      "name": "Assign transparency duties",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        -80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "duties",
+              "name": "duties",
+              "type": "string",
+              "value": "Transparency duties under Art. 50 apply: tell people they are dealing with an AI system, mark synthetic content machine-readably, disclose deep fakes. In force since 2 August 2026."
+            },
+            {
+              "id": "action",
+              "name": "action_required",
+              "type": "string",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "log-as-minimal-risk",
+      "name": "Log as minimal risk",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        960,
+        120
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "duties",
+              "name": "duties",
+              "type": "string",
+              "value": "No specific duties beyond the AI literacy obligation of Art. 4, in force since 2 February 2025. Keep the entry — classifications change when the use changes."
+            },
+            {
+              "id": "action",
+              "name": "action_required",
+              "type": "string",
+              "value": "false"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "notify-the-responsible-manager",
+      "name": "Notify the responsible manager",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        1280,
+        -380
+      ],
+      "parameters": {
+        "text": "={{ $json.system_name }} ({{ $json.department }}) was classified as {{ $json.risk_class }} risk.\n\nBasis: {{ $json.article }}\n{{ $json.reasoning }}\n\nDuties:\n{{ $json.duties }}\n\nObligations proposed by the classifier:\n{{ $json.obligations }}\n\nReview notes: {{ $json.review_notes }}\nModel proposal was: {{ $json.model_proposal }} (confidence {{ $json.confidence }})\n\nThis classification is a first pass. Confirm or override it, then set human_review to false in the inventory.",
+        "options": {},
+        "subject": "={{ $json.risk_class === 'prohibited' ? 'Prohibited practice reported: ' : 'High-risk AI system reported: ' }}{{ $json.system_name }}",
+        "toEmail": "={{ $json.owner_email }}",
+        "fromEmail": "user@example.com",
+        "emailFormat": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "append-to-the-ai-inventory",
+      "name": "Append to the AI inventory",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1280,
+        20
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "every-month",
+      "name": "Every month",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -400,
+        1040
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 7,
+              "triggerAtDayOfMonth": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "read-the-inventory",
+      "name": "Read the inventory",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -160,
+        1040
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "find-what-is-due",
+      "name": "Find what is due",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        80,
+        1040
+      ],
+      "parameters": {
+        "jsCode": "// Faellige Wiedervorlagen und stehengebliebene Pruefungen aus dem Inventar ziehen.\n// Ein Inventar, das niemand nachhaelt, ist zum Stichtag genauso wertlos wie keines.\nconst heute = new Date().toISOString().slice(0, 10);\nconst in14 = new Date(Date.now() + 14 * 864e5).toISOString().slice(0, 10);\n\nconst faellig = [], offen = [], hochrisiko = [];\nfor (const item of items) {\n  const z = item.json;\n  if (!z.system_name) continue;\n  if (String(z.human_review).toLowerCase() === 'true') offen.push(z);\n  if (z.risk_class === 'high' || z.risk_class === 'prohibited') hochrisiko.push(z);\n  if (z.next_review && z.next_review <= in14) faellig.push({ ...z, overdue: z.next_review < heute });\n}\n\nreturn [{\n  json: {\n    generated_at: heute,\n    total: items.filter((i) => i.json.system_name).length,\n    due_count: faellig.length,\n    open_review_count: offen.length,\n    high_risk_count: hochrisiko.length,\n    // Nur wenn wirklich etwas ansteht, geht spaeter eine Mail raus.\n    has_work: faellig.length + offen.length > 0,\n    due: faellig,\n    open_reviews: offen,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "anything-to-do",
+      "name": "Anything to do?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        320,
+        1040
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.has_work }}",
+              "rightValue": "true"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "build-the-review-report",
+      "name": "Build the review report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        580,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// Aus den faelligen Punkten eine Mail bauen, die man ohne Nachfragen abarbeiten kann:\n// zuerst was ueberfaellig ist, dann was ansteht, dann die Zahlen.\nconst d = items[0].json;\nconst zeile = (z) => '<tr><td>' + z.system_name + '</td><td>' + (z.department || '-') +\n  '</td><td>' + (z.risk_class || '-') + '</td><td>' + (z.next_review || '-') +\n  '</td><td>' + (z.overdue ? 'overdue' : 'due') + '</td></tr>';\n\nconst tabelle = (titel, zeilen) => !zeilen.length ? '' :\n  '<h3>' + titel + '</h3><table border=\"1\" cellpadding=\"6\" cellspacing=\"0\">' +\n  '<tr><th>System</th><th>Department</th><th>Risk class</th><th>Review date</th><th>Status</th></tr>' +\n  zeilen.map(zeile).join('') + '</table>';\n\nconst ueberfaellig = d.due.filter((z) => z.overdue);\nconst anstehend = d.due.filter((z) => !z.overdue);\n\nconst html = [\n  '<p>AI inventory status for ' + d.generated_at + '.</p>',\n  '<ul>',\n  '<li>' + d.total + ' systems in the inventory</li>',\n  '<li>' + d.high_risk_count + ' classified high risk or prohibited</li>',\n  '<li>' + d.open_review_count + ' still waiting for a human decision</li>',\n  '</ul>',\n  tabelle('Overdue reviews', ueberfaellig),\n  tabelle('Due within 14 days', anstehend),\n  tabelle('Waiting for a human decision', d.open_reviews),\n  '<p>Reminder of the milestones: transparency duties under Art. 50 and the Annex III ',\n  'high-risk duties have applied since 2 August 2026; Annex I products follow on ',\n  '2 August 2027. Penalties reach EUR 35m or 7% of worldwide turnover for prohibited practices.</p>',\n].join('\\n');\n\nreturn [{ json: { ...d, subject: 'AI inventory: ' + d.due_count + ' reviews due, ' +\n  d.open_review_count + ' open decisions', html } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-the-governance-report",
+      "name": "Send the governance report",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        820,
+        920
+      ],
+      "parameters": {
+        "html": "={{ $json.html }}",
+        "options": {},
+        "subject": "={{ $json.subject }}",
+        "toEmail": "user@example.com",
+        "fromEmail": "user@example.com",
+        "emailFormat": "html"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "nothing-due-this-month",
+      "name": "Nothing due this month",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        580,
+        1160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "Overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -800
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1000,
+        "height": 339,
+        "content": "## Keep an EU AI Act inventory that survives an audit\n\nArt. 4 has required AI literacy since 2 February 2025, and since 2 August 2026 the transparency duties of Art. 50 and the Annex III high-risk duties apply. Both start with one question a company has to be able to answer: **which AI systems are we actually running?**\n\nThis workflow answers it continuously. Colleagues report a system through a form, an agent classifies it against the Act, a rule set checks the agent, and a monthly run makes sure nobody's entry quietly goes stale.\n\n**Setup:** OpenAI credentials, a Google Sheet with a header row matching the fields, and an SMTP account. Replace the two example addresses. Nothing else."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "Intake",
+      "name": "Intake",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        -420
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 291,
+        "content": "### 1 — Intake\n\nThe form is deliberately short: seven fields, plain wording, no legal vocabulary. People fill in what they know; the classification is not their job.\n\nThe Code node trims the input and builds one briefing block per system — a model reads field-per-line far more reliably than prose."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "Classification",
+      "name": "Classification",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        -420
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 660,
+        "height": 291,
+        "content": "### 2 — Classification, then contradiction\n\nThe agent looks the Act up through the `ai_act_reference` tool instead of reciting it from memory, and returns a structured verdict.\n\n**The Code node afterwards may only raise the class, never lower it.** Language models under-classify: a recruiting tool described as \"pre-sorting applications\" sounds harmless and is Annex III employment. Whatever it corrects, and anything above limited risk, is flagged for a human."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "Routing",
+      "name": "Routing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -860
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 700,
+        "height": 243,
+        "content": "### 3 — Four paths, not a yes/no\n\nEach class carries different duties, so each gets its own branch and its own text — the person who reported the system receives something actionable, not a label.\n\nProhibited and high-risk cases also alert the responsible manager. Everything lands in the same sheet: the inventory is the point."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "Governance",
+      "name": "Governance",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        620
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1300,
+        "height": 219,
+        "content": "### 4 — The part most inventories skip\n\nA register built once and never touched is worthless on the day it matters. On the first of each month this branch reads the sheet, collects overdue reviews, upcoming ones and entries still waiting for a human decision, and mails a single summary — and stays silent when there is nothing to do, so the mail keeps meaning something.\n\nReview cadence: 90 days for high risk and prohibited, 180 days for the rest."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Every month": {
+      "main": [
+        [
+          {
+            "node": "Read the inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Language model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify against the EU AI Act",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything to do?": {
+      "main": [
+        [
+          {
+            "node": "Build the review report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nothing due this month",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find what is due": {
+      "main": [
+        [
+          {
+            "node": "Anything to do?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ai_act_reference": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classify against the EU AI Act",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stop and escalate": {
+      "main": [
+        [
+          {
+            "node": "Append to the AI inventory",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify the responsible manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the inventory": {
+      "main": [
+        [
+          {
+            "node": "Find what is due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log as minimal risk": {
+      "main": [
+        [
+          {
+            "node": "Append to the AI inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Report an AI system": {
+      "main": [
+        [
+          {
+            "node": "Normalize the report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by risk class": {
+      "main": [
+        [
+          {
+            "node": "Stop and escalate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assign high-risk duties",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Assign transparency duties",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log as minimal risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize the report": {
+      "main": [
+        [
+          {
+            "node": "Classify against the EU AI Act",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign high-risk duties": {
+      "main": [
+        [
+          {
+            "node": "Append to the AI inventory",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Notify the responsible manager",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the review report": {
+      "main": [
+        [
+          {
+            "node": "Send the governance report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured classification": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Classify against the EU AI Act",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assign transparency duties": {
+      "main": [
+        [
+          {
+            "node": "Append to the AI inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify against the EU AI Act": {
+      "main": [
+        [
+          {
+            "node": "Cross-check the classification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Cross-check the classification": {
+      "main": [
+        [
+          {
+            "node": "Route by risk class",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Build an EU AI Act risk inventory with OpenAI and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19221,
+    "update_time": "2026-09-27"
+  }
+}

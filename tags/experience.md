@@ -1,4 +1,4 @@
-# experience : 5
+# experience : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |12038|[12038_Predict_tenant_churn_and_manage_retention_with_GPT-4__Gmail__Slack_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12038_Predict_tenant_churn_and_manage_retention_with_GPT-4__Gmail__Slack_and_your_CRM.json)|
 |12948|[12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12948_Send_personalized_hotel_pre-arrival_messages_using_OpenAI__Google_Sheets_and_Slack.json)|
 |13453|[13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13453_Validate_concert_ticket_bookings_and_orchestrate_fan_experience_with_GPT-4o__Gmail__Slack_and_Google_Sheets.json)|
+|17286|[17286_Manage_hotel_guest_requests_and_post-stay_outreach_with_Telegram__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17286_Manage_hotel_guest_requests_and_post-stay_outreach_with_Telegram__OpenAI__and_Google_Sheets.json)|

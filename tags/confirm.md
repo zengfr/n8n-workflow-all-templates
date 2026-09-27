@@ -1,4 +1,4 @@
-# confirm : 4
+# confirm : 12
 
 |id|file|
 |----|----|
@@ -6,3 +6,11 @@
 |16247|[16247_Confirm_restaurant_orders_by_phone_with_Supabase__Claude_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16247_Confirm_restaurant_orders_by_phone_with_Supabase__Claude_and_Twilio.json)|
 |16482|[16482_Book__reschedule_and_confirm_WhatsApp_appointments_with_Claude_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16482_Book__reschedule_and_confirm_WhatsApp_appointments_with_Claude_and_Sheets.json)|
 |16680|[16680_Book_and_confirm_clinic_appointments_with_WhatsApp__Google_Calendar__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16680_Book_and_confirm_clinic_appointments_with_WhatsApp__Google_Calendar__and_Gmail.json)|
+|17044|[17044_Confirm_and_log_WhatsApp_restaurant_orders_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17044_Confirm_and_log_WhatsApp_restaurant_orders_with_Groq_and_Google_Sheets.json)|
+|17418|[17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json)|
+|18092|[18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json)|
+|19368|[19368_Handle_meeting_no-shows_via_Gmail__Google_Calendar__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19368_Handle_meeting_no-shows_via_Gmail__Google_Calendar__and_OpenAI.json)|
+|19437|[19437_Manage_meeting_confirmations_with_Google_Calendar__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19437_Manage_meeting_confirmations_with_Google_Calendar__Gmail__and_Google_Sheets.json)|
+|19438|[19438_Manage_meeting_confirmations__reschedules__and_cancellations_with_Google_Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19438_Manage_meeting_confirmations__reschedules__and_cancellations_with_Google_Calendar_and_Gmail.json)|
+|19510|[19510_Record_and_confirm_WhatsApp__Twilio__appointments_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19510_Record_and_confirm_WhatsApp__Twilio__appointments_with_Google_Sheets.json)|
+|19699|[19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json)|

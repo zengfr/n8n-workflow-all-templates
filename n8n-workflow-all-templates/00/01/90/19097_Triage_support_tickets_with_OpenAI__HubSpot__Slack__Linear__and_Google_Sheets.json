@@ -1,0 +1,735 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Triage support tickets with OpenAI, HubSpot, Slack, Linear, and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19097,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Support Triage with CRM Enrichment, Deduplication, SLA Routing and Reply Drafts",
+  "tags": [
+    "support",
+    "ai",
+    "sla",
+    "crm",
+    "dedupe"
+  ],
+  "nodes": [
+    {
+      "id": "sticky-overview",
+      "name": "Sticky Note — Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -760,
+        -540
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 660,
+        "height": 420,
+        "content": "## AI support triage war-room\n\nThis workflow turns a raw support-ticket webhook into an enriched, routed support action plan.\n\n**What it does**\n1. Normalizes ticket payloads from Zendesk, Intercom, Freshdesk, forms, or custom apps.\n2. Rejects incomplete tickets with a clear webhook response and Slack ops alert.\n3. Deduplicates repeat tickets against a Google Sheets audit log.\n4. Enriches the requester/contact in HubSpot.\n5. Uses OpenAI to classify category, priority, sentiment, SLA risk, and draft a customer reply.\n6. Routes urgent/VIP/risky tickets to Linear + Slack, sends low-confidence items to human review, and prepares safe reply drafts for routine tickets.\n7. Logs every decision back to Google Sheets for QA and reporting."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Sticky Note — Setup and Credentials",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -760,
+        -80
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 660,
+        "height": 390,
+        "content": "## Setup checklist\n\nCreate or connect these credentials before activating:\n\n- **Slack OAuth2** for #support-triage and #support-escalations.\n- **Google Sheets OAuth2** with edit access to the audit spreadsheet.\n- **HubSpot private app token** with CRM object search permission.\n- **OpenAI API key** for the triage classification request.\n- **Linear API key** or replace the Linear HTTP node with Jira, Asana, Zendesk, or your incident tracker.\n- **Gmail OAuth2** if you want n8n to create reply drafts.\n\nReplace every REPLACE_WITH_* value, then test with a single webhook payload before activating."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-input",
+      "name": "Sticky Note — Input Contract",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -540
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 620,
+        "height": 420,
+        "content": "## Expected webhook payload\n\nSend JSON with as many of these fields as your helpdesk provides:\n\n{\n  \"ticketId\": \"12345\",\n  \"email\": \"customer@example.com\",\n  \"name\": \"Riley Chen\",\n  \"company\": \"Acme\",\n  \"subject\": \"API errors after upgrade\",\n  \"message\": \"We are seeing 500s in production...\",\n  \"ticketUrl\": \"https://helpdesk.example.com/tickets/12345\",\n  \"source\": \"zendesk\"\n}\n\nThe normalization code also understands common nested shapes like requester.email, customer.email, description, body, and url."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-error-handling",
+      "name": "Sticky Note — Branching and Failure Handling",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        -540
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 420,
+        "content": "## Guardrails in this template\n\n- Missing email/message/subject goes to a controlled rejection path, not a broken execution.\n- Deduped tickets create a Slack note and return duplicate: true to the webhook caller.\n- HubSpot and OpenAI HTTP nodes use Continue On Fail so transient vendor failures route to human review instead of stopping the workflow.\n- Low-confidence AI output, angry sentiment, security/billing categories, VIP domains, and P0/P1 labels all escalate.\n- Every successful route is logged to Google Sheets for auditability.\n\nBuilt with FlowForge AI — https://flowforgeai.nanocorp.app"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "webhook-new-support-ticket",
+      "name": "New Support Ticket Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -760,
+        460
+      ],
+      "parameters": {
+        "path": "ai-support-triage",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "code-normalize-ticket",
+      "name": "Normalize Ticket + SLA Profile",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -500,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rawTicket = $input.first().json;\n\nconst firstNonEmpty = (...values) => {\n  for (const value of values) {\n    if (value !== undefined && value !== null && String(value).trim() !== '') {\n      return String(value).trim();\n    }\n  }\n  return '';\n};\n\nconst requesterEmail = firstNonEmpty(\n  rawTicket.email,\n  rawTicket.requester?.email,\n  rawTicket.customer?.email,\n  rawTicket.contact?.email,\n  rawTicket.from\n).toLowerCase();\nconst requesterName = firstNonEmpty(rawTicket.name, rawTicket.requester?.name, rawTicket.customer?.name, rawTicket.contact?.name, requesterEmail.split('@')[0]);\nconst subject = firstNonEmpty(rawTicket.subject, rawTicket.title, rawTicket.summary, 'No subject provided');\nconst message = firstNonEmpty(rawTicket.message, rawTicket.description, rawTicket.body, rawTicket.text);\nconst ticketId = firstNonEmpty(rawTicket.ticketId, rawTicket.id, rawTicket.external_id, rawTicket.conversationId, `incoming-${Date.now()}`);\nconst ticketUrl = firstNonEmpty(rawTicket.ticketUrl, rawTicket.url, rawTicket.html_url);\nconst sourceSystem = firstNonEmpty(rawTicket.source, rawTicket.helpdesk, rawTicket.system, 'webhook');\nconst companyName = firstNonEmpty(rawTicket.company, rawTicket.organization?.name, rawTicket.account?.name);\nconst domain = requesterEmail.includes('@') ? requesterEmail.split('@').pop() : '';\nconst normalizedSubject = subject.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 90);\nconst normalizedMessage = message.toLowerCase().replace(/[^a-z0-9]+/g, ' ').trim().slice(0, 160);\nconst dedupeKey = [requesterEmail || 'unknown-email', normalizedSubject || normalizedMessage || ticketId].join('::');\nconst vipDomains = ['REPLACE_WITH_VIP_DOMAIN_1.com', 'REPLACE_WITH_VIP_DOMAIN_2.com'];\nconst vipDomain = vipDomains.includes(domain);\nconst missingFields = [];\nif (!requesterEmail) missingFields.push('requester email');\nif (!subject) missingFields.push('subject');\nif (!message) missingFields.push('message/body');\n\nreturn [{\n  json: {\n    receivedAt: new Date().toISOString(),\n    sourceSystem,\n    ticketId,\n    ticketUrl,\n    requesterEmail,\n    requesterName,\n    companyName,\n    domain,\n    subject,\n    message,\n    messagePreview: message.slice(0, 500),\n    dedupeKey,\n    vipDomain,\n    defaultSlaMinutes: vipDomain ? 30 : 240,\n    missingFields,\n    hasMissingRequired: missingFields.length > 0,\n    rawTicket,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-missing-required-fields",
+      "name": "Missing Required Fields?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -240,
+        460
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.hasMissingRequired}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "slack-invalid-ticket-alert",
+      "name": "Slack Intake Error Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        40,
+        260
+      ],
+      "parameters": {
+        "text": "Rejected malformed support ticket from {{$json.sourceSystem}}. Missing: {{$json.missingFields.join(\", \")}}. Ticket ID: {{$json.ticketId}}",
+        "channel": "#support-ops"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "respond-missing-fields",
+      "name": "Respond Missing Fields",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        320,
+        260
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 422
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: false, reason: \"missing_required_fields\", missingFields: $json.missingFields, ticketId: $json.ticketId } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "gsheets-lookup-dedupe",
+      "name": "Lookup Dedupe in Audit Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        40,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "lookup",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Support Audit Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_GOOGLE_SHEET_ID"
+        },
+        "lookupValue": "={{$json.dedupeKey}}",
+        "lookupColumn": "dedupeKey"
+      },
+      "typeVersion": 4,
+      "continueOnFail": true,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "if-duplicate-ticket",
+      "name": "Duplicate Ticket?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        320,
+        620
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{$json.row_number || $json.dedupeKey || $json.ticketId || \"\"}}",
+              "operation": "isNotEmpty"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "slack-duplicate-ticket",
+      "name": "Slack Duplicate Notice",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        620,
+        480
+      ],
+      "parameters": {
+        "text": "Duplicate support ticket detected for {{$node[\"Normalize Ticket + SLA Profile\"].json.requesterEmail}}: {{$node[\"Normalize Ticket + SLA Profile\"].json.subject}}. Existing audit row: {{$json.row_number || \"unknown\"}}",
+        "channel": "#support-triage"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "respond-duplicate",
+      "name": "Respond Duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        900,
+        480
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, duplicate: true, ticketId: $node[\"Normalize Ticket + SLA Profile\"].json.ticketId, dedupeKey: $node[\"Normalize Ticket + SLA Profile\"].json.dedupeKey } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "http-hubspot-enrich-contact",
+      "name": "Enrich Contact in HubSpot",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        620,
+        760
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "jsonBody": "={{ JSON.stringify({ filterGroups: [{ filters: [{ propertyName: \"email\", operator: \"EQ\", value: $node[\"Normalize Ticket + SLA Profile\"].json.requesterEmail }] }], properties: [\"email\", \"firstname\", \"lastname\", \"company\", \"lifecyclestage\", \"hubspotscore\"], limit: 1 }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "http-openai-triage",
+      "name": "OpenAI Triage + Reply Draft",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        900,
+        760
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "options": {
+          "timeout": 20000
+        },
+        "jsonBody": "={{ JSON.stringify({ model: \"gpt-4o-mini\", response_format: { type: \"json_object\" }, temperature: 0.2, messages: [{ role: \"system\", content: \"You are a senior support operations analyst. Return strict JSON only with keys: category, priority, sentiment, confidence, internalSummary, suggestedRoute, replySubject, replyDraft, slaRiskReason. priority must be one of p0,p1,p2,p3. sentiment must be calm,confused,frustrated,angry. suggestedRoute must be engineering,billing,success,security,general,human_review.\" }, { role: \"user\", content: `Ticket: ${$node[\"Normalize Ticket + SLA Profile\"].json.subject}\\nFrom: ${$node[\"Normalize Ticket + SLA Profile\"].json.requesterEmail}\\nCompany: ${$node[\"Normalize Ticket + SLA Profile\"].json.companyName || \"unknown\"}\\nVIP domain: ${$node[\"Normalize Ticket + SLA Profile\"].json.vipDomain}\\nHubSpot lookup: ${JSON.stringify($json).slice(0, 1200)}\\nMessage: ${$node[\"Normalize Ticket + SLA Profile\"].json.message}` }] }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "code-parse-ai-triage",
+      "name": "Parse AI Triage + Fallback",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1180,
+        760
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const ticket = $node[\"Normalize Ticket + SLA Profile\"].json;\nconst hubspot = $node[\"Enrich Contact in HubSpot\"].json || {};\nconst aiResponse = $input.first().json || {};\n\nconst safeParseJson = (content) => {\n  if (!content || typeof content !== 'string') return null;\n  const cleaned = content.replace(/^\\s*```(?:json)?/i, '').replace(/```\\s*$/i, '').trim();\n  try {\n    return JSON.parse(cleaned);\n  } catch (error) {\n    return null;\n  }\n};\n\nconst content = aiResponse.choices?.[0]?.message?.content;\nconst parsed = safeParseJson(content);\nconst aiFailed = !parsed || Boolean(aiResponse.error);\nconst fallback = {\n  category: 'general',\n  priority: ticket.vipDomain ? 'p1' : 'p2',\n  sentiment: 'confused',\n  confidence: 0.45,\n  internalSummary: `Manual review needed for ${ticket.subject}. AI triage was unavailable or returned invalid JSON.`,\n  suggestedRoute: 'human_review',\n  replySubject: `Re: ${ticket.subject}`,\n  replyDraft: `Hi ${ticket.requesterName || 'there'},\\n\\nThanks for reaching out. We received your request and our team is reviewing it now. We'll follow up with the next step shortly.\\n\\nBest,\\nSupport`,\n  slaRiskReason: aiFailed ? 'AI request failed or produced invalid output.' : 'Fallback route selected.',\n};\nconst triage = { ...fallback, ...(parsed || {}) };\nconst priority = String(triage.priority || fallback.priority).toLowerCase();\nconst category = String(triage.category || fallback.category).toLowerCase();\nconst sentiment = String(triage.sentiment || fallback.sentiment).toLowerCase();\nconst confidence = Number(triage.confidence || fallback.confidence);\nconst riskText = `${ticket.subject} ${ticket.message} ${triage.slaRiskReason || ''}`.toLowerCase();\nconst urgentKeywords = ['outage', 'down', 'breach', 'security', 'data loss', 'cannot login', 'production', 'payment failed', 'chargeback'];\nconst keywordEscalation = urgentKeywords.some((keyword) => riskText.includes(keyword));\nconst protectedCategory = ['security', 'billing'].includes(category);\nconst needsEscalation = ticket.vipDomain || ['p0', 'p1'].includes(priority) || sentiment === 'angry' || protectedCategory || keywordEscalation;\nconst needsHumanReview = aiFailed || confidence < 0.76 || triage.suggestedRoute === 'human_review' || needsEscalation;\nconst hubspotContact = Array.isArray(hubspot.results) && hubspot.results.length > 0 ? hubspot.results[0] : null;\n\nreturn [{\n  json: {\n    ...ticket,\n    hubspotFound: Boolean(hubspotContact),\n    hubspotContactId: hubspotContact?.id || '',\n    hubspotLifecycleStage: hubspotContact?.properties?.lifecyclestage || '',\n    hubspotScore: hubspotContact?.properties?.hubspotscore || '',\n    category,\n    priority,\n    sentiment,\n    confidence,\n    suggestedRoute: triage.suggestedRoute || fallback.suggestedRoute,\n    internalSummary: triage.internalSummary || fallback.internalSummary,\n    replySubject: triage.replySubject || fallback.replySubject,\n    replyDraft: triage.replyDraft || fallback.replyDraft,\n    slaRiskReason: triage.slaRiskReason || fallback.slaRiskReason,\n    needsEscalation,\n    needsHumanReview,\n    aiFailed,\n    routeDecision: needsEscalation ? 'urgent_escalation' : needsHumanReview ? 'human_review' : 'draft_ready',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-urgent-or-vip",
+      "name": "Urgent, VIP, Security or Billing?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1460,
+        760
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.needsEscalation}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "http-create-linear-incident",
+      "name": "Create Linear Incident Task",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1740,
+        560
+      ],
+      "parameters": {
+        "url": "https://api.linear.app/graphql",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "jsonBody": "={{ JSON.stringify({ query: \"mutation IssueCreate($input: IssueCreateInput!) { issueCreate(input: $input) { success issue { id identifier url } } }\", variables: { input: { teamId: \"REPLACE_WITH_LINEAR_TEAM_ID\", title: `[${$json.priority.toUpperCase()}] ${$json.subject}`, description: `Requester: ${$json.requesterEmail}\\nTicket: ${$json.ticketUrl || $json.ticketId}\\nCategory: ${$json.category}\\nSentiment: ${$json.sentiment}\\nSLA risk: ${$json.slaRiskReason}\\n\\nAI summary:\\n${$json.internalSummary}\\n\\nCustomer message:\\n${$json.message}` } } }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "REPLACE_WITH_LINEAR_API_KEY"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "slack-urgent-routing",
+      "name": "Slack Urgent Routing Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2020,
+        560
+      ],
+      "parameters": {
+        "text": ":rotating_light: {{$node[\"Parse AI Triage + Fallback\"].json.priority.toUpperCase()}} {{$node[\"Parse AI Triage + Fallback\"].json.category}} ticket from {{$node[\"Parse AI Triage + Fallback\"].json.requesterEmail}} {{$node[\"Parse AI Triage + Fallback\"].json.vipDomain ? \"(VIP domain)\" : \"\"}}\nSummary: {{$node[\"Parse AI Triage + Fallback\"].json.internalSummary}}\nTicket: {{$node[\"Parse AI Triage + Fallback\"].json.ticketUrl || $node[\"Parse AI Triage + Fallback\"].json.ticketId}}",
+        "channel": "#support-escalations"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-needs-human-review",
+      "name": "Low Confidence Human Review?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1740,
+        940
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{$json.needsHumanReview}}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "slack-human-review",
+      "name": "Slack Human Review Queue",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2020,
+        820
+      ],
+      "parameters": {
+        "text": ":eyes: Human review needed for {{$json.requesterEmail}} — {{$json.subject}}\nConfidence: {{$json.confidence}} | Category: {{$json.category}} | Sentiment: {{$json.sentiment}}\nAI summary: {{$json.internalSummary}}\nSuggested reply:\n{{$json.replyDraft}}",
+        "channel": "#support-triage"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gmail-create-reply-draft",
+      "name": "Create Gmail Reply Draft",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2020,
+        1040
+      ],
+      "parameters": {
+        "sendTo": "={{$json.requesterEmail}}",
+        "message": "={{$json.replyDraft}}",
+        "options": {},
+        "subject": "={{$json.replySubject}}",
+        "resource": "draft",
+        "operation": "create"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gsheets-append-audit-row",
+      "name": "Append Audit Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2320,
+        820
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "subject": "={{$node[\"Parse AI Triage + Fallback\"].json.subject}}",
+            "aiFailed": "={{$node[\"Parse AI Triage + Fallback\"].json.aiFailed}}",
+            "category": "={{$node[\"Parse AI Triage + Fallback\"].json.category}}",
+            "priority": "={{$node[\"Parse AI Triage + Fallback\"].json.priority}}",
+            "ticketId": "={{$node[\"Parse AI Triage + Fallback\"].json.ticketId}}",
+            "dedupeKey": "={{$node[\"Parse AI Triage + Fallback\"].json.dedupeKey}}",
+            "sentiment": "={{$node[\"Parse AI Triage + Fallback\"].json.sentiment}}",
+            "confidence": "={{$node[\"Parse AI Triage + Fallback\"].json.confidence}}",
+            "receivedAt": "={{$node[\"Parse AI Triage + Fallback\"].json.receivedAt}}",
+            "hubspotFound": "={{$node[\"Parse AI Triage + Fallback\"].json.hubspotFound}}",
+            "routeDecision": "={{$node[\"Parse AI Triage + Fallback\"].json.routeDecision}}",
+            "requesterEmail": "={{$node[\"Parse AI Triage + Fallback\"].json.requesterEmail}}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Support Audit Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_GOOGLE_SHEET_ID"
+        }
+      },
+      "typeVersion": 4,
+      "continueOnFail": true
+    },
+    {
+      "id": "respond-triage-complete",
+      "name": "Respond Triage Complete",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2600,
+        820
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { ok: true, ticketId: $node[\"Parse AI Triage + Fallback\"].json.ticketId, routeDecision: $node[\"Parse AI Triage + Fallback\"].json.routeDecision, priority: $node[\"Parse AI Triage + Fallback\"].json.priority, category: $node[\"Parse AI Triage + Fallback\"].json.category, humanReview: $node[\"Parse AI Triage + Fallback\"].json.needsHumanReview } }}"
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "versionId": "flowforge-ai-support-triage-v1",
+  "staticData": null,
+  "connections": {
+    "Append Audit Row": {
+      "main": [
+        [
+          {
+            "node": "Respond Triage Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate Ticket?": {
+      "main": [
+        [
+          {
+            "node": "Slack Duplicate Notice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Enrich Contact in HubSpot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Duplicate Notice": {
+      "main": [
+        [
+          {
+            "node": "Respond Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Gmail Reply Draft": {
+      "main": [
+        [
+          {
+            "node": "Append Audit Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Missing Required Fields?": {
+      "main": [
+        [
+          {
+            "node": "Slack Intake Error Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Lookup Dedupe in Audit Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Human Review Queue": {
+      "main": [
+        [
+          {
+            "node": "Append Audit Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Intake Error Alert": {
+      "main": [
+        [
+          {
+            "node": "Respond Missing Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enrich Contact in HubSpot": {
+      "main": [
+        [
+          {
+            "node": "OpenAI Triage + Reply Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Support Ticket Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Ticket + SLA Profile",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse AI Triage + Fallback": {
+      "main": [
+        [
+          {
+            "node": "Urgent, VIP, Security or Billing?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack Urgent Routing Alert": {
+      "main": [
+        [
+          {
+            "node": "Append Audit Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Linear Incident Task": {
+      "main": [
+        [
+          {
+            "node": "Slack Urgent Routing Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Triage + Reply Draft": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Triage + Fallback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup Dedupe in Audit Sheet": {
+      "main": [
+        [
+          {
+            "node": "Duplicate Ticket?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Low Confidence Human Review?": {
+      "main": [
+        [
+          {
+            "node": "Slack Human Review Queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Gmail Reply Draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Ticket + SLA Profile": {
+      "main": [
+        [
+          {
+            "node": "Missing Required Fields?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Urgent, VIP, Security or Billing?": {
+      "main": [
+        [
+          {
+            "node": "Create Linear Incident Task",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Low Confidence Human Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0
+}

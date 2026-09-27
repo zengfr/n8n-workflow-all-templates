@@ -1,4 +1,4 @@
-# no : 44
+# no : 57
 
 |id|file|
 |----|----|
@@ -46,3 +46,16 @@
 |16312|[16312_Send_due-date_reminders_from_Google_Sheets_with_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16312_Send_due-date_reminders_from_Google_Sheets_with_Gmail_and_Slack.json)|
 |16533|[16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json)|
 |16609|[16609_Build_self-improving_agent_skills_with_cognee.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16609_Build_self-improving_agent_skills_with_cognee.json)|
+|17207|[17207_Analyze_compliant_documents_with_PromptLock_Guard__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17207_Analyze_compliant_documents_with_PromptLock_Guard__Claude__and_Google_Sheets.json)|
+|17336|[17336_Send_consult_confirmations_and_reminders_with_Calendly__Twilio__and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17336_Send_consult_confirmations_and_reminders_with_Calendly__Twilio__and_SMTP_email.json)|
+|17466|[17466_Label_and_triage_support_emails_in_Gmail_with_DeepSeek_or_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17466_Label_and_triage_support_emails_in_Gmail_with_DeepSeek_or_OpenAI.json)|
+|17623|[17623_Create_weekly_SEO_blog_posts_from_Google_Sheets_with_Gemini_and_Sanity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17623_Create_weekly_SEO_blog_posts_from_Google_Sheets_with_Gemini_and_Sanity.json)|
+|17697|[17697_Qualify_Polish_public_tenders_with_Anthropic_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17697_Qualify_Polish_public_tenders_with_Anthropic_and_Telegram_alerts.json)|
+|17730|[17730_Answer_document_questions_via_webhook_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17730_Answer_document_questions_via_webhook_with_Anthropic_Claude.json)|
+|18556|[18556_Reduce_appointment_no-shows_with_Sent_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18556_Reduce_appointment_no-shows_with_Sent_and_Google_Calendar.json)|
+|18806|[18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json)|
+|19004|[19004_Recover_missed_appointments_with_Google_Calendar__Twilio__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19004_Recover_missed_appointments_with_Google_Calendar__Twilio__Gmail_and_Sheets.json)|
+|19009|[19009_Generate_AI_images_from_form_inputs_with_Kavel_s_anonymous_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19009_Generate_AI_images_from_form_inputs_with_Kavel_s_anonymous_API.json)|
+|19026|[19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json)|
+|19240|[19240_Generate_AI_images_from_a_form_for_free_with_Veida__no_API_key.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19240_Generate_AI_images_from_a_form_for_free_with_Veida__no_API_key.json)|
+|19368|[19368_Handle_meeting_no-shows_via_Gmail__Google_Calendar__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19368_Handle_meeting_no-shows_via_Gmail__Google_Calendar__and_OpenAI.json)|

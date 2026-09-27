@@ -1,4 +1,4 @@
-# release : 22
+# release : 27
 
 |id|file|
 |----|----|
@@ -24,3 +24,8 @@
 |14520|[14520_Generate_GitLab_release_notes_from_Linear_issues_with_Claude_Opus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14520_Generate_GitLab_release_notes_from_Linear_issues_with_Claude_Opus.json)|
 |15354|[15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15354_Automate_GitLab_tag_releases_to_Jira_and_Slack_for_Dev_and_QA.json)|
 |16552|[16552_Send_GitHub_release_audio_newsletters_with_OpenAI__Google_Drive__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16552_Send_GitHub_release_audio_newsletters_with_OpenAI__Google_Drive__Gmail_and_Sheets.json)|
+|17340|[17340_Send_weekly_developer_release_digest_email_using_RSS_feeds_and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17340_Send_weekly_developer_release_digest_email_using_RSS_feeds_and_Resend.json)|
+|18776|[18776_Find_press_release_pickups_with_Bright_Data__GPT-5.6__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18776_Find_press_release_pickups_with_Bright_Data__GPT-5.6__Gmail_and_Slack.json)|
+|19259|[19259_Manage_mobile_canary_rollouts_with_Anthropic_Claude_and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19259_Manage_mobile_canary_rollouts_with_Anthropic_Claude_and_WhatsApp_alerts.json)|
+|19580|[19580_Build_AOG_parts_release_packets_with_OpenAI__Google_Drive_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19580_Build_AOG_parts_release_packets_with_OpenAI__Google_Drive_and_Telegram.json)|
+|19759|[19759_Triage_packaging_artwork_revision_mismatches_with_Airtable__GPT-4.1__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19759_Triage_packaging_artwork_revision_mismatches_with_Airtable__GPT-4.1__Slack_and_Gmail.json)|

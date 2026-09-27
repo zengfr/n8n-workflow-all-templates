@@ -1,4 +1,4 @@
-# two : 18
+# two : 25
 
 |id|file|
 |----|----|
@@ -20,3 +20,10 @@
 |14237|[14237_Triage_incidents_and_enforce_SLAs_with_Gemini__Groq__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14237_Triage_incidents_and_enforce_SLAs_with_Gemini__Groq__Google_Sheets_and_Slack.json)|
 |15264|[15264_Bridge_iMessage_and_Slack_threads_with_Blooio_for_two-way_messaging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15264_Bridge_iMessage_and_Slack_threads_with_Blooio_for_two-way_messaging.json)|
 |15350|[15350_Generate_two-host_PDF_podcasts_with_GPT-5__Smallest_AI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15350_Generate_two-host_PDF_podcasts_with_GPT-5__Smallest_AI__and_Gmail.json)|
+|17284|[17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json)|
+|17571|[17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17571_Send_pickup-ready_Click___Collect_emails_from_fulfillmenttools_via_Gmail_in_two_languages.json)|
+|17863|[17863_Find_recurring_YNAB_payees_from_the_last_two_months_and_generate_an_HTML_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17863_Find_recurring_YNAB_payees_from_the_last_two_months_and_generate_an_HTML_report.json)|
+|18178|[18178_Reconcile_and_diagnose_discrepancies_between_two_CSV_exports_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18178_Reconcile_and_diagnose_discrepancies_between_two_CSV_exports_with_Gemini.json)|
+|18217|[18217_Generate_merged_onboarding_PDF_packets_with_PDFops_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18217_Generate_merged_onboarding_PDF_packets_with_PDFops_and_Google_Drive.json)|
+|18580|[18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json)|
+|19503|[19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json)|

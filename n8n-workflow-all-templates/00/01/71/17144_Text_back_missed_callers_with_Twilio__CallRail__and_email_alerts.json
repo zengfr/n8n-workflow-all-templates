@@ -1,0 +1,529 @@
+{
+  "name": "Missed-Call Instant Text-Back",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a1e07f77-d783-4853-8d80-fab42a3fdbbf",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        -208
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 896,
+        "content": "## Missed-Call Instant Text-Back\n\n### How it works\n\nThis workflow responds immediately when a missed-call webhook is received from a phone provider. It normalizes the call payload, verifies that the event is actually a missed call, checks business-hour context, drafts a text-back message, runs it through a compliance approval workflow, sends the SMS through Twilio, and notifies the firm by email about the result.\n\n### Setup steps\n\n- Configure the Missed Call Webhook URL in Twilio, CallRail, or the relevant call tracking provider so missed-call events are sent to this workflow.\n- Set the required n8n Variables for firm timezone, business hours, firm details, and any message text fields used by the code nodes.\n- Connect Twilio credentials for the Send Text Message node and verify the sender number is SMS-enabled.\n- Configure email credentials and recipient settings for the Notify Firm by Email node.\n- Select and configure the referenced compliance-check sub-workflow used by the Compliance Check — Missed Call Text node.\n\n### Customization\n\nAdjust the business-hours logic, firm variables, and text-back template to match the firm's operating schedule and preferred messaging. The compliance sub-workflow can also be modified to enforce opt-out rules, content restrictions, or jurisdiction-specific requirements."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dbc10849-4bd5-4a95-81f3-9b9702c20f16",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 320,
+        "content": "## Receive missed-call event\n\nEntry cluster that receives the webhook payload, normalizes Twilio or CallRail call details, and determines whether the event qualifies as a valid missed call."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "109dabea-db65-49b1-b1f9-7628b0495484",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 480,
+        "content": "## Prepare text-back content\n\nNearby branch cluster that either skips non-missed-call events or, for valid missed calls, checks after-hours rules and composes the response text using firm configuration variables."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "055ce8f5-c4ea-4d04-b542-17998c83ce50",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 464,
+        "content": "## Run compliance approval\n\nCompliance gate cluster that sends the composed message to a sub-workflow, evaluates whether the text is approved to send, and stops the flow when the contact has opted out or fails approval."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "461f9c53-ac04-41f6-9e09-9e053541f970",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 304,
+        "content": "## Send and notify firm\n\nFinal delivery cluster that sends the approved text message through Twilio, checks the delivery outcome, and emails the firm with the result."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "trigger",
+      "name": "When Call Missed Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives the incoming call event from your phone system.\n\nThis URL is the address your phone system will notify whenever a call comes in. Copy the Production URL from this node (visible after you activate the workflow) and paste it into Twilio or CallRail.\n\nTwilio setup: Twilio Console → Phone Numbers → your number → Voice & Fax → set StatusCallback URL to this address, StatusCallbackMethod POST. Enable status events: no-answer, busy, failed, canceled.\n\nCallRail setup: CallRail → Settings → Notifications → Webhooks → paste this URL → select 'Missed call' events.\n\nBoth providers are supported — the next step (Read Call Details) automatically detects which one sent the event.",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "a1b2c3d4-e5f6-7890-abcd-ef1234567890",
+      "parameters": {
+        "path": "missed-call",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "normalize",
+      "name": "Normalize Call Details",
+      "type": "n8n-nodes-base.code",
+      "notes": "Reads the call event and extracts the details the rest of the workflow needs: caller's phone number, caller's name, your firm's number, and whether this is actually a missed call.\n\nThis step works with both Twilio and CallRail — it detects which provider sent the event and pulls the right fields from each.\n\nKey detail: Twilio sends a notification on every status change, including when calls are answered successfully. This step adds a flag (is_valid_missed) so the next step can skip answered calls and only act on genuine missed calls: no-answer, busy, failed, or canceled.\n\nOutput available to all later steps: caller_number, caller_name, firm_number, call_status, source, is_valid_missed, timestamp.",
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Handles both Twilio StatusCallback and CallRail notification formats.\n// Sets is_valid_missed = true only for actual missed-call events —\n// guards against completed calls that Twilio also fires StatusCallback on.\n\nconst item = $input.first().json;\nconst raw  = item.body || item; // some n8n webhook configs wrap inside .body\n\nconst TWILIO_MISSED = new Set(['no-answer', 'busy', 'failed', 'canceled']);\n\nlet normalized;\nif (raw.CallStatus !== undefined) {\n  // Twilio StatusCallback shape\n  const callerNum = raw.Caller || raw.From || '';\n  normalized = {\n    caller_number:   callerNum,\n    caller_name:     raw.CallerName || 'Unknown Caller',\n    firm_number:     raw.Called || raw.To || '',\n    call_status:     raw.CallStatus,\n    source:          'twilio',\n    is_valid_missed: TWILIO_MISSED.has(raw.CallStatus) && callerNum !== '',\n  };\n} else {\n  // CallRail notification shape\n  const callerNum = raw.caller_number || raw.caller_phone_number || '';\n  normalized = {\n    caller_number:   callerNum,\n    caller_name:     raw.caller_name || raw.customer_name || 'Unknown Caller',\n    firm_number:     raw.business_phone_number || raw.tracking_number || '',\n    call_status:     'missed',\n    source:          'callrail',\n    is_valid_missed: callerNum !== '',\n  };\n}\n\nreturn [{ json: { ...normalized, timestamp: new Date().toISOString() } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "is_missed",
+      "name": "Check If Call Missed",
+      "type": "n8n-nodes-base.if",
+      "notes": "Decides whether to continue or stop — only genuine missed calls get a text-back.\n\nTwilio fires a notification on every call, including calls that were answered. Without this check, a client who reached you successfully would also receive an automated 'we missed your call' text — which would be confusing and unprofessional.\n\nYes (real missed call) → proceed to check the time and send the text.\nNo (call was answered, or no caller number) → stop here, nothing sent.",
+      "onError": "continueErrorOutput",
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c_missed",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_valid_missed }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "skip_not_missed",
+      "name": "No Action - Not Missed Call",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Safely ends the workflow for calls that were answered or have no caller number. No text is sent, no email is sent. This endpoint is visible in the execution history so you can confirm the filter is working correctly.",
+      "position": [
+        672,
+        112
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "after_hours",
+      "name": "Check After Hours Status",
+      "type": "n8n-nodes-base.code",
+      "notes": "Checks what time the missed call came in so the text message can say the right thing.\n\nA caller who missed you at 2 PM on a Tuesday gets: 'We missed your call and want to help.'\nA caller who missed you at 9 PM or on a Saturday gets: 'We're currently closed but we want to help.'\n\nThe text is always sent regardless of time — this step only changes the wording.\n\nReads from n8n Variables (project → Variables tab):\n  FIRM_TIMEZONE — your state's timezone (e.g. 'America/Chicago', 'America/Los_Angeles')\n  FIRM_BUSINESS_HOURS_START / FIRM_BUSINESS_HOURS_END — office hours in 24-hour format (9 = 9 AM, 17 = 5 PM)\n  FIRM_WORK_DAYS — comma-separated weekday numbers: 1,2,3,4,5 = Monday–Friday (0=Sunday, 6=Saturday)",
+      "position": [
+        672,
+        -32
+      ],
+      "parameters": {
+        "jsCode": "// Reads firm timezone and business hours from n8n Variables (project → Variables tab).\n// Set: FIRM_TIMEZONE, FIRM_BUSINESS_HOURS_START, FIRM_BUSINESS_HOURS_END, FIRM_WORK_DAYS\nconst TIMEZONE             = $vars.FIRM_TIMEZONE;                                                   // e.g. 'America/Chicago', 'America/Los_Angeles'\nconst BUSINESS_HOURS_START = parseInt($vars.FIRM_BUSINESS_HOURS_START, 10);                         // 9 AM (inclusive)\nconst BUSINESS_HOURS_END   = parseInt($vars.FIRM_BUSINESS_HOURS_END, 10);                           // 5 PM (exclusive)\nconst WORK_DAYS            = ($vars.FIRM_WORK_DAYS || '1,2,3,4,5').split(',').map(Number);          // 0=Sun, 1=Mon … 6=Sat\n\nconst now       = new Date();\nconst localTime = new Date(now.toLocaleString('en-US', { timeZone: TIMEZONE }));\nconst hour      = localTime.getHours();\nconst day       = localTime.getDay();\n\nconst isAfterHours = !WORK_DAYS.includes(day)\n  || hour < BUSINESS_HOURS_START\n  || hour >= BUSINESS_HOURS_END;\n\nconst item = $input.first().json;\nreturn [{ json: { ...item, is_after_hours: isAfterHours } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "build_msg",
+      "name": "Build Text-Back Message",
+      "type": "n8n-nodes-base.code",
+      "notes": "Writes the text message the caller will receive and attaches your firm's contact details for the email alert.\n\nThe message is personalised with the caller's first name when it is available. It always ends with 'Reply STOP to opt out' — this is required by TCPA law for any automated text messages.\n\nBusiness hours example: 'Hi Jane, this is Smith Law Firm. We missed your call and want to help. Book a free consult: [link] — Reply STOP to opt out.'\nAfter hours example: 'Hi Jane, this is Smith Law Firm. We're currently closed but we want to help. Book a free consult: [link] — Reply STOP to opt out.'\n\nReads from n8n Variables (project → Variables tab):\n  FIRM_NAME — your law firm's name as it should appear in texts\n  FIRM_BOOKING_URL — your scheduling link (Calendly, Acuity, your website's contact page, etc.)\n  FIRM_EMAIL — the email address where missed-call alerts should be sent\n  FIRM_TWILIO_NUMBER — the phone number you registered in Twilio (must start with +1 for US numbers)",
+      "position": [
+        896,
+        -32
+      ],
+      "parameters": {
+        "jsCode": "// Reads firm details from n8n Variables (project → Variables tab).\n// Set: FIRM_NAME, FIRM_BOOKING_URL, FIRM_EMAIL, FIRM_TWILIO_NUMBER\nconst FIRM_NAME           = $vars.FIRM_NAME;\nconst BOOKING_URL         = $vars.FIRM_BOOKING_URL;\nconst FIRM_EMAIL          = $vars.FIRM_EMAIL;\nconst FIRM_TWILIO_NUMBER  = $vars.FIRM_TWILIO_NUMBER; // Your Twilio sending number\n\nconst item      = $input.first().json;\nconst rawFirst  = (item.caller_name || '').split(' ')[0];\nconst firstName = rawFirst && rawFirst !== 'Unknown' ? rawFirst : '';\nconst greeting  = firstName ? `Hi ${firstName}` : 'Hi';\n\nconst smsText = item.is_after_hours\n  ? `${greeting}, this is ${FIRM_NAME}. We're currently closed but we want to help. Book a free consult: ${BOOKING_URL} — Reply STOP to opt out.`\n  : `${greeting}, this is ${FIRM_NAME}. We missed your call and want to help. Book a free consult: ${BOOKING_URL} — Reply STOP to opt out.`;\n\nreturn [{ json: {\n  ...item,\n  sms_text:           smsText,\n  firm_email:         FIRM_EMAIL,\n  firm_twilio_number: FIRM_TWILIO_NUMBER,\n  firm_name:          FIRM_NAME,\n  booking_url:        BOOKING_URL,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send_sms",
+      "name": "Send SMS via Twilio",
+      "type": "n8n-nodes-base.twilio",
+      "notes": "Sends the text-back to the caller.\n\nRecipient and message come from the compliance guardrail — opt-out has already been checked and the TCPA disclaimer verified before this node runs.\n\nCredential: project → Credentials tab → New → search Twilio → enter Account SID and Auth Token → save as 'Twilio account'.\n\nIf Twilio returns an error, the workflow continues to the firm notification email.",
+      "onError": "continueRegularOutput",
+      "position": [
+        1792,
+        -32
+      ],
+      "parameters": {
+        "to": "={{ $json.recipient }}",
+        "from": "={{ $('Build Text-Back Message').item.json.firm_twilio_number }}",
+        "message": "={{ $json.message_out }}",
+        "operation": "send"
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "1",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sms_sent",
+      "name": "Verify Text Delivery",
+      "type": "n8n-nodes-base.if",
+      "notes": "Checks whether Twilio accepted the text before emailing the firm.\n\nWhen Twilio successfully queues a text, it returns a confirmation ID (called a 'sid'). If the text failed — for example, the caller's number was invalid or your Twilio credentials are wrong — there is no confirmation ID.\n\nYes (text was accepted) → email the firm: 'Text-back sent ✓'\nNo (text failed) → email the firm: 'Text failed — please call this person back manually'\n\nEither way, the firm always gets an email so no missed call falls through the cracks.",
+      "position": [
+        2016,
+        -32
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c_sms_sent",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.sid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "notify_email",
+      "name": "Email Firm Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "notes": "Emails your firm a summary of every missed call — so nothing slips through even if the text fails.\n\nThe email tells you: who called, their number, what time they called, what text was sent (or that it failed), and a link to your booking page.\n\nCredential to wire: In n8n go to project → Credentials tab → New, search for SMTP, and enter your email settings. This works with Gmail, Outlook 365, Zoho Mail, or any email provider that supports SMTP.\n\n  Gmail: use App Passwords (Settings → Security → App Passwords) — not your regular password\n  Outlook 365: use your email address and password; enable SMTP AUTH in the Microsoft 365 admin\n  Zoho / other providers: check your provider's SMTP settings page for host, port, and credentials\n\nBoth the 'from' address and the 'to' address are set to FIRM_EMAIL (the address in Compose Text-Back) so the firm emails itself. You can change the 'to' address in this node if alerts should go to a different inbox.\n\nThe subject line adds '— Text failed' when the text did not go through, so you can spot failures at a glance in your inbox.",
+      "position": [
+        2240,
+        -32
+      ],
+      "parameters": {
+        "text": "=You missed a call from {{ $('Build Text-Back Message').item.json.caller_name }} ({{ $('Build Text-Back Message').item.json.caller_number }}) at {{ $('Build Text-Back Message').item.json.timestamp }}.\n\nText-back: {{ $json.sid ? 'Sent ✓' : 'FAILED — please call this person back manually.' }}\n\nMessage sent:\n\"{{ $('Build Text-Back Message').item.json.sms_text }}\"\n\nSource: {{ $('Build Text-Back Message').item.json.source }}\nBooking link: {{ $('Build Text-Back Message').item.json.booking_url }}",
+        "subject": "=Missed Call: {{ $('Build Text-Back Message').item.json.caller_name }} ({{ $('Build Text-Back Message').item.json.caller_number }}){{ $json.sid ? '' : ' — Text failed' }}",
+        "toEmail": "={{ $('Build Text-Back Message').item.json.firm_email }}",
+        "emailType": "text",
+        "fromEmail": "={{ $('Build Text-Back Message').item.json.firm_email }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "Email account (SMTP)"
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "guardrail",
+      "name": "Run Compliance Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "notes": "Calls the Bar-Compliance Guardrail before sending the text-back.\n\nChecks whether the caller has opted out. If not, confirms the TCPA opt-out instruction is present in the message and logs the send attempt to your audit sheet.\n\nThe guardrail workflow ID is read from the GUARDRAIL_WORKFLOW_ID n8n Variable (project → Variables tab). Set it to the numeric ID from the Bar-Compliance Guardrail workflow URL: .../workflow/WORKFLOW_ID.\n\nReturns: { approved, message_out, recipient, suppression_reason } plus all upstream fields.",
+      "position": [
+        1120,
+        -32
+      ],
+      "parameters": {
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "expression",
+          "value": "={{ $vars.GUARDRAIL_WORKFLOW_ID }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "channel": "sms",
+            "message": "={{ $json.sms_text }}",
+            "matter_id": "",
+            "recipient": "={{ $json.caller_number }}",
+            "template_id": "NTC-14"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "approved",
+      "name": "Check Approval to Send SMS",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes based on the compliance guardrail's decision.\n\nYes (approved: true) → sends the text-back to the caller.\nNo (approved: false) → caller is on the opt-out list; message suppressed. The guardrail has already logged the suppression to your compliance sheet.",
+      "onError": "continueErrorOutput",
+      "position": [
+        1344,
+        -32
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c_approved_14",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.approved }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "skip_opted_out",
+      "name": "No Action - Contact Opted Out",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Caller is on the opt-out list — no text-back sent. The Bar-Compliance Guardrail has logged the suppression to your audit sheet. No further action needed.",
+      "position": [
+        1568,
+        120
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "When Call Missed Webhook": [
+      {
+        "json": {
+          "body": {
+            "To": "+18005550000",
+            "From": "+14155551234",
+            "Called": "+18005550000",
+            "Caller": "+14155551234",
+            "CallSid": "CA1234567890abcdef1234567890abcdef",
+            "Duration": "0",
+            "Direction": "inbound",
+            "AccountSid": "AC00000000000000000000000000000000",
+            "CallStatus": "no-answer",
+            "CallerName": "Jane Smith"
+          },
+          "query": {},
+          "params": {},
+          "headers": {
+            "user-agent": "TwilioProxy/1.1",
+            "content-type": "application/x-www-form-urlencoded"
+          },
+          "webhookUrl": "https://your-n8n.example.com/webhook/missed-call",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1",
+    "executionTimeout": 60,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "nodeGroups": [],
+  "staticData": null,
+  "connections": {
+    "Send SMS via Twilio": {
+      "main": [
+        [
+          {
+            "node": "Verify Text Delivery",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Call Missed": {
+      "main": [
+        [
+          {
+            "node": "Check After Hours Status",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action - Not Missed Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Text Delivery": {
+      "main": [
+        [
+          {
+            "node": "Email Firm Notification",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Firm Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Call Details": {
+      "main": [
+        [
+          {
+            "node": "Check If Call Missed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Text-Back Message": {
+      "main": [
+        [
+          {
+            "node": "Run Compliance Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Compliance Workflow": {
+      "main": [
+        [
+          {
+            "node": "Check Approval to Send SMS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check After Hours Status": {
+      "main": [
+        [
+          {
+            "node": "Build Text-Back Message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Call Missed Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Call Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Approval to Send SMS": {
+      "main": [
+        [
+          {
+            "node": "Send SMS via Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Action - Contact Opted Out",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "Instantly texts back any caller who hangs up without reaching someone, then emails the firm the caller's details. Replaces Ruby Receptionist / Gabbyville ($300–500/mo). Trigger: Twilio StatusCallback or CallRail webhook.",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Text back missed callers with Twilio, CallRail, and email alerts",
+    "wechat": "youandme10086",
+    "id": 17144,
+    "update_time": "2026-09-27"
+  }
+}

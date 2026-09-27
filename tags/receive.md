@@ -1,4 +1,4 @@
-# receive : 67
+# receive : 68
 
 |id|file|
 |----|----|
@@ -69,3 +69,4 @@
 |13539|[13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json)|
 |15775|[15775_Receive_and_process_incoming_direct_messages_in_Rocket.Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15775_Receive_and_process_incoming_direct_messages_in_Rocket.Chat.json)|
 |16044|[16044_Route_inbound_emails_by_alias_with_EmailConnect.eu_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16044_Route_inbound_emails_by_alias_with_EmailConnect.eu_webhooks.json)|
+|17604|[17604_Receive_orders__generate_branded_invoice_PDFs_with_pdfmill__email_via_Gmail__and_archive_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17604_Receive_orders__generate_branded_invoice_PDFs_with_pdfmill__email_via_Gmail__and_archive_to_Google_Drive.json)|

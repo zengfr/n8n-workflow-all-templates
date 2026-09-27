@@ -1,4 +1,4 @@
-# tailor : 5
+# tailor : 10
 
 |id|file|
 |----|----|
@@ -7,3 +7,8 @@
 |15528|[15528_Create_a_master_CV_Google_Sheet_from_uploaded_CVs_with_easybits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15528_Create_a_master_CV_Google_Sheet_from_uploaded_CVs_with_easybits.json)|
 |15585|[15585_Tailor_your_Google_Docs_CV_to_any_job_using_Ollama_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15585_Tailor_your_Google_Docs_CV_to_any_job_using_Ollama_and_Groq.json)|
 |16375|[16375_Screen_LinkedIn_jobs_and_generate_tailored_resume_and_cover_PDFs_with_Anthropic_and_DocRaptor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16375_Screen_LinkedIn_jobs_and_generate_tailored_resume_and_cover_PDFs_with_Anthropic_and_DocRaptor.json)|
+|17145|[17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json)|
+|17300|[17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json)|
+|18032|[18032_Create_tailored_resumes_from_job_postings_with_OpenRouter__Notion__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18032_Create_tailored_resumes_from_job_postings_with_OpenRouter__Notion__and_Google_Drive.json)|
+|19172|[19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json)|
+|19476|[19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json)|

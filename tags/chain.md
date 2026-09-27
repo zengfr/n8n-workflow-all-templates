@@ -1,4 +1,4 @@
-# chain : 16
+# chain : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |13961|[13961_Monitor_D2C_inventory__forecast_demand_with_GPT-4o__and_send_POs_via_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13961_Monitor_D2C_inventory__forecast_demand_with_GPT-4o__and_send_POs_via_Google_Sheets_and_Gmail.json)|
 |14932|[14932_Monitor_supply_chain_risk_news_with_Claude_Sonnet_4.5_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14932_Monitor_supply_chain_risk_news_with_Claude_Sonnet_4.5_and_Telegram_alerts.json)|
 |15042|[15042_Track_multi-chain_crypto_portfolios_and_analyze_risk_with_Gemini_and_QuickNode.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15042_Track_multi-chain_crypto_portfolios_and_analyze_risk_with_Gemini_and_QuickNode.json)|
+|17511|[17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json)|

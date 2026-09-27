@@ -1,4 +1,4 @@
-# dynamic : 56
+# dynamic : 61
 
 |id|file|
 |----|----|
@@ -58,3 +58,8 @@
 |13896|[13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json)|
 |15575|[15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json)|
 |15960|[15960_Generate_city-based_business_leads_with_Google_Maps_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15960_Generate_city-based_business_leads_with_Google_Maps_and_Google_Sheets.json)|
+|17262|[17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json)|
+|17359|[17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json)|
+|17509|[17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json)|
+|18193|[18193_Manage_Open_edX_signups_and_enrollments_with_HubSpot__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18193_Manage_Open_edX_signups_and_enrollments_with_HubSpot__Slack_and_Google_Sheets.json)|
+|19242|[19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json)|

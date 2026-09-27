@@ -1,4 +1,4 @@
-# connection : 11
+# connection : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |13094|[13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json)|
 |14444|[14444_Send_personalized_LinkedIn_connection_requests_with_Google_Sheets_and_Unipile.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14444_Send_personalized_LinkedIn_connection_requests_with_Google_Sheets_and_Unipile.json)|
 |15815|[15815_Send_LinkedIn_connection_invites_from_Airtable_via_Unipile_on_a_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15815_Send_LinkedIn_connection_invites_from_Airtable_via_Unipile_on_a_schedule.json)|
+|19760|[19760_Triage_backflow_compliance_notices_with_Google_Sheets__Gmail__Slack__OpenAI__and_a_state_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19760_Triage_backflow_compliance_notices_with_Google_Sheets__Gmail__Slack__OpenAI__and_a_state_API.json)|

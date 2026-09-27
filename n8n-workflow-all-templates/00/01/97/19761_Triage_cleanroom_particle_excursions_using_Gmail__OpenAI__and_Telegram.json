@@ -1,0 +1,1217 @@
+{
+  "id": "pDLndgDIZSnOBoUN",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Triage cleanroom particle excursions using Gmail, OpenAI, and Telegram",
+    "wechat": "youandme10086",
+    "id": 19761,
+    "update_time": "2026-09-27"
+  },
+  "name": "Cleanroom Contamination Excursion Orchestrator",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "bbd1c70e-77ce-4b23-b5f1-0399b36bf89b",
+      "name": "Watch Particle Counter Alert Inbox",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        704,
+        368
+      ],
+      "parameters": {
+        "filters": {
+          "q": "from:user@example.com subject:EXCURSION"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b43518b2-73fd-44fb-ab52-6cb76eb712e1",
+      "name": "Parse Particle Count Alert Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        368
+      ],
+      "parameters": {
+        "jsCode": "const out = [];\nfor (const item of $input.all()) {\n  const body = (item.json.text || item.json.snippet || '');\n  const get = (re) => { const m = body.match(re); return m ? m[1].trim() : null; };\n  const zoneId = get(/Zone:\\s*([^\\n]+)/i) || 'Unknown';\n  const toolId = get(/Tool:\\s*([^\\n]+)/i) || 'Unknown';\n  const measured = parseFloat(get(/Measured Count:\\s*([0-9.]+)/i) || '0');\n  const limit = parseFloat(get(/ISO Class Limit:\\s*([0-9.]+)/i) || '1');\n  const particleSize = get(/Particle Size:\\s*([^\\n]+)/i) || '0.5um';\n  const exceedanceRatio = limit > 0 ? Math.round((measured / limit) * 100) / 100 : 0;\n  out.push({ json: { zone_id: zoneId, tool_id: toolId, measured_count: measured, iso_class_limit: limit,\n    particle_size: particleSize, exceedance_ratio: exceedanceRatio, alert_timestamp: new Date().toISOString() } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6d6104fe-abfa-4a7d-84d2-dbaee2c969d8",
+      "name": "Normalize Excursion Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1424,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "zone_id",
+              "type": "string",
+              "value": "={{$json.zone_id}}"
+            },
+            {
+              "name": "tool_id",
+              "type": "string",
+              "value": "={{$json.tool_id}}"
+            },
+            {
+              "name": "exceedance_ratio",
+              "type": "number",
+              "value": "={{$json.exceedance_ratio}}"
+            },
+            {
+              "name": "particle_size",
+              "type": "string",
+              "value": "={{$json.particle_size}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "944495fa-4ec4-4b12-846a-effe497ccb78",
+      "name": "Severity Classification Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1792,
+        784
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "7be94ddc-c755-4209-8405-e333a1ba6f03",
+      "name": "Severity Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1792,
+        1200
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"severity\": \"one of: Minor, Major, Critical\", \"rationale\": \"string\", \"requires_tool_shutdown\": true}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "014cd5e2-26e6-4ce7-8810-4b1673678d90",
+      "name": "Classify Excursion Severity",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2144,
+        368
+      ],
+      "parameters": {
+        "text": "=Cleanroom particle-count excursion. Zone: {{$json.zone_id}}. Tool: {{$json.tool_id}}. Particle size: {{$json.particle_size}}. Exceedance ratio (measured/limit): {{$json.exceedance_ratio}}x.",
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.5,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "d5202f88-c8df-4775-b4e0-e28f70df5f20",
+      "name": "Route By Cleanroom Zone Criticality",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2512,
+        368
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "leftValue": "={{$json.zone_id}}",
+                    "rightValue": "Gowning|Support"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "leftValue": "={{$json.zone_id}}",
+                    "rightValue": "Wet-Etch|Process"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "regex"
+                    },
+                    "leftValue": "={{$json.zone_id}}",
+                    "rightValue": "Litho|EUV"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": 1
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "672d8009-70a0-4eb3-8a3c-d45c479e2893",
+      "name": "Tag Protocol Tier Support Area",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2864,
+        368
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "protocol_tier",
+              "type": "string",
+              "value": "Tier 1 - Support"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5aa8f779-cea6-4485-84ec-8735d9abb093",
+      "name": "Tag Protocol Tier Process Bay",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2864,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "protocol_tier",
+              "type": "string",
+              "value": "Tier 2 - Process"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "df8190da-0b3f-4831-883c-20cf72e5e893",
+      "name": "Tag Protocol Tier Litho EUV Bay",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2864,
+        1200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "protocol_tier",
+              "type": "string",
+              "value": "Tier 3 - Litho/EUV"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2c37a627-82db-4eab-b41f-de0ab2104df0",
+      "name": "Combine Zone Tagged Records",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3280,
+        784
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "a29f80d8-e824-454d-8457-aa0810cfe3ba",
+      "name": "Route By Excursion Severity",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        3584,
+        784
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{$json.severity}}",
+                    "rightValue": "Minor"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEquals"
+                    },
+                    "leftValue": "={{$json.severity}}",
+                    "rightValue": "Minor"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "4faf224b-7060-4b76-bc36-94a4cc9f0d09",
+      "name": "Log Minor Excursion",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3952,
+        368
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "tool_id": "={{$json.tool_id}}",
+            "zone_id": "={{$json.zone_id}}",
+            "severity": "={{$json.severity}}",
+            "resolution": "Logged - no investigation required",
+            "protocol_tier": "={{$json.protocol_tier}}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "6d1a60b0-d470-4138-bab7-7a15409d1243",
+      "name": "Prepare Sub-Workflow Payload",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        3952,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "investigation_request",
+              "type": "object",
+              "value": "={{$json}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "1b7bc50f-0170-48e5-bc2d-8aafca7611dd",
+      "name": "Run Contamination Investigation Sub-Workflow",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4304,
+        784
+      ],
+      "parameters": {
+        "options": {
+          "waitForSubWorkflow": true
+        },
+        "workflowId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "REPLACE_WITH_SUBWORKFLOW_ID"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "e309f813-a99f-4e50-9ed4-0a9614ba229b",
+      "name": "Merge Investigation Outcome",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4672,
+        784
+      ],
+      "parameters": {
+        "jsCode": "const out = [];\nfor (const item of $input.all()) {\n  const d = item.json;\n  const capa = d.capa_result || {};\n  const shutdown = Boolean(capa.requires_tool_shutdown || d.requires_tool_shutdown);\n  out.push({ json: { ...d, tool_shutdown_required: shutdown, capa_id: capa.capa_id || null } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2090685e-9a83-44ee-86fe-4d2a201b8f05",
+      "name": "Check Tool Shutdown Required",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5024,
+        784
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{$json.tool_shutdown_required}}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a0f187a1-b8ae-4570-8dd2-7bd0f793e02a",
+      "name": "Trigger Tool Interlock API",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5392,
+        368
+      ],
+      "parameters": {
+        "url": "https://REPLACE-tool-interlock-controller.example.internal/api/v1/interlock",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ { tool_id: $json.tool_id, action: 'shutdown', capa_id: $json.capa_id } }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "7332715c-2558-49d1-8908-754cabdf7290",
+      "name": "Alert Facilities Tool Shutdown Required",
+      "type": "n8n-nodes-base.telegram",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5744,
+        368
+      ],
+      "webhookId": "50fee0df-c1a3-4eb7-881c-ec5732449103",
+      "parameters": {
+        "text": "=TOOL SHUTDOWN: {{$json.tool_id}} in {{$json.zone_id}} interlocked due to contamination excursion (CAPA {{$json.capa_id}}).",
+        "chatId": "REPLACE_WITH_FACILITIES_CHAT_ID",
+        "additionalFields": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "05469885-4ba9-49b9-8ab6-ca574c86a50b",
+      "name": "Notify EHS Excursion Resolved",
+      "type": "n8n-nodes-base.telegram",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5392,
+        1200
+      ],
+      "webhookId": "7db4abb9-8350-4c45-be22-fa85337fd1e7",
+      "parameters": {
+        "text": "=Excursion in {{$json.zone_id}} ({{$json.tool_id}}) investigated, CAPA {{$json.capa_id}} logged, no shutdown required.",
+        "chatId": "REPLACE_WITH_EHS_CHAT_ID",
+        "additionalFields": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "321b667d-445a-4676-9bb7-5a1570745012",
+      "name": "Combine Resolution Outcomes",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        6112,
+        784
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "d90fb8e9-ba72-47bd-bcd8-25da27f76d58",
+      "name": "Log Excursion Resolution",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        6464,
+        784
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "capa_id": "={{$json.capa_id}}",
+            "tool_id": "={{$json.tool_id}}",
+            "zone_id": "={{$json.zone_id}}",
+            "resolution": "Investigated",
+            "tool_shutdown_required": "={{$json.tool_shutdown_required}}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "331b46b2-e18f-4fce-9978-4dd0b9af3198",
+      "name": "Panel: 📘 WORKFLOW DETAILS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        96
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 1221,
+        "content": "## 📘 WORKFLOW DETAILS\n\n**Cleanroom Contamination Excursion Orchestrator** turns a raw particle-counter excursion alert into a zone-aware, severity-routed investigation - delegating the deep root-cause work to a dedicated sub-workflow.\n\n**Value prop:** ISO 14644-1 cleanrooms generate particle-count excursion alerts constantly; deciding which ones need a full CAPA investigation vs a simple log entry, and which need an immediate tool interlock, is a judgment call that currently falls on a shift engineer reading raw counter output. This orchestrator classifies severity, routes by cleanroom zone criticality, and hands anything non-trivial to a reusable Contamination Investigation sub-workflow (with its own error workflow configured) - keeping the parent simple and the investigation logic independently maintainable.\n\n**Who it's for:** Semiconductor fabs, cleanroom-dependent medical device manufacturers, and contamination-control/EHS teams running ISO 14644-1 programs.\n\n**Execution walkthrough:**\n1. Gmail Trigger polls the facilities inbox for particle-counter excursion alert emails.\n2. Code regex-parses the alert body into zone/tool/particle-count fields and an exceedance ratio.\n3. Set normalises the record.\n4. Basic LLM Chain (AI) classifies severity as Minor/Major/Critical with a shutdown recommendation.\n5. Switch #1 (Double-Switch, part 1) routes by cleanroom zone criticality tier.\n6. Each zone branch is tagged with a protocol tier and Merge reconverges them.\n7. Switch #2 (Double-Switch, part 2) separates Minor (log only) from Major/Critical (needs investigation).\n8. Minor excursions are logged straight to the n8n Data Table.\n9. Major/Critical excursions are packaged and handed to the Execute Sub-workflow node, which calls the companion 'Contamination Investigation Sub-Workflow' (delivered as a separate JSON file).\n10. Code reconciles the sub-workflow's CAPA response into a shutdown decision.\n11. If routes to a tool-interlock API call + Telegram alert (shutdown) or a simple Telegram resolution notice.\n12. Merge and a final Data Table write close out the audit trail.\n\n**Expected input:** an excursion-alert email in the watched inbox with Zone/Tool/Measured Count/ISO Class Limit/Particle Size lines.\n**Expected output:** one Data Table row per excursion (Minor: logged only; Major/Critical: logged with CAPA ID and shutdown outcome) plus Telegram/HTTP actions as needed.\n\n**IMPORTANT - companion file:** this workflow calls a separate sub-workflow, delivered as 'contamination-investigation-subworkflow.json'. Import both files, then set the workflowId in 'Run Contamination Investigation Sub-Workflow' to the imported sub-workflow's real ID.\n\n**Sticky colour legend:** 1=trigger, 2=transform, 3=AI, 4=branch, 5=storage, 6=notify."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53ae0a9b-a142-4cc2-a375-0c44c8500017",
+      "name": "Panel: ⚙️ SETUP GUIDE",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        1392
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 620,
+        "height": 856,
+        "content": "## ⚙️ SETUP GUIDE\n\n**Required credentials:**\n- Gmail OAuth2 -> node 'Watch Particle Counter Alert Inbox' -> credential name 'Fab Facilities - Gmail (Particle Counter Alerts Inbox)'\n- OpenAI API -> node 'Severity Classification Model' -> credential name 'Swapnil AI Labs - OpenAI API'\n- HTTP Header Auth -> node 'Trigger Tool Interlock API' -> credential name 'Tool Interlock Controller - API Key'\n- Telegram API -> nodes 'Alert Facilities Tool Shutdown Required' and 'Notify EHS Excursion Resolved' -> credential name 'Fab EHS - Telegram Bot'\n\n**Setup steps:**\n1. Import BOTH this JSON and 'contamination-investigation-subworkflow.json' via n8n -> Workflows -> Import from File.\n2. Create/attach the 4 credentials above under their exact placeholder names (plus the sub-workflow's own credentials - see its Setup Guide panel).\n3. Open 'Run Contamination Investigation Sub-Workflow' and set workflowId to the imported sub-workflow's real ID.\n4. In the workflow's Settings, set 'Error Workflow' to your organisation's error-handling workflow.\n5. Create the 'cleanroom_excursion_log' Data Table (or point the two Data Table nodes at an existing one).\n6. Replace the Telegram chat IDs and the tool-interlock API URL with your real values.\n7. Tune the Minor/Major/Critical exceedance-ratio thresholds in 'Classify Excursion Severity' for your fab's SOP.\n\n**Config values to change:** sub-workflow ID, error workflow, Data Table name, Telegram chat IDs, interlock API URL, severity thresholds.\n**How to test:** send a test email matching the inbox filter with Zone/Tool/Measured Count/ISO Class Limit lines, and confirm it reaches the Data Table.\n**Estimated setup time:** 30-40 minutes (two-workflow setup)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f640285-a297-4259-8a3d-9a7940e319a3",
+      "name": "Panel: 🎨 CUSTOMISATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        2320
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 604,
+        "height": 389,
+        "content": "## 🎨 CUSTOMISATION\n\n1. **Classify Excursion Severity** (Basic LLM Chain): retrain the severity system message against your fab's actual SOP thresholds instead of the generic ratio bands shown here.\n2. **Route By Cleanroom Zone Criticality** (Switch): add a 4th output for a specific bay (e.g. Gowning vs Metrology) if your fab tracks more zone tiers.\n3. **Run Contamination Investigation Sub-Workflow** (Execute Sub-workflow): pass additional context fields (e.g. shift, operator ID) if your CAPA system requires them.\n4. **Trigger Tool Interlock API** (HTTP Request): point at your real MES/SCADA interlock endpoint.\n5. **Log Excursion Resolution** (Data Table): swap for Google Sheets if you don't yet use n8n Data Tables."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ddcd6f32-d2b1-4ebf-ad6e-de96bf682c14",
+      "name": "Panel: ℹ️ ADDITIONAL INFORMATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        2768
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 604,
+        "height": 540,
+        "content": "## ℹ️ ADDITIONAL INFORMATION\n\n**Error handling:** external nodes use onError='continueRegularOutput' with 3 retries (2s backoff); the Execute Sub-workflow call additionally relies on this workflow's Settings -> Error Workflow to catch any unhandled sub-workflow failure (configure this after import - it cannot be set from the JSON alone).\n**API cost/rate limits:** 1 LLM classification call per excursion alert (gpt-4.1-mini); sub-workflow invocation and interlock API calls scale with Major/Critical excursion volume only.\n**Data privacy:** only zone/tool/particle-count fields are sent to the OpenAI model - no personnel or badge data is included.\n**n8n version:** unknown - built to current stable as of build date (2026-09-20); offline-verified node types, re-check on first import. NOTE: the Data Table node's exact typeVersion could not be confirmed against live docs during this offline build - confirm on import.\n**Known limitations:** the email-parsing Code node expects a specific alert-email format; adjust the regex if your particle counter vendor's alert template differs. Requires importing the companion sub-workflow JSON first and wiring its workflow ID.\n\nSwapnil AI Labs — swapnil.mandloi7@gmail.com — swapnilailabs.netlify.app"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2794782b-de3e-42e8-a389-72df070af7a8",
+      "name": "Note: Watch Particle Counter Alert Inbox",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        672,
+        128
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 150,
+        "content": "**Watch Particle Counter Alert Inbox**\nPolls the facilities inbox for automated excursion-alert emails from the ISO 14644-1 particle counting system.\nFilter: from particle-monitor, subject EXCURSION"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e339527d-24e2-4a9b-adae-012038437cbc",
+      "name": "Note: Parse Particle Count Alert Email",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        128
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Parse Particle Count Alert Email**\nReal logic: regex-parses the raw alert email body into structured zone/tool/particle-count fields and computes exceedance ratio.\nexceedance_ratio = measured_count / iso_class_limit"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8d3c54f-cf24-4c11-8ac6-6aba0c458f4e",
+      "name": "Note: Normalize Excursion Record",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1392,
+        128
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Normalize Excursion Record**\nShapes the parsed excursion fields for the severity-classification chain.\nFields: zone_id, tool_id, exceedance_ratio, particle_size"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e9cc72e-98a0-45bb-bda1-415d3ac60af3",
+      "name": "Note: Severity Classification Model",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1760,
+        560
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 150,
+        "content": "**Severity Classification Model**\nChat model backing the excursion-severity Basic LLM Chain.\nModel: gpt-4.1-mini, temp 0.1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "306559f9-6967-4190-a473-78140f2c8df3",
+      "name": "Note: Severity Schema",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        1344
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 150,
+        "content": "**Severity Schema**\nForces the severity classification into a strict JSON schema for the downstream Switch.\nSchema: severity, rationale, requires_tool_shutdown"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bd94b276-55d0-4279-8c56-e5df1427dd27",
+      "name": "Note: Classify Excursion Severity",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2112,
+        128
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 150,
+        "content": "**Classify Excursion Severity**\nAI step: classifies excursion severity and shutdown recommendation via a Basic LLM Chain with structured output.\nOutputs: severity, rationale, requires_tool_shutdown"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "138552e0-f3dc-4ced-8958-98c838be0e1c",
+      "name": "Note: Route By Cleanroom Zone Criticality",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2480,
+        128
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 150,
+        "content": "**Route By Cleanroom Zone Criticality**\nBranch point 1 (Double-Switch, part 1 of 2): routes by cleanroom zone criticality tier.\nOutputs: Support Area / Process Bay / Litho-EUV Bay"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f3dc348b-b999-4e03-b703-10f1e2915524",
+      "name": "Note: Tag Protocol Tier Support Area",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2832,
+        128
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Tag Protocol Tier Support Area**\nTags support/gowning-area excursions with the lowest investigation protocol tier.\nprotocol_tier = 'Tier 1 - Support'"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a9bb7fec-4743-4eca-a5e7-87582b6bbad5",
+      "name": "Note: Tag Protocol Tier Process Bay",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2784,
+        592
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Tag Protocol Tier Process Bay**\nTags wet-etch/process-bay excursions with the mid investigation protocol tier.\nprotocol_tier = 'Tier 2 - Process'"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b42705a7-edb2-4da3-a994-58b8ea2a0263",
+      "name": "Note: Tag Protocol Tier Litho EUV Bay",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2784,
+        1472
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Tag Protocol Tier Litho EUV Bay**\nTags lithography/EUV-bay excursions with the highest investigation protocol tier.\nprotocol_tier = 'Tier 3 - Litho/EUV'"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "574a0bf2-8689-45a1-af8e-12e1d88ea787",
+      "name": "Note: Combine Zone Tagged Records",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3216,
+        544
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Combine Zone Tagged Records**\nReconverges the three zone-tier branches so severity routing runs on a single stream.\n3 inputs merged"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "edcdd6b1-8525-413a-8b69-f16f78b54abc",
+      "name": "Note: Route By Excursion Severity",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3552,
+        560
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 150,
+        "content": "**Route By Excursion Severity**\nBranch point 2 (Double-Switch, part 2 of 2): Minor excursions log only; Major/Critical go to investigation.\nOutputs: Minor / Major Or Critical"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "857a1687-3d1d-4105-b64a-6c623c2270f8",
+      "name": "Note: Log Minor Excursion",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3920,
+        128
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 150,
+        "content": "**Log Minor Excursion**\nTerminal path: Minor excursions are logged directly to the n8n Data Table without triggering investigation.\nTable: cleanroom_excursion_log"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23b28b7a-7e60-429f-9c49-1643e58e9cae",
+      "name": "Note: Prepare Sub-Workflow Payload",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3920,
+        560
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Prepare Sub-Workflow Payload**\nPackages the excursion record as the payload handed to the investigation sub-workflow.\nPayload: full excursion record"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b57a556c-52b8-417b-b2d8-1f60ebe5b111",
+      "name": "Note: Run Contamination Investigation Sub-Workflow",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4272,
+        432
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 278,
+        "content": "**Run Contamination Investigation Sub-Workflow**\nOrchestrator step: hands Major/Critical excursions to the companion Contamination Investigation sub-workflow.\nCalls sub-workflow ID (see companion JSON)\nWorkflow settings.errorWorkflow routes any sub-workflow failure to your error handler."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1498b074-0716-4076-aeac-6d431bb44c27",
+      "name": "Note: Merge Investigation Outcome",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4624,
+        560
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Merge Investigation Outcome**\nReal logic: reconciles the sub-workflow's CAPA response into a single tool-shutdown decision field.\ntool_shutdown_required = capa.requires_tool_shutdown"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0bc49a0-7b04-481a-af52-2b074fca22fa",
+      "name": "Note: Check Tool Shutdown Required",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4976,
+        528
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 220,
+        "height": 198,
+        "content": "**Check Tool Shutdown Required**\nBranch point 3: decides whether the affected tool must be interlocked/shut down immediately.\nTrue = shutdown required"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c36c20d1-cf1a-4078-af1c-7675c03a4bd9",
+      "name": "Note: Trigger Tool Interlock API",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5360,
+        128
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 150,
+        "content": "**Trigger Tool Interlock API**\nCalls the tool interlock controller to physically halt the affected tool pending investigation.\nPOST /api/v1/interlock"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "29022a08-aaa9-43f9-bbdf-4d9a720c7c87",
+      "name": "Note: Alert Facilities Tool Shutdown Required",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5712,
+        128
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 150,
+        "content": "**Alert Facilities Tool Shutdown Required**\nNotifies the facilities on-call channel that a tool has been interlocked due to contamination.\nChannel: Facilities on-call Telegram"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7f7af6f8-6101-4491-81f9-57e474f12dad",
+      "name": "Note: Notify EHS Excursion Resolved",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5360,
+        976
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 150,
+        "content": "**Notify EHS Excursion Resolved**\nNotifies EHS that the investigated excursion did not require a tool shutdown.\nChannel: EHS Telegram"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "22bad245-5d7f-48e4-9266-c9ef4ac5e9b2",
+      "name": "Note: Combine Resolution Outcomes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6080,
+        560
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 150,
+        "content": "**Combine Resolution Outcomes**\nReconverges the shutdown and no-shutdown resolution paths into one final log write.\n2 inputs merged"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ff8620cb-e405-40f2-8bee-fc2da3b17926",
+      "name": "Note: Log Excursion Resolution",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6432,
+        560
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 150,
+        "content": "**Log Excursion Resolution**\nFinal storage: logs the fully investigated and resolved excursion, including CAPA ID, to the audit table.\nTable: cleanroom_excursion_log"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "0b7a9382-5fa1-45b9-8753-a6ac5a06c4cd",
+  "connections": {
+    "Normalize Excursion Record": {
+      "main": [
+        [
+          {
+            "node": "Classify Excursion Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Tool Interlock API": {
+      "main": [
+        [
+          {
+            "node": "Alert Facilities Tool Shutdown Required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Excursion Severity": {
+      "main": [
+        [
+          {
+            "node": "Route By Cleanroom Zone Criticality",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Resolution Outcomes": {
+      "main": [
+        [
+          {
+            "node": "Log Excursion Resolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Zone Tagged Records": {
+      "main": [
+        [
+          {
+            "node": "Route By Excursion Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Investigation Outcome": {
+      "main": [
+        [
+          {
+            "node": "Check Tool Shutdown Required",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Excursion Severity": {
+      "main": [
+        [
+          {
+            "node": "Log Minor Excursion",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Prepare Sub-Workflow Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Tool Shutdown Required": {
+      "main": [
+        [
+          {
+            "node": "Trigger Tool Interlock API",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify EHS Excursion Resolved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Sub-Workflow Payload": {
+      "main": [
+        [
+          {
+            "node": "Run Contamination Investigation Sub-Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify EHS Excursion Resolved": {
+      "main": [
+        [
+          {
+            "node": "Combine Resolution Outcomes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Severity Classification Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify Excursion Severity",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tag Protocol Tier Process Bay": {
+      "main": [
+        [
+          {
+            "node": "Combine Zone Tagged Records",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Tag Protocol Tier Support Area": {
+      "main": [
+        [
+          {
+            "node": "Combine Zone Tagged Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Particle Count Alert Email": {
+      "main": [
+        [
+          {
+            "node": "Normalize Excursion Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch Particle Counter Alert Inbox": {
+      "main": [
+        [
+          {
+            "node": "Parse Particle Count Alert Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route By Cleanroom Zone Criticality": {
+      "main": [
+        [
+          {
+            "node": "Tag Protocol Tier Support Area",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag Protocol Tier Process Bay",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Tag Protocol Tier Litho EUV Bay",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Alert Facilities Tool Shutdown Required": {
+      "main": [
+        [
+          {
+            "node": "Combine Resolution Outcomes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Contamination Investigation Sub-Workflow": {
+      "main": [
+        [
+          {
+            "node": "Merge Investigation Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

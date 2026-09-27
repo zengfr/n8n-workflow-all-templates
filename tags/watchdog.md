@@ -1,4 +1,4 @@
-# watchdog : 7
+# watchdog : 14
 
 |id|file|
 |----|----|
@@ -9,3 +9,10 @@
 |13273|[13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13273_Escalate_negative_Facebook_Page_reviews_to_Slack_and_Supabase_tickets.json)|
 |15230|[15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json)|
 |15231|[15231_Send_tiered_contract_renewal_Slack_alerts_from_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15231_Send_tiered_contract_renewal_Slack_alerts_from_Google_Sheets.json)|
+|18138|[18138_Flag_duplicate_Clio_contacts_and_email_paralegals_daily_with_dismissal_links.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18138_Flag_duplicate_Clio_contacts_and_email_paralegals_daily_with_dismissal_links.json)|
+|18785|[18785_Monitor_statute_deadlines_in_Clio_and_send_email_escalations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18785_Monitor_statute_deadlines_in_Clio_and_send_email_escalations.json)|
+|19059|[19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json)|
+|19180|[19180_Triage_elevator_callbacks_and_compliance_alerts_with_OpenAI__Telegram__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19180_Triage_elevator_callbacks_and_compliance_alerts_with_OpenAI__Telegram__and_Gmail.json)|
+|19581|[19581_Monitor_ISF-10_filing_deadline_risk_with_GPT-4o-mini__Telegram_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19581_Monitor_ISF-10_filing_deadline_risk_with_GPT-4o-mini__Telegram_and_Gmail.json)|
+|19759|[19759_Triage_packaging_artwork_revision_mismatches_with_Airtable__GPT-4.1__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19759_Triage_packaging_artwork_revision_mismatches_with_Airtable__GPT-4.1__Slack_and_Gmail.json)|
+|19804|[19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json)|

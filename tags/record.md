@@ -1,4 +1,4 @@
-# record : 10
+# record : 15
 
 |id|file|
 |----|----|
@@ -12,3 +12,8 @@
 |11339|[11339_Record_Transactions___Generate_Budget_Reports_with_Gemini_AI__Telegram___Firefly_III.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11339_Record_Transactions___Generate_Budget_Reports_with_Gemini_AI__Telegram___Firefly_III.json)|
 |12276|[12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12276_Verify_document_authenticity_with_Claude_and_record_proofs_on_blockchain.json)|
 |14496|[14496_Record_Odoo_accounting_entries_from_Telegram_using_ChatGPT__GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14496_Record_Odoo_accounting_entries_from_Telegram_using_ChatGPT__GPT-4o-mini.json)|
+|18570|[18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json)|
+|18571|[18571_Migrate_SmartSuite_record_attachments_into_Monday.com_file_columns.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18571_Migrate_SmartSuite_record_attachments_into_Monday.com_file_columns.json)|
+|18828|[18828_Detect_recurring_ServiceNow_incidents_with_Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18828_Detect_recurring_ServiceNow_incidents_with_Google_Gemini_and_Slack.json)|
+|18894|[18894_Create_Teable_records_from_incoming_webhook_requests_using_a_REST_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18894_Create_Teable_records_from_incoming_webhook_requests_using_a_REST_API.json)|
+|19510|[19510_Record_and_confirm_WhatsApp__Twilio__appointments_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19510_Record_and_confirm_WhatsApp__Twilio__appointments_with_Google_Sheets.json)|

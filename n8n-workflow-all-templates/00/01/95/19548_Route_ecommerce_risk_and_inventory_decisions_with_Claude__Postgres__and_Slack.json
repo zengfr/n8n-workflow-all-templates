@@ -1,0 +1,1007 @@
+{
+  "id": "a7ldLty8xYKwUCqw",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Route ecommerce risk and inventory decisions with Claude, Postgres, and Slack",
+    "wechat": "youandme10086",
+    "id": 19548,
+    "update_time": "2026-09-27"
+  },
+  "name": "Autonomous E-commerce Control Tower",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ccfdac9e-b848-4652-857a-45c7a15654b9",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5120,
+        2256
+      ],
+      "parameters": {
+        "width": 1300,
+        "height": 1200,
+        "content": "## Autonomous E-commerce Control Tower\n\nA single agentic pipeline that watches order events (new orders, fraud signals, fulfillment delays) AND inventory/pricing events (low stock, price drift, supplier changes) via one webhook, classifies the event type, gathers the relevant supporting data from your commerce APIs (orders, customers, inventory, pricing history, supplier feed), asks Claude to reason over the full context and produce a decision (approve / hold / reprice / reorder / escalate) with confidence + reasoning, logs every decision to a database for audit, auto-executes low-risk actions directly against your commerce API, and for high-impact or low-confidence decisions posts a rich Slack notification (no blocking wait — fire-and-log pattern) so a human can act out-of-band while the system keeps moving.\n\n### Domains covered in one tower\n1. **Order Risk** — fraud scoring, address/payment mismatches, chargeback risk, fulfillment SLA breaches\n2. **Inventory & Pricing** — stockouts, overstock, competitor price drift, supplier cost changes, margin erosion\n\n### How it works\n1. Webhook - New Commerce Event receives events from any source (order service, inventory service, pricing engine), also testable via Manual Trigger + the two sample-event Set nodes\n2. Set - Config centralizes the commerce API base URL, DB table, Slack channels, model name, and decision thresholds\n3. JS - Normalize & Classify Event tags the raw payload with eventDomain ('order_risk' or 'inventory_pricing') and eventType, extracting the fields each branch needs\n4. Switch - Route Event Type sends order-risk events one way and inventory/pricing events the other, so each branch gathers domain-specific evidence\n5. Each branch fetches its evidence in parallel and merges it (Merge - Combine Order Risk Evidence / Merge - Combine Inventory Pricing Evidence)\n6. JS - Build Unified Decision Context reshapes whichever branch ran into one consistent shape so a single Claude prompt can serve both domains\n7. HTTP Request - Claude: Decide Action asks Claude for a structured decision (recommendedAction, confidencePercent, riskLevel, reasoning, suggestedSlackMessage, executionPayload); JS - Parse AI Decision safely parses it, with a fallback if malformed\n8. IF - Confidence Meets Auto-Execute Threshold splits high-confidence, low-risk decisions (auto-execute) from everything else (log + notify only)\n9. HTTP Request - Execute Action (Auto) calls the commerce API directly for auto-executed decisions; Merge - Rejoin Auto & Flagged Paths reunites both branches\n10. JS - Finalize Decision Record combines the decision with whether it was actually auto-executed, into one consistent record\n11. Postgres - Log Decision To Audit Table records every event, evidence snapshot, AI decision, confidence, and auto-execution status\n12. IF - High Severity Needs Escalation Channel routes high-risk/non-auto-executed decisions to Slack - Notify Escalation Channel, and routine auto-executed ones to Slack - Notify Low-Noise Log Channel\n\n### How to set up\n1. Import this workflow into n8n\n2. Add credentials: webhook secret (HMAC verification), Commerce API (header/OAuth2 auth), Anthropic API (header auth, x-api-key), Database (Postgres/Airtable for audit log), Slack API\n3. Edit Set - Config: commerceApiBaseUrl, dbTable, slackChannelLowNoise, slackChannelEscalation, anthropicModel, autoExecuteConfidenceThreshold, lookbackDays\n4. Activate the workflow (webhook goes live), or use Manual Trigger + sample payloads (order-risk and inventory-pricing) to test both branches end to end\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd2ca1be-1382-4f1e-b468-7c9564d807a9",
+      "name": "Sticky Note - Trigger & Event Classification",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3776,
+        2256
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1126,
+        "height": 1150,
+        "content": "## 1. Trigger & Event Classification\n\n- **Webhook - New Commerce Event** — receives events from any source (order service, inventory service, pricing engine).\n- **Manual Trigger - Test Run** — fires both sample events in parallel for testing without a live webhook.\n- **Set - Sample Order Risk Event** — a sample fraud_signal payload for testing the order-risk branch.\n- **Set - Sample Inventory Pricing Event** — a sample low_stock payload for testing the inventory-pricing branch.\n- **Set - Config** — centralizes API base URL, DB table, Slack channels per severity, model name, and decision thresholds.\n- **JS - Normalize & Classify Event** — inspects the raw payload and tags it with eventDomain ('order_risk' or 'inventory_pricing') and eventType (e.g. 'fraud_signal', 'fulfillment_delay', 'low_stock', 'price_drift'), extracting the fields each downstream branch needs.\n- **Switch - Route Event Type** — sends order-risk events one way and inventory/pricing events the other, so each branch can gather domain-specific evidence before hitting Claude."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c66a53aa-c7ab-4b6c-b361-1d821bc410a5",
+      "name": "Sticky Note - Order Risk Evidence",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2576,
+        1808
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 470,
+        "height": 2174,
+        "content": "## 2a. Order Risk — Evidence Gathering\n\n- **HTTP Request - Fetch Order Details** — full order (items, totals, shipping/billing address, payment method).\n- **HTTP Request - Fetch Customer History** — past orders, chargeback count, account age for this customer.\n- **HTTP Request - Fetch Fraud Signals** — velocity checks, IP/geo mismatch, device fingerprint flags from your fraud provider.\n- **Merge - Combine Order Risk Evidence** — joins all three so the AI prompt has the full picture: what was ordered, who the customer is historically, and what automated fraud signals already fired.\n\n## 2b. Inventory & Pricing — Evidence Gathering\n\n- **HTTP Request - Fetch SKU Inventory** — current stock, reorder point, incoming PO quantity and ETA.\n- **HTTP Request - Fetch Pricing History** — this SKU's price changes over the lookback window plus current margin.\n- **HTTP Request - Fetch Competitor & Supplier Feed** — competitor price snapshot and latest supplier cost quote.\n- **Merge - Combine Inventory Pricing Evidence** — joins all three so the AI prompt knows current stock position, our pricing trend, and external market/supplier pressure."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0ef7d6d3-e0c7-4b2e-95ac-4738ba131e0f",
+      "name": "Sticky Note - AI Decisioning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2080,
+        2304
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 876,
+        "height": 1150,
+        "content": "## 3. AI Decisioning\n\n- **JS - Build Unified Decision Context** — merges whichever branch ran into one consistent shape (eventDomain, eventType, evidence) so a single Claude prompt node can serve both domains.\n- **HTTP Request - Claude: Decide Action** — sends the event + evidence and asks Claude for a structured decision: recommendedAction (e.g. approve_order / hold_order / escalate_fraud / reorder_stock / reprice_sku / no_action), confidencePercent, reasoning, riskLevel, and a suggestedSlackMessage.\n- **JS - Parse AI Decision** — safely parses that JSON, with a fallback (routed to manual review) if the model response is malformed.\n- **IF - Confidence Meets Auto-Execute Threshold** — splits high-confidence, low-risk decisions (auto-execute directly against the commerce API) from everything else (log + notify only, no auto-execution)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5865ed91-73e9-4c54-a809-ed07c670a473",
+      "name": "Sticky Note - Execution, Audit Log & Notification",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1168,
+        2320
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1510,
+        "height": 1150,
+        "content": "## 4. Execution, Audit Log & Notification\n\n- **HTTP Request - Execute Action (Auto)** — calls the appropriate commerce API endpoint for the recommended action (hold order / approve order / create reorder / update price) when confidence clears the threshold.\n- **Merge - Rejoin Auto & Flagged Paths** — reunites the auto-executed branch and the flagged (no-auto-execution) branch into a single path.\n- **JS - Finalize Decision Record** — combines the original AI decision with whether auto-execution actually ran, into one consistent record for logging + Slack.\n- **Postgres - Log Decision To Audit Table** — records every event, evidence snapshot, AI decision, confidence, and whether it was auto-executed — your full audit trail.\n- **IF - High Severity Needs Escalation Channel** — branches on whether the decision is high-risk or wasn't auto-executed.\n- **Slack - Notify Escalation Channel** — posts a fire-and-log message (no interactive buttons, no wait) to the high-attention channel for escalations/holds/low-confidence decisions, so a human can act out of band.\n- **Slack - Notify Low-Noise Log Channel** — posts routine auto-executed actions to a low-noise log channel."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5506582e-0f67-4293-9803-0900e89e079a",
+      "name": "Webhook - New Commerce Event",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -3680,
+        2864
+      ],
+      "webhookId": "ecommerce-control-tower-webhook-01",
+      "parameters": {
+        "path": "commerce-event",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3b74d34b-f7da-4d1b-b460-e64dcc0a4a16",
+      "name": "Manual Trigger - Test Run",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -3680,
+        3104
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "2cc8da71-d860-4bd2-b9f3-1c7aaf02ef76",
+      "name": "Set - Sample Order Risk Event",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3440,
+        3024
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "body",
+              "type": "object",
+              "value": "={{ { eventType: 'fraud_signal', orderId: 'ORD-88213', customerId: 'CUST-4471', orderTotal: 842.50, currency: 'USD', shippingAddress: { country: 'US', zip: '10001' }, billingAddress: { country: 'US', zip: '90210' }, paymentMethod: 'credit_card', ipCountry: 'NG', deviceFingerprintRisk: 'high', createdAt: new Date().toISOString() } }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "435deca3-b09c-4457-938a-c376c8099eef",
+      "name": "Set - Sample Inventory Pricing Event",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3440,
+        3216
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "body",
+              "type": "object",
+              "value": "={{ { eventType: 'low_stock', sku: 'SKU-CT-2048', warehouseId: 'WH-EAST', currentStock: 12, reorderPoint: 50, dailySalesVelocity: 18, currentPrice: 49.99, currency: 'USD', createdAt: new Date().toISOString() } }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ee33ea4a-bfba-4f40-84dc-7da70b24e2e2",
+      "name": "Set - Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3216,
+        2864
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "commerceApiBaseUrl",
+              "type": "string",
+              "value": "https://api.yourcommerceplatform.com/v1"
+            },
+            {
+              "name": "anthropicModel",
+              "type": "string",
+              "value": "claude-sonnet-4-6"
+            },
+            {
+              "name": "lookbackDays",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "name": "autoExecuteConfidenceThreshold",
+              "type": "number",
+              "value": 80
+            },
+            {
+              "name": "dbTable",
+              "type": "string",
+              "value": "control_tower_decisions"
+            },
+            {
+              "name": "slackChannelLowNoise",
+              "type": "string",
+              "value": "C0000CTLOG"
+            },
+            {
+              "name": "slackChannelEscalation",
+              "type": "string",
+              "value": "C0000CTALERT"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c7efdb70-7c86-411e-aaf2-c3ba5e7ebcec",
+      "name": "JS - Normalize & Classify Event",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2992,
+        2864
+      ],
+      "parameters": {
+        "jsCode": "// Normalize whatever shape arrived and classify into a domain + type so the\n// Switch node can route it to the right evidence-gathering branch.\nconst cfg = $input.first().json;\nconst evt = cfg.body || cfg;\n\nconst orderRiskTypes = ['fraud_signal', 'chargeback_risk', 'address_mismatch', 'fulfillment_delay', 'payment_dispute'];\nconst inventoryPricingTypes = ['low_stock', 'overstock', 'price_drift', 'supplier_cost_change', 'margin_erosion'];\n\nlet eventType = evt.eventType || 'unknown';\nlet eventDomain = 'unknown';\n\nif (orderRiskTypes.includes(eventType)) {\n  eventDomain = 'order_risk';\n} else if (inventoryPricingTypes.includes(eventType)) {\n  eventDomain = 'inventory_pricing';\n} else if (evt.orderId) {\n  eventDomain = 'order_risk';\n  eventType = eventType === 'unknown' ? 'fraud_signal' : eventType;\n} else if (evt.sku) {\n  eventDomain = 'inventory_pricing';\n  eventType = eventType === 'unknown' ? 'low_stock' : eventType;\n}\n\nreturn [{\n  json: {\n    ...cfg,\n    eventDomain,\n    eventType,\n    orderId: evt.orderId || null,\n    customerId: evt.customerId || null,\n    sku: evt.sku || null,\n    warehouseId: evt.warehouseId || null,\n    rawEvent: evt\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "920cf13c-8b0a-4e8d-a774-f3cc2c9b877e",
+      "name": "Switch - Route Event Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -2768,
+        2864
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.eventDomain }}",
+                    "rightValue": "order_risk"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.eventDomain }}",
+                    "rightValue": "inventory_pricing"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "83d19d05-9a56-4e2d-9090-c0752df919e3",
+      "name": "HTTP Request - Fetch Order Details",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2512,
+        2640
+      ],
+      "parameters": {
+        "url": "={{ $json.commerceApiBaseUrl }}/orders/{{ $json.orderId }}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "8ef33614-b2df-42f7-a537-e3570f12cb1d",
+      "name": "HTTP Request - Fetch Customer History",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2512,
+        2864
+      ],
+      "parameters": {
+        "url": "={{ $json.commerceApiBaseUrl }}/customers/{{ $json.customerId }}/history",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lookbackDays",
+              "value": "={{ $json.lookbackDays }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "1f922e5f-d48a-4177-9538-dfe06cf23096",
+      "name": "HTTP Request - Fetch Fraud Signals",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2512,
+        3088
+      ],
+      "parameters": {
+        "url": "={{ $json.commerceApiBaseUrl }}/orders/{{ $json.orderId }}/fraud-signals",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "6ee5ea9c-8b13-41cf-9743-16eecacd4fdb",
+      "name": "Merge - Combine Order Risk Evidence",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -2288,
+        2864
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "87400397-2c99-4118-9968-cf3e17113487",
+      "name": "HTTP Request - Fetch SKU Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2512,
+        3360
+      ],
+      "parameters": {
+        "url": "={{ $json.commerceApiBaseUrl }}/inventory/{{ $json.sku }}",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "warehouseId",
+              "value": "={{ $json.warehouseId }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "1fd6ed47-abac-4ad5-83e7-c563df5cd05d",
+      "name": "HTTP Request - Fetch Pricing History",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2512,
+        3584
+      ],
+      "parameters": {
+        "url": "={{ $json.commerceApiBaseUrl }}/pricing/{{ $json.sku }}/history",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "lookbackDays",
+              "value": "={{ $json.lookbackDays }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "c7ee9eec-8851-4426-91f7-898ac1eab405",
+      "name": "HTTP Request - Fetch Competitor & Supplier Feed",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -2512,
+        3808
+      ],
+      "parameters": {
+        "url": "={{ $json.commerceApiBaseUrl }}/market-data/{{ $json.sku }}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "b19a214b-73b6-459f-97e1-6f11695ee059",
+      "name": "Merge - Combine Inventory Pricing Evidence",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -2288,
+        3584
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "297d5d82-cc98-4b67-860e-b3d2a94c0bde",
+      "name": "JS - Build Unified Decision Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2048,
+        3216
+      ],
+      "parameters": {
+        "jsCode": "// Merge either evidence branch into one consistent shape so a single\n// Claude prompt node can serve both order-risk and inventory-pricing domains.\nconst items = $input.all();\nconst all = items.map(i => i.json);\n\n// Figure out which branch this came from by presence of distinguishing fields\nconst isOrderRisk = all.some(a => a.orderId && (a.order || a.customerHistory || a.fraudSignals || a[0] || a.id));\nconst base = all[0] || {};\n\nlet evidence = {};\nlet eventDomain = base.eventDomain;\nlet eventType = base.eventType;\n\nif (eventDomain === 'order_risk') {\n  evidence = {\n    order: all[0]?.order || all[0] || {},\n    customerHistory: all[1]?.customerHistory || all[1] || {},\n    fraudSignals: all[2]?.fraudSignals || all[2] || {}\n  };\n} else {\n  evidence = {\n    inventory: all[0]?.inventory || all[0] || {},\n    pricingHistory: all[1]?.pricingHistory || all[1] || {},\n    marketData: all[2]?.marketData || all[2] || {}\n  };\n}\n\nreturn [{\n  json: {\n    eventDomain,\n    eventType,\n    orderId: base.orderId,\n    customerId: base.customerId,\n    sku: base.sku,\n    warehouseId: base.warehouseId,\n    rawEvent: base.rawEvent,\n    commerceApiBaseUrl: base.commerceApiBaseUrl,\n    anthropicModel: base.anthropicModel,\n    dbTable: base.dbTable,\n    slackChannelLowNoise: base.slackChannelLowNoise,\n    slackChannelEscalation: base.slackChannelEscalation,\n    autoExecuteConfidenceThreshold: base.autoExecuteConfidenceThreshold,\n    evidence\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "47932dbb-1342-46de-a68c-502268041aa7",
+      "name": "HTTP Request - Claude: Decide Action",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1808,
+        3216
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ model: $json.anthropicModel, max_tokens: 1500, system: \"You are the decision engine for an autonomous e-commerce control tower. You will be given an event domain (order_risk or inventory_pricing), an event type, and supporting evidence gathered from commerce systems. Reason carefully and respond with ONLY a JSON object: { recommendedAction: string, confidencePercent: number, riskLevel: 'low'|'medium'|'high', reasoning: string, suggestedSlackMessage: string, executionPayload: object }. For order_risk events, recommendedAction must be one of: approve_order, hold_order, escalate_fraud, request_verification, no_action. For inventory_pricing events, recommendedAction must be one of: reorder_stock, reprice_sku, flag_margin_review, no_action. executionPayload should contain exactly the fields needed to call the corresponding commerce API endpoint (e.g. { orderId, status } for hold_order, or { sku, newPrice, quantity } for reprice_sku/reorder_stock). Be conservative with confidencePercent: only go above 80 when the evidence is unambiguous; keep it lower when signals conflict or evidence is thin.\", messages: [ { role: \"user\", content: JSON.stringify({ eventDomain: $json.eventDomain, eventType: $json.eventType, rawEvent: $json.rawEvent, evidence: $json.evidence }, null, 2) } ] }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "c1ff2456-e6ff-482e-88c1-087ba4883f62",
+      "name": "JS - Parse AI Decision",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1584,
+        3216
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('JS - Build Unified Decision Context').first().json;\nconst response = $input.first().json;\n\nconst textBlock = (response.content || []).find(b => b.type === 'text');\nlet parsed = {};\ntry {\n  const raw = (textBlock?.text || '{}').replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(raw);\n} catch (e) {\n  parsed = {\n    parseError: true,\n    recommendedAction: 'no_action',\n    confidencePercent: 0,\n    riskLevel: 'high',\n    reasoning: 'Could not parse model response; routed to manual review.',\n    suggestedSlackMessage: 'AI decision could not be parsed for event ' + (cfg.orderId || cfg.sku) + '. Manual review required.',\n    executionPayload: {}\n  };\n}\n\nreturn [{\n  json: {\n    eventDomain: cfg.eventDomain,\n    eventType: cfg.eventType,\n    orderId: cfg.orderId,\n    customerId: cfg.customerId,\n    sku: cfg.sku,\n    warehouseId: cfg.warehouseId,\n    commerceApiBaseUrl: cfg.commerceApiBaseUrl,\n    dbTable: cfg.dbTable,\n    slackChannelLowNoise: cfg.slackChannelLowNoise,\n    slackChannelEscalation: cfg.slackChannelEscalation,\n    autoExecuteConfidenceThreshold: cfg.autoExecuteConfidenceThreshold,\n    evidenceSnapshot: cfg.evidence,\n    decidedAt: new Date().toISOString(),\n    ...parsed\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1df1be1c-bedf-4ebb-b07e-2c2efef94161",
+      "name": "IF - Confidence Meets Auto-Execute Threshold",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1360,
+        3216
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.confidencePercent }}",
+              "rightValue": "={{ $json.autoExecuteConfidenceThreshold }}"
+            },
+            {
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.riskLevel }}",
+              "rightValue": "high"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "015032a3-7ea7-4208-badd-49b4af0f7570",
+      "name": "HTTP Request - Execute Action (Auto)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1120,
+        3104
+      ],
+      "parameters": {
+        "url": "={{ $json.commerceApiBaseUrl }}/actions/{{ $json.recommendedAction }}",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ ...$json.executionPayload, autoExecuted: true, confidencePercent: $json.confidencePercent }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "3521a04d-6281-4fec-a2cd-b590fe46020e",
+      "name": "Merge - Rejoin Auto & Flagged Paths",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -880,
+        3216
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "66f3024d-8707-4c79-89a3-5cb9784104f7",
+      "name": "JS - Finalize Decision Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -640,
+        3216
+      ],
+      "parameters": {
+        "jsCode": "// Combine the decision (from JS - Parse AI Decision, always available on\n// $('JS - Parse AI Decision')) with whether auto-execution actually ran,\n// so both branches produce one consistent record for logging + Slack.\nconst decision = $('JS - Parse AI Decision').first().json;\nconst current = $input.first().json;\n\nconst wasAutoExecuted = !!(current.autoExecuted || (current.body && current.body.autoExecuted));\n\nreturn [{\n  json: {\n    ...decision,\n    autoExecuted: wasAutoExecuted,\n    executionResult: wasAutoExecuted ? current : null\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2b173d02-2fa1-4826-b1f2-a5c90569dd1a",
+      "name": "Postgres - Log Decision To Audit Table",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -416,
+        3216
+      ],
+      "parameters": {
+        "table": {
+          "mode": "expression",
+          "value": "={{ $json.dbTable }}"
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "columns": {
+          "mode": "list",
+          "value": [
+            "event_domain",
+            "event_type",
+            "order_id",
+            "sku",
+            "recommended_action",
+            "confidence_percent",
+            "risk_level",
+            "reasoning",
+            "auto_executed",
+            "evidence_snapshot",
+            "decided_at"
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 2.6,
+      "continueOnFail": true
+    },
+    {
+      "id": "450afa5b-7d48-4034-9550-c3746ac40149",
+      "name": "IF - High Severity Needs Escalation Channel",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -176,
+        3216
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.riskLevel }}",
+              "rightValue": "high"
+            },
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "false"
+              },
+              "leftValue": "={{ $json.autoExecuted }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "93abf49a-9de2-447d-adcf-8be5c6656333",
+      "name": "Slack - Notify Escalation Channel",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        64,
+        3104
+      ],
+      "webhookId": "control-tower-notify-escalation-0001",
+      "parameters": {
+        "text": "=🚨 Control Tower flagged: *{{ $json.eventType }}* ({{ $json.eventDomain }})\nRecommended: {{ $json.recommendedAction }} | Confidence: {{ $json.confidencePercent }}% | Risk: {{ $json.riskLevel }}\nAuto-executed: {{ $json.autoExecuted }}\nReasoning: {{ $json.reasoning }}\nRef: {{ $json.orderId || $json.sku }}",
+        "select": "channel",
+        "channelId": "={{ $json.slackChannelEscalation }}",
+        "otherOptions": {},
+        "authentication": "predefinedCredentialType"
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c6b6c6f9-1ec6-4a58-aa43-b88fb30f7650",
+      "name": "Slack - Notify Low-Noise Log Channel",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        64,
+        3328
+      ],
+      "webhookId": "control-tower-notify-lownoise-0002",
+      "parameters": {
+        "text": "=✅ Auto-executed: *{{ $json.recommendedAction }}* for {{ $json.eventType }} ({{ $json.eventDomain }})\nConfidence: {{ $json.confidencePercent }}% | Ref: {{ $json.orderId || $json.sku }}\n{{ $json.suggestedSlackMessage }}",
+        "select": "channel",
+        "channelId": "={{ $json.slackChannelLowNoise }}",
+        "otherOptions": {},
+        "authentication": "predefinedCredentialType"
+      },
+      "typeVersion": 2.3
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "9edb877f-8711-4e10-b2fd-83f3ed8b3f39",
+  "nodeGroups": [],
+  "connections": {
+    "Set - Config": {
+      "main": [
+        [
+          {
+            "node": "JS - Normalize & Classify Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse AI Decision": {
+      "main": [
+        [
+          {
+            "node": "IF - Confidence Meets Auto-Execute Threshold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manual Trigger - Test Run": {
+      "main": [
+        [
+          {
+            "node": "Set - Sample Order Risk Event",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Set - Sample Inventory Pricing Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Route Event Type": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Fetch Order Details",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request - Fetch Customer History",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request - Fetch Fraud Signals",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request - Fetch SKU Inventory",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request - Fetch Pricing History",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "HTTP Request - Fetch Competitor & Supplier Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - New Commerce Event": {
+      "main": [
+        [
+          {
+            "node": "Set - Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Finalize Decision Record": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Log Decision To Audit Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Sample Order Risk Event": {
+      "main": [
+        [
+          {
+            "node": "Set - Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Normalize & Classify Event": {
+      "main": [
+        [
+          {
+            "node": "Switch - Route Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Fetch Order Details": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combine Order Risk Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Fetch SKU Inventory": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combine Inventory Pricing Evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Build Unified Decision Context": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Claude: Decide Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Combine Order Risk Evidence": {
+      "main": [
+        [
+          {
+            "node": "JS - Build Unified Decision Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Rejoin Auto & Flagged Paths": {
+      "main": [
+        [
+          {
+            "node": "JS - Finalize Decision Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Claude: Decide Action": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse AI Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Execute Action (Auto)": {
+      "main": [
+        [
+          {
+            "node": "Merge - Rejoin Auto & Flagged Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Fetch Pricing History": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combine Inventory Pricing Evidence",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set - Sample Inventory Pricing Event": {
+      "main": [
+        [
+          {
+            "node": "Set - Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Fetch Customer History": {
+      "main": [
+        [
+          {
+            "node": "Merge - Combine Order Risk Evidence",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Postgres - Log Decision To Audit Table": {
+      "main": [
+        [
+          {
+            "node": "IF - High Severity Needs Escalation Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Combine Inventory Pricing Evidence": {
+      "main": [
+        [
+          {
+            "node": "JS - Build Unified Decision Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - High Severity Needs Escalation Channel": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notify Escalation Channel",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Notify Low-Noise Log Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Confidence Meets Auto-Execute Threshold": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Execute Action (Auto)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Merge - Rejoin Auto & Flagged Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

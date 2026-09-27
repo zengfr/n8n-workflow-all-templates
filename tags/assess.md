@@ -1,4 +1,4 @@
-# assess : 6
+# assess : 17
 
 |id|file|
 |----|----|
@@ -8,3 +8,14 @@
 |13597|[13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13597_Assess_technical_documentation_compliance_with_GPT_4o_and_send_Slack_alerts.json)|
 |14413|[14413_Assess_blockchain_smart_contract_and_tokenomics_risk_with_GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14413_Assess_blockchain_smart_contract_and_tokenomics_risk_with_GPT-4o_and_Gmail.json)|
 |16444|[16444_Assess_Salesforce_deal_risk_with_Gmail__Outlook__OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16444_Assess_Salesforce_deal_risk_with_Gmail__Outlook__OpenAI_and_Slack_alerts.json)|
+|17143|[17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json)|
+|18029|[18029_Assess_Wazuh_platform_health_and_email_HTML_reports_with_SSH_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18029_Assess_Wazuh_platform_health_and_email_HTML_reports_with_SSH_and_SMTP.json)|
+|18114|[18114_Assess_contract_risk_from_Google_Drive_with_Groq__Salesforce_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18114_Assess_contract_risk_from_Google_Drive_with_Groq__Salesforce_and_Slack.json)|
+|18235|[18235_Assess_operating_models_and_generate_AI_transformation_blueprints_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18235_Assess_operating_models_and_generate_AI_transformation_blueprints_with_OpenAI_and_Google.json)|
+|18503|[18503_Assess_SaaS_vendor_risk_with_OpenAI_and_Probo_and_notify_security_in_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18503_Assess_SaaS_vendor_risk_with_OpenAI_and_Probo_and_notify_security_in_Slack.json)|
+|18536|[18536_Assess_GitHub_bus-factor_risk_in_GitHub_with_Claude__tickets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18536_Assess_GitHub_bus-factor_risk_in_GitHub_with_Claude__tickets_and_Slack.json)|
+|18681|[18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json)|
+|18718|[18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json)|
+|19257|[19257_Assess_AWS_security_posture_changes_with_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19257_Assess_AWS_security_posture_changes_with_Claude_and_Slack_alerts.json)|
+|19382|[19382_Assess_GDPR_breach_risk_and_72-hour_deadlines_with_Groq_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19382_Assess_GDPR_breach_risk_and_72-hour_deadlines_with_Groq_and_data_tables.json)|
+|19422|[19422_Assess_Bitcoin_AML_risk_with_Groq_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19422_Assess_Bitcoin_AML_risk_with_Groq_and_log_results_to_Google_Sheets.json)|

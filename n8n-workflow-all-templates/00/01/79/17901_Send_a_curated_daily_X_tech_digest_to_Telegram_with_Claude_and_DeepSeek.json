@@ -1,0 +1,741 @@
+{
+  "id": "jJ4C7B81xe4RkNK6",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Send a curated daily X tech digest to Telegram with Claude and DeepSeek",
+    "wechat": "youandme10086",
+    "id": 17901,
+    "update_time": "2026-09-27"
+  },
+  "name": "Daily X (Twitter) Tech Digest to Telegram",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "28f13ba4-9f68-4d0a-afe4-e957a99845b1",
+      "name": "Compute 24h window",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -672,
+        -32
+      ],
+      "parameters": {
+        "jsCode": "// Turns the timezone chosen in Settings into the values the rest of the flow needs,\n// so the 24h window follows the owner's locale instead of the n8n instance timezone.\nconst cfg = $('Settings').first().json;\nconst tz = cfg.timezone || 'UTC';\n\nconst now = DateTime.now().setZone(tz);\nconst windowStart = now.minus({ hours: 24 });\n\nreturn [{\n  json: {\n    timezone: tz,\n    todayLabel: now.toFormat('cccc d LLLL yyyy'),\n    windowStartIso: windowStart.toUTC().toISO(),\n    sinceDate: windowStart.toFormat('yyyy-LL-dd'),\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b58b6310-0edf-4f22-b384-0a9fbf4f17d4",
+      "name": "Expand accounts to items",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -432,
+        -32
+      ],
+      "parameters": {
+        "jsCode": "// One item per account so the HTTP node can throttle a request per handle.\n// Accepts handles with or without the leading @.\nconst accounts = $('Settings').first().json.x_accounts || [];\n\nreturn accounts\n  .map((a) => String(a).trim().replace(/^@/, ''))\n  .filter((a) => a !== '')\n  .map((username) => ({ json: { username } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7de23ab9-4966-4607-bd3e-20c0a2318c04",
+      "name": "Fetch tweets per account",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 5,
+      "position": [
+        -192,
+        -32
+      ],
+      "parameters": {
+        "url": "https://api.twitterapi.io/twitter/tweet/advanced_search",
+        "options": {
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 6000
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "query",
+              "value": "={{ 'from:' + $json.username + ' -filter:replies since:' + $('Compute 24h window').first().json.sinceDate }}"
+            },
+            {
+              "name": "queryType",
+              "value": "Latest"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "credential-id",
+          "name": "TwitterAPI.io Header Auth"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "28725f41-8224-4f8b-a374-67683f60931b",
+      "name": "Normalize tweets",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        48,
+        -32
+      ],
+      "parameters": {
+        "jsCode": "// Processes the TwitterAPI.io advanced_search response.\n// The HTTP node returns one item per account, each shaped { tweets: [...], has_next_page, next_cursor }.\nconst win = $('Compute 24h window').first().json;\nconst cutoff = DateTime.fromISO(win.windowStartIso, { setZone: true });\n\nconst out = [];\n\nfor (const item of $input.all()) {\n  const body = item.json || {};\n  const tweets = Array.isArray(body.tweets) ? body.tweets : [];\n\n  for (const tw of tweets) {\n    if (!tw || !tw.id || !tw.text) continue;\n\n    // Drop replies and retweets: a digest should only carry original posts\n    if (tw.isReply === true) continue;\n    if (tw.retweeted_tweet) continue;\n\n    // Precise 24h filter. createdAt arrives as \"Tue Dec 10 07:00:30 +1234567890\"\n    if (tw.createdAt) {\n      const created = DateTime.fromFormat(tw.createdAt, 'ccc LLL d HH:mm:ss ZZZ yyyy', { setZone: true });\n      if (created.isValid && created < cutoff) continue;\n    }\n\n    const account = tw.author && tw.author.userName ? tw.author.userName : null;\n\n    out.push({\n      json: {\n        tweetId: String(tw.id),\n        account: account ? ('@' + account) : '@unknown',\n        text: String(tw.text).trim(),\n        url: tw.url || (account ? ('https://x.com/' + account + '/status/' + tw.id) : ('https://x.com/i/status/' + tw.id)),\n        createdAt: tw.createdAt || null,\n        likeCount: tw.likeCount ?? null,\n        retweetCount: tw.retweetCount ?? null,\n      },\n    });\n  }\n}\n\n// Emit a marker rather than nothing, so the downstream nodes still receive an item.\nif (out.length === 0) {\n  return [{ json: { marker: 'no_tweets' } }];\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "50915a20-cb76-4456-9759-50d32660ffe7",
+      "name": "Build digest input",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        288,
+        -32
+      ],
+      "parameters": {
+        "jsCode": "const win = $('Compute 24h window').first().json;\nconst cfg = $('Settings').first().json;\nconst tweets = $('Normalize tweets').all().map((i) => i.json).filter((t) => t.tweetId);\n\n// 'Log account skip' only runs when at least one account failed. When every account\n// succeeds that node never executes and referencing it throws, so the read is guarded.\nlet skipped = [];\ntry {\n  skipped = $('Log account skip').all().map((i) => i.json).filter((s) => s.skipped);\n} catch (e) {\n  skipped = [];\n}\n\nconst seen = new Set();\nconst unique = [];\nfor (const t of tweets) {\n  if (seen.has(t.tweetId)) continue;\n  seen.add(t.tweetId);\n  unique.push(t);\n}\n\nunique.sort((a, b) => String(a.createdAt || '').localeCompare(String(b.createdAt || '')));\n\nreturn [{\n  json: {\n    date: win.todayLabel,\n    chatId: cfg.telegram_chat_id,\n    tweetCount: unique.length,\n    tweetsJson: JSON.stringify(unique, null, 2),\n    skippedAccounts: skipped.map((s) => s.account),\n    skippedCount: skipped.length,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cfeac6f5-2161-4a0b-922b-3d548ae7adbb",
+      "name": "Has tweets?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        528,
+        -32
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "30e3de06-36e5-41a6-a7c9-1afc1aa27672",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.tweetCount }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "de2fb229-b598-492f-8d5f-eba07ad6b3f6",
+      "name": "Curate daily digest",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        768,
+        -32
+      ],
+      "parameters": {
+        "text": "=Date: {{ $('Build digest input').first().json.date }}\n\nPosts collected from the monitored X accounts over the last 24 hours:\n{{ $('Build digest input').first().json.tweetsJson }}",
+        "options": {
+          "maxIterations": 3,
+          "systemMessage": "You are the editor of a daily morning tech digest.\n\nYou receive posts from a set of X (Twitter) accounts published in the last 24 hours. Your job:\n1. Keep only what is relevant: AI, LLMs, programming, developer tools, automation, tech products and innovation trends.\n2. Discard the noise: generic promos, congratulations, memes, hiring posts with no technical substance, engagement bait.\n3. Write a short morning digest, grouped by topic or by account.\n\nOutput format (Telegram-compatible Markdown):\n- Title: ☕ Daily Tech Digest\n- Subtitle with the date\n- Short section headings (###)\n- For each relevant post: 1-2 sentences with the key idea plus a markdown link [view post](url)\n- If you discard most of the input, say so in one line at the top\n- Maximum ~1200 words; prioritise quality over quantity\n- Never invent posts or links; use only the data provided\n- Always write the digest in English",
+          "returnIntermediateSteps": false
+        },
+        "promptType": "define",
+        "needsFallback": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "f50c6757-bd68-4c15-81f4-2f1d8f2c88a5",
+      "name": "Format digest message",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        -32
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Build digest input').first().json;\nconst raw = $('Curate daily digest').first().json;\nconst body = String(raw.output || raw.text || '').trim();\n\nreturn [{\n  json: {\n    chatId: cfg.chatId,\n    text: body || '☕ Daily Tech Digest\\n\\nThe digest could not be generated today.',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b14b349-8342-4e44-a351-c4d4753c35da",
+      "name": "Merge outbound",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1328,
+        96
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "da680305-7d55-489a-92ae-bceb3a68f6ec",
+      "name": "Format empty message",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1072,
+        368
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Build digest input').first().json;\n\nlet text = '☕ *Daily Tech Digest* — ' + cfg.date +\n  '\\n\\nNo original posts worth reporting in the last 24 hours from the monitored accounts.';\n\nif (cfg.skippedCount > 0) {\n  text += '\\n\\n⚠️ Accounts that could not be read (' + cfg.skippedCount + '): ' + cfg.skippedAccounts.join(', ');\n}\n\nreturn [{ json: { chatId: cfg.chatId, text } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "70132ad4-3ae3-427b-84cb-bb46c2127b58",
+      "name": "Claude Haiku 4.5 (primary)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        688,
+        208
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-haiku-4-5-20251001",
+          "cachedResultName": "Claude Haiku 4.5"
+        },
+        "options": {}
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account"
+        }
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "660e9ec4-57bf-422c-8443-be89419a9ef2",
+      "name": "Send digest to Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "maxTries": 5,
+      "position": [
+        1568,
+        96
+      ],
+      "webhookId": "39f24f17-9c6d-41c9-9e17-573a56d39b10",
+      "parameters": {
+        "text": "={{ $('Merge outbound').item.json.text }}",
+        "chatId": "={{ $('Settings').first().json.telegram_chat_id }}",
+        "additionalFields": {
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "credential-id",
+          "name": "Telegram account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "08e5a0bd-b11f-42c9-b25b-ecbb8c81664e",
+      "name": "DeepSeek via Fireworks (fallback)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        896,
+        208
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "accounts/fireworks/models/deepseek-v4-flash",
+          "cachedResultName": "accounts/fireworks/models/deepseek-v4-flash"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "FireWorks"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b66ec948-da28-4ff1-8a0e-7e7d7e25f447",
+      "name": "Every weekday at 07:25",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -1152,
+        -32
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 25 7 * * 1-5"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "36b02820-babe-40fd-9aa2-adb8f6d8d7a3",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "notes": " Accounts to monitor, Telegram chat and timezone.",
+      "position": [
+        -912,
+        -32
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-x-accounts",
+              "name": "x_accounts",
+              "type": "array",
+              "value": "={{ [\"AnthropicAI\",\"cursor_ai\",\"OpenAI\",\"GoogleDeepMind\",\"n8n_io\",\"huggingface\",\"MistralAI\",\"amanrsanger\",\"truell20\",\"karpathy\",\"simonw\",\"rasbt\",\"mattwolfe\",\"dair_ai\",\"gregisenberg\"] }}"
+            },
+            {
+              "id": "cfg-telegram-chat-id",
+              "name": "telegram_chat_id",
+              "type": "string",
+              "value": "YOUR_TELEGRAM_CHAT_ID"
+            },
+            {
+              "id": "cfg-timezone",
+              "name": "timezone",
+              "type": "string",
+              "value": "America/Monterrey"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "200ad99a-346b-41f9-85c3-f382881c9f3d",
+      "name": "Log account skip",
+      "type": "n8n-nodes-base.code",
+      "notes": "Terminal on purpose. Build digest input reads it via $() inside a try/catch, so wiring it back into the main path would run the digest twice.",
+      "position": [
+        -192,
+        208
+      ],
+      "parameters": {
+        "jsCode": "// Only runs when an account's request failed. n8n keeps the failing item's original\n// fields next to the error payload, so the username is usually still readable.\nreturn $input.all().map((item) => {\n  const j = item.json || {};\n  const username = j.username || '';\n  return {\n    json: {\n      skipped: true,\n      account: username ? '@' + username : 'unknown account',\n      reason: j.error?.message || j.error || 'request failed',\n    },\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3b9ac3ad-b5cb-4645-864a-3f223eb773f1",
+      "name": "Note: Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1216,
+        -896
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 2968,
+        "height": 300,
+        "content": "## 🐦 Daily X (Twitter) Tech Digest → Telegram\n\nEvery weekday morning this workflow reads the X accounts you follow, keeps only the original posts from the last 24 hours, has an LLM throw out the noise and rewrite what is left as a short briefing, then sends it to Telegram.\n\n**Setup (about 5 minutes):**\n1. Create a **Header Auth** credential for TwitterAPI.io — header name `X-API-Key`, value = your key — and select it on **Fetch tweets per account**. See the red note below.\n2. Open **Settings** and fill in `x_accounts`, `telegram_chat_id` and `timezone`. That is the only node you need to edit.\n3. Attach your Anthropic credential to the primary model, an OpenAI-compatible Fireworks credential to the fallback, and your Telegram bot credential.\n4. Adjust the trigger time, run the workflow once manually to confirm the digest arrives, then activate it.\n\n**Cost:** one TwitterAPI.io request per account per run, plus a single LLM call per run. Monitoring 15 accounts on weekdays is roughly 330 requests a month."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c488645e-e883-4d73-bfd2-3b8b590a3060",
+      "name": "Note: 1 Trigger",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1216,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 496,
+        "content": "### 1. Every weekday at 07:25\n\nCron `0 25 7 * * 1-5` — Monday to Friday at 07:25, in the **n8n instance timezone**.\n\nThis is separate from the `timezone` in Settings, which only drives the 24h window and the date label. Set both to the same zone."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4c45342-1f25-4b91-855d-c432adfc7709",
+      "name": "Note: 2 Settings",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -976,
+        -576
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 220,
+        "height": 496,
+        "content": "### 2. ⚙️ Settings — EDIT THIS\n\nThe only node a new owner has to touch.\n\n- `x_accounts` → handles to monitor, with or without the leading @\n- `telegram_chat_id` → the chat that receives the digest\n- `timezone` → IANA name, e.g. `Europe/Madrid`\n\nEach extra account costs one more API request per run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79b9f403-2281-4fc8-bd1b-4fa694c308f8",
+      "name": "Note: 3 Window",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -736,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 496,
+        "content": "### 3. Compute 24h window\n\nTurns the `timezone` from Settings into the two things the flow needs: the date label printed in the digest, and the cutoff used to keep only recent posts.\n\nThe cutoff is applied twice — roughly in the API query, then precisely in step 6."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ae874b9-a997-4c19-9121-29a60adfdd92",
+      "name": "Note: 4 Expand",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 496,
+        "content": "### 4. Expand accounts to items\n\nTurns the `x_accounts` array into one item per account, so the next node issues one request per handle and stays inside the rate limit.\n\nA leading @ is stripped here, so `@OpenAI` and `OpenAI` both work."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a63cfb49-9111-4301-9783-e747d13eb944",
+      "name": "Note: 5 Fetch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -256,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 496,
+        "content": "### 5. Fetch tweets per account\n\nQueries TwitterAPI.io advanced search once per account, throttled to 1 request every 6 seconds.\n\nRetries 5 times. If an account still fails it exits through the **error output** into `Log account skip` instead of killing the run, and the digest names what was missed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b6b9a389-ee3f-4d9c-8c01-5a39b772ea87",
+      "name": "Note: 6 Normalize",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 496,
+        "content": "### 6. Normalize tweets\n\nFlattens the API response into one item per post and drops what does not belong in a digest: replies, retweets, and anything older than the cutoff from step 3.\n\nKeeps the text, permalink, author and engagement counts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f264477-3fd8-474d-9103-1a6d76e6ca39",
+      "name": "Note: 7 Build",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        224,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 496,
+        "content": "### 7. Build digest input\n\nDeduplicates by post ID, sorts oldest to newest, and packs everything into a single JSON payload for the model.\n\nAlso picks up any accounts that failed in step 5 so the digest can mention them."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3e40683-032e-49d9-8ec8-8fcf4347ef8e",
+      "name": "Note: 8 Gate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 220,
+        "height": 496,
+        "content": "### 8. Has tweets?\n\nIf at least one post survived the filters, it goes to the model.\n\nIf nothing survived, the flow skips the LLM entirely and sends a short \"nothing today\" note instead — no wasted tokens on an empty day."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ba57aa2-75dc-4e3e-863e-a44971540ab8",
+      "name": "Note: 9 Curate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 332,
+        "height": 496,
+        "content": "### 9. Curate daily digest\n\nThe editorial rules live in this node's **system message**: which topics to keep, what counts as noise, and the output format.\n\nPrimary model **Claude Haiku 4.5**, with **DeepSeek via Fireworks** as an automatic fallback.\n\nEdit the system message to change topics, tone or output language."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2f23a9a2-faa4-4a72-a8e0-0038fb29a9fd",
+      "name": "Note: 10 Delivery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1056,
+        -576
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 496,
+        "content": "### 10. Delivery\n\nBoth branches converge here. `Format digest message` shapes the model's output, `Format empty message` builds the \"nothing today\" note, and **Merge outbound** funnels whichever one ran into a single Telegram send.\n\n`Send digest to Telegram` retries up to 5 times, 5 seconds apart, so a brief Telegram outage does not lose the run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ed0096d3-0368-4412-a09e-30bf9daad881",
+      "name": "Note: Credentials",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        352
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 520,
+        "height": 210,
+        "content": "### 🔐 The API key lives in a credential, never in the flow\n\nAuthentication uses a generic **Header Auth** credential: header name `X-API-Key`, value = your TwitterAPI.io key.\n\nCreate it under **Credentials → Header Auth** and select it on **Fetch tweets per account**.\n\nDo not paste the key into a Code node or a header parameter. Anything stored in a node parameter travels with the workflow when you export, share or sell it."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "Every weekday 07:25": [
+      {
+        "json": {
+          "Hour": "07",
+          "Year": "2026",
+          "Month": "July",
+          "Minute": "25",
+          "Second": "00",
+          "Timezone": "America/Mexico_City (UTC-06:00)",
+          "timestamp": "2026-07-31T07:25:00.007-06:00",
+          "Day of week": "Friday",
+          "Day of month": "31",
+          "Readable date": "July 31st 2026, 7:25:00 am",
+          "Readable time": "7:25:00 am"
+        }
+      }
+    ]
+  },
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "3f73b407-9ee9-44b7-970b-331b046120c2",
+  "nodeGroups": [],
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Compute 24h window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has tweets?": {
+      "main": [
+        [
+          {
+            "node": "Curate daily digest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format empty message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge outbound": {
+      "main": [
+        [
+          {
+            "node": "Send digest to Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize tweets": {
+      "main": [
+        [
+          {
+            "node": "Build digest input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build digest input": {
+      "main": [
+        [
+          {
+            "node": "Has tweets?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute 24h window": {
+      "main": [
+        [
+          {
+            "node": "Expand accounts to items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Curate daily digest": {
+      "main": [
+        [
+          {
+            "node": "Format digest message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format empty message": {
+      "main": [
+        [
+          {
+            "node": "Merge outbound",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Format digest message": {
+      "main": [
+        [
+          {
+            "node": "Merge outbound",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every weekday at 07:25": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand accounts to items": {
+      "main": [
+        [
+          {
+            "node": "Fetch tweets per account",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch tweets per account": {
+      "main": [
+        [
+          {
+            "node": "Normalize tweets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log account skip",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude Haiku 4.5 (primary)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Curate daily digest",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "DeepSeek via Fireworks (fallback)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Curate daily digest",
+            "type": "ai_languageModel",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

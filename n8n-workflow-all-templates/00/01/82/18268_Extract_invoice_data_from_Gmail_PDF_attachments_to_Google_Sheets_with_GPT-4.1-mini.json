@@ -1,0 +1,1007 @@
+{
+  "id": "nuWb0FV9CMhzlQoh",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Extract invoice data from Gmail PDF attachments to Google Sheets with GPT-4.1-mini",
+    "wechat": "youandme10086",
+    "id": 18268,
+    "update_time": "2026-09-27"
+  },
+  "name": "Extract invoice data from Gmail attachments to Google Sheets (Advanced)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "87e8caf5-e857-4120-913e-e6e0f9355584",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        -128
+      ],
+      "parameters": {
+        "color": "#D0CD67",
+        "width": 1144,
+        "height": 900,
+        "content": "### How it works (Advanced version)\nThis workflow watches your Gmail inbox for incoming invoices, reads PDF attachments, and uses AI to extract structured invoice data before saving it to Google Sheets — with dedup, validation, error logging, and approval alerts built in.\n\nFlow:\n1. Poll Gmail daily for emails with \"invoice\", \"bill\", or \"receipt\" + attachment.\n2. Split multi-attachment emails into individual items.\n3. Skip attachments already processed in a previous run (workflow static data, keyed on message id + file name).\n4. Route by file type: PDFs go through text extraction; anything else (images, docs, etc.) is logged to a \"ManualReview\" sheet tab instead of silently failing.\n5. AI Agent (GPT-4.1-mini, unchanged) extracts structured invoice JSON from the PDF text.\n6. A Code node normalizes the JSON and validates it: flags missing fields and checks that subtotal − discount + tax = grand total.\n7. If the AI response failed to parse or is missing critical fields, the row is logged to an \"Errors\" sheet tab instead of the main tracker.\n8. If the invoice is high-value (over the threshold, default PKR 100,000) or has a validation mismatch, you get an email alert before it's logged — otherwise it's appended straight to the tracker.\n\n### Setup\n1. Connect Gmail (OAuth2, with Send permission — needed for the approval alert email) in the Gmail Trigger and Send Approval Alert nodes.\n2. Connect OpenAI in the OpenAI Chat Model node (GPT-4.1-mini or similar).\n3. In your Google Sheet, create THREE tabs: your existing invoice tracker tab, plus new \"Errors\" and \"ManualReview\" tabs. Re-select the correct tab in the \"Log Errors\" and \"Log Manual Review\" nodes after creating them (the sheet reference won't auto-resolve on import).\n4. Adjust the high-value threshold (100000) inside the \"Needs Review?\" node to match your business.\n5. Adjust the Gmail search filter if you want to widen/narrow which emails get scanned.\n6. Activate the workflow.\n\n### Notes\n- Dedup uses n8n's workflow static data, so it persists across polls as long as the workflow stays saved/active — it resets if you clear static data or move the workflow.\n- Non-PDF attachments (images, Word docs, etc.) are NOT auto-extracted in this version — they're routed to ManualReview so nothing is silently dropped. Adding OCR/vision support for those is a natural next upgrade.\n- Model is intentionally left as GPT-4.1-mini; swap it in the OpenAI Chat Model node if you want to try Claude or Gemini."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "01d0a427-2666-4736-ba32-6074cec9a491",
+      "name": "Gmail Trigger1",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        1008,
+        336
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {
+          "q": "has:attachment (invoice OR bill OR receipt)"
+        },
+        "options": {
+          "downloadAttachments": true
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "hour": 0
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h4ZZBcS82EQ2k5Df",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "c9a324cf-5e72-4564-b424-56e0c5111294",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1168,
+        336
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "317eaff0-6ce6-4fa2-9f11-d0aa5241a6e3",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ Object.keys($binary || {}).length}}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "9123c746-2637-480b-b0a7-7397c3c785c6",
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1360,
+        336
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst output = [];\n\nfor (const item of items) {\n  const binaries = item.binary || {};\n\n  for (const [fieldName, binary] of Object.entries(binaries)) {\n    output.push({\n      json: {\n        ...item.json,\n        attachment_field: fieldName,\n        file_name: binary.fileName,\n      },\n      binary: {\n        data: binary,\n      },\n    });\n  }\n}\n\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "24094712-9813-49e6-bb60-593e854296d4",
+      "name": "Check Duplicate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1520,
+        336
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('node');\nif (!staticData.processedAttachments) {\n  staticData.processedAttachments = {};\n}\n\nconst output = [];\nfor (const item of $input.all()) {\n  const key = `${item.json.id || ''}:${item.json.file_name || ''}`;\n  if (staticData.processedAttachments[key]) {\n    continue;\n  }\n  staticData.processedAttachments[key] = true;\n  output.push(item);\n}\n\nreturn output;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "caa429d9-ccdd-4044-a80b-5c13f4524238",
+      "name": "Is PDF?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1696,
+        336
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ispdf1",
+              "operator": {
+                "type": "string",
+                "operation": "endsWith"
+              },
+              "leftValue": "={{ $json.file_name }}",
+              "rightValue": ".pdf"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "d4d45b2f-add5-441d-b241-d3a60e04c0e4",
+      "name": "Flag Unsupported Format",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1824,
+        672
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "assign1",
+              "name": "reason",
+              "type": "string",
+              "value": "=Unsupported attachment type ({{ $json.file_name.split('.').pop() }}). Only PDF invoices are processed automatically."
+            },
+            {
+              "id": "assign2",
+              "name": "file_name",
+              "type": "string",
+              "value": "={{ $json.file_name }}"
+            },
+            {
+              "id": "assign3",
+              "name": "from_email",
+              "type": "string",
+              "value": "={{ $json.from.value[0].address }}"
+            },
+            {
+              "id": "assign4",
+              "name": "timestamp",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "53d46dab-428a-4769-95cb-ea1176607ec0",
+      "name": "Log Manual Review",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2016,
+        688
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "review ",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "review ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "review "
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1837901102,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w/edit#gid=1837901102",
+          "cachedResultName": "ManualReview"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w/edit?usp=drivesdk",
+          "cachedResultName": "Invoice Processing"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WmwW1lJF0nB8slIu",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "448c2d39-425d-466b-8e80-ac7e3230fc15",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        1872,
+        256
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "=data"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "dc4e2e9b-8dd0-47a1-ad18-4479bae7d821",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2080,
+        256
+      ],
+      "parameters": {
+        "text": "=Extract all invoice information from the PDF text below.\n\nPDF TEXT: {{ $json.text }} return json output",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "dcf5d3c1-ade8-4603-aa0f-77c126958deb",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2080,
+        432
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini",
+          "cachedResultName": "gpt-4.1-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "ejxEsOtdd02o78qG",
+          "name": "OpenAI account 2"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a299657d-7a90-4315-80c3-a7abf61fcd98",
+      "name": "Parse JSON Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2416,
+        256
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function stripFences(raw) {\n  if (typeof raw !== 'string') return raw;\n  return raw\n    .trim()\n    .replace(/^```json\\s*/i, '')\n    .replace(/^```\\s*/i, '')\n    .replace(/```\\s*$/i, '')\n    .trim();\n}\n\nfunction toNumber(val) {\n  if (typeof val === 'number') return val;\n  if (typeof val === 'string') {\n    const cleaned = val.replace(/[^0-9.-]/g, '');\n    const n = parseFloat(cleaned);\n    return isNaN(n) ? null : n;\n  }\n  return null;\n}\n\nfunction extractCurrency(val) {\n  if (typeof val !== 'string') return null;\n  const match = val.trim().match(/^([A-Za-z]{2,5})/);\n  return match ? match[1].toUpperCase() : null;\n}\n\nfunction pick(obj, ...paths) {\n  for (const path of paths) {\n    const val = path.split('.').reduce((o, k) => (o == null ? undefined : o[k]), obj);\n    if (val !== undefined) return val;\n  }\n  return null;\n}\n\nconst item = $input.item;\nlet parsed;\ntry {\n  const jsonText = stripFences(item.json.output);\n  parsed = JSON.parse(jsonText);\n} catch (err) {\n  return { json: { error: `Failed to parse AI response: ${err.message}`, raw: item.json.output, validation_status: 'parse_error' } };\n}\n\nconst inv = parsed.invoice || parsed;\n\nconst company = inv.company || {};\nconst details = inv.invoice_details || {};\nconst billTo = inv.bill_to || {};\nconst payment = inv.payment_details || {};\nconst summary = inv.summary || {};\n\nconst invoiceNo = pick(inv, 'invoice_no', 'invoice_number') || pick(details, 'invoice_no');\nconst date = pick(inv, 'date') || pick(details, 'date');\nconst dueDate = pick(inv, 'due_date') || pick(details, 'due_date');\nconst poNumber = pick(inv, 'po_number', 'purchase_order') || pick(details, 'po_number');\nconst status = pick(inv, 'status') || pick(details, 'status') || pick(payment, 'status');\nconst paymentMethod = pick(inv, 'payment_method') || pick(details, 'payment_method') || pick(payment, 'method');\nconst terms = pick(inv, 'terms') || pick(details, 'terms') || pick(payment, 'terms');\n\nconst billToName = typeof billTo === 'string' ? billTo : billTo.name;\nconst billToAddress = typeof billTo === 'string' ? '' : billTo.address;\n\nconst subtotalRaw = pick(inv, 'subtotal') ?? summary.subtotal;\nconst discountRaw = pick(inv, 'discount') ?? summary.discount;\nconst taxRaw = pick(inv, 'tax') ?? summary.tax;\nconst grandTotalRaw = pick(inv, 'grand_total') ?? summary.grand_total;\n\nconst currency = extractCurrency(subtotalRaw) || extractCurrency(grandTotalRaw) || 'PKR';\nconst vendorContact = [company.phone, company.email].filter(Boolean).join(' | ') || null;\n\nconst subtotalNum = toNumber(subtotalRaw);\nconst discountNum = toNumber(discountRaw);\nconst taxNum = toNumber(taxRaw);\nconst grandTotalNum = toNumber(grandTotalRaw);\n\nlet validationStatus = 'ok';\nlet validationError = null;\n\nif (!invoiceNo || grandTotalNum == null) {\n  validationStatus = 'missing_fields';\n  validationError = 'Missing invoice number or grand total';\n} else {\n  const expected = (subtotalNum || 0) - (discountNum || 0) + (taxNum || 0);\n  if (Math.abs(expected - grandTotalNum) > 1) {\n    validationStatus = 'total_mismatch';\n  }\n}\n\nreturn {\n  json: {\n    invoice_number: invoiceNo,\n    date,\n    due_date: dueDate,\n    po_number: poNumber,\n    vendor_name: company.name || null,\n    vendor_address: company.address || null,\n    vendor_contact: vendorContact,\n    vendor_tax_ntn: company.tax_ntn || null,\n    bill_to: billToName,\n    bill_to_address: billToAddress,\n    payment_method: paymentMethod,\n    payment_terms: terms,\n    invoice_status: status,\n    subtotal: subtotalNum,\n    discount: discountNum,\n    tax: taxNum,\n    grand_total: grandTotalNum,\n    currency,\n    validation_status: validationStatus,\n    error: validationError,\n  },\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0f62f389-559e-4a81-8461-6786dea95804",
+      "name": "Has Error?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2576,
+        256
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "haserr1",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.error }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "72cb0e1d-7d51-47cd-9a11-9bece6f50a75",
+      "name": "Log Errors",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2864,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "errors",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "errors",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "errors"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 861648952,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w/edit#gid=861648952",
+          "cachedResultName": "Errors"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w/edit?usp=drivesdk",
+          "cachedResultName": "Invoice Processing"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WmwW1lJF0nB8slIu",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "17abcb60-513b-442f-8698-892adcb687dd",
+      "name": "Needs Review?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2864,
+        336
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "nr1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.validation_status !== 'ok' || ($json.grand_total || 0) > 100000 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "90ef2801-51e8-4ff4-a2c2-43e18cc44e61",
+      "name": "Send Approval Alert",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3104,
+        224
+      ],
+      "webhookId": "12785ab6-3f93-4eff-bb9e-aec292824eae",
+      "parameters": {
+        "sendTo": "={{ $('Gmail Trigger1').item.json.to.value[0].address }}",
+        "message": "=An invoice was processed but needs your review before it's fully logged.\n\nFile: {{ $('Code in JavaScript').item.json.file_name }}\nVendor: {{ $json.vendor_name }}\nInvoice #: {{ $json.invoice_number }}\nGrand Total: {{ $json.currency }} {{ $json.grand_total }}\nValidation status: {{ $json.validation_status }}\nFrom: {{ $('Code in JavaScript').item.json.from.value[0].address }}\n\nCheck the Invoice Processing sheet for full details.",
+        "options": {},
+        "subject": "=Invoice needs review: {{ $json.invoice_number || $('Code in JavaScript').item.json.file_name }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "h4ZZBcS82EQ2k5Df",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "0506b68e-63dc-4e56-82f7-7d867e081c8c",
+      "name": "Append to Invoice Tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3264,
+        352
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "tax": "={{ $json.tax }}",
+            "date": "={{ $json.date }}",
+            "bill_to": "={{ $json.bill_to }}",
+            "discount": "={{ $json.discount }}",
+            "due_date": "={{ $json.due_date }}",
+            "subtotal": "={{ $json.subtotal }}",
+            "po_number": "={{ $json.po_number }}",
+            "grand_total": "={{ $json.grand_total }}",
+            "vendor_name": "={{ $json.vendor_name }}",
+            "payment_terms": "={{ $json.payment_terms }}",
+            "invoice_number": "={{ $json.invoice_number }}",
+            "invoice_status": "={{ $json.invoice_status }}",
+            "payment_method": "={{ $json.payment_method }}",
+            "vendor_address": "={{ $json.vendor_address }}",
+            "vendor_contact": "={{ $json.vendor_contact }}",
+            "vendor_tax_ntn": "={{ $json.vendor_tax_ntn }}",
+            "bill_to_address": "={{ $json.bill_to_address }}",
+            "validation_status": "={{ $json.validation_status }}"
+          },
+          "schema": [
+            {
+              "id": "invoice_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "invoice_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "due_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "po_number",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "po_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "vendor_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "vendor_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "vendor_address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "vendor_address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "vendor_contact",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "vendor_contact",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "vendor_tax_ntn",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "vendor_tax_ntn",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bill_to",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "bill_to",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "bill_to_address",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "bill_to_address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_method",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payment_method",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_terms",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "payment_terms",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "invoice_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "subtotal",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "subtotal",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "discount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "discount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "tax",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "tax",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "grand_total",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "grand_total",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "currency",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "currency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "validation_status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "validation_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "invoice_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1LPPk4iFGwx4bDr3BGhbEu73E8a-wxVCATElDsNQ3i5w/edit?usp=drivesdk",
+          "cachedResultName": "Invoice Processing"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "WmwW1lJF0nB8slIu",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "3291b7d9-b23d-4418-bea8-19d486816abb",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        944,
+        224
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 524,
+        "height": 400,
+        "content": "## 1. Watch Inbox\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0b614829-16c6-498c-8b21-b79d310422d5",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1488,
+        80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 528,
+        "height": 480,
+        "content": "## 2. Dedup + Route by File Type\nSkips already-processed attachments; non-PDF files go to ManualReview instead of failing silently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "72838b83-a47d-4867-bcaa-23e89c6aedee",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2032,
+        96
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 496,
+        "height": 480,
+        "content": "## 3. AI Extraction And Parsing\nSame GPT-4.1-mini model, plus validation of totals and required fields."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8c5b8bee-4086-498c-9c9f-51f48f646bd5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        32
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 464,
+        "height": 544,
+        "content": "## 4. Error Handling & Approval \nParse errors -> Errors sheet. High-value or mismatched invoices -> email alert."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "86ae0b78-61f6-4bb4-9abb-51d75ca83842",
+      "name": "No Operation, do nothing",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1440,
+        688
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "ba296eef-a712-4041-92e9-b0104c2ab9d2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3072,
+        112
+      ],
+      "parameters": {
+        "width": 384,
+        "height": 464,
+        "content": "##5. Logging"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ab9cb26-fbbc-4a3e-83a5-45835cb4ef91",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        592
+      ],
+      "parameters": {
+        "width": 448,
+        "height": 272,
+        "content": "## Manual Review of unsupported file types\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "4a1be7ac-f80f-4fbe-9fd3-88536743d6f5",
+  "nodeGroups": [],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Operation, do nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is PDF?": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Flag Unsupported Format",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Parse JSON Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Error?": {
+      "main": [
+        [
+          {
+            "node": "Log Errors",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Needs Review?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Review?": {
+      "main": [
+        [
+          {
+            "node": "Send Approval Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Append to Invoice Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail Trigger1": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Is PDF?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse JSON Response": {
+      "main": [
+        [
+          {
+            "node": "Has Error?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Approval Alert": {
+      "main": [
+        [
+          {
+            "node": "Append to Invoice Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag Unsupported Format": {
+      "main": [
+        [
+          {
+            "node": "Log Manual Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

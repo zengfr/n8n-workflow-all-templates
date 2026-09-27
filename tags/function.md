@@ -1,4 +1,4 @@
-# function : 9
+# function : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |1977|[1977_Weekly_Shodan_Query_-_Report_Accidents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/19/1977_Weekly_Shodan_Query_-_Report_Accidents.json)|
 |7248|[7248_Clean_and_Log_IoT_Sensor_Data_to_InfluxDB__Webhook___Function___HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/72/7248_Clean_and_Log_IoT_Sensor_Data_to_InfluxDB__Webhook___Function___HTTP.json)|
 |10181|[10181_Workflow_function_to_summarize_Reddit_posts_using_Google_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10181_Workflow_function_to_summarize_Reddit_posts_using_Google_Gemini_and_Supabase.json)|
+|17253|[17253_Classify_lead_function_and_seniority_in_Google_Sheets_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17253_Classify_lead_function_and_seniority_in_Google_Sheets_with_Google_Gemini.json)|
+|18185|[18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json)|

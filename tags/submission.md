@@ -1,4 +1,4 @@
-# submission : 24
+# submission : 29
 
 |id|file|
 |----|----|
@@ -26,3 +26,8 @@
 |11900|[11900_Automate_GST_VAT_tax_returns_with_OpenAI__Gmail_and_government_portal_integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11900_Automate_GST_VAT_tax_returns_with_OpenAI__Gmail_and_government_portal_integration.json)|
 |11990|[11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11990_AI-powered_RAG_configuration_assistant__From_form_to_email_recommendations.json)|
 |15575|[15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json)|
+|17320|[17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json)|
+|17390|[17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17390_Notify_Slack_when_a_VNTANA_asset_is_published_with_details_and_preview.json)|
+|17537|[17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json)|
+|18010|[18010_Score_inbound_form_leads_with_OpenAI_and_send_hot_leads_to_Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18010_Score_inbound_form_leads_with_OpenAI_and_send_hot_leads_to_Slack_and_Sheets.json)|
+|18288|[18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json)|

@@ -1,4 +1,4 @@
-# cv : 41
+# cv : 46
 
 |id|file|
 |----|----|
@@ -43,3 +43,8 @@
 |15854|[15854_Score_and_triage_Indeed_CVs_with_Mistral_OCR__Groq__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15854_Score_and_triage_Indeed_CVs_with_Mistral_OCR__Groq__and_Google_Sheets.json)|
 |16030|[16030_Screen_and_score_candidate_CVs_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16030_Screen_and_score_candidate_CVs_with_Google_Gemini_and_Gmail.json)|
 |16098|[16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json)|
+|17303|[17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json)|
+|17951|[17951_Match_Gmail_job_vacancies_to_your_CV_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17951_Match_Gmail_job_vacancies_to_your_CV_with_OpenAI_and_Pinecone.json)|
+|18288|[18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json)|
+|18805|[18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json)|
+|19172|[19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json)|

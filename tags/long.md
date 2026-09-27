@@ -1,4 +1,4 @@
-# long : 23
+# long : 26
 
 |id|file|
 |----|----|
@@ -25,3 +25,6 @@
 |14080|[14080_Repurpose_long-form_content_into_Instagram_and_LinkedIn_posts_with_OpenAI_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14080_Repurpose_long-form_content_into_Instagram_and_LinkedIn_posts_with_OpenAI_and_Teams.json)|
 |15132|[15132_Turn_long_videos_into_social_shorts_with_RenderIO_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15132_Turn_long_videos_into_social_shorts_with_RenderIO_and_OpenAI.json)|
 |15158|[15158_Generate_long-form_SEO_GEO_blog_posts_with_Siah__WordPress_CMS_and_Google_Indexing_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15158_Generate_long-form_SEO_GEO_blog_posts_with_Siah__WordPress_CMS_and_Google_Indexing_API.json)|
+|17644|[17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json)|
+|18341|[18341_Create_captioned_vertical_video_clips_from_Google_Drive_using_CNAPS_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18341_Create_captioned_vertical_video_clips_from_Google_Drive_using_CNAPS_and_Google_Sheets.json)|
+|19093|[19093_Enrich_domain_contact_data_in_paced_batches_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19093_Enrich_domain_contact_data_in_paced_batches_with_Apify_and_Google_Sheets.json)|

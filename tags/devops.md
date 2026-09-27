@@ -1,4 +1,4 @@
-# devops : 8
+# devops : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |15051|[15051_Classify_and_route_DevOps_chat_requests_with_Mattermost_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15051_Classify_and_route_DevOps_chat_requests_with_Mattermost_and_Claude.json)|
 |15614|[15614_Convert_DevOps_Mattermost_requests_into_Jira_tasks_with_OpenRouter_GPT_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15614_Convert_DevOps_Mattermost_requests_into_Jira_tasks_with_OpenRouter_GPT_and_Gemini.json)|
 |15827|[15827_Classify_and_route_DevOps_support_messages_with_Slack_and_GPT-5.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15827_Classify_and_route_DevOps_support_messages_with_Slack_and_GPT-5.5.json)|
+|19171|[19171_Triage_DevOps_incidents_from_Slack_with_GPT-4.1__Prometheus__Jira_and_Terraform.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19171_Triage_DevOps_incidents_from_Slack_with_GPT-4.1__Prometheus__Jira_and_Terraform.json)|
+|19231|[19231_Triage_and_remediate_DevOps_alerts_with_Claude__ClickUp__GitHub_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19231_Triage_and_remediate_DevOps_alerts_with_Claude__ClickUp__GitHub_and_Slack.json)|

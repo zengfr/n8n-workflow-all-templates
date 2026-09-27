@@ -1,4 +1,4 @@
-# zip : 6
+# zip : 9
 
 |id|file|
 |----|----|
@@ -8,3 +8,6 @@
 |9795|[9795_Extract_and_Upload_Files_from_Zip_Archives_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9795_Extract_and_Upload_Files_from_Zip_Archives_to_Google_Drive.json)|
 |11622|[11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11622_ZIP_Code-Based_Business_Lead_Generation_with_Google_Maps_and_Sheets.json)|
 |13786|[13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13786_Bulk_generate_payment_reminder_PDFs_from_NocoDB_with_Autype.json)|
+|18437|[18437_Find_nearby_ZIP_codes_by_radius_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18437_Find_nearby_ZIP_codes_by_radius_with_Searchbug_and_Google_Sheets.json)|
+|18833|[18833_Monitor_Zillow_deals_by_ZIP_with_APIllow__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18833_Monitor_Zillow_deals_by_ZIP_with_APIllow__Google_Sheets__and_Slack.json)|
+|19451|[19451_Monitor_foreclosure_listings_by_ZIP_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19451_Monitor_foreclosure_listings_by_ZIP_with_Google_Sheets_and_Gmail.json)|

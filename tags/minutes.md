@@ -1,4 +1,4 @@
-# minutes : 11
+# minutes : 15
 
 |id|file|
 |----|----|
@@ -13,3 +13,7 @@
 |9644|[9644_Automated_Meeting_Minutes_from_Audio_using_OpenAI_Transcription_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9644_Automated_Meeting_Minutes_from_Audio_using_OpenAI_Transcription_and_Google_Docs.json)|
 |10820|[10820_Automate_Meeting_Transcription___Minutes_Distribution_with_OpenAI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10820_Automate_Meeting_Transcription___Minutes_Distribution_with_OpenAI_and_Google_Drive.json)|
 |15608|[15608_Monitor_Shopify_orders_and_send_no-order_alerts_via_Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15608_Monitor_Shopify_orders_and_send_no-order_alerts_via_Slack_and_email.json)|
+|16999|[16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json)|
+|18202|[18202_Summarize_meeting_transcripts_with_Google_Drive__OpenAI__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18202_Summarize_meeting_transcripts_with_Google_Drive__OpenAI__Gmail__and_Sheets.json)|
+|18263|[18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json)|
+|19653|[19653_Reply_to_new_real_estate_leads_with_Claude__Gmail_and_your_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19653_Reply_to_new_real_estate_leads_with_Claude__Gmail_and_your_CRM.json)|

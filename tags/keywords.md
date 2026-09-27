@@ -1,4 +1,4 @@
-# keywords : 50
+# keywords : 55
 
 |id|file|
 |----|----|
@@ -52,3 +52,8 @@
 |15971|[15971_Retrieve_Kuaishou_video_details_from_keywords_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15971_Retrieve_Kuaishou_video_details_from_keywords_with_JustOneAPI.json)|
 |16012|[16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json)|
 |16335|[16335_Generate_SEO_content_briefs_from_keywords_with_SerpAPI__OpenAI__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16335_Generate_SEO_content_briefs_from_keywords_with_SerpAPI__OpenAI__Google_Docs_and_Sheets.json)|
+|17373|[17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json)|
+|18103|[18103_Monitor_Bluesky_keyword_posts_with_Apify_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18103_Monitor_Bluesky_keyword_posts_with_Apify_and_data_tables.json)|
+|18367|[18367_Fix_striking_distance_SEO_keywords_with_Google_Search_Console__Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18367_Fix_striking_distance_SEO_keywords_with_Google_Search_Console__Bright_Data__GPT-5.6_and_Slack.json)|
+|18465|[18465_Track_Google_AI_Overview_citations_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18465_Track_Google_AI_Overview_citations_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|
+|19160|[19160_Score_and_cluster_Google_keywords_with_Apify__Groq__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19160_Score_and_cluster_Google_keywords_with_Apify__Groq__Google_Sheets_and_Slack.json)|

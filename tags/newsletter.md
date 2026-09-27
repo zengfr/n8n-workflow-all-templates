@@ -1,4 +1,4 @@
-# newsletter : 55
+# newsletter : 68
 
 |id|file|
 |----|----|
@@ -57,3 +57,16 @@
 |16552|[16552_Send_GitHub_release_audio_newsletters_with_OpenAI__Google_Drive__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16552_Send_GitHub_release_audio_newsletters_with_OpenAI__Google_Drive__Gmail_and_Sheets.json)|
 |16586|[16586_Publish_science_newsletter_posts_from_YouTube_using_Ghost_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16586_Publish_science_newsletter_posts_from_YouTube_using_Ghost_and_Google_Sheets.json)|
 |16675|[16675_Send_weekly_curated_news_newsletters_with_Bright_Data__Claude__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16675_Send_weekly_curated_news_newsletters_with_Bright_Data__Claude__and_Gmail.json)|
+|17169|[17169_Draft_weekly_blog_newsletter_digests_from_RSS_with_OpenAI-compatible_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17169_Draft_weekly_blog_newsletter_digests_from_RSS_with_OpenAI-compatible_APIs.json)|
+|17507|[17507_Send_localized_9am_RSS_coffee_newsletters_with_rrule.net_and_Brevo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17507_Send_localized_9am_RSS_coffee_newsletters_with_rrule.net_and_Brevo.json)|
+|17539|[17539_Draft_weekly_newsletter_digests_from_RSS_feeds_with_OpenAI_and_Kit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17539_Draft_weekly_newsletter_digests_from_RSS_feeds_with_OpenAI_and_Kit.json)|
+|17747|[17747_Send_RSS_blog_newsletters_via_email_with_Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17747_Send_RSS_blog_newsletters_via_email_with_Google_Sheets_tracking.json)|
+|17835|[17835_Send_automatic_welcome_emails_to_new_Kit_subscribers_with_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17835_Send_automatic_welcome_emails_to_new_Kit_subscribers_with_Gmail_and_Slack.json)|
+|17840|[17840_Send_a_daily_AI-rewritten_RSS_news_digest_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17840_Send_a_daily_AI-rewritten_RSS_news_digest_with_Google_Gemini_and_Gmail.json)|
+|17995|[17995_Write_weekly_AI_news_digests_with_Gluecrawl_and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17995_Write_weekly_AI_news_digests_with_Gluecrawl_and_OpenAI_GPT-4.1.json)|
+|18036|[18036_Send_weekly_newsletter_growth_reports_to_Slack_and_Telegram_with_Kit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18036_Send_weekly_newsletter_growth_reports_to_Slack_and_Telegram_with_Kit.json)|
+|18044|[18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json)|
+|18394|[18394_Generate_weekly_AI_automation_newsletters_with_Google_Sheets__Tavily__OpenRouter_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18394_Generate_weekly_AI_automation_newsletters_with_Google_Sheets__Tavily__OpenRouter_and_Gmail.json)|
+|18876|[18876_Score_funding_newsletter_leads_from_Gmail_with_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18876_Score_funding_newsletter_leads_from_Gmail_with_Bright_Data_and_GPT-5.6.json)|
+|19455|[19455_Send_AI-generated_WordPress_newsletters_using_OpenAI_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19455_Send_AI-generated_WordPress_newsletters_using_OpenAI_and_SMTP.json)|
+|19682|[19682_Create_AI_research_briefs_and_LinkedIn_newsletter_drafts_with_Gemini_and_RSS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19682_Create_AI_research_briefs_and_LinkedIn_newsletter_drafts_with_Gemini_and_RSS.json)|

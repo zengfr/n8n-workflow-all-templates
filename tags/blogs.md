@@ -1,4 +1,4 @@
-# blogs : 18
+# blogs : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |15618|[15618_Turn_videos_into_Twitter_threads__LinkedIn_posts__and_blogs_with_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15618_Turn_videos_into_Twitter_threads__LinkedIn_posts__and_blogs_with_WayinVideo_and_GPT-4o-mini.json)|
 |15799|[15799_Summarize_article_URLs_with_Google_Gemini_AI_from_WordPress_and_blogs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15799_Summarize_article_URLs_with_Google_Gemini_AI_from_WordPress_and_blogs.json)|
 |16309|[16309_Create_LinkedIn_carousel_posts_from_RSS_blogs_with_DeepSeek__fal.ai_and_Posta.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16309_Create_LinkedIn_carousel_posts_from_RSS_blogs_with_DeepSeek__fal.ai_and_Posta.json)|
+|19154|[19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json)|

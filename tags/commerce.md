@@ -1,4 +1,4 @@
-# commerce : 40
+# commerce : 48
 
 |id|file|
 |----|----|
@@ -42,3 +42,11 @@
 |14550|[14550_Handle_e-commerce_support_on_Telegram_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14550_Handle_e-commerce_support_on_Telegram_with_Gemini_and_Google_Sheets.json)|
 |15617|[15617_Handle_e-commerce_WhatsApp_support_with_Whapi__WooCommerce__RAG_and_Gmail_escalation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15617_Handle_e-commerce_WhatsApp_support_with_Whapi__WooCommerce__RAG_and_Gmail_escalation.json)|
 |16361|[16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json)|
+|16984|[16984_Post_daily_e-commerce_market_news_from_Google_News_RSS_to_LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16984_Post_daily_e-commerce_market_news_from_Google_News_RSS_to_LinkedIn.json)|
+|17767|[17767_Handle_e-commerce_WhatsApp_support_with_OpenAI__WooCommerce__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17767_Handle_e-commerce_WhatsApp_support_with_OpenAI__WooCommerce__and_Notion.json)|
+|17774|[17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17774_Extract_ecommerce_products_to_Google_Sheets_with_Snapshot_Site_and_GPT-4o.json)|
+|18320|[18320_Handle_order_tracking_and_FAQ_requests_with_Telegram__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18320_Handle_order_tracking_and_FAQ_requests_with_Telegram__Gemini__and_Google_Sheets.json)|
+|18438|[18438_Decide_Shopify_return_refunds_with_GPT-4o__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18438_Decide_Shopify_return_refunds_with_GPT-4o__Slack__and_Google_Sheets.json)|
+|18861|[18861_Generate_Shopify_product_listings_from_images_with_Claude_and_SerpAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18861_Generate_Shopify_product_listings_from_images_with_Claude_and_SerpAPI.json)|
+|19122|[19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json)|
+|19548|[19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json)|

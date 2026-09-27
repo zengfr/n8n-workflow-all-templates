@@ -1,0 +1,765 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Sync nightly TeamRetro health check scores with Postgres and Slack alerts",
+    "wechat": "youandme10086",
+    "id": 18902,
+    "update_time": "2026-09-27"
+  },
+  "name": "TeamRetro: Sync nightly team health scores to Postgres",
+  "nodes": [
+    {
+      "id": "1400-0000-0000-0000-000000000001",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -400,
+        0
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 960,
+        "content": "## TeamRetro: Sync nightly team health scores to Postgres\n\n### How it works\n\nEvery night the workflow pulls each team's most recent closed health checks and writes one row per dimension into Postgres, so team health sits in the warehouse next to your delivery metrics. \"Get Teams\" emits one item per team and every node after it runs once per team — that is the whole loop. Only closed checks are rolled up: a check still in progress has no aggregate scores, so it is skipped instead of landing as nulls. Every row carries its health model and rating scale, because a 1–5 model and a -1–1 model are not comparable without them. The write is an `ON CONFLICT (health_check_id, dimension) DO UPDATE` upsert, so re-runs, overlapping schedules and backfills never duplicate a row.\n\n### Setup steps\n\n- **The TeamRetro key must be account-scoped (`tra_`).** A team-scoped `trt_` key cannot enumerate teams, and the rollup silently shrinks to nothing. Select that credential on all three TeamRetro nodes.\n- Pick your Postgres credential on \"Ensure Table Exists\" and \"Upsert Scores\".\n- Add a Slack credential and channel on \"Alert on Failures\", or swap it for an email node.\n- Sample data is pinned on all three TeamRetro nodes, so Execute workflow replays a whole night — one team mid-check included — before you connect anything.\n\n### Customization\n\n\"Latest Health Check\" keeps the last three closed checks per team, so a team mid-check is never missed and the upsert makes the rewrite free. Raise that limit to backfill history, lower it to 1 for the leanest run. Rename columns in \"Normalise Rows\" and both Postgres nodes together. For BigQuery, swap the Postgres nodes for Execute Query and use `MERGE` instead of `ON CONFLICT`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1400-0000-0000-0000-000000000002",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        364,
+        124
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 508,
+        "height": 384,
+        "content": "## 1. Schedule and prepare the table\n\nRuns nightly at 02:00 in your n8n server's timezone. The DDL is `IF NOT EXISTS`, so it costs nothing after the first night."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1400-0000-0000-0000-000000000003",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        916,
+        124
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 752,
+        "height": 384,
+        "content": "## 2. Loop every team, keep the closed checks\n\n\"Get Teams\" needs an account-scoped `tra_` key and emits one item per team. Each team's last three closed checks are rolled up; teams mid-check or with no history route to the summary."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1400-0000-0000-0000-000000000004",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1704,
+        124
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 948,
+        "height": 384,
+        "content": "## 3. Normalise and upsert one row per dimension\n\nScores come straight from each dimension's `ratings` object, with the model and its scale attached so different health models stay comparable. \"Valid Row?\" keeps unrated dimensions out of the table, and the upsert keys on `(health_check_id, dimension)`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1400-0000-0000-0000-000000000005",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2688,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 980,
+        "height": 416,
+        "content": "## 4. Summarise the run and alert on failures\n\nMerging the written, skipped and invalid paths makes the summary run exactly once per night. It counts teams seen, checks rolled up and teams skipped, and only pages Slack when something failed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000007",
+      "name": "Nightly at 02:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        460,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 2,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000008",
+      "name": "Ensure Table Exists",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        680,
+        300
+      ],
+      "parameters": {
+        "query": "CREATE TABLE IF NOT EXISTS team_health_scores (\n  \"date\"          date    NOT NULL,\n  team_id         text    NOT NULL,\n  team_name       text    NOT NULL,\n  health_check_id text    NOT NULL,\n  health_model    text,\n  dimension       text    NOT NULL,\n  scale_min       numeric,\n  scale_max       numeric,\n  \"avg\"           numeric,\n  \"min\"           numeric,\n  \"max\"           numeric,\n  stddev          numeric,\n  \"count\"         integer,\n  PRIMARY KEY (health_check_id, dimension)\n);",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "executeOnce": true,
+      "typeVersion": 2.6
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000009",
+      "name": "Get Teams",
+      "type": "n8n-nodes-teamretro.teamRetro",
+      "position": [
+        1020,
+        300
+      ],
+      "parameters": {
+        "filters": {},
+        "resource": "team",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000010",
+      "name": "Latest Health Check",
+      "type": "n8n-nodes-teamretro.teamRetro",
+      "onError": "continueRegularOutput",
+      "position": [
+        1240,
+        300
+      ],
+      "parameters": {
+        "limit": 3,
+        "filters": {
+          "sort": "-date",
+          "teamIds": "={{ $json.id }}"
+        },
+        "resource": "healthCheck",
+        "operation": "getAll",
+        "returnAll": false
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000011",
+      "name": "Has a Closed Check?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1460,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-check-id",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.id }}",
+              "rightValue": ""
+            },
+            {
+              "id": "check-is-closed",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "closed"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000012",
+      "name": "Get Dimensions",
+      "type": "n8n-nodes-teamretro.teamRetro",
+      "onError": "continueRegularOutput",
+      "position": [
+        1800,
+        300
+      ],
+      "parameters": {
+        "resource": "healthCheck",
+        "operation": "getAllDimensions",
+        "returnAll": true,
+        "meetingSlug": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.id }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000013",
+      "name": "Normalise Rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2020,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// One flat warehouse row per dimension of each team's recent closed health checks.\n// A dimension's `url` carries the id of the check it belongs to, which is what links\n// it back to its team — that link survives both the per-team fan-out and pinned data.\nconst dim = $json;\n\n// Items that arrived via On Error → Continue carry an `error` field instead of scores.\nif (dim.error) {\n  return { json: { __invalid: true, __failed: true, __error: `dimension fetch failed: ${dim.error}` } };\n}\n\nconst checkId = String(dim.url ?? '').split('?')[0].split('/').pop();\nconst hc = $('Latest Health Check').all().find((i) => i.json.id === checkId)?.json;\nif (!hc) {\n  return {\n    json: {\n      __invalid: true,\n      __failed: true,\n      __error: `dimension \"${dim.name ?? '?'}\" could not be traced back to its health check`,\n    },\n  };\n}\n\n// A dimension nobody rated has no aggregate. Writing it as nulls would drag every\n// AVG() in the warehouse, so it is skipped — noted in the summary, but not an error.\nif (typeof dim.ratings?.average !== 'number') {\n  return {\n    json: { __invalid: true, __failed: false, __error: `${hc.title}: nobody rated \"${dim.name}\"` },\n  };\n}\n\nconst r = dim.ratings;\nreturn {\n  json: {\n    date: String(hc.date ?? '').slice(0, 10),\n    team_id: hc.team?.id ?? '',\n    team_name: hc.team?.name ?? '',\n    health_check_id: hc.id,\n    health_model: hc.healthModel?.name ?? null,\n    dimension: dim.name,\n    // Scales differ per health model — without them the averages are not comparable.\n    scale_min: dim.scale?.min ?? hc.healthModel?.minRating ?? null,\n    scale_max: dim.scale?.max ?? hc.healthModel?.maxRating ?? null,\n    avg: r.average,\n    min: r.min ?? null,\n    max: r.max ?? null,\n    stddev: r.stddev ?? null,\n    count: r.count ?? null,\n  },\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000014",
+      "name": "Valid Row?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "row-is-valid",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ Boolean($json.__invalid) }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000015",
+      "name": "Upsert Scores",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        2460,
+        300
+      ],
+      "parameters": {
+        "query": "INSERT INTO team_health_scores\n  (\"date\", team_id, team_name, health_check_id, health_model, dimension,\n   scale_min, scale_max, \"avg\", \"min\", \"max\", stddev, \"count\")\nVALUES ($1, $2, $3, $4, $5, $6, $7, $8, $9, $10, $11, $12, $13)\nON CONFLICT (health_check_id, dimension) DO UPDATE SET\n  \"date\"       = EXCLUDED.\"date\",\n  team_id      = EXCLUDED.team_id,\n  team_name    = EXCLUDED.team_name,\n  health_model = EXCLUDED.health_model,\n  scale_min    = EXCLUDED.scale_min,\n  scale_max    = EXCLUDED.scale_max,\n  \"avg\"        = EXCLUDED.\"avg\",\n  \"min\"        = EXCLUDED.\"min\",\n  \"max\"        = EXCLUDED.\"max\",\n  stddev       = EXCLUDED.stddev,\n  \"count\"      = EXCLUDED.\"count\";",
+        "options": {
+          "queryReplacement": "={{ [$json.date, $json.team_id, $json.team_name, $json.health_check_id, $json.health_model, $json.dimension, $json.scale_min, $json.scale_max, $json.avg, $json.min, $json.max, $json.stddev, $json.count] }}"
+        },
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000016",
+      "name": "Collect Outcomes",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2800,
+        560
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 3
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000017",
+      "name": "Run Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3020,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// Runs exactly once per night: Collect Outcomes merges the written, skipped and\n// invalid paths, so this fires after every team has been dealt with one way or another.\nconst allOf = (name) => {\n  try {\n    return $(name).all();\n  } catch (e) {\n    return []; // node never ran this execution\n  }\n};\n\nconst teams = allOf('Get Teams');\nconst checks = allOf('Latest Health Check');\nconst rows = allOf('Normalise Rows');\nconst written = allOf('Upsert Scores');\n\nconst closed = checks.filter((i) => i.json.id && i.json.status === 'closed');\nconst teamsRolledUp = new Set(closed.map((i) => i.json.team?.id)).size;\n\n// Every dimension-level failure already arrives here as an invalid row, so counting\n// those plus the health-check lookups covers the run without double-reporting. A\n// dimension nobody rated is not a failure: it is reported, but it never pages anyone.\nconst invalid = rows.filter((i) => i.json.__invalid);\nconst errors = [\n  ...checks.filter((i) => i.json.error).map((i) => `• Health check lookup failed: ${i.json.error}`),\n  ...invalid.filter((i) => i.json.__failed).map((i) => `• ${i.json.__error}`),\n];\nconst unrated = invalid.filter((i) => !i.json.__failed).length;\n\nconst teamsSeen = teams.length;\nconst teamsSkipped = Math.max(teamsSeen - teamsRolledUp, 0);\n\nreturn [\n  {\n    json: {\n      teamsSeen,\n      checksRolledUp: closed.length,\n      teamsSkipped,\n      rowsWritten: written.length,\n      dimensionsUnrated: unrated,\n      errorCount: errors.length,\n      errors,\n      summary: `${teamsSeen} team(s) seen · ${closed.length} closed check(s) rolled up · ${written.length} row(s) upserted · ${teamsSkipped} team(s) skipped · ${unrated} dimension(s) unrated · ${errors.length} error(s)`,\n    },\n  },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000018",
+      "name": "Any Errors?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3240,
+        560
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-errors",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.errorCount }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "tr1400-0000-0000-0000-000000000019",
+      "name": "Alert on Failures",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3460,
+        560
+      ],
+      "parameters": {
+        "text": "=:rotating_light: *TeamRetro → Postgres nightly health rollup hit {{ $json.errorCount }} error(s)*\n\n{{ $json.errors.join('\\n') }}\n\n{{ $json.summary }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#data-alerts"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    }
+  ],
+  "pinData": {
+    "Get Teams": [
+      {
+        "json": {
+          "id": "tApolloSquad0000000001",
+          "name": "Apollo Squad",
+          "tags": [
+            "product"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "tDeliveryGuild00000002",
+          "name": "Delivery Guild",
+          "tags": [
+            "product"
+          ]
+        }
+      },
+      {
+        "json": {
+          "id": "tPlatformCore000000003",
+          "name": "Platform Core",
+          "tags": []
+        }
+      }
+    ],
+    "Get Dimensions": [
+      {
+        "json": {
+          "id": "dOwnership000000000001",
+          "url": "https://example.teamretro.com/meetings/hApolloAug26000000001a?dimensionId=dOwnership000000000001",
+          "name": "Ownership",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": 5,
+            "min": 3,
+            "count": 7,
+            "stddev": 0.69,
+            "average": 4.14
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "dValue0000000000000001",
+          "url": "https://example.teamretro.com/meetings/hApolloAug26000000001a?dimensionId=dValue0000000000000001",
+          "name": "Value",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": 5,
+            "min": 3,
+            "count": 7,
+            "stddev": 0.83,
+            "average": 3.86
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "dCommunication00000001",
+          "url": "https://example.teamretro.com/meetings/hApolloAug26000000001a?dimensionId=dCommunication00000001",
+          "name": "Communication",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": 4,
+            "min": 1,
+            "count": 7,
+            "stddev": 1.03,
+            "average": 2.71
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "dFun00000000000000001a",
+          "url": "https://example.teamretro.com/meetings/hApolloAug26000000001a?dimensionId=dFun00000000000000001a",
+          "name": "Fun",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": null,
+            "min": null,
+            "count": 0,
+            "stddev": null,
+            "average": null
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "dOwnership000000000001",
+          "url": "https://example.teamretro.com/meetings/hApolloAug12000000002a?dimensionId=dOwnership000000000001",
+          "name": "Ownership",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": 5,
+            "min": 3,
+            "count": 6,
+            "stddev": 0.63,
+            "average": 4
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "dValue0000000000000001",
+          "url": "https://example.teamretro.com/meetings/hApolloAug12000000002a?dimensionId=dValue0000000000000001",
+          "name": "Value",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": 5,
+            "min": 3,
+            "count": 6,
+            "stddev": 0.69,
+            "average": 3.83
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "dCommunication00000001",
+          "url": "https://example.teamretro.com/meetings/hApolloAug12000000002a?dimensionId=dCommunication00000001",
+          "name": "Communication",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": 4,
+            "min": 3,
+            "count": 6,
+            "stddev": 0.47,
+            "average": 3.67
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "dFun00000000000000001a",
+          "url": "https://example.teamretro.com/meetings/hApolloAug12000000002a?dimensionId=dFun00000000000000001a",
+          "name": "Fun",
+          "scale": {
+            "max": 5,
+            "min": 1
+          },
+          "ratings": {
+            "max": 5,
+            "min": 3,
+            "count": 6,
+            "stddev": 0.69,
+            "average": 4.17
+          }
+        }
+      }
+    ],
+    "Latest Health Check": [
+      {
+        "json": {
+          "id": "hApolloAug26000000001a",
+          "date": "2026-08-26",
+          "team": {
+            "id": "tApolloSquad0000000001",
+            "name": "Apollo Squad"
+          },
+          "phase": "share",
+          "title": "Sprint 42 health check",
+          "status": "closed",
+          "healthModel": {
+            "id": "mTeamHealthRadar000001",
+            "name": "Team Health Radar",
+            "maxRating": 5,
+            "minRating": 1
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "hApolloAug12000000002a",
+          "date": "2026-08-12",
+          "team": {
+            "id": "tApolloSquad0000000001",
+            "name": "Apollo Squad"
+          },
+          "phase": "share",
+          "title": "Sprint 41 health check",
+          "status": "closed",
+          "healthModel": {
+            "id": "mTeamHealthRadar000001",
+            "name": "Team Health Radar",
+            "maxRating": 5,
+            "minRating": 1
+          }
+        }
+      },
+      {
+        "json": {
+          "id": "hDeliveryOpen000000004",
+          "date": "2026-08-28",
+          "team": {
+            "id": "tDeliveryGuild00000002",
+            "name": "Delivery Guild"
+          },
+          "phase": "healthSurvey",
+          "title": "August service review",
+          "status": "open",
+          "healthModel": {
+            "id": "mServiceMonitor0000002",
+            "name": "Service Health Monitor",
+            "maxRating": 1,
+            "minRating": -1
+          }
+        }
+      },
+      {
+        "json": {}
+      }
+    ]
+  },
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Get Teams": {
+      "main": [
+        [
+          {
+            "node": "Latest Health Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Valid Row?": {
+      "main": [
+        [
+          {
+            "node": "Upsert Scores",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Collect Outcomes",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Any Errors?": {
+      "main": [
+        [
+          {
+            "node": "Alert on Failures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Summary": {
+      "main": [
+        [
+          {
+            "node": "Any Errors?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Scores": {
+      "main": [
+        [
+          {
+            "node": "Collect Outcomes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Dimensions": {
+      "main": [
+        [
+          {
+            "node": "Normalise Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise Rows": {
+      "main": [
+        [
+          {
+            "node": "Valid Row?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect Outcomes": {
+      "main": [
+        [
+          {
+            "node": "Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nightly at 02:00": {
+      "main": [
+        [
+          {
+            "node": "Ensure Table Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure Table Exists": {
+      "main": [
+        [
+          {
+            "node": "Get Teams",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has a Closed Check?": {
+      "main": [
+        [
+          {
+            "node": "Get Dimensions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Collect Outcomes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Latest Health Check": {
+      "main": [
+        [
+          {
+            "node": "Has a Closed Check?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

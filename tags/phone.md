@@ -1,4 +1,4 @@
-# phone : 35
+# phone : 42
 
 |id|file|
 |----|----|
@@ -37,3 +37,10 @@
 |16571|[16571_Verify_emails_and_phone_numbers_in_Google_Sheets_with_ApexVerify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16571_Verify_emails_and_phone_numbers_in_Google_Sheets_with_ApexVerify.json)|
 |16733|[16733_Enrich_contact_emails_and_phone_numbers_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16733_Enrich_contact_emails_and_phone_numbers_with_Tomba_and_Google_Sheets.json)|
 |16785|[16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json)|
+|17234|[17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json)|
+|17485|[17485_Scrape_Google_Maps_leads_with_Apify_and_export_them_to_CSV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17485_Scrape_Google_Maps_leads_with_Apify_and_export_them_to_CSV.json)|
+|17551|[17551_Check_phone_reassignment_status_with_Searchbug_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17551_Check_phone_reassignment_status_with_Searchbug_and_log_results_to_Google_Sheets.json)|
+|18068|[18068_Look_up_contact_details_with_Searchbug_NAP_E_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18068_Look_up_contact_details_with_Searchbug_NAP_E_and_Google_Sheets.json)|
+|18435|[18435_Validate_single_and_bulk_US_phone_numbers_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18435_Validate_single_and_bulk_US_phone_numbers_with_Searchbug_and_Google_Sheets.json)|
+|18927|[18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json)|
+|19813|[19813_Book_phone_appointments_with_ElevenLabs__Exotel__and_Cal.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19813_Book_phone_appointments_with_ElevenLabs__Exotel__and_Cal.com.json)|

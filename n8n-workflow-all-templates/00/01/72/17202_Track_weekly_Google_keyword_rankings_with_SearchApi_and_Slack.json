@@ -1,0 +1,471 @@
+{
+  "name": "SEO Rank Tracker - Multi-Keyword Monitoring",
+  "nodes": [
+    {
+      "id": "sched",
+      "name": "Schedule Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "Runs every Monday at 08:00. Change the interval to daily/monthly if you prefer.",
+      "position": [
+        0,
+        288
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "notes": "The only node you normally need to edit. Set your domain, keyword list (comma separated), and Google location.",
+      "position": [
+        224,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "domain",
+              "type": "string",
+              "value": "searchapi.io"
+            },
+            {
+              "id": "a2",
+              "name": "keywords",
+              "type": "string",
+              "value": "search api, serp api, google search api"
+            },
+            {
+              "id": "a3",
+              "name": "location",
+              "type": "string",
+              "value": "United States"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "split",
+      "name": "Split Keywords",
+      "type": "n8n-nodes-base.code",
+      "notes": "Turns the comma-separated keyword list into one item per keyword so each gets its own search.",
+      "position": [
+        672,
+        288
+      ],
+      "parameters": {
+        "jsCode": "// Build one request per keyword per page (first 5 pages = top 50 results).\n// The SearchApi node's num field is ignored by the API, so we page through\n// with the page parameter (10 results per page) to get real depth.\nconst cfg = $('Settings').first().json;\nconst domain = (cfg.domain || '').trim();\nconst location = (cfg.location || '').trim();\nconst PAGES = 5;\n\nconst keywords = (cfg.keywords || '')\n  .split(',').map(k => k.trim()).filter(k => k.length);\n\nif (!keywords.length) {\n  throw new Error('No keywords found. Add a comma-separated list in the Settings node.');\n}\n\nconst out = [];\nfor (const keyword of keywords) {\n  for (let page = 1; page <= PAGES; page++) {\n    out.push({ json: { keyword, domain, location, page } });\n  }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "searchapi",
+      "name": "SearchApi - Google",
+      "type": "@searchapi/n8n-nodes-searchapi.searchApi",
+      "notes": "Live Google results via SearchApi.io. Runs once per keyword per page. Note: the node's num field is ignored by the API, so depth comes from the page parameter (10 results/page, 5 pages = top 50).",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        896,
+        288
+      ],
+      "parameters": {
+        "q": "={{ $json.keyword }}",
+        "pagination": {
+          "page": "={{ $json.page }}"
+        },
+        "timeFilters": {},
+        "searchOptions": {},
+        "requestOptions": {},
+        "advancedOptions": {},
+        "languageSettings": {},
+        "locationSettings": {
+          "location": "={{ $json.location }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "rank",
+      "name": "Rank Report",
+      "type": "n8n-nodes-base.code",
+      "notes": "Finds your domain's best organic position, then compares it to last week's run (stored in workflow static data) to compute movement. Sorted by biggest mover.",
+      "position": [
+        1120,
+        288
+      ],
+      "parameters": {
+        "jsCode": "// Aggregate each keyword's best organic position across the 5 fetched pages,\n// then compare to last week's positions from the Data table.\n// SearchApi numbers results 1-10 within each page, so the true rank is\n// (page - 1) * 10 + position.\n\nfunction rootDomain(url) {\n  if (!url) return '';\n  let h = String(url).replace(/^https?:\\/\\//i, '').replace(/^www\\./i, '');\n  h = h.split('/')[0].split('?')[0].toLowerCase();\n  return h;\n}\n\nconst domain = ($('Settings').first().json.domain || '').trim();\nconst target = rootDomain(domain);\nconst PER_PAGE = 10;\n\n// Previous positions from the Data table (keyword -> position).\nconst previous = {};\nfor (const row of $('Get Previous Ranks').all()) {\n  const k = row.json.keyword;\n  const p = row.json.position;\n  if (k != null && typeof p === 'number') previous[k] = p;\n}\n\n// Best (lowest) absolute rank per keyword across all pages.\nconst best = {};\nconst seen = [];\nfor (const item of $input.all()) {\n  const serp = item.json || {};\n  const sp = serp.search_parameters || {};\n  const keyword = sp.q || serp.keyword || '';\n  if (!keyword) continue;\n  if (!seen.includes(keyword)) seen.push(keyword);\n\n  const page = Number(sp.page || serp.page || 1);\n  const organic = Array.isArray(serp.organic_results) ? serp.organic_results : [];\n  for (const r of organic) {\n    if (rootDomain(r.link || r.domain) === target) {\n      const abs = (page - 1) * PER_PAGE + (Number(r.position) || 0);\n      if (!best[keyword] || abs < best[keyword].position) {\n        best[keyword] = { position: abs, url: r.link || '', title: r.title || '' };\n      }\n    }\n  }\n}\n\nconst depth = PER_PAGE * 5;\nconst now = new Date().toISOString();\nconst results = [];\n\nfor (const keyword of seen) {\n  const b = best[keyword];\n  const position = b ? b.position : null;\n  const rankingUrl = b ? b.url : '';\n  const title = b ? b.title : '';\n\n  const prev = previous[keyword];\n  const hadPrev = typeof prev === 'number';\n\n  let change = null, movement = '';\n  if (position == null && !hadPrev) movement = 'Not ranking (top ' + depth + ')';\n  else if (position == null && hadPrev) movement = 'Dropped out (was #' + prev + ')';\n  else if (!hadPrev) movement = 'New';\n  else if (position === prev) { change = 0; movement = 'No change'; }\n  else if (position < prev) { change = prev - position; movement = 'Up ' + change; }\n  else { change = prev - position; movement = 'Down ' + Math.abs(change); }\n\n  results.push({ json: {\n    keyword, domain, position,\n    previous_position: hadPrev ? prev : null,\n    change, movement, url: rankingUrl, title, last_checked: now\n  }});\n}\n\nresults.sort((a, b) => {\n  const av = a.json.change == null ? -1 : Math.abs(a.json.change);\n  const bv = b.json.change == null ? -1 : Math.abs(b.json.change);\n  return bv - av;\n});\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "note_header",
+      "name": "Note Header",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        -400
+      ],
+      "parameters": {
+        "width": 540,
+        "height": 856,
+        "content": "## SEO Rank Tracker (SearchApi)\n\nTrack your Google position for multiple keywords every week, get a clean summary in Slack, and see how each keyword moved since last time. Positions are stored in a native n8n Data table, so there is no external database and no extra credentials to manage.\n\n### How it works\n1. Runs weekly and reads your domain, keyword list, and location from the Settings node.\n2. Loads last week's saved positions from a Data table.\n3. Fetches the first 5 Google result pages for each keyword via SearchApi (top 50).\n4. Finds your domain's best position and compares it to last week (up / down / new / dropped out).\n5. Posts a clean summary to Slack and saves this run's positions back to the Data table.\n\n### Setup\n- [ ] Add your SearchApi credential to the \"SearchApi - Google\" node (free key at searchapi.io).\n- [ ] In \"Get Previous Ranks\" and \"Save Ranks\", select a Data table with columns: keyword, position, url, last_checked.\n- [ ] Connect Slack in the \"Send to Slack\" node and pick a channel. No Slack? Delete that node and read the \"Format Report\" output instead.\n- [ ] Edit domain, keywords, and location in the \"Settings\" node.\n- [ ] Activate. The first run sets a baseline; movement shows from the second run.\n\n### Customization tips\nThe clean summary is built in \"Format Report\". Swap \"Send to Slack\" for an Email or Google Sheets node to deliver it differently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d0f5f01-cc0b-4f18-a025-c3738cea5e33",
+      "name": "Get Previous Ranks",
+      "type": "n8n-nodes-base.dataTable",
+      "notes": "Reads last run's saved positions from the Data table so movement can be computed. Returns nothing on the very first run (that run becomes the baseline).",
+      "position": [
+        448,
+        288
+      ],
+      "parameters": {
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Rank History"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "5b6ef1ba-f19c-4194-abea-4271cefcb0d3",
+      "name": "Only Ranking",
+      "type": "n8n-nodes-base.filter",
+      "notes": "Only keywords where the domain actually ranked (position >= 1) get written back to the table.",
+      "position": [
+        1344,
+        96
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.position }}",
+              "rightValue": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "689f81f2-36ca-4a75-85f0-90e11213151e",
+      "name": "Save Ranks",
+      "type": "n8n-nodes-base.dataTable",
+      "notes": "Writes each keyword's current position back to the Data table (matched on keyword) so next week has something to compare against.",
+      "position": [
+        1568,
+        96
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "url": "={{ $json.url }}",
+            "keyword": "={{ $json.keyword }}",
+            "position": "={{ $json.position }}",
+            "last_checked": "={{ $json.last_checked }}"
+          },
+          "schema": [
+            {
+              "id": "keyword",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "keyword",
+              "defaultMatch": false
+            },
+            {
+              "id": "position",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "position",
+              "defaultMatch": false
+            },
+            {
+              "id": "url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "url",
+              "defaultMatch": false
+            },
+            {
+              "id": "last_checked",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "last_checked",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "keyword",
+              "keyValue": "={{ $json.keyword }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Rank History"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0017aef4-bfad-4e96-9945-031c26ae85c7",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 656,
+        "content": "## 1. Schedule & settings\nRuns weekly, then loads your domain, keyword list, and location from the Settings node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3bf66830-0278-4bb8-8ebb-f0d2ff267a83",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        416,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 656,
+        "content": "## 2. Read history & search\nLoads last week's positions from the Data table, then fetches the first 5 Google pages per keyword via SearchApi (10 results/page = top 50)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "231785bf-8558-4d04-b37d-6471f1f1aa66",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 652,
+        "content": "## 3. Report, notify & save\nRank Report builds the table. Format Report turns it into a clean summary and Send to Slack posts it. Ranking keywords are also saved back to the Data table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cdb936b1-5e06-46c9-8457-84eccd7af37c",
+      "name": "Format Report",
+      "type": "n8n-nodes-base.code",
+      "notes": "Builds a clean Slack Block Kit message (header, dividers, one line per keyword) plus a plain-text fallback. Read this node's output even if you don't use Slack.",
+      "position": [
+        1344,
+        288
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json);\nconst domain = rows.length ? rows[0].domain : '';\nconst date = new Date().toISOString().slice(0, 10);\n\nfunction icon(r) {\n  if (r.position == null && r.previous_position == null) return ':white_circle:';\n  if (r.position == null) return ':warning:';\n  if (r.previous_position == null) return ':new:';\n  if (r.change > 0) return ':large_green_circle:';\n  if (r.change < 0) return ':red_circle:';\n  return ':white_circle:';\n}\n\nfunction detail(r) {\n  if (r.position == null && r.previous_position == null) return 'not in top 50';\n  if (r.position == null) return 'not in top 50 (was #' + r.previous_position + ')';\n  if (r.previous_position == null) return '#' + r.position + ' (new)';\n  if (r.change > 0) return '#' + r.position + ' (up ' + r.change + ', was #' + r.previous_position + ')';\n  if (r.change < 0) return '#' + r.position + ' (down ' + Math.abs(r.change) + ', was #' + r.previous_position + ')';\n  return '#' + r.position + ' (no change)';\n}\n\nconst lines = rows.map(r => icon(r) + '  *' + r.keyword + '*  -  ' + detail(r));\nconst up = rows.filter(r => r.change > 0).length;\nconst down = rows.filter(r => r.change < 0).length;\nconst fresh = rows.filter(r => r.previous_position == null && r.position != null).length;\n\nlet summary = rows.length + ' keywords  ·  ' + up + ' up  ·  ' + down + ' down';\nif (fresh) summary += '  ·  ' + fresh + ' new';\n\n// Plain-text fallback (used in notifications / if you drop Slack).\nconst text = 'SEO Rank Tracker - ' + domain + ' (' + date + ')\\n' + lines.join('\\n') + '\\n' + summary;\n\n// Block Kit layout for a clean Slack message.\nconst blocks = [\n  { type: 'header', text: { type: 'plain_text', text: ':bar_chart: SEO Rank Tracker', emoji: true } },\n  { type: 'context', elements: [ { type: 'mrkdwn', text: '*' + domain + '*  ·  ' + date } ] },\n  { type: 'divider' },\n  { type: 'section', text: { type: 'mrkdwn', text: lines.join('\\n') } },\n  { type: 'divider' },\n  { type: 'context', elements: [ { type: 'mrkdwn', text: summary } ] }\n];\n\nreturn [{ json: { text, blocks: JSON.stringify({ blocks }) } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f8caad31-cef3-4553-959e-89112f4e4d6c",
+      "name": "Send to Slack",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Posts the Block Kit summary to a Slack channel. Connect your Slack credential and choose a channel. No Slack? Delete this node and read the Format Report output.",
+      "position": [
+        1568,
+        288
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "select": "channel",
+        "blocksUi": "={{ $json.blocks }}",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": ""
+        },
+        "messageType": "block",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.3
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Get Previous Ranks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rank Report": {
+      "main": [
+        [
+          {
+            "node": "Only Ranking",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Format Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Ranking": {
+      "main": [
+        [
+          {
+            "node": "Save Ranks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Report": {
+      "main": [
+        [
+          {
+            "node": "Send to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Keywords": {
+      "main": [
+        [
+          {
+            "node": "SearchApi - Google",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Weekly": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Previous Ranks": {
+      "main": [
+        [
+          {
+            "node": "Split Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SearchApi - Google": {
+      "main": [
+        [
+          {
+            "node": "Rank Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Track weekly Google keyword rankings with SearchApi and Slack",
+    "wechat": "youandme10086",
+    "id": 17202,
+    "update_time": "2026-09-27"
+  }
+}

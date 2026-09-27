@@ -1,4 +1,4 @@
-# reels : 41
+# reels : 49
 
 |id|file|
 |----|----|
@@ -43,3 +43,11 @@
 |15808|[15808_Generate_weekly_Instagram_Reels_ideas_from_Google_News_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15808_Generate_weekly_Instagram_Reels_ideas_from_Google_News_with_OpenAI_and_Notion.json)|
 |16148|[16148_Create_AI_video_reels_from_profile_photos_with_AtlasCloud_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16148_Create_AI_video_reels_from_profile_photos_with_AtlasCloud_and_Blotato.json)|
 |16168|[16168_Create_AI_video_reels_from_images_with_GPT_Image_2__Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16168_Create_AI_video_reels_from_images_with_GPT_Image_2__Seedance_and_Blotato.json)|
+|16898|[16898_Create_and_publish_AI_video_reels_to_Instagram_from_Telegram_with_OpenAI_and_AtlasCloud.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16898_Create_and_publish_AI_video_reels_to_Instagram_from_Telegram_with_OpenAI_and_AtlasCloud.json)|
+|17021|[17021_Post_TikTok__YouTube_Shorts_and_Instagram_Reels_with_Airtable__OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17021_Post_TikTok__YouTube_Shorts_and_Instagram_Reels_with_Airtable__OpenAI_and_Google.json)|
+|17482|[17482_Publish_Facebook_Reels_from_a_video_URL_with_a_webhook_and_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17482_Publish_Facebook_Reels_from_a_video_URL_with_a_webhook_and_Graph_API.json)|
+|17593|[17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json)|
+|18698|[18698_Generate_UGC_ad_reels_from_product_photos_with_DeepSeek_and_kie.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18698_Generate_UGC_ad_reels_from_product_photos_with_DeepSeek_and_kie.ai.json)|
+|18896|[18896_Build_faceless_video_briefs_from_webhook_requests_for_Faceless_Reels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18896_Build_faceless_video_briefs_from_webhook_requests_for_Faceless_Reels.json)|
+|19159|[19159_Build_a_Reels_swipe_file_from_Instagram_with_Apify__Groq__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19159_Build_a_Reels_swipe_file_from_Instagram_with_Apify__Groq__Sheets_and_Telegram.json)|
+|19399|[19399_Rebuild_product-focused_reels_shot_by_shot_with_Apify__Gemini__and_fal.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19399_Rebuild_product-focused_reels_shot_by_shot_with_Apify__Gemini__and_fal.ai.json)|

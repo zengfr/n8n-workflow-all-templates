@@ -1,0 +1,407 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Collect project intake requests with a webhook, Google Sheets and Gmail",
+    "wechat": "youandme10086",
+    "id": 17831,
+    "update_time": "2026-09-27"
+  },
+  "name": "G01 — Project Intake with Webhook, Google Sheets & Gmail",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "59fceec4-e795-483d-89ce-c02c53c54192",
+      "name": "WORKFLOW GUIDE",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -1800
+      ],
+      "parameters": {
+        "width": 2600,
+        "height": 650,
+        "content": "# Project Intake Automation — Setup & Usage\n\n## Purpose\nReceives project intake requests through a **POST webhook**, validates and normalizes them, generates a unique project reference, stores valid requests in **Google Sheets**, sends an acknowledgement through **Gmail**, then returns a structured success or error response.\n\n## Requirements\n- An n8n instance\n- Google Sheets OAuth2 credentials\n- Gmail OAuth2 credentials\n- A spreadsheet containing a sheet named `Projects`\n\n### `Projects` columns\n`project_id`, `received_at`, `client_name`, `email`, `project_name`, `project_type`, `deadline`, `status`\n\nReplace `YOUR_GOOGLE_SHEET_ID` in the Google Sheets node and select your Google credentials.\n\n## Required webhook fields\n`client_name`, `email`, `project_name`\n\nOptional:\n`project_type`, `phone`, `deadline`, `message`\n\n## Testing\nRun **Test manuel** to use the fictional demo payload.  \nFor production, send POST requests to the webhook path `be-free-intake`.\n\n## Result\nValid request → Sheets + Gmail + success JSON  \nInvalid request → no external action + structured error JSON\n\n> Test with non-production data before activation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b317980a-7f82-4b3a-9dcd-91849a7e28bc",
+      "name": "Formulaire / Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "PRODUCTION ENTRY — Accepts POST requests on `/be-free-intake`. Configure your external form/application to send JSON to the production webhook URL after testing.",
+      "position": [
+        -750,
+        0
+      ],
+      "parameters": {
+        "path": "be-free-intake",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "lastNode"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "5a235485-f250-40e1-b7ac-1c9349242940",
+      "name": "Test manuel",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "TEST ENTRY — Run this trigger while configuring the template. It uses the built-in fictional payload and does not require an external form.",
+      "position": [
+        -750,
+        320
+      ],
+      "parameters": {},
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "9a4af879-788f-4525-9b68-61bf5bd07ceb",
+      "name": "Données de démonstration",
+      "type": "n8n-nodes-base.code",
+      "notes": "Creates a fictional project intake payload for end-to-end testing. Replace these values only if you want a different demo scenario.",
+      "position": [
+        -400,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{json:{\n  body:{\n    client_name:\"Entreprise Démo\",\n    email:\"user@example.com\",\n    project_name:\"Étude structure bâtiment A\",\n    project_type:\"Structure\",\n    phone:\"+1234567890\",\n    deadline:\"2026-09-30\",\n    message:\"Merci de confirmer la prise en charge.\"\n  },\n  source:\"manual_test\"\n}}];"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "b21b2d6a-cec3-4e0f-b6d7-f73d594047f7",
+      "name": "Normaliser et valider",
+      "type": "n8n-nodes-base.code",
+      "notes": "Normalizes strings, validates required fields and email format, generates an `AFF-YYYYMMDD-XXXX` reference, and adds timestamps/status metadata.",
+      "position": [
+        0,
+        100
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const src = $json.body ?? $json;\nconst clean = (v) => String(v ?? '').trim();\nconst required = ['client_name','email','project_name'];\nconst missing = required.filter(k => !clean(src[k]));\nconst email = clean(src.email).toLowerCase();\nconst validEmail = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email);\nif (!validEmail && email) missing.push('email_invalid');\nconst stamp = new Date().toISOString().slice(0,10).replaceAll('-','');\nconst random = Math.random().toString(36).slice(2,6).toUpperCase();\nreturn [{json:{\n  valid: missing.length === 0,\n  missing:[...new Set(missing)],\n  project_id:`AFF-${stamp}-${random}`,\n  client_name:clean(src.client_name), email,\n  project_name:clean(src.project_name), project_type:clean(src.project_type || 'Non précisé'),\n  phone:clean(src.phone), deadline:clean(src.deadline), message:clean(src.message),\n  received_at:new Date().toISOString(), status:'NOUVEAU', source:clean($json.source || 'webhook')\n}}];"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "89b8a2e2-b135-4e53-9ded-bc2621a36ac7",
+      "name": "Données valides ?",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes valid requests to Google Sheets + Gmail. Invalid requests bypass external services and go directly to the structured error response.",
+      "position": [
+        350,
+        100
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fb96eff4-212f-4e14-8492-74266d1c21b2",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "415edf5c-7af3-4cb7-86b1-c0b1f30d3cb0",
+      "name": "Ajouter au registre",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "GOOGLE SHEETS — Append the validated project to the `Projects` sheet. Replace `YOUR_GOOGLE_SHEET_ID`, then select your Google Sheets OAuth credential.",
+      "position": [
+        750,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "email": "={{ $json.email }}",
+            "status": "={{ $json.status }}",
+            "deadline": "={{ $json.deadline }}",
+            "project_id": "={{ $json.project_id }}",
+            "client_name": "={{ $json.client_name }}",
+            "received_at": "={{ $json.received_at }}",
+            "project_name": "={{ $json.project_name }}",
+            "project_type": "={{ $json.project_type }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Projects"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.7
+    },
+    {
+      "id": "120c94be-8f77-4211-8a2c-1534d763606a",
+      "name": "Accusé de réception client",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "GMAIL — Sends the client a confirmation containing the generated project reference. Select your Gmail OAuth credential before activation.",
+      "position": [
+        1150,
+        0
+      ],
+      "parameters": {
+        "sendTo": "={{ $(\"Normaliser et valider\").item.json.email }}",
+        "message": "=Bonjour {{ $(\"Normaliser et valider\").item.json.client_name }},<br><br>Votre demande <b>{{ $(\"Normaliser et valider\").item.json.project_name }}</b> a été enregistrée sous la référence <b>{{ $(\"Normaliser et valider\").item.json.project_id }}</b>.<br><br>Ceci est un message automatique.",
+        "options": {},
+        "subject": "Demande reçue — {{ $(\"Normaliser et valider\").item.json.project_id }}",
+        "emailType": "html"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1f5f5fe3-1fd2-406b-9c09-677f168ebca3",
+      "name": "Réponse succès",
+      "type": "n8n-nodes-base.code",
+      "notes": "WEBHOOK SUCCESS RESPONSE — Returns a compact JSON confirmation containing `success: true` and the generated `project_id`.",
+      "position": [
+        1550,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{json:{success:true,project_id:$(\"Normaliser et valider\").item.json.project_id,message:'Demande enregistrée'}}];"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "8552aa4b-645b-42da-8ef8-b38d4c2fe5d0",
+      "name": "Réponse erreur",
+      "type": "n8n-nodes-base.code",
+      "notes": "WEBHOOK ERROR RESPONSE — Returns `success: false` plus the list of missing/invalid fields. No row or email is created on this branch.",
+      "position": [
+        750,
+        500
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return [{json:{success:false,error:'Champs invalides ou manquants',missing:$json.missing}}];"
+      },
+      "notesInFlow": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "76a044f2-056f-4c8f-bf25-7e3d1e99d995",
+      "name": "STEP 1 — INPUTS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -900,
+        -950
+      ],
+      "parameters": {
+        "width": 650,
+        "height": 420,
+        "content": "## 1. Receive the request\n\n**Production:** `Formulaire / Webhook` accepts a POST request from a form, website, CRM, or application.\n\n**Testing:** `Test manuel` starts a safe local run and `Données de démonstration` injects fictional project data.\n\nBoth paths use the same validation logic."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "daffdbd1-47ff-4e5f-87f0-6a09ac28590a",
+      "name": "STEP 2 — VALIDATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -100,
+        -950
+      ],
+      "parameters": {
+        "width": 650,
+        "height": 420,
+        "content": "## 2. Normalize and validate\n\nThe Code node:\n- trims incoming values;\n- requires client name, email, and project name;\n- validates the email format;\n- generates an `AFF-YYYYMMDD-XXXX` reference;\n- adds timestamp and initial status.\n\nThe IF node separates accepted and rejected requests."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9f304ba7-b421-4dbf-b762-59512374e441",
+      "name": "STEP 3 — REGISTER",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        -950
+      ],
+      "parameters": {
+        "width": 450,
+        "height": 420,
+        "content": "## 3. Register in Google Sheets\n\nValid requests are appended to the `Projects` sheet.\n\nBefore use:\n1. Create/select the spreadsheet.\n2. Create the `Projects` tab and required columns.\n3. Replace `YOUR_GOOGLE_SHEET_ID`.\n4. Select Google Sheets OAuth credentials."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6248e85c-5d55-4732-bec7-0b383911920d",
+      "name": "STEP 4 — ACKNOWLEDGE",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1300,
+        -950
+      ],
+      "parameters": {
+        "width": 450,
+        "height": 420,
+        "content": "## 4. Send acknowledgement\n\nGmail sends the validated client a confirmation containing:\n- client name;\n- project name;\n- generated project reference.\n\nSelect Gmail OAuth credentials before activation. Customize the subject and HTML body if needed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eb0d42e4-ec23-46a0-9c20-b749569c578d",
+      "name": "STEP 5 — SUCCESS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1900,
+        -950
+      ],
+      "parameters": {
+        "width": 450,
+        "height": 420,
+        "content": "## 5. Return success JSON\n\nAfter Sheets and Gmail complete, the workflow returns:\n- `success: true`\n- generated `project_id`\n\nThe webhook is configured to return the output of the last node on the successful branch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "329d21f6-0a0b-48b3-b9eb-1949eb878431",
+      "name": "INVALID REQUESTS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        850
+      ],
+      "parameters": {
+        "width": 800,
+        "height": 360,
+        "content": "## Invalid request branch\n\nInvalid requests stop before Google Sheets and Gmail.\n\nThe response contains:\n- `success: false`\n- an error message\n- `missing`, listing missing or invalid fields\n\nThis lets the calling form or application show the user exactly what must be corrected."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "Europe/Paris",
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true
+  },
+  "versionId": "dc3d26a3-c7b3-440c-aed1-290f7bbb17c8",
+  "connections": {
+    "Test manuel": {
+      "main": [
+        [
+          {
+            "node": "Données de démonstration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Données valides ?": {
+      "main": [
+        [
+          {
+            "node": "Ajouter au registre",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Réponse erreur",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ajouter au registre": {
+      "main": [
+        [
+          {
+            "node": "Accusé de réception client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Formulaire / Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normaliser et valider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normaliser et valider": {
+      "main": [
+        [
+          {
+            "node": "Données valides ?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Données de démonstration": {
+      "main": [
+        [
+          {
+            "node": "Normaliser et valider",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Accusé de réception client": {
+      "main": [
+        [
+          {
+            "node": "Réponse succès",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

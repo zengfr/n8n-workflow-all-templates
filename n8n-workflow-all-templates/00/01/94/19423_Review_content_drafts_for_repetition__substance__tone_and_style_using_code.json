@@ -1,0 +1,334 @@
+{
+  "id": "Rk7pQm2XvT9wLbNe",
+  "name": "Flag social drafts that look like your last 30 posts (wording + structure)",
+  "nodes": [
+    {
+      "id": "note-overview",
+      "name": "Sticky Note — overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -260
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 940,
+        "content": "## What this does\n\nBefore you publish, it compares each **ready** draft against your **last 30 published posts** and flags the ones that will read as \"more of the same\".\n\nMost duplicate checks compare **words**. That misses the real problem: you can write 30 posts that share no vocabulary and still feel identical, because every one of them opens with \"You…\", ends with \"comment below\", and runs the same 14-line / 5-paragraph rhythm. Readers get bored by the **shape**, not the nouns.\n\nSo this checks both:\n\n- **Wording** — bigram overlap (Jaccard) against each past post\n- **Structure** — four signals: opening pattern, ending type, line/paragraph rhythm, filler-phrase set\n\nA draft is only flagged when **both** are true: wording overlap is above the threshold **and** at least two structural signals match. Either one alone is normal and does not flag.\n\nThe flag writes back **which past post it clashes with and which signals matched**, so you know what to change — not just a score.\n\n## Setup\n\n1. Two Google Sheets tabs — `Drafts` (columns: `id`, `text`, `status`, `note`) and `Published` (columns: `text`, `published_at`).\n2. Connect your Google Sheets credential on the three Sheets nodes and pick your document.\n3. Connect Slack on the last node, or replace it with Telegram / Discord / Gmail.\n4. Put `ready` in a draft's `status` column and activate. Runs daily at 09:00.\n\nThis never publishes anything. It only writes `needs rework` or `approved` back into your sheet — your publishing workflow decides what to do with that."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-tune",
+      "name": "Sticky Note — tuning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        -460
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 480,
+        "height": 480,
+        "content": "## Tune it here\n\nInside **Compare drafts to history** there are three numbers at the top:\n\n- `WORD_OVERLAP` — how much bigram overlap counts as \"similar wording\". Default `0.18`.\n- `STRUCTURE_HITS` — how many of the four structural signals must match. Default `2`.\n- `HISTORY` — how many past posts to compare against. Default `30`.\n\n**Both** conditions must trip before a draft is flagged. Raising either number makes the gate quieter.\n\nIf you write in a language without spaces (Chinese, Japanese, Thai), the bigram comparison already works on characters — nothing to change."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-reason",
+      "name": "Sticky Note — actionable reasons",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        -460
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 460,
+        "height": 420,
+        "content": "## Why it writes a reason, not a score\n\n\"87% similar\" tells you nothing you can act on.\n\nThis writes back the offending post plus the exact signals, e.g.\n\n`needs rework — reads like \"How I stopped…\" (2026-08-03): same opening (\"You…\"), same ending type (comment-bait), 22% wording overlap`\n\nThat sentence tells you which knob to turn: change the opening, or change the ending, or change the angle."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "trig-schedule",
+      "name": "Every morning at 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -20,
+        -40
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "trig-manual",
+      "name": "Run it now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -20,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sheet-drafts",
+      "name": "Get drafts marked ready",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        260,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "ready",
+              "lookupColumn": "status"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Drafts"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "sheet-published",
+      "name": "Get last 30 published",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        260,
+        280
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Published"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "node-compare",
+      "name": "Compare drafts to history",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        160
+      ],
+      "parameters": {
+        "jsCode": "// ── Tune these three ──────────────────────────────────────────\nconst WORD_OVERLAP   = 0.18; // bigram Jaccard that counts as \"similar wording\"\nconst STRUCTURE_HITS = 2;    // how many of the 4 structural signals must match\nconst HISTORY        = 30;   // how many past posts to compare against\n// ──────────────────────────────────────────────────────────────\n\n// Filler phrases that show up when you are on autopilot. Add your own.\nconst FILLERS = ['actually', 'to be honest', 'here is the thing', 'the truth is',\n                 'turns out', 'and then it hit me', 'let me explain'];\n\nconst norm = t => String(t || '').toLowerCase().replace(/[^\\p{L}\\p{N}]+/gu, '');\n\n// ⚠️ Character bigrams look tempting but they are wrong for languages with\n// spaces: any two English paragraphs share roughly a third of their character\n// pairs just from English spelling, so unrelated drafts get flagged. Use word\n// bigrams there, and fall back to character bigrams for Chinese / Japanese /\n// Thai, which do not put spaces between words.\nconst bigrams = t => {\n  const s = String(t || '').toLowerCase();\n  const words = s.match(/[\\p{L}\\p{N}]+/gu) || [];\n  const cjk = (s.match(/[㐀-鿿぀-ヿ฀-๿]/g) || []).length;\n  const out = new Set();\n  if (cjk > 8 && cjk * 2 > words.join('').length) {\n    const chars = norm(t);\n    for (let i = 0; i < chars.length - 1; i++) out.add(chars.slice(i, i + 2));\n    return out;\n  }\n  for (let i = 0; i < words.length - 1; i++) out.add(words[i] + ' ' + words[i + 1]);\n  return out;\n};\n\nconst jaccard = (a, b) => {\n  const A = bigrams(a), B = bigrams(b);\n  if (!A.size || !B.size) return 0;\n  let hit = 0; for (const g of A) if (B.has(g)) hit++;\n  return hit / (A.size + B.size - hit);\n};\n\n// ── The structural signature: four things that make posts feel the same ──\nconst endingType = t => {\n  const last = String(t || '').trim().split('\\n').filter(Boolean).slice(-2).join('\\n');\n  if (/comment|drop a|reply with|dm me|留言/i.test(last))      return 'comment-bait';\n  if (/save this|bookmark|screenshot|存起來/i.test(last))       return 'save-this';\n  if (/\\?$|which one|what about you|你呢/i.test(last.trim()))   return 'question';\n  if (/try it|tonight|start with|just do/i.test(last))          return 'call-to-action';\n  return 'statement';\n};\n\nconst signature = t => {\n  const lines = String(t || '').split('\\n').filter(l => l.trim());\n  const paras = String(t || '').split(/\\n\\s*\\n/).filter(p => p.trim()).length;\n  const first = lines[0] || '';\n  const m = first.match(/^(i|you|we|they|most people|everyone|nobody|here|this|that|\\d+)\\b/i);\n  return {\n    opening: (m ? m[1].toLowerCase() : '') + (/[?？]$/.test(first.trim()) ? '?' : ''),\n    ending: endingType(t),\n    rhythm: (lines.length <= 6 ? 'short' : lines.length <= 12 ? 'medium' : 'long') + '/' + paras,\n    fillers: FILLERS.filter(f => String(t || '').toLowerCase().includes(f)).join('|'),\n  };\n};\n\nconst structureHits = (a, b) => {\n  const A = signature(a), B = signature(b); const hits = [];\n  if (A.opening && A.opening === B.opening) hits.push(`same opening (\"${A.opening}…\")`);\n  if (A.ending !== 'statement' && A.ending === B.ending) hits.push(`same ending type (${A.ending})`);\n  if (A.rhythm === B.rhythm) hits.push(`same rhythm (${A.rhythm})`);\n  if (A.fillers && A.fillers === B.fillers) hits.push('same filler phrases');\n  return hits;\n};\n\n// ── Compare ───────────────────────────────────────────────────\nconst drafts = $('Get drafts marked ready').all().map(i => i.json);\nconst past = $('Get last 30 published').all().map(i => i.json).slice(-HISTORY);\n\nconst out = [];\n\nfor (const d of drafts) {\n  let worst = null;\n\n  for (const p of past) {\n    const overlap = jaccard(d.text, p.text);\n    const hits = structureHits(d.text, p.text);\n\n    // ⚠️ Both conditions, on purpose. Two posts that merely share a rhythm are\n    // not a problem — plenty of good posts are 14 lines long. It only reads as\n    // repetitive when the wording is close AND the shape is the same.\n    if (overlap < WORD_OVERLAP) continue;\n    if (hits.length < STRUCTURE_HITS) continue;\n\n    if (!worst || overlap > worst.overlap) {\n      worst = { overlap, hits, post: p };\n    }\n  }\n\n  if (worst) {\n    const when = worst.post.published_at || 'a previous post';\n    const head = String(worst.post.text || '').split('\\n')[0].slice(0, 40);\n    out.push({\n      json: {\n        ...d,\n        flagged: true,\n        newStatus: 'needs rework',\n        note: `reads like \"${head}…\" (${when}): ${worst.hits.join(', ')}, ` +\n              `${Math.round(worst.overlap * 100)}% wording overlap`,\n      },\n    });\n  } else {\n    out.push({ json: { ...d, flagged: false, newStatus: 'approved', note: '' } });\n  }\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sheet-write",
+      "name": "Write status back",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        860,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Drafts"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "node-if",
+      "name": "Anything flagged?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1140,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.flagged }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "node-slack",
+      "name": "Tell me in Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1420,
+        60
+      ],
+      "webhookId": "",
+      "parameters": {
+        "text": "=✋ Draft `{{ $json.id }}` needs rework — {{ $json.note }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        },
+        "otherOptions": {}
+      },
+      "credentials": {},
+      "typeVersion": 2.2
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Run it now": {
+      "main": [
+        [
+          {
+            "node": "Get drafts marked ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything flagged?": {
+      "main": [
+        [
+          {
+            "node": "Tell me in Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Write status back": {
+      "main": [
+        [
+          {
+            "node": "Anything flagged?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get last 30 published": {
+      "main": [
+        [
+          {
+            "node": "Compare drafts to history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every morning at 09:00": {
+      "main": [
+        [
+          {
+            "node": "Get drafts marked ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get drafts marked ready": {
+      "main": [
+        [
+          {
+            "node": "Get last 30 published",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare drafts to history": {
+      "main": [
+        [
+          {
+            "node": "Write status back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Review content drafts for repetition, substance, tone and style using code",
+    "wechat": "youandme10086",
+    "id": 19423,
+    "update_time": "2026-09-27"
+  }
+}

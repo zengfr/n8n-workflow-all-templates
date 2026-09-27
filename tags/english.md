@@ -1,4 +1,4 @@
-# english : 17
+# english : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |16094|[16094_Tutor_English_chat_messages_using_OpenRouter_with_Postgres_memory_and_log_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16094_Tutor_English_chat_messages_using_OpenRouter_with_Postgres_memory_and_log_to_Supabase.json)|
 |16290|[16290_Qualify_inbound_leads_from_forms_with_Claude__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16290_Qualify_inbound_leads_from_forms_with_Claude__Google_Sheets__Slack_and_Gmail.json)|
 |16692|[16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json)|
+|17452|[17452_Analyze_contract_risk_and_red_flags_with_OpenAI_from_a_web_form.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17452_Analyze_contract_risk_and_red_flags_with_OpenAI_from_a_web_form.json)|

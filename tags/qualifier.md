@@ -1,4 +1,4 @@
-# qualifier : 7
+# qualifier : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |16007|[16007_Qualify_WhatsApp_insurance_leads_with_OpenAI__HubSpot__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16007_Qualify_WhatsApp_insurance_leads_with_OpenAI__HubSpot__and_Slack.json)|
 |16290|[16290_Qualify_inbound_leads_from_forms_with_Claude__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16290_Qualify_inbound_leads_from_forms_with_Claude__Google_Sheets__Slack_and_Gmail.json)|
 |16386|[16386_Qualify_inbound_leads_with_OpenAI__HubSpot__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16386_Qualify_inbound_leads_with_OpenAI__HubSpot__Slack_and_Gmail.json)|
+|17409|[17409_Qualify_inbound_real_estate_leads_from_Gmail_with_Gemini_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17409_Qualify_inbound_real_estate_leads_from_Gmail_with_Gemini_and_HubSpot.json)|
+|17427|[17427_Score_and_qualify_Google_Sheets_leads_with_OpenAI_gpt-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17427_Score_and_qualify_Google_Sheets_leads_with_OpenAI_gpt-4o-mini.json)|
+|17659|[17659_Qualify_seller_leads_and_generate_CMA-lite_reports_with_Gemini_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17659_Qualify_seller_leads_and_generate_CMA-lite_reports_with_Gemini_and_HubSpot.json)|
+|18489|[18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json)|
+|19265|[19265_Score_real_estate_leads_with_Anthropic_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19265_Score_real_estate_leads_with_Anthropic_Claude_and_Google_Sheets.json)|
+|19376|[19376_Qualify_legal_intake_leads_with_Google_Sheets__email__and_compliance_guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19376_Qualify_legal_intake_leads_with_Google_Sheets__email__and_compliance_guardrails.json)|

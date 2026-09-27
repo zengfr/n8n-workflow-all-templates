@@ -1,4 +1,4 @@
-# mysql : 19
+# mysql : 20
 
 |id|file|
 |----|----|
@@ -21,3 +21,4 @@
 |7765|[7765_Compliance_Report_Collector_With_Google_Form___Drive___MySQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7765_Compliance_Report_Collector_With_Google_Form___Drive___MySQL.json)|
 |11971|[11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11971_Synchronize_MySQL_database_schemas_to_Pinecone_with_OpenAI_embeddings.json)|
 |12158|[12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12158_Automate_demand_forecasting___inventory_ordering_with_AI__MySQL___optimal_supplier_selection.json)|
+|19711|[19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json)|

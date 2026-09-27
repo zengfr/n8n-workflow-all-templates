@@ -1,4 +1,4 @@
-# thread : 11
+# thread : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |9193|[9193_AI-Powered_Gmail_Assistant__send_replies_by_analyzing_Thread_ID_with_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9193_AI-Powered_Gmail_Assistant__send_replies_by_analyzing_Thread_ID_with_Sonnet_4.5.json)|
 |14007|[14007_Create_X_and_LinkedIn_posts_from_Reddit_threads_with_Gemini_and_human_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14007_Create_X_and_LinkedIn_posts_from_Reddit_threads_with_Gemini_and_human_review.json)|
 |14961|[14961_Generate_trending_X__Facebook__and_Threads_posts_with_Apify__Gemini__and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14961_Generate_trending_X__Facebook__and_Threads_posts_with_Apify__Gemini__and_Buffer.json)|
+|17663|[17663_Create_X_thread_variants_from_new_blog_posts_with_RSS_and_SocialSwarm.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17663_Create_X_thread_variants_from_new_blog_posts_with_RSS_and_SocialSwarm.json)|
+|18463|[18463_Generate_blog_posts_and_tweet_threads_from_YouTube_with_Supadata_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18463_Generate_blog_posts_and_tweet_threads_from_YouTube_with_Supadata_and_OpenAI.json)|

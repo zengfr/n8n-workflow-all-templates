@@ -1,0 +1,326 @@
+{
+  "id": "jobright-relevant-job-search",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Find relevant US job listings by role and location with Jobright forms",
+    "wechat": "youandme10086",
+    "id": 19836,
+    "update_time": "2026-09-27"
+  },
+  "name": "Find Relevant Jobs by Role and Location",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b896a47a-df16-4634-af3f-08695c468bee",
+      "name": "Job search form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -720,
+        160
+      ],
+      "webhookId": "85b21b28-cf1c-46ab-8785-ee9d52a19935",
+      "parameters": {
+        "options": {
+          "path": "find-relevant-jobs-with-jobright",
+          "buttonLabel": "Find jobs"
+        },
+        "formTitle": "Find relevant jobs by role and location",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "text",
+              "fieldLabel": "Job Title",
+              "placeholder": "Software Engineer",
+              "requiredField": true
+            },
+            {
+              "fieldType": "text",
+              "fieldLabel": "Location",
+              "placeholder": "San Francisco, CA",
+              "requiredField": false
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Remote Preference",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Any"
+                  },
+                  {
+                    "option": "Remote only"
+                  },
+                  {
+                    "option": "Onsite only"
+                  },
+                  {
+                    "option": "Hybrid only"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "responseMode": "lastNode",
+        "formDescription": "Enter a job title, location, and remote preference to find up to five relevant jobs on Jobright. Results are search-based and do not represent personalized match scores."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "38fd5582-7178-40ef-ae5c-7bc043925023",
+      "name": "Build search request",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueErrorOutput",
+      "position": [
+        -480,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\nconst jobTitle = String(input['Job Title'] ?? '').trim();\nif (!jobTitle || jobTitle.length > 200) throw new Error('Enter a job title between 1 and 200 characters.');\n\nconst location = String(input.Location ?? '').trim().slice(0, 200);\nconst remotePreference = String(input['Remote Preference'] ?? 'Any').trim();\nconst workModelMap = { 'Remote only': [2], 'Onsite only': [1], 'Hybrid only': [3] };\nif (!['Any', ...Object.keys(workModelMap)].includes(remotePreference)) throw new Error('Select a valid remote preference.');\n\nconst body = { jobTitle, country: 'US' };\nif (location) {\n  body.city = location;\n  body.radiusRange = 25;\n  body.locations = [{ city: location, radiusRange: 25 }];\n}\nif (workModelMap[remotePreference]) body.workModel = workModelMap[remotePreference];\n\nreturn [{ json: { jobTitle, location, remotePreference, body } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "db73e865-7ca2-4628-8574-84a983c00bf0",
+      "name": "Search Jobright jobs",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -240,
+        160
+      ],
+      "parameters": {
+        "url": "https://jobright.ai/swan/recommend/visitor-list/jobs?count=5&position=0&sortCondition=0&useLegacySearch=false",
+        "body": "={{ JSON.stringify($json.body) }}",
+        "method": "POST",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "rawContentType": "application/json"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "86355711-52cd-4ed6-bb37-33f59218ed67",
+      "name": "Validate and format jobs",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueErrorOutput",
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nif (response.success !== true || !Array.isArray(response.result?.jobList)) {\n  throw new Error(`Jobright search failed: ${response.errorMsg ?? 'unexpected response'}`);\n}\n\nconst jobs = response.result.jobList.slice(0, 5).map((row, index) => {\n  const job = row.jobResult ?? {};\n  const company = row.companyResult ?? {};\n  const id = String(job.jobId ?? '');\n  return {\n    rank: index + 1,\n    jobId: id,\n    jobTitle: String(job.jobTitle ?? 'View job'),\n    company: String(company.companyName ?? job.userCompanyName ?? ''),\n    location: Array.isArray(job.jobLocations) && job.jobLocations.length\n      ? job.jobLocations.join(' · ')\n      : String(job.jobLocation ?? ''),\n    workModel: String(job.workModel ?? ''),\n    employmentType: String(job.employmentType ?? ''),\n    url: String(job.url ?? job.applyLink ?? job.originalUrl ?? (id ? `https://jobright.ai/jobs/info/${encodeURIComponent(id)}` : 'https://jobright.ai/jobs'))\n  };\n});\n\nreturn [{ json: { jobs, jobCount: jobs.length, impId: response.result.impId ?? null } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9a5fb26b-f8a6-41d3-8033-f2c1d48cbb05",
+      "name": "Render job results",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueErrorOutput",
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const jobs = $input.first().json.jobs ?? [];\nconst criteria = $('Build search request').first().json;\nconst escapeHtml = value => String(value ?? '').replace(/[&<>\"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[char]);\nconst safeUrl = value => {\n  try {\n    const url = new URL(String(value));\n    return url.protocol === 'https:' ? url.toString() : 'https://jobright.ai/jobs';\n  } catch {\n    return 'https://jobright.ai/jobs';\n  }\n};\n\nconst cards = jobs.map(job => `\n  <li style=\"border:1px solid #e4e4e7;border-radius:12px;padding:16px;margin:12px 0;list-style-position:inside\">\n    <a href=\"${escapeHtml(safeUrl(job.url))}\" target=\"_blank\" rel=\"noopener noreferrer\" style=\"font-size:18px;font-weight:700;color:#6d28d9\">${escapeHtml(job.jobTitle)}</a>\n    <div style=\"margin-top:6px;font-weight:600\">${escapeHtml(job.company)}</div>\n    <div style=\"margin-top:4px;color:#52525b\">${escapeHtml(job.location)}</div>\n    <div style=\"margin-top:4px;color:#71717a;font-size:14px\">${escapeHtml([job.workModel, job.employmentType].filter(Boolean).join(' · '))}</div>\n  </li>`).join('');\n\nconst summary = [\n  `Job title: ${criteria.jobTitle}`,\n  criteria.location ? `Location: ${criteria.location}` : 'Location: United States',\n  `Remote preference: ${criteria.remotePreference}`\n].map(escapeHtml).join(' · ');\n\nconst html = `<main style=\"font-family:Inter,Arial,sans-serif;max-width:760px;margin:32px auto;padding:0 18px;color:#18181b\">\n  <h1>Relevant jobs from Jobright</h1>\n  <p>${summary}</p>\n  <p style=\"color:#52525b\">These are search-based results, not personalized match scores.</p>\n  ${jobs.length ? `<ol style=\"padding:0\">${cards}</ol>` : '<p>No jobs were returned. Try a broader job title or location.</p>'}\n  <p style=\"margin-top:24px\"><a href=\"https://jobright.ai/jobs\" target=\"_blank\" rel=\"noopener noreferrer\">Find more matching jobs on Jobright</a></p>\n</main>`;\n\nreturn [{ json: { html, jobs, query: criteria.body } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e72b5006-029b-470d-b606-ff6646a8b19f",
+      "name": "Show relevant jobs",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        480,
+        160
+      ],
+      "webhookId": "05a96e48-04e0-4a69-91cb-dd990d55e9ac",
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "={{ $json.html }}"
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "433dddb2-92e2-4bdc-82f6-41fc23fbb3dd",
+      "name": "Explain search failure",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        0,
+        400
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\nconst message = String(item.error?.message ?? item.message ?? 'The job search could not be completed.');\nconst escapeHtml = value => String(value ?? '').replace(/[&<>\"']/g, char => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;', \"'\": '&#39;' })[char]);\nreturn [{ json: { html: `<main style=\"font-family:Inter,Arial,sans-serif;max-width:680px;margin:32px auto;padding:0 18px\"><h1>Unable to search jobs</h1><p>${escapeHtml(message)}</p><p>Please revise the form and try again.</p></main>` } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "28db5e6a-324a-48e1-a721-a1382df34f24",
+      "name": "Show search failure",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        240,
+        400
+      ],
+      "webhookId": "ff917374-d192-4038-b652-c4dd45d4a458",
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "respondWith": "showText",
+        "responseText": "={{ $json.html }}"
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "8e43faf4-f384-4747-974e-f69f5b646b42",
+      "name": "About this template",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -220
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 500,
+        "height": 310,
+        "content": "## Find relevant jobs by role and location\n\nThis workflow provides a no-credential job search form powered by Jobright's anonymous visitor job-search endpoint.\n\n**Flow:** job title, location, and remote preference → Jobright search → validate response → show up to five jobs.\n\nResults are described as relevant search results, not personalized matches or match scores. No resume, account, API key, or third-party service is required."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f2cd6e3e-68a0-46c3-8895-a8b312d56501",
+      "name": "Setup notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -120,
+        -220
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 470,
+        "height": 290,
+        "content": "## Setup and customization\n\n1. Import the workflow and open **Job search form**.\n2. Test with `Software Engineer`, `San Francisco, CA`, and a remote preference.\n3. Activate the workflow to use its production form URL.\n\nRemote mapping is `1 = Onsite`, `2 = Remote`, and `3 = Hybrid`. To customize: change the result count (maximum used here: 5), radius, or output styling. Keep the public positioning search-based and avoid claiming personalized matching."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 300,
+    "saveManualExecutions": false,
+    "saveDataErrorExecution": "none",
+    "saveDataSuccessExecution": "none"
+  },
+  "versionId": "efae18e9-52d2-4cb2-99fb-c93d13eb164f",
+  "connections": {
+    "Job search form": {
+      "main": [
+        [
+          {
+            "node": "Build search request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render job results": {
+      "main": [
+        [
+          {
+            "node": "Show relevant jobs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Explain search failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build search request": {
+      "main": [
+        [
+          {
+            "node": "Search Jobright jobs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Explain search failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Jobright jobs": {
+      "main": [
+        [
+          {
+            "node": "Validate and format jobs",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Explain search failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explain search failure": {
+      "main": [
+        [
+          {
+            "node": "Show search failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and format jobs": {
+      "main": [
+        [
+          {
+            "node": "Render job results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Explain search failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

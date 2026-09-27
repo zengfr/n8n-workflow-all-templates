@@ -1,0 +1,2552 @@
+{
+  "name": "Create OPNsense firewall and NAT rules from Telegram with AI",
+  "nodes": [
+    {
+      "id": "c60fccb0-b384-494e-9736-7280e75e2bf8",
+      "name": "Message or Callback?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3520,
+        2880
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "m1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{  $('When Telegram Message Received').item.json.message ? 'message' : 'callback' }}",
+              "rightValue": "message"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1c897748-6ae3-4816-be74-f47c53bd3f85",
+      "name": "Normalize Input",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3744,
+        2592
+      ],
+      "parameters": {
+        "jsCode": "const msg = $('When Telegram Message Received').first().json.message;\n\nreturn [{\n  json: {\n    chatId: msg.chat.id,\n    userRequest: msg.text\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c58081a0-272c-47eb-83b2-4876b52d2836",
+      "name": "Validate AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5120,
+        2384
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output ?? $input.first().json;\n\nlet result;\n\ntry {\n  result = typeof raw === \"string\" ? JSON.parse(raw) : raw;\n} catch (e) {\n  throw new Error(\"AI response was not valid JSON: \" + e.message);\n}\n\nconst requiredTopLevel = [\"operation\", \"rule\", \"ambiguous\"];\n\nfor (const field of requiredTopLevel) {\n  if (!(field in result)) {\n    throw new Error(`AI output missing required field: ${field}`);\n  }\n}\n\nconst fieldLabels = {\n  enabled: \"Enabled\",\n  sequence: \"Sequence\",\n  categories: \"Categories\",\n  nosync: \"No Sync\",\n  description: \"Description\",\n\n  interface: \"Interface\",\n\n  action: \"Action\",\n  direction: \"Direction\",\n  protocol: \"Protocol\",\n  ipprotocol: \"IP Version\",\n\n  source_net: \"Source\",\n  source_port: \"Source Port\",\n\n  destination_net: \"Destination\",\n  destination_port: \"Destination Port\",\n\n  // NAT fields\n  source: \"Source\",\n  destination: \"Destination\",\n  target: \"Internal Target\",\n  \"local-port\": \"Internal Port\",\n\n  log: \"Logging\",\n  gateway: \"Gateway\",\n};\n\nfunction requiredFieldsFor(operation, rule) {\n  // Existing firewall rule logic\n  if (operation === \"filter_rule_create\") {\n    const fields = [\"action\", \"source_net\", \"destination_net\"];\n\n    if (rule.source_port || rule.destination_port) {\n      fields.push(\"protocol\");\n    }\n\n    return fields;\n  }\n\n  // New NAT rule validation\n  if (operation === \"destination_nat_create\") {\n    return [\"interface\", \"protocol\", \"target\"];\n  }\n\n  return [];\n}\n\nconst rule = result.rule || {};\n\nconst required = requiredFieldsFor(result.operation, rule);\n\nconst missing = required.filter(\n  (f) =>\n    !(f in rule) || rule[f] === \"\" || rule[f] === null || rule[f] === undefined,\n);\n\nconst ipv4Pattern = /^(\\d{1,3}\\.){3}\\d{1,3}(\\/\\d{1,2})?$/;\n\nconst ipv6Pattern = /^[0-9a-fA-F:]+(\\/\\d{1,3})?$/;\n\nconst aliasOrAnyPattern = /^(any|[A-Za-z][A-Za-z0-9_]*)$/;\n\nfunction isValidNet(value) {\n  if (!value) return true;\n\n  if (ipv4Pattern.test(value)) return true;\n\n  if (value.includes(\":\") && ipv6Pattern.test(value)) return true;\n\n  if (aliasOrAnyPattern.test(value)) return true;\n\n  return false;\n}\n\nconst invalid = [];\n\n// Existing firewall validation\nfor (const field of [\"source_net\", \"destination_net\"]) {\n  if (rule[field] && !isValidNet(rule[field])) {\n    invalid.push(field);\n  }\n}\n\n// NAT nested validation\n\nif (rule.source && rule.source.network && !isValidNet(rule.source.network)) {\n  invalid.push(\"source.network\");\n}\n\nif (\n  rule.destination &&\n  rule.destination.network &&\n  !isValidNet(rule.destination.network)\n) {\n  invalid.push(\"destination.network\");\n}\n\n// Normalize interface value only for validation compatibility\n// Do not modify output\nif (rule.interface && typeof rule.interface === \"string\") {\n  const allowedLike = /^[a-zA-Z0-9_]+$/;\n\n  if (!allowedLike.test(rule.interface)) {\n    invalid.push(\"interface\");\n  }\n}\n\nif (result.operation === \"unknown\") {\n  return [\n    {\n      json: {\n        valid: false,\n        result:\n          \"The request could not be resolved to a single firewall operation. Please describe only one request at a time.\",\n        missing,\n        invalid,\n      },\n    },\n  ];\n}\n\nif (missing.length > 0) {\n  const labels = missing.map((f) => fieldLabels[f] || f).join(\", \");\n\n  return [\n    {\n      json: {\n        valid: false,\n        result: `The following information is missing: ${labels}`,\n        missing,\n        invalid,\n      },\n    },\n  ];\n}\n\nif (invalid.length > 0) {\n  const labels = invalid.map((f) => fieldLabels[f] || f).join(\", \");\n\n  return [\n    {\n      json: {\n        valid: false,\n        result: `The following fields have an invalid value: ${labels}`,\n        missing,\n        invalid,\n      },\n    },\n  ];\n}\n\nif (result.ambiguous === true) {\n  return [\n    {\n      json: {\n        valid: false,\n        result:\n          \"The request is ambiguous and needs clarification before it can be confirmed.\",\n        missing,\n        invalid,\n      },\n    },\n  ];\n}\n\nreturn [\n  {\n    json: {\n      valid: true,\n      ...result,\n      missing,\n      invalid,\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3d63bdab-ea4c-4a7d-826a-85ea360f7244",
+      "name": "Is Valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5344,
+        2384
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "v1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": {}
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "98502cfc-3394-4714-96bc-8ffd7427ed00",
+      "name": "Send Clarification Needed",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        5568,
+        2592
+      ],
+      "webhookId": "7d286f5c-5190-44f7-9869-d51d2e46669f",
+      "parameters": {
+        "text": "={{ $json.result }}",
+        "chatId": "={{ $('Normalize Input').item.json.chatId }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "981f61dc-f222-4b30-b128-9347f9fff915",
+      "name": "Send Confirmation With Buttons",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        7712,
+        2128
+      ],
+      "webhookId": "796882a9-c5cb-4a70-8bdb-ae1b7d681d87",
+      "parameters": {
+        "text": "={{ $json.telegramText }}",
+        "chatId": "={{ $json.chatId }}",
+        "replyMarkup": "inlineKeyboard",
+        "inlineKeyboard": {
+          "rows": [
+            {
+              "row": {
+                "buttons": [
+                  {
+                    "text": "✅ Confirm",
+                    "additionalFields": {
+                      "callback_data": "confirm"
+                    }
+                  },
+                  {
+                    "text": "❌ Cancel",
+                    "additionalFields": {
+                      "callback_data": "cancel"
+                    }
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "additionalFields": {
+          "parse_mode": "HTML"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "87061b88-b781-441b-8915-244cce6dbada",
+      "name": "Parse Callback",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3728,
+        3376
+      ],
+      "parameters": {
+        "jsCode": "const cq = $('When Telegram Message Received').first().json.callback_query\nreturn [{\n  json: {\n    chatId: cq.message.chat.id,\n    messageId: cq.message.message_id,\n    decision: cq.data,\n    callbackQueryId: cq.id\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "38b097a0-d7bd-4f48-aa5c-51a97674fdbd",
+      "name": "Answer Callback Query",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        3952,
+        3376
+      ],
+      "webhookId": "14f58a17-4ff5-4cd8-b57e-54fe088f1de6",
+      "parameters": {
+        "queryId": "={{ $json.callbackQueryId }}",
+        "resource": "callback",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3496630e-20ac-4d8e-bc52-79c04ce1435e",
+      "name": "Pending Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4624,
+        3376
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.found }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "34c3abe8-30fd-4dfa-8993-868470f8dfd1",
+      "name": "Send No Pending Action",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4848,
+        3472
+      ],
+      "webhookId": "c875927b-2003-4314-8bc1-908f03e08123",
+      "parameters": {
+        "text": "No pending firewall request was found for this chat, or it has expired. Please send a new request.",
+        "chatId": "={{ $('When Telegram Message Received').item.json.callback_query.message.chat.id }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f2354488-0c58-4afb-ad41-b60e0c903759",
+      "name": "Confirmed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4848,
+        3280
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.decision }}",
+              "rightValue": "confirm"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "b52bed9d-c5f7-4ee9-bef9-c83cc8327363",
+      "name": "Send Cancelled",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        5504,
+        3376
+      ],
+      "webhookId": "9653aab3-a3b1-4d3c-bbe7-d152e66efbfe",
+      "parameters": {
+        "text": "No changes were made to the firewall. The requested action was cancelled.",
+        "chatId": "={{ $('Update Pending (Cancel)').item.json.chat_id }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "11202c17-d0b4-4945-9bf2-2371eea7199f",
+      "name": "Map Operation to OPNsense Endpoint",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5072,
+        3184
+      ],
+      "parameters": {
+        "jsCode": "// Maps the parser's operation to a real OPNsense endpoint, method and request body.\n// The LLM is intentionally never allowed to invent the URL or payload itself.\nconst a = $input.first().json;\nconst rule = { ...(a.rule || {}) };\n\nconst endpointMap = {\n  filter_rule_create: { api: \"firewall/filter/add_rule\", method: \"POST\" },\n\n  destination_nat_create: {\n    api: \"firewall/d_nat/add_rule\",\n    method: \"POST\",\n  },\n};\n\nconst applyEndpointMap = {\n  filter_rule_create: { api: \"firewall/filter/apply\", method: \"POST\" },\n\n  destination_nat_create: {\n    api: \"firewall/d_nat/apply\",\n    method: \"POST\",\n  },\n};\n\nconst endpoint = endpointMap[a.operation];\nif (!endpoint) {\n  throw new Error(\n    `No OPNsense endpoint mapping is defined for operation: ${a.operation}`,\n  );\n}\nconst applyEndpoint = applyEndpointMap[a.operation];\nif (!applyEndpoint) {\n  throw new Error(\n    `No OPNsense apply endpoint mapping is defined for operation: ${a.operation}`,\n  );\n}\n\nreturn [\n  {\n    json: {\n      chatId: a.chatId,\n      opnsenseMethod: endpoint.method,\n      opnsenseUrl: endpoint.api,\n      opnsenseApplyMethod: applyEndpoint.method,\n      opnsenseApplyUrl: applyEndpoint.api,\n      opnsenseBody: { rule },\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "77a4b2f1-8e3c-4b24-b364-167334d791c9",
+      "name": "Execute OPNsense API Call",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5968,
+        3184
+      ],
+      "parameters": {
+        "url": "={{ $('Set OPNsense host').item.json.opnsense_host }}/api/{{ $json.opnsenseUrl }}",
+        "method": "={{ $json.opnsenseMethod }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          },
+          "allowUnauthorizedCerts": false
+        },
+        "jsonBody": "={{ JSON.stringify($json.opnsenseBody) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "8071bb8a-3a5b-47ed-b96f-d14c1931ad87",
+      "name": "Send Success",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        6864,
+        3088
+      ],
+      "webhookId": "53b7b3cb-c2a1-4aab-b7e7-b85381ab6ee5",
+      "parameters": {
+        "text": "The firewall change was applied successfully.",
+        "chatId": "={{ $('Parse Pending Action').item.json.chatId }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "1618fe08-6b57-4d50-8544-80eda674fda2",
+      "name": "Normalize OPNsense Rule",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4896,
+        2384
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconst raw = input.output ?? input;\n\nlet result;\n\ntry {\n  result = typeof raw === \"string\" ? JSON.parse(raw) : raw;\n} catch (e) {\n  throw new Error(\"Invalid AI JSON: \" + e.message);\n}\n\nconst rule = result.rule || {};\n\n// Only normalize NAT rules\nif (result.operation === \"destination_nat_create\") {\n  // interface\n  if (rule.interface) {\n    rule.interface = rule.interface.toLowerCase();\n  }\n\n  // protocol\n  if (rule.protocol) {\n    rule.protocol = rule.protocol.toLowerCase();\n  }\n\n  // source conversion\n  if (!rule.source) {\n    rule.source = {\n      not: \"0\",\n      network: rule.source_network || \"\",\n      port: rule.source_port || \"\",\n    };\n  }\n\n  // destination conversion\n  if (!rule.destination) {\n    rule.destination = {\n      not: \"0\",\n      network: rule.destination_network || \"\",\n      port: rule.destination_port || \"\",\n    };\n  }\n\n  // local port\n  if (rule.local_port && !rule[\"local-port\"]) {\n    rule[\"local-port\"] = rule.local_port;\n  }\n\n  // remove old fields\n  delete rule.source_network;\n  delete rule.source_port;\n\n  delete rule.destination_network;\n  delete rule.destination_port;\n\n  delete rule.local_port;\n\n  // default OPNsense fields\n\n  rule.disabled ??= \"0\";\n  rule.sequence ??= \"600\";\n  rule.category ??= \"\";\n  rule.descr ??= \"\";\n\n  rule.ipprotocol ??= \"\";\n\n  rule.source ??= {\n    not: \"0\",\n    network: \"\",\n    port: \"\",\n  };\n\n  rule.destination ??= {\n    not: \"0\",\n    network: \"\",\n    port: \"\",\n  };\n\n  rule.poolopts ??= \"\";\n  rule.nordr ??= \"0\";\n  rule.log ??= \"0\";\n  rule.nosync ??= \"0\";\n  rule.natreflection ??= \"\";\n  rule.tag ??= \"\";\n  rule.tagged ??= \"\";\n  rule.pass ??= \"rule\";\n}\n\nreturn [\n  {\n    json: {\n      ...result,\n      rule,\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "999c6b23-3b81-48be-84d6-2cc6f7fddd82",
+      "name": "Apply Changes",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        6416,
+        3088
+      ],
+      "parameters": {
+        "url": "={{ $('Set OPNsense host').item.json.opnsense_host }}/api/{{ $('Map Operation to OPNsense Endpoint').item.json.opnsenseApplyUrl }}",
+        "method": "={{ $('Map Operation to OPNsense Endpoint').item.json.opnsenseApplyMethod }}",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          },
+          "allowUnauthorizedCerts": false
+        },
+        "jsonBody": "={}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d678153e-482d-4319-a1af-4cdfba642b21",
+      "name": "Parse Pending Action",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4400,
+        3376
+      ],
+      "parameters": {
+        "jsCode": "const chatId = $('Parse Callback').first().json.chatId\nconst decision = $(\"When Telegram Message Received\").first().json.callback_query.data;\nconst pending = $input.first().json;\n\nif (Object.keys(pending).length === 0) {\n  return [{ json: { found: false, chatId, decision } }];\n}\n\nif ($input.all().length > 0) {\n  return [\n    {\n      json: {\n        found: true,\n        chatId: $input.first().json.chat_id,\n        decision,\n        operation: pending.operation,\n        rule: JSON.parse(pending.rule),\n      },\n    },\n  ];\n} else {\n  return [{ json: { found: false, chatId, decision } }];\n}\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0784b08f-a323-418a-af46-5e7347dc79d5",
+      "name": "Fetch Interfaces Overview",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        6688,
+        2128
+      ],
+      "parameters": {
+        "url": "={{ $('Set OPNsense host').item.json.opnsense_host }}/api/interfaces/overview/interfaces_info",
+        "method": "=POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          },
+          "allowUnauthorizedCerts": false
+        },
+        "jsonBody": "={\n  \"current\": 1,\n  \"rowCount\": -1,\n  \"sort\": {}\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5ab504f6-3644-42a3-8d9f-760533f8f168",
+      "name": "AI Request Classifier",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        3968,
+        2592
+      ],
+      "parameters": {
+        "text": "={{ $json.userRequest }}",
+        "options": {
+          "systemMessage": "=You are a request classifier for a network automation system.\n\nRead exactly one natural-language network request and classify it.\n\nReturn JSON only. Do not use Markdown or explanations.\n\nUse this structure:\n\n{\n\"type\": \"firewall_rule | destination_nat | unknown\"\n}\n\nClassification rules:\n\n* If the request mentions port forwarding, destination NAT, DNAT, a public port forwarded to an internal host, or exposing an internal service to the outside -> \"destination_nat\"\n* If the request mentions allowing, blocking, permitting, denying, rejecting, or otherwise controlling traffic between networks/interfaces/hosts (without forwarding a public port to an internal host) -> \"firewall_rule\"\n* If the request contains multiple independent operations, or you cannot determine the type with confidence -> \"unknown\"\n\nDo not extract any other fields. Do not invent information. Only return the type."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.9
+    },
+    {
+      "id": "09425fed-8743-4751-bc2d-7fefc4e2f85d",
+      "name": "Classifier Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        3984,
+        2816
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9aeaa1b8-91b1-46a9-8380-5d797c92076b",
+      "name": "Classifier Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        4112,
+        2816
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\"type\"],\n  \"properties\": {\n    \"type\": {\n      \"type\": \"string\",\n      \"enum\": [\"firewall_rule\", \"destination_nat\", \"unknown\"]\n    }\n  },\n  \"additionalProperties\": false\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "123797fa-eed3-4b83-8455-31e5476d3458",
+      "name": "Switch: Firewall or NAT",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        4320,
+        2576
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Firewall",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b968d9d5-3dcf-498e-8460-f6059962edff",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "firewall_rule"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "NAT",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "bf9f0136-99db-4373-97ec-6d31a1236773",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "destination_nat"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Unkown",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "9dc9ffc8-755f-4c14-b693-151185d505b7",
+                    "operator": {
+                      "name": "filter.operator.equals",
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output.type }}",
+                    "rightValue": "unknown"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "none"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "86ed0dbe-6596-4a71-9c12-c5a1e0dbaa55",
+      "name": "Firewall Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        4560,
+        2304
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d047751b-da8a-44d6-a34d-812d9c22f562",
+      "name": "Firewall Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        4688,
+        2304
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\"operation\", \"rule\", \"ambiguous\"],\n  \"properties\": {\n    \"operation\": {\n      \"type\": \"string\",\n      \"enum\": [\"filter_rule_create\", \"unknown\"]\n    },\n    \"rule\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"enabled\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"sequence\": { \"type\": \"string\", \"pattern\": \"^[0-9]+$\" },\n        \"categories\": { \"type\": \"string\" },\n        \"nosync\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"description\": { \"type\": \"string\" },\n        \"interfacenot\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"interface\": { \"type\": \"string\" },\n        \"quick\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"action\": { \"type\": \"string\", \"enum\": [\"pass\", \"block\", \"reject\"] },\n        \"allowopts\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"direction\": { \"type\": \"string\", \"enum\": [\"in\", \"out\"] },\n        \"ipprotocol\": { \"type\": \"string\", \"enum\": [\"inet\", \"inet6\"] },\n        \"protocol\": {\n          \"type\": \"string\",\n          \"enum\": [\"TCP\", \"UDP\", \"TCP/UDP\", \"ICMP\", \"ESP\", \"AH\", \"GRE\", \"IGMP\", \"PIM\", \"OSPF\", \"any\"]\n        },\n        \"icmptype\": { \"type\": \"string\" },\n        \"icmp6type\": { \"type\": \"string\" },\n        \"source_not\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"source_net\": { \"type\": \"string\" },\n        \"source_port\": { \"type\": \"string\" },\n        \"destination_not\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"destination_net\": { \"type\": \"string\" },\n        \"destination_port\": { \"type\": \"string\" },\n        \"log\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"sched\": { \"type\": \"string\" },\n        \"statetype\": { \"type\": \"string\" },\n        \"gateway\": { \"type\": \"string\" },\n        \"disablereplyto\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"replyto\": { \"type\": \"string\" },\n        \"tag\": { \"type\": \"string\" },\n        \"tagged\": { \"type\": \"string\" }\n      },\n      \"additionalProperties\": false\n    },\n    \"ambiguous\": { \"type\": \"boolean\" }\n  },\n  \"additionalProperties\": false\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "6f4a1925-54ac-4e10-9d99-bf9efb9c0a5d",
+      "name": "AI NAT Interpreter",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        4544,
+        2480
+      ],
+      "parameters": {
+        "text": "={{ $('Normalize Input').item.json.userRequest }}",
+        "options": {
+          "systemMessage": "=You are a destination NAT (port forwarding) request parser.\n\nConvert exactly one natural-language destination NAT request into one JSON object.\n\nReturn JSON only. Do not use Markdown or explanations.\n\nUse this structure:\n\n{\n\"operation\": \"destination_nat_create | unknown\",\n\"rule\": {},\n\"ambiguous\": false\n}\n\nGeneral rules:\n\n* Always include operation, rule, and ambiguous.\n* Include only meaningful, explicitly provided, or deterministically inferred rule fields.\n* Do not include null values, empty strings, unspecified fields, or API defaults.\n* Never invent an IP address, subnet, port, interface, protocol, or description.\n* If the request contains multiple independent operations, use:\n  \"operation\": \"unknown\"\n  \"ambiguous\": true\n\nPermitted destination NAT fields:\n\ninterface, ipprotocol, protocol, source_network, source_port, source_not, destination_network, destination_port, destination_not, target, local_port, description, disabled, log, natreflection, nosync\n\nDestination NAT mappings:\n\n* public or external port -> destination_port\n* internal or private IP -> target\n* internal or private port -> local_port\n* from X -> source_network\n* everyone or any source -> source_network: \"any\"\n* only X can connect -> source_network: \"X\"\n* forward to X -> target: \"X\"\n\nSSH destination NAT means:\n\n\"protocol\": \"TCP\"\n\"local_port\": \"22\"\n\nDo not replace the user-provided public destination_port with port 22.\n\nAllowed interfaces:\n\n{{ $('Set OPNsense host').item.json.interfaces }}\n\nUse only these identifiers. Never invent another interface.\n\nIf the request clearly refers to public-IP access, use:\n\n\"interface\": \"wan\"\n\nSet ambiguous to true only when required information has multiple reasonable interpretations. Do not guess an interface unless the request clearly refers to public-IP access.\n\nExample:\n\nInput:\nAdd a NAT port forwarding rule that allows everyone to connect to 172.16.30.10 via SSH using port 2211 of the public IP\n\nOutput:\n{\n\"operation\": \"destination_nat_create\",\n\"rule\": {\n\"interface\": \"wan\",\n\"protocol\": \"TCP\",\n\"source_network\": \"any\",\n\"destination_port\": \"2211\",\n\"target\": \"172.16.30.10\",\n\"local_port\": \"22\"\n},\n\"ambiguous\": false\n}"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.9
+    },
+    {
+      "id": "30188b4b-0a92-499d-b654-3ca690a407f7",
+      "name": "NAT Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        4560,
+        2704
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "5ed5705f-51e7-453b-84f5-6ea2706595b5",
+      "name": "NAT Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        4688,
+        2704
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"required\": [\"operation\", \"rule\", \"ambiguous\"],\n  \"properties\": {\n    \"operation\": {\n      \"type\": \"string\",\n      \"enum\": [\"destination_nat_create\", \"unknown\"]\n    },\n    \"rule\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"interface\": { \"type\": \"string\" },\n        \"ipprotocol\": { \"type\": \"string\", \"enum\": [\"inet\", \"inet6\"] },\n        \"protocol\": {\n          \"type\": \"string\",\n          \"enum\": [\"TCP\", \"UDP\", \"TCP/UDP\", \"ICMP\", \"ESP\", \"AH\", \"GRE\", \"IGMP\", \"PIM\", \"OSPF\", \"any\"]\n        },\n        \"source_network\": { \"type\": \"string\" },\n        \"source_port\": { \"type\": \"string\" },\n        \"source_not\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"destination_network\": { \"type\": \"string\" },\n        \"destination_port\": { \"type\": \"string\" },\n        \"destination_not\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"target\": { \"type\": \"string\" },\n        \"local_port\": { \"type\": \"string\" },\n        \"description\": { \"type\": \"string\" },\n        \"disabled\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"log\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] },\n        \"natreflection\": { \"type\": \"string\" },\n        \"nosync\": { \"type\": \"string\", \"enum\": [\"0\", \"1\"] }\n      },\n      \"additionalProperties\": false\n    },\n    \"ambiguous\": { \"type\": \"boolean\" }\n  },\n  \"additionalProperties\": false\n}\n"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "231d3ab2-a615-443b-ac94-6c09e14627d9",
+      "name": "AI Firewall Interpreter",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        4544,
+        2080
+      ],
+      "parameters": {
+        "text": "={{ $('Normalize Input').item.json.userRequest }}",
+        "options": {
+          "systemMessage": "=You are a firewall filter-rule request parser.\n\nConvert exactly one natural-language firewall request into one JSON object.\n\nReturn JSON only. Do not use Markdown or explanations.\n\nUse this structure:\n\n{\n\"operation\": \"filter_rule_create | unknown\",\n\"rule\": {},\n\"ambiguous\": false\n}\n\nGeneral rules:\n\n* Always include operation, rule, and ambiguous.\n* Include only meaningful, explicitly provided, or deterministically inferred rule fields.\n* Do not include null values, empty strings, unspecified fields, or API defaults.\n* Never invent an IP address, subnet, port, interface, protocol, or description.\n* If the request contains multiple independent operations, use:\n  \"operation\": \"unknown\"\n  \"ambiguous\": true\n\nPermitted filter-rule fields:\n\nenabled, sequence, categories, nosync, description, interfacenot, interface, quick, action, allowopts, direction, ipprotocol, protocol, icmptype, icmp6type, source_not, source_net, source_port, destination_not, destination_net, destination_port, log, sched, statetype, gateway, disablereplyto, replyto, tag, tagged\n\nFilter-rule mappings:\n\n* allow, permit, accept, open -> action: \"pass\"\n* block, deny -> action: \"block\"\n* reject -> action: \"reject\"\n* TCP -> protocol: \"TCP\"\n* UDP -> protocol: \"UDP\"\n* from X -> source_net: \"X\"\n* to X -> destination_net: \"X\"\n* source port -> source_port\n* destination port -> destination_port\n* IPv4 address or CIDR -> ipprotocol: \"inet\"\n* IPv6 address or CIDR -> ipprotocol: \"inet6\"\n* SSH -> protocol: \"TCP\", destination_port: \"22\"\n* HTTP -> protocol: \"TCP\", destination_port: \"80\"\n* HTTPS -> protocol: \"TCP\", destination_port: \"443\"\n\nFilter-rule requirements:\n\n* filter_rule_create requires action, source_net, and destination_net.\n* protocol is also required when a source or destination port is present.\n\nInterface aliases:\n\n- VLAN names and interface aliases can be used as source or destination references.\n- If a request refers to a VLAN or interface alias, map it directly:\n  VLAN20 -> source_net: \"opt3\"\n  VLAN30 -> destination_net: \"opt4\"\n\n- Do not replace interface aliases with IP networks.\n- Do not infer subnet addresses from VLAN names.\n\nAllowed interfaces:\n\n{{ $('Set OPNsense host').item.json.interfaces }}\n\nUse only these identifiers. Never invent another interface.\n\nIf the request clearly refers to public-IP access, use:\n\n\"interface\": \"wan\"\n\nSet ambiguous to true only when required information has multiple reasonable interpretations."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.9
+    },
+    {
+      "id": "d6e19307-2112-47a4-a899-ffa977914ba5",
+      "name": "Send Unknown Type Notice",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        4608,
+        2880
+      ],
+      "webhookId": "7d286f5c-5190-44f7-9869-d51d2e46669f",
+      "parameters": {
+        "text": "=⚠️ *Unable to classify request*\n\nI couldn't determine whether this is a *Firewall Rule* or a *NAT* request.\n\nPlease rephrase your request and specify clearly whether you want to:\n- Create a *firewall rule* (allow/block traffic), or\n- Create a *NAT rule* (port forwarding)",
+        "chatId": "={{ $('Normalize Input').item.json.chatId }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "99d40869-6000-4b94-accd-65d27211c82b",
+      "name": "Lookup In Allowlist",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2848,
+        2976
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "userid",
+              "keyValue": "={{ $('When Telegram Message Received').item.json.message.from.id }}"
+            },
+            {
+              "keyName": "userid",
+              "keyValue": "={{ $('When Telegram Message Received').item.json.callback_query.message.chat.id }}"
+            }
+          ]
+        },
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "allowed_users"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "2a525ec2-9daa-4af5-84ab-326ad00ceb68",
+      "name": "Form - IDs Not Found",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        3264,
+        2240
+      ],
+      "webhookId": "cb3c0e65-872e-43cb-a49d-ee940b6109e2",
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "completionTitle": "Not Found",
+        "completionMessage": "=The following IDs were not found:\n\n{{ $('Parse Delete IDs').all().map(item => `<li>${item.json.telegram_id}</li>`).join(\"\") }}"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "8f5ad2ad-25d4-47c0-af63-b8d23dbdc84c",
+      "name": "Add IDs Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        2368,
+        1792
+      ],
+      "webhookId": "fc9b5a4b-5894-404b-ab12-f0739e246948",
+      "parameters": {
+        "path": "fc9b5a4b-5894-404b-ab12-f0739e246948",
+        "options": {},
+        "formTitle": "Add allowed Telegram IDs",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Telegram Numeric IDs",
+              "placeholder": "123456789\n987654321",
+              "requiredField": true
+            }
+          ]
+        },
+        "authentication": "basicAuth",
+        "formDescription": "Enter one numeric Telegram ID per line."
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9ff4f4e8-34db-4b88-a3e3-567cb0fa87fb",
+      "name": "Parse Add IDs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2816,
+        1792
+      ],
+      "parameters": {
+        "jsCode": "const raw = $('Add IDs Form').first().json['Telegram Numeric IDs'] || '';\n\nconst ids = raw\n  .split(/[\\n,]+/)\n  .map(v => v.trim())\n  .filter(v => v.length > 0)\n  .filter(v => /^\\d+$/.test(v))\n  .map(v => Number(v));\n\nconst uniqueIds = [...new Set(ids)];\n\nreturn uniqueIds.map(id => ({ json: { telegram_id: id } }));"
+      },
+      "typeVersion": 2,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "34e888ce-f751-4623-acae-a81d8d9d7d54",
+      "name": "Upsert Allowed Users",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        3040,
+        1792
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "userid": "={{ $json.telegram_id }}"
+          },
+          "schema": [
+            {
+              "id": "userid",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "userid",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "userid"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "userid",
+              "keyValue": "={{ $json.telegram_id }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "allowed_users"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2a18dea6-8216-4a54-9ea5-38f8a1d4a044",
+      "name": "Add IDs Success",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        3264,
+        1792
+      ],
+      "webhookId": "094c958d-3595-496b-bff5-8098f7b4e12e",
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "completionTitle": "Saved",
+        "completionMessage": "The Telegram IDs were saved to the allowlist."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca2b9d40-682b-4ee4-a176-8b40fa380ad2",
+      "name": "Delete IDs Form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        2368,
+        2144
+      ],
+      "webhookId": "c5349b12-a62e-4361-92c6-0ae47b42479c",
+      "parameters": {
+        "path": "c5349b12-a62e-4361-92c6-0ae47b42479c",
+        "options": {},
+        "formTitle": "Remove allowed Telegram IDs",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Telegram Numeric IDs",
+              "placeholder": "123456789\n987654321",
+              "requiredField": true
+            }
+          ]
+        },
+        "authentication": "basicAuth",
+        "formDescription": "Enter one numeric Telegram ID per line."
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "35d7d23b-0f58-486e-8d4f-62d99540d442",
+      "name": "Parse Delete IDs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2592,
+        2144
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json['Telegram Numeric IDs'] || '';\n\nconst ids = raw\n  .split(/[\\n,]+/)\n  .map(v => v.trim())\n  .filter(v => v.length > 0)\n  .filter(v => /^\\d+$/.test(v))\n  .map(v => Number(v));\n\nconst uniqueIds = [...new Set(ids)];\n\nreturn uniqueIds.map(id => ({ json: { telegram_id: id } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6ca28c8a-e937-46da-928b-5e9ccb10e638",
+      "name": "Delete Allowed Users",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2816,
+        2144
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "userid",
+              "keyValue": "={{ $json.telegram_id }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "deleteRows",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "allowed_users"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "07c0bc1a-863e-45ff-bad3-8969a13cbca2",
+      "name": "Check Deleted Rows",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3040,
+        2144
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "44b5e9ea-9f11-4032-8af9-8a61913ddcac",
+              "operator": {
+                "type": "object",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $input.item.json }}",
+              "rightValue": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b51f398a-71f6-44d9-8807-8a4cf2f01db1",
+      "name": "Delete IDs Success",
+      "type": "n8n-nodes-base.form",
+      "position": [
+        3264,
+        2048
+      ],
+      "webhookId": "5b6c7d8e-9f0a-4123-b456-c7d8e9f0a123",
+      "parameters": {
+        "options": {},
+        "operation": "completion",
+        "completionTitle": "Deleted",
+        "completionMessage": "The Telegram IDs were removed from the allowlist."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a2d228f-5329-4a70-bef0-9aad54688e97",
+      "name": "Ensure Table Exists",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        2592,
+        1792
+      ],
+      "parameters": {
+        "columns": {
+          "column": [
+            {
+              "name": "userid"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "table",
+        "operation": "create",
+        "tableName": "allowed_users"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "96523139-2a01-4d9e-b4f3-ea1d5e65db94",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2288,
+        1616
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1168,
+        "height": 336,
+        "content": "# Add Telegram IDs\nAdds one or more numeric Telegram IDs to the allowed_users table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b786bc5-fdb7-47c1-9aa5-15a04ff43b7b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2288,
+        1968
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1168,
+        "height": 432,
+        "content": "# Delete Telegram IDs\nRemoves one or more numeric Telegram IDs from the allowed_users table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec05da64-337c-4e95-8dd4-8abddc4563eb",
+      "name": "Notify OPNsense Failure",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        6416,
+        3280
+      ],
+      "webhookId": "593e8a66-68df-4780-9259-c5d64193dd65",
+      "parameters": {
+        "text": "=⚠️ OPNsense update failed  Operation: {{ $('Execute OPNsense API Call').item.json.opnsenseUrl }} Result: {{ $json.body.result }}  Please check manually.",
+        "chatId": "={{ $('Parse Pending Action').item.json.chatId }}",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "53a06e56-dcf8-4d67-9af1-fdafe70cbe24",
+      "name": "Saved?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        6192,
+        3184
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9cd61512-e383-44dc-a8e0-5d94ed341dee",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.body.result }}",
+              "rightValue": "saved"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e5aad405-d863-47ab-87c8-261057c151fa",
+      "name": "Fetch Existing Firewall Rules",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5792,
+        2128
+      ],
+      "parameters": {
+        "url": "={{ $('Set OPNsense host').item.json.opnsense_host }}/api/firewall/filter/search_rule",
+        "method": "=POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          },
+          "allowUnauthorizedCerts": false
+        },
+        "jsonBody": "={\"current\":1,\"rowCount\":-1,\"sort\":{}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ed1566b8-fbc0-49e7-87da-7ac4385139a7",
+      "name": "AI Security Audit",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        7136,
+        2128
+      ],
+      "parameters": {
+        "text": "=NEW_RULE:\n{{ $('Normalize OPNsense Rule').item.json.rule.toJsonString() }}\n\n\n# Data\nEXISTING_RULES:\n{{ $('Normalize Existing Rules').item.json.rules.toJsonString() }}\n\nEXISTING_NAT_RULES:\n{{ $('Normalize Existing Nat Rules').item.json.natRules.toJsonString() }}\n\nINTERFACES:\n{{ $json.interfaces.toJsonString() }}",
+        "options": {
+          "systemMessage": "=# Role\nYou are a firewall security auditor for OPNsense.\n\n# Inputs (provided in the user message)\n- NEW_RULE: the single rule being proposed.\n- EXISTING_RULES: current firewall rules, each with a uuid.\n- EXISTING_NAT_RULES: current NAT/port-forward rules. A NAT rule can expose an\n  internal service through a WAN interface even without an obviously matching\n  firewall rule, so cross-check NEW_RULE against these too.\n- INTERFACES: interface list, including which ones are WAN-facing. A rule on a\n  WAN-facing interface deserves stricter scrutiny than the same rule on a LAN\n  interface.\n\n# Task\n1. Evaluate NEW_RULE on its own for security problems: overly permissive\n   any-any, insecure protocol exposed on a WAN interface, management ports\n   (SSH/RDP/web UI/etc.) exposed on WAN, missing logging on a block/reject\n   rule, or similar.\n2. Check NEW_RULE against EXISTING_RULES and EXISTING_NAT_RULES for overlap\n   or conflict: duplicate scope, contradictory action on the same traffic, a\n   broader existing rule that shadows (or is shadowed by) the new rule, or a\n   NAT rule that forwards traffic inconsistently with the new rule.\n3. Attribute any problem found to its source: the NEW_RULE's own\n   configuration, or one or more EXISTING_RULES.\n\n# Output rules\n- status=\"ok\" only if there is no problem and no conflicting overlap. In that\n  case: severity=\"none\", problem_source=\"none\", existing_rule_issues=[].\n- If problem_source=\"new_rule\": existing_rule_issues must be [].\n- If problem_source=\"existing_rules\": existing_rule_issues MUST list every\n  implicated rule's uuid with a short issue phrase (max ~10 words each).\n- Never invent a uuid that is not present in EXISTING_RULES.\n- reason: one short sentence, max ~25 words.\n\n"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.9
+    },
+    {
+      "id": "1b3af207-3952-40d3-b8bf-c47a8b3857be",
+      "name": "Normalize Existing Rules",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6016,
+        2128
+      ],
+      "parameters": {
+        "jsCode": "const rules = $input.first().json.body.rows.map(r => ({\n  uuid: r.uuid,\n  interface: r[\"%interface\"] || r.interface || \"unknown\",\n  action: r.action,\n  direction: r.direction,\n  ipprotocol: r.ipprotocol || \"inet\",\n  protocol: r.protocol || \"any\",\n  source: r.source_net || \"any\",\n  source_negated: r.source_not === \"1\",\n  source_port: r.source_port || \"any\", \n  destination: r.destination_net || \"any\",\n  destination_negated: r.destination_not === \"1\",\n  destination_port: r.destination_port || \"any\",\n  source_is_alias: r.alias_meta_source_net?.[0]?.isAlias || false,\n  destination_is_alias: r.alias_meta_destination_net?.[0]?.isAlias || false,\n  quick: r.quick === \"1\",\n  log: r.log === \"1\",\n  enabled: r.enabled === \"1\",\n  sort_order: r.sort_order,\n  description: r.description || \"\"\n}));\n\nreturn [{ json: { rules } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a3a7f967-d780-49c1-9609-282b7f083a94",
+      "name": "Normalize Interfaces",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6912,
+        2128
+      ],
+      "parameters": {
+        "jsCode": "const interfaces = $input.first().json.body.rows\n  .filter(i => i.enabled && i.identifier && i.identifier !== \"lo0\")\n  .map(i => ({\n    identifier: i.identifier,\n    description: i.description,\n    is_physical: i.is_physical,\n    groups: i.groups || [],\n    addr4: i.addr4 || null,\n    addr6: i.addr6 || null,\n    ipv6: (i.ipv6 || []).map(x => x.ipaddr),\n    gateways: i.gateways || []\n  }));\n\nreturn [{ json: { interfaces } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "80adf83c-fdff-4631-bfa2-3296f8cff7f4",
+      "name": "AI Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        7136,
+        2352
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "options": {
+          "temperature": 0.1
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b7f4d69d-c635-475b-81c1-4e0db231d5d7",
+      "name": "Format Audit Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        7488,
+        2128
+      ],
+      "parameters": {
+        "jsCode": "const a = $('Validate AI Output').first().json;\nconst audit = $input.first().json.output;\nconst rule = a.rule || {};\nconst chatId = $('Normalize Input').first().json.chatId;\n\nconst opLabels = {\n  filter_rule_create: \"Create Firewall Rule\",\n  destination_nat_create: \"Create NAT Rule\",\n};\n\nconst fieldLabels = {\n  enabled: \"Enabled\",\n  sequence: \"Sequence\",\n  categories: \"Categories\",\n  nosync: \"No Sync\",\n  description: \"Description\",\n\n  interface: \"Interface\",\n\n  action: \"Action\",\n  direction: \"Direction\",\n  ipprotocol: \"IP Version\",\n  protocol: \"Protocol\",\n\n  source_net: \"Source\",\n  source_port: \"Source Port\",\n\n  destination_net: \"Destination\",\n  destination_port: \"Destination Port\",\n\n  // NAT\n  source: \"Source\",\n  destination: \"Destination\",\n  target: \"Internal Target\",\n  \"local-port\": \"Internal Port\",\n\n  log: \"Logging\",\n  gateway: \"Gateway\",\n};\n\nfunction prettifyKey(key) {\n  if (fieldLabels[key]) {\n    return fieldLabels[key];\n  }\n\n  return key.replace(/_/g, \" \").replace(/\\b\\w/g, (c) => c.toUpperCase());\n}\n\n// Recursive flatten for nested NAT objects\nfunction flattenObject(obj, prefix = \"\") {\n  let rows = [];\n\n  for (const [key, value] of Object.entries(obj)) {\n    const fullKey = prefix ? `${prefix}.${key}` : key;\n\n    if (value !== null && typeof value === \"object\" && !Array.isArray(value)) {\n      rows.push(...flattenObject(value, fullKey));\n    } else {\n      rows.push([fullKey, value]);\n    }\n  }\n\n  return rows;\n}\n\nconst rows = [[\"Operation\", opLabels[a.operation] || a.operation]];\n\nfor (const [key, value] of flattenObject(rule)) {\n  if (value === undefined || value === null || value === \"\") {\n    continue;\n  }\n\n  rows.push([prettifyKey(key), value]);\n}\n\n\nconst ruleSection = rows.map(([k, v]) => `<b>${k}:</b> ${v}`).join(\"\\n\");\n\nconst severityIcons = {\n  none: \"✅\",\n  low: \"🟡\",\n  medium: \"🟠\",\n  high: \"🔴\",\n  critical: \"🚨\",\n};\n\nconst statusLine =\n  audit.status === \"ok\"\n    ? \"✅ <b>No issues detected</b>\"\n    : `${severityIcons[audit.severity] || \"⚠️\"} <b>Problem detected (${audit.severity})</b>`;\n\nlet auditSection = `${statusLine}\\n<b>Reason:</b> ${audit.reason}`;\n\nif (audit.overlap_detected) {\n  auditSection += `\\n<b>Overlap detected:</b> yes`;\n}\n\nif (audit.problem_source && audit.problem_source !== \"none\") {\n  const sourceLabel =\n    audit.problem_source === \"new_rule\" ? \"New rule\" : \"Existing rule(s)\";\n  auditSection += `\\n<b>Problem source:</b> ${sourceLabel}`;\n}\n\nif (audit.existing_rule_issues && audit.existing_rule_issues.length > 0) {\n  auditSection +=\n    \"\\n\\n<b>Affected existing rules:</b>\\n\" +\n    audit.existing_rule_issues\n      .map((i) => `• <code>${i.uuid}</code> — ${i.issue}`)\n      .join(\"\\n\");\n}\n\nconst telegramText =\n  \"The following action will be performed:\\n\\n\" +\n  ruleSection +\n  \"\\n\\n———\\n\\n\" +\n  auditSection +\n  \"\\n\\nProceed?\";\n\nreturn [\n  {\n    json: {\n      chatId,\n      operation: a.operation,\n      rule: a.rule,\n      audit,\n      telegramText,\n    },\n  },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7af113a2-ed52-4038-a3c1-eef64ba0e749",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5744,
+        1808
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 2416,
+        "height": 688,
+        "content": "# AI reviews the new rule against existing rules and interfaces, flagging overlaps or security issues."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "310072d1-9b6b-41da-b5d1-dcdbb77303e5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3696,
+        1984
+      ],
+      "parameters": {
+        "width": 2016,
+        "height": 1056,
+        "content": "# Classify the request as firewall or NAT, extract structured fields with AI, then normalize into OPNsense format."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5b44868-1434-4b1d-9201-799cd79d4351",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2320,
+        2704
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 944,
+        "height": 432,
+        "content": "# Access control\nverify the sender is on the allowlist before continuing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cec42449-9bac-4f79-b79f-6ea2c8be5750",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3616,
+        3104
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2004,
+        "height": 528,
+        "content": "# Handle the button tap: look up the pending action, then confirm or cancel it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "65bd1918-2801-4980-96e5-5a8ead3d4cab",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5904,
+        2960
+      ],
+      "parameters": {
+        "width": 1152,
+        "height": 480,
+        "content": "# Send the rule to OPNsense, apply it, and notify the user of success or failure."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "86b22d0d-5cf3-427d-98e7-f9ef08505a6e",
+      "name": "Save Pending Request",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        7936,
+        2128
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "rule": "={{ $('Format Audit Result').item.json.rule.toJsonString() }}",
+            "status": "pending",
+            "chat_id": "={{ $('Format Audit Result').item.json.chatId }}",
+            "operation": "={{ $('Format Audit Result').item.json.operation }}",
+            "message_id": "={{ $json.result.message_id }}"
+          },
+          "schema": [
+            {
+              "id": "chat_id",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "chat_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "message_id",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "message_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false
+            },
+            {
+              "id": "rule",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "rule",
+              "defaultMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Format Audit Result').item.json.chatId }}"
+            },
+            {
+              "keyName": "message_id",
+              "keyValue": "={{ $json.result.message_id }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "requests"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f84261cf-4af3-4d58-829c-52536bd31fd7",
+      "name": "Load Pending Action",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        4176,
+        3376
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Parse Callback').item.json.chatId }}"
+            },
+            {
+              "keyName": "message_id",
+              "keyValue": "={{ $('Parse Callback').item.json.messageId }}"
+            },
+            {
+              "keyName": "status",
+              "keyValue": "pending"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "requests"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "879ee689-d6c4-44ca-93ae-51a88ebb61f3",
+      "name": "Update Pending (Cancel)",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        5072,
+        3376
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "canceled"
+          },
+          "schema": [
+            {
+              "id": "chat_id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "chat_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "message_id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "message_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false
+            },
+            {
+              "id": "rule",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "rule",
+              "defaultMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Parse Callback').item.json.chatId }}"
+            },
+            {
+              "keyName": "message_id",
+              "keyValue": "={{ $('Parse Callback').item.json.messageId }}"
+            },
+            {
+              "keyName": "status",
+              "keyValue": "pending"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "requests"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ce7856bc-f73a-4357-904d-24659d2fd801",
+      "name": "Update Pending (Success)",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        6640,
+        3088
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "success"
+          },
+          "schema": [
+            {
+              "id": "chat_id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "chat_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "message_id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "message_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false
+            },
+            {
+              "id": "rule",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "rule",
+              "defaultMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Parse Callback').item.json.chatId }}"
+            },
+            {
+              "keyName": "message_id",
+              "keyValue": "={{ $('Parse Callback').item.json.messageId }}"
+            },
+            {
+              "keyName": "status",
+              "keyValue": "pending"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "requests"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6a4cc96c-0c78-4eac-8d09-d5915b9ab072",
+      "name": "Set OPNsense host",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2624,
+        2976
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "14ccabb3-604d-4aa2-acf8-05611efac098",
+              "name": "opnsense_host",
+              "type": "string",
+              "value": "YOUR_OPNSENSE_HOST"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3e9064ce-574e-4ca5-8b10-c427393fb6e0",
+      "name": "Fetch Existing Nat Rules",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        6240,
+        2128
+      ],
+      "parameters": {
+        "url": "={{ $('Set OPNsense host').item.json.opnsense_host }}/api/firewall/d_nat/search_rule/",
+        "method": "=POST",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          },
+          "allowUnauthorizedCerts": false
+        },
+        "jsonBody": "={\"current\":1,\"rowCount\":-1,\"sort\":{}}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBasicAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e2cea185-fa32-4546-9ed2-18aa933451bf",
+      "name": "Normalize Existing Nat Rules",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6464,
+        2128
+      ],
+      "parameters": {
+        "jsCode": "const natRules = $input.first().json.body.rows.map(r => ({\n  uuid: r.uuid,\n  interface: r[\"%interface\"] || r.interface || \"unknown\",\n  protocol: r.protocol || \"any\",\n  source: r[\"source.network\"] || r[\"source.address\"] || \"any\",\n  source_negated: r[\"source.not\"] === \"1\",\n  source_port: r[\"source.port\"] || \"any\",\n  destination: r[\"destination.network\"] || r[\"destination.address\"] || \"any\",\n  destination_negated: r[\"destination.not\"] === \"1\",\n  destination_port: r[\"destination.port\"] || \"any\",\n  target: r.target || \"\",\n  local_port: r[\"local-port\"] || \"\",\n  nordr: r.nordr === \"1\",\n  disabled: r.disabled === \"1\",\n  is_automatic: r.is_automatic === true,\n  log: r.log === \"1\",\n  associated_rule_id: r[\"associated-rule-id\"] || null,\n  sort_order: r.sort_order,\n  description: r.descr || \"\"\n}));\n\nreturn [{ json: { natRules } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b3cb9b95-c8e6-42c4-a765-65901bf552dc",
+      "name": "Remove Inline Keys",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        5280,
+        3376
+      ],
+      "webhookId": "32ed291e-d94d-4135-a01d-52821cfe9d53",
+      "parameters": {
+        "text": "={{ $('When Telegram Message Received').item.json.callback_query.message.text }}\n\n\nCanceled!",
+        "chatId": "={{ $json.chat_id }}",
+        "messageId": "={{ $json.message_id }}",
+        "operation": "editMessageText",
+        "additionalFields": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "8568ff0b-f68f-4b79-bbbe-a72cf2d0f8de",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        2032
+      ],
+      "parameters": {
+        "width": 976,
+        "height": 1600,
+        "content": "# ⚙️ Setup Guide — OPNsense AI via Telegram\n\nComplete these steps before activating the workflow.\n\n### 1. Configure Telegram\n\nCreate a Telegram bot with **BotFather** and add its token to the Telegram credentials in n8n.\n\nAdd authorized users using the included **Add Telegram IDs** form.\n\nTo find your numeric Telegram ID, you can:\n\n* Use a Telegram ID lookup bot\n* Run the **Telegram Trigger** and check `message.from.id`\n* Check the Bot API `getUpdates` response\n\n### 2. Configure Form Authentication\n\nThe **Add Telegram IDs** and **Delete Telegram IDs** forms are protected with **Basic Auth**.\n\nSet a username and strong password in both form nodes before activating the workflow.\n\n Keep these credentials private, as the forms control access to the Telegram user allowlist.\n\n### 3. Configure OPNsense\n\nCreate OPNsense API credentials with the required firewall permissions.\n\nAdd the API key and secret as **HTTP Basic Auth** credentials in n8n and assign them to the OPNsense HTTP Request nodes.\n\n Never hardcode API credentials inside nodes.\n\n### 4. Set the OPNsense Host\n\nOpen **Set OPNsense host** and enter your OPNsense URL:\n\n`https://firewall.example.com`\n\nDo not include `/api` at the end.\n\n### 5. Review SSL Settings\n\nOPNsense HTTP Request nodes use **SSL certificate verification by default**.\n\nIf your OPNsense instance uses a self-signed or untrusted certificate, open the OPNsense HTTP Request nodes and enable **Ignore SSL**.\n\nKeeping SSL verification enabled is recommended for production.\n\n### 6. Configure the AI Model\n\nAdd your LLM credentials and select the model used by the AI nodes.\n\n Model selection directly affects **interpretation accuracy, security analysis, response speed, and cost**. For production, prefer a model with reliable structured-output performance.\n\n### 7. Test & Activate\n\nActivate the workflow and send a simple Firewall or NAT request to your Telegram bot.\n\nThe workflow will analyze the request and ask for confirmation before making changes.\n\n✅ **Confirm** → Apply the change\n❌ **Cancel** → Make no changes\n\n> ⚠️ Test with non-critical rules before using the workflow in production.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fe1774e1-7a01-4201-832e-56f3b5ff4d6a",
+      "name": "Update Pending (Failure)",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        6640,
+        3280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "status": "failure"
+          },
+          "schema": [
+            {
+              "id": "chat_id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "chat_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "message_id",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "message_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "operation",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "operation",
+              "defaultMatch": false
+            },
+            {
+              "id": "rule",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "readOnly": false,
+              "required": false,
+              "displayName": "rule",
+              "defaultMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "chat_id",
+              "keyValue": "={{ $('Parse Callback').item.json.chatId }}"
+            },
+            {
+              "keyName": "message_id",
+              "keyValue": "={{ $('Parse Callback').item.json.messageId }}"
+            },
+            {
+              "keyName": "status",
+              "keyValue": "pending"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "update",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "requests"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "55646b79-95f9-4ac1-9541-5f2856979ad3",
+      "name": "Ensure Requests Table Exists",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        3296,
+        2880
+      ],
+      "parameters": {
+        "columns": {
+          "column": [
+            {
+              "name": "chat_id",
+              "type": "number"
+            },
+            {
+              "name": "message_id",
+              "type": "number"
+            },
+            {
+              "name": "operation"
+            },
+            {
+              "name": "rule"
+            },
+            {
+              "name": "status"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "table",
+        "operation": "create",
+        "tableName": "requests"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "848bf726-14ac-4e03-a4bd-e3141d42720e",
+      "name": "Structured Audit Output",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        7280,
+        2352
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"status\": {\n      \"type\": \"string\",\n      \"enum\": [\"ok\", \"problem\"]\n    },\n    \"severity\": {\n      \"type\": \"string\",\n      \"enum\": [\"none\", \"low\", \"medium\", \"high\", \"critical\"]\n    },\n    \"overlap_detected\": {\n      \"type\": \"boolean\"\n    },\n    \"problem_source\": {\n      \"type\": \"string\",\n      \"enum\": [\"none\", \"new_rule\", \"existing_rules\"]\n    },\n    \"reason\": {\n      \"type\": \"string\"\n    },\n    \"existing_rule_issues\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"uuid\": { \"type\": \"string\" },\n          \"issue\": { \"type\": \"string\" }\n        },\n        \"required\": [\"uuid\", \"issue\"]\n      }\n    }\n  },\n  \"required\": [\"status\", \"severity\", \"overlap_detected\", \"problem_source\", \"reason\", \"existing_rule_issues\"]\n}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "116b5ae9-3880-4546-88fb-bf5988e07fb7",
+      "name": "When Telegram Message Received",
+      "type": "n8n-nodes-base.telegramTrigger",
+      "position": [
+        2400,
+        2976
+      ],
+      "webhookId": "firewall-telegram-trigger",
+      "parameters": {
+        "updates": [
+          "message",
+          "callback_query"
+        ],
+        "additionalFields": {}
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "7ac310a8-f441-498e-97a4-544bf75c2a62",
+      "name": "Check Allowlist Status",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3072,
+        2976
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "array",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $input.all() }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3b0326c2-2041-41d6-9154-8805c4517108",
+      "name": "Terminate Execution",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Not on allowlist - execution ends here, no reply is sent",
+      "position": [
+        3296,
+        3072
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Saved?": {
+      "main": [
+        [
+          {
+            "node": "Apply Changes",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Notify OPNsense Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Security Audit",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Valid?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Existing Firewall Rules",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Clarification Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmed?": {
+      "main": [
+        [
+          {
+            "node": "Map Operation to OPNsense Endpoint",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Pending (Cancel)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add IDs Form": {
+      "main": [
+        [
+          {
+            "node": "Ensure Table Exists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Changes": {
+      "main": [
+        [
+          {
+            "node": "Update Pending (Success)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Add IDs": {
+      "main": [
+        [
+          {
+            "node": "Upsert Allowed Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NAT Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI NAT Interpreter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Callback": {
+      "main": [
+        [
+          {
+            "node": "Answer Callback Query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pending Found?": {
+      "main": [
+        [
+          {
+            "node": "Confirmed?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send No Pending Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete IDs Form": {
+      "main": [
+        [
+          {
+            "node": "Parse Delete IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Input": {
+      "main": [
+        [
+          {
+            "node": "AI Request Classifier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Delete IDs": {
+      "main": [
+        [
+          {
+            "node": "Delete Allowed Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Security Audit": {
+      "main": [
+        [
+          {
+            "node": "Format Audit Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "NAT Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI NAT Interpreter",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set OPNsense host": {
+      "main": [
+        [
+          {
+            "node": "Lookup In Allowlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI NAT Interpreter": {
+      "main": [
+        [
+          {
+            "node": "Normalize OPNsense Rule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Deleted Rows": {
+      "main": [
+        [
+          {
+            "node": "Delete IDs Success",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Form - IDs Not Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove Inline Keys": {
+      "main": [
+        [
+          {
+            "node": "Send Cancelled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate AI Output": {
+      "main": [
+        [
+          {
+            "node": "Is Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure Table Exists": {
+      "main": [
+        [
+          {
+            "node": "Parse Add IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firewall Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Firewall Interpreter",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Audit Result": {
+      "main": [
+        [
+          {
+            "node": "Send Confirmation With Buttons",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Pending Action": {
+      "main": [
+        [
+          {
+            "node": "Parse Pending Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup In Allowlist": {
+      "main": [
+        [
+          {
+            "node": "Check Allowlist Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete Allowed Users": {
+      "main": [
+        [
+          {
+            "node": "Check Deleted Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Message or Callback?": {
+      "main": [
+        [
+          {
+            "node": "Normalize Input",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Parse Callback",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Interfaces": {
+      "main": [
+        [
+          {
+            "node": "AI Security Audit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Pending Action": {
+      "main": [
+        [
+          {
+            "node": "Pending Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert Allowed Users": {
+      "main": [
+        [
+          {
+            "node": "Add IDs Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Request Classifier": {
+      "main": [
+        [
+          {
+            "node": "Switch: Firewall or NAT",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer Callback Query": {
+      "main": [
+        [
+          {
+            "node": "Load Pending Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Request Classifier",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Allowlist Status": {
+      "main": [
+        [
+          {
+            "node": "Ensure Requests Table Exists",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Terminate Execution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Firewall Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Firewall Interpreter",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Firewall Interpreter": {
+      "main": [
+        [
+          {
+            "node": "Normalize OPNsense Rule",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize OPNsense Rule": {
+      "main": [
+        [
+          {
+            "node": "Validate AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify OPNsense Failure": {
+      "main": [
+        [
+          {
+            "node": "Update Pending (Failure)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Audit Output": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Security Audit",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch: Firewall or NAT": {
+      "main": [
+        [
+          {
+            "node": "AI Firewall Interpreter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI NAT Interpreter",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Unknown Type Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Pending (Cancel)": {
+      "main": [
+        [
+          {
+            "node": "Remove Inline Keys",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classifier Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Request Classifier",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Existing Nat Rules": {
+      "main": [
+        [
+          {
+            "node": "Normalize Existing Nat Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Existing Rules": {
+      "main": [
+        [
+          {
+            "node": "Fetch Existing Nat Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Pending (Success)": {
+      "main": [
+        [
+          {
+            "node": "Send Success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute OPNsense API Call": {
+      "main": [
+        [
+          {
+            "node": "Saved?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Interfaces Overview": {
+      "main": [
+        [
+          {
+            "node": "Normalize Interfaces",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ensure Requests Table Exists": {
+      "main": [
+        [
+          {
+            "node": "Message or Callback?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Existing Nat Rules": {
+      "main": [
+        [
+          {
+            "node": "Fetch Interfaces Overview",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Existing Firewall Rules": {
+      "main": [
+        [
+          {
+            "node": "Normalize Existing Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Confirmation With Buttons": {
+      "main": [
+        [
+          {
+            "node": "Save Pending Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Telegram Message Received": {
+      "main": [
+        [
+          {
+            "node": "Set OPNsense host",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Operation to OPNsense Endpoint": {
+      "main": [
+        [
+          {
+            "node": "Execute OPNsense API Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Create OPNsense firewall and NAT rules from Telegram with AI",
+    "wechat": "youandme10086",
+    "id": 18744,
+    "update_time": "2026-09-27"
+  }
+}

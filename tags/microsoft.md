@@ -1,4 +1,4 @@
-# microsoft : 54
+# microsoft : 61
 
 |id|file|
 |----|----|
@@ -56,3 +56,10 @@
 |16448|[16448_Create_work4all_incoming_invoices_from_Microsoft_Outlook_supplier_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16448_Create_work4all_incoming_invoices_from_Microsoft_Outlook_supplier_emails.json)|
 |16537|[16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json)|
 |16784|[16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16784_Send_staged_invoice_payment_reminders_with_Microsoft_SQL_and_Gmail.json)|
+|16883|[16883_Create_the_newest_Microsoft_Entra_user_in_Seventhings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16883_Create_the_newest_Microsoft_Entra_user_in_Seventhings.json)|
+|17206|[17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json)|
+|17708|[17708_Rewrite_legal_time_entry_narratives_with_SharePoint__Microsoft_Graph__and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17708_Rewrite_legal_time_entry_narratives_with_SharePoint__Microsoft_Graph__and_GPT-4o.json)|
+|18027|[18027_Send_weekly_Microsoft_365_license_waste_reports_via_Microsoft_Graph_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18027_Send_weekly_Microsoft_365_license_waste_reports_via_Microsoft_Graph_and_Gmail.json)|
+|18368|[18368_Diagnose_website_friction_with_Microsoft_Clarity__Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18368_Diagnose_website_friction_with_Microsoft_Clarity__Bright_Data__GPT-5.6_and_Slack.json)|
+|18524|[18524_Audit_inactive_Microsoft_365_users_and_email_license_reports_via_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18524_Audit_inactive_Microsoft_365_users_and_email_license_reports_via_Outlook.json)|
+|19011|[19011_Create_Qwease_incidents_from_monitoring_alerts_and_notify_Microsoft_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19011_Create_Qwease_incidents_from_monitoring_alerts_and_notify_Microsoft_Teams.json)|

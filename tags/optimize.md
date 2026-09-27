@@ -1,4 +1,4 @@
-# optimize : 33
+# optimize : 39
 
 |id|file|
 |----|----|
@@ -35,3 +35,9 @@
 |15673|[15673_Optimize_delivery_routes_for_carriers_from_Google_Sheets_using_Google_Maps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15673_Optimize_delivery_routes_for_carriers_from_Google_Sheets_using_Google_Maps.json)|
 |16110|[16110_Optimize_inactive_Microsoft_365_premium_licenses_with_Graph_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16110_Optimize_inactive_Microsoft_365_premium_licenses_with_Graph_and_Teams.json)|
 |16342|[16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16342_Optimize_maritime_routes_and_disruption_response_with_OpenAI_and_Slack.json)|
+|17844|[17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json)|
+|18000|[18000_Optimize_daily_schedules_with_Groq__Google_Sheets__Calendar__Gmail__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18000_Optimize_daily_schedules_with_Groq__Google_Sheets__Calendar__Gmail__and_Twilio.json)|
+|18246|[18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json)|
+|18691|[18691_Optimize_vessel_fuel_consumption__alerts__and_reports_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18691_Optimize_vessel_fuel_consumption__alerts__and_reports_with_OpenAI_and_Gmail.json)|
+|18780|[18780_Create_and_optimize_B2B_LinkedIn_AI_posts_with_Groq_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18780_Create_and_optimize_B2B_LinkedIn_AI_posts_with_Groq_and_Telegram_alerts.json)|
+|19652|[19652_Generate_and_optimize_AI_blog_posts_for_WordPress_with_Gemini_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19652_Generate_and_optimize_AI_blog_posts_for_WordPress_with_Gemini_and_OpenAI.json)|

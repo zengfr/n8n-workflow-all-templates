@@ -1,0 +1,549 @@
+{
+  "name": "Content Repurposer",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3100dd00-0004-4000-d000-000000000001",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -860,
+        -620
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 800,
+        "content": "## Content Repurposer\n\n### How it works\n\nThis workflow receives a field note or anonymized case win via webhook, validates that the content does not contain privileged language, sends it to Claude (Anthropic) to generate four marketing assets (LinkedIn post, newsletter blurb, Google Business Profile post, FAQ entry), runs a post-hoc keyword safety scan on all outputs, logs the delivery event to the compliance audit sheet via the Bar-Compliance Guardrail, and emails the formatted content package to your marketing inbox.\n\n### Setup steps\n\n- Get an Anthropic API key from console.anthropic.com and create a Header Auth credential (Header Name: x-api-key, Header Value: your key) saved as 'Anthropic API key'.\n- Set FIRM_NAME, FIRM_EMAIL, FIRM_FROM_EMAIL, and GUARDRAIL_WORKFLOW_ID in n8n project Variables.\n- Wire an SMTP email credential in project → Credentials tab.\n- Deploy the Bar-Compliance Guardrail workflow first and set its ID in GUARDRAIL_WORKFLOW_ID.\n\n### Customization\n\nChange the Claude model in Build Content Prompt from claude-sonnet-4-6 to claude-haiku-4-5-20251001 to reduce cost. Add practice-area-specific prompt instructions to tailor copy style. Extend the output format by adding new asset types to the Claude prompt and parsing them in Extract & Safety-Check Content."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000002",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 714,
+        "height": 350,
+        "content": "## Receive and validate input\n\nWebhook intake and validation. Accepts field notes and anonymized case wins, rejects empty submissions and content containing privileged language before any AI processing runs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000003",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        666,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 510,
+        "content": "## Generate content\n\nBuilds the Claude prompt with firm config and content metadata, calls the Anthropic API, and parses the four marketing assets from the response."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000004",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1338,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 436,
+        "height": 510,
+        "content": "## Safety check\n\nRuns an independent post-hoc keyword scan on all four generated assets. Routes flagged content to a human-review skip rather than delivering potentially non-compliant copy."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000005",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1786,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 490,
+        "height": 510,
+        "content": "## Log and deliver\n\nLogs the content generation event to the compliance audit sheet via the Bar-Compliance Guardrail, then emails the four formatted assets to your marketing inbox."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000006",
+      "name": "When Content Submitted",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives a field note or case win from your team. Copy the Production URL and give it to whoever submits content — typically a paralegal, office manager, or the attorney.\n\nAccepted input (POST JSON body):\n  content — the raw field note or case win text (required, minimum 20 characters)\n  content_type — 'field_note' or 'case_win' (optional, defaults to 'field_note')\n  practice_area — e.g. 'family law', 'personal injury' (optional — helps Claude tailor the copy)\n  firm_name — overrides the FIRM_NAME variable for this submission (optional)\n\nAlso accepts Fluent Forms webhook format — detected automatically.\n\nIMPORTANT: Do not include client names, case numbers, opposing party names, or any privileged details in the content field. Submit only anonymised outcomes and firm process notes. For case wins, obtain written client consent before submitting — the generated assets will reference the outcome type, not the specific client.",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "f7e8d9c0-a1b2-3456-7890-abcdef012345",
+      "parameters": {
+        "path": "repurpose-content",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000007",
+      "name": "Normalize and Validate Input",
+      "type": "n8n-nodes-base.code",
+      "notes": "Normalizes input from both Fluent Forms and direct JSON webhooks, then validates it.\n\nValidation rules:\n  Minimum 20 characters of content — rejects empty or trivially short submissions\n  No privileged or legal-advice language — rejects content containing 'attorney-client', 'privileged', 'legal opinion', etc. Firms must anonymise before submitting\n\nOutput: content, content_type ('field_note' or 'case_win'), practice_area, is_valid_input, validation_note, received_at.",
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Normalizes input from Fluent Forms or direct JSON webhook.\n// Sets is_valid_input = true when content meets minimum quality requirements.\n\nconst raw  = $input.first().json;\nconst body = raw.body || raw;\n\nlet content, contentType, practiceArea, firmNameOverride;\n\nif (body.form_id !== undefined && body.fields !== undefined) {\n  // Fluent Forms webhook shape: { form_id, fields: { ... } }\n  const f      = body.fields || {};\n  content          = String(f.content || f.field_note || f.case_win || '');\n  contentType      = String(f.content_type || 'field_note');\n  practiceArea     = String(f.practice_area || '');\n  firmNameOverride = String(f.firm_name || '');\n} else {\n  // Direct JSON webhook\n  content          = String(body.content || body.field_note || body.case_win || '');\n  contentType      = String(body.content_type || 'field_note');\n  practiceArea     = String(body.practice_area || '');\n  firmNameOverride = String(body.firm_name || '');\n}\n\ncontent = content.trim();\n\n// Reject content that contains privileged or legal-advice language.\nconst LEGAL_PATTERN = /\\b(attorney.client|work.product|privileged|legal.advice|legal.opinion|ABA|bar.complaint|you.should|we.advise|pursuant.to|under\\s+[§\\d])\\b/i;\nconst containsLegal = LEGAL_PATTERN.test(content);\n\nconst isValidInput = content.length >= 20 && !containsLegal;\n\nlet validationNote = '';\nif (!content)                 validationNote = 'No content submitted.';\nelse if (content.length < 20) validationNote = 'Content too short — minimum 20 characters.';\nelse if (containsLegal)       validationNote = 'Content appears to contain legal-advice or privileged language. Remove attorney-client references, legal opinions, or advice before submitting.';\n\nreturn [{ json: {\n  content,\n  content_type:       contentType === 'case_win' ? 'case_win' : 'field_note',\n  practice_area:      practiceArea,\n  firm_name_override: firmNameOverride,\n  is_valid_input:     isValidInput,\n  validation_note:    validationNote,\n  received_at:        new Date().toISOString(),\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000008",
+      "name": "If Valid Input",
+      "type": "n8n-nodes-base.if",
+      "notes": "Proceeds only when the submitted content passes the validation check.\n\nYes (is_valid_input: true) → content is present and does not contain privileged language → proceed to generate copy.\nNo (is_valid_input: false) → reject with a labelled skip. The validation_note field contains the reason.",
+      "onError": "continueErrorOutput",
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c_valid_input",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_valid_input }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000009",
+      "name": "Ignore Invalid Content",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "Ends the workflow when the submitted content is missing, too short, or contains privileged language. No content is generated. Visible in execution history with the validation_note reason in the upstream node output.",
+      "position": [
+        672,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-00000000000a",
+      "name": "Build Content Prompt",
+      "type": "n8n-nodes-base.code",
+      "notes": "Reads firm config from n8n Variables and constructs the Claude API request payload.\n\nVariables read:\n  FIRM_NAME — appears in the prompt so Claude writes copy for this specific firm\n  FIRM_EMAIL — where the content package is delivered\n  FIRM_FROM_EMAIL — the sender address for the delivery email\n\nModel: claude-sonnet-4-6. Chosen for copy quality — this template replaces agency fees, so the output needs to be publish-ready. To reduce cost at the expense of quality, change 'claude-sonnet-4-6' to 'claude-haiku-4-5-20251001' here.\n\nThe prompt instructs Claude to produce marketing copy only (no legal advice), to anonymise outcomes (no client identifiers), and to attach bar-required disclaimers ('Attorney Advertising. Past results do not guarantee future outcomes.') on case-win assets.",
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Reads firm config from n8n Variables and constructs the Claude API request.\n// Required variables: FIRM_NAME, FIRM_EMAIL, FIRM_FROM_EMAIL\n\nconst FIRM_NAME      = $vars.FIRM_NAME;\nconst FIRM_EMAIL     = $vars.FIRM_EMAIL;\nconst FIRM_FROM_EMAIL = $vars.FIRM_FROM_EMAIL;\n\nif (!FIRM_NAME)       throw new Error('FIRM_NAME n8n Variable is not set. Go to Settings → Variables and add it.');\nif (!FIRM_EMAIL)      throw new Error('FIRM_EMAIL n8n Variable is not set. Go to Settings → Variables and add it.');\nif (!FIRM_FROM_EMAIL) throw new Error('FIRM_FROM_EMAIL n8n Variable is not set. Go to Settings → Variables and add it (can be the same as FIRM_EMAIL).');\n\nconst item         = $input.first().json;\nconst isWin        = item.content_type === 'case_win';\nconst contentLabel = isWin ? 'Case win' : 'Field note';\nconst practiceArea = item.practice_area || 'General practice';\nconst firmName     = item.firm_name_override || FIRM_NAME;\n\nconst prompt = `You are a marketing copywriter for ${firmName}, a law firm. Repurpose the ${contentLabel.toLowerCase()} below into four marketing assets.\n\nRules you must follow — no exceptions:\n- Marketing copy only. No legal advice, legal opinions, case law citations, statutory references, or anything that constitutes legal counsel.\n- No client names, case numbers, opposing party names, specific dollar amounts, or any detail that could identify a specific client or matter. Reference outcomes in general terms only (e.g. 'resolved favorably', 'secured a positive outcome', 'the client kept their business').\n- For case wins, include 'Attorney Advertising. Past results do not guarantee future outcomes.' at the end of the linkedin_post and newsletter_blurb.\n- Write for a non-lawyer audience. Plain language. Warm, professional, human.\n\nPractice area: ${practiceArea}\nContent type: ${contentLabel}\n\nContent:\n${item.content}\n\nReturn ONLY a valid JSON object — no markdown fences, no preamble, no explanation outside the JSON. Keys required:\n- linkedin_post: max 1,300 characters; professional, warm, shows the human side of practice; call to action to contact the firm at the end; Attorney Advertising footer if case win\n- newsletter_blurb: max 200 words; conversational, trust-building, references the outcome type without identifying details; Attorney Advertising footer if case win\n- gbp_post: max 1,500 characters; what the firm does for clients, locally relevant, positive, encourages contact\n- faq_entry: a question a prospective client would search for on the first line (starting with 'Q:'), then a plain-language answer about the firm's process or values on the second line (starting with 'A:') — no legal advice in the answer\n- is_marketing_safe: true\n\nIf producing safe copy is impossible without legal advice or identifying details, return only: {\"is_marketing_safe\": false, \"safety_note\": \"brief reason\"}`;\n\nreturn [{ json: {\n  ...item,\n  firm_name:       firmName,\n  firm_email:      FIRM_EMAIL,\n  firm_from_email: FIRM_FROM_EMAIL,\n  claude_request:  {\n    model:      'claude-sonnet-4-6',\n    max_tokens: 2048,\n    messages:   [{ role: 'user', content: prompt }],\n  },\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-00000000000b",
+      "name": "Generate Marketing Content",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Sends the content to Claude (Anthropic) and receives the four marketing assets as JSON.\n\nCredential: Settings → Credentials → New → search 'Header Auth' → Name: 'Anthropic API key' → Header Name: 'x-api-key' → Header Value: your Anthropic API key from console.anthropic.com.\n\nThe anthropic-version header (2023-06-01) is required by the Anthropic API and is added automatically by this node.\n\nCost: claude-sonnet-4-6 at ~2,000 output tokens costs approximately $0.03 per run. A firm submitting one piece of content per week spends roughly $1.50/year on AI costs.\n\nRate limits: Anthropic's default limits are generous for this use case. If you see 429 errors, check your usage tier at console.anthropic.com.",
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json.claude_request) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "specifyHeaders": "keypair",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "1",
+          "name": "Anthropic API key"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-00000000000c",
+      "name": "Extract & Safety-Check Content",
+      "type": "n8n-nodes-base.code",
+      "notes": "Parses Claude's JSON response and runs an independent post-hoc keyword safety scan on all four outputs.\n\nTwo-layer safety check:\n  Layer 1 — Claude's self-report: if Claude returns is_marketing_safe: false, the workflow routes to the human-review skip immediately.\n  Layer 2 — Post-hoc scan: scans all four outputs for legal-advice indicators (attorney-client, we advise, pursuant to, case law, statute, court held, etc.). Flags any asset that matches as 'REVIEW FIRST' rather than 'READY TO PUBLISH'.\n\nis_marketing_safe is true only if both layers pass.\n\nAlso computes character and word counts for each asset and builds the formatted email body for the delivery step.",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Parses Claude's JSON response and runs a post-hoc keyword safety scan on all four outputs.\n// is_marketing_safe is true only if both Claude AND the scan pass.\n// References 'Build Content Prompt' for firm config and content metadata.\n\nconst prepareData  = $('Build Content Prompt').item.json;\nconst practiceArea = prepareData.practice_area || 'General practice';\nconst firmName     = prepareData.firm_name     || 'Your Law Firm';\nconst contentType  = prepareData.content_type  || 'field_note';\n\n// Claude API response shape: { content: [{ type: 'text', text: '...' }], ... }\nconst rawResponse = $input.first().json;\nconst rawText = (rawResponse.content && rawResponse.content[0] && rawResponse.content[0].text)\n  ? rawResponse.content[0].text.trim()\n  : '';\n\nif (!rawText) {\n  throw new Error('Claude API returned an empty response. Check the Anthropic API key, usage quota, and rate limits at console.anthropic.com.');\n}\n\nlet parsed;\ntry {\n  // Strip markdown fences if Claude added them despite instructions\n  const cleaned = rawText.replace(/^```(?:json)?\\n?/, '').replace(/\\n?```$/, '');\n  parsed = JSON.parse(cleaned);\n} catch (e) {\n  throw new Error('Claude did not return valid JSON. Raw response: ' + rawText.slice(0, 400));\n}\n\n// If Claude self-flagged the content as unsafe, return early with a human-review package\nif (parsed.is_marketing_safe === false) {\n  return [{ json: {\n    is_marketing_safe: false,\n    safety_note:       parsed.safety_note || 'Claude flagged this content as unsafe to repurpose.',\n    linkedin_post:     '',\n    newsletter_blurb:  '',\n    gbp_post:          '',\n    faq_entry:         '',\n    email_subject:     'Content Repurposer — flagged for human review — ' + practiceArea,\n    email_body:        'The Content Repurposer flagged the submitted ' + (contentType === 'case_win' ? 'case win' : 'field note') + ' as unsafe to repurpose.\\n\\nReason: ' + (parsed.safety_note || 'None provided') + '\\n\\nOriginal content submitted:\\n' + prepareData.content,\n    practice_area:     practiceArea,\n    content_type:      contentType,\n    received_at:       prepareData.received_at || new Date().toISOString(),\n  } }];\n}\n\nconst outputs = {\n  linkedin_post:    String(parsed.linkedin_post    || ''),\n  newsletter_blurb: String(parsed.newsletter_blurb || ''),\n  gbp_post:         String(parsed.gbp_post         || ''),\n  faq_entry:        String(parsed.faq_entry         || ''),\n};\n\n// Post-hoc keyword scan — catches legal language that slipped past Claude's self-check\nconst UNSAFE_RE = /\\b(attorney.client|work.product|privileged|legal.advice|legal.opinion|you should|we advise|we recommend|our recommendation|pursuant to|under\\s+[§\\d]|case law|statute|court held|court ruled|court\\s+held|ruling)\\b/i;\n\nconst scanFlags = {};\nlet anyFlagged = false;\nfor (const [key, text] of Object.entries(outputs)) {\n  const flagged = UNSAFE_RE.test(text);\n  scanFlags[key] = flagged ? 'REVIEW FIRST' : 'READY TO PUBLISH';\n  if (flagged) anyFlagged = true;\n}\n\nconst isSafe = !anyFlagged;\n\n// Character and word counts for the email summary\nconst counts = {\n  linkedin_post:    { chars: outputs.linkedin_post.length,    words: outputs.linkedin_post.trim().split(/\\s+/).filter(Boolean).length },\n  newsletter_blurb: { chars: outputs.newsletter_blurb.length, words: outputs.newsletter_blurb.trim().split(/\\s+/).filter(Boolean).length },\n  gbp_post:         { chars: outputs.gbp_post.length,         words: outputs.gbp_post.trim().split(/\\s+/).filter(Boolean).length },\n  faq_entry:        { chars: outputs.faq_entry.length,        words: outputs.faq_entry.trim().split(/\\s+/).filter(Boolean).length },\n};\n\nconst isWin      = contentType === 'case_win';\nconst typeLabel  = isWin ? 'Case win' : 'Field note';\nconst consentWarn = isWin\n  ? '\\n⚠  CASE WIN — Confirm written client consent is on file before publishing any of these assets.\\n'\n  : '';\nconst DIV = '─'.repeat(60);\n\nconst emailSubject = 'Content package ready — ' + practiceArea + ' ' + typeLabel.toLowerCase() + ' — ' + new Date().toLocaleDateString('en-US');\n\nconst emailBody = [\n  'Content Package — ' + firmName,\n  'Type: ' + typeLabel + '  |  Practice area: ' + practiceArea,\n  consentWarn,\n  '',\n  DIV,\n  'LINKEDIN POST  (' + counts.linkedin_post.chars + ' / 1,300 chars) — ' + scanFlags.linkedin_post,\n  DIV,\n  outputs.linkedin_post,\n  '',\n  DIV,\n  'NEWSLETTER BLURB  (' + counts.newsletter_blurb.words + ' words) — ' + scanFlags.newsletter_blurb,\n  DIV,\n  outputs.newsletter_blurb,\n  '',\n  DIV,\n  'GOOGLE BUSINESS PROFILE POST  (' + counts.gbp_post.chars + ' / 1,500 chars) — ' + scanFlags.gbp_post,\n  DIV,\n  outputs.gbp_post,\n  '',\n  DIV,\n  'FAQ ENTRY  (' + counts.faq_entry.words + ' words) — ' + scanFlags.faq_entry,\n  DIV,\n  outputs.faq_entry,\n  '',\n  DIV,\n  'BEFORE PUBLISHING',\n  '• \"REVIEW FIRST\" assets need a human check — the safety scan found legal-sounding language',\n  '• All case-win assets must include \"Attorney Advertising. Past results do not guarantee future outcomes.\"',\n  '• Google Business Profile rejects posts over 1,500 characters',\n  '• Newsletter: confirm your email platform\\'s unsubscribe footer is active for every send',\n  'Generated: ' + new Date().toISOString(),\n].join('\\n');\n\nreturn [{ json: {\n  is_marketing_safe: isSafe,\n  scan_flags:        scanFlags,\n  counts,\n  email_subject:     emailSubject,\n  email_body:        emailBody,\n  practice_area:     practiceArea,\n  content_type:      contentType,\n  received_at:       prepareData.received_at || new Date().toISOString(),\n  ...outputs,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-00000000000d",
+      "name": "If Marketing Safe",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes based on the combined safety check result.\n\nYes (is_marketing_safe: true) → all four outputs passed both Claude's self-check and the keyword scan → proceed to compliance log and delivery.\nNo (is_marketing_safe: false) → content was flagged by Claude or by the post-hoc scan → route to the human-review skip. The content submitter should review the original field note or case win and resubmit with any legal-advice language removed.",
+      "onError": "continueErrorOutput",
+      "position": [
+        1344,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c_is_safe",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_marketing_safe }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-00000000000e",
+      "name": "Skip — flagged for human review",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "The safety check flagged the generated content — either Claude self-reported it as unsafe, or the post-hoc keyword scan found legal-sounding language in at least one asset. No email is sent. The submitter should review the original content, remove any legal-advice or privileged language, and resubmit. Check the 'Extract & Safety-Check Content' node output for which assets were flagged and why.",
+      "position": [
+        1568,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-00000000000f",
+      "name": "Compliance Check — Audit Log",
+      "type": "n8n-nodes-base.executeWorkflow",
+      "notes": "Calls the Bar-Compliance Guardrail to log this content generation event to your compliance audit sheet.\n\nThis workflow delivers content to an internal firm email, not to a client — so opt-out checking does not apply and approved will always be true. The primary purpose of this call is the audit log entry, which records what was generated, when, and for which practice area.\n\nThe guardrail workflow ID is read from the GUARDRAIL_WORKFLOW_ID n8n Variable (Settings → Variables). Set it to the numeric ID from the Bar-Compliance Guardrail workflow URL: .../workflow/WORKFLOW_ID.\n\nReturns: { approved, message_out, suppression_reason } plus all upstream fields.",
+      "position": [
+        1568,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "workflowId": {
+          "__rl": true,
+          "mode": "expression",
+          "value": "={{ $vars.GUARDRAIL_WORKFLOW_ID }}"
+        },
+        "workflowInputs": {
+          "value": {
+            "channel": "email",
+            "message": "={{ 'Content Repurposer generated a ' + $('Extract & Safety-Check Content').item.json.content_type + ' package for ' + $('Extract & Safety-Check Content').item.json.practice_area + ' on ' + $('Extract & Safety-Check Content').item.json.received_at }}",
+            "matter_id": "",
+            "recipient": "={{ $('Build Content Prompt').item.json.firm_email }}",
+            "template_id": "PAC-31"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000010",
+      "name": "If Approved to Deliver",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes based on the compliance guardrail's decision.\n\nYes (approved: true) → guardrail cleared the delivery → send the content package email to the firm.\nNo (approved: false) → delivery suppressed by the guardrail (unexpected for an internal email — check the GUARDRAIL_WORKFLOW_ID variable and that the Bar-Compliance Guardrail workflow is active).",
+      "onError": "continueErrorOutput",
+      "position": [
+        1792,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c_approved",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.approved }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000011",
+      "name": "Skip — delivery suppressed",
+      "type": "n8n-nodes-base.noOp",
+      "notes": "The compliance guardrail suppressed the delivery. For an internal firm email this is unexpected — check that the GUARDRAIL_WORKFLOW_ID variable is set correctly and that the Bar-Compliance Guardrail workflow (NTC-33) is active and correctly configured.",
+      "position": [
+        2016,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "3100dd00-0004-4000-d000-000000000012",
+      "name": "Email Content Package to Firm",
+      "type": "n8n-nodes-base.emailSend",
+      "notes": "Emails the four marketing assets to your firm's marketing inbox, formatted for direct copy-paste into each channel.\n\nThe email body contains:\n  • LinkedIn post with character count and READY TO PUBLISH / REVIEW FIRST flag\n  • Newsletter blurb with word count and flag\n  • Google Business Profile post with character count and flag\n  • FAQ entry with flag\n  • Before-publishing checklist (consent reminders, bar disclaimer requirements, GBP character limit)\n\nCredential: Settings → Credentials → New → search SMTP → enter your email provider settings → save as 'Email account (SMTP)'.\n  Gmail: use an App Password (Google Account → Security → App Passwords)\n  Microsoft 365: use your email and password; enable SMTP AUTH in the M365 admin center\n  Zoho / other: check your provider's SMTP documentation\n\nAll content values (subject, body, from address) come from upstream nodes — never from the guardrail's message_out, which is an audit log artifact.",
+      "position": [
+        2016,
+        0
+      ],
+      "parameters": {
+        "text": "={{ $('Extract & Safety-Check Content').item.json.email_body }}",
+        "subject": "={{ $('Extract & Safety-Check Content').item.json.email_subject }}",
+        "toEmail": "={{ $('Build Content Prompt').item.json.firm_email }}",
+        "emailType": "text",
+        "fromEmail": "={{ $('Build Content Prompt').item.json.firm_from_email }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "2",
+          "name": "Email account (SMTP)"
+        }
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "When Content Submitted": [
+      {
+        "json": {
+          "body": {
+            "content": "A small business owner came to us in a panic — their commercial landlord had served an eviction notice after they missed two months of rent during a plumbing emergency that made the space unusable. We negotiated directly with the landlord, documented the habitability issues, and got the eviction withdrawn. The client kept their lease, received a two-month rent credit, and has been in business for three more years since.",
+            "firm_name": "",
+            "content_type": "case_win",
+            "practice_area": "business law"
+          },
+          "query": {},
+          "params": {},
+          "headers": {
+            "user-agent": "Mozilla/5.0",
+            "content-type": "application/json"
+          },
+          "webhookUrl": "https://your-n8n.example.com/webhook/repurpose-content",
+          "executionMode": "production"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1",
+    "executionTimeout": 120,
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "nodeGroups": [],
+  "staticData": null,
+  "connections": {
+    "If Valid Input": {
+      "main": [
+        [
+          {
+            "node": "Build Content Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore Invalid Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Marketing Safe": {
+      "main": [
+        [
+          {
+            "node": "Compliance Check — Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip — flagged for human review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Content Prompt": {
+      "main": [
+        [
+          {
+            "node": "Generate Marketing Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Approved to Deliver": {
+      "main": [
+        [
+          {
+            "node": "Email Content Package to Firm",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip — delivery suppressed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Content Submitted": {
+      "main": [
+        [
+          {
+            "node": "Normalize and Validate Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Marketing Content": {
+      "main": [
+        [
+          {
+            "node": "Extract & Safety-Check Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize and Validate Input": {
+      "main": [
+        [
+          {
+            "node": "If Valid Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compliance Check — Audit Log": {
+      "main": [
+        [
+          {
+            "node": "If Approved to Deliver",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract & Safety-Check Content": {
+      "main": [
+        [
+          {
+            "node": "If Marketing Safe",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "description": "Takes one field note or case win and generates four ready-to-publish marketing assets: LinkedIn post, newsletter blurb, Google Business Profile post, and FAQ entry. Marketing copy only — never legal content. Replaces marketing agency copy fees ($500–2,000/mo). Target keyword: repurpose law firm content.",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Repurpose law firm field notes into compliant marketing content with Anthropic Claude",
+    "wechat": "youandme10086",
+    "id": 17460,
+    "update_time": "2026-09-27"
+  }
+}

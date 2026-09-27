@@ -1,4 +1,4 @@
-# community : 24
+# community : 33
 
 |id|file|
 |----|----|
@@ -26,3 +26,12 @@
 |15229|[15229_Classify_documents_and_score_confidence_with_easybits_Extractor_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15229_Classify_documents_and_score_confidence_with_easybits_Extractor_and_Slack.json)|
 |15507|[15507_Generate_YouTube_chapter_timestamps_and_community_posts_using_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15507_Generate_YouTube_chapter_timestamps_and_community_posts_using_WayinVideo_and_GPT-4o-mini.json)|
 |16018|[16018_Route_social_media_content_reviews_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16018_Route_social_media_content_reviews_with_Google_Gemini_and_Google_Sheets.json)|
+|16888|[16888_Vet_community_membership_applications_with_Google_Gemini__Telegram__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16888_Vet_community_membership_applications_with_Google_Gemini__Telegram__and_Sheets.json)|
+|17629|[17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json)|
+|17634|[17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17634_Create_YouTube_Shorts_from_trending_topics_with_OpenAI__Airtable_and_Creatomate.json)|
+|17649|[17649_Review_Discord_community_applications_with_Tally__OpenAI_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17649_Review_Discord_community_applications_with_Tally__OpenAI_and_Discord.json)|
+|17667|[17667_Analyze_SEO_visibility_and_opportunities_with_TalorData__GPT-4o__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17667_Analyze_SEO_visibility_and_opportunities_with_TalorData__GPT-4o__Google_Sheets__and_Gmail.json)|
+|17955|[17955_Draft_Discord_announcements_with_Google_Gemini__approve_in_Slack__and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17955_Draft_Discord_announcements_with_Google_Gemini__approve_in_Slack__and_log_to_Google_Sheets.json)|
+|18746|[18746_Publish_Instagram_carousels_from_Google_Sheets_using_Gemini_and_GCS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18746_Publish_Instagram_carousels_from_Google_Sheets_using_Gemini_and_GCS.json)|
+|18942|[18942_Qualify_HubSpot_Community_RevOps_signals_with_Claude_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18942_Qualify_HubSpot_Community_RevOps_signals_with_Claude_and_Notion.json)|
+|19219|[19219_Repurpose_YouTube_captions_into_social__community__and_email_content_with_OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19219_Repurpose_YouTube_captions_into_social__community__and_email_content_with_OpenAI_and_Notion.json)|

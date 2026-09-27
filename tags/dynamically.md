@@ -1,4 +1,4 @@
-# dynamically : 14
+# dynamically : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |5829|[5829_Generate_Dynamic_JSON_Output_Formats_for_AI_Agents_with_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5829_Generate_Dynamic_JSON_Output_Formats_for_AI_Agents_with_Mistral.json)|
 |6336|[6336_Dynamically_Send_Out-of-Office___Vacation_Message_using_Gmail___Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6336_Dynamically_Send_Out-of-Office___Vacation_Message_using_Gmail___Google_Calendar.json)|
 |7004|[7004_AI_Orchestrator__dynamically_Selects_Models_Based_on_Input_Type.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7004_AI_Orchestrator__dynamically_Selects_Models_Based_on_Input_Type.json)|
+|17359|[17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json)|

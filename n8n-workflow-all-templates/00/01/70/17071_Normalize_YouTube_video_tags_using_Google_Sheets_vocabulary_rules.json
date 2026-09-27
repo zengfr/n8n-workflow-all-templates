@@ -1,0 +1,296 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Normalize YouTube video tags using Google Sheets vocabulary rules",
+    "wechat": "youandme10086",
+    "id": 17071,
+    "update_time": "2026-09-27"
+  },
+  "name": "Normalize YouTube video tags to a controlled vocabulary using Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e621ccc2-baab-4ab8-ab03-fba0a721dccf",
+      "name": "Run Workflow Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        256,
+        304
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "60a026e4-74df-4c5d-9041-6c1cd8142964",
+      "name": "Load Vocabulary from Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        448,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 0,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GOOGLE_SHEET_ID",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/YOUR_GOOGLE_SHEET_ID/edit?usp=drivesdk",
+          "cachedResultName": "Your Spreadsheet"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "f885fa4a-dfff-4a2e-9627-de1cbc0a0b58",
+      "name": "List Channel Videos",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        704,
+        304
+      ],
+      "parameters": {
+        "limit": 50,
+        "filters": {
+          "channelId": "YOUR_CHANNEL_ID"
+        },
+        "options": {
+          "order": "date"
+        },
+        "resource": "video"
+      },
+      "executeOnce": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "ef1ef60c-ea6d-4b8b-971d-779807912ae9",
+      "name": "Get Video Details",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        880,
+        304
+      ],
+      "parameters": {
+        "part": [
+          "snippet"
+        ],
+        "options": {},
+        "videoId": "={{ $json.id.videoId }}",
+        "resource": "video",
+        "operation": "get"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3bcb834a-12bb-4f69-85f7-da824da450ab",
+      "name": "Normalize Tags to Vocabulary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1152,
+        304
+      ],
+      "parameters": {
+        "jsCode": "\nconst vocabRows = $('Load Vocabulary from Sheets').all();\n\nconst aliasMap = {};\nconst bannedSet = new Set();\nconst requiredTags = [];\n\nfor (const row of vocabRows) {\n  const r = (row && row.json) || {};\n  const type = String(r.rule_type || '').trim().toLowerCase();\n  const tag = String(r.tag || '').trim().toLowerCase();\n  if (!tag) continue;\n  if (type === 'alias') {\n    const canonical = String(r.canonical || '').trim().toLowerCase();\n    if (canonical) aliasMap[tag] = canonical;\n  } else if (type === 'banned') {\n    bannedSet.add(tag);\n  } else if (type === 'required') {\n    requiredTags.push(tag);\n  }\n}\n\nconst MAX_TAG_CHARS = 500;\nconst results = [];\n\nfor (const item of $input.all()) {\n  const snippet = (item.json && item.json.snippet) || {};\n  const originalTags = Array.isArray(snippet.tags) ? snippet.tags : [];\n\n  let working = originalTags\n    .map(t => String(t).toLowerCase().replace(/,/g, ' ').trim().split(' ').filter(Boolean).join(' '))\n    .filter(t => t.length > 0);\n\n  working = working.map(t => aliasMap[t] || t);\n  working = working.filter(t => !bannedSet.has(t));\n\n  const seen = new Set();\n  const deduped = [];\n  for (const t of working) {\n    if (!seen.has(t)) { seen.add(t); deduped.push(t); }\n  }\n  for (const req of requiredTags) {\n    if (!seen.has(req)) { seen.add(req); deduped.push(req); }\n  }\n\n  const finalTags = [];\n  let used = 0;\n  let truncated = false;\n  for (const t of deduped) {\n    const cost = t.length + (t.indexOf(' ') >= 0 ? 2 : 0);\n    const sep = finalTags.length > 0 ? 1 : 0;\n    if (used + sep + cost > MAX_TAG_CHARS) { truncated = true; break; }\n    finalTags.push(t);\n    used += sep + cost;\n  }\n\n  const currentSet = new Set(originalTags);\n  const nextSet = new Set(finalTags);\n  let changed = currentSet.size !== nextSet.size;\n  if (!changed) {\n    for (const t of nextSet) {\n      if (!currentSet.has(t)) { changed = true; break; }\n    }\n  }\n\n  results.push({\n    json: {\n      videoId: item.json.id,\n      title: snippet.title || '',\n      categoryId: snippet.categoryId || '',\n      originalTags: originalTags,\n      normalizedTags: finalTags,\n      normalizedTagsString: finalTags.join(','),\n      tagCharCount: used,\n      truncated: truncated,\n      changed: changed\n    }\n  });\n}\n\nreturn results;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "99f56097-d6fe-48c5-9330-490b8dc47ea2",
+      "name": "If Tags Changed",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1312,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-changed",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.changed }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "679d692f-c54d-409b-a03b-a80b78b82058",
+      "name": "Update Video Tags",
+      "type": "n8n-nodes-base.youTube",
+      "position": [
+        1536,
+        288
+      ],
+      "parameters": {
+        "title": "={{ $json.title }}",
+        "videoId": "={{ $json.videoId }}",
+        "resource": "video",
+        "operation": "update",
+        "categoryId": "={{ $json.categoryId }}",
+        "updateFields": {
+          "tags": "={{ $json.normalizedTagsString }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53bc8d65-945e-471e-80dd-b31665d8f138",
+      "name": "Overview Sticky",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -352,
+        -64
+      ],
+      "parameters": {
+        "width": 508,
+        "height": 848,
+        "content": "## Normalize YouTube video tags to a controlled vocabulary\n\n### How it works\n\n1. Google Sheets loads your controlled vocabulary: alias-to-canonical rules, banned tags, and required baseline tags.\n2. The YouTube nodes list your channel's videos and read each video's current tags, title, and category.\n3. A Code node lowercases and trims each tag, maps aliases to their canonical form, removes banned tags, dedupes, adds any missing required tags, and truncates to YouTube's tag-character budget.\n4. An IF node compares the new tag set with the current one and passes only the videos that actually changed.\n5. YouTube updates the tags on changed videos only, so re-running the workflow changes nothing once tags are normalized.\n\n### Setup steps\n\n- [ ] Connect a YouTube (Google) OAuth2 credential on the `List Channel Videos`, `Get Video Details`, and `Update Video Tags` nodes.\n- [ ] Connect a Google Sheets credential and pick the spreadsheet and tab that hold your vocabulary.\n- [ ] Set your channel ID in the `List Channel Videos` node by replacing `YOUR_CHANNEL_ID`.\n- [ ] Build the vocabulary sheet with columns `rule_type`, `tag`, and `canonical`, using `alias`, `banned`, and `required` rows.\n\n### Customization\n\nSwap the manual trigger for a Schedule Trigger to normalize on a cadence. Raise the row limit in `List Channel Videos`, or edit the vocabulary rows to change alias, banned, and required tags without touching the workflow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "14ba0103-759b-4d89-bd13-9a533fbe1cf9",
+      "name": "Load Vocabulary Group",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 336,
+        "content": "## Load the vocabulary\n\nGoogle Sheets holds the alias, banned, and required tag rules, read once per run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ae72231c-33d9-451c-8ec6-8af169e6137f",
+      "name": "Read Tags Group",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 336,
+        "content": "## Read current video tags\n\nList the channel's videos, then fetch each video's tags, title, and category."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1a21a300-6fff-4528-b6de-dcaafca04828",
+      "name": "Update Changes Group",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1104,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 336,
+        "content": "## Normalize and update changes\n\nApply the rules, compare against the current tags, and write back only the videos that changed."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "If Tags Changed": {
+      "main": [
+        [
+          {
+            "node": "Update Video Tags",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Video Details": {
+      "main": [
+        [
+          {
+            "node": "Normalize Tags to Vocabulary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List Channel Videos": {
+      "main": [
+        [
+          {
+            "node": "Get Video Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Workflow Manually": {
+      "main": [
+        [
+          {
+            "node": "Load Vocabulary from Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Vocabulary from Sheets": {
+      "main": [
+        [
+          {
+            "node": "List Channel Videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Tags to Vocabulary": {
+      "main": [
+        [
+          {
+            "node": "If Tags Changed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

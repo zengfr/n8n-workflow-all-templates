@@ -1,4 +1,4 @@
-# projects : 14
+# projects : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |13269|[13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json)|
 |13823|[13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13823_Build__test_and_deploy_AI_projects_with_Windsurf_CI_CD_and_Vercel.json)|
 |14745|[14745_Keep_Supabase_free_plan_projects_alive_with_scheduled_database_pings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14745_Keep_Supabase_free_plan_projects_alive_with_scheduled_database_pings.json)|
+|18895|[18895_Prioritize_sourcing_projects_with_Notion__Groq__Slack__and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18895_Prioritize_sourcing_projects_with_Notion__Groq__Slack__and_Gmail_alerts.json)|
+|19123|[19123_Revive_quiet_client_projects_with_OpenAI__Airtable__Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19123_Revive_quiet_client_projects_with_OpenAI__Airtable__Gmail_and_Discord.json)|
+|19261|[19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19261_Screen_GDPR_DPIA_needs_with_Groq__n8n_forms__data_tables_and_Discord.json)|

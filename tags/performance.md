@@ -1,4 +1,4 @@
-# performance : 61
+# performance : 74
 
 |id|file|
 |----|----|
@@ -63,3 +63,16 @@
 |16310|[16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json)|
 |16476|[16476_Send_weekly_YouTube_performance_digests_with_OpenAI__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16476_Send_weekly_YouTube_performance_digests_with_OpenAI__Slack__Gmail_and_Sheets.json)|
 |16585|[16585_Monitor_warehouse_receiving_performance_with_Google_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16585_Monitor_warehouse_receiving_performance_with_Google_Sheets__Gemini__and_Gmail.json)|
+|17055|[17055_Send_weekly_blended_ad_performance_reports_with_Meta__Google_Ads__GA4_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17055_Send_weekly_blended_ad_performance_reports_with_Meta__Google_Ads__GA4_and_OpenAI.json)|
+|17080|[17080_Send_weekly_blended_ad_performance_reports_with_Meta_Ads__Google_Ads__GA4_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17080_Send_weekly_blended_ad_performance_reports_with_Meta_Ads__Google_Ads__GA4_and_OpenAI.json)|
+|17194|[17194_Review_HeyReach_campaign_performance_and_tune_Twain_agents_from_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17194_Review_HeyReach_campaign_performance_and_tune_Twain_agents_from_Slack.json)|
+|17453|[17453_Send_weekly_Google_Search_Console_performance_reports_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17453_Send_weekly_Google_Search_Console_performance_reports_via_Gmail.json)|
+|17678|[17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json)|
+|18053|[18053_Send_weekly_Meta_Ads_performance_PDF_reports_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18053_Send_weekly_Meta_Ads_performance_PDF_reports_with_Gemini_and_Gmail.json)|
+|18476|[18476_Monitor_at-risk_students_with_Google_Sheets__GPT-4o__Gmail__Slack_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18476_Monitor_at-risk_students_with_Google_Sheets__GPT-4o__Gmail__Slack_and_Telegram.json)|
+|18477|[18477_Send_weekly_parent_progress_reports_with_Google_Sheets__GPT-4o_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18477_Send_weekly_parent_progress_reports_with_Google_Sheets__GPT-4o_mini_and_Gmail.json)|
+|18507|[18507_Analyze_YouTube_channel_performance_with_Telegram__Google_Sheets__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18507_Analyze_YouTube_channel_performance_with_Telegram__Google_Sheets__and_Gemini.json)|
+|18821|[18821_Send_weekly_marketing_performance_briefs_from_GA4__GSC__SegMetrics_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18821_Send_weekly_marketing_performance_briefs_from_GA4__GSC__SegMetrics_and_Slack.json)|
+|18912|[18912_Send_daily_Google_Ads_performance_reports_to_WhatsApp_via_Evolution_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18912_Send_daily_Google_Ads_performance_reports_to_WhatsApp_via_Evolution_API.json)|
+|19024|[19024_Send_HeyReach_campaign_performance_reports_to_Gmail_via_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19024_Send_HeyReach_campaign_performance_reports_to_Gmail_via_webhook.json)|
+|19494|[19494_Send_Google_Search_Console_performance_reports_to_Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19494_Send_Google_Search_Console_performance_reports_to_Gmail_and_Telegram.json)|

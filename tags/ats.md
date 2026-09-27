@@ -1,4 +1,4 @@
-# ats : 6
+# ats : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |12040|[12040_Launch_job_vacancies_from_ATS_to_Google_Calendar__ClickUp_and_LinkedIn_with_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12040_Launch_job_vacancies_from_ATS_to_Google_Calendar__ClickUp_and_LinkedIn_with_GPT-4o.json)|
 |12076|[12076_Manage_recruitment_tasks_in_Slack_with_Recrutei_ATS___GPT-4_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12076_Manage_recruitment_tasks_in_Slack_with_Recrutei_ATS___GPT-4_Agent.json)|
 |15942|[15942_Analyze_resume_PDFs_for_ATS_fit_with_OpenRouter_GPT_via_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15942_Analyze_resume_PDFs_for_ATS_fit_with_OpenRouter_GPT_via_webhook.json)|
+|17145|[17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json)|
+|18660|[18660_Score_ATS_job_postings_with_OpenAI_and_send_alerts_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18660_Score_ATS_job_postings_with_OpenAI_and_send_alerts_to_Slack_and_Google_Sheets.json)|
+|19400|[19400_Screen_and_triage_job_applications_with_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19400_Screen_and_triage_job_applications_with_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|19775|[19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19775_Score_ATS_candidates_and_enroll_top_matches_into_Supabase_outreach_campaigns.json)|

@@ -1,4 +1,4 @@
-# validator : 15
+# validator : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |15805|[15805_Classify_Gmail_emails_with_OpenAI_and_Telegram_feedback.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15805_Classify_Gmail_emails_with_OpenAI_and_Telegram_feedback.json)|
 |16513|[16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json)|
 |16643|[16643_Extract_and_validate_invoice_PDFs_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16643_Extract_and_validate_invoice_PDFs_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|18435|[18435_Validate_single_and_bulk_US_phone_numbers_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18435_Validate_single_and_bulk_US_phone_numbers_with_Searchbug_and_Google_Sheets.json)|
+|19695|[19695_Validate_civil_service_exam_questions_with_an_AI_council_using_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19695_Validate_civil_service_exam_questions_with_an_AI_council_using_Google_Gemini.json)|
+|19747|[19747_Validate_Pinterest_Pin_payloads_locally_with_JSON-only_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19747_Validate_Pinterest_Pin_payloads_locally_with_JSON-only_checks.json)|

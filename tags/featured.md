@@ -1,4 +1,4 @@
-# featured : 4
+# featured : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |4913|[4913_Auto-Publish_PR_News_Articles_with_Featured_Images_to_WordPress_from_RSS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/49/4913_Auto-Publish_PR_News_Articles_with_Featured_Images_to_WordPress_from_RSS.json)|
 |4976|[4976_Batch_Delete_Posts_and_Featured_Images_in_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/49/4976_Batch_Delete_Posts_and_Featured_Images_in_WordPress.json)|
 |13488|[13488_Track_new_Featured_Snippet_keyword_wins_via_email_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13488_Track_new_Featured_Snippet_keyword_wins_via_email_with_DataForSEO.json)|
+|17737|[17737_Create_SEO_blog_drafts_with_OpenAI__Canvora__and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17737_Create_SEO_blog_drafts_with_OpenAI__Canvora__and_WordPress.json)|

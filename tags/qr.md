@@ -1,4 +1,4 @@
-# qr : 19
+# qr : 25
 
 |id|file|
 |----|----|
@@ -21,3 +21,9 @@
 |14216|[14216_Generate_concert_ticket_PDFs_with_QR_codes_using_PDF_Generator_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14216_Generate_concert_ticket_PDFs_with_QR_codes_using_PDF_Generator_API.json)|
 |14431|[14431_Validate_QR_tickets_in_real_time_with_Google_Forms_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14431_Validate_QR_tickets_in_real_time_with_Google_Forms_and_Sheets.json)|
 |14500|[14500_Generate_and_email_event_e-tickets_with_QR_codes_using_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14500_Generate_and_email_event_e-tickets_with_QR_codes_using_Google_Workspace.json)|
+|17509|[17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json)|
+|17699|[17699_Manage_QR-based_event_reservations_with_forms__Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17699_Manage_QR-based_event_reservations_with_forms__Gmail_and_Discord.json)|
+|17985|[17985_Check_in_participants_via_QR_code_with_Google_Sheets_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17985_Check_in_participants_via_QR_code_with_Google_Sheets_and_Slack_alerts.json)|
+|18128|[18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json)|
+|18457|[18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18457_Onboard_Nextcloud_users_with_Gmail_approvals__PostgreSQL__and_Google_Sheets.json)|
+|18905|[18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json)|

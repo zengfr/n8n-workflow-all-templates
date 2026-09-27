@@ -1,4 +1,4 @@
-# landing : 11
+# landing : 20
 
 |id|file|
 |----|----|
@@ -13,3 +13,12 @@
 |11650|[11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11650_Automate_Lead_Processing_from_Landing_Pages_with_Zoho_CRM__Jira___Slack.json)|
 |12196|[12196_Generate_SEO_landing_page_content_with_GPT-4__Reddit__YouTube_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12196_Generate_SEO_landing_page_content_with_GPT-4__Reddit__YouTube_and_Google_Sheets.json)|
 |15167|[15167_Generate_and_rank_landing_page_headlines_with_GPT-4o-mini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15167_Generate_and_rank_landing_page_headlines_with_GPT-4o-mini__Google_Sheets_and_Gmail.json)|
+|17087|[17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json)|
+|17527|[17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json)|
+|17844|[17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json)|
+|17912|[17912_Audit_landing_page_SEO_with_GPT-5_and_send_Gmail_reports_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17912_Audit_landing_page_SEO_with_GPT-5_and_send_Gmail_reports_to_Google_Sheets.json)|
+|17945|[17945_Monitor_landing_page_defacement_with_Snapshot_Site__Discord_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17945_Monitor_landing_page_defacement_with_Snapshot_Site__Discord_and_email.json)|
+|18204|[18204_Build_a_landing_page_swipe_file_with_Snapshot_Site__S3__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18204_Build_a_landing_page_swipe_file_with_Snapshot_Site__S3__Google_Sheets_and_Slack.json)|
+|18207|[18207_Archive_legal_page_compliance_snapshots_to_S3_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18207_Archive_legal_page_compliance_snapshots_to_S3_with_Google_Sheets_and_Slack.json)|
+|18699|[18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json)|
+|18857|[18857_Audit_landing_page_conversions_with_DeepSeek__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18857_Audit_landing_page_conversions_with_DeepSeek__Google_Sheets__Gmail_and_Telegram.json)|

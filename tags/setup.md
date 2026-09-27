@@ -1,4 +1,4 @@
-# setup : 16
+# setup : 19
 
 |id|file|
 |----|----|
@@ -18,3 +18,6 @@
 |12952|[12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12952_Generate_portfolio_screenshots_and_Upwork_copy_with_Firecrawl__ScreenshotOne__OpenAI_and_Google_Workspace.json)|
 |16002|[16002_Qualify_LinkedIn_leads_and_draft_multi-step_outreach_with_Airtable__Apify_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16002_Qualify_LinkedIn_leads_and_draft_multi-step_outreach_with_Airtable__Apify_and_Claude.json)|
 |16005|[16005_Qualify_LinkedIn_leads_and_draft_outreach_with_Airtable__Apify_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16005_Qualify_LinkedIn_leads_and_draft_outreach_with_Airtable__Apify_and_Claude.json)|
+|17167|[17167_Serve_a_notes_web_app_via_webhooks_and_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17167_Serve_a_notes_web_app_via_webhooks_and_n8n_Data_Tables.json)|
+|18411|[18411_Set_up_new_legal_matters_with_Clio__Google_Drive__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18411_Set_up_new_legal_matters_with_Clio__Google_Drive__and_email_alerts.json)|
+|19202|[19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json)|

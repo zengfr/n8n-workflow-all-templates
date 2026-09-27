@@ -1,4 +1,4 @@
-# conversion : 24
+# conversion : 29
 
 |id|file|
 |----|----|
@@ -26,3 +26,8 @@
 |13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|
 |14034|[14034_Transform_and_validate_webhook_records_with_configurable_type_conversion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14034_Transform_and_validate_webhook_records_with_configurable_type_conversion.json)|
 |15121|[15121_Convert_legal_timesheets_to_LEDES_and_PDF_invoices.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15121_Convert_legal_timesheets_to_LEDES_and_PDF_invoices.json)|
+|17844|[17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json)|
+|18387|[18387_Generate_LEDES_invoices_from_email_attachments_with_OpenAI__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18387_Generate_LEDES_invoices_from_email_attachments_with_OpenAI__Gmail__and_Sheets.json)|
+|18699|[18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json)|
+|18857|[18857_Audit_landing_page_conversions_with_DeepSeek__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18857_Audit_landing_page_conversions_with_DeepSeek__Google_Sheets__Gmail_and_Telegram.json)|
+|19586|[19586_Qualify_and_route_real_estate_leads_from_web_and_WhatsApp_to_HubSpot_with_DeepSeek_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19586_Qualify_and_route_real_estate_leads_from_web_and_WhatsApp_to_HubSpot_with_DeepSeek_and_Gmail.json)|

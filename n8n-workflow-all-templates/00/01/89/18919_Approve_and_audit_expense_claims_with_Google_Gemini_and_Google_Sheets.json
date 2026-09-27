@@ -1,0 +1,2441 @@
+{
+  "id": "CU47PAEbQsCJNqek",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Approve and audit expense claims with Google Gemini and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18919,
+    "update_time": "2026-09-27"
+  },
+  "name": "Intelligent Expense Approval Agent Fraud and Risk - Production (Email + Webhook)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7221693b-1458-4890-a891-72ac6c3ac519",
+      "name": "Capture Employee Info",
+      "type": "n8n-nodes-base.code",
+      "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  let employeeEmail = 'No_Email_Provided';\n  let employeeName = 'Unknown_User';\n  let employeeChatId = 'Unknown_ID'; // legacy identifier field, now holds email-based ID for matching claims\n  let source = 'web';\n\n  const json = item.json;\n\n  // Extract email sender info (Email Trigger IMAP path)\n  if (json.from?.value?.[0]?.address || json.from?.address || typeof json.from === 'string') {\n    employeeEmail = json.from?.value?.[0]?.address || json.from?.address || json.from;\n    employeeName = json.from?.value?.[0]?.name || json.from?.name || employeeEmail;\n    employeeChatId = employeeEmail;\n    source = 'email';\n  }\n  // Extract webhook payload info (Web Upload Trigger path)\n  else if (json.body || json.email || json.chatId) {\n    const body = json.body || json;\n    employeeEmail = body.email || employeeEmail;\n    employeeName = body.name || employeeName;\n    employeeChatId = body.email || body.chatId || employeeChatId;\n    source = 'web';\n  }\n\n  return {\n    json: {\n      ...json,\n      employeeEmail,\n      employeeName,\n      employeeChatId,\n      source\n    },\n    binary: item.binary\n  };\n});",
+      "position": [
+        -4352,
+        1408
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const data = item.json;\n  let name = 'Unknown Employee';\n  let email = 'user@example.com';\n  let source = 'unknown';\n\n  // 1. Detect Webhook / Web Form Trigger\n  if (data.body || data.query) {\n    source = 'web';\n    // Web forms usually send data in the body\n    const payload = (data.body && Object.keys(data.body).length > 0) ? data.body : (data.query || {});\n    name = payload.name || name;\n    email = payload.email || email;\n  }\n  // 2. Detect Email IMAP Trigger\n  else if (data.from || (data.headers && data.headers.from)) {\n    source = 'email';\n    const fromVal = data.from?.value?.[0] || data.from || data.headers?.from;\n    \n    // Handle standard IMAP object format: { address: \"user@example.com\", name: \"User\" }\n    if (fromVal && typeof fromVal === 'object') {\n      email = fromVal.address || fromVal.email || email;\n      name = fromVal.name || 'Email User'; // Set optional name for email\n    } \n    // Handle raw string format: \"John Doe <user@example.com>\"\n    else if (typeof fromVal === 'string') {\n      const emailMatch = fromVal.match(/<([^>]+)>/);\n      email = emailMatch ? emailMatch[1].trim() : fromVal.trim();\n      name = fromVal.split('<')[0].trim() || 'Email User';\n    }\n  }\n\n  return {\n    json: {\n      ...data,\n      EmployeeName: name,\n      EmployeeEmail: email,\n      Source: source\n    },\n    // CRITICAL: Pass the binary file stream through to Gemini\n    binary: item.binary || {}\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "919cce62-9493-4427-9a24-eca4d4e98ceb",
+      "name": "Ask Gemini to Read Receipt",
+      "type": "@n8n/n8n-nodes-langchain.googleGemini",
+      "notes": "IMPORTANT: Run this node once by itself first (click the node, click 'Test step'). Check the actual output field name in the result panel on the right — it may be called content, text, output, or data depending on your n8n version. Then open the 'Parse Extracted Data' node right after this one and make sure its first line reads from the correct field name.",
+      "position": [
+        -4064,
+        1408
+      ],
+      "parameters": {
+        "text": "You are an expert financial auditor. Analyze the provided document or image stream.\n\nCRITICAL MULTI-RECEIPT INSTRUCTION:\n- This file or image may contain MULTIPLE independent receipts, bills, or invoices (across multiple PDF pages or embedded images).\n- Scan the ENTIRE file completely and extract EVERY bill present. Do NOT stop after the first bill.\n- Return a JSON object with a \"claims\" array containing an entry for EACH individual bill found.\n\nFor EACH bill identified, extract:\n- Vendor (string): Company or merchant name.\n- Date (string): Normalized strictly to YYYY-MM-DD.\n- Amount (number): Absolute grand total value charged.\n- Tax (number): Sales tax/VAT (use 0 if none found).\n- Category (string): Must strictly be one of: \"Meals\", \"Travel\", \"Office Supplies\", \"Client Entertainment\", \"Other\".\n- autoApprove (boolean): Set to true ONLY if Amount > 0 AND Amount <= 500. Otherwise false.\n\nReply ONLY with valid JSON matching this schema:\n{\n  \"claims\": [\n    {\n      \"Vendor\": \"string\",\n      \"Date\": \"YYYY-MM-DD\",\n      \"Amount\": 0,\n      \"Tax\": 0,\n      \"Category\": \"Meals\",\n      \"autoApprove\": false\n    }\n  ]\n}",
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "models/gemini-flash-lite-latest",
+          "cachedResultName": "models/gemini-flash-lite-latest"
+        },
+        "options": {},
+        "resource": "image",
+        "inputType": "binary",
+        "operation": "analyze"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "credential-id",
+          "name": "Google Gemini(PaLM) Api account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "f2e88666-3939-47c0-9e03-d3957d6a8d83",
+      "name": "Parse Extracted Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -3808,
+        1408
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst outputItems = [];\n\n// Safely grab the normalized info from the first node\nconst sourceInfo = $('Capture Employee Info').first().json || {};\n\nfor (const item of items) {\n  // Read raw text response across all possible Gemini response keys\n  let rawText = item.json.content?.parts?.[0]?.text || item.json.text || item.json.response || item.json;\n  \n  if (typeof rawText === 'string') {\n    // Strip markdown formatting if present\n    rawText = rawText.replace(/```json/g, '').replace(/```/g, '').trim();\n    try {\n      rawText = JSON.parse(rawText);\n    } catch (e) {\n      console.error(\"Failed to parse JSON string:\", e);\n      continue; // Skip invalid parsing iterations\n    }\n  }\n\n  // Extract claims array or wrap single objects\n  const claims = rawText.claims || (Array.isArray(rawText) ? rawText : [rawText]);\n\n  // Push each claim as an individual n8n item\n  for (const claim of claims) {\n    if (claim && typeof claim === 'object') {\n      outputItems.push({\n        json: {\n          ...claim,\n          Employee: sourceInfo.EmployeeName || 'Unknown Name',\n          EmployeeEmail: sourceInfo.EmployeeEmail || 'Unknown Email',\n          sourceFileName: item.json.fileName || 'Receipt_Document'\n        }\n      });\n    }\n  }\n}\n\nreturn outputItems;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "80e6827e-f19b-403b-93d9-ef27c067edd4",
+      "name": "Get Policy Rules",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -3584,
+        1408
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1859917391,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1859917391",
+          "cachedResultName": "Policy Rules 2"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5
+    },
+    {
+      "id": "33867fa7-b2b0-4e9d-a6a6-768c6c656df6",
+      "name": "Check Policy and Risk",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -3168,
+        1408
+      ],
+      "parameters": {
+        "jsCode": "// Retrieve parsed receipts, policy rules, and historical ledger entries\nconst receipts = $('Parse Extracted Data').all().map(i => i.json);\nconst policyRules = $('Get Policy Rules').all().map(i => i.json);\n\nlet historyData = [];\ntry {\n  historyData = $('Get Employee history').all().map(i => i.json);\n} catch (e) {\n  console.log(\"Get Employee history node not found or empty.\");\n}\n\n// Helper: Extract clean email from string formats\nfunction extractCleanEmail(rawEmail) {\n  if (!rawEmail) return '';\n  const match = String(rawEmail).match(/<([^>]+)>/);\n  return (match ? match[1] : rawEmail).trim().toLowerCase();\n}\n\n// Helper: Safely parse nested Extracted Data string\nfunction getNestedData(obj) {\n  const raw = obj['Extracted Data'] || obj.ExtractedData || obj.extractedData;\n  if (typeof raw === 'string' && raw.trim().startsWith('{')) {\n    try { return JSON.parse(raw); } catch (e) {}\n  }\n  return typeof raw === 'object' && raw !== null ? raw : {};\n}\n\nreturn receipts.map((receipt) => {\n  let claim = { ...receipt };\n  const nested = getNestedData(claim);\n\n  // Core incoming properties with nested fallbacks\n  const currentClaimID = String(claim.ClaimID || claim.claimId || nested.claimId || nested.ClaimID || '').trim();\n  const currentAmount = Number(claim.Amount || claim.amount || nested.amount || 0);\n  const category = String(claim.Category || claim.category || nested.category || 'Other').trim().toLowerCase();\n  const currentVendor = String(claim.Vendor || claim.vendor || nested.vendor || '').trim().toLowerCase();\n\n  const rawEmail = claim.EmployeeEmail || claim.email || nested.employeeEmail || nested.EmployeeEmail;\n  const rawName = claim.Employee || claim.EmployeeName || nested.employeeName || nested.Employee;\n\n  const currentEmail = extractCleanEmail(rawEmail);\n  const currentName = String(rawName || '').trim().toLowerCase();\n\n  // --- Filter Historical Data (Excluding Current Row/Claim) ---\n  const priorHistory = historyData.filter(h => {\n    const hNested = getNestedData(h);\n    const hClaimID = String(h.ClaimID || h.claimId || hNested.claimId || hNested.ClaimID || '').trim();\n    \n    // Ignore current claim record if it's already written to Google Sheets\n    if (currentClaimID && hClaimID && currentClaimID === hClaimID) {\n      return false;\n    }\n    return true;\n  });\n\n  // Filter history belonging specifically to this employee\n  const employeeHistory = priorHistory.filter(h => {\n    const hNested = getNestedData(h);\n    const sheetEmail = extractCleanEmail(h.EmployeeEmail || h['Employee Email'] || h.email || hNested.employeeEmail);\n    const sheetName = String(h.Employee || h['Employee Name'] || hNested.employeeName || '').trim().toLowerCase();\n\n    if (sheetEmail && currentEmail && sheetEmail === currentEmail) return true;\n    if (sheetName && currentName && (sheetName.includes(currentName) || currentName.includes(sheetName))) return true;\n    \n    return false;\n  });\n\n  // Filter employee history for the same category\n  const categoryHistory = employeeHistory.filter(h => {\n    const hNested = getNestedData(h);\n    const sheetCategory = String(h.Category || h.category || hNested.category || '').trim().toLowerCase();\n    return sheetCategory === category;\n  });\n\n  // --- Assign Employee Metrics ---\n  claim.EmployeeHistoryCount = employeeHistory.length;\n\n  if (categoryHistory.length > 0) {\n    const totalSpent = categoryHistory.reduce((sum, h) => {\n      const hNested = getNestedData(h);\n      const rawAmt = String(h.Amount || h.amount || hNested.amount || '0').replace(/[^0-9.-]+/g, '');\n      return sum + (parseFloat(rawAmt) || 0);\n    }, 0);\n\n    claim.EmployeeAvgForCategory = Number((totalSpent / categoryHistory.length).toFixed(2));\n  } else {\n    claim.EmployeeAvgForCategory = currentAmount;\n  }\n\n  // --- Calculate IsNewVendor ---\n  if (!currentVendor) {\n    claim.IsNewVendor = false;\n  } else {\n    // Look across prior history to see if vendor existed before this claim\n    const vendorExists = priorHistory.some(h => {\n      const hNested = getNestedData(h);\n      const sheetVendor = String(h.Vendor || h.vendor || hNested.vendor || '').trim().toLowerCase();\n      return sheetVendor === currentVendor;\n    });\n\n    claim.IsNewVendor = !vendorExists;\n  }\n\n  // --- Policy Check Logic ---\n  const isDuplicate = Boolean(claim.IsDuplicate);\n  const rule = policyRules.find(r => String(r.Category || '').trim().toLowerCase() === category);\n  const maxAuto = rule ? Number(rule['Max Amount']) : 500;\n\n  if (!isDuplicate && currentAmount > 0 && currentAmount <= maxAuto) {\n    claim.autoApprove = true;\n    claim.RiskFlag = 'Low Risk';\n    claim['Policy Check Result'] = `Auto-Approved (Under ₹${maxAuto} threshold)`;\n  } else {\n    claim.autoApprove = false;\n    claim.RiskFlag = isDuplicate ? 'High - DUPLICATE SUSPECTED' : 'Medium - REQUIRES SIGN-OFF';\n    claim['Policy Check Result'] = isDuplicate ? 'Requires Sign-off (Duplicate Found)' : 'Requires Manager Sign-off';\n  }\n\n  return { json: claim };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f47d8263-9a99-43df-be61-6ec8a1d5c7eb",
+      "name": "Auto-Approve or Needs Sign-off?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -2336,
+        1424
+      ],
+      "parameters": {
+        "options": {
+          "looseTypeValidation": true
+        },
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c65b0813-746a-4d03-8d3e-76651622337d",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.autoApprove }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e7bf1d68-e4f6-4722-bb0b-3460800c6f8c",
+      "name": "Log to Ledger - Auto Approved",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1488,
+        1200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $json.Date }}",
+            "Amount": "={{ $json.Amount }}",
+            "Status": "={{ $json.autoApprove ? 'Auto-Approved' : 'Pending' }}",
+            "Vendor": "={{ $json.Vendor }}",
+            "ClaimID": "={{ $json.ClaimID }}",
+            "Category": "={{ $json.Category }}",
+            "Employee": "={{ $json.Employee }}",
+            "RiskFlag": "={{ $json.RiskFlag || 'Low' }}",
+            "Risk Flag": "={{ $json.RiskFlag }}",
+            "Timestamp": "={{ $now.toFormat('yyyy-MM-dd HH:mm:ss') }}",
+            "Approved By": "={{ $json.autoApprove ? 'AI Agent' : '' }}",
+            "IsDuplicate": "={{ $json.IsDuplicate ? true : false }}",
+            "IsNewVendor": "={{ $json.IsNewVendor ? true : false }}",
+            "autoApprove": "={{ $json.autoApprove }}",
+            "EmployeeEmail": "={{ $json.EmployeeEmail }}",
+            "EmployeeChatId": "={{ $json.EmployeeChatId }}",
+            "Extracted Data": "={{ JSON.stringify($json) }}",
+            "PolicyCheckResult": "={{ $json['Policy Check Result'] || $json.PolicyCheckRes || 'Passed' }}",
+            "Policy Check Result": "={{ $json['Policy Check Result']",
+            "EmployeeHistoryCount": "={{ $json.EmployeeHistoryCount || 0 }}",
+            "approvalLevelRequired": "={{ $json.autoApprove ? 'Auto' : 'Manager' }}",
+            "EmployeeAvgForCategory": "={{ $json.EmployeeAvgForCategory || 0 }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Employee",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Vendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approved By",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Approved By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ClaimID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ClaimID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeChatId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "EmployeeChatId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Policy Check Result",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Policy Check Result",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk Flag",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Risk Flag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "autoApprove",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "autoApprove",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approvalLevelRequired",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "approvalLevelRequired",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extracted Data",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Extracted Data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeHistoryCount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "EmployeeHistoryCount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeAvgForCategory",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "EmployeeAvgForCategory",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IsNewVendor",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "IsNewVendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeEmail",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "EmployeeEmail",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RiskFlag",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "RiskFlag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PolicyCheckResult",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "PolicyCheckResult",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IsDuplicate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "IsDuplicate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "7d4dd5b9-9571-4f6d-81db-fc5c7ae7ee8a",
+      "name": "Log Pending Claim",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1904,
+        1504
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $json.Date }}",
+            "Amount": "={{ $json.Amount }}",
+            "Status": "={{ $json.Status }}",
+            "Vendor": "={{ $json.Vendor }}",
+            "ClaimID": "={{ $json.ClaimID }}",
+            "Category": "={{ $json.Category }}",
+            "Employee": "={{ $json.Employee }}",
+            "Risk Flag": "={{ $json.RiskFlag || $json['Risk Flag'] }}",
+            "Timestamp": "={{ $json.Timestamp }}",
+            "Approved By": "={{ $json.ApprovedBy }}",
+            "IsNewVendor": "={{ $('Check Policy and Risk').first().json.IsNewVendor }}",
+            "autoApprove": "={{ $json.autoApprove }}",
+            "EmployeeEmail": "={{ $json.EmployeeEmail }}",
+            "Extracted Data": "={{ JSON.stringify($json) }}",
+            "Policy Check Result": "={{ $json[\"Policy Check Result\"] }}",
+            "EmployeeHistoryCount": "={{ $('Check Policy and Risk').all()[$position]?.json.EmployeeHistoryCount }}",
+            "approvalLevelRequired": "={{ $json.approvalLevelRequired }}",
+            "EmployeeAvgForCategory": "={{ $('Check Policy and Risk').first().json.EmployeeAvgForCategory }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Employee",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Vendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approved By",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Approved By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ClaimID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ClaimID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Policy Check Result",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Policy Check Result",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk Flag",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Risk Flag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "autoApprove",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "autoApprove",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approvalLevelRequired",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "approvalLevelRequired",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extracted Data",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Extracted Data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeHistoryCount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "EmployeeHistoryCount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeAvgForCategory",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "EmployeeAvgForCategory",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IsNewVendor",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "IsNewVendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeEmail",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "EmployeeEmail",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "c7510a99-8ba8-421b-aeeb-25e25403131d",
+      "name": "Find Pending Claim",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -2016,
+        1744
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.claimId || $json.ClaimID || $json.query?.claimId }}",
+              "lookupColumn": "ClaimID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "c97d6436-75ff-4bc9-b9a5-aec9620c6326",
+      "name": "Approved or Rejected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1600,
+        1648
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "84edeb7a-95ce-482c-983c-1f58f7000d41",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Parse Decision').item.json.action }}",
+              "rightValue": "approve"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4eed0c63-8c3f-46cb-abdd-58529adb5505",
+      "name": "Update Ledger - Approved",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -896,
+        1568
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "Approved",
+            "ClaimID": "={{ $('Parse Decision').item.json.claimId || $('Parse Decision').item.json.ClaimID || $('Find Pending Claim').item.json.ClaimID || $('Find Pending Claim').item.json.claimId }}",
+            "Approved By": "={{ $('Parse Decision').item.json.approverEmail || $('Parse Decision').item.json.query?.approverEmail || $('Parse Decision').item.json.body?.approverEmail || 'Admin' }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Employee",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Vendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approved By",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Approved By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ClaimID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ClaimID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeChatId",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeChatId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Policy Check Result",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Policy Check Result",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk Flag",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Risk Flag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "autoApprove",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "autoApprove",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approvalLevelRequired",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "approvalLevelRequired",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extracted Data",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Extracted Data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeHistoryCount",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeHistoryCount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeAvgForCategory",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeAvgForCategory",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IsNewVendor",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "IsNewVendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeEmail",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeEmail",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RiskFlag",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "RiskFlag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PolicyCheckResult",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "PolicyCheckResult",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IsDuplicate",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "IsDuplicate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "ClaimID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "12a3b867-79b3-41a6-a6e5-e7e5d9de5389",
+      "name": "Update Ledger - Rejected",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -1104,
+        1808
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "Rejected",
+            "ClaimID": "={{ $('Parse Decision').item.json.claimId || $('Parse Decision').item.json.ClaimID || $('Find Pending Claim').item.json.ClaimID || $('Find Pending Claim').item.json.claimId }}",
+            "Approved By": "={{ $('Parse Decision').item.json.approverEmail || $('Parse Decision').item.json.query?.approverEmail || $('Parse Decision').item.json.body?.approverEmail || 'Admin' }}"
+          },
+          "schema": [
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Employee",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Vendor",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Vendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approved By",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Approved By",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ClaimID",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "ClaimID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeChatId",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeChatId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Policy Check Result",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Policy Check Result",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk Flag",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Risk Flag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "autoApprove",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "autoApprove",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "approvalLevelRequired",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "approvalLevelRequired",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extracted Data",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Extracted Data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeHistoryCount",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeHistoryCount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeAvgForCategory",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeAvgForCategory",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IsNewVendor",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "IsNewVendor",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "EmployeeEmail",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "EmployeeEmail",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "RiskFlag",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "RiskFlag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PolicyCheckResult",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "PolicyCheckResult",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "IsDuplicate",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "IsDuplicate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "ClaimID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "bf4b6502-2271-4da7-877a-d1a65b900683",
+      "name": "Write Audit Log",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -64,
+        1584
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Approver": "={{ $('Parse Decision').item.json.approverEmail || $('Parse Decision').item.json.approverName || $json['Approved By'] || 'Admin' }}",
+            "Decision": "={{ $('Parse Decision').item.json.action === 'approve' ? 'Approved' : ($('Parse Decision').item.json.action === 'reject' ? 'Rejected' : ($json.Status || 'Approved')) }}",
+            "Employee": "={{ $('Find Pending Claim').item.json.Employee || $('Find Pending Claim').item.json.EmployeeEmail || $('Parse Decision').item.json.Employee || 'Employee' }}",
+            "Risk Flag": "={{ $('Find Pending Claim').first().json.RiskFlag || $('Find Pending Claim').first().json['Risk Flag'] }}",
+            "Timestamp": "={{ new Date().toISOString() }}",
+            "Extracted Data": "={{ $('Find Pending Claim').item.json.ExtractedData || `Vendor: ${$('Find Pending Claim').item.json.Vendor || 'N/A'}, Amount: ₹${$('Find Pending Claim').item.json.Amount || 0}` }}",
+            "Policy check Result ": "={{ $('Find Pending Claim').first().json.PolicyCheckResult || $('Find Pending Claim').first().json['Policy check Result'] }}"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Employee",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Employee",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Extracted Data",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Extracted Data",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Policy check Result ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Policy check Result ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk Flag",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Risk Flag",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Decision",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Decision",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Approver",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Approver",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 249408378,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=249408378",
+          "cachedResultName": "Audit Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "0f1ef2db-d935-42c9-ba27-8b66d447ad20",
+      "name": "Get Ledger History",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -2960,
+        1408
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.Employee || 'Mohd Maaz Khan' }}",
+              "lookupColumn": "Employee"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "executeOnce": false,
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "cd527f8a-b9cd-4bab-a4c3-2507980fdb7b",
+      "name": "Web Upload Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Matches your frontend's fetch() call: POST /webhook/upload-receipt, multipart form field 'data' holding the file. n8n places uploaded multipart files into binary data keyed by that field name, which already matches what 'Ask Gemini to Read Receipt' expects by default. responseMode 'responseNode' means this does NOT auto-reply - the workflow controls exactly when and what to respond via the two Respond nodes below, while everything else (Ledger writes, email approval) keeps running in the background afterward.",
+      "position": [
+        -5216,
+        1616
+      ],
+      "webhookId": "8ccd560b-505a-451b-ac3b-d2b4768074e3",
+      "parameters": {
+        "path": "upload-receipt",
+        "options": {
+          "allowedOrigins": "*"
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0c6393bf-d6ac-4b92-8ecc-9488cad956e5",
+      "name": "Is Web Origin? (Auto-Approved)",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes based on the 'source' field set by Capture Employee Info ('web' vs 'email'). Only web-origin requests get an HTTP response; email-origin requests have no webhook connection to respond to.",
+      "position": [
+        -1616,
+        1024
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "14b19961-ac11-424d-b6ac-8ce2a9c02ba4",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Capture Employee Info').first().json.source }}",
+              "rightValue": "web"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b34ec56c-51f8-48fa-8edc-9b016d2b84dc",
+      "name": "Respond - Auto Approved",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "notes": "Shape matches your frontend's displayResults() exactly: claimId, decision, extractedData{vendor,amount,category}, risk{result,flag}. No frontend changes needed for this path.",
+      "position": [
+        -1392,
+        1024
+      ],
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={\n  \"claimId\": \"{{ $json.ClaimID }}\",\n  \"decision\": \"{{ $json.Status }}\",\n  \"extractedData\": {\n    \"vendor\": \"{{ $json.Vendor }}\",\n    \"amount\": {{ $json.Amount }},\n    \"category\": \"{{ $json.Category }}\"\n  },\n  \"risk\": {\n    \"result\": \"{{ $json['Policy Check Result'] }}\",\n    \"flag\": \"{{ $json['Risk Flag'] }}\"\n  }\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "843f0e4a-f179-4ec8-b86c-f125f516c738",
+      "name": "Is Web Origin? (Pending)",
+      "type": "n8n-nodes-base.if",
+      "notes": "Routes based on the 'source' field set by Capture Employee Info ('web' vs 'email'). Only web-origin requests get an HTTP response; email-origin requests have no webhook connection to respond to.",
+      "position": [
+        -1664,
+        1344
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "638dd6e8-f54c-4ff3-ba10-d844b6d9af8f",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Capture Employee Info').first().json.source }}",
+              "rightValue": "web"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d06a75cf-decd-43a7-969f-dc6cd8955d60",
+      "name": "Respond - Pending Approval",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "notes": "Status here will be 'Pending Approval' - your frontend already renders this correctly as the amber non-approved badge with zero changes needed. IMPORTANT LIMITATION: once this response is sent, the browser's fetch() has already resolved. If a human later approves/rejects via the email approval link, there is currently no way for this same page load to learn the final outcome - the user would need to check back some other way. Ask me if you want a polling endpoint added; it's a small addition and doesn't touch anything else in this flow either.",
+      "position": [
+        -1344,
+        1344
+      ],
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={\n  \"claimId\": \"{{ $json.ClaimID }}\",\n  \"decision\": \"{{ $json.Status }}\",\n  \"extractedData\": {\n    \"vendor\": \"{{ $json.Vendor }}\",\n    \"amount\": {{ $json.Amount }},\n    \"category\": \"{{ $json.Category }}\"\n  },\n  \"risk\": {\n    \"result\": \"{{ $json['Policy Check Result'] }}\",\n    \"flag\": \"{{ $json['Risk Flag'] }}\"\n  }\n}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d479f55b-30a0-43de-969d-077c35333331",
+      "name": "Email Trigger (IMAP)",
+      "type": "n8n-nodes-base.emailReadImap",
+      "position": [
+        -5088,
+        1776
+      ],
+      "parameters": {
+        "options": {},
+        "downloadAttachments": true
+      },
+      "credentials": {
+        "imap": {
+          "id": "credential-id",
+          "name": "IMAP account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1a9e4df6-fdff-47a6-bc57-c2108fd2c852",
+      "name": "Split Bulk Attachments",
+      "type": "n8n-nodes-base.code",
+      "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nconst ALLOWED_MIME_PREFIXES = ['image/'];\nconst ALLOWED_MIME_EXACT = ['application/pdf'];\n\nfunction isSupportedFile(binaryData) {\n  const mime = (binaryData.mimeType || '').toLowerCase();\n  if (ALLOWED_MIME_EXACT.includes(mime)) return true;\n  return ALLOWED_MIME_PREFIXES.some(prefix => mime.startsWith(prefix));\n}\n\nfor (const item of items) {\n  if (item.binary && Object.keys(item.binary).length > 0) {\n    // Loop through all attachments in the single email/webhook payload (bulk support)\n    for (const [key, binaryData] of Object.entries(item.binary)) {\n      if (!isSupportedFile(binaryData)) continue; // skip signatures, ICS files, etc.\n\n      outputItems.push({\n        json: {\n          ...item.json,\n          processedAttachmentKey: key,\n          fileName: binaryData.fileName || binaryData.filename || 'receipt_file',\n          fileMimeType: binaryData.mimeType || 'unknown'\n        },\n        // Standardizes binary to 'data' for the Gemini node\n        binary: {\n          data: binaryData\n        }\n      });\n    }\n  } else {\n    outputItems.push(item);\n  }\n}\n\nreturn outputItems;",
+      "position": [
+        -4608,
+        1408
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst outputItems = [];\n\nfor (const item of items) {\n  if (item.binary && Object.keys(item.binary).length > 0) {\n    for (const [key, binaryData] of Object.entries(item.binary)) {\n      outputItems.push({\n        json: {\n          ...item.json,\n          sourceFileKey: key,\n          fileName: binaryData.fileName || binaryData.filename || `file_${key}`,\n          mimeType: binaryData.mimeType || 'application/octet-stream',\n          fileExtension: binaryData.fileExtension || ''\n        },\n        binary: {\n          // Normalizes all binary streams to a consistent 'data' key for Gemini\n          data: binaryData\n        }\n      });\n    }\n  } else {\n    outputItems.push(item);\n  }\n}\n\nreturn outputItems;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0497aa1e-fbdb-4ba0-a078-26f6ee28b78c",
+      "name": "Send Approval Request Email",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -1712,
+        1504
+      ],
+      "webhookId": "7fc67c4f-388f-4b6a-8237-f94f0398fb1b",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=<h2>New Expense Approval Request</h2>\n<p>\n  <b>Employee:</b> {{ $json.Employee }}<br>\n  <b>Vendor:</b> {{ $json.Vendor }}<br>\n  <b>Amount:</b> ₹{{ $json.Amount }}<br>\n  <b>Category:</b> {{ $json.Category }}<br>\n  <b>Date:</b> {{ $json.Date }}<br>\n  <b>Claim ID:</b> {{ $json.ClaimID }}<br>\n  <b>Risk Flag:</b> {{ $json.RiskFlag || $json['Risk Flag'] }}<br>\n  <b>Policy Check:</b> {{ $json['Policy Check Result'] || $json.PolicyCheckRes }}\n</p>\n\n<p>Please review and take action on this claim:</p>\n<p>\n  <a href=\"https://n8n.afbex.com/webhook-test/expense-decision?claimId={{ $json.ClaimID }}&action=approve\" style=\"background-color: #28a745; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;\">Approve</a>\n  &nbsp;\n  <a href=\"https://n8n.afbex.com/webhook-test/expense-decision?claimId={{ $json.ClaimID }}&action=reject\" style=\"background-color: #dc3545; color: white; padding: 10px 15px; text-decoration: none; border-radius: 4px;\">Reject</a>\n</p>",
+        "options": {},
+        "subject": "=New Expense Approval Request – (₹{{ $json.Amount }})"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c48963e2-0edb-4660-9380-f6cb42f0c369",
+      "name": "Notify Employee - Approved (Email)",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        -608,
+        1568
+      ],
+      "webhookId": "b6b6e785-c248-4140-b9c0-edbe6b5ca2e3",
+      "parameters": {
+        "sendTo": "={{ $('Find Pending Claim').first().json.EmployeeEmail || $('Find Pending Claim').first().json.Email || 'm.maazkhnn@gmail.com' }}",
+        "message": "=Hi {{ $json.Employee || $('Find Pending Claim').first().json.Employee || 'Employee' }},<br><br>\nGood news! Your expense claim for <b>{{ $json.Vendor || $('Find Pending Claim').first().json.Vendor || 'N/A' }}</b> (Amount: ₹{{ $json.Amount || $('Find Pending Claim').first().json.Amount || '0' }}) has been approved and logged to the ledger.<br><br>\n<b>Claim ID:</b> {{ $json.ClaimID || $('Parse Decision').first().json.claimId || $('Find Pending Claim').first().json.ClaimID }}<br>\nNo further action is required on your end.",
+        "options": {},
+        "subject": "Your Expense Claim Has Been Approved"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4b645cc6-60f2-422b-b92f-51f25a0e76fe",
+      "name": "Notify Employee - Rejected (Email)",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        -816,
+        1808
+      ],
+      "webhookId": "a1339924-2c83-48dc-a1ad-f86e6f5ad4d9",
+      "parameters": {
+        "sendTo": "={{ $('Find Pending Claim').first().json.EmployeeEmail || $('Find Pending Claim').first().json.Email || 'm.maazkhnn@gmail.com' }}",
+        "message": "=Hi {{ $('Find Pending Claim').item.json.Employee || $('Find Pending Claim').item.json.EmployeeName || $('Parse Decision').item.json.Employee || 'Employee' }},<br><br>\nYour expense claim for <b>{{ $('Find Pending Claim').item.json.Vendor || $('Find Pending Claim').item.json.vendor || 'N/A' }}</b> (Amount: ₹{{ $('Find Pending Claim').item.json.Amount || $('Find Pending Claim').item.json.amount || '0' }}) was not approved.<br><br>\n<b>Claim ID:</b> {{ $('Find Pending Claim').item.json.ClaimID || $('Parse Decision').item.json.claimId || $json.ClaimID }}<br>\nPlease check with your approver for details.",
+        "options": {},
+        "subject": "Your Expense Claim Was Not Approved"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "93338650-c839-4caf-bba5-b970a2ecd243",
+      "name": "Notify Employee - Approved (Email)2",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        -880,
+        1216
+      ],
+      "webhookId": "b6b6e785-c248-4140-b9c0-edbe6b5ca2e3",
+      "parameters": {
+        "sendTo": "={{ $json.EmployeeEmail || $('Capture Employee Info').first().json.employeeEmail || 'maaz.khan@afucent.com' }}",
+        "message": "=<p>Hi <b>{{ $json.Employee || $('Evaluate Fraud & Anomaly Risk').item.json.Employee }}</b>,</p>\n\n<p>Good news! Your expense claim has been <b>Auto-Approved</b> and logged to the ledger.</p>\n\n<ul>\n  <li><b>Claim ID:</b> {{ $json.ClaimID }}</li>\n  <li><b>Vendor:</b> {{ $json.Vendor }}</li>\n  <li><b>Amount:</b> ₹{{ $json.Amount }}</li>\n  <li><b>Category:</b> {{ $json.Category }}</li>\n  <li><b>Date:</b> {{ $json.Date }}</li>\n</ul>\n\n<p>No further action is required on your end.</p>",
+        "options": {},
+        "subject": "=Your Expense Claim Has Been Approved [{{ $json.ClaimID }}]"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c4083788-d2bc-4316-be76-9abe4e495240",
+      "name": "Webhook: Expense Decision",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -2512,
+        1760
+      ],
+      "webhookId": "d636373d-f931-4b00-968e-455d28d80f0d",
+      "parameters": {
+        "path": "expense-decision",
+        "options": {},
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "fbeb613b-c88f-4c70-9bbb-247212cb4b89",
+      "name": "Parse Decision",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2288,
+        1760
+      ],
+      "parameters": {
+        "jsCode": "const query = $('Webhook: Expense Decision').first().json.query || {};\nconst action = (query.action || '').toString().toLowerCase().trim();\nconst claimId = query.claimId || query.claimID || query.ClaimID || '';\n\nreturn {\n  json: {\n    ...$input.item.json,\n    action: action,\n    claimId: claimId,\n    ClaimID: claimId,\n    isApproved: action === 'approve'\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "41e2203d-217a-4756-8c6c-e8f2ada772da",
+      "name": "Reset Item Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2528,
+        1408
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const current = $input.item.json || {};\nconst amount = Number(current.Amount) || 0;\nconst isAuto = Boolean(current.autoApprove);\nconst isDup = Boolean(current.IsDuplicate);\n\n// Determine risk status safely\nconst riskValue = isDup \n  ? 'High - DUPLICATE SUSPECTED' \n  : (current.RiskFlag || (isAuto ? 'Low' : 'Medium - REQUIRES SIGN-OFF'));\n\n// Determine policy result safely\nconst policyResult = current['Policy Check Result'] \n  || current.PolicyCheckRes \n  || (isAuto ? 'Auto-Approved' : 'Requires Manager Sign-off');\n\nreturn {\n  json: {\n    // Basic Info\n    Vendor: current.Vendor || 'Unknown Vendor',\n    Amount: amount,\n    Category: current.Category || 'Other',\n    Date: current.Date || new Date().toISOString().split('T')[0],\n    ClaimID: current.ClaimID || 'CLM-' + Math.random().toString(36).substring(2, 8).toUpperCase(),\n    Employee: current.Employee || 'Mohd Maaz Khan',\n    EmployeeEmail: current.EmployeeEmail || 'user@example.com',\n    EmployeeChatId: current.EmployeeChatId || 7247804267,\n    \n    // Workflow State\n    autoApprove: isAuto,\n    Status: isAuto ? 'Auto-Approved' : 'Pending Approval',\n    ApprovedBy: isAuto ? 'AI Agent' : '',\n    approvalLevelRequired: isAuto ? 'Auto' : 'Manager',\n    Timestamp: new Date().toISOString(),\n    \n    // Risk, Metrics & Policy\n    IsDuplicate: isDup,\n    IsNewVendor: Boolean(current.IsNewVendor),\n    EmployeeHistoryCount: current.EmployeeHistoryCount || 0,\n    EmployeeAvgForCategory: current.EmployeeAvgForCategory || 0,\n    \n    // Both key formats to prevent missing fields in Google Sheets\n    RiskFlag: riskValue,\n    'Risk Flag': riskValue,\n    PolicyCheckRes: policyResult,\n    'Policy Check Result': policyResult,\n    \n    // Full JSON dump for \"Extracted Data\" column\n    ExtractedData: JSON.stringify(current)\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e3b40b31-64f3-49e0-91d4-c2189dc410e5",
+      "name": "Evaluate Risk & Format History",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2752,
+        1408
+      ],
+      "parameters": {
+        "jsCode": "// Pull array items directly from Parse Extracted Data / Check Policy and Risk\nconst evaluatedItems = $('Check Policy and Risk').all().map(i => i.json);\nconst ledgerItems = $('Get Ledger History').all().map(i => i.json);\n\nreturn evaluatedItems.map((current, index) => {\n  const currentAmount = Number(current.Amount) || 0;\n  const currentVendor = String(current.Vendor || '').toLowerCase().trim();\n\n  // Check ledger for duplicates\n  const isDuplicate = ledgerItems.length > 0 && ledgerItems.some(row => {\n    const rowVendor = String(row.Vendor || row.vendor || '').toLowerCase().trim();\n    const rowAmount = Number(row.Amount || row.amount) || 0;\n    return rowVendor === currentVendor && rowAmount === currentAmount && currentAmount > 0;\n  });\n\n  const finalAutoApprove = !isDuplicate && Boolean(current.autoApprove);\n\n  return {\n    json: {\n      Vendor: current.Vendor || 'Unknown Vendor',\n      Amount: currentAmount,\n      Category: current.Category || 'Meals',\n      Date: current.Date || new Date().toISOString().split('T')[0],\n      ClaimID: current.ClaimID || Math.random().toString(36).substring(2, 9),\n      Employee: current.Employee || 'Mohd Maaz Khan',\n      EmployeeEmail: current.EmployeeEmail || 'user@example.com',\n      EmployeeChatId: current.EmployeeChatId || 7247804267,\n      IsDuplicate: isDuplicate,\n      autoApprove: finalAutoApprove,\n      RiskFlag: isDuplicate \n        ? 'High - DUPLICATE SUSPECTED' \n        : (current.RiskFlag || 'Low Risk'),\n      'Policy Check Result': isDuplicate \n        ? 'Requires Sign-off (Duplicate Found)' \n        : (current['Policy Check Result'] || 'Requires Manager Sign-off')\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fba06826-5964-45aa-97a6-ec7bd1ad2169",
+      "name": "Check Status Trigger",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "GET /webhook/check-status?claimId=CLM-XXXXXX — used by the portal's 'Check Status' button. Does not touch the existing upload or approval flows.",
+      "position": [
+        -4192,
+        1760
+      ],
+      "webhookId": "f1a2b3c4-0001-4a1a-9a1a-000000000001",
+      "parameters": {
+        "path": "check-status",
+        "options": {
+          "allowedOrigins": "*"
+        },
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7cc862aa-4cf3-47c6-ba5e-e66f42238abb",
+      "name": "Find Claim By ID",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -4000,
+        1760
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.query.claimId }}",
+              "lookupColumn": "ClaimID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "31710bbe-0bdc-4137-98e8-516b4f730489",
+      "name": "Respond - Status Check",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -3792,
+        1760
+      ],
+      "parameters": {
+        "options": {
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Access-Control-Allow-Origin",
+                "value": "*"
+              }
+            ]
+          }
+        },
+        "respondWith": "json",
+        "responseBody": "={{ $json.ClaimID ? JSON.stringify({\n  claimId: $json.ClaimID,\n  decision: $json.Status,\n  extractedData: {\n    vendor: $json.Vendor,\n    amount: $json.Amount,\n    category: $json.Category\n  },\n  risk: {\n    result: $json['Policy Check Result'],\n    flag: $json['Risk Flag']\n  }\n}) : JSON.stringify({\n  claimId: $json.query.claimId,\n  decision: 'Not Found',\n  extractedData: {},\n  risk: {}\n}) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "fb3f7f4d-100b-4578-8814-2a4a45b8f47f",
+      "name": "Get Employee history",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -3376,
+        1408
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1529001548,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit#gid=1529001548",
+          "cachedResultName": "Ledger"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1IkPApK6K2-AfWaWVIN0jnbdZ6e6x1I-DGZLh5fEXctM/edit?usp=drivesdk",
+          "cachedResultName": "Expense Agent Data"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "eabf0f33-14e3-4881-865c-f10599ea6227",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -6144,
+        880
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 992,
+        "content": "## Intelligent Expense & Invoice Claims Agent\n\n### How it works\n\n1. A receipt arrives either through the web portal's upload form or as an email attachment, and gets split into one item per file.\n2. Gemini reads each file and extracts vendor, amount, category, and date for every bill it finds.\n3. The workflow scores fraud/policy risk against Ledger history and either auto-approves the claim or routes it to a manager for sign-off.\n4. Auto-approved claims are logged and the employee is emailed immediately; pending claims are logged and the manager gets an Approve/Reject email link.\n5. When the manager clicks a link, the Ledger is updated, the employee is notified of the outcome, and an audit log entry is written.\n6. A separate read-only endpoint lets the portal's \"Check Status\" button look up any claim by ID at any time.\n\n### Setup steps\n\n- [ ] Confirm the Google Sheets credential (Expense Agent Data) has edit access to the Policy Rules, Ledger, and Audit Log tabs.\n- [ ] Confirm the Gmail credential can send from the address used for approval-request and employee-notification emails.\n- [ ] Confirm the Google Gemini (PaLM) API credential is active and has quota for image/PDF analysis.\n- [ ] Set the IMAP credential if email-submitted receipts should be supported.\n- [ ] Point the frontend portal's upload/check-status URLs at this workflow's production webhook URLs.\n\n### Customization\n\nAdjust auto-approval thresholds per category in the Policy Rules sheet rather than in code. The duplicate-detection window is a straight vendor+amount match against Ledger history — tighten or loosen that comparison in \"Evaluate Risk & Format History\" if it's too strict or too loose."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fae23baa-36a8-4689-9211-31fcc103d545",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5584,
+        1232
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 688,
+        "content": "## 1. Receive the receipt\n\nEntry points: the web portal's upload-receipt webhook, or a forwarded email with an attachment. Both paths converge here and split into one item per attached file (PDF or image)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "db381f46-ef38-448a-abdc-4667bf7b009c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4704,
+        1568
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 592,
+        "height": 320,
+        "content": "## 2. Check status of an existing claim\n\nA separate, read-only path used by the portal's \"Check Status\" button. Looks a Claim ID up directly in the Ledger and returns its current status — does not touch the upload/approval flow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5e3cc7bb-7438-4bf2-8aac-44ed02befbaf",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4720,
+        1232
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 736,
+        "height": 320,
+        "content": "## 3. Identify the employee & read the receipt with AI\n\nWorks out who submitted the claim (form fields for web, sender address for email), then sends the file to Gemini, which returns structured vendor/amount/category data for every bill it finds."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e1dae2d-0920-412f-840e-66c8afc7ba3f",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3888,
+        1248
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1248,
+        "height": 288,
+        "content": "## 4. Score risk & apply policy\n\nPulls policy thresholds, this employee's history, and duplicate-check data from the Ledger, then decides per claim whether it auto-approves or needs manager sign-off, and assigns a final Claim ID."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d3d777e1-fb2e-4357-8327-9a0e30a28b36",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2880,
+        1584
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 688,
+        "height": 320,
+        "content": "## 5. Manager approve/reject link\n\nHandles the Approve/Reject links sent in the manager's email. Looks up the matching pending claim and reads which action was clicked."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eabdd1b7-a70d-4c7e-9c23-bd49fd26a1a0",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2672,
+        1040
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 928,
+        "height": 512,
+        "content": "## 6. Route by decision\n\nThe two branch points of the workflow: auto-approve vs. sign-off after risk scoring, and approve vs. reject after a manager clicks a link."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71f5ca4a-2553-43f9-a87e-72a7fda26952",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1712,
+        880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 928,
+        "height": 480,
+        "content": "## 7. Auto-approved: log & respond instantly\n\nWrites the claim straight to the Ledger as Auto-Approved, replies to the web portal synchronously with the result, and emails the employee a confirmation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3175b5dc-fac3-4217-a89e-1a9febb10212",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1920,
+        1904
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 752,
+        "height": 448,
+        "content": "## 8. Needs sign-off: log & notify the approver\n\nWrites the claim to the Ledger as Pending, replies to the portal with a pending status, and emails the manager an Approve/Reject link."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "56a2703a-a96d-4ffd-aa10-b5e2a286ca55",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1136,
+        1408
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1232,
+        "height": 512,
+        "content": "## 9. Finalize manager's decision\n\nUpdates the Ledger row to Approved or Rejected, emails the employee the outcome, and writes a permanent record to the Audit Log."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "265dde03-3177-4a72-8700-017041bdb5b0",
+  "nodeGroups": [],
+  "connections": {
+    "Parse Decision": {
+      "main": [
+        [
+          {
+            "node": "Find Pending Claim",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Audit Log": {
+      "main": [
+        []
+      ]
+    },
+    "Find Claim By ID": {
+      "main": [
+        [
+          {
+            "node": "Respond - Status Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Policy Rules": {
+      "main": [
+        [
+          {
+            "node": "Get Employee history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Pending Claim": {
+      "main": [
+        [
+          {
+            "node": "Send Approval Request Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Pending Claim": {
+      "main": [
+        [
+          {
+            "node": "Approved or Rejected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Ledger History": {
+      "main": [
+        [
+          {
+            "node": "Evaluate Risk & Format History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reset Item Context": {
+      "main": [
+        [
+          {
+            "node": "Auto-Approve or Needs Sign-off?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web Upload Trigger": {
+      "main": [
+        [
+          {
+            "node": "Split Bulk Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Status Trigger": {
+      "main": [
+        [
+          {
+            "node": "Find Claim By ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email Trigger (IMAP)": {
+      "main": [
+        [
+          {
+            "node": "Split Bulk Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Employee history": {
+      "main": [
+        [
+          {
+            "node": "Check Policy and Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Extracted Data": {
+      "main": [
+        [
+          {
+            "node": "Get Policy Rules",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Approved or Rejected?": {
+      "main": [
+        [
+          {
+            "node": "Update Ledger - Approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Ledger - Rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Employee Info": {
+      "main": [
+        [
+          {
+            "node": "Ask Gemini to Read Receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Policy and Risk": {
+      "main": [
+        [
+          {
+            "node": "Get Ledger History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Bulk Attachments": {
+      "main": [
+        [
+          {
+            "node": "Capture Employee Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Web Origin? (Pending)": {
+      "main": [
+        [
+          {
+            "node": "Respond - Pending Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Pending Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Ledger - Approved": {
+      "main": [
+        [
+          {
+            "node": "Notify Employee - Approved (Email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Ledger - Rejected": {
+      "main": [
+        [
+          {
+            "node": "Notify Employee - Rejected (Email)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Expense Decision": {
+      "main": [
+        [
+          {
+            "node": "Parse Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask Gemini to Read Receipt": {
+      "main": [
+        [
+          {
+            "node": "Parse Extracted Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Approval Request Email": {
+      "main": [
+        []
+      ]
+    },
+    "Log to Ledger - Auto Approved": {
+      "main": [
+        [
+          {
+            "node": "Notify Employee - Approved (Email)2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Risk & Format History": {
+      "main": [
+        [
+          {
+            "node": "Reset Item Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Web Origin? (Auto-Approved)": {
+      "main": [
+        [
+          {
+            "node": "Respond - Auto Approved",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Auto Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auto-Approve or Needs Sign-off?": {
+      "main": [
+        [
+          {
+            "node": "Log to Ledger - Auto Approved",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Web Origin? (Auto-Approved)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Pending Claim",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Is Web Origin? (Pending)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Employee - Approved (Email)": {
+      "main": [
+        [
+          {
+            "node": "Write Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Employee - Rejected (Email)": {
+      "main": [
+        [
+          {
+            "node": "Write Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Employee - Approved (Email)2": {
+      "main": [
+        [
+          {
+            "node": "Write Audit Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# token : 29
+# token : 32
 
 |id|file|
 |----|----|
@@ -31,3 +31,6 @@
 |12646|[12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12646_Track_monthly_OpenAI_token_usage_with_Google_Sheets_and_Gmail_reports.json)|
 |15177|[15177_Track_AI_agent_token_costs_and_store_receipts_with_the_n8n_API_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15177_Track_AI_agent_token_costs_and_store_receipts_with_the_n8n_API_and_Data_Tables.json)|
 |15920|[15920_Email_weekly_AI_agent_cost_and_token_reports_with_Alephant_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15920_Email_weekly_AI_agent_cost_and_token_reports_with_Alephant_and_Gmail.json)|
+|18615|[18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json)|
+|19448|[19448_Send_new_token_listing_alerts_from_10__crypto_exchanges_to_Telegram__Discord_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19448_Send_new_token_listing_alerts_from_10__crypto_exchanges_to_Telegram__Discord_and_Sheets.json)|
+|19675|[19675_Send_new_token_listing_alerts_from_10_crypto_exchanges_to_Discord_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19675_Send_new_token_listing_alerts_from_10_crypto_exchanges_to_Discord_and_Slack.json)|

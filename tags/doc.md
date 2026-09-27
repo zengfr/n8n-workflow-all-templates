@@ -1,4 +1,4 @@
-# doc : 18
+# doc : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |15145|[15145_Generate_24s_engaging_conspiracy_doc_reels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15145_Generate_24s_engaging_conspiracy_doc_reels.json)|
 |15985|[15985_Convert_handwritten_meeting_notes_to_Google_Docs_with_Gmail_and_easybits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15985_Convert_handwritten_meeting_notes_to_Google_Docs_with_Gmail_and_easybits.json)|
 |16658|[16658_Generate_workflow_audit_docs_from_JSON_with_Claude_Sonnet_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16658_Generate_workflow_audit_docs_from_JSON_with_Claude_Sonnet_and_Notion.json)|
+|18614|[18614_Sync_documentation_vectors_from_GitHub_with_Ollama_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18614_Sync_documentation_vectors_from_GitHub_with_Ollama_and_Qdrant.json)|

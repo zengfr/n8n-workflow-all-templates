@@ -1,4 +1,4 @@
-# maintenance : 12
+# maintenance : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |13595|[13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13595_Monitor_asset_health_and_predict_maintenance_with_Anthropic_Claude_and_Slack.json)|
 |13705|[13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13705_Manage_WhatsApp_property_maintenance_tickets_with_WATI_and_Google_Sheets.json)|
 |15780|[15780_Triage_maintenance_tickets_and_assign_vendors_with_Airtable__Twilio_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15780_Triage_maintenance_tickets_and_assign_vendors_with_Airtable__Twilio_and_Gmail.json)|
+|17971|[17971_Manage_rent__maintenance_and_tenant_messages_with_OpenAI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17971_Manage_rent__maintenance_and_tenant_messages_with_OpenAI__Telegram_and_Sheets.json)|
+|18982|[18982_Maintain_and_rewrite_knowledge_base_articles_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18982_Maintain_and_rewrite_knowledge_base_articles_with_Claude_and_Slack.json)|

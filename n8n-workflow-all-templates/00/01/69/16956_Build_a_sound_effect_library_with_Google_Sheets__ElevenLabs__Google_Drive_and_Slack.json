@@ -1,0 +1,664 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Build a sound effect library with Google Sheets, ElevenLabs, Google Drive and Slack",
+    "wechat": "youandme10086",
+    "id": 16956,
+    "update_time": "2026-09-27"
+  },
+  "name": "Build a sound effect library from a Google Sheet with ElevenLabs",
+  "tags": [],
+  "nodes": [
+    {
+      "name": "Start Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -384,
+        208
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -384,
+        384
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "name": "Get Queued Rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 3,
+      "position": [
+        -144,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "sheet",
+        "operation": "read",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "name": "Select Queued Batch",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        144,
+        304
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ============================================================================\n// SELECT QUEUED BATCH\n// Reads every row from the library sheet, keeps only rows that still need a\n// sound (Status is \"Queued\" or blank), caps the run to a safe batch size, and\n// builds the clamped ElevenLabs request body for each. Rows already marked Done\n// or Failed are skipped, so the workflow is idempotent and safe to run on a\n// schedule.\n// ============================================================================\n\n// ---- EDIT HERE: the only block most people change -------------------------\nconst BATCH_SIZE = 10;                 // max rows generated per run (controls cost)\nconst DEFAULT_PROMPT_INFLUENCE = 0.3;  // used when PromptInfluence is blank\n// ElevenLabs sound-generation hard limits (do not change unless the API does)\nconst MIN_DURATION = 0.5;\nconst MAX_DURATION = 30;\n// ---------------------------------------------------------------------------\n\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));\nconst cell = (v) => String(v === undefined || v === null ? '' : v).trim();\n\nconst rows = $input.all();\nconst out = [];\n\nfor (let i = 0; i < rows.length; i++) {\n  const r = rows[i].json;\n\n  // Idempotency: only pick rows that are Queued or blank. Done/Failed are skipped.\n  const status = cell(r.Status).toLowerCase();\n  if (status !== '' && status !== 'queued') continue;\n\n  // A row needs a Description (the sound-effect prompt) to be generated.\n  const description = cell(r.Description);\n  if (!description) continue;\n\n  if (out.length >= BATCH_SIZE) break;\n\n  // Duration: blank means let ElevenLabs auto-pick, so omit the field entirely.\n  // Any value is clamped to the API's 0.5 to 30 second range.\n  let duration = null;\n  const rawDur = cell(r.DurationSeconds);\n  if (rawDur !== '') {\n    const d = Number(rawDur);\n    if (Number.isFinite(d)) duration = clamp(d, MIN_DURATION, MAX_DURATION);\n  }\n\n  // Prompt influence: clamp 0 to 1, default when blank or invalid.\n  let influence = DEFAULT_PROMPT_INFLUENCE;\n  const rawInf = cell(r.PromptInfluence);\n  if (rawInf !== '') {\n    const p = Number(rawInf);\n    if (Number.isFinite(p)) influence = clamp(p, 0, 1);\n  }\n\n  const body = { text: description, prompt_influence: influence };\n  if (duration !== null) body.duration_seconds = duration;\n\n  // Deterministic, filesystem-safe MP3 name: sfx_<row>_<slug>.mp3\n  const slug = description.toLowerCase().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '').slice(0, 40) || 'sound';\n  const filename = 'sfx_' + r.row_number + '_' + slug + '.mp3';\n\n  out.push({\n    json: { row_number: r.row_number, description, filename, body },\n    pairedItem: { item: i },\n  });\n}\n\nreturn out;\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Generate Sound Effect",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        448,
+        368
+      ],
+      "parameters": {
+        "url": "https://api.elevenlabs.io/v1/sound-generation",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "output_format",
+              "value": "mp3_44100_128"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "REPLACE_WITH_YOUR_ELEVENLABS_CREDENTIAL",
+          "name": "ElevenLabs"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "name": "Upload MP3 to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        640,
+        224
+      ],
+      "parameters": {
+        "name": "={{ $('Select Queued Batch').item.json.filename }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "resource": "file",
+        "operation": "upload",
+        "authentication": "oAuth2",
+        "inputDataFieldName": "data"
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_DRIVE_CREDENTIAL",
+          "name": "Google Drive account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 3,
+      "waitBetweenTries": 5000
+    },
+    {
+      "name": "Mark Row Done",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        912,
+        208
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Link": "={{ 'https://drive.google.com/file/d/' + $json.id + '/view' }}",
+            "Notes": "",
+            "Status": "Done",
+            "row_number": "={{ $('Select Queued Batch').item.json.row_number }}",
+            "GeneratedAt": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DurationSeconds",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "DurationSeconds",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PromptInfluence",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "PromptInfluence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Notes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GeneratedAt",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "GeneratedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "resource": "sheet",
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "name": "Mark Row Failed",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        912,
+        384
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Notes": "={{ $json.error?.message || $json.error || 'Sound generation or upload failed, see execution log' }}",
+            "Status": "Failed",
+            "row_number": "={{ $('Select Queued Batch').item.json.row_number }}",
+            "GeneratedAt": "={{ $now.toISO() }}"
+          },
+          "schema": [
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "DurationSeconds",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "DurationSeconds",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "PromptInfluence",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "PromptInfluence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Link",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Link",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Notes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Notes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GeneratedAt",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "GeneratedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "resource": "sheet",
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "name": "Summarize Run",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1104,
+        208
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ============================================================================\n// SUMMARIZE RUN\n// Runs once after the per-row work. Counts how many rows were generated versus\n// failed this run and builds the Slack recap line. Either write-back node may\n// not have executed (an all-success run never touches Mark Row Failed), so each\n// reference is guarded.\n// ============================================================================\n\nlet done = [];\nlet failed = [];\ntry { done = $('Mark Row Done').all(); } catch (e) { done = []; }\ntry { failed = $('Mark Row Failed').all(); } catch (e) { failed = []; }\n\nconst generated = done.length;\nconst failedCount = failed.length;\nconst total = generated + failedCount;\n\nconst NL = String.fromCharCode(10);\nconst recapText =\n  ':headphones: SFX Library Builder run' + NL +\n  'Generated ' + generated + ', failed ' + failedCount +\n  ' (of ' + total + ' queued row' + (total === 1 ? '' : 's') + ').';\n\nreturn [{ json: { generated, failed: failedCount, total, recapText } }];\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "name": "Post Recap to Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1296,
+        208
+      ],
+      "parameters": {
+        "text": "={{ $json.recapText }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "operation": "post",
+        "messageType": "text",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_SLACK_CREDENTIAL",
+          "name": "Slack account"
+        }
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -720
+      ],
+      "parameters": {
+        "width": 1256,
+        "height": 648,
+        "content": "## SFX Library Builder\n\n### How it works\n\n1. A manual run or the 15 minute schedule reads the library sheet.\n2. Rows whose Status is Queued or blank are selected, capped to a safe batch, and clamped to the API limits.\n3. Generate Sound Effect calls the ElevenLabs sound-generation API and returns an MP3.\n4. Upload MP3 to Drive saves the file to your Google Drive folder.\n5. The row is marked Done with its Drive link, or Failed with the reason, so nothing is left stuck on Queued.\n6. Post Recap to Slack sends a one line generated and failed summary.\n\n### Setup steps\n\n- [ ] Create a Header Auth credential named ElevenLabs with header name xi-api-key, then select it on Generate Sound Effect.\n- [ ] Connect Google Sheets and pick your spreadsheet and tab on Get Queued Rows, Mark Row Done, and Mark Row Failed.\n- [ ] Connect Google Drive and pick the target folder on Upload MP3 to Drive.\n- [ ] Connect Slack and pick the channel on Post Recap to Slack.\n- [ ] Add the header row to your sheet: Description, DurationSeconds, PromptInfluence, Status, Link, Notes, GeneratedAt.\n- [ ] Fill a few Description rows, run once, then activate.\n\n### Customization\n\nEdit the batch size, default prompt influence, and the duration clamps at the top of the Select Queued Batch node. Change the 15 minute schedule to any cadence."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Trigger and read the sheet",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -448,
+        -48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 472,
+        "height": 576,
+        "content": "## Trigger and read the sheet\nBoth triggers feed the same pickup. Get Queued Rows reads every row from the library sheet.\n\nOn a schedule, keep the interval longer than one batch's worst-case run time so a new run does not start while the previous one is still generating the same Queued rows."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Select the queued batch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 268,
+        "height": 384,
+        "content": "## Select the queued batch\nKeeps only Queued or blank rows, caps the batch, and clamps duration and prompt influence. Edit the tunables at the top of the node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Generate and store the MP3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 504,
+        "content": "## Generate and store the MP3\nGenerate Sound Effect uses a Header Auth credential named ElevenLabs (header xi-api-key). The returned MP3 is uploaded to your Drive folder."
+      },
+      "typeVersion": 1
+    },
+    {
+      "name": "Write back and post recap",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        848,
+        32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 528,
+        "content": "## Write back and post recap\nEach row is marked Done with its Drive link or Failed with a reason, then Slack gets a one line recap. A failure never stops the batch."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Mark Row Done": {
+      "main": [
+        [
+          {
+            "node": "Summarize Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize Run": {
+      "main": [
+        [
+          {
+            "node": "Post Recap to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Manually": {
+      "main": [
+        [
+          {
+            "node": "Get Queued Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Queued Rows": {
+      "main": [
+        [
+          {
+            "node": "Select Queued Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark Row Failed": {
+      "main": [
+        [
+          {
+            "node": "Summarize Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Get Queued Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Queued Batch": {
+      "main": [
+        [
+          {
+            "node": "Generate Sound Effect",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload MP3 to Drive": {
+      "main": [
+        [
+          {
+            "node": "Mark Row Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Row Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Sound Effect": {
+      "main": [
+        [
+          {
+            "node": "Upload MP3 to Drive",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark Row Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

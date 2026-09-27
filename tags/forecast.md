@@ -1,4 +1,4 @@
-# forecast : 17
+# forecast : 22
 
 |id|file|
 |----|----|
@@ -19,3 +19,8 @@
 |13982|[13982_Forecast_sales_trends_and_weekly_reports_with_Stripe__Sheets__Slack__and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13982_Forecast_sales_trends_and_weekly_reports_with_Stripe__Sheets__Slack__and_Gemini_AI.json)|
 |15027|[15027_Forecast_property_CAPEX_and_ROI_weekly_using_Google_Sheets_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15027_Forecast_property_CAPEX_and_ROI_weekly_using_Google_Sheets_and_GPT-4o.json)|
 |15706|[15706_Forecast_inventory_and_auto-generate_reorders_with_Google_Sheets__GPT-4o_mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15706_Forecast_inventory_and_auto-generate_reorders_with_Google_Sheets__GPT-4o_mini_and_Slack.json)|
+|17349|[17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json)|
+|17683|[17683_Forecast_inventory_and_route_purchase_orders_with_Google_Sheets__OpenAI__Telegram__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17683_Forecast_inventory_and_route_purchase_orders_with_Google_Sheets__OpenAI__Telegram__Slack__and_Gmail.json)|
+|18067|[18067_Forecast_stockouts_and_draft_purchase_orders_with_Gemini__Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18067_Forecast_stockouts_and_draft_purchase_orders_with_Gemini__Sheets__Slack_and_Gmail.json)|
+|19392|[19392_Process_and_forecast_AP_invoices_from_Gmail_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19392_Process_and_forecast_AP_invoices_from_Gmail_with_OpenAI_and_Google_Sheets.json)|
+|19569|[19569_Dispatch_snow_and_ice_crews_from_forecasts_with_Open-Meteo__GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19569_Dispatch_snow_and_ice_crews_from_forecasts_with_Open-Meteo__GPT-4o_and_Gmail.json)|

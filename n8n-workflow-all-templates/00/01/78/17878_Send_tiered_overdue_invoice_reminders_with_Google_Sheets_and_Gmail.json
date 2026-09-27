@@ -1,0 +1,332 @@
+{
+  "name": "Chase overdue invoices with 3-tier escalating Gmail reminders from Google Sheets",
+  "nodes": [
+    {
+      "id": "4902b93f-a3cb-421a-ab51-7c099a8d0312",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -192
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 816,
+        "content": "## Chase overdue invoices with 3-tier escalating Gmail reminders from Google Sheets\n\n### How it works\n\nThis workflow runs every morning at 9:00 to review overdue invoices stored in Google Sheets. It builds tiered reminder messages for unpaid invoices, sends customer reminders through Gmail, and logs the outreach back to the tracker. For invoices that reach the final-notice tier, it also sends an internal escalation alert.\n\n### Setup steps\n\n- Configure Google Sheets credentials for both reading and updating the invoice tracker.\n- Configure Gmail credentials for sending customer reminders and internal escalation alerts.\n- Set the schedule trigger timezone and confirm it should run daily at 9:00.\n- Update the Google Sheets node settings to point to the correct spreadsheet, sheet, and required invoice columns.\n- Review the code in the reminder-building node to ensure the overdue thresholds, tier logic, email copy, and recipient fields match your process.\n\n### Customization\n\nAdjust the escalation tiers, reminder wording, sender/recipient addresses, and logging fields to match your collections policy."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5f73b37-2fd7-4803-bd5a-929d4d4d64f0",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 320,
+        "content": "## Schedule and prepare reminders\n\nStarts the workflow every morning, reads the invoice tracker from Google Sheets, and classifies unpaid invoices into reminder tiers while drafting the appropriate email content."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "93ea7e41-006b-49c8-829a-9e160990a50b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        -192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 320,
+        "content": "## Send and log reminders\n\nSends the customer reminder emails through Gmail, then records the reminder activity back into the invoice tracker."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "06889b0d-92fc-4892-a3ac-1be5accdbfc1",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 320,
+        "content": "## Handle final escalation\n\nChecks whether an invoice has reached the final notice tier and, when applicable, sends an internal escalation alert by Gmail."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "node-schedule",
+      "name": "When Clock Strikes 9AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        120,
+        60
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "node-read-sheet",
+      "name": "Fetch Invoice Data from Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        340,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "node-build",
+      "name": "Draft Escalation Emails",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        60
+      ],
+      "parameters": {
+        "jsCode": "// Classify every unpaid invoice into an escalation tier and draft the email.\n// Edit the three email templates below to match your voice.\n\nconst REMIND_EVERY_DAYS = 7; // never email the same client more often than this\nconst today = new Date();\ntoday.setHours(0, 0, 0, 0);\n\nconst out = [];\n\nfor (const item of $input.all()) {\n  const inv = item.json;\n\n  if (String(inv.Status || '').trim().toLowerCase() !== 'unpaid') continue;\n  if (!inv.DueDate || !inv.ClientEmail) continue;\n\n  const due = new Date(inv.DueDate);\n  if (isNaN(due)) continue;\n  due.setHours(0, 0, 0, 0);\n\n  const daysOverdue = Math.floor((today - due) / 86400000);\n  if (daysOverdue < 3) continue; // small grace period\n\n  // throttle: skip if a reminder went out recently\n  if (inv.LastReminderDate) {\n    const last = new Date(inv.LastReminderDate);\n    if (!isNaN(last) && (today - last) / 86400000 < REMIND_EVERY_DAYS) continue;\n  }\n\n  const tier = daysOverdue >= 30 ? 3 : daysOverdue >= 14 ? 2 : 1;\n  const amount = `${inv.Amount} ${inv.Currency || ''}`.trim();\n  const firstName = String(inv.ClientName || 'there').split(' ')[0];\n\n  let subject, body;\n\n  if (tier === 1) {\n    subject = `Friendly reminder: invoice ${inv.InvoiceNumber} (${amount})`;\n    body = `Hi ${firstName},\\n\\nJust a quick note that invoice ${inv.InvoiceNumber} for ${amount} was due on ${inv.DueDate} and looks unpaid on our side.\\n\\nIf you've already sent the payment — thank you, please ignore this. Otherwise it would be great if you could settle it this week.\\n\\nIf anything is unclear about the invoice, just reply to this email.\\n\\nBest regards`;\n  } else if (tier === 2) {\n    subject = `Second reminder: invoice ${inv.InvoiceNumber} is ${daysOverdue} days overdue`;\n    body = `Hi ${firstName},\\n\\nInvoice ${inv.InvoiceNumber} for ${amount} is now ${daysOverdue} days past its due date (${inv.DueDate}).\\n\\nPlease arrange payment within the next 5 business days, or let me know when we can expect it.\\n\\nIf there is an issue with the invoice or the work, reply here and we'll sort it out quickly.\\n\\nBest regards`;\n  } else {\n    subject = `FINAL NOTICE: invoice ${inv.InvoiceNumber} — ${daysOverdue} days overdue`;\n    body = `Hi ${firstName},\\n\\nDespite previous reminders, invoice ${inv.InvoiceNumber} for ${amount} remains unpaid ${daysOverdue} days after its due date (${inv.DueDate}).\\n\\nPlease settle the amount within 7 days. After that we will have to pause ongoing work and may add late-payment charges as per our terms.\\n\\nI would much rather resolve this simply — if payment is already on its way, a quick reply is enough.\\n\\nRegards`;\n  }\n\n  out.push({\n    json: {\n      row_number: inv.row_number,\n      InvoiceNumber: inv.InvoiceNumber,\n      ClientName: inv.ClientName,\n      ClientEmail: inv.ClientEmail,\n      Amount: inv.Amount,\n      Currency: inv.Currency || '',\n      DueDate: inv.DueDate,\n      daysOverdue,\n      tier,\n      subject,\n      body,\n      remindersSent: (parseInt(inv.RemindersSent, 10) || 0) + 1,\n      todayISO: today.toISOString().slice(0, 10),\n    },\n  });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "node-send",
+      "name": "Dispatch Reminder Emails",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        800,
+        -40
+      ],
+      "parameters": {
+        "sendTo": "={{ $json.ClientEmail }}",
+        "message": "={{ $json.body }}",
+        "options": {},
+        "subject": "={{ $json.subject }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "node-log",
+      "name": "Update Invoice Status in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1020,
+        -40
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "row_number": "={{ $json.row_number }}",
+            "RemindersSent": "={{ $json.remindersSent }}",
+            "LastReminderDate": "={{ $json.todayISO }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ]
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "node-if-final",
+      "name": "Check Final Escalation Tier",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        800,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-final",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.tier }}",
+              "rightValue": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "node-alert",
+      "name": "Notify Escalation Alert via Gmail",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1024,
+        320
+      ],
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ 'Final notice was just sent to ' + $json.ClientName + ' (' + $json.ClientEmail + ') for invoice ' + $json.InvoiceNumber + ', amount ' + $json.Amount + ' ' + $json.Currency + ', due ' + $json.DueDate + ' (' + $json.daysOverdue + ' days overdue, reminder #' + $json.remindersSent + ').\\n\\nConsider pausing work for this client or handing the case to collections.' }}",
+        "options": {},
+        "subject": "={{ '🚨 Escalation: ' + $json.ClientName + ' — ' + $json.InvoiceNumber + ' is ' + $json.daysOverdue + ' days overdue' }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "sticky-02",
+      "name": "Sticky Note — Required Columns",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        656
+      ],
+      "parameters": {
+        "width": 380,
+        "height": 420,
+        "content": "### 📋 Required sheet columns (tab name: `Invoices`)\n\n| Column | Example |\n|---|---|\n| InvoiceNumber | INV-2041 |\n| ClientName | Acme LLC |\n| ClientEmail | billing@acme.com |\n| Amount | 1250.00 |\n| Currency | USD |\n| DueDate | 2026-07-15 (YYYY-MM-DD) |\n| Status | unpaid / paid |\n| LastReminderDate | auto-filled |\n| RemindersSent | auto-filled |\n\nMark an invoice `paid` and it is ignored forever."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-03",
+      "name": "Sticky Note — Pro Version",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        656
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 380,
+        "height": 260,
+        "content": "### 🚀 Want this wired into QuickBooks, Xero or Stripe?\n\nThis free template runs off a Google Sheet so anyone can use it. I also build versions that pull invoices straight from **QuickBooks / Xero / Stripe**, add **SMS or WhatsApp escalation**, and auto-pause services for chronic late payers.\n\nAsync delivery, no calls needed — check my creator profile for contact links."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "When Clock Strikes 9AM": {
+      "main": [
+        [
+          {
+            "node": "Fetch Invoice Data from Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Escalation Emails": {
+      "main": [
+        [
+          {
+            "node": "Dispatch Reminder Emails",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check Final Escalation Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dispatch Reminder Emails": {
+      "main": [
+        [
+          {
+            "node": "Update Invoice Status in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Final Escalation Tier": {
+      "main": [
+        [
+          {
+            "node": "Notify Escalation Alert via Gmail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Invoice Data from Sheets": {
+      "main": [
+        [
+          {
+            "node": "Draft Escalation Emails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Send tiered overdue invoice reminders with Google Sheets and Gmail",
+    "wechat": "youandme10086",
+    "id": 17878,
+    "update_time": "2026-09-27"
+  }
+}

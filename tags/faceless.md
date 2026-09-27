@@ -1,4 +1,4 @@
-# faceless : 6
+# faceless : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |8290|[8290_Automate_Faceless_Shorts_with_OpenAI__RunwayML___ElevenLabs__Script_to_Social_Media.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8290_Automate_Faceless_Shorts_with_OpenAI__RunwayML___ElevenLabs__Script_to_Social_Media.json)|
 |10103|[10103_Generate_Horror_Faceless_Shorts_with_OpenAI_TTS__Replicate_Video__and_YouTube_Upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10103_Generate_Horror_Faceless_Shorts_with_OpenAI_TTS__Replicate_Video__and_YouTube_Upload.json)|
 |16358|[16358_Create_daily_faceless_YouTube_Shorts_with_Groq__SamAutomation_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16358_Create_daily_faceless_YouTube_Shorts_with_Groq__SamAutomation_and_Google_Sheets.json)|
+|17408|[17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17408_Generate_faceless_video_scripts_from_a_topic_with_Gemini_or_Claude_Haiku.json)|
+|17566|[17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json)|
+|18896|[18896_Build_faceless_video_briefs_from_webhook_requests_for_Faceless_Reels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18896_Build_faceless_video_briefs_from_webhook_requests_for_Faceless_Reels.json)|
+|19628|[19628_Create_faceless_YouTube_shorts_with_Zvid__ElevenLabs_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19628_Create_faceless_YouTube_shorts_with_Zvid__ElevenLabs_and_OpenRouter.json)|

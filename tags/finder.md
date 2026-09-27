@@ -1,4 +1,4 @@
-# finder : 44
+# finder : 51
 
 |id|file|
 |----|----|
@@ -46,3 +46,10 @@
 |16237|[16237_Extract_B2B_lead_emails_from_Google_results_with_SerpApi__Apify_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16237_Extract_B2B_lead_emails_from_Google_results_with_SerpApi__Apify_and_Claude.json)|
 |16525|[16525_Find_LinkedIn_engagement_opportunities_with_Apify__Gemini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16525_Find_LinkedIn_engagement_opportunities_with_Apify__Gemini__Google_Sheets_and_Slack.json)|
 |16733|[16733_Enrich_contact_emails_and_phone_numbers_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16733_Enrich_contact_emails_and_phone_numbers_with_Tomba_and_Google_Sheets.json)|
+|16916|[16916_Enrich_LinkedIn_leads_with_Unipile_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16916_Enrich_LinkedIn_leads_with_Unipile_and_Google_Sheets.json)|
+|16973|[16973_Search_and_preview_GIFs_with_forms_and_GIPHY.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16973_Search_and_preview_GIFs_with_forms_and_GIPHY.json)|
+|17237|[17237_Score_local_Google_Maps_leads_with_Scavio_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17237_Score_local_Google_Maps_leads_with_Scavio_and_Google_Sheets.json)|
+|17833|[17833_Find_local_business_email_leads_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17833_Find_local_business_email_leads_with_Apify_and_Google_Sheets.json)|
+|17924|[17924_Find_local_sales_leads_from_Google_Maps_with_CoreClaw.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17924_Find_local_sales_leads_from_Google_Maps_with_CoreClaw.json)|
+|18287|[18287_Find_and_rank_job_listings_from_Adzuna_and_Remotive_via_Telegram_with_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18287_Find_and_rank_job_listings_from_Adzuna_and_Remotive_via_Telegram_with_Gemini_and_Sheets.json)|
+|19466|[19466_Find_unhappy_competitor_customers_and_enrich_leads_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19466_Find_unhappy_competitor_customers_and_enrich_leads_with_Apify.json)|

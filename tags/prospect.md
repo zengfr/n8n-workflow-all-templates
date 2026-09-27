@@ -1,4 +1,4 @@
-# prospect : 14
+# prospect : 17
 
 |id|file|
 |----|----|
@@ -16,3 +16,6 @@
 |8014|[8014_Automate_Sales_Outreach_with_OpenAI__Tavily___Google_Sheets_for_Prospect_Research.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8014_Automate_Sales_Outreach_with_OpenAI__Tavily___Google_Sheets_for_Prospect_Research.json)|
 |8466|[8466_Generate_Dream_100_Prospect_Lists_with_Perplexity_AI_Research_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8466_Generate_Dream_100_Prospect_Lists_with_Perplexity_AI_Research_and_Google_Sheets.json)|
 |8957|[8957_Pre-Meeting_Lead_Research_Agent_with_Calendly__Perplexity___RapidAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8957_Pre-Meeting_Lead_Research_Agent_with_Calendly__Perplexity___RapidAPI.json)|
+|18428|[18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json)|
+|18533|[18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json)|
+|18629|[18629_Audit_prospect_websites_and_generate_HTML_SEO_reports_with_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18629_Audit_prospect_websites_and_generate_HTML_SEO_reports_with_Bright_Data_and_GPT-5.6.json)|

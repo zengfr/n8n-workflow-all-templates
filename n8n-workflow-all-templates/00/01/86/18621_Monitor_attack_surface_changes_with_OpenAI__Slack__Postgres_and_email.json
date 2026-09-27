@@ -1,0 +1,1058 @@
+{
+  "id": "a7ldLty8xYKwUCqw",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Monitor attack surface changes with OpenAI, Slack, Postgres and email",
+    "wechat": "youandme10086",
+    "id": 18621,
+    "update_time": "2026-09-27"
+  },
+  "name": "Monitor attack surface changes with OpenAI, Slack and Postgres",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "859efb76-14f2-4ed8-91a2-1f747d7fc7f6",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -9216,
+        -880
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 1040,
+        "content": "## Attack Surface Change Monitor (Event-Sourced)\n\n### How it works\n\nThis workflow periodically scans configured external discovery sources and treats every scan as a stream of **observations**, not a snapshot. Raw observations are stored as-is (append-only), then **resolved** against a persistent asset identity table — multiple sources (subdomain enum, exposure scan, cloud inventory) can point at the same real-world asset, and resolution merges them onto one `asset_id` using deterministic identity rules (IP+port, hostname, cloud ARN, etc). From resolved observations we build the **current state** of each asset (latest known attributes) and diff it against the asset's **previous state** to generate discrete **change events** (`asset.new`, `service.added`, `service.removed`, `cloud_resource.added`, `risk.increased` via `isRiskIncrease`, `attribute.changed`, `asset.decommissioned`) rather than one generic diff. Every event is persisted to an append-only `attack_surface_events` table (full history preserved).\n\nEach event is risk-scored deterministically, then an AI agent is used purely to **explain/triage** — it narrates why the event matters, it does not decide what changed or how severe it is. A separate **policy engine** node then decides routing (Slack / email / log / compliance) based on severity, event type, and org policy — decoupled from both the risk scoring and the AI narrative.\n\n### Setup steps\n\n- Configure the schedule trigger for desired scan frequency.\n- Update the configuration node with root domains and discovery API URLs.\n- Create Postgres tables: `attack_surface_observations` (raw, append-only), `attack_surface_assets` (resolved identity + current state), `attack_surface_events` (append-only change history).\n- Configure OpenAI credentials for the AI triage agent.\n- Configure Slack/email credentials and the policy engine's routing rules.\n\n### Customization\n\nAdjust identity-resolution rules, event-type detection logic, severity scoring, and the policy engine's routing table independently — each is now its own node/stage."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7dfa2a16-195c-4d87-895c-24a36ef18b63",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8496,
+        -656
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 560,
+        "content": "## 1️⃣ Scan\n- **When Attack Surface Scan Scheduled** — fires on a schedule (default every 6 hours) to start each scan cycle.\n- **Set Configuration Parameters** — single Set node holding root domains, discovery API URLs, cloud allowlists, and routing settings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aae25d8e-1845-4439-a3cf-92823968d5c1",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8048,
+        -816
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 952,
+        "content": "## 2️⃣ Query Discovery Sources\n- **Fetch Subdomain Data** — calls the subdomain-enumeration API for the configured root domains. 🔑\n- **Fetch Exposed Services Data** — calls the exposure-scanner API for internet-facing hosts and ports. 🔑\n- **Fetch Cloud Asset Inventory** — calls the internal CMDB for public cloud resources. 🔑\n- **Merge Discovery Sources** — combines the three source responses into one stream for normalization."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c0cbdab6-7fd5-434e-9a3e-5d36f48af62b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -7584,
+        -848
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 224,
+        "height": 936,
+        "content": "## 3️⃣ Store Observations\n- **Build Raw Observations** — flattens each source's raw shape into individual, source-attributed observation records with a fingerprint.\n- **Persist Raw Observations** — appends every observation to the append-only observation log; nothing is overwritten. 🔑"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "20c4d31d-d5cb-4a2b-ab80-128ee7358bb3",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -7312,
+        -880
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 596,
+        "height": 912,
+        "content": "## 4️⃣ Resolve Assets\n- **Load Known Asset Identities** — pulls every existing asset's identity keys (hostname, IP+port, ARN) from Postgres. 🔑\n- **Merge Observations With Identities** — pairs this scan's observations with the known-identity table for matching.\n- **Resolve Assets Across Sources** — matches each observation to an existing asset_id (ARN → IP+port → hostname → IP-only) or mints a new one, so multiple sources collapse onto one asset."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e3b8e414-ad23-4826-b53b-df14d96f3a65",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -6656,
+        -1136
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 212,
+        "height": 1296,
+        "content": "## 5️⃣ Build Current State\n- **Build Current State Per Asset** — aggregates all resolved observations for one asset_id into a single merged current-state record.\n- **Load Previous Asset State** — reads that asset's last-persisted state from Postgres for comparison. 🔑\n- **Upsert Asset Current State** — writes the newly merged current state back to Postgres as next scan's baseline. 🔑"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b6470209-ae9b-432a-835b-20009d3176e4",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -6400,
+        -832
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 444,
+        "height": 800,
+        "content": "## 6️⃣ Generate Change Events\n- **Pair Current With Previous State** — joins each asset's current record with its previous record (or null, if new) by asset_id.\n- **Generate Change Events** — diffs current vs previous per asset and emits zero or more typed events (asset.new, service.added/removed, cloud_resource.added, attribute.changed, asset.decommissioned) rather than a generic diff.\n- **Persist Change Events** — appends every generated event to the append-only event-history table. 🔑"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f422256-e8b5-46d5-8ea2-3c1c0b60507e",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5936,
+        -736
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 252,
+        "height": 392,
+        "content": "## 7️⃣ Risk Scoring\n- **Score Event Risk** — assigns deterministic severity plus isUnauthorizedCloudFootprint / isRiskIncrease flags per event, independent of the AI step."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "90e050a4-f437-4711-8618-8a11d7a54f82",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5664,
+        -816
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 444,
+        "height": 552,
+        "content": "## 8️⃣ AI Triage Narrative\n- **OpenAI GPT-4 Model** — supplies the LLM used to draft each event's plain-language explanation. 🔑\n- **Generate Risk Triage Narrative** — explains an already-scored event in 1-2 sentences; never re-decides its type or severity. 🔑\n- **Attach AI Risk Narrative** — re-attaches the AI's narrative text onto the original scored event object."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "edca5c1f-1a2d-43b0-af5f-f7fd93f97499",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5184,
+        -896
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 396,
+        "height": 688,
+        "content": "## 9️⃣ Policy Engine\n- **Policy Engine — Decide Routing** — the single node that maps severity, event type, and the unauthorized-footprint flag to one or more destination routes.\n- **Split Out Routes** — expands each event's route list into one item per destination so it can fan out correctly."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13e58d27-cdaa-4fd5-8248-8c6780375137",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4704,
+        -896
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 788,
+        "height": 984,
+        "content": "## 🔟 Deliver Alert Outcomes\n- **Route To Destination** — switches each routed item to its assigned delivery branch (Slack, security email, compliance email, or log).\n- **Post Immediate Alert to Slack** — posts Critical/High severity events to the security Slack channel. 🔑\n- **Email Security Digest** — emails Medium severity events to the security team. 🔑\n- **Email Compliance Notification** — emails compliance whenever an unauthorized cloud footprint is flagged. 🔑\n- **Log Low-Severity Event** — no-op placeholder for Low severity events; the event is still persisted in Postgres regardless of routing outcome."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9d87af67-8664-4855-960e-19d630fc2811",
+      "name": "When Attack Surface Scan Scheduled",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -8448,
+        -256
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "89d85ef9-fd8c-4d86-a5bb-554fcf7120fb",
+      "name": "Set Configuration Parameters",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -8224,
+        -256
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "rootDomains",
+              "type": "string",
+              "value": "example.com,example.net"
+            },
+            {
+              "name": "subdomainApiUrl",
+              "type": "string",
+              "value": "https://api.your-subdomain-enum.example.com/v1/subdomains"
+            },
+            {
+              "name": "exposedServicesApiUrl",
+              "type": "string",
+              "value": "https://api.your-exposure-scanner.example.com/v1/hosts"
+            },
+            {
+              "name": "cloudInventoryApiUrl",
+              "type": "string",
+              "value": "https://internal-cmdb.example.com/api/v1/public-resources"
+            },
+            {
+              "name": "allowedCloudProviders",
+              "type": "string",
+              "value": "aws,gcp"
+            },
+            {
+              "name": "allowedCloudRegions",
+              "type": "string",
+              "value": "us-east-1,us-west-2,europe-west1"
+            },
+            {
+              "name": "llmModel",
+              "type": "string",
+              "value": "gpt-4.1-mini"
+            },
+            {
+              "name": "slackChannel",
+              "type": "string",
+              "value": "#security-alerts"
+            },
+            {
+              "name": "securityEmailRecipients",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "name": "complianceEmailRecipients",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "name": "scanId",
+              "type": "string",
+              "value": "={{ $now.toISO() }}-{{ Math.random().toString(36).slice(2,8) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "91d590f8-cde5-4ebf-98c5-c033e8a0659c",
+      "name": "Fetch Subdomain Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -8000,
+        -448
+      ],
+      "parameters": {
+        "url": "={{ $json.subdomainApiUrl }}",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "domains",
+              "value": "={{ $json.rootDomains }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "50fd90c0-b40b-4847-a5bc-84e079022d44",
+      "name": "Fetch Exposed Services Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -8000,
+        -256
+      ],
+      "parameters": {
+        "url": "={{ $json.exposedServicesApiUrl }}",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "domains",
+              "value": "={{ $json.rootDomains }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "3879c547-8acd-47db-b94b-d20424bd2ca6",
+      "name": "Fetch Cloud Asset Inventory",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -8000,
+        -64
+      ],
+      "parameters": {
+        "url": "={{ $json.cloudInventoryApiUrl }}",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2,
+      "continueOnFail": true
+    },
+    {
+      "id": "4652275a-51b2-42ac-81e6-7f67c5dd15b4",
+      "name": "Merge Discovery Sources",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -7728,
+        -256
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "d6cfcb49-89e1-4ff0-b515-032d14d193ad",
+      "name": "Build Raw Observations",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -7536,
+        -288
+      ],
+      "parameters": {
+        "jsCode": "// Flatten the three discovery-source shapes into individual OBSERVATION records.\n// An observation is a raw, source-attributed sighting — it is NOT yet a resolved asset.\nconst crypto = require('crypto');\nconst cfg = $('Set Configuration Parameters').first().json;\nconst scanId = cfg.scanId;\nconst items = $input.all();\n\nfunction obsFingerprint(rec) {\n  const raw = [rec.source, rec.assetType, rec.identifier, rec.port || '', rec.service || ''].join('|').toLowerCase();\n  return crypto.createHash('sha256').update(raw).digest('hex').slice(0, 16);\n}\n\nlet observations = [];\n\nfor (const item of items) {\n  const d = item.json;\n\n  if (Array.isArray(d.subdomains)) {\n    for (const s of d.subdomains) {\n      const hostname = typeof s === 'string' ? s : (s.hostname || s.domain);\n      observations.push({\n        source: 'subdomain-enum',\n        assetType: 'domain',\n        identifier: hostname,\n        hostname: hostname || null,\n        ipAddress: (s && s.ip) || null,\n        port: null,\n        protocol: null,\n        service: null,\n        cloudProvider: null,\n        region: null,\n        arn: null\n      });\n    }\n  }\n\n  if (Array.isArray(d.services)) {\n    for (const svc of d.services) {\n      const host = svc.ip || svc.host;\n      observations.push({\n        source: 'exposed-service-scan',\n        assetType: 'service',\n        identifier: host + ':' + svc.port,\n        hostname: svc.host || null,\n        ipAddress: host || null,\n        port: svc.port || null,\n        protocol: svc.protocol || null,\n        service: svc.service || svc.banner || null,\n        cloudProvider: null,\n        region: null,\n        arn: null\n      });\n    }\n  }\n\n  if (Array.isArray(d.resources)) {\n    for (const res of d.resources) {\n      observations.push({\n        source: 'cloud-inventory',\n        assetType: 'cloud-resource',\n        identifier: res.resourceId || res.arn || res.name,\n        hostname: res.publicDns || null,\n        ipAddress: res.publicIp || null,\n        port: null,\n        protocol: null,\n        service: res.resourceType || null,\n        cloudProvider: res.provider || null,\n        region: res.region || null,\n        arn: res.arn || null\n      });\n    }\n  }\n}\n\nobservations = observations\n  .filter(o => !!o.identifier)\n  .map(o => ({\n    ...o,\n    scanId,\n    observedAt: new Date().toISOString(),\n    observationFingerprint: obsFingerprint(o)\n  }));\n\nreturn observations.map(o => ({ json: o }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9902634a-218f-4faa-83c3-cfe91e8692b2",
+      "name": "Persist Raw Observations",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -7504,
+        -112
+      ],
+      "parameters": {
+        "query": "INSERT INTO attack_surface_observations (scan_id, source, asset_type, identifier, hostname, ip_address, port, protocol, service, cloud_provider, region, arn, observed_at, observation_fingerprint) VALUES ({{ $json.scanId }}, {{ $json.source }}, {{ $json.assetType }}, {{ $json.identifier }}, {{ $json.hostname }}, {{ $json.ipAddress }}, {{ $json.port }}, {{ $json.protocol }}, {{ $json.service }}, {{ $json.cloudProvider }}, {{ $json.region }}, {{ $json.arn }}, {{ $json.observedAt }}, {{ $json.observationFingerprint }});",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "5c52e6a1-b051-4fb5-87a4-d5eacfb6ca91",
+      "name": "Load Known Asset Identities",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -7296,
+        -496
+      ],
+      "parameters": {
+        "query": "SELECT asset_id AS \"assetId\", hostname, ip_address AS \"ipAddress\", port, arn, asset_type AS \"assetType\" FROM attack_surface_assets;",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "fae4258d-c29f-473e-a96d-bceea3c79fdb",
+      "name": "Merge Observations With Identities",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -7056,
+        -400
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "7112bf1a-0652-42ee-b436-3c0fc7094a8d",
+      "name": "Resolve Assets Across Sources",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -6816,
+        -496
+      ],
+      "parameters": {
+        "jsCode": "// Deterministic identity resolution: collapse observations from multiple sources onto one asset_id.\n// Match priority: ARN exact -> IP+port exact -> hostname exact -> IP-only fallback.\n// If nothing matches, mint a new asset_id (new asset).\nconst crypto = require('crypto');\n\nconst allInput = $input.all();\nconst observations = [];\nconst identitiesSeen = new Map();\n\nfor (const item of allInput) {\n  const d = item.json;\n  if (d.observationFingerprint) {\n    observations.push(d);\n  }\n  if (d.assetId) {\n    identitiesSeen.set(d.assetId, d);\n  }\n}\n\nconst uniqueObs = [];\nconst seenFp = new Set();\nfor (const o of observations) {\n  if (!seenFp.has(o.observationFingerprint)) { seenFp.add(o.observationFingerprint); uniqueObs.push(o); }\n}\n\nconst identities = Array.from(identitiesSeen.values());\n\nfunction newAssetId() {\n  return 'asset_' + crypto.randomBytes(8).toString('hex');\n}\n\nfunction findMatch(obs) {\n  for (const id of identities) {\n    if (obs.arn && id.arn && obs.arn === id.arn) return id.assetId;\n  }\n  for (const id of identities) {\n    if (obs.ipAddress && obs.port && id.ipAddress === obs.ipAddress && String(id.port) === String(obs.port)) return id.assetId;\n  }\n  for (const id of identities) {\n    if (obs.hostname && id.hostname && obs.hostname.toLowerCase() === id.hostname.toLowerCase()) return id.assetId;\n  }\n  for (const id of identities) {\n    if (obs.ipAddress && !obs.port && id.ipAddress === obs.ipAddress && id.assetType === obs.assetType) return id.assetId;\n  }\n  return null;\n}\n\nconst mintedThisScan = [];\n\nconst resolved = uniqueObs.map(obs => {\n  let assetId = findMatch(obs);\n  if (!assetId) {\n    const withinScan = mintedThisScan.find(m =>\n      (obs.arn && m.arn === obs.arn) ||\n      (obs.ipAddress && obs.port && m.ipAddress === obs.ipAddress && String(m.port) === String(obs.port)) ||\n      (obs.hostname && m.hostname && obs.hostname.toLowerCase() === m.hostname.toLowerCase())\n    );\n    if (withinScan) {\n      assetId = withinScan.assetId;\n    } else {\n      assetId = newAssetId();\n      mintedThisScan.push({ assetId, arn: obs.arn, ipAddress: obs.ipAddress, port: obs.port, hostname: obs.hostname });\n    }\n  }\n  return { ...obs, assetId, isNewAssetId: !identities.find(id => id.assetId === assetId) };\n});\n\nreturn resolved.map(r => ({ json: r }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5fefb34e-a523-4fa4-a312-184f52ba4973",
+      "name": "Build Current State Per Asset",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -6576,
+        -496
+      ],
+      "parameters": {
+        "jsCode": "// Aggregate all resolved observations for the same asset_id (possibly from different sources)\n// into ONE merged current-state record per asset.\nconst byAsset = new Map();\n\nfor (const item of $input.all()) {\n  const o = item.json;\n  if (!byAsset.has(o.assetId)) {\n    byAsset.set(o.assetId, {\n      assetId: o.assetId,\n      assetType: o.assetType,\n      identifier: o.identifier,\n      hostname: o.hostname,\n      ipAddress: o.ipAddress,\n      ports: new Set(),\n      services: new Set(),\n      cloudProvider: o.cloudProvider,\n      region: o.region,\n      arn: o.arn,\n      sources: new Set(),\n      isNewAssetId: o.isNewAssetId,\n      lastSeenAt: o.observedAt\n    });\n  }\n  const a = byAsset.get(o.assetId);\n  if (o.port) a.ports.add(String(o.port));\n  if (o.service) a.services.add(o.service);\n  a.sources.add(o.source);\n  if (!a.hostname && o.hostname) a.hostname = o.hostname;\n  if (!a.ipAddress && o.ipAddress) a.ipAddress = o.ipAddress;\n  if (!a.cloudProvider && o.cloudProvider) a.cloudProvider = o.cloudProvider;\n  if (!a.region && o.region) a.region = o.region;\n  if (!a.arn && o.arn) a.arn = o.arn;\n}\n\nconst current = Array.from(byAsset.values()).map(a => ({\n  ...a,\n  ports: Array.from(a.ports).sort(),\n  services: Array.from(a.services).sort(),\n  sources: Array.from(a.sources).sort()\n}));\n\nreturn current.map(c => ({ json: c }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "86d7c4b3-09f0-4305-9e6b-dcb8b8f9d4a1",
+      "name": "Load Previous Asset State",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -6576,
+        -288
+      ],
+      "parameters": {
+        "query": "SELECT asset_id AS \"assetId\", asset_type AS \"assetType\", identifier, hostname, ip_address AS \"ipAddress\", ports, services, cloud_provider AS \"cloudProvider\", region, arn, sources, last_seen_at AS \"lastSeenAt\", last_severity AS \"lastSeverity\" FROM attack_surface_assets;",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "9d12f387-76c7-4341-b663-467f9cb00d72",
+      "name": "Pair Current With Previous State",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -6336,
+        -400
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "advanced": true,
+        "joinMode": "keepEverything",
+        "mergeByFields": {
+          "values": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "c9e33b87-64d2-4ffe-a197-3bd6c87b1088",
+      "name": "Generate Change Events",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -6096,
+        -496
+      ],
+      "parameters": {
+        "jsCode": "// Compare current merged state vs previous persisted state per asset and emit TYPED events.\n// Zero, one, or several events can come out of a single asset comparison.\nconst cfg = $('Set Configuration Parameters').first().json;\nconst scanId = cfg.scanId;\nconst items = $input.all();\n\n// The merge node (keepEverything, matched on assetId) can emit: paired rows (both sides present),\n// current-only rows (new assets), or previous-only rows (decommissioned assets). Normalize defensively.\nconst records = new Map();\nfor (const item of items) {\n  const d = item.json;\n  const id = d.assetId;\n  if (!id) continue;\n  if (!records.has(id)) records.set(id, { current: null, previous: null });\n  const rec = records.get(id);\n  if (Object.prototype.hasOwnProperty.call(d, 'isNewAssetId')) {\n    rec.current = d;\n  } else if (Object.prototype.hasOwnProperty.call(d, 'lastSeverity') || Object.prototype.hasOwnProperty.call(d, 'lastSeenAt')) {\n    rec.previous = d;\n  } else {\n    rec.current = rec.current || d;\n  }\n}\n\nconst events = [];\n\nfunction arr(x) { return Array.isArray(x) ? x : (x ? [x] : []); }\n\nfor (const [assetId, rec] of records.entries()) {\n  const curr = rec.current;\n  const prev = rec.previous;\n  if (!curr) continue;\n\n  const base = {\n    scanId,\n    assetId,\n    assetType: curr.assetType,\n    identifier: curr.identifier,\n    hostname: curr.hostname,\n    ipAddress: curr.ipAddress,\n    cloudProvider: curr.cloudProvider,\n    region: curr.region,\n    sources: curr.sources,\n    detectedAt: new Date().toISOString()\n  };\n\n  if (!prev) {\n    events.push({ ...base, eventType: 'asset.new', details: { ports: curr.ports, services: curr.services } });\n    if (curr.assetType === 'cloud-resource') {\n      events.push({ ...base, eventType: 'cloud_resource.added', details: { cloudProvider: curr.cloudProvider, region: curr.region } });\n    }\n    for (const p of arr(curr.ports)) {\n      events.push({ ...base, eventType: 'service.added', details: { port: p } });\n    }\n    continue;\n  }\n\n  const prevPorts = new Set(arr(prev.ports));\n  const currPorts = new Set(arr(curr.ports));\n  for (const p of currPorts) {\n    if (!prevPorts.has(p)) events.push({ ...base, eventType: 'service.added', details: { port: p } });\n  }\n  for (const p of prevPorts) {\n    if (!currPorts.has(p)) events.push({ ...base, eventType: 'service.removed', details: { port: p } });\n  }\n\n  const prevServices = new Set(arr(prev.services));\n  const currServices = new Set(arr(curr.services));\n  for (const s of currServices) {\n    if (!prevServices.has(s)) events.push({ ...base, eventType: 'attribute.changed', details: { field: 'service', newValue: s } });\n  }\n\n  if (prev.cloudProvider !== curr.cloudProvider || prev.region !== curr.region) {\n    if (curr.cloudProvider || curr.region) {\n      events.push({ ...base, eventType: 'attribute.changed', details: { field: 'cloud_location', from: { cloudProvider: prev.cloudProvider, region: prev.region }, to: { cloudProvider: curr.cloudProvider, region: curr.region } } });\n    }\n  }\n\n  if (prev.ipAddress && curr.ipAddress && prev.ipAddress !== curr.ipAddress) {\n    events.push({ ...base, eventType: 'attribute.changed', details: { field: 'ip_address', from: prev.ipAddress, to: curr.ipAddress } });\n  }\n}\n\nconst currentAssetIds = new Set(Array.from(records.values()).filter(r => r.current).map(r => r.current.assetId));\nfor (const [assetId, rec] of records.entries()) {\n  if (rec.previous && !currentAssetIds.has(assetId)) {\n    events.push({\n      scanId, assetId,\n      assetType: rec.previous.assetType,\n      identifier: rec.previous.identifier,\n      hostname: rec.previous.hostname,\n      ipAddress: rec.previous.ipAddress,\n      cloudProvider: rec.previous.cloudProvider,\n      region: rec.previous.region,\n      sources: rec.previous.sources,\n      detectedAt: new Date().toISOString(),\n      eventType: 'asset.decommissioned',\n      details: {}\n    });\n  }\n}\n\nreturn events.map(e => ({ json: e }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "44152968-7ed9-42b7-b793-ebfafe139858",
+      "name": "Score Event Risk",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -5856,
+        -496
+      ],
+      "parameters": {
+        "jsCode": "// Deterministic severity scoring per typed event, plus policy-relevant flags.\n// This node decides WHAT the risk level is; it does not decide routing (policy engine does that later)\n// and it does not generate the human-readable explanation (the AI agent does that later).\nconst cfg = $('Set Configuration Parameters').first().json;\nconst allowedProviders = String(cfg.allowedCloudProviders || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);\nconst allowedRegions = String(cfg.allowedCloudRegions || '').split(',').map(s => s.trim().toLowerCase()).filter(Boolean);\n\nconst HIGH_RISK_PORTS = [21, 22, 23, 3389, 3306, 5432, 6379, 9200, 27017, 2375];\nconst SENSITIVE_KEYWORDS = ['admin', 'debug', 'staging', 'internal', 'jenkins', 'kibana', 'grafana', 'phpmyadmin'];\n\nconst items = $input.all();\n\nconst scored = items.map(item => {\n  const d = item.json;\n  let severity = 'low';\n  const reasons = [];\n  let isUnauthorizedCloudFootprint = false;\n  let isRiskIncrease = false;\n\n  const port = d.details && d.details.port;\n  const isSensitiveName = d.identifier && SENSITIVE_KEYWORDS.some(k => String(d.identifier).toLowerCase().includes(k));\n\n  switch (d.eventType) {\n    case 'service.added':\n      if (port && HIGH_RISK_PORTS.includes(Number(port))) {\n        severity = 'critical'; reasons.push('Newly exposed high-risk port ' + port); isRiskIncrease = true;\n      } else if (isSensitiveName) {\n        severity = 'high'; reasons.push('Newly exposed service on a sensitive-named asset'); isRiskIncrease = true;\n      } else {\n        severity = 'high'; reasons.push('New externally exposed service detected'); isRiskIncrease = true;\n      }\n      break;\n    case 'cloud_resource.added':\n      severity = 'medium'; reasons.push('New cloud resource added to inventory');\n      if ((d.cloudProvider && allowedProviders.length && !allowedProviders.includes(String(d.cloudProvider).toLowerCase())) ||\n          (d.region && allowedRegions.length && !allowedRegions.includes(String(d.region).toLowerCase()))) {\n        severity = 'critical'; reasons.push('Cloud resource is outside the approved provider/region allowlist'); isUnauthorizedCloudFootprint = true; isRiskIncrease = true;\n      }\n      break;\n    case 'asset.new':\n      severity = isSensitiveName ? 'high' : 'medium';\n      reasons.push('New attack-surface asset discovered');\n      break;\n    case 'attribute.changed':\n      severity = 'medium'; reasons.push('Existing asset attributes changed since last scan');\n      break;\n    case 'service.removed':\n      severity = 'low'; reasons.push('A previously exposed service is no longer detected');\n      break;\n    case 'asset.decommissioned':\n      severity = 'low'; reasons.push('Asset no longer detected — verify this was an intentional decommission');\n      break;\n    default:\n      severity = 'low'; reasons.push('Unclassified change event');\n  }\n\n  return { json: { ...d, severity, reasons, isUnauthorizedCloudFootprint, isRiskIncrease } };\n});\n\nreturn scored;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "31204791-1c87-40c8-a24b-4b142abbac9a",
+      "name": "Persist Change Events",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -6144,
+        -256
+      ],
+      "parameters": {
+        "query": "INSERT INTO attack_surface_events (scan_id, asset_id, asset_type, event_type, identifier, hostname, ip_address, cloud_provider, region, severity, reasons, is_unauthorized_cloud_footprint, is_risk_increase, details, detected_at) VALUES ({{ $json.scanId }}, {{ $json.assetId }}, {{ $json.assetType }}, {{ $json.eventType }}, {{ $json.identifier }}, {{ $json.hostname }}, {{ $json.ipAddress }}, {{ $json.cloudProvider }}, {{ $json.region }}, {{ $json.severity }}, {{ JSON.stringify($json.reasons) }}, {{ $json.isUnauthorizedCloudFootprint }}, {{ $json.isRiskIncrease }}, {{ JSON.stringify($json.details) }}, {{ $json.detectedAt }});",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "0b96500e-69c9-4df6-b931-181b440bc3c2",
+      "name": "OpenAI GPT-4 Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -5632,
+        -400
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{ $('Set Configuration Parameters').first().json.llmModel }}"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1202524e-a2b8-48ab-b757-99a700fa77c3",
+      "name": "Generate Risk Triage Narrative",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -5632,
+        -576
+      ],
+      "parameters": {
+        "text": "=You are a security analyst. The event type, severity, and risk reasons below were already determined by deterministic rules — do NOT change or second-guess them. Your only job is to explain, in plain language, why this event matters and what the recommended next action is.\n\nEvent:\n{{ JSON.stringify({ eventType: $json.eventType, assetType: $json.assetType, identifier: $json.identifier, severity: $json.severity, reasons: $json.reasons, details: $json.details, cloudProvider: $json.cloudProvider, region: $json.region, isUnauthorizedCloudFootprint: $json.isUnauthorizedCloudFootprint, isRiskIncrease: $json.isRiskIncrease }) }}\n\nWrite one or two concise sentences: what happened and the recommended next action for the engineering/security team. Return ONLY the sentences — no JSON, no preamble, no markdown.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "a6353a56-b846-4c51-a3b2-9a8427db7b56",
+      "name": "Attach AI Risk Narrative",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -5328,
+        -496
+      ],
+      "parameters": {
+        "jsCode": "// The AI Agent node only returns its own output, so re-attach the narrative to the original scored event.\nconst original = $('Score Event Risk').item.json;\nconst agentOutput = $input.item.json;\nconst aiRiskNote = String(agentOutput.output || agentOutput.text || agentOutput.response || '').trim();\n\nreturn [{ json: { ...original, aiRiskNote } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "91e14794-cbd0-46cd-9f7f-008529f6a265",
+      "name": "Policy Engine — Decide Routing",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -5136,
+        -496
+      ],
+      "parameters": {
+        "jsCode": "// POLICY ENGINE: the single place that owns \"where/how do we alert\".\n// Decoupled from risk scoring (already done) and from the AI narrative (already attached).\n// Change this node to adjust org escalation policy without touching scoring or AI logic.\nconst items = $input.all();\n\nfunction decide(e) {\n  const routes = [];\n\n  if (e.isUnauthorizedCloudFootprint) {\n    routes.push('compliance_email');\n  }\n\n  if (e.severity === 'critical') {\n    routes.push('slack');\n  } else if (e.severity === 'high') {\n    routes.push('slack');\n  } else if (e.severity === 'medium') {\n    routes.push('security_email');\n  } else {\n    routes.push('log_only');\n  }\n\n  return routes;\n}\n\nconst out = items.map(item => {\n  const e = item.json;\n  const routes = decide(e);\n  return { json: { ...e, routes } };\n});\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9f068317-7d93-42a3-9e9f-065a5e5cbae2",
+      "name": "Split Out Routes",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        -4896,
+        -496
+      ],
+      "parameters": {
+        "options": {},
+        "fieldToSplitOut": "routes"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "43d4105a-5486-43cf-8ab7-6a0d4950899f",
+      "name": "Route To Destination",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -4656,
+        -496
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.routes }}",
+                    "rightValue": "slack"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.routes }}",
+                    "rightValue": "security_email"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.routes }}",
+                    "rightValue": "compliance_email"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "3"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "f56b7c1a-cf06-4a40-b77b-6046363f0408",
+      "name": "Post Immediate Alert to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        -4384,
+        -672
+      ],
+      "webhookId": "5bc38d31-ba9c-4dcb-854c-9c1b64b1e0aa",
+      "parameters": {
+        "text": "=🚨 *Attack surface event — {{ $json.severity | upper }}* ({{ $json.eventType }})\n\n*Asset:* {{ $json.identifier }} ({{ $json.assetType }})\n{{ $json.details && $json.details.port ? ('*Port:* ' + $json.details.port + '\\n') : '' }}{{ $json.cloudProvider ? ('*Cloud:* ' + $json.cloudProvider + ' / ' + $json.region + '\\n') : '' }}\n{{ $json.aiRiskNote }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set Configuration Parameters').first().json.slackChannel }}"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5d8cbac5-268b-4747-a442-596659e43c7f",
+      "name": "Email Security Digest",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        -4384,
+        -496
+      ],
+      "webhookId": "d037f1d8-3808-4159-be9c-ee13d70a3d84",
+      "parameters": {
+        "options": {},
+        "subject": "=Attack surface event ({{ $json.severity }}): {{ $json.eventType }} — {{ $json.identifier }}",
+        "toEmail": "={{ $('Set Configuration Parameters').first().json.securityEmailRecipients }}",
+        "fromEmail": "user@example.com"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "1accce4f-38fb-42a4-8971-010254353317",
+      "name": "Email Compliance Notification",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        -4384,
+        -320
+      ],
+      "webhookId": "d78d3d53-6b99-4cd2-b9c2-2dff684f92a7",
+      "parameters": {
+        "options": {},
+        "subject": "=Unauthorized cloud footprint detected: {{ $json.identifier }}",
+        "toEmail": "={{ $('Set Configuration Parameters').first().json.complianceEmailRecipients }}",
+        "fromEmail": "user@example.com"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7327d864-4427-4e67-b75f-84b8fda11581",
+      "name": "Log Low-Severity Event",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        -4384,
+        -144
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "0f38b735-d420-4552-be57-5c820deffe29",
+      "name": "Upsert Asset Current State",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -6624,
+        -64
+      ],
+      "parameters": {
+        "query": "INSERT INTO attack_surface_assets (asset_id, asset_type, identifier, hostname, ip_address, ports, services, cloud_provider, region, arn, sources, first_seen_at, last_seen_at) VALUES ({{ $json.assetId }}, {{ $json.assetType }}, {{ $json.identifier }}, {{ $json.hostname }}, {{ $json.ipAddress }}, {{ JSON.stringify($json.ports) }}, {{ JSON.stringify($json.services) }}, {{ $json.cloudProvider }}, {{ $json.region }}, {{ $json.arn }}, {{ JSON.stringify($json.sources) }}, {{ $json.lastSeenAt }}, {{ $json.lastSeenAt }}) ON CONFLICT (asset_id) DO UPDATE SET asset_type = EXCLUDED.asset_type, identifier = EXCLUDED.identifier, hostname = EXCLUDED.hostname, ip_address = EXCLUDED.ip_address, ports = EXCLUDED.ports, services = EXCLUDED.services, cloud_provider = EXCLUDED.cloud_provider, region = EXCLUDED.region, arn = EXCLUDED.arn, sources = EXCLUDED.sources, last_seen_at = EXCLUDED.last_seen_at;",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "typeVersion": 2.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "46b73313-cb1c-4bfd-9313-4f8fca7ad73f",
+  "nodeGroups": [],
+  "connections": {
+    "Score Event Risk": {
+      "main": [
+        [
+          {
+            "node": "Persist Change Events",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Generate Risk Triage Narrative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Routes": {
+      "main": [
+        [
+          {
+            "node": "Route To Destination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Generate Risk Triage Narrative",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Subdomain Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Discovery Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route To Destination": {
+      "main": [
+        [
+          {
+            "node": "Post Immediate Alert to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Security Digest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email Compliance Notification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Raw Observations": {
+      "main": [
+        [
+          {
+            "node": "Persist Raw Observations",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Load Known Asset Identities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Change Events": {
+      "main": [
+        [
+          {
+            "node": "Score Event Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Discovery Sources": {
+      "main": [
+        [
+          {
+            "node": "Build Raw Observations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach AI Risk Narrative": {
+      "main": [
+        [
+          {
+            "node": "Policy Engine — Decide Routing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Persist Raw Observations": {
+      "main": [
+        [
+          {
+            "node": "Merge Observations With Identities",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Previous Asset State": {
+      "main": [
+        [
+          {
+            "node": "Pair Current With Previous State",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch Cloud Asset Inventory": {
+      "main": [
+        [
+          {
+            "node": "Merge Discovery Sources",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Fetch Exposed Services Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Discovery Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Load Known Asset Identities": {
+      "main": [
+        [
+          {
+            "node": "Merge Observations With Identities",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Set Configuration Parameters": {
+      "main": [
+        [
+          {
+            "node": "Fetch Subdomain Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Exposed Services Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch Cloud Asset Inventory",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Current State Per Asset": {
+      "main": [
+        [
+          {
+            "node": "Pair Current With Previous State",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Upsert Asset Current State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Assets Across Sources": {
+      "main": [
+        [
+          {
+            "node": "Build Current State Per Asset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Risk Triage Narrative": {
+      "main": [
+        [
+          {
+            "node": "Attach AI Risk Narrative",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pair Current With Previous State": {
+      "main": [
+        [
+          {
+            "node": "Generate Change Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Policy Engine — Decide Routing": {
+      "main": [
+        [
+          {
+            "node": "Split Out Routes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Observations With Identities": {
+      "main": [
+        [
+          {
+            "node": "Resolve Assets Across Sources",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Load Previous Asset State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Attack Surface Scan Scheduled": {
+      "main": [
+        [
+          {
+            "node": "Set Configuration Parameters",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

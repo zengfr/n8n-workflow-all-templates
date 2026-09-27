@@ -1,4 +1,4 @@
-# backups : 16
+# backups : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |14925|[14925_Sync_self-hosted_workflow_backups_to_GitHub_for_version_control.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14925_Sync_self-hosted_workflow_backups_to_GitHub_for_version_control.json)|
 |16669|[16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json)|
 |16701|[16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json)|
+|17388|[17388_Restore_n8n_workflows_from_GitHub_JSON_backups_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17388_Restore_n8n_workflows_from_GitHub_JSON_backups_with_Data_Tables.json)|

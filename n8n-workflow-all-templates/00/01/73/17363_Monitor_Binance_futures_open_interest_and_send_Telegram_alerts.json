@@ -1,0 +1,377 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Monitor Binance futures open interest and send Telegram alerts",
+    "wechat": "youandme10086",
+    "id": 17363,
+    "update_time": "2026-09-27"
+  },
+  "name": "Binance Futures Open Interest Monitor",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "53dc3463-e8ad-4468-902f-6d8f932c983e",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        896
+      ],
+      "parameters": {
+        "width": 672,
+        "height": 544,
+        "content": "## Binance Futures Open Interest Monitor\n\n### How it works\n\n1. Trigger the workflow every hour using the schedule trigger.\n2. Fetch all tickers from Binance Futures and select the top N by 24h quote volume.\n3. Loop through each symbol to fetch the last 2 OI history data points (period = 1h).\n4. Calculate the 1h OI change percentage, classify the alert level, and accumulate results.\n5. After the loop, format and send a Telegram alert if any threshold is exceeded.\n\n### Setup\n\n- [ ] Configure the schedule interval on the trigger node.\n- [ ] Add your Telegram Bot credentials and chat ID to the Telegram node.\n\n### Customization\n\nAdjust `TOP_N` in the **Sort and Select Top 20 Tickers** node and alert thresholds in the **Accumulate OI Data** node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "465f1cfb-f29d-4b7e-bcaf-5daff614f11e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -288,
+        896
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 352,
+        "content": "## Trigger and fetch tickers\n\nInitiates the workflow to retrieve 24h price and volume stats for all listed perpetual pairs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d51a0a1-cb07-49b7-b8af-08ade886a31d",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        896
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 352,
+        "content": "## Filter and batch processing\n\nFilters USDT perpetual pairs, excludes stablecoins and fiat pairs, then sorts by 24h quote volume and selects the top N symbols."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57033438-2669-46ac-8da6-268d1aa57312",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        1088
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 368,
+        "content": "## Fetch OI history and classify\n\nFetches the last 2 open interest data points per symbol. Calculates the 1h OI change percentage and classifies the alert level (normal / warning / critical)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6be11348-e53f-4eef-9fa2-8377a1a9e71b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        688
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 656,
+        "height": 348,
+        "content": "## Alert processing\n\nReads accumulated OI results, splits into critical and warning tiers sorted by absolute change, then sends alerts via Telegram if necessary."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3235011a-2b27-4740-8f41-4243514f6797",
+      "name": "Every Hour Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -224,
+        1072
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cd3be479-618c-4f6b-9632-5649d2278578",
+      "name": "Fetch Binance Tickers",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -32,
+        1072
+      ],
+      "parameters": {
+        "url": "https://fapi.binance.com/fapi/v1/ticker/24hr",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "95b074c9-ebf2-4272-9d97-c27ad431e4b2",
+      "name": "Sort and Select Top 20 Tickers",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        256,
+        1072
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================\n// Sort & Slice Top N by 24h Volume\n//\n// Filters USDT perpetual pairs, excludes stablecoins and fiat\n// pairs, sorts by 24h quote volume descending, and returns\n// the top N symbols. Resets the global staticData accumulator\n// before the loop begins.\n// ============================================================\n\n// --- Configuration ---\nconst TOP_N = 20;\n\nconst BLACKLIST_SYMBOLS = new Set([\n  'USDCUSDT','BUSDUSDT','TUSDUSDT','USDPUSDT','FDUSDUSDT',\n  'DAIUSDT','USDDUSDT','FRAXUSDT','LUSDUSDT','GUSDUSDT',\n  'SUSDUSDT','USTCUSDT','EURUSDT','EUROCUSDT','EURSUSDT',\n  'AGEURUSDT','GBPTUSDT','JPYCUSDT','CNHTUSDT','XSGDUSDT',\n  'NZDSUSDT','CADCUSDT','TRYBUSDT','BRLAUSDT','IDRTUSDT','BIDRUSDT',\n]);\n\nconst FIAT_PATTERNS = [\n  'USD','EUR','JPY','GBP','AUD','CAD','CHF','CNY','CNH','KRW',\n  'TRY','BRL','IDR','SGD','NZD','HKD','SEK','NOK','DKK','PLN',\n  'CZK','MXN','ZAR','THB','PHP','INR','RUB',\n];\n\n// --- Filter ---\nconst tickers = $input.all().map(item => item.json);\n\nconst filtered = tickers.filter(t => {\n  const sym = t.symbol;\n  if (!sym.endsWith('USDT')) return false;\n  if (BLACKLIST_SYMBOLS.has(sym)) return false;\n  const base = sym.slice(0, -4);\n  if (FIAT_PATTERNS.some(fiat =>\n    base === fiat || base.startsWith(fiat) || base.endsWith(fiat)\n  )) return false;\n  return true;\n});\n\n// --- Sort by 24h quote volume (USDT) descending ---\nfiltered.sort((a, b) =>\n  parseFloat(b.quoteVolume) - parseFloat(a.quoteVolume)\n);\n\nconst topN = filtered.slice(0, TOP_N);\n\n// --- Reset accumulator before loop starts ---\nconst sd = $getWorkflowStaticData('global');\nsd.oi_results = [];\n\nreturn topN.map(t => ({\n  json: {\n    symbol: t.symbol,\n    quoteVolume: parseFloat(t.quoteVolume),\n    priceChangePercent: parseFloat(t.priceChangePercent),\n    lastPrice: parseFloat(t.lastPrice)\n  }\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "94df8d1d-4553-4302-b8df-b81f1cf8e07d",
+      "name": "Loop Over Ticker Batches",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        496,
+        1072
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "ef39edb4-8608-4874-8dc7-806ea8178920",
+      "name": "Fetch OI History",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        816,
+        1264
+      ],
+      "parameters": {
+        "url": "https://fapi.binance.com/futures/data/openInterestHist",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "symbol",
+              "value": "={{ $json.symbol }}"
+            },
+            {
+              "name": "period",
+              "value": "1h"
+            },
+            {
+              "name": "limit",
+              "value": "2"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1ffe5ff5-a700-4a10-a465-e06851f1b272",
+      "name": "Accumulate OI Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1136,
+        1248
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================\n// Accumulate OI Change Data\n//\n// Runs inside the loop body. Receives 2 OI history data points\n// (latest and 1h ago), calculates the percentage change in OI\n// value (USDT), classifies the alert level, and pushes the\n// result into the global staticData accumulator.\n// Output connects back to Loop Over Items for the next iteration.\n// ============================================================\n\n// --- Thresholds (adjust to taste) ---\nconst WARNING_THRESHOLD  = 3.0;  // 3%\nconst CRITICAL_THRESHOLD = 7.0;  // 7%\n\n// --- Accumulator guard ---\nconst sd = $getWorkflowStaticData('global');\nif (!Array.isArray(sd.oi_results)) sd.oi_results = [];\n\n// openInterestHist returns an array — n8n splits each element into an item\n// limit=2 → 2 items: index 0 = 1h ago, index 1 = latest\nconst items = $input.all();\n\nif (!items || items.length < 2) {\n  return [{ json: { skipped: true } }];\n}\n\nconst latest = items[items.length - 1].json;\nconst prev   = items[0].json;\n\nif (!latest.symbol || !latest.sumOpenInterestValue || !prev.sumOpenInterestValue) {\n  return [{ json: { skipped: true } }];\n}\n\nconst symbol = latest.symbol;\nconst oiNow  = parseFloat(latest.sumOpenInterestValue); // OI in USDT\nconst oiPrev = parseFloat(prev.sumOpenInterestValue);\n\n// Percentage change based on USDT notional value\nconst pctChange    = ((oiNow - oiPrev) / oiPrev) * 100;\nconst absPct       = Math.abs(pctChange);\nconst pctFormatted = pctChange.toFixed(2);\n\nconst direction = pctChange >= 0 ? 'increasing' : 'decreasing';\nconst dirIcon   = pctChange >= 0 ? '📈' : '📉';\n\n// Format OI value with B/M suffix\nfunction formatUSD(val) {\n  if (val >= 1e9) return `$${(val / 1e9).toFixed(2)}B`;\n  if (val >= 1e6) return `$${(val / 1e6).toFixed(2)}M`;\n  return `$${val.toFixed(0)}`;\n}\n\nlet level = 'normal';\nif (absPct >= CRITICAL_THRESHOLD)     level = 'critical';\nelse if (absPct >= WARNING_THRESHOLD) level = 'warning';\n\nsd.oi_results.push({\n  symbol, pctChange, pctFormatted, absPct,\n  oiNow, oiNowDisplay: formatUSD(oiNow),\n  direction, dirIcon, level\n});\n\nreturn [{ json: { symbol, level, pctFormatted } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cd2e8cd7-e76d-4f4b-8694-35dfff079b0f",
+      "name": "Format Alert Messages",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        816,
+        864
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================\n// Process Results + Format Telegram Message\n//\n// Runs once after the Done branch of Loop Over Items.\n// Reads all accumulated OI data from global staticData,\n// splits into critical / warning tiers sorted by absolute\n// change, builds an HTML message for Telegram, and resets\n// the accumulator for the next run.\n// ============================================================\n\n// --- Thresholds (must match Accumulate node) ---\nconst WARNING_THRESHOLD  = 3.0;\nconst CRITICAL_THRESHOLD = 7.0;\n\n// --- Read and reset accumulator ---\nconst sd = $getWorkflowStaticData('global');\nconst allResults = Array.isArray(sd.oi_results) ? [...sd.oi_results] : [];\nsd.oi_results = [];\n\n// --- Classify ---\nconst criticals = allResults\n  .filter(r => r.level === 'critical')\n  .sort((a, b) => b.absPct - a.absPct);\n\nconst warnings = allResults\n  .filter(r => r.level === 'warning')\n  .sort((a, b) => b.absPct - a.absPct);\n\nconst alertCount = criticals.length + warnings.length;\n\nif (alertCount === 0) {\n  return [{ json: { hasAlerts: false, message: '' } }];\n}\n\n// --- Format ---\nconst timestamp = new Date().toLocaleString('en-GB', {\n  timeZone: 'Asia/Ho_Chi_Minh',\n  day: '2-digit', month: '2-digit', year: 'numeric',\n  hour: '2-digit', minute: '2-digit', second: '2-digit',\n  hour12: false\n});\n\nfunction formatCoin(r) {\n  const icon = r.level === 'critical' ? '🔴' : '🟡';\n  const sign = r.pctChange >= 0 ? '+' : '';\n  return `${icon} <b>${r.symbol}</b>: <code>${sign}${r.pctFormatted}%</code> ${r.dirIcon} OI ${r.direction} | ${r.oiNowDisplay}`;\n}\n\nconst lines = [];\nlines.push(`📊 <b>Open Interest Monitor</b>`);\nlines.push(`🕐 ${timestamp} (ICT)`);\nlines.push(`🔍 Scanned: top ${allResults.length} USDT perps by 24h volume`);\nlines.push(`⏱ Lookback: 1h`);\nlines.push(``);\n\nif (criticals.length > 0) {\n  lines.push(`🔴 <b>CRITICAL (≥${CRITICAL_THRESHOLD}%)</b> — ${criticals.length} coin${criticals.length > 1 ? 's' : ''}`);\n  lines.push(`${'─'.repeat(28)}`);\n  criticals.forEach(r => lines.push(formatCoin(r)));\n  lines.push(``);\n}\n\nif (warnings.length > 0) {\n  lines.push(`🟡 <b>WARNING (≥${WARNING_THRESHOLD}%)</b> — ${warnings.length} coin${warnings.length > 1 ? 's' : ''}`);\n  lines.push(`${'─'.repeat(28)}`);\n  warnings.forEach(r => lines.push(formatCoin(r)));\n}\n\nreturn [{\n  json: {\n    hasAlerts: true,\n    alertCount,\n    message: lines.join('\\n')\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f4a5829d-35f8-48c0-8bdd-b2d64231ff62",
+      "name": "If Alerts Present",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1024,
+        864
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-alerts",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.hasAlerts }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f7721c50-b375-45c6-b418-11e627750692",
+      "name": "Send Telegram Alert",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1264,
+        848
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "chatId": "YOUR_TELEGRAM_CHAT_ID",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "disable_web_page_preview": true
+        }
+      },
+      "typeVersion": 1.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "nodeGroups": [],
+  "connections": {
+    "Fetch OI History": {
+      "main": [
+        [
+          {
+            "node": "Accumulate OI Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Alerts Present": {
+      "main": [
+        [
+          {
+            "node": "Send Telegram Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Accumulate OI Data": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Ticker Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Hour Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Binance Tickers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Binance Tickers": {
+      "main": [
+        [
+          {
+            "node": "Sort and Select Top 20 Tickers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format Alert Messages": {
+      "main": [
+        [
+          {
+            "node": "If Alerts Present",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Ticker Batches": {
+      "main": [
+        [
+          {
+            "node": "Format Alert Messages",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch OI History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort and Select Top 20 Tickers": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Ticker Batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

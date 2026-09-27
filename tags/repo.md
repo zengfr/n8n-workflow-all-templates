@@ -1,4 +1,4 @@
-# repo : 11
+# repo : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |12336|[12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12336_Monitor_GitHub_repo_access_and_push_events_with_GitHub_and_Slack_alerts.json)|
 |13118|[13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13118_Convert_GitHub_commits_into_review-ready_pull_requests_with_Google_Gemini.json)|
 |15314|[15314_Detect_and_remediate_leaked_secret_on_repo_with_GitHub__AWS__Jira__Slack__Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15314_Detect_and_remediate_leaked_secret_on_repo_with_GitHub__AWS__Jira__Slack__Claude.json)|
+|17572|[17572_Send_daily_GitHub_trending_repo_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17572_Send_daily_GitHub_trending_repo_alerts_to_Slack.json)|

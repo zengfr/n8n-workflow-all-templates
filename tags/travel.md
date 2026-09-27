@@ -1,4 +1,4 @@
-# travel : 26
+# travel : 27
 
 |id|file|
 |----|----|
@@ -28,3 +28,4 @@
 |14914|[14914_Plan_voice-based_travel_and_calendar_bookings_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14914_Plan_voice-based_travel_and_calendar_bookings_with_Claude_AI.json)|
 |15015|[15015_Search_your_travel_memories_with_Gmail__Google_Photos__GPT-4_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15015_Search_your_travel_memories_with_Gmail__Google_Photos__GPT-4_and_Claude.json)|
 |15632|[15632_Create_a_travel_support_RAG_chatbot_with_Google_Drive__Pinecone_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15632_Create_a_travel_support_RAG_chatbot_with_Google_Drive__Pinecone_and_OpenAI.json)|
+|17573|[17573_Send_AI_travel_quotations_via_WhatsApp_with_Gemini__Google_Sheets_and_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17573_Send_AI_travel_quotations_via_WhatsApp_with_Gemini__Google_Sheets_and_Docs.json)|

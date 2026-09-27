@@ -1,4 +1,4 @@
-# sharepoint : 26
+# sharepoint : 33
 
 |id|file|
 |----|----|
@@ -28,3 +28,10 @@
 |16107|[16107_Send_pre-meeting_context_briefings_with_Outlook__SharePoint__Entra_ID_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16107_Send_pre-meeting_context_briefings_with_Outlook__SharePoint__Entra_ID_and_Teams.json)|
 |16118|[16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16118_Clean_up_stale_Entra_B2B_guest_accounts_with_Microsoft_Graph__Teams__and_SharePoint.json)|
 |16194|[16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16194_Handle_GDPR_data_subject_requests_with_Microsoft_Graph__SharePoint__and_Ollama.json)|
+|17708|[17708_Rewrite_legal_time_entry_narratives_with_SharePoint__Microsoft_Graph__and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17708_Rewrite_legal_time_entry_narratives_with_SharePoint__Microsoft_Graph__and_GPT-4o.json)|
+|17962|[17962_Generate_online_reputation_reports_with_SearchAPI__GPT-4o__SharePoint_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17962_Generate_online_reputation_reports_with_SearchAPI__GPT-4o__SharePoint_and_Outlook.json)|
+|18075|[18075_Generate_agile_project_plan_PDFs_from_proposals_with_Claude_and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18075_Generate_agile_project_plan_PDFs_from_proposals_with_Claude_and_SharePoint.json)|
+|18386|[18386_Generate_SharePoint_Word_documents_from_Outlook_emails_with_OpenAI_and_Pandoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18386_Generate_SharePoint_Word_documents_from_Outlook_emails_with_OpenAI_and_Pandoc.json)|
+|18422|[18422_Process_and_triage_contact_form_leads_with_Webhook__GPT-4.1__SharePoint_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18422_Process_and_triage_contact_form_leads_with_Webhook__GPT-4.1__SharePoint_and_Outlook.json)|
+|18765|[18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json)|
+|18911|[18911_Check_shipping_documents_against_SharePoint_instructions_with_OneDrive_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18911_Check_shipping_documents_against_SharePoint_instructions_with_OneDrive_and_Claude.json)|

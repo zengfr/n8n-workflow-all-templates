@@ -1,4 +1,4 @@
-# other : 9
+# other : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |6852|[6852_Create_Images_from_Text_Prompts_using_HeraNathalie_Model_and_Replicate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/68/6852_Create_Images_from_Text_Prompts_using_HeraNathalie_Model_and_Replicate.json)|
 |6858|[6858_Run_ComfyUI_Image_Generation_Workflows_through_Replicate_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/68/6858_Run_ComfyUI_Image_Generation_Workflows_through_Replicate_API.json)|
 |14165|[14165_Get_chess.com_game_reviews_by_email_using_Google_Gemini_or_other_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14165_Get_chess.com_game_reviews_by_email_using_Google_Gemini_or_other_LLMs.json)|
+|18279|[18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json)|

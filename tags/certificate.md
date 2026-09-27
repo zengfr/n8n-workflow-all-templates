@@ -1,4 +1,4 @@
-# certificate : 25
+# certificate : 29
 
 |id|file|
 |----|----|
@@ -27,3 +27,7 @@
 |15438|[15438_Issue_branded_certificate_PDFs_from_Google_Sheets_with_TemplateFox_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15438_Issue_branded_certificate_PDFs_from_Google_Sheets_with_TemplateFox_and_Gmail.json)|
 |16196|[16196_Monitor_SSL_certificate_expiry_with_Google_Sheets__Slack__Gmail_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16196_Monitor_SSL_certificate_expiry_with_Google_Sheets__Slack__Gmail_and_Jira.json)|
 |16379|[16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json)|
+|17973|[17973_Generate_LMS_completion_certificates_with_Groq__PDFShift__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17973_Generate_LMS_completion_certificates_with_Groq__PDFShift__Gmail_and_Slack.json)|
+|18450|[18450_Monitor_SSL_TLS_certificate_expiry_via_an_HTTP_certificate_inventory_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18450_Monitor_SSL_TLS_certificate_expiry_via_an_HTTP_certificate_inventory_API.json)|
+|18575|[18575_Triage_new_certificate_transparency_subdomains_with_Google_Sheets__Slack__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18575_Triage_new_certificate_transparency_subdomains_with_Google_Sheets__Slack__Gmail_and_OpenAI.json)|
+|18832|[18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json)|

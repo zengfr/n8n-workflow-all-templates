@@ -1,4 +1,4 @@
-# tour : 7
+# tour : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |6377|[6377_Automate_Real_Estate_Property_Tours_with_Google_Calendar__Slack___Calendly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/63/6377_Automate_Real_Estate_Property_Tours_with_Google_Calendar__Slack___Calendly.json)|
 |9844|[9844_Automated_Tour_Payment_Reminders_via_WhatsApp___Email_with_Payment_Links.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9844_Automated_Tour_Payment_Reminders_via_WhatsApp___Email_with_Payment_Links.json)|
 |16297|[16297_Generate_SEO_tour_blog_posts_with_Claude__DataForSEO__Google_Docs__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16297_Generate_SEO_tour_blog_posts_with_Claude__DataForSEO__Google_Docs__and_Slack.json)|
+|17359|[17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17359_Reprice_tour_packages_dynamically_with_Claude__Google_Sheets_and_Slack.json)|

@@ -1,4 +1,4 @@
-# cloudinary : 9
+# cloudinary : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |9312|[9312_Process___Catalog_Dress_Images_with_GPT-4o__Cloudinary__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9312_Process___Catalog_Dress_Images_with_GPT-4o__Cloudinary__and_Google_Sheets.json)|
 |11791|[11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11791_Automate_RSS_to_Instagram_with_AI-Generated_Content_and_Cloudinary.json)|
 |12590|[12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12590_Generate_Sora_v2_ASMR_clips_with_GPT-5.1__stitch_via_Cloudinary__and_post_to_Twitter_X.json)|
+|17119|[17119_Publish_weekly_AI_social_videos_with_Airtable__Claude__Sora__Cloudinary__and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17119_Publish_weekly_AI_social_videos_with_Airtable__Claude__Sora__Cloudinary__and_Buffer.json)|
+|17369|[17369_Schedule_motivational_YouTube_Shorts_with_Google_Drive__Gemini__Airtable_and_Cloudinary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17369_Schedule_motivational_YouTube_Shorts_with_Google_Drive__Gemini__Airtable_and_Cloudinary.json)|
+|17644|[17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json)|

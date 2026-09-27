@@ -1,0 +1,696 @@
+{
+  "id": "ezmnocx3GRuimcbB",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Score QSR health inspections and send Gmail compliance digests with OpenAI",
+    "wechat": "youandme10086",
+    "id": 19037,
+    "update_time": "2026-09-27"
+  },
+  "name": "Score QSR health inspections and send compliance digests with OpenAI and Gmail",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c9e036cc-cc16-44e7-8618-62fd9592a4a6",
+      "name": "Trigger Daily Inspection Sweep",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        704,
+        304
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "ca8286c8-aff5-4cce-8e6c-73b0ee021e91",
+      "name": "Fetch Inspection Batch",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1072,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "records-array",
+              "name": "records",
+              "type": "array",
+              "value": "={{ [ { \"location_id\": \"STL-014\", \"location_name\": \"Downtown Express\", \"region\": \"Midwest\", \"inspection_date\": $today.toISODate(), \"raw_note\": \"Inspector observed food held at 118F in the hot-holding unit near the fryer station, well below the required 135F minimum. Raw chicken stored above ready-to-eat salad mix in walk-in cooler. Employee handwashing sink blocked by storage boxes.\" }, { \"location_id\": \"STL-027\", \"location_name\": \"Riverside Drive-Thru\", \"region\": \"Midwest\", \"inspection_date\": $today.toISODate(), \"raw_note\": \"Minor finding: expired sanitizer test strips found at prep line 2. Cutting board had light discoloration but no active cross contamination observed.\" }, { \"location_id\": \"MEM-002\", \"location_name\": \"Beale Street Corner\", \"region\": \"Mid-South\", \"inspection_date\": $today.toISODate(), \"raw_note\": \"Live cockroach activity observed in dry storage room and behind the ice machine motor housing. No consistent pest control log on-site.\" }, { \"location_id\": \"MEM-009\", \"location_name\": \"Poplar Ave Location\", \"region\": \"Mid-South\", \"inspection_date\": $today.toISODate(), \"raw_note\": \"Dish machine final rinse measured 140F, below the required 165F sanitizing temperature. Three-compartment sink sanitizer concentration went untested for over a week.\" }, { \"location_id\": \"KC-005\", \"location_name\": \"Country Club Plaza\", \"region\": \"Midwest\", \"inspection_date\": $today.toISODate(), \"raw_note\": \"Single ceiling tile near the soda fountain station showed water staining; no active leak found. Floor drain cover missing in the mop closet.\" }, { \"location_id\": \"KC-011\", \"location_name\": \"Westport Strip\", \"region\": \"Midwest\", \"inspection_date\": $today.toISODate(), \"raw_note\": \"Manager could not produce current food-handler certifications for 2 of 5 staff on shift. Date-marking labels missing on prepped deli items in the reach-in cooler.\" } ] }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "3d15fdb9-8d9c-4932-bc23-79432e5dba82",
+      "name": "Split Out Location Records",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1424,
+        304
+      ],
+      "parameters": {
+        "options": {
+          "destinationFieldName": "record"
+        },
+        "fieldToSplitOut": "records"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5847c66b-ca2d-43d1-ba92-823ea3e00c9a",
+      "name": "Shape Inspection Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1792,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "loc-id",
+              "name": "location_id",
+              "type": "string",
+              "value": "={{ $json.record?.location_id ?? \"UNKNOWN\" }}"
+            },
+            {
+              "id": "loc-name",
+              "name": "location_name",
+              "type": "string",
+              "value": "={{ $json.record?.location_name ?? \"Unknown Location\" }}"
+            },
+            {
+              "id": "region",
+              "name": "region",
+              "type": "string",
+              "value": "={{ $json.record?.region ?? \"UNASSIGNED\" }}"
+            },
+            {
+              "id": "insp-date",
+              "name": "inspection_date",
+              "type": "string",
+              "value": "={{ $json.record?.inspection_date ?? $today.toISODate() }}"
+            },
+            {
+              "id": "raw-note",
+              "name": "raw_note",
+              "type": "string",
+              "value": "={{ $json.record?.raw_note ?? \"\" }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "14e66794-72cb-4896-92e1-612aa2f15ebc",
+      "name": "Compute Regional Risk Score",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3584,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const allRecords = $(\"Compute Corrective Deadline\").all().map(function (item) { return item.json; });\nconst totalLocations = allRecords.length;\nconst criticalCount = allRecords.filter(function (r) { return r.severity === \"critical\"; }).length;\nconst majorCount = allRecords.filter(function (r) { return r.severity === \"major\"; }).length;\nconst minorCount = allRecords.filter(function (r) { return r.severity === \"minor\"; }).length;\nconst pctWithViolation = totalLocations > 0 ? 100 : 0;\n// Regional risk score: weighted formula — critical violations weigh heaviest, then major, then minor,\n// plus a prevalence component so a franchise with widespread minor issues also trends upward.\nconst riskScore = Math.round((criticalCount * 25) + (majorCount * 8) + (minorCount * 2) + (pctWithViolation * 0.5));\nconst CRITICAL_COUNT_THRESHOLD = 2;\nconst RISK_SCORE_THRESHOLD = 40;\nconst escalate = (criticalCount >= CRITICAL_COUNT_THRESHOLD) || (riskScore >= RISK_SCORE_THRESHOLD);\nconst regionSet = {};\nallRecords.forEach(function (r) { regionSet[r.region] = true; });\nconst regionsAffected = Object.keys(regionSet);\nconst criticalLocations = allRecords.filter(function (r) { return r.severity === \"critical\"; }).map(function (r) { return r.location_name + \" (\" + r.location_id + \")\"; });\nreturn [{\n  json: {\n    run_date: new Date().toISOString().slice(0, 10),\n    total_locations: totalLocations,\n    critical_count: criticalCount,\n    major_count: majorCount,\n    minor_count: minorCount,\n    pct_locations_with_violation: pctWithViolation,\n    risk_score: riskScore,\n    escalation_threshold: RISK_SCORE_THRESHOLD,\n    critical_threshold: CRITICAL_COUNT_THRESHOLD,\n    escalate: escalate,\n    regions_affected: regionsAffected.join(\", \"),\n    critical_locations_summary: criticalLocations.length > 0 ? criticalLocations.join(\"; \") : \"None\",\n    records: allRecords\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1230a8fd-cc32-4ca2-a615-006b1ccbb8a6",
+      "name": "Append Summary Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3952,
+        304
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Compliance Summary"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "QSR Compliance Tracker (replace with your Sheet)"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "9e119a61-7b93-45d4-84ba-0c7616174983",
+      "name": "Check Escalation Threshold",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4304,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Compute Regional Risk Score').item.json.escalate }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "fd5c0578-260e-4cc1-ab51-e82f359caf5d",
+      "name": "Send Regional Escalation Alert",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4800,
+        112
+      ],
+      "webhookId": "e8e70e7f-833e-4aff-8006-6a90d2d1ddf8",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=<h2>Regional Compliance Escalation</h2><p>The daily inspection sweep for {{ $(\"Compute Regional Risk Score\").item.json.run_date }} has crossed the regional escalation threshold and requires director-level review.</p><ul><li><b>Batch risk score:</b> {{ $(\"Compute Regional Risk Score\").item.json.risk_score }} (threshold: {{ $(\"Compute Regional Risk Score\").item.json.escalation_threshold }})</li><li><b>Critical violations:</b> {{ $(\"Compute Regional Risk Score\").item.json.critical_count }} (threshold: {{ $(\"Compute Regional Risk Score\").item.json.critical_threshold }})</li><li><b>Locations reviewed:</b> {{ $(\"Compute Regional Risk Score\").item.json.total_locations }}</li><li><b>Regions affected:</b> {{ $(\"Compute Regional Risk Score\").item.json.regions_affected }}</li></ul><p><b>Critical locations requiring immediate corrective action:</b><br>{{ $(\"Compute Regional Risk Score\").item.json.critical_locations_summary }}</p><p>Full per-location detail, code sections, and corrective deadlines are logged in the Compliance Log sheet.</p>",
+        "options": {},
+        "subject": "=URGENT Regional Health Compliance Escalation - {{ $(\"Compute Regional Risk Score\").item.json.critical_count }} Critical Violations - {{ $now.toFormat(\"MMMM d, yyyy\") }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "68095ffa-94e7-46b9-8d25-be65fda2b9c2",
+      "name": "Merge Escalation Outcome",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        5440,
+        304
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "ab75b88a-4770-4e59-abdf-5a22afe98bde",
+      "name": "Log No Escalation Needed",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4800,
+        496
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "esc-sent",
+              "name": "escalation_sent",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "esc-note",
+              "name": "note",
+              "type": "string",
+              "value": "Batch risk score below threshold - no escalation email sent this run."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "66e65a5f-2f1a-4e55-837a-778e9587ea18",
+      "name": "Extract Violation Severity",
+      "type": "@n8n/n8n-nodes-langchain.informationExtractor",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2512,
+        720
+      ],
+      "parameters": {
+        "text": "={{ $('Shape Inspection Record').item.json.raw_note }}",
+        "options": {
+          "systemPromptTemplate": "You are a restaurant health-code compliance analyst reviewing a single health department inspection note for one quick-service restaurant (QSR) location. Extract structured fields as strict JSON with EXACTLY the requested keys and no others. Base severity strictly on the food-safety risk described, not on tone. critical = imminent health hazard requiring immediate correction (e.g. temperature abuse, pest infestation, sewage backup); major = significant violation requiring prompt correction (e.g. equipment malfunction, missing documentation with real risk); minor = low-risk housekeeping or paperwork issue. Output valid JSON only."
+        },
+        "attributes": {
+          "attributes": [
+            {
+              "name": "violation_category",
+              "required": true,
+              "description": "Category of health-code violation observed: Temperature Control, Pest Control, Cross-Contamination, Handwashing/Hygiene, Sanitation, Employee Certification, or Facility Maintenance"
+            },
+            {
+              "name": "severity",
+              "required": true,
+              "description": "Violation severity — must be exactly one of: 'critical', 'major', or 'minor', judged strictly on food-safety risk described in the note"
+            },
+            {
+              "name": "code_section",
+              "required": true,
+              "description": "Best-effort FDA Food Code or local health-code section reference for this violation, e.g. '3-501.16' for hot holding temperature"
+            },
+            {
+              "name": "recommended_corrective_action",
+              "required": true,
+              "description": "One concise, specific, actionable corrective step the location manager should take to fix this violation"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "43eede25-bcd5-4143-a0a3-93b0ccc12fa8",
+      "name": "Run Severity Extraction Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2512,
+        1152
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {
+          "temperature": 0.1
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "5973a439-6920-48cb-875d-1bae93acf7cf",
+      "name": "Compute Corrective Deadline",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2864,
+        720
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const severityRaw = $input.item.json.severity;\nconst severity = (typeof severityRaw === \"string\" ? severityRaw.toLowerCase().trim() : \"minor\");\nconst normalizedSeverity = [\"critical\", \"major\", \"minor\"].indexOf(severity) === -1 ? \"minor\" : severity;\n// Real health-code re-inspection windows: critical=10 days, major=30 days, minor=90 days\nconst REINSPECTION_WINDOWS = { critical: 10, major: 30, minor: 90 };\nconst windowDays = REINSPECTION_WINDOWS[normalizedSeverity];\nconst shapeRecord = $(\"Shape Inspection Record\").item.json;\nconst inspectionDateStr = shapeRecord.inspection_date;\nconst inspectionDate = inspectionDateStr ? new Date(inspectionDateStr + \"T00:00:00Z\") : new Date();\nconst deadline = new Date(inspectionDate.getTime());\ndeadline.setUTCDate(deadline.getUTCDate() + windowDays);\nconst deadlineIso = deadline.toISOString().slice(0, 10);\nreturn {\n  json: {\n    location_id: shapeRecord.location_id,\n    location_name: shapeRecord.location_name,\n    region: shapeRecord.region,\n    inspection_date: shapeRecord.inspection_date,\n    violation_category: $input.item.json.violation_category,\n    severity: normalizedSeverity,\n    code_section: $input.item.json.code_section,\n    recommended_corrective_action: $input.item.json.recommended_corrective_action,\n    reinspection_window_days: windowDays,\n    corrective_deadline: deadlineIso,\n    is_critical: normalizedSeverity === \"critical\"\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7b643679-6d0f-4c45-bb1c-ba538dee07fc",
+      "name": "Append Compliance Log Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3232,
+        720
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Compliance Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "QSR Compliance Tracker (replace with your Sheet)"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "a37f681c-5f89-47f2-b726-d7d6a36a78ef",
+      "name": "Loop Over Location Records",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        2144,
+        304
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "35cd0af0-701e-449f-bcba-33b8b36ad268",
+      "name": "Send Compliance Digest",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5920,
+        304
+      ],
+      "webhookId": "8f35b8c0-3b05-4cdb-aeff-be8d2b50a964",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=<h2>Daily Multi-Location Health Inspection Digest</h2><p>Run date: {{ $(\"Compute Regional Risk Score\").item.json.run_date }}</p><ul><li><b>Locations reviewed:</b> {{ $(\"Compute Regional Risk Score\").item.json.total_locations }}</li><li><b>Critical violations:</b> {{ $(\"Compute Regional Risk Score\").item.json.critical_count }}</li><li><b>Major violations:</b> {{ $(\"Compute Regional Risk Score\").item.json.major_count }}</li><li><b>Minor violations:</b> {{ $(\"Compute Regional Risk Score\").item.json.minor_count }}</li><li><b>Regional risk score:</b> {{ $(\"Compute Regional Risk Score\").item.json.risk_score }} (escalation threshold {{ $(\"Compute Regional Risk Score\").item.json.escalation_threshold }})</li><li><b>Regions affected:</b> {{ $(\"Compute Regional Risk Score\").item.json.regions_affected }}</li><li><b>Escalation email sent this run:</b> {{ $(\"Compute Regional Risk Score\").item.json.escalate }}</li></ul><p><b>Per-location detail:</b><br>{{ $(\"Compute Regional Risk Score\").item.json.records.map(function(r){ return r.location_name + \" (\" + r.location_id + \") - \" + r.severity.toUpperCase() + \" - \" + r.violation_category + \" - corrective deadline \" + r.corrective_deadline; }).join(\"<br>\") }}</p><p>Full detail and audit trail are available in the Compliance Log and Compliance Summary Google Sheets.</p>",
+        "options": {},
+        "subject": "=Daily Compliance Digest - {{ $now.toFormat(\"MMMM d, yyyy\") }} - {{ $(\"Compute Regional Risk Score\").item.json.total_locations }} Locations Reviewed"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "9c0f66fc-26c3-4bbf-adff-378d95be02c8",
+      "name": "Workflow overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        96,
+        0
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 896,
+        "content": "## Multi-Location QSR Health Inspection Corrective-Action Fan-Out & Compliance Digest\n\n### How it works\nStart the daily sweep, split the inspection array, normalize each location, and process one location per loop iteration.  Extract severity, calculate the configured corrective deadline, and append the location log.  After the loop completes, compute the regional risk score, append the summary, and check the escalation threshold. Send an escalation when the threshold is met or mark no escalation. \n\n### Setup\n1. Connect the credentials required by the integration nodes and select the correct account for each service.\n2. Replace all placeholder endpoints, recipients, chat IDs, table names and document IDs with your own values.\n3. Confirm that incoming fields match the expressions and that every destination accepts the mapped output fields.\n4. Run the workflow manually with representative sample data. Test every decision branch and inspect each external action.\n5. Review retry and error behavior before enabling the trigger. Keep this feedback copy inactive until setup and testing are complete.\n\n### Customization\nAdjust schedules, thresholds, prompts and notification destinations to match your process. Keep the documented input and output contract aligned with any changes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "645bb7b5-b64c-4aca-95d7-95bec12366eb",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        656,
+        192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1632,
+        "height": 272,
+        "content": "## Prepare the inspection batch\n\nStart the daily sweep, split the inspection array, normalize each location, and process one location per loop iteration."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "473a1cb9-c4ce-4b42-a692-91f839156cdb",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2464,
+        608
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 912,
+        "height": 704,
+        "content": "## Score each location\n\nExtract severity, calculate the configured corrective deadline, and append the location log."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1571bb5-b7e2-4e60-92c5-f5df9974a5bc",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3536,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 912,
+        "height": 288,
+        "content": "## Calculate the daily summary\n\nAfter the loop completes, compute the regional risk score, append the summary, and check the escalation threshold."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fb65a3eb-8f94-45dc-adb1-a8e1facfbd20",
+      "name": "Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4752,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1312,
+        "height": 656,
+        "content": "## Send the daily notifications\n\nSend an escalation when the threshold is met or mark no escalation."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "0f234288-d59e-4da6-ab53-007baacff42c",
+  "nodeGroups": [],
+  "connections": {
+    "Append Summary Row": {
+      "main": [
+        [
+          {
+            "node": "Check Escalation Threshold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Inspection Batch": {
+      "main": [
+        [
+          {
+            "node": "Split Out Location Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Inspection Record": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Location Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log No Escalation Needed": {
+      "main": [
+        [
+          {
+            "node": "Merge Escalation Outcome",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge Escalation Outcome": {
+      "main": [
+        [
+          {
+            "node": "Send Compliance Digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Compliance Log Row": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Location Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Escalation Threshold": {
+      "main": [
+        [
+          {
+            "node": "Send Regional Escalation Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log No Escalation Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Violation Severity": {
+      "main": [
+        [
+          {
+            "node": "Compute Corrective Deadline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Location Records": {
+      "main": [
+        [
+          {
+            "node": "Compute Regional Risk Score",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Violation Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Split Out Location Records": {
+      "main": [
+        [
+          {
+            "node": "Shape Inspection Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Corrective Deadline": {
+      "main": [
+        [
+          {
+            "node": "Append Compliance Log Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Regional Risk Score": {
+      "main": [
+        [
+          {
+            "node": "Append Summary Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Severity Extraction Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract Violation Severity",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Regional Escalation Alert": {
+      "main": [
+        [
+          {
+            "node": "Merge Escalation Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Daily Inspection Sweep": {
+      "main": [
+        [
+          {
+            "node": "Fetch Inspection Batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

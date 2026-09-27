@@ -1,4 +1,4 @@
-# natural : 48
+# natural : 50
 
 |id|file|
 |----|----|
@@ -50,3 +50,5 @@
 |13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|
 |14057|[14057_Query_your_PostgreSQL_data_in_plain_English_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14057_Query_your_PostgreSQL_data_in_plain_English_with_GPT-4o-mini.json)|
 |15173|[15173_Send_Henry_Hub_natural_gas_forward_curve_updates_to_Telegram_with_zero_API_cost.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15173_Send_Henry_Hub_natural_gas_forward_curve_updates_to_Telegram_with_zero_API_cost.json)|
+|17344|[17344_Generate_HTTP_API_requests_from_natural_language_with_GPT-4.1_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17344_Generate_HTTP_API_requests_from_natural_language_with_GPT-4.1_Mini.json)|
+|18168|[18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json)|

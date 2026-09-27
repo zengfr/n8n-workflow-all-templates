@@ -1,4 +1,4 @@
-# personalize : 10
+# personalize : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |11430|[11430_Personalize_Client_Meeting_Prep_with_GPT-4__Google_Calendar__Notion___Places_API_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11430_Personalize_Client_Meeting_Prep_with_GPT-4__Google_Calendar__Notion___Places_API_to_Slack.json)|
 |12339|[12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12339_Automate_SDR_Outreach__Source_Wiza_Leads_and_Personalize_Emails_with_LLMs.json)|
 |13302|[13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13302_Personalize_creator_onboarding_in_HubSpot_with_influencers.club_and_GPT-4.json)|
+|18545|[18545_Qualify_and_personalize_sales_leads_with_GetProspect__DeepSeek__and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18545_Qualify_and_personalize_sales_leads_with_GetProspect__DeepSeek__and_Instantly.json)|

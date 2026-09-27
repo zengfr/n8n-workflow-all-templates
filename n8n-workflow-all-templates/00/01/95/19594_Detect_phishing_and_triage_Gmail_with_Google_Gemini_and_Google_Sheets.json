@@ -1,0 +1,498 @@
+{
+  "name": "Detect phishing and triage Gmail with an AI agent and Google Gemini",
+  "nodes": [
+    {
+      "id": "gmail_trigger",
+      "name": "Watch inbox for new email",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        0,
+        144
+      ],
+      "parameters": {
+        "filters": {
+          "readStatus": "unread"
+        },
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "maxResults": 50
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "configuration",
+      "name": "Set log sheet details",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        144
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg1",
+              "name": "logSheetId",
+              "type": "string",
+              "value": "YOUR_GOOGLE_SHEET_ID"
+            },
+            {
+              "id": "cfg2",
+              "name": "logSheetName",
+              "type": "string",
+              "value": "Email Triage Log"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "gmail_get_labels",
+      "name": "Get all Gmail labels",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        448,
+        144
+      ],
+      "parameters": {
+        "resource": "label",
+        "returnAll": true
+      },
+      "executeOnce": false,
+      "typeVersion": 2.1
+    },
+    {
+      "id": "code_map",
+      "name": "Match categories to label IDs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        672,
+        144
+      ],
+      "parameters": {
+        "jsCode": "const inputItems = $input.all();\nconst emails = $('Watch inbox for new email').all().map(i => i.json);\n\nconst perEmailCount = emails.length > 0 ? inputItems.length / emails.length : inputItems.length;\n\nfunction findId(labels, name) {\n  const match = labels.find(l => l.name === name);\n  return match ? match.id : null;\n}\n\nreturn emails.map((trigger, i) => {\n  const labels = inputItems.slice(i * perEmailCount, (i + 1) * perEmailCount).map(it => it.json);\n  return {\n    json: {\n      messageId: trigger.id,\n      subject: trigger.Subject || '(no subject)',\n      from: trigger.From || '',\n      bodyText: trigger.snippet || '',\n      fraudLabelId: findId(labels, '⚠️ Possible Fraud'),\n      urgentLabelId: findId(labels, '🔴 Urgent'),\n      adsLabelId: findId(labels, '📢 Ads'),\n      reviewLabelId: findId(labels, '🔎 Review'),\n      notImportantLabelId: findId(labels, '⚪ Not Important')\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ai_agent",
+      "name": "Classify email with AI agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1152,
+        272
+      ],
+      "parameters": {
+        "text": "=Subject: {{ $json.subject }}\nFrom: {{ $json.from }}\n\nBody:\n{{ $json.bodyText }}",
+        "options": {
+          "systemMessage": "You are an email security and triage assistant. You will be given the subject, sender, and body of one incoming email. Classify it into EXACTLY ONE of these five categories, then call the matching tool to apply that label. Call only one tool, and only one of the five listed below — never reply, forward, delete, or take any other action.\n\n- ⚠️ Possible Fraud: phishing, scams, spoofed senders, requests for passwords, payment, gift cards or wire transfers, fake urgency about account suspension, suspicious or mismatched links. Call the tool \"Add 'Possible Fraud' label\".\n- 🔴 Urgent: a legitimate email that needs action soon — a real deadline, a coworker or client waiting on a reply, a bill or invoice due. Call the tool \"Add 'Urgent' label\".\n- 📢 Ads: promotions, marketing newsletters, sales offers. Call the tool \"Add 'Ads' label\".\n- 🔎 Review: anything you are not confident about, or that doesn't clearly fit the other categories. Call the tool \"Add 'Review' label\".\n- ⚪ Not Important: FYI-only messages, automated receipts or notifications, nothing to act on. Call the tool \"Add 'Not Important' label\".\n\nBe careful with fraud: only choose Possible Fraud when there are real warning signs, not just because an email is urgent or from an unfamiliar sender. When genuinely unsure, prefer Review over guessing.\n\nAfter calling exactly one tool, reply with a single line containing only the category name you chose (e.g. \"Possible Fraud\")."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "lm_gemini",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        816,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-3.6-flash"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "gmail_tool_fraud",
+      "name": "Add 'Possible Fraud' label",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        1312,
+        480
+      ],
+      "parameters": {
+        "labelIds": "={{ [$json.fraudLabelId] }}",
+        "messageId": "={{ $json.messageId }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "gmail_tool_urgent",
+      "name": "Add 'Urgent' label",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        1648,
+        496
+      ],
+      "parameters": {
+        "labelIds": "={{ [$json.urgentLabelId] }}",
+        "messageId": "={{ $json.messageId }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "gmail_tool_ads",
+      "name": "Add 'Ads' label",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        976,
+        480
+      ],
+      "parameters": {
+        "labelIds": "={{ [$json.adsLabelId] }}",
+        "messageId": "={{ $json.messageId }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "gmail_tool_review",
+      "name": "Add 'Review' label",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        1472,
+        480
+      ],
+      "parameters": {
+        "labelIds": "={{ [$json.reviewLabelId] }}",
+        "messageId": "={{ $json.messageId }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "gmail_tool_not_important",
+      "name": "Add 'Not Important' label",
+      "type": "n8n-nodes-base.gmailTool",
+      "position": [
+        1136,
+        480
+      ],
+      "parameters": {
+        "labelIds": "={{ [$json.notImportantLabelId] }}",
+        "messageId": "={{ $json.messageId }}",
+        "operation": "addLabels"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "merge_node",
+      "name": "Combine email with AI result",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1744,
+        144
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "sheets_log",
+      "name": "Log result to Google Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1968,
+        144
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "from": "={{ $json.from }}",
+            "subject": "={{ $json.subject }}",
+            "category": "={{ $json.output }}",
+            "classified_at": "={{ $now.format('yyyy-MM-dd HH:mm') }}"
+          },
+          "schema": [
+            {
+              "id": "subject",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "subject",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "from",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "from",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "classified_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "classified_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "subject"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set log sheet details').first().json.logSheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set log sheet details').first().json.logSheetId }}"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "sticky_overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -480
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 2240,
+        "height": 380,
+        "content": "## Email Security Triage Agent\n\nWatches your inbox and sorts every new email into one of five categories — Possible Fraud, Urgent, Ads, Review, or Not Important — then applies the matching Gmail label automatically.\n\n### How it works\nEvery minute it checks for new unread mail. For each email, an AI agent reads the subject, sender, and preview text and decides which category fits, leaning toward \"Review\" rather than guessing when something looks fraud-like. It applies the matching label straight in Gmail — nothing is moved, archived, or deleted, so your inbox looks the same, just labeled. Every decision is also logged to a Google Sheet (subject, sender, category, time) so you have a running record of what came in and how it was sorted.\n\n### Setup\n1. In Gmail, create 5 labels with these exact names: ⚠️ Possible Fraud, 🔴 Urgent, 📢 Ads, 🔎 Review, ⚪ Not Important.\n2. Open \"Set log sheet details\" and enter your Google Sheet ID and tab name (header row: subject, from, category, classified_at).\n3. Connect your Gmail, Google Sheets, and Google Gemini credentials.\n4. Turn the workflow on.\n\n### Customization tips\nTighten or loosen the fraud wording in the AI agent's system prompt, or swap the Google Sheet log for n8n's Data Table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_note_a",
+      "name": "Note: reading the email",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -16,
+        -80
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 880,
+        "height": 190,
+        "content": "## Reading the email\nPicks up each new unread email, then looks up the account's current Gmail labels so every category name can be matched to its real label ID — done fresh each run, since label IDs are unique to every Gmail account."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_note_b",
+      "name": "Note: deciding the category",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -80
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 820,
+        "height": 190,
+        "content": "## Deciding the category\nAn AI agent reads each email's subject, sender, and preview, then picks one of the five categories — favoring caution over guessing when something looks fraud-like — and applies the matching Gmail label itself."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_note_c",
+      "name": "Note: recording the result",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1728,
+        -80
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 480,
+        "height": 190,
+        "content": "## Recording the result\nCombines the email's details with the AI's decision and adds a row to your Google Sheet — subject, sender, category, and time — building a running log of everything that's come through."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Add 'Ads' label": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classify email with AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add 'Review' label": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classify email with AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add 'Urgent' label": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classify email with AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get all Gmail labels": {
+      "main": [
+        [
+          {
+            "node": "Match categories to label IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set log sheet details": {
+      "main": [
+        [
+          {
+            "node": "Get all Gmail labels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Classify email with AI agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add 'Not Important' label": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classify email with AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch inbox for new email": {
+      "main": [
+        [
+          {
+            "node": "Set log sheet details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add 'Possible Fraud' label": {
+      "ai_tool": [
+        [
+          {
+            "node": "Classify email with AI agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify email with AI agent": {
+      "main": [
+        [
+          {
+            "node": "Combine email with AI result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Combine email with AI result": {
+      "main": [
+        [
+          {
+            "node": "Log result to Google Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match categories to label IDs": {
+      "main": [
+        [
+          {
+            "node": "Classify email with AI agent",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine email with AI result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Detect phishing and triage Gmail with Google Gemini and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19594,
+    "update_time": "2026-09-27"
+  }
+}

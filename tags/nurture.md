@@ -1,4 +1,4 @@
-# nurture : 17
+# nurture : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |14614|[14614_Create_lead_nurture_video_clips_from_webinar_recordings_using_WayinVideo_AI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14614_Create_lead_nurture_video_clips_from_webinar_recordings_using_WayinVideo_AI_and_Google_Drive.json)|
 |15536|[15536_Qualify_and_nurture_Typeform_leads_in_GoHighLevel_with_OpenAI__Calendly__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15536_Qualify_and_nurture_Typeform_leads_in_GoHighLevel_with_OpenAI__Calendly__Gmail_and_Slack.json)|
 |15616|[15616_Nurture_leads_via_email__WhatsApp__OpenAI__and_Google_Sheets_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15616_Nurture_leads_via_email__WhatsApp__OpenAI__and_Google_Sheets_CRM.json)|
+|19429|[19429_Nurture_dental_leads_and_manage_appointments_with_Google_Sheets__Gmail__Twilio__and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19429_Nurture_dental_leads_and_manage_appointments_with_Google_Sheets__Gmail__Twilio__and_Google_Calendar.json)|

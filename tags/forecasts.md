@@ -1,4 +1,4 @@
-# forecasts : 5
+# forecasts : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |7815|[7815_Weather_Forecast_Email_-_Receive_Automated_Weather_Forecasts_Daily.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/78/7815_Weather_Forecast_Email_-_Receive_Automated_Weather_Forecasts_Daily.json)|
 |9909|[9909_Send_Multi-City_Weather_Forecasts_with_AI-Enhanced_Formatting_from_OpenWeatherMap_to_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9909_Send_Multi-City_Weather_Forecasts_with_AI-Enhanced_Formatting_from_OpenWeatherMap_to_Gmail.json)|
 |12289|[12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12289_Send_sales_forecast_charts_and_answer_Q_A_on_WhatsApp_with_OpenAI.json)|
+|19569|[19569_Dispatch_snow_and_ice_crews_from_forecasts_with_Open-Meteo__GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19569_Dispatch_snow_and_ice_crews_from_forecasts_with_Open-Meteo__GPT-4o_and_Gmail.json)|
+|19714|[19714_Provide_normalized_weather_forecasts_with_WeatherAPI_and_Open-Meteo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19714_Provide_normalized_weather_forecasts_with_WeatherAPI_and_Open-Meteo.json)|

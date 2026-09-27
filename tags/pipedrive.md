@@ -1,4 +1,4 @@
-# pipedrive : 46
+# pipedrive : 49
 
 |id|file|
 |----|----|
@@ -48,3 +48,6 @@
 |13233|[13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13233_Sync_contacts__consent__and_segments_between_KlickTipp_and_Pipedrive.json)|
 |14977|[14977_Generate_daily_business_briefing_podcasts_with_OpenAI__Azure_TTS__HubSpot__Zendesk__Pipedrive__Discord__Twilio_and_Confluence.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14977_Generate_daily_business_briefing_podcasts_with_OpenAI__Azure_TTS__HubSpot__Zendesk__Pipedrive__Discord__Twilio_and_Confluence.json)|
 |15819|[15819_Send_commercial_briefs_from_Google_Calendar_meetings_to_Pipedrive_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15819_Send_commercial_briefs_from_Google_Calendar_meetings_to_Pipedrive_via_Gmail.json)|
+|17448|[17448_Route_client_intake_and_bookings_via_Pipedrive__Slack__Gmail__Cal.com_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17448_Route_client_intake_and_bookings_via_Pipedrive__Slack__Gmail__Cal.com_and_ClickUp.json)|
+|19102|[19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json)|
+|19111|[19111_Manage_caller_contacts__deals_and_callbacks_with_Placetel_and_Pipedrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19111_Manage_caller_contacts__deals_and_callbacks_with_Placetel_and_Pipedrive.json)|

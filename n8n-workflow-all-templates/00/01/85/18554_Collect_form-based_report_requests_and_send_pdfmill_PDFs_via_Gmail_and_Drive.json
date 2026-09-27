@@ -1,0 +1,490 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Collect form-based report requests and send pdfmill PDFs via Gmail and Drive",
+    "wechat": "youandme10086",
+    "id": 18554,
+    "update_time": "2026-09-27"
+  },
+  "name": "Collect report requests, validate Google Sheets metrics, and generate PDF reports with pdfmill",
+  "tags": [
+    {
+      "name": "pdfmill"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "55062a0d-5eae-4d6a-87a2-7b3988c917b3",
+      "name": "Report request form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        1000
+      ],
+      "parameters": {
+        "options": {
+          "formSubmittedText": "Thanks. The workflow will validate the request and email either the finished report or a precise correction message."
+        },
+        "formTitle": "Request a report",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Report title",
+              "placeholder": "e.g. Q3 Business Review",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Report key",
+              "placeholder": "e.g. sales",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Period",
+              "placeholder": "e.g. Q3 2026, July 2026, or 2026-07-01 to 2026-09-30",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Recipient email",
+              "placeholder": "name@company.com",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Highlights / summary",
+              "placeholder": "Optional context to place in the report summary",
+              "requiredField": false
+            },
+            {
+              "fieldLabel": "Prepared by",
+              "placeholder": "Your name or team",
+              "requiredField": false
+            }
+          ]
+        },
+        "formDescription": "Choose the report and period. Matching metrics are loaded from Google Sheets, validated, rendered to PDF, archived, and emailed."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f8f39ad5-2d9b-46d1-8823-1e6da2b24e73",
+      "name": "Parse and validate the request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        260,
+        1000
+      ],
+      "parameters": {
+        "jsCode": "// Normalize the submitted request and reject unsupported periods explicitly.\n// Accepted period formats: Q3 2026, July 2026, 2026-07, or an ISO date range.\nconst answers = $json;\n\nconst pick = (label) => {\n  if (answers[label] !== undefined && answers[label] !== null) return answers[label];\n  const wanted = String(label).toLowerCase().replace(/[^a-z0-9]/g, '');\n  for (const key of Object.keys(answers)) {\n    if (key.toLowerCase().replace(/[^a-z0-9]/g, '') === wanted) return answers[key];\n  }\n  return undefined;\n};\n\nconst clean = (value) => String(value ?? '').trim();\nconst iso = (date) => date.toISOString().slice(0, 10);\nconst monthNames = [\n  'january', 'february', 'march', 'april', 'may', 'june',\n  'july', 'august', 'september', 'october', 'november', 'december',\n];\n\nfunction derivePeriod(label) {\n  const value = clean(label);\n  const explicit = value.match(/^(\\d{4}-\\d{2}-\\d{2})\\s+(?:to|through|-)\\s+(\\d{4}-\\d{2}-\\d{2})$/i);\n  if (explicit) {\n    const start = new Date(explicit[1] + 'T00:00:00Z');\n    const end = new Date(explicit[2] + 'T00:00:00Z');\n    if (!Number.isNaN(start.valueOf()) && !Number.isNaN(end.valueOf()) && start <= end) {\n      return { start: explicit[1], end: explicit[2], cadence: 'Report' };\n    }\n    return null;\n  }\n\n  const quarter = value.match(/^Q([1-4])\\s+(\\d{4})$/i);\n  if (quarter) {\n    const startMonth = (Number(quarter[1]) - 1) * 3;\n    const year = Number(quarter[2]);\n    return {\n      start: iso(new Date(Date.UTC(year, startMonth, 1))),\n      end: iso(new Date(Date.UTC(year, startMonth + 3, 0))),\n      cadence: 'Quarterly report',\n    };\n  }\n\n  const named = value.match(/^([A-Za-z]+)\\s+(\\d{4})$/);\n  if (named) {\n    const month = monthNames.indexOf(named[1].toLowerCase());\n    if (month >= 0) {\n      const year = Number(named[2]);\n      return {\n        start: iso(new Date(Date.UTC(year, month, 1))),\n        end: iso(new Date(Date.UTC(year, month + 1, 0))),\n        cadence: 'Monthly report',\n      };\n    }\n  }\n\n  const isoMonth = value.match(/^(\\d{4})-(\\d{2})$/);\n  if (isoMonth) {\n    const year = Number(isoMonth[1]);\n    const month = Number(isoMonth[2]) - 1;\n    if (month >= 0 && month <= 11) {\n      return {\n        start: iso(new Date(Date.UTC(year, month, 1))),\n        end: iso(new Date(Date.UTC(year, month + 1, 0))),\n        cadence: 'Monthly report',\n      };\n    }\n  }\n\n  return null;\n}\n\nconst title = clean(pick('Report title'));\nconst reportKey = clean(pick('Report key'));\nconst periodLabel = clean(pick('Period'));\nconst recipientEmail = clean(pick('Recipient email'));\nconst highlights = clean(pick('Highlights / summary'));\nconst author = clean(pick('Prepared by')) || 'n8n automation';\nconst period = derivePeriod(periodLabel);\nconst validationErrors = [];\n\nif (!title) validationErrors.push('Report title is required.');\nif (!reportKey) validationErrors.push('Report key is required.');\nif (!recipientEmail || !/^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/.test(recipientEmail)) {\n  validationErrors.push('A valid recipient email is required.');\n}\nif (!period) {\n  validationErrors.push('Use Q3 2026, July 2026, 2026-07, or 2026-07-01 to 2026-09-30 for Period.');\n}\n\nreturn [{\n  json: {\n    requestValid: validationErrors.length === 0,\n    validationErrors,\n    title,\n    reportKey,\n    periodLabel,\n    periodStart: period?.start ?? '',\n    periodEnd: period?.end ?? '',\n    cadence: period?.cadence ?? 'Report',\n    recipientEmail,\n    highlights,\n    author,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9f19f271-7242-445d-8ce8-42ec96f1e68e",
+      "name": "Is the request valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        540,
+        1000
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "fb72ce3f-bce7-4040-88eb-d559bebb108e",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.requestValid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5bb9de96-6d47-444d-87ed-ee16c3a433b5",
+      "name": "Email request corrections",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        540,
+        1280
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Parse and validate the request').first().json.recipientEmail }}",
+        "message": "=Hi,\n\nWe couldn't create your report because the request needs correction:\n\n- {{ $('Parse and validate the request').first().json.validationErrors.join('\\n- ') }}\n\nSubmit the form again after correcting those fields.\n\n— n8n + pdfmill",
+        "options": {},
+        "subject": "=We couldn't create {{ $('Parse and validate the request').first().json.title || 'your report' }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "256730c8-047c-4458-8583-f987d3d7a034",
+      "name": "Load matching metrics from Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        880,
+        900
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "sheet",
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $('Parse and validate the request').first().json.reportKey }}",
+              "lookupColumn": "Report key"
+            },
+            {
+              "lookupValue": "={{ $('Parse and validate the request').first().json.periodLabel }}",
+              "lookupColumn": "Period"
+            }
+          ]
+        },
+        "operation": "read",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select metrics sheet"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "Select metrics spreadsheet"
+        }
+      },
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "6d51bd52-f3a6-4ae9-8b36-4fcc8ff28c00",
+      "name": "Build the report from metric rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1140,
+        900
+      ],
+      "parameters": {
+        "jsCode": "// Turn matching Google Sheets rows into the pdfmill report payload.\n// Expected columns: Report key, Period, Metric, Current, Previous, Change,\n// Direction, Section, Commentary. One row represents one report metric.\nconst request = $('Parse and validate the request').first().json;\nconst value = (row, ...names) => {\n  for (const name of names) {\n    if (row[name] !== undefined && row[name] !== null && String(row[name]).trim() !== '') {\n      return String(row[name]).trim();\n    }\n  }\n  return '';\n};\n\nconst rows = $input.all()\n  .map((item) => item.json ?? {})\n  .filter((row) => value(row, 'Metric', 'metric') && value(row, 'Current', 'current'));\n\nconst metrics = rows.map((row) => {\n  const direction = value(row, 'Direction', 'direction').toLowerCase();\n  return {\n    label: value(row, 'Metric', 'metric'),\n    current: value(row, 'Current', 'current'),\n    previous: value(row, 'Previous', 'previous') || '—',\n    change: value(row, 'Change', 'change') || '—',\n    direction: direction === 'down' ? 'down' : 'up',\n  };\n});\n\nconst seenSections = new Set();\nconst sections = [];\nfor (const row of rows) {\n  const heading = value(row, 'Section', 'section');\n  const body = value(row, 'Commentary', 'commentary');\n  const key = heading + '\\u0000' + body;\n  if (heading && body && !seenSections.has(key)) {\n    seenSections.add(key);\n    sections.push({ heading, body });\n  }\n}\n\nconst dataAvailable = metrics.length > 0;\nconst generatedAt = new Date().toISOString().slice(0, 10);\nconst safeTitle = request.title.replace(/[\\/:*?\"<>|]/g, '-');\nconst summary = request.highlights || (\n  dataAvailable\n    ? 'Automated summary built from ' + metrics.length + ' matching metric row' + (metrics.length === 1 ? '' : 's') + '.'\n    : ''\n);\n\nreturn [{\n  json: {\n    ...request,\n    dataAvailable,\n    missingReason: dataAvailable\n      ? ''\n      : 'No rows matched Report key \"' + request.reportKey + '\" and Period \"' + request.periodLabel + '\".',\n    kicker: request.cadence,\n    subtitle: request.periodLabel + ' performance summary',\n    generatedAt,\n    summary,\n    kpis: metrics.slice(0, 4).map((metric) => ({\n      label: metric.label,\n      value: metric.current,\n      delta: metric.change,\n      down: metric.direction === 'down',\n    })),\n    sections: sections.length\n      ? sections\n      : [{\n          heading: 'Report notes',\n          body: request.highlights || 'Add Section and Commentary values to the matching Google Sheets rows.',\n        }],\n    table: {\n      caption: 'Key metrics vs previous period',\n      rows: metrics.map((metric) => ({\n        label: metric.label,\n        current: metric.current,\n        previous: metric.previous,\n        change: metric.change,\n        direction: metric.direction,\n      })),\n    },\n    fileName: safeTitle + ' - ' + request.periodLabel + '.pdf',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3959182e-2aa0-4e50-832d-d633113eccb8",
+      "name": "Were matching metrics found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1400,
+        900
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9e164af2-5ffd-4753-8ccd-043d41aa1b02",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.dataAvailable }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "678400b3-b2f5-4ce4-8268-abd8a8507711",
+      "name": "Email that no metrics matched",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1400,
+        1200
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Parse and validate the request').first().json.recipientEmail }}",
+        "message": "=Hi,\n\n{{ $('Build the report from metric rows').first().json.missingReason }}\n\nCheck that the Google Sheet contains matching Report key and Period values, then submit the form again.\n\n— n8n + pdfmill",
+        "options": {},
+        "subject": "=No metrics found for {{ $('Parse and validate the request').first().json.title }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b532ddcf-f8e8-470a-89c4-4c887e0c308b",
+      "name": "Generate the report PDF",
+      "type": "n8n-nodes-pdfmill.pdfmill",
+      "position": [
+        1740,
+        820
+      ],
+      "parameters": {
+        "data": "={{ $json }}",
+        "format": "pdf",
+        "options": {},
+        "template": "report",
+        "operation": "template",
+        "binaryPropertyName": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d92febc-acbe-49c6-826f-08267ed8bff8",
+      "name": "Archive the report in Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2000,
+        760
+      ],
+      "parameters": {
+        "name": "={{ $('Build the report from metric rows').first().json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "aaa133f6-2553-4d83-8ee6-2820febfc7af",
+      "name": "Email the finished report",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2000,
+        1000
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Build the report from metric rows').first().json.recipientEmail }}",
+        "message": "=Hi,\n\nThe requested report — {{ $('Build the report from metric rows').first().json.title }} ({{ $('Build the report from metric rows').first().json.periodLabel }}) — is attached. It was built from {{ $('Build the report from metric rows').first().json.table.rows.length }} matching Google Sheets metric rows.\n\nPrepared by {{ $('Build the report from metric rows').first().json.author }}.\n\n— n8n + pdfmill",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "=Your report is ready — {{ $('Build the report from metric rows').first().json.title }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "baa30a22-cf2d-4f88-859e-47e410c450b8",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        20
+      ],
+      "parameters": {
+        "width": 1120,
+        "height": 700,
+        "content": "## 📊 Requested report → validated metrics → PDF\n\n**Who it's for:** operations, finance, and account teams that repeatedly build the same client or internal report from a shared metrics sheet.\n\n**What it does:** accepts a report request through an n8n Form, validates the period, loads matching metric rows from Google Sheets, rejects missing data with a useful email, renders the finished report with pdfmill, archives it in Drive, and emails the PDF.\n\n**Control flow**\n1. Parse the request and reject unsupported dates.\n2. Match **Report key + Period** against Google Sheets.\n3. Stop and notify the requester when no rows match.\n4. Aggregate rows into KPIs, narrative sections, and a comparison table.\n5. Render once, then deliver the same binary to Drive and Gmail.\n\n**Setup:** select the metrics spreadsheet and sheet; connect Google Sheets, Gmail, Drive, and pdfmill credentials; then share the Form Trigger URL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cf0fe456-e7e2-4c11-85af-e02f590e8201",
+      "name": "Section: Collect and validate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        760
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 860,
+        "height": 800,
+        "content": "## 1. Collect and validate\nThe form captures a report key, period, recipient, and optional context. Invalid period formats take the lower branch and receive a correction email; they never consume a render."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ce422b23-1f60-4002-8345-3c23997afee1",
+      "name": "Section: Load and verify metrics",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 840,
+        "height": 820,
+        "content": "## 2. Load and verify metrics\nGoogle Sheets returns rows matching both the report key and period. The Code node converts them into the report schema. An empty result takes the lower branch and tells the requester exactly what did not match."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "13cbcde7-7569-47a6-88b0-24896e39c168",
+      "name": "Section: Render and deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        620
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 720,
+        "content": "## 3. Render and deliver\npdfmill creates one PDF binary. n8n sends that same binary to Google Drive and Gmail, so the archived copy and requester attachment are identical."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c981cbc0-8d50-4473-88f1-a89bce53221b",
+      "name": "Setup: metrics sheet schema",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        820,
+        1540
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1080,
+        "height": 700,
+        "content": "## Metrics sheet schema\n\nCreate one row per metric with these exact headers:\n\n| Report key | Period | Metric | Current | Previous | Change | Direction | Section | Commentary |\n|---|---|---|---|---|---|---|---|---|\n| sales | Q3 2026 | Revenue | $128,400 | $114,200 | +12.4% | up | Performance | Revenue grew on enterprise expansion. |\n| sales | Q3 2026 | Churn rate | 2.9% | 2.5% | +0.4 pt | down | Next steps | Investigate churn by plan and cohort. |\n\n- **Report key** and **Period** must exactly match the form values.\n- **Metric** and **Current** are required for a row to count.\n- **Previous**, **Change**, and **Direction** populate the comparison table.\n- Repeating the same **Section + Commentary** is deduplicated.\n- `Direction = down` marks the KPI delta as adverse; other values render as up.\n\nThe Google Sheets node deliberately has no document selected. Choose your sheet during setup; never publish a real spreadsheet ID in a template."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Report request form": {
+      "main": [
+        [
+          {
+            "node": "Parse and validate the request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is the request valid?": {
+      "main": [
+        [
+          {
+            "node": "Load matching metrics from Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email request corrections",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate the report PDF": {
+      "main": [
+        [
+          {
+            "node": "Archive the report in Google Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email the finished report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Were matching metrics found?": {
+      "main": [
+        [
+          {
+            "node": "Generate the report PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Email that no metrics matched",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and validate the request": {
+      "main": [
+        [
+          {
+            "node": "Is the request valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the report from metric rows": {
+      "main": [
+        [
+          {
+            "node": "Were matching metrics found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load matching metrics from Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Build the report from metric rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

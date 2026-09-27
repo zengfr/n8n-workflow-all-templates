@@ -1,0 +1,973 @@
+{
+  "name": "Detect n8n workflows that succeed with zero output using the n8n API, Data Tables and Slack",
+  "nodes": [
+    {
+      "id": "3732f7f9-24db-44a4-aa99-ed99f1b8fcde",
+      "name": "Check Every Hour",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -400,
+        420
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 1,
+              "triggerAtMinute": 5
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "f2d236ad-c950-4faa-8b48-06d6ae82963e",
+      "name": "Watchdog Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -180,
+        420
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "sweep-started-at",
+              "name": "sweepStartedAt",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            },
+            {
+              "id": "grace-multiplier",
+              "name": "graceMultiplier",
+              "type": "number",
+              "value": 1.5
+            },
+            {
+              "id": "alert-cooldown",
+              "name": "alertCooldownMinutes",
+              "type": "number",
+              "value": 240
+            },
+            {
+              "id": "escalate-after",
+              "name": "escalateAfterMisses",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "instance-url",
+              "name": "instanceUrl",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__your n8n instance URL, e.g. https://your-instance.app.n8n.cloud__>"
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "85c97424-4f92-4523-b52c-3c6a4f9a6b8b",
+      "name": "Read The Watch List",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        40,
+        420
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "workflow_id",
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "resource": "row",
+        "matchType": "allConditions",
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workflow_output_watchdog"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6354c387-e131-4d6f-a9bb-276bebafe9a4",
+      "name": "Read The Ledger Back",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        540,
+        200
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "workflow_id",
+              "condition": "isNotEmpty"
+            }
+          ]
+        },
+        "resource": "row",
+        "matchType": "allConditions",
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workflow_output_watchdog"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0b568523-734b-4ac5-95d1-f2cce78dc691",
+      "name": "Summarise This Sweep",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        780,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const seen = new Set();\nconst rows = [];\nfor (const item of $input.all()) {\n  const key = item.json.workflow_id;\n  if (seen.has(key)) continue;\n  seen.add(key);\n  rows.push(item.json);\n}\n\nconst settings = $('Watchdog Settings').first().json;\nconst sweepStart = new Date(settings.sweepStartedAt);\n\nconst tally = { HEALTHY: 0, EMPTY: 0, STALE: 0, DARK: 0, UNREADABLE: 0, NOT_CHECKED: 0 };\nconst blindSpots = [];\nconst faults = [];\n\nfor (const row of rows) {\n  const checkedAt = row.last_checked_at ? new Date(row.last_checked_at) : null;\n  const checkedThisSweep = checkedAt !== null && !isNaN(checkedAt.getTime()) && checkedAt >= sweepStart;\n  const state = checkedThisSweep ? (String(row.last_state || '') || 'UNREADABLE') : 'NOT_CHECKED';\n  const name = row.label || row.workflow_id || 'unnamed row';\n\n  tally[state] = (tally[state] || 0) + 1;\n\n  if (state === 'UNREADABLE' || state === 'NOT_CHECKED') {\n    blindSpots.push(name + ' (' + state.toLowerCase().replace('_', ' ') + ')');\n  } else if (state !== 'HEALTHY') {\n    faults.push(name + ' (' + state.toLowerCase() + ')');\n  }\n}\n\nconst lines = [];\nif (blindSpots.length) {\n  lines.push(':mag: The watchdog could not check ' + blindSpots.length + ' of ' + rows.length + ' watched workflow(s) this sweep.');\n  lines.push('Not checked: ' + blindSpots.join(', ') + '.');\n  lines.push('A row named here was never given a verdict, so treat its state as unknown rather than healthy.');\n  if (faults.length) lines.push('Separately, still unhealthy: ' + faults.join(', ') + '.');\n} else {\n  lines.push('Checked all ' + rows.length + ' watched workflow(s) this sweep.');\n}\n\nreturn [{\n  json: {\n    watched: rows.length,\n    tally: tally,\n    faults: faults,\n    blindSpots: blindSpots,\n    blindSpotDecision: blindSpots.length > 0 ? 'report' : 'none',\n    text: lines.join('\\n')\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "347b9393-bf7e-43a1-bc4d-201770b45be4",
+      "name": "Did The Sweep Have Blind Spots?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1000,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.blindSpotDecision }}",
+              "rightValue": "report"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8350c066-5bb5-4304-8dff-f42eece74b1f",
+      "name": "Report The Blind Spots To Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        1240,
+        100
+      ],
+      "webhookId": "e2aca7c8-df43-4792-952b-f1a8ef3585c6",
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#n8n-alerts"
+        },
+        "operation": "post",
+        "messageType": "text",
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "accessToken"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "c00cbdf2-296d-413b-99e3-601ab8d82825",
+      "name": "Nothing To Report",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1240,
+        300
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e0d52a97-9ff8-4461-9d94-a95274e9bee3",
+      "name": "Get The Last Successful Run",
+      "type": "n8n-nodes-base.n8n",
+      "onError": "continueErrorOutput",
+      "position": [
+        540,
+        760
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "status": "success",
+          "workflowId": {
+            "__rl": true,
+            "mode": "id",
+            "value": "={{ $json.workflow_id }}"
+          }
+        },
+        "options": {},
+        "resource": "execution",
+        "operation": "getAll",
+        "returnAll": false
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "18cbb860-ce82-449b-9e15-4023a4426b5b",
+      "name": "Did It Run At All?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        760,
+        760
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.id }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e39988ad-8e7f-4441-8afe-92439c38223b",
+      "name": "Read What That Run Produced",
+      "type": "n8n-nodes-base.n8n",
+      "onError": "continueRegularOutput",
+      "position": [
+        1000,
+        660
+      ],
+      "parameters": {
+        "options": {
+          "activeWorkflows": true
+        },
+        "resource": "execution",
+        "operation": "get",
+        "executionId": "={{ $json.id }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "192e7272-14f4-4f5e-af03-e945326d6029",
+      "name": "Count What The Run Produced",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1220,
+        660
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const input = $input.first().json;\n\nlet raw = input.data;\nif (typeof raw === 'string') {\n  try { raw = JSON.parse(raw); } catch (e) { raw = null; }\n}\n\nconst runData = (raw && raw.resultData && raw.resultData.runData) || {};\nconst lastNode = (raw && raw.resultData && raw.resultData.lastNodeExecuted) || '';\nconst nodeNames = Object.keys(runData);\n\nfunction countItems(runs) {\n  let total = 0;\n  for (const run of runs || []) {\n    const branches = (run && run.data && run.data.main) || [];\n    for (const branch of branches) {\n      total += (branch || []).length;\n    }\n  }\n  return total;\n}\n\nlet producedByLastNode = 0;\nlet producedTotal = 0;\nconst perNode = {};\n\nfor (const name of nodeNames) {\n  const count = countItems(runData[name]);\n  perNode[name] = count;\n  producedTotal += count;\n  if (name === lastNode) producedByLastNode = count;\n}\n\nconst readable = nodeNames.length > 0;\n\nreturn [{\n  json: {\n    observed: readable,\n    readable: readable,\n    readError: readable ? '' : 'the execution returned no readable run data',\n    executionId: String(input.id || ''),\n    finishedAt: input.stoppedAt || input.startedAt || '',\n    lastNodeExecuted: lastNode,\n    producedItems: producedByLastNode,\n    producedTotal: producedTotal,\n    perNode: perNode\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "403580df-4892-4b95-8c72-d68d04f36cba",
+      "name": "Decide The Verdict",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1460,
+        660
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const observation = $input.first().json;\nconst row = $('Check Each Watched Workflow').first().json;\nconst settings = $('Watchdog Settings').first().json;\n\nconst now = new Date();\n\nfunction toDate(value) {\n  if (!value) return null;\n  const parsed = new Date(value);\n  return isNaN(parsed.getTime()) ? null : parsed;\n}\n\nfunction minutesSince(value) {\n  const parsed = toDate(value);\n  return parsed === null ? null : Math.round((now.getTime() - parsed.getTime()) / 60000);\n}\n\nfunction num(value, fallback) {\n  const parsed = Number(value);\n  return isFinite(parsed) ? parsed : fallback;\n}\n\nconst expectEvery = Math.max(1, num(row.expect_every_minutes, 1440));\nconst minItems = Math.max(0, num(row.min_items, 1));\nconst grace = Math.max(1, num(settings.graceMultiplier, 1.5));\nconst cooldown = Math.max(0, num(settings.alertCooldownMinutes, 240));\nconst escalateAfter = Math.max(1, num(settings.escalateAfterMisses, 3));\n\nconst staleAfter = expectEvery * grace;\nconst darkAfter = staleAfter * 3;\n\nconst ageMinutes = observation.observed ? minutesSince(observation.finishedAt) : null;\nconst produced = num(observation.producedItems, 0);\nconst producedTotal = num(observation.producedTotal, 0);\n\nlet state;\nlet headline;\n\nif (observation.readable === false) {\n  state = 'UNREADABLE';\n  headline = 'the watchdog could not read this workflow: ' + (observation.readError || 'unknown reason');\n} else if (!observation.observed) {\n  state = 'DARK';\n  headline = 'no successful run exists in the retained history';\n} else if (ageMinutes === null || ageMinutes > darkAfter) {\n  state = 'DARK';\n  headline = 'the last success is far outside the expected window';\n} else if (ageMinutes > staleAfter) {\n  state = 'STALE';\n  headline = 'nothing has succeeded inside the expected window';\n} else if (produced < minItems) {\n  state = 'EMPTY';\n  headline = 'the run finished green and produced nothing';\n} else {\n  state = 'HEALTHY';\n  headline = 'ran on time and produced data';\n}\n\nconst previousState = String(row.last_state || '') || 'UNKNOWN';\nconst stateChanged = state !== previousState;\nconst misses = state === 'HEALTHY' ? 0 : num(row.consecutive_misses, 0) + 1;\nconst minutesSinceAlert = minutesSince(row.last_alert_at);\nconst cooldownOver = minutesSinceAlert === null || minutesSinceAlert >= cooldown;\nconst escalated = misses >= escalateAfter;\nconst shouldAlert = state !== 'HEALTHY' && (stateChanged || (escalated && cooldownOver));\n\nconst label = row.label || row.workflow_id || 'unnamed workflow';\nconst rawBase = String(settings.instanceUrl || '').replace(/\\/+$/, '');\nconst base = /^https?:\\/\\//.test(rawBase) ? rawBase : '';\nlet link = '';\nif (base && row.workflow_id) {\n  link = base + '/workflow/' + row.workflow_id;\n  if (observation.executionId) link += '/executions/' + observation.executionId;\n}\n\nconst lines = [];\nlines.push((escalated ? ':rotating_light: ' : ':warning: ') + state + ' | ' + label);\nlines.push(headline.charAt(0).toUpperCase() + headline.slice(1) + '.');\nlines.push('Expected: a successful run every ' + expectEvery + ' min returning at least ' + minItems + ' item(s).');\nif (observation.observed) {\n  lines.push('Observed: last success ' + (ageMinutes === null ? 'at an unreadable time' : ageMinutes + ' min ago') + ', final node \"' + (observation.lastNodeExecuted || 'unknown') + '\" returned ' + produced + ' item(s), ' + producedTotal + ' across the whole run.');\n} else {\n  lines.push('Observed: nothing to read.');\n}\nlines.push('This state has now held for ' + misses + ' consecutive check(s).');\nif (link) lines.push(link);\n\nreturn [{\n  json: {\n    workflow_id: row.workflow_id || '',\n    label: label,\n    expect_every_minutes: expectEvery,\n    min_items: minItems,\n    state: state,\n    previousState: previousState,\n    stateChanged: stateChanged,\n    escalated: escalated,\n    consecutive_misses: misses,\n    ageMinutes: ageMinutes,\n    producedItems: produced,\n    producedTotal: producedTotal,\n    executionId: observation.executionId || '',\n    checkedAt: now.toISOString(),\n    healthyAt: state === 'HEALTHY' ? now.toISOString() : (row.last_healthy_at || ''),\n    alertAt: shouldAlert ? now.toISOString() : (row.last_alert_at || ''),\n    alertDecision: shouldAlert ? 'alert' : 'quiet',\n    alertText: lines.join('\\n')\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fdc138c7-8451-4591-b150-fdd75346ffd4",
+      "name": "Treat A Never-Run Workflow As Dark",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1000,
+        960
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "observed",
+              "name": "observed",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "readable",
+              "name": "readable",
+              "type": "boolean",
+              "value": true
+            },
+            {
+              "id": "read-error",
+              "name": "readError",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "execution-id",
+              "name": "executionId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "finished-at",
+              "name": "finishedAt",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "last-node",
+              "name": "lastNodeExecuted",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "produced-items",
+              "name": "producedItems",
+              "type": "number",
+              "value": 0
+            },
+            {
+              "id": "produced-total",
+              "name": "producedTotal",
+              "type": "number",
+              "value": 0
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "99ac2803-2c71-4492-8e15-d3f11659b1e9",
+      "name": "Note The n8n API Read Failed",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        760,
+        1080
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "observed",
+              "name": "observed",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "readable",
+              "name": "readable",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "read-error",
+              "name": "readError",
+              "type": "string",
+              "value": "={{ $json.error?.message ?? \"the n8n API call failed\" }}"
+            },
+            {
+              "id": "execution-id",
+              "name": "executionId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "finished-at",
+              "name": "finishedAt",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "last-node",
+              "name": "lastNodeExecuted",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "produced-items",
+              "name": "producedItems",
+              "type": "number",
+              "value": 0
+            },
+            {
+              "id": "produced-total",
+              "name": "producedTotal",
+              "type": "number",
+              "value": 0
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "bf3332a0-b3e9-4ecb-aa4b-396a6076844b",
+      "name": "Check Each Watched Workflow",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        280,
+        420
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 1
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "255d035a-a0a2-4190-a626-e2cd6f03fe58",
+      "name": "Record The Verdict",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1680,
+        660
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "label": "={{ $json.label }}",
+            "min_items": "={{ $json.min_items }}",
+            "last_state": "={{ $json.state }}",
+            "workflow_id": "={{ $json.workflow_id }}",
+            "last_alert_at": "={{ $json.alertAt }}",
+            "last_checked_at": "={{ $json.checkedAt }}",
+            "last_healthy_at": "={{ $json.healthyAt }}",
+            "last_execution_id": "={{ $json.executionId }}",
+            "consecutive_misses": "={{ $json.consecutive_misses }}",
+            "last_produced_items": "={{ $json.producedItems }}",
+            "expect_every_minutes": "={{ $json.expect_every_minutes }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "workflow_id"
+          ]
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "workflow_id",
+              "keyValue": "={{ $json.workflow_id }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "row",
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "workflow_output_watchdog"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "65f254a7-cccd-4837-93b9-88b422dc495b",
+      "name": "Worth Waking Someone?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1900,
+        660
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $(\"Decide The Verdict\").first().json.alertDecision }}",
+              "rightValue": "alert"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ac58a27e-4637-48f1-8174-d86ddee12a3b",
+      "name": "Post The Alert To Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        2140,
+        560
+      ],
+      "webhookId": "d5730ae6-cc6f-4ffd-9ce2-7de0bc5427eb",
+      "parameters": {
+        "text": "={{ $(\"Decide The Verdict\").first().json.alertText }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#n8n-alerts"
+        },
+        "operation": "post",
+        "messageType": "text",
+        "otherOptions": {
+          "mrkdwn": true,
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "accessToken"
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "12cdd76e-3f4a-46b9-ba4f-48bf640bb4d8",
+      "name": "Close The Loop",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2380,
+        660
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "4bafaefb-ffa1-4fc4-9fc3-0df10a64f9d1",
+      "name": "Stay Quiet",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2140,
+        760
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e7ff267a-3298-4a51-9c52-7140396ea780",
+      "name": "Sticky Note bf61fee5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1240,
+        60
+      ],
+      "parameters": {
+        "width": 760,
+        "height": 1460,
+        "content": "## Catch the workflows that succeed and produce nothing\n\nMost n8n monitoring watches for failures. An execution errors, the error trigger fires, somebody goes and fixes it. The run nobody catches is the other one: the schedule fires on time, every node goes green, and zero rows come out the far end. Nothing in n8n treats that as a problem, so the executions list fills up with ticks while the data quietly goes stale.\n\nI built this after one of my own scheduled jobs spent weeks reporting success and writing nothing. No error ever fired, because nothing had errored. So this workflow reads the item counts inside your own executions and treats an empty successful run as a fault in its own right.\n\n**Who's it for**\n\nAnyone running scheduled n8n workflows they cannot eyeball every morning. If you run a nightly sync or a scheduled scraper, an empty run and a good run look identical from the outside.\n\n**How it works**\n\nA Data Table holds one row per workflow you watch, carrying how often it should run and how many items a healthy run produces. Every hour the watchdog reads that list, asks the n8n API for each workflow's last successful execution, then opens that execution's run data and counts the items its final node actually returned. Each workflow lands in one of four states: HEALTHY, EMPTY for green but produced nothing, STALE for nothing succeeded inside the expected window, and DARK for nothing succeeded in a long time. The verdict is written back to the table, and Slack only hears about it when the state changes or the same fault survives the cooldown. At the end the watchdog reads the table back and names any row it could not check, so a blind spot arrives as a blind spot instead of a silent pass.\n\n**How to set up**\n\n1. Create a Data Table called workflow_output_watchdog with these columns: workflow_id (string), label (string), expect_every_minutes (number), min_items (number), last_state (string), consecutive_misses (number), last_checked_at (string), last_healthy_at (string), last_alert_at (string), last_produced_items (number), last_execution_id (string).\n2. Add one row per workflow you want watched. Set expect_every_minutes to its schedule and min_items to the smallest number of items a healthy run returns.\n3. Point both Data Table nodes at your table, then connect your n8n API credential and your Slack credential.\n4. Open Watchdog Settings and set your instance URL so every alert carries a clickable link to the execution behind it.\n\n**Requirements**\n\nAn n8n API credential and a Slack credential. Data Tables need to be available on your instance.\n\n**How to customize**\n\ngraceMultiplier decides how far past its schedule a workflow drifts before it counts as stale. alertCooldownMinutes and escalateAfterMisses control how loud a repeat fault gets. Swap the Slack nodes for Gmail, Telegram or a plain webhook without touching the logic. If a workflow legitimately returns nothing most of the time, set its min_items to 0 and it gets judged on freshness alone.\n\n---\n\nBuilt by **Fractional HQ** · https://fractionalhq.uk\n\n**Need help customising this, or want the whole thing built and handed over working?** I build automation systems for small teams. Get in touch: https://fractionalhq.uk/brief"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e5a025b9-3a50-480c-ad40-3c2687000535",
+      "name": "Sticky Note 485dcf76",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -230,
+        210
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 370,
+        "content": "## 1. Configure it in one place\n\nOne row per watched workflow lives in the Data Table. Watchdog Settings holds the thresholds, so changing how tolerant the watchdog is never means editing logic."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70a2ab07-94ca-4587-9a41-92d79cd871c4",
+      "name": "Sticky Note 3ccaa4f5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        490,
+        470
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 470,
+        "content": "## 2. Read what the run actually produced\n\nThe first call finds the last successful execution. The second opens that execution and counts the items its final node returned. If either call fails I mark the row unreadable, rather than quietly skipping it and calling the sweep complete."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70f7a394-73b3-4ce6-b0bc-7d85af9b6b6f",
+      "name": "Sticky Note 8bda12a5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1420,
+        450
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 370,
+        "content": "## 3. Decide, then remember\n\nFour states, written back to the same row. The stored state is what lets the next sweep tell a brand new fault from one that has been sitting there since Tuesday."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "636e5fb2-f87b-4efb-a35d-ed3518325618",
+      "name": "Sticky Note 4345b223",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1850,
+        370
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 550,
+        "content": "## 4. Alert only when it earns it\n\nA state change goes to Slack immediately. A fault that persists waits out the cooldown, and anything past escalateAfterMisses arrives marked as escalated."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bb219345-8870-445c-adb9-e93e6389dea8",
+      "name": "Sticky Note a8fd5a42",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        280,
+        30
+      ],
+      "parameters": {
+        "width": 940,
+        "height": 330,
+        "content": "## 5. Report the watchdog's own blind spots\n\nThe ledger gets read back after the sweep. Any row that was not checked this run is named in the report, because I would rather see a gap than trust a monitor that hides its own."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cda05fcc-10f4-45d9-9fe4-1f331395aad4",
+      "name": "Read The Ledger Once",
+      "type": "n8n-nodes-base.limit",
+      "position": [
+        320,
+        200
+      ],
+      "parameters": {
+        "keep": "firstItems",
+        "maxItems": 1
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Stay Quiet": {
+      "main": [
+        [
+          {
+            "node": "Close The Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Close The Loop": {
+      "main": [
+        [
+          {
+            "node": "Check Each Watched Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Every Hour": {
+      "main": [
+        [
+          {
+            "node": "Watchdog Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watchdog Settings": {
+      "main": [
+        [
+          {
+            "node": "Read The Watch List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide The Verdict": {
+      "main": [
+        [
+          {
+            "node": "Record The Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did It Run At All?": {
+      "main": [
+        [
+          {
+            "node": "Read What That Run Produced",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Treat A Never-Run Workflow As Dark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record The Verdict": {
+      "main": [
+        [
+          {
+            "node": "Worth Waking Someone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Watch List": {
+      "main": [
+        [
+          {
+            "node": "Check Each Watched Workflow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Ledger Back": {
+      "main": [
+        [
+          {
+            "node": "Summarise This Sweep",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Ledger Once": {
+      "main": [
+        [
+          {
+            "node": "Read The Ledger Back",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise This Sweep": {
+      "main": [
+        [
+          {
+            "node": "Did The Sweep Have Blind Spots?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Worth Waking Someone?": {
+      "main": [
+        [
+          {
+            "node": "Post The Alert To Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stay Quiet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post The Alert To Slack": {
+      "main": [
+        [
+          {
+            "node": "Close The Loop",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Each Watched Workflow": {
+      "main": [
+        [
+          {
+            "node": "Read The Ledger Once",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Get The Last Successful Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count What The Run Produced": {
+      "main": [
+        [
+          {
+            "node": "Decide The Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get The Last Successful Run": {
+      "main": [
+        [
+          {
+            "node": "Did It Run At All?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Note The n8n API Read Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read What That Run Produced": {
+      "main": [
+        [
+          {
+            "node": "Count What The Run Produced",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Note The n8n API Read Failed": {
+      "main": [
+        [
+          {
+            "node": "Decide The Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did The Sweep Have Blind Spots?": {
+      "main": [
+        [
+          {
+            "node": "Report The Blind Spots To Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nothing To Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Treat A Never-Run Workflow As Dark": {
+      "main": [
+        [
+          {
+            "node": "Decide The Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Monitor empty successful workflows via the n8n API, Data Tables and Slack",
+    "wechat": "youandme10086",
+    "id": 18914,
+    "update_time": "2026-09-27"
+  }
+}

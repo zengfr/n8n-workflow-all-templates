@@ -1,4 +1,4 @@
-# churn : 16
+# churn : 24
 
 |id|file|
 |----|----|
@@ -18,3 +18,11 @@
 |16013|[16013_Score_Shopify_customer_churn_risk_and_sync_results_to_Klaviyo__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16013_Score_Shopify_customer_churn_risk_and_sync_results_to_Klaviyo__Slack__and_Gmail.json)|
 |16333|[16333_Recover_failed_Stripe_payments_with_GPT-4o__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16333_Recover_failed_Stripe_payments_with_GPT-4o__Gmail__Sheets__and_Slack.json)|
 |16716|[16716_Score_customer_health_and_churn_risk_with_Salesforce__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16716_Score_customer_health_and_churn_risk_with_Salesforce__Gemini__and_Gmail.json)|
+|16871|[16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json)|
+|17449|[17449_Monitor_churn_risk_from_competitor_job_posts_with_JSearch__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17449_Monitor_churn_risk_from_competitor_job_posts_with_JSearch__Google_Sheets__and_Gmail.json)|
+|17552|[17552_Score_customer_churn_risk_and_send_save-play_emails_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17552_Score_customer_churn_risk_and_send_save-play_emails_with_Claude_and_Gmail.json)|
+|17797|[17797_Track_Stripe_cancellations_and_classify_churn_reasons_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17797_Track_Stripe_cancellations_and_classify_churn_reasons_with_Claude_and_Gmail.json)|
+|18276|[18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json)|
+|18681|[18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json)|
+|19502|[19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json)|
+|19796|[19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json)|

@@ -1,0 +1,739 @@
+{
+  "name": "Track Vinted UK search matches and price changes in Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "dc1814a87ac8b593dde403eb",
+      "name": "Start manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cb1c068988a324f1f8e3f2d1",
+      "name": "Listing watch settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "5cd329f9d91bc35e48e2c134",
+              "name": "catalogUrl",
+              "type": "string",
+              "value": "https://www.vinted.co.uk/catalog?search_text=nike"
+            },
+            {
+              "id": "a0b7d6d2449f1dad3db8d670",
+              "name": "stateNamespace",
+              "type": "string",
+              "value": "my-vinted-watch"
+            },
+            {
+              "id": "f30b8f8b5b9bf2c0e7933423",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": "REPLACE_WITH_SPREADSHEET_ID"
+            },
+            {
+              "id": "6a30163b17811b1c60aac305",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Vinted Watch"
+            },
+            {
+              "id": "1c4d0e371a7422d8ff2617e0",
+              "name": "maxCostPerRunUsd",
+              "type": "number",
+              "value": 0.1
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "9cc88c1c23003041fba45d85",
+      "name": "Validate settings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='QFXAKxCU3MotriOO0';\r\nconst BUILD_ID='VIv36DmfmtDftpTEz';\r\nconst BUILD_TAG='vinted-release-20260906g';\r\nconst COLUMNS=['upsertKey','listingId','title','brand','size','condition','price','previousPrice','currency','changeKind','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\r\nfunction preflight(c){\r\n const match=String(c.catalogUrl??'').trim().match(/^https:\\/\\/www\\.vinted\\.co\\.uk\\/catalog\\/?\\?([^#]+)$/);\r\n if(!match)throw Error('Paste one public Vinted UK catalog URL with search filters.');\r\n const allowed=['search_text','catalog_ids','brand_ids','size_ids','status_ids','color_ids','price_from','price_to','currency','order'];const query={};\r\n for(const pair of match[1].split('&')){const i=pair.indexOf('=');if(i<0)throw Error('Invalid catalog parameter.');const key=decodeURIComponent(pair.slice(0,i)).replace(/\\[\\]$/,'');const value=decodeURIComponent(pair.slice(i+1).replace(/\\+/g,' ')).trim();if(!allowed.includes(key)||!value||value.length>1000)throw Error('Unsupported or empty catalog parameter: '+key);(query[key]??=[]).push(value);}\r\n const encoded=Object.keys(query).sort().map(k=>encodeURIComponent(k)+'='+encodeURIComponent([...new Set(query[k])].join(','))).join('&');\r\n if(!encoded||/REPLACE/i.test(encoded))throw Error('Set actual Vinted filters.');\r\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\r\n if(!String(c.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and stable watch name.');\r\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.05||cap>0.5)throw Error('Use an Actor charge cap between $0.05 and $0.50.');\r\n const catalogUrl='https://www.vinted.co.uk/catalog?'+encoded;\r\n return {...c,catalogUrl,maxCostPerRunUsd:cap,scope:JSON.stringify([c.stateNamespace,catalogUrl,24,2]),actorInput:{workflow:'monitor',catalogUrls:[catalogUrl],maxListings:24,maxListingsPerTarget:24,maxPagesPerTarget:2,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new',includeUnchanged:true,maxRuntimeSecs:120,maxBuyerChargeUsd:Math.ceil(cap)}};\r\n}\r\nfunction classify(response,now=Date.now()){\r\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\r\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\r\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run, never automatically repeat the paid call.');\r\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\r\n}\r\nfunction bounds(summary){\r\n if(summary.workflow!=='monitor'||summary.actorKey!=='vinted_listing_price_monitor'||!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(summary.coverageState)||summary.stateCommitted!==true||summary.targetsRequested!==1)throw Error('Untrusted monitoring coverage; Sheet unchanged.');\r\n if(!Number.isInteger(summary.deliveredCount)||summary.deliveredCount<0||summary.deliveredCount>24||summary.deduplicatedCount!==summary.deliveredCount)throw Error('Invalid listing count.');\r\n return summary.deliveredCount+1;\r\n}\r\nfunction reconcile({config,run,summary,rows}){\r\n if(!Array.isArray(rows)||rows.length<bounds(summary)||rows.length>501||summary.runIdentity?.runId!==run.id||summary.runIdentity?.actorId!==ACTOR_ID)throw Error('Dataset or run identity mismatch.');\r\n const listings=new Map(),changes=new Map();let coverage;\r\n for(const r of rows){if(r.recordType==='coverage'){if(coverage)throw Error('Duplicate coverage');coverage=r;continue;}\r\n  const id=String(r.listingId??'');if(!/^\\d+$/.test(id)||r.stableId!=='vinted:listing:'+id)throw Error('Unstable listing identity.');const map=r.recordType==='listing'?listings:r.recordType==='change'?changes:null;\r\n  if(!map||map.has(id))throw Error('Unexpected or duplicate listing row.');if(map===changes&&!['NEW','PRICE_DROP','PRICE_RISE','STATUS_CHANGED','GONE'].includes(r.changeKind))throw Error('Unexpected change type.');map.set(id,r);\r\n }\r\n if(!coverage||coverage.coverageStatus!==summary.coverageState||coverage.scopeFingerprint!==summary.scopeFingerprint||coverage.deliveredCount!==summary.deliveredCount||listings.size!==summary.deliveredCount)throw Error('Coverage and listing counts do not reconcile.');\r\n const gone=[...changes.values()].filter(x=>x.changeKind==='GONE');\r\n if(gone.length&&(!summary.absenceComparable||!coverage.absenceComparable||!summary.removalsEvaluated||summary.coverageState==='CAPPED'))throw Error('Absence is not proven.');\r\n for(const [id,r]of changes)if(r.changeKind==='GONE'?listings.has(id):!listings.has(id))throw Error('Change has inconsistent snapshot.');\r\n const events=summary.billing?.events,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\r\n let charge=0;for(const [event,count]of Object.entries({source_target:1,listing_result:listings.size})){const receipt=events?.[event];const price=prices?.[event]?.eventPriceUsd;if(!receipt||receipt.accepted!==count||receipt.suppressed!==0||!Number.isFinite(price)||price<0||summary.billing.runtimePricesUsd?.[event]!==price)throw Error('Unreconciled billing receipt.');charge+=price*count;}\r\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\r\n return [...listings.values(),...gone].map(r=>{const change=changes.get(String(r.listingId)),kind=change?.changeKind??'UNCHANGED';return {upsertKey:'vinted|'+config.scope+'|'+r.listingId,listingId:String(r.listingId),title:r.title??'',brand:r.brand??'',size:r.size??'',condition:r.status??'',price:r.priceAmount??'',previousPrice:change?.previousPriceAmount??'',currency:r.currency??'',changeKind:kind,listingUrl:r.url??'',observedAt:r.collectedAt,coverageStatus:summary.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\r\n}\r\n\nreturn [{json:preflight($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6dc66c0aef72804fbf9ca196",
+      "name": "Run Vinted once",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        880,
+        160
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/QFXAKxCU3MotriOO0/runs",
+        "method": "POST",
+        "options": {
+          "timeout": 70000
+        },
+        "jsonBody": "={{ JSON.stringify($('Validate settings').first().json.actorInput) }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "build",
+              "value": "vinted-release-20260906g"
+            },
+            {
+              "name": "timeout",
+              "value": "300"
+            },
+            {
+              "name": "memory",
+              "value": "512"
+            },
+            {
+              "name": "waitForFinish",
+              "value": "60"
+            },
+            {
+              "name": "maxTotalChargeUsd",
+              "value": "={{ $('Validate settings').first().json.maxCostPerRunUsd }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "22e5e2d5f408d71314e2a464",
+      "name": "Check run status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='QFXAKxCU3MotriOO0';\r\nconst BUILD_ID='VIv36DmfmtDftpTEz';\r\nconst BUILD_TAG='vinted-release-20260906g';\r\nconst COLUMNS=['upsertKey','listingId','title','brand','size','condition','price','previousPrice','currency','changeKind','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\r\nfunction preflight(c){\r\n const match=String(c.catalogUrl??'').trim().match(/^https:\\/\\/www\\.vinted\\.co\\.uk\\/catalog\\/?\\?([^#]+)$/);\r\n if(!match)throw Error('Paste one public Vinted UK catalog URL with search filters.');\r\n const allowed=['search_text','catalog_ids','brand_ids','size_ids','status_ids','color_ids','price_from','price_to','currency','order'];const query={};\r\n for(const pair of match[1].split('&')){const i=pair.indexOf('=');if(i<0)throw Error('Invalid catalog parameter.');const key=decodeURIComponent(pair.slice(0,i)).replace(/\\[\\]$/,'');const value=decodeURIComponent(pair.slice(i+1).replace(/\\+/g,' ')).trim();if(!allowed.includes(key)||!value||value.length>1000)throw Error('Unsupported or empty catalog parameter: '+key);(query[key]??=[]).push(value);}\r\n const encoded=Object.keys(query).sort().map(k=>encodeURIComponent(k)+'='+encodeURIComponent([...new Set(query[k])].join(','))).join('&');\r\n if(!encoded||/REPLACE/i.test(encoded))throw Error('Set actual Vinted filters.');\r\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\r\n if(!String(c.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and stable watch name.');\r\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.05||cap>0.5)throw Error('Use an Actor charge cap between $0.05 and $0.50.');\r\n const catalogUrl='https://www.vinted.co.uk/catalog?'+encoded;\r\n return {...c,catalogUrl,maxCostPerRunUsd:cap,scope:JSON.stringify([c.stateNamespace,catalogUrl,24,2]),actorInput:{workflow:'monitor',catalogUrls:[catalogUrl],maxListings:24,maxListingsPerTarget:24,maxPagesPerTarget:2,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new',includeUnchanged:true,maxRuntimeSecs:120,maxBuyerChargeUsd:Math.ceil(cap)}};\r\n}\r\nfunction classify(response,now=Date.now()){\r\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\r\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\r\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run, never automatically repeat the paid call.');\r\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\r\n}\r\nfunction bounds(summary){\r\n if(summary.workflow!=='monitor'||summary.actorKey!=='vinted_listing_price_monitor'||!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(summary.coverageState)||summary.stateCommitted!==true||summary.targetsRequested!==1)throw Error('Untrusted monitoring coverage; Sheet unchanged.');\r\n if(!Number.isInteger(summary.deliveredCount)||summary.deliveredCount<0||summary.deliveredCount>24||summary.deduplicatedCount!==summary.deliveredCount)throw Error('Invalid listing count.');\r\n return summary.deliveredCount+1;\r\n}\r\nfunction reconcile({config,run,summary,rows}){\r\n if(!Array.isArray(rows)||rows.length<bounds(summary)||rows.length>501||summary.runIdentity?.runId!==run.id||summary.runIdentity?.actorId!==ACTOR_ID)throw Error('Dataset or run identity mismatch.');\r\n const listings=new Map(),changes=new Map();let coverage;\r\n for(const r of rows){if(r.recordType==='coverage'){if(coverage)throw Error('Duplicate coverage');coverage=r;continue;}\r\n  const id=String(r.listingId??'');if(!/^\\d+$/.test(id)||r.stableId!=='vinted:listing:'+id)throw Error('Unstable listing identity.');const map=r.recordType==='listing'?listings:r.recordType==='change'?changes:null;\r\n  if(!map||map.has(id))throw Error('Unexpected or duplicate listing row.');if(map===changes&&!['NEW','PRICE_DROP','PRICE_RISE','STATUS_CHANGED','GONE'].includes(r.changeKind))throw Error('Unexpected change type.');map.set(id,r);\r\n }\r\n if(!coverage||coverage.coverageStatus!==summary.coverageState||coverage.scopeFingerprint!==summary.scopeFingerprint||coverage.deliveredCount!==summary.deliveredCount||listings.size!==summary.deliveredCount)throw Error('Coverage and listing counts do not reconcile.');\r\n const gone=[...changes.values()].filter(x=>x.changeKind==='GONE');\r\n if(gone.length&&(!summary.absenceComparable||!coverage.absenceComparable||!summary.removalsEvaluated||summary.coverageState==='CAPPED'))throw Error('Absence is not proven.');\r\n for(const [id,r]of changes)if(r.changeKind==='GONE'?listings.has(id):!listings.has(id))throw Error('Change has inconsistent snapshot.');\r\n const events=summary.billing?.events,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\r\n let charge=0;for(const [event,count]of Object.entries({source_target:1,listing_result:listings.size})){const receipt=events?.[event];const price=prices?.[event]?.eventPriceUsd;if(!receipt||receipt.accepted!==count||receipt.suppressed!==0||!Number.isFinite(price)||price<0||summary.billing.runtimePricesUsd?.[event]!==price)throw Error('Unreconciled billing receipt.');charge+=price*count;}\r\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\r\n return [...listings.values(),...gone].map(r=>{const change=changes.get(String(r.listingId)),kind=change?.changeKind??'UNCHANGED';return {upsertKey:'vinted|'+config.scope+'|'+r.listingId,listingId:String(r.listingId),title:r.title??'',brand:r.brand??'',size:r.size??'',condition:r.status??'',price:r.priceAmount??'',previousPrice:change?.previousPriceAmount??'',currency:r.currency??'',changeKind:kind,listingUrl:r.url??'',observedAt:r.collectedAt,coverageStatus:summary.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\r\n}\r\n\nreturn [{json:classify($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "298395dae6d3d410d42346fa",
+      "name": "Run finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1360,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "eeec5902906e9c3482946867",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "80cb8bfab56c5fad0e6b4708",
+      "name": "Wait five seconds",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1360,
+        432
+      ],
+      "webhookId": "10567c2f663ecf5eca36738f",
+      "parameters": {
+        "unit": "seconds",
+        "amount": 5,
+        "resume": "timeInterval"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "712bd5e57b18c1688a9ad33d",
+      "name": "Read existing run",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        432
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $json.run.id }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1c1b3bf15cf0f60b15c230af",
+      "name": "Read authoritative output",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1776,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/key-value-stores/' + $('Check run status').item.json.run.defaultKeyValueStoreId + '/records/OUTPUT' }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ad0856e4098f607b4e385d79",
+      "name": "Check output bounds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2016,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='QFXAKxCU3MotriOO0';\r\nconst BUILD_ID='VIv36DmfmtDftpTEz';\r\nconst BUILD_TAG='vinted-release-20260906g';\r\nconst COLUMNS=['upsertKey','listingId','title','brand','size','condition','price','previousPrice','currency','changeKind','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\r\nfunction preflight(c){\r\n const match=String(c.catalogUrl??'').trim().match(/^https:\\/\\/www\\.vinted\\.co\\.uk\\/catalog\\/?\\?([^#]+)$/);\r\n if(!match)throw Error('Paste one public Vinted UK catalog URL with search filters.');\r\n const allowed=['search_text','catalog_ids','brand_ids','size_ids','status_ids','color_ids','price_from','price_to','currency','order'];const query={};\r\n for(const pair of match[1].split('&')){const i=pair.indexOf('=');if(i<0)throw Error('Invalid catalog parameter.');const key=decodeURIComponent(pair.slice(0,i)).replace(/\\[\\]$/,'');const value=decodeURIComponent(pair.slice(i+1).replace(/\\+/g,' ')).trim();if(!allowed.includes(key)||!value||value.length>1000)throw Error('Unsupported or empty catalog parameter: '+key);(query[key]??=[]).push(value);}\r\n const encoded=Object.keys(query).sort().map(k=>encodeURIComponent(k)+'='+encodeURIComponent([...new Set(query[k])].join(','))).join('&');\r\n if(!encoded||/REPLACE/i.test(encoded))throw Error('Set actual Vinted filters.');\r\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\r\n if(!String(c.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and stable watch name.');\r\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.05||cap>0.5)throw Error('Use an Actor charge cap between $0.05 and $0.50.');\r\n const catalogUrl='https://www.vinted.co.uk/catalog?'+encoded;\r\n return {...c,catalogUrl,maxCostPerRunUsd:cap,scope:JSON.stringify([c.stateNamespace,catalogUrl,24,2]),actorInput:{workflow:'monitor',catalogUrls:[catalogUrl],maxListings:24,maxListingsPerTarget:24,maxPagesPerTarget:2,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new',includeUnchanged:true,maxRuntimeSecs:120,maxBuyerChargeUsd:Math.ceil(cap)}};\r\n}\r\nfunction classify(response,now=Date.now()){\r\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\r\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\r\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run, never automatically repeat the paid call.');\r\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\r\n}\r\nfunction bounds(summary){\r\n if(summary.workflow!=='monitor'||summary.actorKey!=='vinted_listing_price_monitor'||!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(summary.coverageState)||summary.stateCommitted!==true||summary.targetsRequested!==1)throw Error('Untrusted monitoring coverage; Sheet unchanged.');\r\n if(!Number.isInteger(summary.deliveredCount)||summary.deliveredCount<0||summary.deliveredCount>24||summary.deduplicatedCount!==summary.deliveredCount)throw Error('Invalid listing count.');\r\n return summary.deliveredCount+1;\r\n}\r\nfunction reconcile({config,run,summary,rows}){\r\n if(!Array.isArray(rows)||rows.length<bounds(summary)||rows.length>501||summary.runIdentity?.runId!==run.id||summary.runIdentity?.actorId!==ACTOR_ID)throw Error('Dataset or run identity mismatch.');\r\n const listings=new Map(),changes=new Map();let coverage;\r\n for(const r of rows){if(r.recordType==='coverage'){if(coverage)throw Error('Duplicate coverage');coverage=r;continue;}\r\n  const id=String(r.listingId??'');if(!/^\\d+$/.test(id)||r.stableId!=='vinted:listing:'+id)throw Error('Unstable listing identity.');const map=r.recordType==='listing'?listings:r.recordType==='change'?changes:null;\r\n  if(!map||map.has(id))throw Error('Unexpected or duplicate listing row.');if(map===changes&&!['NEW','PRICE_DROP','PRICE_RISE','STATUS_CHANGED','GONE'].includes(r.changeKind))throw Error('Unexpected change type.');map.set(id,r);\r\n }\r\n if(!coverage||coverage.coverageStatus!==summary.coverageState||coverage.scopeFingerprint!==summary.scopeFingerprint||coverage.deliveredCount!==summary.deliveredCount||listings.size!==summary.deliveredCount)throw Error('Coverage and listing counts do not reconcile.');\r\n const gone=[...changes.values()].filter(x=>x.changeKind==='GONE');\r\n if(gone.length&&(!summary.absenceComparable||!coverage.absenceComparable||!summary.removalsEvaluated||summary.coverageState==='CAPPED'))throw Error('Absence is not proven.');\r\n for(const [id,r]of changes)if(r.changeKind==='GONE'?listings.has(id):!listings.has(id))throw Error('Change has inconsistent snapshot.');\r\n const events=summary.billing?.events,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\r\n let charge=0;for(const [event,count]of Object.entries({source_target:1,listing_result:listings.size})){const receipt=events?.[event];const price=prices?.[event]?.eventPriceUsd;if(!receipt||receipt.accepted!==count||receipt.suppressed!==0||!Number.isFinite(price)||price<0||summary.billing.runtimePricesUsd?.[event]!==price)throw Error('Unreconciled billing receipt.');charge+=price*count;}\r\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\r\n return [...listings.values(),...gone].map(r=>{const change=changes.get(String(r.listingId)),kind=change?.changeKind??'UNCHANGED';return {upsertKey:'vinted|'+config.scope+'|'+r.listingId,listingId:String(r.listingId),title:r.title??'',brand:r.brand??'',size:r.size??'',condition:r.status??'',price:r.priceAmount??'',previousPrice:change?.previousPriceAmount??'',currency:r.currency??'',changeKind:kind,listingUrl:r.url??'',observedAt:r.collectedAt,coverageStatus:summary.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\r\n}\r\n\nconst summary=$input.first().json; bounds(summary); return [{json:{summary,run:$('Check run status').item.json.run}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "013e1bd554c901c61ccbe352",
+      "name": "Read complete bounded dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2256,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $json.run.defaultDatasetId + '/items' }}",
+        "options": {
+          "timeout": 70000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "502"
+            },
+            {
+              "name": "clean",
+              "value": "true"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "79248a6ca10bf58b7f2023b1",
+      "name": "Build verified Sheet rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2656,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='QFXAKxCU3MotriOO0';\r\nconst BUILD_ID='VIv36DmfmtDftpTEz';\r\nconst BUILD_TAG='vinted-release-20260906g';\r\nconst COLUMNS=['upsertKey','listingId','title','brand','size','condition','price','previousPrice','currency','changeKind','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\r\nfunction preflight(c){\r\n const match=String(c.catalogUrl??'').trim().match(/^https:\\/\\/www\\.vinted\\.co\\.uk\\/catalog\\/?\\?([^#]+)$/);\r\n if(!match)throw Error('Paste one public Vinted UK catalog URL with search filters.');\r\n const allowed=['search_text','catalog_ids','brand_ids','size_ids','status_ids','color_ids','price_from','price_to','currency','order'];const query={};\r\n for(const pair of match[1].split('&')){const i=pair.indexOf('=');if(i<0)throw Error('Invalid catalog parameter.');const key=decodeURIComponent(pair.slice(0,i)).replace(/\\[\\]$/,'');const value=decodeURIComponent(pair.slice(i+1).replace(/\\+/g,' ')).trim();if(!allowed.includes(key)||!value||value.length>1000)throw Error('Unsupported or empty catalog parameter: '+key);(query[key]??=[]).push(value);}\r\n const encoded=Object.keys(query).sort().map(k=>encodeURIComponent(k)+'='+encodeURIComponent([...new Set(query[k])].join(','))).join('&');\r\n if(!encoded||/REPLACE/i.test(encoded))throw Error('Set actual Vinted filters.');\r\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\r\n if(!String(c.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and stable watch name.');\r\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.05||cap>0.5)throw Error('Use an Actor charge cap between $0.05 and $0.50.');\r\n const catalogUrl='https://www.vinted.co.uk/catalog?'+encoded;\r\n return {...c,catalogUrl,maxCostPerRunUsd:cap,scope:JSON.stringify([c.stateNamespace,catalogUrl,24,2]),actorInput:{workflow:'monitor',catalogUrls:[catalogUrl],maxListings:24,maxListingsPerTarget:24,maxPagesPerTarget:2,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new',includeUnchanged:true,maxRuntimeSecs:120,maxBuyerChargeUsd:Math.ceil(cap)}};\r\n}\r\nfunction classify(response,now=Date.now()){\r\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\r\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\r\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run, never automatically repeat the paid call.');\r\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\r\n}\r\nfunction bounds(summary){\r\n if(summary.workflow!=='monitor'||summary.actorKey!=='vinted_listing_price_monitor'||!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(summary.coverageState)||summary.stateCommitted!==true||summary.targetsRequested!==1)throw Error('Untrusted monitoring coverage; Sheet unchanged.');\r\n if(!Number.isInteger(summary.deliveredCount)||summary.deliveredCount<0||summary.deliveredCount>24||summary.deduplicatedCount!==summary.deliveredCount)throw Error('Invalid listing count.');\r\n return summary.deliveredCount+1;\r\n}\r\nfunction reconcile({config,run,summary,rows}){\r\n if(!Array.isArray(rows)||rows.length<bounds(summary)||rows.length>501||summary.runIdentity?.runId!==run.id||summary.runIdentity?.actorId!==ACTOR_ID)throw Error('Dataset or run identity mismatch.');\r\n const listings=new Map(),changes=new Map();let coverage;\r\n for(const r of rows){if(r.recordType==='coverage'){if(coverage)throw Error('Duplicate coverage');coverage=r;continue;}\r\n  const id=String(r.listingId??'');if(!/^\\d+$/.test(id)||r.stableId!=='vinted:listing:'+id)throw Error('Unstable listing identity.');const map=r.recordType==='listing'?listings:r.recordType==='change'?changes:null;\r\n  if(!map||map.has(id))throw Error('Unexpected or duplicate listing row.');if(map===changes&&!['NEW','PRICE_DROP','PRICE_RISE','STATUS_CHANGED','GONE'].includes(r.changeKind))throw Error('Unexpected change type.');map.set(id,r);\r\n }\r\n if(!coverage||coverage.coverageStatus!==summary.coverageState||coverage.scopeFingerprint!==summary.scopeFingerprint||coverage.deliveredCount!==summary.deliveredCount||listings.size!==summary.deliveredCount)throw Error('Coverage and listing counts do not reconcile.');\r\n const gone=[...changes.values()].filter(x=>x.changeKind==='GONE');\r\n if(gone.length&&(!summary.absenceComparable||!coverage.absenceComparable||!summary.removalsEvaluated||summary.coverageState==='CAPPED'))throw Error('Absence is not proven.');\r\n for(const [id,r]of changes)if(r.changeKind==='GONE'?listings.has(id):!listings.has(id))throw Error('Change has inconsistent snapshot.');\r\n const events=summary.billing?.events,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\r\n let charge=0;for(const [event,count]of Object.entries({source_target:1,listing_result:listings.size})){const receipt=events?.[event];const price=prices?.[event]?.eventPriceUsd;if(!receipt||receipt.accepted!==count||receipt.suppressed!==0||!Number.isFinite(price)||price<0||summary.billing.runtimePricesUsd?.[event]!==price)throw Error('Unreconciled billing receipt.');charge+=price*count;}\r\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\r\n return [...listings.values(),...gone].map(r=>{const change=changes.get(String(r.listingId)),kind=change?.changeKind??'UNCHANGED';return {upsertKey:'vinted|'+config.scope+'|'+r.listingId,listingId:String(r.listingId),title:r.title??'',brand:r.brand??'',size:r.size??'',condition:r.status??'',price:r.priceAmount??'',previousPrice:change?.previousPriceAmount??'',currency:r.currency??'',changeKind:kind,listingUrl:r.url??'',observedAt:r.collectedAt,coverageStatus:summary.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\r\n}\r\n\nconst bound=$('Check output bounds').first().json; const rows=$input.first().json.body; if(!Array.isArray(rows)||rows.length>=502)throw Error('Dataset is invalid or larger than the supported delivery window; inspect original run.'); return reconcile({config:$('Validate settings').first().json,run:bound.run,summary:bound.summary,rows}).map(json=>({json}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e71b68fd2f9cb63640578332",
+      "name": "Upsert listings in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 2,
+      "position": [
+        2896,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "upsertKey",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "upsertKey",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "listingId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "listingId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "brand",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "brand",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "size",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "size",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "condition",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "condition",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "price",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "previousPrice",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "previousPrice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "currency",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "currency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "changeKind",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "changeKind",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "listingUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "listingUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "observedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "observedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "coverageStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "coverageStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "estimatedActorChargeUsd",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "estimatedActorChargeUsd",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "runUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "runUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "upsertKey"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Validate settings').first().json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Validate settings').first().json.spreadsheetId }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.6,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "c9daec1d32b30289ee7069b4",
+      "name": "Return delivery receipt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3136,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='QFXAKxCU3MotriOO0';\r\nconst BUILD_ID='VIv36DmfmtDftpTEz';\r\nconst BUILD_TAG='vinted-release-20260906g';\r\nconst COLUMNS=['upsertKey','listingId','title','brand','size','condition','price','previousPrice','currency','changeKind','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\r\nfunction preflight(c){\r\n const match=String(c.catalogUrl??'').trim().match(/^https:\\/\\/www\\.vinted\\.co\\.uk\\/catalog\\/?\\?([^#]+)$/);\r\n if(!match)throw Error('Paste one public Vinted UK catalog URL with search filters.');\r\n const allowed=['search_text','catalog_ids','brand_ids','size_ids','status_ids','color_ids','price_from','price_to','currency','order'];const query={};\r\n for(const pair of match[1].split('&')){const i=pair.indexOf('=');if(i<0)throw Error('Invalid catalog parameter.');const key=decodeURIComponent(pair.slice(0,i)).replace(/\\[\\]$/,'');const value=decodeURIComponent(pair.slice(i+1).replace(/\\+/g,' ')).trim();if(!allowed.includes(key)||!value||value.length>1000)throw Error('Unsupported or empty catalog parameter: '+key);(query[key]??=[]).push(value);}\r\n const encoded=Object.keys(query).sort().map(k=>encodeURIComponent(k)+'='+encodeURIComponent([...new Set(query[k])].join(','))).join('&');\r\n if(!encoded||/REPLACE/i.test(encoded))throw Error('Set actual Vinted filters.');\r\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId))throw Error('Set the spreadsheet ID before paid work.');\r\n if(!String(c.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(c.stateNamespace??''))throw Error('Set a Sheet tab and stable watch name.');\r\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.05||cap>0.5)throw Error('Use an Actor charge cap between $0.05 and $0.50.');\r\n const catalogUrl='https://www.vinted.co.uk/catalog?'+encoded;\r\n return {...c,catalogUrl,maxCostPerRunUsd:cap,scope:JSON.stringify([c.stateNamespace,catalogUrl,24,2]),actorInput:{workflow:'monitor',catalogUrls:[catalogUrl],maxListings:24,maxListingsPerTarget:24,maxPagesPerTarget:2,stateNamespace:c.stateNamespace,firstRunBehavior:'emit_current_as_new',includeUnchanged:true,maxRuntimeSecs:120,maxBuyerChargeUsd:Math.ceil(cap)}};\r\n}\r\nfunction classify(response,now=Date.now()){\r\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\r\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\r\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run, never automatically repeat the paid call.');\r\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\r\n}\r\nfunction bounds(summary){\r\n if(summary.workflow!=='monitor'||summary.actorKey!=='vinted_listing_price_monitor'||!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(summary.coverageState)||summary.stateCommitted!==true||summary.targetsRequested!==1)throw Error('Untrusted monitoring coverage; Sheet unchanged.');\r\n if(!Number.isInteger(summary.deliveredCount)||summary.deliveredCount<0||summary.deliveredCount>24||summary.deduplicatedCount!==summary.deliveredCount)throw Error('Invalid listing count.');\r\n return summary.deliveredCount+1;\r\n}\r\nfunction reconcile({config,run,summary,rows}){\r\n if(!Array.isArray(rows)||rows.length<bounds(summary)||rows.length>501||summary.runIdentity?.runId!==run.id||summary.runIdentity?.actorId!==ACTOR_ID)throw Error('Dataset or run identity mismatch.');\r\n const listings=new Map(),changes=new Map();let coverage;\r\n for(const r of rows){if(r.recordType==='coverage'){if(coverage)throw Error('Duplicate coverage');coverage=r;continue;}\r\n  const id=String(r.listingId??'');if(!/^\\d+$/.test(id)||r.stableId!=='vinted:listing:'+id)throw Error('Unstable listing identity.');const map=r.recordType==='listing'?listings:r.recordType==='change'?changes:null;\r\n  if(!map||map.has(id))throw Error('Unexpected or duplicate listing row.');if(map===changes&&!['NEW','PRICE_DROP','PRICE_RISE','STATUS_CHANGED','GONE'].includes(r.changeKind))throw Error('Unexpected change type.');map.set(id,r);\r\n }\r\n if(!coverage||coverage.coverageStatus!==summary.coverageState||coverage.scopeFingerprint!==summary.scopeFingerprint||coverage.deliveredCount!==summary.deliveredCount||listings.size!==summary.deliveredCount)throw Error('Coverage and listing counts do not reconcile.');\r\n const gone=[...changes.values()].filter(x=>x.changeKind==='GONE');\r\n if(gone.length&&(!summary.absenceComparable||!coverage.absenceComparable||!summary.removalsEvaluated||summary.coverageState==='CAPPED'))throw Error('Absence is not proven.');\r\n for(const [id,r]of changes)if(r.changeKind==='GONE'?listings.has(id):!listings.has(id))throw Error('Change has inconsistent snapshot.');\r\n const events=summary.billing?.events,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\r\n let charge=0;for(const [event,count]of Object.entries({source_target:1,listing_result:listings.size})){const receipt=events?.[event];const price=prices?.[event]?.eventPriceUsd;if(!receipt||receipt.accepted!==count||receipt.suppressed!==0||!Number.isFinite(price)||price<0||summary.billing.runtimePricesUsd?.[event]!==price)throw Error('Unreconciled billing receipt.');charge+=price*count;}\r\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\r\n return [...listings.values(),...gone].map(r=>{const change=changes.get(String(r.listingId)),kind=change?.changeKind??'UNCHANGED';return {upsertKey:'vinted|'+config.scope+'|'+r.listingId,listingId:String(r.listingId),title:r.title??'',brand:r.brand??'',size:r.size??'',condition:r.status??'',price:r.priceAmount??'',previousPrice:change?.previousPriceAmount??'',currency:r.currency??'',changeKind:kind,listingUrl:r.url??'',observedAt:r.collectedAt,coverageStatus:summary.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};});\r\n}\r\n\nconst rows=$('Build verified Sheet rows').all().map(x=>x.json); return [{json:{status:'SHEETS_WRITTEN',rows:rows.length,coverageStatus:rows[0].coverageStatus,estimatedActorChargeUsd:rows[0].estimatedActorChargeUsd,runUrl:rows[0].runUrl}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "764953264cdbfe1cd35e6cac",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        -1056
+      ],
+      "parameters": {
+        "width": 1120,
+        "height": 900,
+        "content": "## Track Vinted UK search matches in Google Sheets\n\nKeep a shortlist of second-hand listings that match a public Vinted UK search. This workflow helps buyers and resellers compare observed prices and condition changes without repeatedly copying listings into a spreadsheet. It does not buy items or estimate resale profit.\n\n### How it works\nOne bounded Apify run reads up to 24 listings from your catalog URL, including its brand, size, condition and price filters. A stable watch tracks newly observed listings and factual price or condition changes. First-run matches are labelled NEW even if posted earlier. The workflow verifies source and billing receipts before upserting one Sheet row per listing and watch scope. CAPPED means only a bounded sample was checked; it never proves an unseen item disappeared. Failed or partial checks stop delivery. Existing observations remain in the Sheet with their last observation time. The Sheet stores latest observations, not a complete inventory or event history.\n\n### Setup\n1. Create an Apify Header Auth credential: name Authorization, value Bearer followed by your token. Select it on all four HTTP nodes.\n2. Connect Google Sheets OAuth2. Create a Vinted Watch tab with the supplied CSV headers and keep upsertKey as the only matching column.\n3. Enter your spreadsheet ID and filtered UK catalog URL in Listing watch settings. The Nike example is a starting point; only supported public filter parameters are accepted.\n4. Run manually and inspect the result before repeating sequentially. Keep the watch name and filters stable.\n5. Apify usage is paid, including unchanged verified listings. The default $0.10 cap limits Actor charges. No credits, Telegram alerts or automatic purchases are included."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dfe659097a5a3e4e15dad835",
+      "name": "Configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 680,
+        "content": "## 1. Configure\nSet one public UK catalog URL and your Sheet destination. Keep the watch name stable. Validation rejects unsupported filters before paid work."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3e1cfdc22b41d69938d0e4a9",
+      "name": "Run",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 2. Run once and wait\nOnly the first HTTP call starts an Actor. Polling reads the existing run; failures stop before any Sheet write."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a7a00b97b2741ed78926361",
+      "name": "Verify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 3. Verify output\nCheck source coverage, billing receipts and dataset size. CAPPED is an observed sample; partial or failed checks stop delivery. Read every record before writing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71d41b27f7b96e04568cf99c",
+      "name": "Deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 4. Update your register\nUpdate one row per listing and watch scope. Preserve last-observed timestamps and coverage labels. Only Sheets may retry; no paid Actor retry."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 480
+  },
+  "connections": {
+    "Run finished?": {
+      "main": [
+        [
+          {
+            "node": "Read authoritative output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait five seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start manually": {
+      "main": [
+        [
+          {
+            "node": "Listing watch settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Vinted once": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check run status": {
+      "main": [
+        [
+          {
+            "node": "Run finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing run": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate settings": {
+      "main": [
+        [
+          {
+            "node": "Run Vinted once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait five seconds": {
+      "main": [
+        [
+          {
+            "node": "Read existing run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check output bounds": {
+      "main": [
+        [
+          {
+            "node": "Read complete bounded dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Listing watch settings": {
+      "main": [
+        [
+          {
+            "node": "Validate settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build verified Sheet rows": {
+      "main": [
+        [
+          {
+            "node": "Upsert listings in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read authoritative output": {
+      "main": [
+        [
+          {
+            "node": "Check output bounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read complete bounded dataset": {
+      "main": [
+        [
+          {
+            "node": "Build verified Sheet rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert listings in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Return delivery receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track Vinted UK listing matches and price changes with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19303,
+    "update_time": "2026-09-27"
+  }
+}

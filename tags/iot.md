@@ -1,4 +1,4 @@
-# iot : 9
+# iot : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |11909|[11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11909_IoT_sensor_monitoring_with_GPT-4o_anomaly_detection__MQTT___multi-channel_alerts.json)|
 |11946|[11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11946_Real-time_IoT_incident_management_with_Jira___Slack_technician_alerts.json)|
 |12198|[12198_Monitor_IoT_sustainability_compliance_and_ESG_reports_with_OpenAI__Airtable__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12198_Monitor_IoT_sustainability_compliance_and_ESG_reports_with_OpenAI__Airtable__Slack_and_Gmail.json)|
+|17511|[17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17511_Score_cold-chain_batch_recall_risk_from_IoT_excursions_with_Anthropic_and_email_alerts.json)|
+|18399|[18399_Send_daily_Azure_IoT_Hub_fleet_health_reports_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18399_Send_daily_Azure_IoT_Hub_fleet_health_reports_with_OpenAI_and_Gmail.json)|

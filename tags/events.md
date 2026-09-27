@@ -1,4 +1,4 @@
-# events : 73
+# events : 84
 
 |id|file|
 |----|----|
@@ -75,3 +75,14 @@
 |16097|[16097_Create_Google_Calendar_events_from_labeled_Gmail_confirmations_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16097_Create_Google_Calendar_events_from_labeled_Gmail_confirmations_with_easybits_Extractor.json)|
 |16440|[16440_Manage_Google_Calendar_events_with_Zalo_Bot__OpenAI_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16440_Manage_Google_Calendar_events_with_Zalo_Bot__OpenAI_and_Gemini.json)|
 |16498|[16498_Send_daily_product_newsletters_via_Gmail_and_track_events_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16498_Send_daily_product_newsletters_via_Gmail_and_track_events_in_Google_Sheets.json)|
+|16998|[16998_Track_RSS_events_with_OpenAI_GPT-4.1-mini__Google_Sheets__and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16998_Track_RSS_events_with_OpenAI_GPT-4.1-mini__Google_Sheets__and_Outlook.json)|
+|17041|[17041_Monitor_ride_surge_events_and_analyze_ride_errors_with_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17041_Monitor_ride_surge_events_and_analyze_ride_errors_with_Sheets__Slack_and_Gemini.json)|
+|17195|[17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json)|
+|17269|[17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17269_Sync_Asana_task_due_dates_with_Google_Calendar_events.json)|
+|17361|[17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json)|
+|17668|[17668_Extract_event_listings_to_Google_Sheets_with_Snapshot_Site_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17668_Extract_event_listings_to_Google_Sheets_with_Snapshot_Site_and_OpenAI.json)|
+|17845|[17845_Sync_HeyReach_LinkedIn_events_with_Salesforce_leads_and_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17845_Sync_HeyReach_LinkedIn_events_with_Salesforce_leads_and_tasks.json)|
+|19134|[19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json)|
+|19178|[19178_Handle_WhatsApp_event_bookings_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19178_Handle_WhatsApp_event_bookings_with_OpenAI_and_Google_Sheets.json)|
+|19342|[19342_Plan_Luma_events_by_city_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19342_Plan_Luma_events_by_city_with_Apify_and_Google_Sheets.json)|
+|19379|[19379_Sync_Facebook_events_to_Google_Calendar_using_Apify_s_Facebook_Events_Scraper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19379_Sync_Facebook_events_to_Google_Calendar_using_Apify_s_Facebook_Events_Scraper.json)|

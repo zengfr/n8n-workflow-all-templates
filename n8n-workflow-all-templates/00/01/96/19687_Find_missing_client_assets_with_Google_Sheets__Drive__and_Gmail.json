@@ -1,0 +1,1015 @@
+{
+  "name": "Find missing client assets with Google Sheets, Drive and Gmail",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ba548e9d135fce02f59192866f439cd1",
+      "name": "Run a preview",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "b1b66b08601b7df6a95750647ea1753b",
+      "name": "Check every morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        350
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 9,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "89be19070444a31de7dd05f54cf7adb8",
+      "name": "Edit template settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        240
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "adc91748-432a-41a6-b843-d3253389cd47",
+              "name": "dataMode",
+              "type": "string",
+              "value": "demo"
+            },
+            {
+              "id": "927a9b3b-daec-47fc-a9b2-8be99486c873",
+              "name": "enableEffects",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "408f3f2e-f219-452e-98d1-0ed4408ce2af",
+              "name": "allowManualEffects",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "1c3e731d-777f-40c7-817e-642832c515ca",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": "REPLACE_SPREADSHEET_ID"
+            },
+            {
+              "id": "6e50fab0-ccb7-4764-91b7-5b62874cbea0",
+              "name": "intakeFolderId",
+              "type": "string",
+              "value": "REPLACE_INTAKE_FOLDER_ID"
+            },
+            {
+              "id": "b64fb12b-faba-4129-bda7-7dc3abe4642f",
+              "name": "internalRecipient",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "d4b5d2ac-4673-41cc-b9e0-ce7413e3e224",
+              "name": "lookaheadDays",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "7478994b-2fa7-429b-9452-d4e524c3efd2",
+              "name": "draftCooldownDays",
+              "type": "number",
+              "value": 3
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "511603b410e13779462c9709886def9f",
+      "name": "Validate settings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        240
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function str(v) { return v === null || v === undefined ? '' : String(v).trim(); }\nfunction email(v) { return /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\\.[A-Za-z]{2,}$/.test(str(v)) && str(v).length <= 254 && !/[\\s,;<>]/.test(str(v)); }\nfunction day(v) {\n  const s=str(v); if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(s)) return null;\n  const n=Date.parse(s+'T00:00:00Z');\n  return Number.isFinite(n) && new Date(n).toISOString().slice(0,10)===s ? n/86400000 : null;\n}\nfunction bool(v) { if(v===true || str(v).toLowerCase()==='true') return true; if(v===false || str(v).toLowerCase()==='false') return false; return null; }\nfunction validateSettings(raw, runtime) {\n  const c={...raw,nowIso:runtime.nowIso,today:runtime.today,executionMode:runtime.executionMode};\n  if (!['test','production'].includes(c.executionMode)) throw new Error('Unknown execution mode; external effects blocked.');\n  if(day(c.today)===null || !Number.isFinite(Date.parse(c.nowIso))) throw new Error('Invalid workflow clock.');\n  if(!['demo','live'].includes(c.dataMode)) throw new Error('dataMode must be demo or live.');\n  for(const k of ['enableEffects','allowManualEffects']) if(typeof c[k]!=='boolean') throw new Error(k+' must be a boolean.');\n  for(const [k,min,max] of [['lookaheadDays',0,30],['draftCooldownDays',1,30]]) {\n    if(!Number.isInteger(c[k]) || c[k]<min || c[k]>max) throw new Error(k+' is outside the supported range.');\n  }\n  if(c.executionMode==='production' && c.dataMode!=='live') throw new Error('Scheduled runs require dataMode=live. Demo is manual only.');\n  if(c.dataMode==='live') {\n    for(const k of ['spreadsheetId','intakeFolderId']) if(!/^[A-Za-z0-9_-]{10,}$/.test(str(c[k])) || str(c[k]).startsWith('REPLACE')) throw new Error('Configure '+k+' with an ID, not a URL.');\n    if(!email(c.internalRecipient) || /@example\\.(com|net|org)$/i.test(c.internalRecipient)) throw new Error('Set internalRecipient to your own real email address.');\n  }\n  c.effectsAllowed=c.dataMode==='live' && c.enableEffects && (c.executionMode==='production' || c.allowManualEffects);\n  c.limits={requirements:200,files:1000,history:5000,clients:20,bodyChars:80000};\n  return c;\n}\nreturn [{json:validateSettings($input.first().json,{nowIso:$now.toISO(),today:$now.toISODate(),executionMode:$execution.mode})}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "72626d4a095021271d4f34cb9bbbd60e",
+      "name": "Use fictional demo?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        720,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "9dddf653-21c8-4228-85a0-da1ae45ad949",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.dataMode === \"demo\" }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "aa63557d6552b4f7fc5049d116f5abca",
+      "name": "Load fictional demo",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        960,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function str(v) { return v === null || v === undefined ? '' : String(v).trim(); }\nfunction email(v) { return /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\\.[A-Za-z]{2,}$/.test(str(v)) && str(v).length <= 254 && !/[\\s,;<>]/.test(str(v)); }\nfunction day(v) {\n  const s=str(v); if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(s)) return null;\n  const n=Date.parse(s+'T00:00:00Z');\n  return Number.isFinite(n) && new Date(n).toISOString().slice(0,10)===s ? n/86400000 : null;\n}\nfunction bool(v) { if(v===true || str(v).toLowerCase()==='true') return true; if(v===false || str(v).toLowerCase()==='false') return false; return null; }\nconst HISTORY_FIELDS=[\"event_type\",\"recipient\",\"event_key\",\"provider_id\",\"created_at\"];\nfunction demoInputs(c) {\n  const date=(offset)=>new Date((day(c.today)+offset)*86400000).toISOString().slice(0,10);\n  const row=(project,req,overrides={})=>({project_id:project,project_name:project==='WEB-001'?'Acme website':'Bright brand kit',client_email:project==='WEB-001'?'user@example.com':'user@example.com',owner_name:'Maya',project_status:'active',requirement_id:req,requirement_name:req,required:true,due_date:date(-2),review_status:'unreviewed',reviewed_file_id:'',reviewed_version:'',client_change_request:'',...overrides});\n  const file=(p,r,id,version='1')=>({id,name:p+'__'+r+'__sample.txt',version,mimeType:'text/plain',webViewLink:'https://drive.google.com/file/d/'+id+'/view'});\n  return {config:c,requirements:[\n    row('WEB-001','LOGO',{requirement_name:'Company logo',review_status:'approved',reviewed_file_id:'demo-logo',reviewed_version:'2'}),\n    row('WEB-001','COPY',{requirement_name:'Homepage copy'}),\n    row('WEB-001','PHOTOS',{requirement_name:'Product photos'}),\n    row('BRAND-002','BRIEF',{requirement_name:'Brand brief',review_status:'needs_changes',reviewed_file_id:'demo-brief',reviewed_version:'1',client_change_request:'Please add your target audience and preferred launch date.'}),\n    row('WEB-001','VIDEO',{requirement_name:'Optional introduction video',required:false}),\n    row('PAUSE-003','ASSETS',{project_name:'Paused project',project_status:'paused'})\n  ],files:[file('WEB-001','LOGO','demo-logo','2'),file('WEB-001','COPY','demo-copy'),file('BRAND-002','BRIEF','demo-brief')],history:[Object.fromEntries(HISTORY_FIELDS.map(k=>[k,k==='event_type'?'seed':'']))],draftIds:[]};\n}\nreturn [{json:demoInputs($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ce7ddb99138ee792ffefcbdd1e8a78fa",
+      "name": "Read requirements",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        960,
+        390
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate settings').first().json.spreadsheetId + '/values/Requirements!A:M' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "majorDimension",
+              "value": "ROWS"
+            },
+            {
+              "name": "valueRenderOption",
+              "value": "UNFORMATTED_VALUE"
+            },
+            {
+              "name": "dateTimeRenderOption",
+              "value": "FORMATTED_STRING"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "0615d3bf1ef468f971352d2a9ca2feb1",
+      "name": "Read receipt history",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1200,
+        390
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate settings').first().json.spreadsheetId + '/values/History!A:E' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "majorDimension",
+              "value": "ROWS"
+            },
+            {
+              "name": "valueRenderOption",
+              "value": "UNFORMATTED_VALUE"
+            },
+            {
+              "name": "dateTimeRenderOption",
+              "value": "FORMATTED_STRING"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "21f396365d55868c3d8c72026476a938",
+      "name": "Check intake folder",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1440,
+        390
+      ],
+      "parameters": {
+        "url": "={{ 'https://www.googleapis.com/drive/v3/files/' + $('Validate settings').first().json.intakeFolderId }}",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "fields",
+              "value": "id,mimeType,trashed,driveId"
+            },
+            {
+              "name": "supportsAllDrives",
+              "value": "true"
+            }
+          ]
+        },
+        "nodeCredentialType": "googleDriveOAuth2Api"
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "dad0e1c1bc76fb8b929acbc116a49abd",
+      "name": "Validate intake folder",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1680,
+        390
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const f=$input.first().json,c=$('Validate settings').first().json;\nif(!f || f.id!==c.intakeFolderId || f.mimeType!=='application/vnd.google-apps.folder' || f.trashed!==false) throw new Error('Intake folder is invalid, inaccessible or trashed. No missing-file conclusions will be drawn.');\nif(f.driveId && !/^[A-Za-z0-9_-]+$/.test(f.driveId)) throw new Error('Invalid shared drive metadata.');\nconst query={q:\"'\"+f.id+\"' in parents and trashed = false and mimeType != 'application/vnd.google-apps.folder'\",pageSize:1000,spaces:'drive',corpora:f.driveId?'drive':'user',includeItemsFromAllDrives:true,supportsAllDrives:true,fields:'nextPageToken,incompleteSearch,files(id,name,mimeType,version,webViewLink)'};\nif(f.driveId) query.driveId=f.driveId;\nreturn [{json:{query}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "24c84e4b1ed55a5cd13569450c363944",
+      "name": "List intake files",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1920,
+        390
+      ],
+      "parameters": {
+        "url": "https://www.googleapis.com/drive/v3/files",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonQuery": "={{ JSON.stringify($('Validate intake folder').first().json.query) }}",
+        "sendQuery": true,
+        "specifyQuery": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleDriveOAuth2Api"
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "01cc6f394cf30a2473faa964b9a95bf5",
+      "name": "List open draft IDs",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        2160,
+        390
+      ],
+      "parameters": {
+        "url": "https://gmail.googleapis.com/gmail/v1/users/me/drafts",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "specifyQuery": "keypair",
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "maxResults",
+              "value": "500"
+            },
+            {
+              "name": "fields",
+              "value": "drafts(id),nextPageToken"
+            }
+          ]
+        },
+        "nodeCredentialType": "gmailOAuth2"
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "dbcfca87fa0e58d896fb9b8fb376ee13",
+      "name": "Prepare live inputs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2400,
+        390
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "function str(v) { return v === null || v === undefined ? '' : String(v).trim(); }\nfunction parseSheetValues(payload,fields,label) {\n  if(!payload || !Array.isArray(payload.values) || !Array.isArray(payload.values[0])) throw new Error(label+' has no header row.');\n  if(payload.majorDimension && payload.majorDimension!=='ROWS') throw new Error(label+' must be read as rows.');\n  const headers=payload.values[0].map(str);\n  if(headers.length!==fields.length || fields.some((k,i)=>headers[i]!==k)) throw new Error(label+' headers are missing, reordered or duplicated; restore the supplied header row.');\n  return payload.values.slice(1).map((row,i)=>{\n    if(!Array.isArray(row) || row.length>fields.length) throw new Error(label+' has an invalid row.');\n    return Object.fromEntries([['row_number',i+2],...fields.map((k,j)=>[k,row[j]??''])]);\n  });\n}\nconst d=$input.first().json;\nif(!d || typeof d!=='object' || Array.isArray(d) || d.error) throw new Error('Gmail draft metadata response is invalid.');\nif(d.nextPageToken) throw new Error('More than 500 mailbox drafts. Reduce draft count before running this template.');\nif(d.drafts!==undefined && (!Array.isArray(d.drafts) || d.drafts.some(x=>!x || typeof x.id!=='string' || !x.id))) throw new Error('Invalid Gmail draft ID list.');\nconst f=$('List intake files').first().json;\nif(!f || typeof f!=='object' || Array.isArray(f) || f.error) throw new Error('Invalid Drive listing response.');\nif(f.incompleteSearch || f.nextPageToken) throw new Error('Drive search is incomplete or has another page. Reduce the intake folder size; no reminders were composed.');\nif(f.files!==undefined && !Array.isArray(f.files)) throw new Error('Invalid Drive files list.');\nconst requirements=parseSheetValues($('Read requirements').first().json,[\"project_id\",\"project_name\",\"client_email\",\"owner_name\",\"project_status\",\"requirement_id\",\"requirement_name\",\"required\",\"due_date\",\"review_status\",\"reviewed_file_id\",\"reviewed_version\",\"client_change_request\"],'Requirements');\nconst history=parseSheetValues($('Read receipt history').first().json,[\"event_type\",\"recipient\",\"event_key\",\"provider_id\",\"created_at\"],'History');\nreturn [{json:{config:$('Validate settings').first().json,requirements,history,files:f.files||[],draftIds:(d.drafts||[]).map(x=>x.id)}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bc79b17c5469f915b2c3b4ddc3874505",
+      "name": "Evaluate readiness",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2640,
+        200
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "'use strict';\n\n// Original DravenIQ implementation. Dependency-free for n8n Code nodes.\nconst REQUIREMENT_FIELDS = ['project_id','project_name','client_email','owner_name','project_status','requirement_id','requirement_name','required','due_date','review_status','reviewed_file_id','reviewed_version','client_change_request'];\nconst HISTORY_FIELDS = ['event_type','recipient','event_key','provider_id','created_at'];\nfunction str(v) { return v === null || v === undefined ? '' : String(v).trim(); }\nfunction line(v) { return str(v).replace(/[\\r\\n\\x00-\\x1f\\x7f]/g,' ').slice(0,500); }\nfunction email(v) { return /^[A-Za-z0-9.!#$%&'*+/=?^_`{|}~-]+@[A-Za-z0-9](?:[A-Za-z0-9.-]*[A-Za-z0-9])?\\.[A-Za-z]{2,}$/.test(str(v)) && str(v).length <= 254 && !/[\\s,;<>]/.test(str(v)); }\nfunction day(v) {\n  const s=str(v); if (!/^\\d{4}-\\d{2}-\\d{2}$/.test(s)) return null;\n  const n=Date.parse(s+'T00:00:00Z');\n  return Number.isFinite(n) && new Date(n).toISOString().slice(0,10)===s ? n/86400000 : null;\n}\nfunction bool(v) { if(v===true || str(v).toLowerCase()==='true') return true; if(v===false || str(v).toLowerCase()==='false') return false; return null; }\nfunction parseSheetValues(payload,fields,label) {\n  if(!payload || !Array.isArray(payload.values) || !Array.isArray(payload.values[0])) throw new Error(label+' has no header row.');\n  if(payload.majorDimension && payload.majorDimension!=='ROWS') throw new Error(label+' must be read as rows.');\n  const headers=payload.values[0].map(str);\n  if(headers.length!==fields.length || fields.some((k,i)=>headers[i]!==k)) throw new Error(label+' headers are missing, reordered or duplicated; restore the supplied header row.');\n  return payload.values.slice(1).map((row,i)=>{\n    if(!Array.isArray(row) || row.length>fields.length) throw new Error(label+' has an invalid row.');\n    return Object.fromEntries([['row_number',i+2],...fields.map((k,j)=>[k,row[j]??''])]);\n  });\n}\nfunction validateSettings(raw, runtime) {\n  const c={...raw,nowIso:runtime.nowIso,today:runtime.today,executionMode:runtime.executionMode};\n  if (!['test','production'].includes(c.executionMode)) throw new Error('Unknown execution mode; external effects blocked.');\n  if(day(c.today)===null || !Number.isFinite(Date.parse(c.nowIso))) throw new Error('Invalid workflow clock.');\n  if(!['demo','live'].includes(c.dataMode)) throw new Error('dataMode must be demo or live.');\n  for(const k of ['enableEffects','allowManualEffects']) if(typeof c[k]!=='boolean') throw new Error(k+' must be a boolean.');\n  for(const [k,min,max] of [['lookaheadDays',0,30],['draftCooldownDays',1,30]]) {\n    if(!Number.isInteger(c[k]) || c[k]<min || c[k]>max) throw new Error(k+' is outside the supported range.');\n  }\n  if(c.executionMode==='production' && c.dataMode!=='live') throw new Error('Scheduled runs require dataMode=live. Demo is manual only.');\n  if(c.dataMode==='live') {\n    for(const k of ['spreadsheetId','intakeFolderId']) if(!/^[A-Za-z0-9_-]{10,}$/.test(str(c[k])) || str(c[k]).startsWith('REPLACE')) throw new Error('Configure '+k+' with an ID, not a URL.');\n    if(!email(c.internalRecipient) || /@example\\.(com|net|org)$/i.test(c.internalRecipient)) throw new Error('Set internalRecipient to your own real email address.');\n  }\n  c.effectsAllowed=c.dataMode==='live' && c.enableEffects && (c.executionMode==='production' || c.allowManualEffects);\n  c.limits={requirements:200,files:1000,history:5000,clients:20,bodyChars:80000};\n  return c;\n}\nfunction demoInputs(c) {\n  const date=(offset)=>new Date((day(c.today)+offset)*86400000).toISOString().slice(0,10);\n  const row=(project,req,overrides={})=>({project_id:project,project_name:project==='WEB-001'?'Acme website':'Bright brand kit',client_email:project==='WEB-001'?'user@example.com':'user@example.com',owner_name:'Maya',project_status:'active',requirement_id:req,requirement_name:req,required:true,due_date:date(-2),review_status:'unreviewed',reviewed_file_id:'',reviewed_version:'',client_change_request:'',...overrides});\n  const file=(p,r,id,version='1')=>({id,name:p+'__'+r+'__sample.txt',version,mimeType:'text/plain',webViewLink:'https://drive.google.com/file/d/'+id+'/view'});\n  return {config:c,requirements:[\n    row('WEB-001','LOGO',{requirement_name:'Company logo',review_status:'approved',reviewed_file_id:'demo-logo',reviewed_version:'2'}),\n    row('WEB-001','COPY',{requirement_name:'Homepage copy'}),\n    row('WEB-001','PHOTOS',{requirement_name:'Product photos'}),\n    row('BRAND-002','BRIEF',{requirement_name:'Brand brief',review_status:'needs_changes',reviewed_file_id:'demo-brief',reviewed_version:'1',client_change_request:'Please add your target audience and preferred launch date.'}),\n    row('WEB-001','VIDEO',{requirement_name:'Optional introduction video',required:false}),\n    row('PAUSE-003','ASSETS',{project_name:'Paused project',project_status:'paused'})\n  ],files:[file('WEB-001','LOGO','demo-logo','2'),file('WEB-001','COPY','demo-copy'),file('BRAND-002','BRIEF','demo-brief')],history:[Object.fromEntries(HISTORY_FIELDS.map(k=>[k,k==='event_type'?'seed':'']))],draftIds:[]};\n}\nfunction evaluate(input) {\n  const {config:c}=input;\n  if(!c || !c.limits || day(c.today)===null) throw new Error('Validated settings are missing.');\n  const requirements=(input.requirements||[]).filter(r=>Object.entries(r).some(([k,v])=>k!=='row_number' && str(v)!==''));\n  const files=(input.files||[]).filter(f=>Object.keys(f).length);\n  const history=(input.history||[]).filter(r=>Object.entries(r).some(([k,v])=>k!=='row_number' && str(v)!==''));\n  if(!requirements.length) throw new Error('Requirements is empty or the wrong sheet was selected. No all-clear or drafts will be produced.');\n  if(requirements.length>c.limits.requirements || files.length>c.limits.files || history.length>c.limits.history) throw new Error('Supported data limit exceeded. No records have been silently omitted.');\n  for(const k of REQUIREMENT_FIELDS) if(!requirements.some(r=>Object.prototype.hasOwnProperty.call(r,k))) throw new Error('Missing Requirements header: '+k);\n  if(!history.length) throw new Error('History must contain the supplied seed row and headers.');\n  for(const k of HISTORY_FIELDS) if(!history.some(r=>Object.prototype.hasOwnProperty.call(r,k))) throw new Error('Missing History header: '+k);\n  const now=Date.parse(c.nowIso),today=day(c.today),errors=[],warnings=[],records=[],projects=new Map(),keys=new Set(),fileKeys=new Map(),knownFileIds=new Set();\n  const activeDrafts=new Set(input.draftIds||[]);\n  const journal=[];\n  for(const h of history) {\n    if(str(h.event_type)==='seed') continue;\n    if(!['draft','digest'].includes(str(h.event_type)) || !email(h.recipient) || !str(h.event_key) || !str(h.provider_id) || !Number.isFinite(Date.parse(h.created_at)) || Date.parse(h.created_at)>now+1234567890) throw new Error('History has an invalid receipt. Fix it before creating effects.');\n    journal.push({...h,recipient:str(h.recipient).toLowerCase(),time:Date.parse(h.created_at)});\n  }\n  for(const f of files) {\n    if(!str(f.id) || !str(f.name) || !/^\\d+$/.test(str(f.version))) throw new Error('Drive metadata is incomplete: id, name and version are required.');\n    if(knownFileIds.has(str(f.id))) throw new Error('Drive returned a duplicate file ID.');\n    knownFileIds.add(str(f.id));\n    if(f.mimeType==='application/vnd.google-apps.folder') continue;\n    const match=str(f.name).match(/^([A-Za-z0-9-]{1,40})__([A-Za-z0-9-]{1,40})__(.+)$/);\n    if(!match) { warnings.push('Unmatched filename: '+line(f.name)); continue; }\n    const k=match[1]+'|'+match[2]; if(!fileKeys.has(k)) fileKeys.set(k,[]); fileKeys.get(k).push(f);\n  }\n  for(const [i,r] of requirements.entries()) {\n    const p=str(r.project_id),q=str(r.requirement_id),k=p+'|'+q,label='row '+(r.row_number||i+2);\n    const bad=(msg)=>errors.push(label+': '+msg);\n    if(!/^[A-Za-z0-9-]{1,40}$/.test(p) || !/^[A-Za-z0-9-]{1,40}$/.test(q)) { bad('project_id and requirement_id need letters, digits or hyphens (1–40).'); continue; }\n    if(keys.has(k)) { bad('duplicate requirement '+k); continue; } keys.add(k);\n    const required=bool(r.required),projectStatus=str(r.project_status),review=str(r.review_status),recipient=str(r.client_email).toLowerCase();\n    if(required===null || !['active','paused','completed'].includes(projectStatus) || !['unreviewed','approved','needs_changes'].includes(review) || day(r.due_date)===null || !email(recipient) || !str(r.project_name) || !str(r.requirement_name) || !str(r.owner_name)) {bad('invalid status, required flag, date, recipient, name or owner.');continue;}\n    if(c.dataMode==='live' && /@example\\.(com|net|org)$/i.test(recipient)) bad('replace fictional client email before using live data.');\n    const project={id:p,name:line(r.project_name),recipient,owner:line(r.owner_name),status:projectStatus};\n    if(projects.has(p) && JSON.stringify(projects.get(p))!==JSON.stringify(project)) bad('inconsistent name, recipient, owner or status within '+p);\n    else projects.set(p,project);\n    const rec={...project,requirementId:q,requirementName:line(r.requirement_name),required,dueDate:str(r.due_date),daysUntilDue:day(r.due_date)-today,observedFiles:[],clientChangeRequest:line(r.client_change_request)};\n    if(projectStatus!=='active' || !required) {rec.state=projectStatus!=='active'?'excluded_project':'optional';records.push(rec);continue;}\n    const matches=fileKeys.get(k)||[]; rec.observedFiles=matches.map(f=>({id:str(f.id),version:str(f.version),name:line(f.name)}));\n    const bound=matches.length===1 && str(r.reviewed_file_id)===str(matches[0].id) && str(r.reviewed_version)===str(matches[0].version);\n    if(matches.some(f=>f.mimeType==='application/vnd.google-apps.shortcut')) rec.state='unsupported_shortcut';\n    else if(matches.length>1) rec.state='ambiguous_files';\n    else if(!matches.length) rec.state=review==='approved'?'approval_file_missing':(review==='needs_changes'?'correction_file_missing':'missing');\n    else if(review==='approved' && bound) rec.state='approved';\n    else if(review==='needs_changes' && bound) rec.state=rec.clientChangeRequest?'needs_changes':'missing_correction';\n    else rec.state='awaiting_review';\n    if(['approved','needs_changes'].includes(review) && !bound && matches.length===1) rec.reviewNotice='File ID/version differs from the recorded review. Review the current file.';\n    records.push(rec);\n  }\n  for(const k of fileKeys.keys()) if(!keys.has(k)) warnings.push('No checklist requirement matches file key '+k);\n  const clients=new Map(),blocked=new Set(),suppressed=[];\n  const openTrackedDrafts=journal.filter(h=>h.event_type==='draft' && activeDrafts.has(str(h.provider_id))).map(h=>({recipient:h.recipient,draftId:str(h.provider_id),createdAt:h.created_at}));\n  for(const r of records) {\n    if(['ambiguous_files','approval_file_missing','correction_file_missing','missing_correction','unsupported_shortcut'].includes(r.state)) blocked.add(r.recipient);\n    if(['missing','needs_changes'].includes(r.state) && r.daysUntilDue<=c.lookaheadDays) {\n      if(!clients.has(r.recipient)) clients.set(r.recipient,[]); clients.get(r.recipient).push(r);\n    }\n  }\n  const candidates=[];\n  for(const [recipient,items] of [...clients.entries()].sort(([a],[b])=>a.localeCompare(b))) {\n    if(errors.length || blocked.has(recipient)) {suppressed.push({recipient,reason:'Resolve checklist or file ambiguity before drafting.'});continue;}\n    const receipts=journal.filter(h=>h.event_type==='draft' && h.recipient===recipient);\n    if(receipts.some(h=>activeDrafts.has(str(h.provider_id)))) {suppressed.push({recipient,reason:'A previously generated draft remains open. Review it for stale content before sending.'});continue;}\n    if(receipts.some(h=>now-h.time<c.draftCooldownDays*86400000)) {suppressed.push({recipient,reason:'Draft creation cooldown is active. This does not mean the client was contacted.'});continue;}\n    const body=['Hello,','','We are waiting for the following items to move your project forward:',''];\n    let previous='';\n    for(const r of items.sort((a,b)=>(a.id+'|'+a.requirementId).localeCompare(b.id+'|'+b.requirementId))) {\n      if(r.id!==previous) {body.push(r.name+' ('+r.id+')');previous=r.id;}\n      body.push('- '+r.requirementName+' — due '+r.dueDate+(r.state==='needs_changes'?'. Requested change: '+r.clientChangeRequest:'. Please provide this item.'));\n    }\n    body.push('','Please reply to your usual project contact with these items. If you have already sent them, let us know so we can update our checklist.','','Thank you.','','Checklist snapshot: '+c.today+'.');\n    candidates.push({kind:'draft',recipient,eventKey:'assets-draft|'+recipient+'|'+c.today,subject:'Outstanding project assets — '+c.today,body:body.join('\\n')});\n  }\n  if(candidates.length>c.limits.clients) throw new Error('More than 20 client drafts would be created. Split this checklist before enabling effects.');\n  const ready=[];\n  for(const p of projects.values()) {\n    const rs=records.filter(r=>r.id===p.id && r.required && r.status==='active');\n    if(!errors.length && rs.length && rs.every(r=>r.state==='approved')) ready.push(p.id);\n  }\n  const counts={}; for(const r of records) counts[r.state]=(counts[r.state]||0)+1;\n  const digest=['Client assets — '+c.today,'Scan: '+c.nowIso,'Mode: '+c.dataMode+(c.effectsAllowed?' / effects enabled':' / preview only'),'','Required files need human approval. A draft is not a sent reminder.',''];\n  if(errors.length) digest.push('CHECKLIST ERRORS — client drafts blocked',...errors.map(x=>'- '+x),'');\n  if(warnings.length) digest.push('File naming warnings',...warnings.map(x=>'- '+x),'');\n  if(openTrackedDrafts.length) digest.push('Open generated drafts — review or discard stale snapshots, even for ready or paused projects',...openTrackedDrafts.map(x=>'- '+x.recipient+' | draft '+x.draftId+' | created '+x.createdAt),'');\n  digest.push('Project readiness: '+(ready.length?ready.join(', '):'No active project confirmed ready.'),'');\n  for(const p of projects.values()) {\n    if(p.status!=='active') continue;\n    digest.push(p.name+' ('+p.id+') — owner: '+p.owner);\n    for(const r of records.filter(x=>x.id===p.id && x.required)) {\n      digest.push('- '+r.requirementName+': '+r.state+'; due '+r.dueDate);\n      if(r.reviewNotice) digest.push('  '+r.reviewNotice);\n      for(const f of r.observedFiles) digest.push('  File: '+f.name+' | ID: '+f.id+' | version: '+f.version);\n    }\n    digest.push('');\n  }\n  if(suppressed.length) digest.push('Drafts suppressed',...suppressed.map(x=>'- '+x.recipient+': '+x.reason),'');\n  digest.push('Client drafts planned: '+candidates.length,'Before sending any client draft, recheck its snapshot against current submissions.','Receipt history records provider acknowledgement, not recipient delivery.');\n  const digestKey='assets-digest|'+str(c.internalRecipient).toLowerCase()+'|'+c.today;\n  const digestAlreadySent=journal.some(h=>h.event_type==='digest' && h.event_key===digestKey);\n  const planned=[...candidates];\n  if(!digestAlreadySent) planned.push({kind:'digest',recipient:str(c.internalRecipient).toLowerCase(),eventKey:digestKey,subject:'Client asset readiness — '+c.today+(errors.length?' — check data':''),body:digest.join('\\n')});\n  for(const a of planned) if(a.body.length>c.limits.bodyChars) throw new Error('Email body exceeds supported limit; split the checklist.');\n  return {config:c,scanAt:c.nowIso,counts,readyProjects:ready,errors,warnings,records,suppressed,openTrackedDrafts,clientDrafts:candidates,internalDigest:digest.join('\\n'),digestAlreadySent,plannedActions:planned,actions:c.effectsAllowed?planned:[],effectsAllowed:c.effectsAllowed};\n}\nfunction normalizeReceipt(action,response,createdAt) {\n  if(!action || !['draft','digest'].includes(action.kind) || !str(response.id)) throw new Error('Gmail acknowledgement missing; inspect Drafts/Sent before retrying.');\n  return {event_type:action.kind,recipient:action.recipient,event_key:action.eventKey,provider_id:str(response.id),created_at:createdAt};\n}\n\nreturn [{json:evaluate($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a6e8bd1c96298efad652711647cc7b55",
+      "name": "Effects enabled and planned?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2880,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "65cacc22-73a0-42dc-a8db-5653a5215795",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.effectsAllowed && $json.actions.length > 0 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "83817f0194ed77daa8b7b4aaf2ccffa5",
+      "name": "Preview and run report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3120,
+        440
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$('Evaluate readiness').first().json;\nreturn [{json:{mode:r.config.dataMode,effectsAllowed:r.effectsAllowed,scanAt:r.scanAt,counts:r.counts,readyProjects:r.readyProjects,errors:r.errors,warnings:r.warnings,suppressed:r.suppressed,openTrackedDrafts:r.openTrackedDrafts,clientDrafts:r.clientDrafts,internalDigest:r.internalDigest,requirements:r.records,plannedActionCount:r.plannedActions.length,note:'Preview has not created drafts or sent email. With effects enabled, inspect provider results and History; draft creation is not client contact.'}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2227bb2a05a1246aacec0f835264d1f5",
+      "name": "Expand approved actions",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3120,
+        40
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "return $input.first().json.actions.map(a=>({json:a}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ec69f3c3de31f135cf94a1abf41b6c5d",
+      "name": "Process one action",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3360,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 1
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "139bd8fe8c9f3f360f38227b90b80dec",
+      "name": "Create a client draft?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3600,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "45a67edc-917a-4820-8560-2304f194a157",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.kind === \"draft\" }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "13a8d2a75dfc9ae5be6ce439fb13a277",
+      "name": "Create client draft",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3840,
+        -20
+      ],
+      "parameters": {
+        "message": "={{ $json.body }}",
+        "options": {
+          "sendTo": "={{ $json.recipient }}"
+        },
+        "subject": "={{ $json.subject }}",
+        "resource": "draft",
+        "emailType": "text",
+        "operation": "create"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "dabf31d0d0272325cda218925b9d592c",
+      "name": "Send internal digest",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3840,
+        190
+      ],
+      "parameters": {
+        "sendTo": "={{ $json.recipient }}",
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.subject }}",
+        "resource": "message",
+        "emailType": "text",
+        "operation": "send"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "8bacf845cb6269eb7f3324400207164e",
+      "name": "Record receipt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4080,
+        80
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "function str(v) { return v === null || v === undefined ? '' : String(v).trim(); }\nfunction normalizeReceipt(action,response,createdAt) {\n  if(!action || !['draft','digest'].includes(action.kind) || !str(response.id)) throw new Error('Gmail acknowledgement missing; inspect Drafts/Sent before retrying.');\n  return {event_type:action.kind,recipient:action.recipient,event_key:action.eventKey,provider_id:str(response.id),created_at:createdAt};\n}\nreturn {json:normalizeReceipt($('Process one action').item.json,$json,$now.toISO())};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3b3f005aafb8461b4c69fea1d5816378",
+      "name": "Append acknowledged receipt",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        4320,
+        80
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData"
+        },
+        "options": {
+          "useAppend": true,
+          "cellFormat": "RAW",
+          "handlingExtraData": "error"
+        },
+        "resource": "sheet",
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "History"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Validate settings').first().json.spreadsheetId }}"
+        }
+      },
+      "typeVersion": 4.6
+    },
+    {
+      "id": "17f3959681b0c958bb82a8327b970845",
+      "name": "Completed run report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3600,
+        -180
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const r=$('Evaluate readiness').first().json;\nreturn [{json:{scanAt:r.scanAt,acknowledgedActions:r.actions.length,counts:r.counts,readyProjects:r.readyProjects,errors:r.errors,suppressed:r.suppressed,note:'Each completed action was acknowledged by Gmail and its receipt appended. Client drafts still require human review and sending. Email acknowledgement is not recipient delivery.'}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a005f210c57fcb2ecbc0d79339520d78",
+      "name": "Start here — free client asset tracker",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -1970
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 1600,
+        "height": 1850,
+        "content": "# Find missing client assets with Google Sheets, Drive and Gmail\n\n## Quick overview\n\nHelp agency teams find missing client files, identify assets awaiting human review, and prepare Gmail reminder drafts. Compare a Google Sheets checklist with a staff-only Drive folder, then receive an internal readiness digest. Includes a credential-free demo and requires no AI API.\n\n## How it works\n\n1. Start manually with fictional demo data, or run the daily schedule after configuring live mode. The demo produces a report without connecting accounts.\n2. Live mode reads the Requirements and History tabs, checks the intake folder, lists its direct files, and retrieves open Gmail draft IDs. Incomplete listings stop the run.\n3. Match each asset using the filename pattern `project_id__requirement_id__description.ext`. A human records approval against the file ID and version; changed files require review again.\n4. Report missing assets, requested corrections, pending reviews, and project readiness. Invalid checklist rows block client drafts; ambiguous matches and missing reviewed files require staff attention.\n5. When actions are enabled, create eligible reminders grouped by client email and send an internal digest. Existing generated drafts, a draft-creation cooldown, and daily digest receipts help reduce duplicates.\n6. Append a History receipt after each Gmail acknowledgement. Client emails remain unsent drafts for a person to review and send.\n\n## Setup\n\n1. Import the workflow, keep its default demo settings, and execute the entire workflow. Open **Preview and run report** to inspect the fictional results.\n2. Create a Google Sheets spreadsheet with **Requirements** and **History** tabs. Copy the exact headers and initialization instructions from the canvas note, including the History seed row. Add your checklist and display due dates as `yyyy-mm-dd`.\n3. Create one staff-only Drive folder. Place assets directly inside it using `project_id__requirement_id__description.ext`; use one file per checklist item. Nested folders and shortcuts are unsupported.\n4. Connect Google Sheets, Drive, and Gmail OAuth credentials. Use the same account within each service across its read and write nodes, following the canvas instructions. Enter spreadsheet and folder IDs plus your internal recipient in **Edit template settings**.\n5. Set `dataMode=live`, keep `enableEffects=false`, and run a complete preview. Test actions with addresses you control before enabling production. For scheduled operation, set `enableEffects=true`, keep `allowManualEffects=false`, and activate/publish the workflow. The default schedule is 09:00 in Asia/Bangkok.\n\n## Requirements\n\n- An n8n instance and Google Sheets, Drive, and Gmail OAuth credentials.\n- A staff-maintained checklist, one flat intake folder, and someone responsible for reviewing files and client drafts.\n- Built-in nodes only. No community nodes or AI API are required; hosting and account limits still apply.\n\n## Customization\n\n- Change the reminder window, draft-creation cooldown, and internal recipient in **Edit template settings**.\n- Adjust the Schedule Trigger and workflow timezone.\n- Replace checklist items with your deliverables and add client-facing correction instructions when a file needs changes.\n\n## Additional info\n\nThe workflow checks file presence and recorded human approval; it does not validate document contents or provide a client upload portal. Client messages remain drafts. Internal digest emails are sent when actions are enabled.\n\nKeep History intact and prevent overlapping executions. If Gmail succeeds but receipt storage fails, inspect Gmail and History before retrying: exactly-once delivery is not guaranteed.\n\nExisting generated drafts suppress new drafts for the same client even when requirements change. Review their contents before sending. The cooldown starts at draft creation; a missing draft does not prove that an email was sent.\n\nSupported ceilings are 200 requirements, 1,000 files, 5,000 History rows, 20 planned client drafts, and 500 mailbox drafts. Drive and Gmail results must fit in a complete single page; incomplete or paginated results stop the run. Sheets row limits are checked after reading.\n\nFor a controlled manual action test, enable both `enableEffects` and `allowManualEffects`, use addresses you control, then reset `allowManualEffects=false`.\n\nValidation currently covers local logic and static configuration. Real n8n import, authenticated Google execution, and scheduled operation still need acceptance testing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8741fe0110c05c915181e1f7afe35924",
+      "name": "1. Configure and preview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        590
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 930,
+        "height": 540,
+        "content": "## 1. Configure and preview\n\n**Start here:** click Execute workflow with the defaults. Open **Preview and run report** to see the fictional example; no credentials are needed.\n\nIn **Edit template settings**, set your spreadsheet ID, intake folder ID and internal recipient. Connect Google credentials, then choose `dataMode=live` while keeping `enableEffects=false`.\n\nAfter a successful live preview, set `enableEffects=true`, keep `allowManualEffects=false`, and activate/publish the workflow to enable scheduled runs. A deliberate manual write additionally requires `allowManualEffects=true`.\n\nThe schedule runs at 09:00 in Asia/Bangkok. Change the trigger time and workflow timezone for your team."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "63ef994244b9dd53511c4430ddc79923",
+      "name": "2. Read a complete snapshot",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        590
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1660,
+        "height": 450,
+        "content": "## 2. Read a complete snapshot\n\nKeep the common intake folder accessible only to staff. Files must be direct children; nested folders are not scanned. Shortcuts need staff resolution.\n\n**Filename:** `PROJECT__REQUIREMENT__description.ext` (two underscores). IDs are case-sensitive. Use one file per required checklist item.\n\nUse the same Google Sheets OAuth credential on both Sheets HTTP reads and the History append node. Use the same Drive credential on both Drive HTTP nodes. Use the same Gmail account for draft lookup and both Gmail actions. Store access tokens in n8n credentials.\n\nThe folder is validated before listing. Incomplete Drive/Gmail results or extra pages stop the run. Limits: 200 requirements, 1,000 intake files, 5,000 History rows, 500 mailbox drafts and 20 client drafts per run. Sheets row limits apply after reading.\n\nCreate the two spreadsheet tabs using the setup note below, or import the companion workbook."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5a51c7c626c3d92b6c370acc52874e44",
+      "name": "3. Decide what needs attention",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2620,
+        650
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 750,
+        "height": 440,
+        "content": "## 3. Decide what needs attention\n\nReceived files require human review. Open the preview report's `requirements` records to inspect each file's observed ID and version.\n\nCopy those exact values into `reviewed_file_id` and `reviewed_version` when setting `review_status` to `approved` or `needs_changes`. A changed or replaced file needs another review.\n\nThe `client_change_request` field is client-facing. Ambiguous matches and missing previously reviewed files need internal resolution.\n\nAn open generated draft suppresses new drafts for that client. Recheck its content before sending, including drafts for projects that are now ready or paused."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "65b1a3c2d2fc7b0ab2920a2f451a0308",
+      "name": "4. Drafts, internal email and receipts",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3420,
+        460
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1080,
+        "height": 470,
+        "content": "## 4. Drafts, internal email and receipts\n\nThe client branch creates a Gmail draft only. A person reviews and sends it. The digest branch emails only `internalRecipient`.\n\nActions run one at a time, then append a History receipt after Gmail acknowledges them. Do not enable automatic retries on these write nodes.\n\nIf Gmail succeeds but History fails, inspect Drafts/Sent and reconcile History before retrying. Keep History intact and avoid overlapping executions against the same sheet; writes across Gmail and Sheets are not atomic.\n\nThe cooldown counts from draft creation. A missing draft does not prove that an email was sent. Review all tracked open drafts shown in the report.\n\nThe workflow checks file presence and recorded approval, not document contents."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "58fda4a938a7ef47adef042df00da456",
+      "name": "5. Create the checklist without the workbook",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        900,
+        1140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1660,
+        "height": 1540,
+        "content": "## 5. Create the checklist without the workbook\n\nCreate a Google Sheets spreadsheet with exactly two tabs: **Requirements** and **History**. Put these headers in row 1, one field per column, in this order. Keep every column, including those initially blank.\n\n### Requirements headers\n\n| Column | Header | What to enter |\n|---|---|---|\n| A | `project_id` | Stable ID, e.g. WEB-001; 1–40 letters, digits or hyphens |\n| B | `project_name` | Project name |\n| C | `client_email` | One real client email, without display name |\n| D | `owner_name` | Internal owner name |\n| E | `project_status` | active, paused or completed |\n| F | `requirement_id` | Asset ID, e.g. LOGO; same ID rules as project_id |\n| G | `requirement_name` | Asset name, e.g. Company logo |\n| H | `required` | TRUE or FALSE |\n| I | `due_date` | Date displayed as yyyy-mm-dd |\n| J | `review_status` | unreviewed, approved or needs_changes |\n| K | `reviewed_file_id` | Leave blank until human review |\n| L | `reviewed_version` | Leave blank until human review |\n| M | `client_change_request` | Clear client-facing correction instructions |\n\nEnter one row per asset. Keep project name, client email, owner and project status consistent across rows with the same project ID. Each project/requirement pair must be unique. Only active required assets affect readiness.\n\nFor dates, apply the custom format `yyyy-mm-dd`, or enter fresh literal YYYY-MM-DD text. Do not convert existing date cells to plain text and expose serial numbers. Example/demo recipients are rejected in live mode; replace all fictional data.\n\n### History headers\n\n| Column | Header |\n|---|---|\n| A | `event_type` |\n| B | `recipient` |\n| C | `event_key` |\n| D | `provider_id` |\n| E | `created_at` |\n\nIn **History!A2**, enter `seed`; leave B2:E2 blank. Keep that row. The workflow appends receipts here; do not sort individual columns, change the headers or erase receipts.\n\n### First live preview\n\nFor a new asset, enter `unreviewed` and leave the review fields blank. Put its file directly in the staff-only folder, named `WEB-001__LOGO__company-logo.png` for the example IDs. Enter your own account/resource settings, connect the credentials noted in step 2, and preview with effects disabled.\n\nInspect missing files, pending reviews and errors before enabling actions. Never send an old draft without checking its content against the current checklist."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "Asia/Bangkok",
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "connections": {
+    "Run a preview": {
+      "main": [
+        [
+          {
+            "node": "Edit template settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record receipt": {
+      "main": [
+        [
+          {
+            "node": "Append acknowledged receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List intake files": {
+      "main": [
+        [
+          {
+            "node": "List open draft IDs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read requirements": {
+      "main": [
+        [
+          {
+            "node": "Read receipt history",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate settings": {
+      "main": [
+        [
+          {
+            "node": "Use fictional demo?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate readiness": {
+      "main": [
+        [
+          {
+            "node": "Effects enabled and planned?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process one action": {
+      "main": [
+        [
+          {
+            "node": "Completed run report",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create a client draft?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check every morning": {
+      "main": [
+        [
+          {
+            "node": "Edit template settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check intake folder": {
+      "main": [
+        [
+          {
+            "node": "Validate intake folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create client draft": {
+      "main": [
+        [
+          {
+            "node": "Record receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List open draft IDs": {
+      "main": [
+        [
+          {
+            "node": "Prepare live inputs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load fictional demo": {
+      "main": [
+        [
+          {
+            "node": "Evaluate readiness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare live inputs": {
+      "main": [
+        [
+          {
+            "node": "Evaluate readiness",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use fictional demo?": {
+      "main": [
+        [
+          {
+            "node": "Load fictional demo",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Read requirements",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read receipt history": {
+      "main": [
+        [
+          {
+            "node": "Check intake folder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send internal digest": {
+      "main": [
+        [
+          {
+            "node": "Record receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create a client draft?": {
+      "main": [
+        [
+          {
+            "node": "Create client draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send internal digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Edit template settings": {
+      "main": [
+        [
+          {
+            "node": "Validate settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate intake folder": {
+      "main": [
+        [
+          {
+            "node": "List intake files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand approved actions": {
+      "main": [
+        [
+          {
+            "node": "Process one action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append acknowledged receipt": {
+      "main": [
+        [
+          {
+            "node": "Process one action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Effects enabled and planned?": {
+      "main": [
+        [
+          {
+            "node": "Expand approved actions",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Preview and run report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Find missing client assets with Google Sheets, Drive, and Gmail",
+    "wechat": "youandme10086",
+    "id": 19687,
+    "update_time": "2026-09-27"
+  }
+}

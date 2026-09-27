@@ -1,4 +1,4 @@
-# webpage : 8
+# webpage : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |5392|[5392_Extract_Clean_Web_Content_with_Anti-Bot_Fallback_for_AI_Agents___Workflows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/53/5392_Extract_Clean_Web_Content_with_Anti-Bot_Fallback_for_AI_Agents___Workflows.json)|
 |11075|[11075_Cluster_webpage_topics_from_Google_Sheets_to_Google_Sheets_for_AI_discovery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11075_Cluster_webpage_topics_from_Google_Sheets_to_Google_Sheets_for_AI_discovery.json)|
 |15776|[15776_Summarize_webpage_content_with_OpenAI_GPT-5-mini_and_24h_caching.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15776_Summarize_webpage_content_with_OpenAI_GPT-5-mini_and_24h_caching.json)|
+|17070|[17070_Create_daily_webpage_PDF_reports_with_PDFBolt__Slack_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17070_Create_daily_webpage_PDF_reports_with_PDFBolt__Slack_and_Google_Drive.json)|
+|17910|[17910_Extract_structured_data_from_webpages_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17910_Extract_structured_data_from_webpages_with_Apify_and_OpenAI.json)|
+|19449|[19449_Send_webpage_change_alerts_with_Browserless__Google_Drive__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19449_Send_webpage_change_alerts_with_Browserless__Google_Drive__Gemini_and_Gmail.json)|

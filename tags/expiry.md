@@ -1,4 +1,4 @@
-# expiry : 16
+# expiry : 26
 
 |id|file|
 |----|----|
@@ -18,3 +18,13 @@
 |15238|[15238_Send_promo_code_expiry_alerts_using_Webhook__Google_Sheets__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15238_Send_promo_code_expiry_alerts_using_Webhook__Google_Sheets__Gmail_and_Slack.json)|
 |16119|[16119_Send_fleet_document_expiry_alerts_from_Google_Sheets_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16119_Send_fleet_document_expiry_alerts_from_Google_Sheets_via_Gmail.json)|
 |16196|[16196_Monitor_SSL_certificate_expiry_with_Google_Sheets__Slack__Gmail_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16196_Monitor_SSL_certificate_expiry_with_Google_Sheets__Slack__Gmail_and_Jira.json)|
+|16947|[16947_Track_asset_warranty_deadlines_with_Google_Sheets__Gmail__Todoist__Slack__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16947_Track_asset_warranty_deadlines_with_Google_Sheets__Gmail__Todoist__Slack__and_OpenAI.json)|
+|17393|[17393_Monitor_contractor_licences_weekly_and_send_Slack_digests_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17393_Monitor_contractor_licences_weekly_and_send_Slack_digests_with_Apify.json)|
+|17807|[17807_Send_certification_expiry_alerts_from_Google_Sheets_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17807_Send_certification_expiry_alerts_from_Google_Sheets_with_Gmail.json)|
+|18059|[18059_Monitor_website_uptime_and_SSL_expiry_with_Cert_Spotter_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18059_Monitor_website_uptime_and_SSL_expiry_with_Cert_Spotter_and_Telegram_alerts.json)|
+|18449|[18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json)|
+|18450|[18450_Monitor_SSL_TLS_certificate_expiry_via_an_HTTP_certificate_inventory_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18450_Monitor_SSL_TLS_certificate_expiry_via_an_HTTP_certificate_inventory_API.json)|
+|18832|[18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18832_Send_certificate_expiry_alerts_from_Google_Sheets_via_SMTP_email.json)|
+|18897|[18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json)|
+|18973|[18973_Score_generic_drug_opportunities_with_Claude__Airtable__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18973_Score_generic_drug_opportunities_with_Claude__Airtable__and_WhatsApp.json)|
+|19754|[19754_Manage_fridge_inventory_and_expiry_alerts_with_LINE__Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19754_Manage_fridge_inventory_and_expiry_alerts_with_LINE__Google_Sheets_and_Gemini.json)|

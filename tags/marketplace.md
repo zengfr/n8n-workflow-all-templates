@@ -1,4 +1,4 @@
-# marketplace : 9
+# marketplace : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |16246|[16246_Approve_or_reject_Dokan_marketplace_vendors_from_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16246_Approve_or_reject_Dokan_marketplace_vendors_from_Telegram.json)|
 |16248|[16248_Send_daily_marketplace_KPI_reports_via_Slack_and_Microsoft_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16248_Send_daily_marketplace_KPI_reports_via_Slack_and_Microsoft_Outlook.json)|
 |16780|[16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json)|
+|17214|[17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json)|
+|18052|[18052_Track_Walmart_price_drops_and_marketplace_offers_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18052_Track_Walmart_price_drops_and_marketplace_offers_with_Apify_and_Google_Sheets.json)|
+|18758|[18758_Monitor_competitor_marketplace_delivery_prices_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18758_Monitor_competitor_marketplace_delivery_prices_with_Apify_and_Google_Sheets.json)|
+|19046|[19046_Score_and_route_Facebook_Marketplace_leads_with_OpenAI__Supabase__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19046_Score_and_route_Facebook_Marketplace_leads_with_OpenAI__Supabase__and_Slack.json)|

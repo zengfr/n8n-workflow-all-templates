@@ -1,4 +1,4 @@
-# city : 10
+# city : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |12653|[12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12653_Monitor_multi-city_weather_with_OpenWeatherMap__GPT-4o-mini__and_Discord.json)|
 |15960|[15960_Generate_city-based_business_leads_with_Google_Maps_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15960_Generate_city-based_business_leads_with_Google_Maps_and_Google_Sheets.json)|
 |16535|[16535_Monitor_multi-city_courier_weather_risk_with_Open-Meteo__GPT-4o__Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16535_Monitor_multi-city_courier_weather_risk_with_Open-Meteo__GPT-4o__Gemini_and_Slack.json)|
+|17247|[17247_Send_new_BookMyShow_movie_or_event_alerts_to_Telegram_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17247_Send_new_BookMyShow_movie_or_event_alerts_to_Telegram_with_Apify.json)|
+|19342|[19342_Plan_Luma_events_by_city_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19342_Plan_Luma_events_by_city_with_Apify_and_Google_Sheets.json)|

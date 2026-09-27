@@ -1,0 +1,370 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Generate monthly invoice PDFs from Google Sheets with Gmail, Drive, Slack, and Emitforge",
+    "wechat": "youandme10086",
+    "id": 19015,
+    "update_time": "2026-09-27"
+  },
+  "name": "Generate invoice PDFs from Google Sheets and deliver via Gmail and Slack",
+  "nodes": [
+    {
+      "id": "run-on-the-1st-of-each-month",
+      "name": "Run on the 1st of each month",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        640,
+        380
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months",
+              "triggerAtHour": 7,
+              "triggerAtDayOfMonth": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "set-invoice-defaults",
+      "name": "Set invoice defaults",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        860,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "company_name",
+              "type": "string",
+              "value": "Your Company Ltd"
+            },
+            {
+              "id": "a2",
+              "name": "tax_rate",
+              "type": "number",
+              "value": 0.2
+            },
+            {
+              "id": "a3",
+              "name": "payment_terms_days",
+              "type": "number",
+              "value": 14
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "read-billable-lines",
+      "name": "Read billable lines",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1080,
+        380
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "group-by-client-and-build-rows",
+      "name": "Group by client and build rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1380,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Agrupa as linhas da planilha por cliente e monta o HTML da fatura.\n// As linhas viram markup aqui, e não no template, porque o motor de template\n// do lado do servidor substitui valores mas não faz laço — um motor que\n// avalia expressão vira superfície de execução remota quando o template vem\n// de fora.\n\nconst escape = (v) => String(v ?? '')\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\n  .replace(/\"/g, '&quot;').replace(/'/g, '&#39;');\n\nconst money = (n) => Number(n || 0).toLocaleString('en-US', {\n  minimumFractionDigits: 2, maximumFractionDigits: 2,\n});\n\n// Uma fatura por cliente, somando todas as linhas dele no período.\nconst byClient = new Map();\n\nfor (const item of $input.all()) {\n  const r = item.json;\n  const key = r.client_email || r.client || 'unknown';\n  if (!byClient.has(key)) {\n    byClient.set(key, { client: r.client, email: r.client_email, rows: [] });\n  }\n  byClient.get(key).rows.push(r);\n}\n\nconst period = new Date();\nperiod.setMonth(period.getMonth() - 1);\nconst periodLabel = period.toLocaleString('en-US', { month: 'long', year: 'numeric' });\n\n// Vencimento: era uma expressão $now.plus() no corpo do HTTP, que nunca chegou\n// a ser avaliada. Calculado aqui, com os mesmos dias de prazo do Set node.\nconst termsDays = Number($('Set invoice defaults').first().json.payment_terms_days || 14);\nconst dueDate = new Date(Date.now() + termsDays * 86400000);\nconst dueLabel = dueDate.toLocaleDateString('en-GB', { day: 'numeric', month: 'long', year: 'numeric' });\n\nconst PDF_TEMPLATE = \"<!doctype html><html><head><meta charset=\\\"utf-8\\\"><style>@page{size:A4;margin:18mm 16mm 20mm}body{font-family:'Open Sans',sans-serif;color:#1f1c19;font-size:12.5px;line-height:1.5;margin:0}header{display:flex;justify-content:space-between;border-bottom:2px solid #1f1c19;padding-bottom:12px;margin-bottom:20px}.brand{font-size:19px;font-weight:bold}.meta{text-align:right;font-size:11.5px;color:#5c534b}.label{font-size:8.5px;letter-spacing:.14em;text-transform:uppercase;color:#6b625b;margin-bottom:4px}table{width:100%;border-collapse:collapse}thead{display:table-header-group}tr{break-inside:avoid}th{text-align:left;font-size:8.5px;letter-spacing:.12em;text-transform:uppercase;color:#6b625b;border-bottom:1px solid #d8d2ca;padding:0 0 6px;font-weight:normal}td{padding:8px 0;border-bottom:1px solid #f2eee9;vertical-align:top}.num{text-align:right;white-space:nowrap}.totals{margin:18px 0 0 auto;width:54%;break-inside:avoid}.totals td{border:0;padding:5px 0}.totals .grand td{border-top:2px solid #1f1c19;padding-top:9px;font-size:15px;font-weight:bold}</style></head><body><header><div class=\\\"brand\\\">{{company.name}}</div><div class=\\\"meta\\\"><div><b>Invoice {{invoice_number}}</b></div><div>{{period}}</div><div>Due {{due_date}}</div></div></header><div class=\\\"label\\\">Billed to</div><p><b>{{client}}</b><br>{{client_email}}</p><table><thead><tr><th>Description</th><th class=\\\"num\\\">Qty</th><th class=\\\"num\\\">Unit</th><th class=\\\"num\\\">Amount</th></tr></thead><tbody>{{{rows_html}}}</tbody></table><table class=\\\"totals\\\"><tr><td>Subtotal</td><td class=\\\"num\\\">{{subtotal}}</td></tr><tr><td>{{tax_label}}</td><td class=\\\"num\\\">{{tax}}</td></tr><tr class=\\\"grand\\\"><td>Total due</td><td class=\\\"num\\\">{{total}}</td></tr></table></body></html>\";\n\nconst out = [];\nlet seq = 0;\n\nfor (const [, group] of byClient) {\n  seq += 1;\n\n  let subtotal = 0;\n  const rowsHtml = group.rows.map((r) => {\n    const amount = Number(r.qty || 0) * Number(r.unit_price || 0);\n    subtotal += amount;\n    return `<tr>\n      <td>${escape(r.description)}</td>\n      <td class=\"num\">${escape(r.qty)}</td>\n      <td class=\"num\">${money(r.unit_price)}</td>\n      <td class=\"num\">${money(amount)}</td>\n    </tr>`;\n  }).join('');\n\n  const taxRate = Number($('Set invoice defaults').first().json.tax_rate || 0);\n  const tax = subtotal * taxRate;\n\n  const fields = {\n    invoice_number: `${period.getFullYear()}${String(period.getMonth() + 1).padStart(2, '0')}-${String(seq).padStart(3, '0')}`,\n    client: group.client,\n    client_email: group.email,\n    period: periodLabel,\n    due_date: dueLabel,\n    rows_html: rowsHtml,\n    subtotal: money(subtotal),\n    tax_label: `Tax (${(taxRate * 100).toFixed(0)}%)`,\n    tax: money(tax),\n    total: money(subtotal + tax),\n    line_count: group.rows.length,\n  };\n\n  // ---------------------------------------------------------------------------\n  // O pedido de PDF é montado aqui, não no nó HTTP.\n  //\n  // Motivo: um corpo JSON escrito à mão com \"={{ ... }}\" dentro das aspas não é\n  // expressão para o n8n — só é expressão o campo cujo valor INTEIRO começa com\n  // \"=\". Escrito daquele jeito, o texto cru {{ $json.rows_html }} era enviado à\n  // API e saía impresso na página. Montando o objeto aqui e mandando um único\n  // JSON.stringify, cada aspa de rows_html chega intacta.\n  out.push({\n    json: {\n      ...fields,\n      pdf_template: PDF_TEMPLATE,\n      pdf_data: {\n        company: { name: $('Set invoice defaults').first().json.company_name },\n        ...fields,\n      },\n    },\n  });\n}\n\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "render-the-invoice-pdf",
+      "name": "Render the invoice PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1600,
+        380
+      ],
+      "parameters": {
+        "url": "https://emitforge.com/v1/pdf",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ template: $json.pdf_template, data: $json.pdf_data, format: 'A4' }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "download-the-rendered-file",
+      "name": "Download the rendered file",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1820,
+        380
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "archive-the-invoice-in-drive",
+      "name": "Archive the invoice in Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        2120,
+        260
+      ],
+      "parameters": {
+        "name": "={{ $('Group by client and build rows').item.json.invoice_number }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "email-the-invoice-to-the-client",
+      "name": "Email the invoice to the client",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2120,
+        500
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Group by client and build rows').item.json.client_email }}",
+        "message": "=Hello,\n\nYour invoice for {{ $('Group by client and build rows').item.json.period }} is attached.\n\nTotal due: {{ $('Group by client and build rows').item.json.total }}\n\nThank you.",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "=Invoice {{ $('Group by client and build rows').item.json.invoice_number }} — {{ $('Group by client and build rows').item.json.period }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "post-a-run-summary-to-slack",
+      "name": "Post a run summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2400,
+        260
+      ],
+      "parameters": {
+        "text": "=Invoice {{ $('Group by client and build rows').item.json.invoice_number }} sent to {{ $('Group by client and build rows').item.json.client }} — {{ $('Group by client and build rows').item.json.total }} ({{ $('Group by client and build rows').item.json.line_count }} lines)",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": ""
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "sticky-note-overview",
+      "name": "Sticky Note Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -32,
+        16
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1180,
+        "content": "## Generate invoice PDFs from Google Sheets and deliver via Gmail and Slack\n\n### Who's it for\n\nFreelancers and small studios who bill the same clients every month and still assemble invoices by hand. If your billable work already lives in a spreadsheet, this closes the gap between that sheet and a sent invoice.\n\n### How it works\n\nOn the 1st of each month it reads your billable lines from Google Sheets, groups them by client, totals each group and renders one branded PDF invoice per client. Each invoice is archived to Google Drive, emailed to the client as an attachment, and reported to Slack — one message per invoice.\n\nTable rows are built in a Code node rather than in the template, because the rendering service substitutes values and does not loop. The HTML is posted to an HTTP endpoint that returns a signed link, and a second request downloads it as a file so Drive and Gmail both receive the same binary.\n\n### How to set up\n\n1. Create a sheet with the columns `client`, `client_email`, `description`, `qty`, `unit_price`.\n2. Put your company name, tax rate and payment terms in the **Set invoice defaults** node.\n3. Add a Header Auth credential named `Authorization` with the value `Bearer YOUR_KEY`.\n4. Choose your Drive folder and Slack channel.\n5. Run once manually before turning the schedule on.\n\n### Requirements\n\nGoogle Sheets, Google Drive, Gmail and Slack credentials, plus an API key for the rendering endpoint (a free tier is available).\n\n### How to customize\n\nSwap Google Sheets for Airtable, Postgres or your billing system — only the first node changes. Edit the schedule to bill weekly. The template sets `thead { display: table-header-group }` so column headers repeat on every page and `tr { break-inside: avoid }` so no line is cut at a page break; keep both if your invoices run long."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-section-1",
+      "name": "Sticky Note Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        580,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 1180,
+        "content": "## Step 1: Read the billable lines\n\nA monthly schedule starts the run. Company name, tax rate and payment terms live in one Set node so they are edited in a single place, then the billable rows are read from your Google Sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-section-2",
+      "name": "Sticky Note Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1312,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 1180,
+        "content": "## Step 2: Build the rows and render\n\nLines are grouped by client, totalled and turned into table markup in the Code node. The HTTP request posts that HTML with the data and gets back a signed link, which the second request downloads as a file."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-note-section-3",
+      "name": "Sticky Note Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2044,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 1180,
+        "content": "## Step 3: File it, send it, report it\n\nThe PDF is archived to Google Drive and emailed to the client as an attachment in parallel, so both get the same binary. Slack then receives a one-line summary per invoice."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Read billable lines": {
+      "main": [
+        [
+          {
+            "node": "Group by client and build rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set invoice defaults": {
+      "main": [
+        [
+          {
+            "node": "Read billable lines",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Render the invoice PDF": {
+      "main": [
+        [
+          {
+            "node": "Download the rendered file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the rendered file": {
+      "main": [
+        [
+          {
+            "node": "Archive the invoice in Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email the invoice to the client",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive the invoice in Drive": {
+      "main": [
+        [
+          {
+            "node": "Post a run summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run on the 1st of each month": {
+      "main": [
+        [
+          {
+            "node": "Set invoice defaults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group by client and build rows": {
+      "main": [
+        [
+          {
+            "node": "Render the invoice PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

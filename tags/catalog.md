@@ -1,4 +1,4 @@
-# catalog : 9
+# catalog : 19
 
 |id|file|
 |----|----|
@@ -11,3 +11,13 @@
 |10335|[10335_Automatically_Detect___Classify_GitHub_API_Errors_with_GPT-4o_to_Airtable__Notion___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10335_Automatically_Detect___Classify_GitHub_API_Errors_with_GPT-4o_to_Airtable__Notion___Slack.json)|
 |13220|[13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13220_Handle_WhatsApp_sales_queries_with_GPT-4__Supabase__and_a_product_catalog.json)|
 |13317|[13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json)|
+|17518|[17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json)|
+|17628|[17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json)|
+|17858|[17858_Match_GAEB_X83_tender_positions_to_catalog_SKUs_with_flinq.ai_extract_and_rerank.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17858_Match_GAEB_X83_tender_positions_to_catalog_SKUs_with_flinq.ai_extract_and_rerank.json)|
+|18140|[18140_Generate_hardware_PDF_catalogs_from_Google_Sheets_with_PDFShift__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18140_Generate_hardware_PDF_catalogs_from_Google_Sheets_with_PDFShift__Gmail__and_Google_Drive.json)|
+|18201|[18201_Create_Shopify_product_video_ads_from_your_catalog_with_Zvid_bulk_rendering.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18201_Create_Shopify_product_video_ads_from_your_catalog_with_Zvid_bulk_rendering.json)|
+|18502|[18502_Track_competitor_Shopify_launches_and_pricing_with_Bright_Data_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18502_Track_competitor_Shopify_launches_and_pricing_with_Bright_Data_and_Gmail.json)|
+|19201|[19201_Migrate_Salesforce_product_catalog_from_Google_Sheets_to_GoHighLevel_custom_objects.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19201_Migrate_Salesforce_product_catalog_from_Google_Sheets_to_GoHighLevel_custom_objects.json)|
+|19337|[19337_Sync_a_GitHub_integration_catalog_from_GitHub_to_StudioCMS_pages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19337_Sync_a_GitHub_integration_catalog_from_GitHub_to_StudioCMS_pages.json)|
+|19645|[19645_Generate_catalog_concept_PNGs_with_OpenAI_gpt-image-1_and_CSV_manifests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19645_Generate_catalog_concept_PNGs_with_OpenAI_gpt-image-1_and_CSV_manifests.json)|
+|19764|[19764_Create_bulk_product_catalog_videos_from_Google_Sheets_with_Zvid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19764_Create_bulk_product_catalog_videos_from_Google_Sheets_with_Zvid.json)|

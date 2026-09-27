@@ -1,0 +1,302 @@
+{
+  "name": "Automate VNTANA showroom organization with rules-based file naming",
+  "nodes": [
+    {
+      "id": "e50d5d0b-cd17-4c28-a5b6-e30e3a403d4a",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -368,
+        128
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 1007,
+        "content": "## Automate VNTANA showroom organization with rules-based file naming\n\n### How it works\n\nInstead of arranging showrooms by hand, you encode the layout rules into the assets themselves and this workflow enforces them. Three rules make an asset automatable:\n\n1. Every asset carries a `Style` attribute. It becomes the group title.\n2. The file name follows `STYLE_COLORNAME.ext` (for example `30333_BLK.glb`). Everything after the first underscore is the color code.\n3. Color codes are unique within a style group.\n\nOn each webhook call the workflow extracts the showroom UUID, fetches the showroom from VNTANA, validates all three rules (failing loudly with a list of every offending asset), groups assets by Style, sorts each group alphabetically by color code, writes the layout back to the same showroom, and returns a CSV receipt of the result.\n\n### Setup steps\n\n- Create a VNTANA API credential and assign it to the **Fetch Showroom from VNTANA** and **Update Showroom in VNTANA** nodes.\n- Register a VNTANA webhook for `showroom.asset.added` pointing at the production webhook URL, or POST `{\"showroomUuid\": \"...\"}` manually.\n- Make sure every asset in the showroom follows the three rules above.\n\n### Customization\n\nAdjust the grouping and sorting logic in the **Calculate Group Allocations** node (different attribute, sort key, or naming pattern) and the report fields in the **Generate Showroom Report** node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "73636170-8b9a-45a0-a14e-5a1c57a17146",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        192,
+        128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 336,
+        "content": "## Receive showroom request\n\nStarts from the webhook trigger and extracts the showroom UUID from the incoming payload or request data so it can be used in later VNTANA API calls."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c861ab2-78b5-4f0f-bb2f-8c49ede84e40",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 320,
+        "content": "## Organize showroom assets\n\nFetches the showroom from VNTANA, computes grouping or naming-rule updates, then sends the updated showroom structure back to the VNTANA API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15851579-2065-4676-839d-698aae5261fa",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 320,
+        "content": "## Return organization report\n\nBuilds a report of the applied organization changes, encodes it as a downloadable file, and returns the final response through the webhook."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "webhook",
+      "name": "When Showroom Export Posted",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        240,
+        304
+      ],
+      "webhookId": "1accc8e8-1066-41fa-84de-dae25d4bce48",
+      "parameters": {
+        "path": "vntana-showroom-export",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "extract-uuid",
+      "name": "Parse UUID from Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        464,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.item.json.body;\n// Accepts either the manual test shape {showroomUuid} or the native\n// VNTANA showroom.asset.added event shape {showroom: {uuid}}.\nconst showroomUuid = (body.showroomUuid || (body.showroom && body.showroom.uuid) || '').trim();\nif (!showroomUuid || !/^[0-9a-f-]{36}$/i.test(showroomUuid)) {\n  throw new Error('Missing or invalid showroom UUID in request body');\n}\nreturn [{ json: { showroomUuid } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "get-showroom",
+      "name": "Fetch Showroom from VNTANA",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        688,
+        304
+      ],
+      "parameters": {
+        "url": "https://api-platform.vntana.com/v2/showrooms/get-by-uuid",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ uuid: $json.showroomUuid }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "vntanaApi"
+      },
+      "credentials": {
+        "vntanaApi": {
+          "name": "VNTANA account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "compute-groups",
+      "name": "Calculate Group Allocations",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const resp = $input.item.json;\nif (!resp.success || !resp.response) {\n  throw new Error(`Failed to fetch showroom: ${JSON.stringify(resp.errors)}`);\n}\n\nconst showroom = resp.response;\nconst products = showroom.products || [];\nif (!products.length) throw new Error('Showroom has no products to organize');\n\n// --- Rules the structured path requires every asset to satisfy ---\n\n// Rule 1: every asset must have a non-empty \"Style\" attribute (this is the group title).\nconst missingStyle = products.filter(p => !((p.attributes || {}).Style || '').trim());\nif (missingStyle.length) {\n  throw new Error(\n    `Missing \"Style\" attribute on ${missingStyle.length} asset(s): ` +\n    missingStyle.map(p => `${p.name} (${p.uuid})`).join(', ') +\n    '. Add a Style attribute to every asset in the showroom before running the structured path.'\n  );\n}\n\n// Rule 2: asset name must follow \"<style>_<color>.<ext>\" so a color code can be derived.\nfunction colorCode(p) {\n  const name = p.name || '';\n  const noExt = name.replace(/\\.[^.]+$/, '');\n  const idx = noExt.indexOf('_');\n  return idx === -1 ? null : noExt.slice(idx + 1);\n}\nconst badNaming = products.filter(p => colorCode(p) === null);\nif (badNaming.length) {\n  throw new Error(\n    `Asset name(s) missing the \"<style>_<color>.ext\" naming pattern needed to derive a color code: ` +\n    badNaming.map(p => `${p.name} (${p.uuid})`).join(', ')\n  );\n}\n\nfunction styleKey(p) {\n  return (p.attributes || {}).Style.trim();\n}\n\nconst groupMap = new Map();\nproducts.forEach(p => {\n  const title = styleKey(p);\n  if (!groupMap.has(title)) groupMap.set(title, []);\n  groupMap.get(title).push(p);\n});\n\n// Rule 3: no two assets in the same style group may share a color code (ambiguous order).\ngroupMap.forEach((items, title) => {\n  const seen = new Map();\n  items.forEach(p => {\n    const c = colorCode(p);\n    if (seen.has(c)) {\n      throw new Error(\n        `Duplicate color code \"${c}\" within group \"${title}\": ${seen.get(c)} and ${p.name} (${p.uuid}). ` +\n        'Color codes must be unique within a style group.'\n      );\n    }\n    seen.set(c, p.name);\n  });\n});\n\nconst titles = [...groupMap.keys()].sort((a, b) => a.localeCompare(b));\n\nconst apiGroups = titles.map(title => {\n  const sorted = [...groupMap.get(title)].sort((a, b) => colorCode(a).localeCompare(colorCode(b)));\n  return {\n    title,\n    dividers: ['TOP'],\n    visible: true,\n    productsInfo: sorted.map((p, i) => ({ productUuid: p.uuid, visible: true, order: i + 1 })),\n  };\n});\n\nconst reportRows = [];\ntitles.forEach(title => {\n  const sorted = [...groupMap.get(title)].sort((a, b) => colorCode(a).localeCompare(colorCode(b)));\n  sorted.forEach((p, i) => reportRows.push({ uuid: p.uuid, name: p.name, group: title, order: i + 1 }));\n});\n\nreturn [{\n  json: {\n    uuid: showroom.uuid,\n    name: showroom.name,\n    productsUuids: products.map(p => p.uuid),\n    apiGroups,\n    reportRows,\n    showroomName: showroom.name,\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "update-showroom",
+      "name": "Update Showroom in VNTANA",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1072,
+        304
+      ],
+      "parameters": {
+        "url": "https://api-platform.vntana.com/v1/showrooms",
+        "method": "PUT",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ uuid: $json.uuid, name: $json.name, productsUuids: $json.productsUuids, groups: $json.apiGroups }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "vntanaApi"
+      },
+      "credentials": {
+        "vntanaApi": {
+          "name": "VNTANA account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "build-csv",
+      "name": "Generate Showroom Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1296,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const updateResp = $input.item.json;\nconst built = $('Calculate Group Allocations').first().json;\nif (!updateResp.success) {\n  throw new Error(`Failed to update showroom: ${JSON.stringify(updateResp.errors)}`);\n}\n\nconst csvLines = ['Asset UUID,Asset Name,Group,Order'];\nbuilt.reportRows.forEach(r => {\n  const name = String(r.name || '').replace(/,/g, ' ');\n  const group = String(r.group || '').replace(/,/g, ' ');\n  csvLines.push(`${r.uuid},${name},${group},${r.order}`);\n});\n\nconst csv = csvLines.join('\\n');\nconst filename = `${built.showroomName.replace(/[^a-zA-Z0-9 _-]/g, '')} - Organized.csv`;\n\nreturn [{ json: { csv, filename, showroomName: built.showroomName, count: built.reportRows.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "encode-file",
+      "name": "Encode Report for File",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1488,
+        304
+      ],
+      "parameters": {
+        "jsCode": "const { csv, filename } = $input.item.json;\nconst base64 = Buffer.from(csv, 'utf8').toString('base64');\nreturn [{\n  json: $input.item.json,\n  binary: {\n    data: {\n      data: base64,\n      mimeType: 'text/csv',\n      fileName: filename,\n    }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "respond",
+      "name": "Webhook Response with Report",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1680,
+        304
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200,
+          "responseHeaders": {
+            "entries": [
+              {
+                "name": "Content-Disposition",
+                "value": "={{ 'attachment; filename=\"' + $('Encode Report for File').first().json.filename + '\"' }}"
+              }
+            ]
+          }
+        },
+        "respondWith": "binary"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Encode Report for File": {
+      "main": [
+        [
+          {
+            "node": "Webhook Response with Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse UUID from Request": {
+      "main": [
+        [
+          {
+            "node": "Fetch Showroom from VNTANA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Showroom Report": {
+      "main": [
+        [
+          {
+            "node": "Encode Report for File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Showroom in VNTANA": {
+      "main": [
+        [
+          {
+            "node": "Generate Showroom Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Showroom from VNTANA": {
+      "main": [
+        [
+          {
+            "node": "Calculate Group Allocations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Group Allocations": {
+      "main": [
+        [
+          {
+            "node": "Update Showroom in VNTANA",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Showroom Export Posted": {
+      "main": [
+        [
+          {
+            "node": "Parse UUID from Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Organize VNTANA showroom assets by style and color via webhook and CSV report",
+    "wechat": "youandme10086",
+    "id": 17025,
+    "update_time": "2026-09-27"
+  }
+}

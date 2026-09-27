@@ -1,4 +1,4 @@
-# tech : 29
+# tech : 40
 
 |id|file|
 |----|----|
@@ -31,3 +31,14 @@
 |14882|[14882_Detect_churn_risk_from_competitor_tech_adoption_using_PredictLeads_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14882_Detect_churn_risk_from_competitor_tech_adoption_using_PredictLeads_and_Gmail.json)|
 |14952|[14952_Send_a_curated_tech_RSS_digest_to_Gmail_with_OpenAI_GPT-5_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14952_Send_a_curated_tech_RSS_digest_to_Gmail_with_OpenAI_GPT-5_Mini.json)|
 |15964|[15964_Post_daily_Verge_tech_updates_to_LinkedIn_with_Gemini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15964_Post_daily_Verge_tech_updates_to_LinkedIn_with_Gemini_and_Airtable.json)|
+|17133|[17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json)|
+|17370|[17370_Send_a_daily_tech_and_world_news_briefing_from_RSS_and_YouTube_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17370_Send_a_daily_tech_and_world_news_briefing_from_RSS_and_YouTube_to_Telegram.json)|
+|17441|[17441_Stream_daily_tech_trends_from_an_n8n_Data_Table_to_SwiftBar_via_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17441_Stream_daily_tech_trends_from_an_n8n_Data_Table_to_SwiftBar_via_webhook.json)|
+|17709|[17709_Send_a_weekly_legal_tech_AI_digest_with_GPT-4o-mini__Gemini__WordPress_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17709_Send_a_weekly_legal_tech_AI_digest_with_GPT-4o-mini__Gemini__WordPress_and_Outlook.json)|
+|17886|[17886_Stream_daily_tech_trends_from_a_Data_Table_to_the_macOS_menu_bar_with_SwiftBar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17886_Stream_daily_tech_trends_from_a_Data_Table_to_the_macOS_menu_bar_with_SwiftBar.json)|
+|17901|[17901_Send_a_curated_daily_X_tech_digest_to_Telegram_with_Claude_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17901_Send_a_curated_daily_X_tech_digest_to_Telegram_with_Claude_and_DeepSeek.json)|
+|17922|[17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json)|
+|18078|[18078_Generate_legal_tech_project_proposals_with_Google_Sheets__GPT-4o__SerpApi_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18078_Generate_legal_tech_project_proposals_with_Google_Sheets__GPT-4o__SerpApi_and_Gmail.json)|
+|18398|[18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json)|
+|19408|[19408_Send_a_curated_AI_tech_news_digest_from_RSS_and_sitemaps_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19408_Send_a_curated_AI_tech_news_digest_from_RSS_and_sitemaps_with_OpenAI_and_Gmail.json)|
+|19570|[19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19570_Curate_and_publish_LinkedIn_tech_posts_with_NewsData__Gemini__Slack__and_Jina_AI.json)|

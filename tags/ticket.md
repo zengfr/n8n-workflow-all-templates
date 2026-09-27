@@ -1,4 +1,4 @@
-# ticket : 62
+# ticket : 72
 
 |id|file|
 |----|----|
@@ -64,3 +64,13 @@
 |15955|[15955_Classify_support_emails_and_send_replies_with_Claude__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15955_Classify_support_emails_and_send_replies_with_Claude__Gmail__Slack_and_Sheets.json)|
 |16368|[16368_Create_and_triage_support_tickets_with_HubSpot__reCAPTCHA_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16368_Create_and_triage_support_tickets_with_HubSpot__reCAPTCHA_and_Gmail.json)|
 |16693|[16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json)|
+|16908|[16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json)|
+|16929|[16929_Triage_support_tickets_with_Claude_Sonnet__Infini_Analytics__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16929_Triage_support_tickets_with_Claude_Sonnet__Infini_Analytics__and_Slack.json)|
+|17110|[17110_Route_procurement_helpdesk_tickets_from_Gmail_with_Groq_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17110_Route_procurement_helpdesk_tickets_from_Gmail_with_Groq_and_Slack.json)|
+|17280|[17280_Triage_support_tickets_and_draft_AI_replies_with_CometAPI__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17280_Triage_support_tickets_and_draft_AI_replies_with_CometAPI__Slack_and_Gmail.json)|
+|17469|[17469_Triage_and_resolve_stale_Jira_tickets_with_OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17469_Triage_and_resolve_stale_Jira_tickets_with_OpenAI__Notion__and_Slack.json)|
+|17547|[17547_Issue_sequential_invoice_and_ticket_numbers_via_webhook_and_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17547_Issue_sequential_invoice_and_ticket_numbers_via_webhook_and_Data_Table.json)|
+|18499|[18499_Route_and_respond_to_support_tickets_with_Google_Sheets__Slack__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18499_Route_and_respond_to_support_tickets_with_Google_Sheets__Slack__and_Gemini.json)|
+|18681|[18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json)|
+|19465|[19465_Triage_and_route_AI-powered_support_tickets_with_Google_Gemini__Trello__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19465_Triage_and_route_AI-powered_support_tickets_with_Google_Gemini__Trello__and_Gmail.json)|
+|19746|[19746_Classify_and_route_support_tickets_via_webhooks_using_RapidAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19746_Classify_and_route_support_tickets_via_webhooks_using_RapidAPI.json)|

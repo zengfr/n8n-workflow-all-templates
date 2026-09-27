@@ -1,4 +1,4 @@
-# prompt : 40
+# prompt : 46
 
 |id|file|
 |----|----|
@@ -42,3 +42,9 @@
 |16508|[16508_Generate_VEO3_videos_from_form_ideas_with_ChatGPT__fal.ai__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16508_Generate_VEO3_videos_from_form_ideas_with_ChatGPT__fal.ai__Drive_and_Gmail.json)|
 |16570|[16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json)|
 |16772|[16772_Generate_and_publish_AI_short_videos_from_Telegram_using_Blotato_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16772_Generate_and_publish_AI_short_videos_from_Telegram_using_Blotato_and_OpenAI.json)|
+|16949|[16949_Protect_Gmail_AI_email_workflows_from_prompt_injection_with_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16949_Protect_Gmail_AI_email_workflows_from_prompt_injection_with_Gemini_and_Sheets.json)|
+|16953|[16953_Create_AI_music_videos_from_a_prompt_with_OpenAI__Kie.ai_and_BeatAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16953_Create_AI_music_videos_from_a_prompt_with_OpenAI__Kie.ai_and_BeatAPI.json)|
+|17142|[17142_Detect_LLM_prompt_regressions_with_Data_Tables__OpenAI_APIs__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17142_Detect_LLM_prompt_regressions_with_Data_Tables__OpenAI_APIs__and_Telegram.json)|
+|17261|[17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json)|
+|17570|[17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json)|
+|18805|[18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json)|

@@ -1,0 +1,868 @@
+{
+  "name": "Process Stripe refunds with Allowly approval and reviewer checks",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ede3b6aa-8095-5f1d-ab86-22df8463608d",
+      "name": "Run test refund",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        40
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5f9c1054-906e-5aea-88ab-7b1595f72e8e",
+      "name": "Refund request",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        220,
+        40
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"authorizationId\": \"REPLACE_WITH_STORED_AUTHORIZATION_ID\",\n  \"refundRequestId\": \"demo-refund-001\",\n  \"paymentIntentId\": \"REPLACE_WITH_TEST_PAYMENT_INTENT_ID\",\n  \"amountMinor\": 2500,\n  \"currency\": \"usd\",\n  \"reason\": \"requested_by_customer\"\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ad7620a8-fa5b-5bc1-b2cb-e4bac5ee4ad0",
+      "name": "Validate request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        440,
+        40
+      ],
+      "parameters": {
+        "jsCode": "if ($input.all().length !== 1) throw new Error('Run one refund request at a time.');\nconst r = $input.first().json;\nif (typeof r.authorizationId !== 'string' || !/^auth_[A-Za-z0-9_-]+$/.test(r.authorizationId)) throw new Error('Set a stored Allowly authorization ID.');\nif (typeof r.refundRequestId !== 'string' || !/^[A-Za-z0-9_-]{1,64}$/.test(r.refundRequestId)) throw new Error('Use a stable refund request ID of 1-64 ASCII letters, digits, hyphens or underscores.');\nif (typeof r.paymentIntentId !== 'string' || !/^pi_[A-Za-z0-9]{1,80}$/.test(r.paymentIntentId)) throw new Error('Set a Stripe test PaymentIntent ID.');\nif (!Number.isSafeInteger(r.amountMinor) || r.amountMinor < 1 || r.amountMinor > 99999999) throw new Error('amountMinor must be a positive integer, at most 99999999.');\nif (r.currency !== 'usd' || r.reason !== 'requested_by_customer') throw new Error('This example supports USD customer-requested refunds only.');\n// Bind every executed refund field to approval; no crypto module or extra dependency.\nconst resource = ['stripe-refund', r.refundRequestId, r.paymentIntentId, r.amountMinor, r.currency, r.reason].join(':');\nreturn [{json: {authorizationId:r.authorizationId, refundRequestId:r.refundRequestId, paymentIntentId:r.paymentIntentId, amountMinor:r.amountMinor, currency:r.currency, reason:r.reason, resource, stripeIdempotencyKey:'allowly-refund:' + r.refundRequestId, context:{refund_request_id:r.refundRequestId, payment_intent_id:r.paymentIntentId, amount_minor:r.amountMinor, currency:r.currency, reason:r.reason}}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "acd4580d-1715-5e15-86c1-4e360619598f",
+      "name": "Read Stripe payment",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        800,
+        40
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.stripe.com/v1/payment_intents/' + $('Validate request').first().json.paymentIntentId }}",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "stripeApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e4b7ffa2-805b-5560-93f1-a47605fcda90",
+      "name": "Require test payment",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1020,
+        40
+      ],
+      "parameters": {
+        "jsCode": "const p = $input.first().json;\nconst r = $('Validate request').first().json;\nif (p.object !== 'payment_intent' || p.id !== r.paymentIntentId || p.livemode !== false) throw new Error('A matching Stripe test-mode PaymentIntent is required; live or malformed responses stop here.');\nif (p.status !== 'succeeded' || p.currency !== r.currency || !Number.isSafeInteger(p.amount_received) || r.amountMinor > p.amount_received) throw new Error('Use a succeeded USD test payment with enough received funds.');\nreturn [{json:r}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5421defa-a546-5d18-8b36-03886f2c124b",
+      "name": "Check refund",
+      "type": "n8n-nodes-allowly.allowly",
+      "position": [
+        1240,
+        40
+      ],
+      "parameters": {
+        "actions": "refund.create",
+        "session": "={{ $('Validate request').first().json.refundRequestId }}",
+        "resource": "={{ $('Validate request').first().json.resource }}",
+        "operation": "check",
+        "contextJson": "={{ $('Validate request').first().json.context }}",
+        "workflowUser": "",
+        "authorization": "YOUR_CREDENTIAL_HERE",
+        "workflowAgent": "",
+        "estimatedCostMicros": -1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53cb019c-8c6e-5375-be7d-31e998831c36",
+      "name": "Validate decision",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1460,
+        40
+      ],
+      "parameters": {
+        "jsCode": "const d = $input.first().json;\nconst result = d.results?.['refund.create'];\nif (d.action !== 'refund.create' || !['allow','deny','confirm','escalate'].includes(d.decision) || result?.decision !== d.decision) throw new Error('Invalid Allowly decision; no refund.');\nconst receiptId = d.receipt?.receipt_id ?? d.receipt?.receipt?.receipt_id;\nif (typeof receiptId !== 'string' || !/^rcp_[A-Za-z0-9_-]+$/.test(receiptId)) throw new Error('Missing decision receipt; no refund.');\nif (d.decision === 'confirm' && (typeof d.confirmNonce !== 'string' || !d.confirmNonce)) throw new Error('Missing confirmation nonce.');\nif (d.decision === 'escalate' && (typeof d.escalationId !== 'string' || !d.escalationId)) throw new Error('Missing escalation ID.');\nreturn [{json:{...d, receiptId}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f766392a-7a5b-5d76-8881-e944f5c49a92",
+      "name": "Allowed immediately",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1680,
+        40
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Allowed immediately",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.decision === 'allow' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "88cb7d0e-5743-56b4-97d9-d00ee3595a3b",
+      "name": "Needs review",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1900,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Needs review",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.decision === 'confirm' || $json.decision === 'escalate' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ea0b97a6-bb76-5f45-ae9b-3ffb775ea6cb",
+      "name": "Stop refund",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        1900,
+        500
+      ],
+      "parameters": {
+        "errorType": "errorMessage",
+        "errorMessage": "Refund stopped. Inspect the decision or review result; do not bypass the checks."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5cdcaf97-4b1a-5c35-989e-37831fa4d472",
+      "name": "Wait for reviewer",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2300,
+        620
+      ],
+      "webhookId": "3a0400db-3de8-5360-943e-d21d677fb81e",
+      "parameters": {
+        "resume": "webhook",
+        "options": {},
+        "limitType": "afterTimeInterval",
+        "httpMethod": "POST",
+        "resumeUnit": "minutes",
+        "responseCode": 200,
+        "responseMode": "onReceived",
+        "resumeAmount": 4,
+        "limitWaitTime": true,
+        "incomingAuthentication": "headerAuth"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "dcc52c6b-3301-52b4-b0cb-9e13af19b232",
+      "name": "Validate review",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2520,
+        620
+      ],
+      "parameters": {
+        "jsCode": "const body = $input.first().json.body;\nconst request = $('Validate request').first().json;\nif (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).sort().join(',') !== 'approved,resource') throw new Error('Review missing, timed out, or has unexpected fields.');\nif (typeof body.approved !== 'boolean' || body.resource !== request.resource) throw new Error('Review must contain an explicit boolean and the exact frozen refund resource.');\nreturn [{json:{approved:body.approved}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d2196dab-1e54-5914-be27-47b9ffb8ac53",
+      "name": "Confirmation requested",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2740,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Confirmation requested",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Validate decision').first().json.decision === 'confirm' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dba9b5ec-e426-55a7-be9e-c6d276c7ba62",
+      "name": "Resolve confirmation",
+      "type": "n8n-nodes-allowly.allowly",
+      "position": [
+        2960,
+        520
+      ],
+      "parameters": {
+        "operation": "resolveConfirmation",
+        "confirmationNonce": "={{ $('Validate decision').first().json.confirmNonce }}",
+        "confirmationApproved": "={{ $('Validate review').first().json.approved }}",
+        "confirmationTtlSeconds": 60,
+        "confirmationIdempotencyKey": ""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bc94342a-b4c3-5058-9408-511f34448a90",
+      "name": "Resolve escalation",
+      "type": "n8n-nodes-allowly.allowly",
+      "position": [
+        2960,
+        820
+      ],
+      "parameters": {
+        "operation": "resolveEscalation",
+        "escalationId": "={{ $('Validate decision').first().json.escalationId }}",
+        "escalationNote": "Customer-reported outcome from the authenticated demo review endpoint.",
+        "escalationResolution": "={{ $('Validate review').first().json.approved ? 'approved' : 'rejected' }}",
+        "escalationResolvedBy": "n8n-refund-review-demo"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16e3fa22-6eb3-5ca3-ab24-0a7bfbe72bb3",
+      "name": "Reviewer approved",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3340,
+        620
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Reviewer approved",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Validate review').first().json.approved === true }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8ec52c68-f301-508a-9a17-c362ad690a94",
+      "name": "Recheck refund after review",
+      "type": "n8n-nodes-allowly.allowly",
+      "position": [
+        3560,
+        620
+      ],
+      "parameters": {
+        "actions": "refund.create",
+        "session": "={{ $('Validate request').first().json.refundRequestId }}",
+        "resource": "={{ $('Validate request').first().json.resource }}",
+        "operation": "check",
+        "contextJson": "={{ $('Validate request').first().json.context }}",
+        "workflowUser": "",
+        "authorization": "YOUR_CREDENTIAL_HERE",
+        "workflowAgent": "",
+        "estimatedCostMicros": -1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a3f0508c-cd9d-5c81-a7bf-645182363d15",
+      "name": "Require final allow",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3780,
+        620
+      ],
+      "parameters": {
+        "jsCode": "const d = $input.first().json;\nconst receiptId = d.receipt?.receipt_id ?? d.receipt?.receipt?.receipt_id;\nif (d.action !== 'refund.create' || d.decision !== 'allow' || d.results?.['refund.create']?.decision !== 'allow' || typeof receiptId !== 'string' || !/^rcp_[A-Za-z0-9_-]+$/.test(receiptId)) throw new Error('Fresh check did not allow this refund; start a new review.');\nreturn [{json:{...d,receiptId}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6a84cbca-71c3-5f54-a87a-c10b92a1b175",
+      "name": "Refund permitted",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3340,
+        40
+      ],
+      "parameters": {
+        "jsCode": "const decision = $input.first().json;\nreturn [{json:{request:$('Validate request').first().json,decision}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "691a8989-9644-5f23-a6dd-d0cfa093b98c",
+      "name": "Create Stripe test refund",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3560,
+        40
+      ],
+      "parameters": {
+        "url": "https://api.stripe.com/v1/refunds",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        },
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "payment_intent",
+              "value": "={{ $('Validate request').first().json.paymentIntentId }}"
+            },
+            {
+              "name": "amount",
+              "value": "={{ $('Validate request').first().json.amountMinor }}"
+            },
+            {
+              "name": "reason",
+              "value": "={{ $('Validate request').first().json.reason }}"
+            },
+            {
+              "name": "metadata[allowly_refund_request_id]",
+              "value": "={{ $('Validate request').first().json.refundRequestId }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $('Validate request').first().json.stripeIdempotencyKey }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "stripeApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "3ae0a59a-c89e-52dc-b2fe-40279da21c9a",
+      "name": "Refund result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3780,
+        40
+      ],
+      "parameters": {
+        "jsCode": "const refund = $input.first().json;\nconst permitted = $('Refund permitted').first().json;\nconst r = permitted.request;\nif (refund.object !== 'refund' || typeof refund.id !== 'string' || !/^re_[A-Za-z0-9]+$/.test(refund.id) || refund.payment_intent !== r.paymentIntentId || refund.amount !== r.amountMinor || refund.currency !== r.currency || typeof refund.status !== 'string') throw new Error('Unexpected refund response. Reconcile in Stripe before retrying; keep the same request ID.');\nreturn [{json:{request:r,decision:permitted.decision,stripeRefund:{id:refund.id,payment_intent:refund.payment_intent,amount:refund.amount,currency:refund.currency,status:refund.status},receiptVerification:'not_performed'}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7bb2510c-7d98-55a5-9ccd-4d5a5049efd7",
+      "name": "Fetch decision receipt",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4180,
+        40
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.allowly.ai/v1/receipts/' + $('Refund result').first().json.decision.receiptId }}",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "allowlyApi"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "0d0eafe6-6006-5bea-a90e-9914b382eaa9",
+      "name": "Export refund evidence",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4400,
+        40
+      ],
+      "parameters": {
+        "jsCode": "const evidence = $('Refund result').first().json;\nconst envelope = $input.first().json;\nconst receiptId = envelope.receipt_id ?? envelope.receipt?.receipt_id;\nif (!['signed','pending'].includes(envelope.status) || receiptId !== evidence.decision.receiptId) throw new Error('Unexpected receipt response. Keep Refund result and retrieve its receipt ID separately; do not create another refund.');\nif (envelope.status === 'signed' && typeof envelope.receipt?.signature !== 'string') throw new Error('Signed receipt is missing its signature.');\nreturn [{json:{...evidence,decisionReceipt:envelope,receiptPending:envelope.status === 'pending'}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "762338a8-63ae-52a9-b845-22574b046ae9",
+      "name": "Read before running",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -1100
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 760,
+        "height": 850,
+        "content": "## Process Stripe refunds with Allowly approval and reviewer checks\n\n### How it works\nRun one USD test refund per execution. The workflow checks a stored Allowly authorization before calling Stripe. An allowed request proceeds; a denied request stops. Confirmation or escalation pauses for an authenticated reviewer, then requires a fresh allow decision for the same refund details.\n\nThe output keeps the Stripe refund ID and status alongside the Allowly decision receipt. Receipt signing may be pending; this workflow does not verify signatures. A decision receipt does not prove that a refund completed.\n\n### Setup\n1. On self-hosted n8n, install **n8n-nodes-allowly 0.2.1** and allow Code nodes.\n2. Follow the [full setup guide](https://github.com/Allowly-AI/n8n-nodes-allowly/blob/main/examples/stripe-refund-with-approval.md) to create the refund policy and store one authorization.\n3. Create a succeeded USD Stripe test payment. Select the **same Stripe test credential** on both Stripe HTTP nodes.\n4. Select the **same Allowly API credential** on all Allowly nodes and **Fetch decision receipt**.\n5. Set a dedicated **Header Auth** credential on **Wait for reviewer**. Keep the review secret separate from API keys.\n6. Fill **Refund request** with the stored authorization, payment ID, stable request ID, and amount in cents. Run the full workflow from **Run test refund**, with no pinned data.\n\n**Test mode only.** Do not run the refund node alone. Keep the request ID and fields unchanged on retries; reconcile uncertain refunds in Stripe first. Production use needs durable refund tracking and reconciliation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1c33b488-d447-54db-86bf-c43e9804ab7e",
+      "name": "Prepare one refund request",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 420,
+        "content": "## 1. Prepare one refund request\nEdit **Refund request** before running. Use integer cents, USD, and a stable request ID. Validation freezes the details used by the policy check, reviewer, and Stripe. Run one request per full execution."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d0189215-0588-50d2-951f-93fb817cd2f2",
+      "name": "Check payment and policy",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        720,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1440,
+        "height": 880,
+        "content": "## 2. Check the payment and policy\nOnly a matching, succeeded Stripe test payment continues. Allowly checks the stored authorization: allow proceeds, confirm or escalate requires review, and deny stops. Invalid responses and errors stop the workflow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2efed07e-9004-55f5-bc6a-0b53060f72e7",
+      "name": "Review the frozen request",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 960,
+        "height": 700,
+        "content": "## 3. Review the frozen request\nWithin four minutes, POST to the execution's resume URL using Header Auth. Send only boolean `approved` and the exact `resource` from **Validate request**. Validation binds the response to this refund before resolving the Allowly review."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7a602999-cb4a-5ef3-bd68-196fa6282316",
+      "name": "Recheck after approval",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3280,
+        360
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 580,
+        "content": "## 4. Require a fresh allow\nAfter approval, recheck the original authorization and unchanged refund details. Only a fresh allow reaches Stripe. Rejection, timeout, or any other decision stops; approval alone cannot create the refund."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16953c4d-2a0a-5b10-ae3d-b150c16b3047",
+      "name": "Create the Stripe test refund",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3280,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 760,
+        "height": 440,
+        "content": "## 5. Create the Stripe test refund\nUse the same Stripe test credential as **Read Stripe payment**. Unchanged retries reuse the request ID and fields; Stripe's duplicate protection is time-limited. Save **Refund result**, including its refund ID and status."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ae940a64-686d-5a84-95df-d35eaf2e1868",
+      "name": "Retain decision evidence",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4120,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 440,
+        "content": "## 6. Retain decision evidence\nSave the refund result with its decision receipt. Signing may be pending; signatures are not verified here. If receipt retrieval fails, recover it separately using **Refund result**. Do not create another refund to recover evidence."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Check refund": {
+      "main": [
+        [
+          {
+            "node": "Validate decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs review": {
+      "main": [
+        [
+          {
+            "node": "Wait for reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop refund",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refund result": {
+      "main": [
+        [
+          {
+            "node": "Fetch decision receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refund request": {
+      "main": [
+        [
+          {
+            "node": "Validate request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run test refund": {
+      "main": [
+        [
+          {
+            "node": "Refund request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate review": {
+      "main": [
+        [
+          {
+            "node": "Confirmation requested",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refund permitted": {
+      "main": [
+        [
+          {
+            "node": "Create Stripe test refund",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate request": {
+      "main": [
+        [
+          {
+            "node": "Read Stripe payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reviewer approved": {
+      "main": [
+        [
+          {
+            "node": "Recheck refund after review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop refund",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate decision": {
+      "main": [
+        [
+          {
+            "node": "Allowed immediately",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for reviewer": {
+      "main": [
+        [
+          {
+            "node": "Validate review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve escalation": {
+      "main": [
+        [
+          {
+            "node": "Reviewer approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Allowed immediately": {
+      "main": [
+        [
+          {
+            "node": "Refund permitted",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Needs review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Stripe payment": {
+      "main": [
+        [
+          {
+            "node": "Require test payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Require final allow": {
+      "main": [
+        [
+          {
+            "node": "Refund permitted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Require test payment": {
+      "main": [
+        [
+          {
+            "node": "Check refund",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve confirmation": {
+      "main": [
+        [
+          {
+            "node": "Reviewer approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Confirmation requested": {
+      "main": [
+        [
+          {
+            "node": "Resolve confirmation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolve escalation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch decision receipt": {
+      "main": [
+        [
+          {
+            "node": "Export refund evidence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Stripe test refund": {
+      "main": [
+        [
+          {
+            "node": "Refund result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recheck refund after review": {
+      "main": [
+        [
+          {
+            "node": "Require final allow",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Process Stripe refunds with Allowly approval and reviewer checks",
+    "wechat": "youandme10086",
+    "id": 19690,
+    "update_time": "2026-09-27"
+  }
+}

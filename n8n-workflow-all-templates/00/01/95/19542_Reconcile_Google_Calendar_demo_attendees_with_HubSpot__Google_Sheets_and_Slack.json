@@ -1,0 +1,727 @@
+{
+  "id": "db40a7706d095a8e",
+  "name": "Reconcile Google Calendar demo attendees with HubSpot, Google Sheets and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "48c39256-60d2-5821-8251-003ce1bea4d5",
+      "name": "Run a manual check",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        260
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "017bca4c-edc1-5aef-8e9c-4f11f8275c8f",
+      "name": "Run each weekday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        440
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "5cafac73-cfc9-598b-ba8d-d9c2f66ddfea",
+      "name": "Set config values",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        320
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ebdac4ec-f30d-512f-ad74-06989e552f88",
+              "name": "calendarId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "10c239fc-ab59-5ed5-b8e5-e259a62f1c7d",
+              "name": "internalDomains",
+              "type": "string",
+              "value": "example.com"
+            },
+            {
+              "id": "abf653b8-949c-547d-97f8-93db9ceb388c",
+              "name": "lookAheadHours",
+              "type": "number",
+              "value": 24
+            },
+            {
+              "id": "f0155152-b355-52d1-866e-738a1961ace9",
+              "name": "bookingGraceMinutes",
+              "type": "number",
+              "value": 15
+            },
+            {
+              "id": "98d2d49e-1ebd-5ed9-b21d-108812aef8e2",
+              "name": "maxAttendees",
+              "type": "number",
+              "value": 150
+            },
+            {
+              "id": "723b9688-f2a6-54bf-ac2a-f1ce63d4e003",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "dc55c3ca-8772-5cd2-9205-5efcbd562b40",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Demo review"
+            },
+            {
+              "id": "e311cc90-10f5-5c36-a3a2-00221d118c38",
+              "name": "slackChannelId",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b880739b-7f20-51a3-913e-bb6e80c3f1a7",
+      "name": "Validate setup",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const c = $json;\nfor (const k of ['calendarId','internalDomains','spreadsheetId','sheetName','slackChannelId']) if (!String(c[k] || '').trim()) throw new Error(`Set config values: ${k} is required`);\nif (c.internalDomains === 'example.com') throw new Error('Set internalDomains to your own comma-separated domains');\nfor (const [k,min,max] of [['lookAheadHours',1,168],['bookingGraceMinutes',0,120],['maxAttendees',1,500]]) if (!Number.isInteger(Number(c[k])) || Number(c[k])<min || Number(c[k])>max) throw new Error(`Invalid ${k}: allowed ${min}-${max}`);\nconst domains=c.internalDomains.toLowerCase().split(',').map(x=>x.trim()).filter(Boolean);\nif(domains.some(d=>!/^([a-z0-9-]+\\.)+[a-z]{2,}$/.test(d))) throw new Error('Use bare domains in internalDomains');\nreturn {json:{...c,domains,checkedAt:new Date().toISOString()}};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4007b314-f9cd-5f91-8d3c-903da9dbaad1",
+      "name": "Read active HubSpot owners",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        800,
+        320
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/owners/",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "after",
+                    "type": "qs",
+                    "value": "={{ $response.body?.paging?.next?.after ?? undefined }}"
+                  }
+                ]
+              },
+              "maxRequests": 20,
+              "paginationMode": "updateAParameterInEachRequest",
+              "requestInterval": 300,
+              "limitPagesFetched": true,
+              "completeExpression": "={{ !($response.body?.paging?.next?.after) }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            },
+            {
+              "name": "archived",
+              "value": "false"
+            }
+          ]
+        },
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "ffdbc6b3-1d12-5866-9205-d0242dd7f7d8",
+      "name": "Index active owners",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1060,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const pages=$input.all().map(x=>x.json);\nif(pages.length===0 || pages.some(p=>!Array.isArray(p.results))) throw new Error('Invalid HubSpot owners response');\nif(pages.at(-1).paging?.next?.after) throw new Error('Owner directory exceeded page limit; report stopped');\nconst owners={};for(const p of pages) for(const o of p.results) if(!o.archived && o.id) owners[String(o.id)]={name:[o.firstName,o.lastName].filter(Boolean).join(' ') || `Owner ${o.id}`};\nreturn [{json:{owners}}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "58c5a806-acdb-5a12-8b20-ceb9c4e644f9",
+      "name": "Read upcoming demos",
+      "type": "n8n-nodes-base.googleCalendar",
+      "maxTries": 3,
+      "position": [
+        1360,
+        320
+      ],
+      "parameters": {
+        "options": {
+          "recurringEventHandling": "expand"
+        },
+        "timeMax": "={{ DateTime.fromISO($('Validate setup').first().json.checkedAt).plus({hours: $('Set config values').first().json.lookAheadHours}).toISO() }}",
+        "timeMin": "={{ $('Validate setup').first().json.checkedAt }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set config values').first().json.calendarId }}"
+        },
+        "resource": "event",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.3,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "67493326-cbd7-5d87-9306-656f40d60843",
+      "name": "Prepare attendee checks",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1620,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const c=$('Validate setup').first().json;const now=Date.parse(c.checkedAt);const rows=[];const seen=new Set();\nfor(const {json:e} of $input.all()) {\n if(!e.id) {if(Object.keys(e).length===0) continue;throw new Error('Calendar response has no event ID');}\n if(e.status==='cancelled' || !e.start?.dateTime || Date.parse(e.start.dateTime)<now || Date.parse(e.start.dateTime)>now+c.lookAheadHours*3600000) continue;\n if(e.attendeesOmitted) throw new Error('Calendar attendee list is truncated. Remove maxAttendees restrictions before retrying.');\n if(!e.created || !Number.isFinite(Date.parse(e.created))) throw new Error('Calendar event has no valid creation timestamp');\n if(now-Date.parse(e.created)<c.bookingGraceMinutes*60000) continue;\n for(const a of e.attendees || []) {\n  const email=String(a.email||'').trim().toLowerCase();const domain=email.split('@')[1];\n  if(!email || !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(email) || a.self || a.resource || a.responseStatus==='declined' || c.domains.some(d=>domain===d || domain.endsWith('.'+d))) continue;\n  const key=e.id+'|'+email;if(seen.has(key))continue;seen.add(key);\n  rows.push({json:{review_key:key,event_id:e.id,event_title:String(e.summary||'Untitled demo').slice(0,180),starts_at:e.start.dateTime,attendee_email:email,rsvp:a.responseStatus||'needsAction',calendar_url:/^https:\\/\\/calendar\\.google\\.com\\//.test(e.htmlLink||'')?e.htmlLink:'',checked_at:c.checkedAt}});\n }\n}\nif(rows.length>c.maxAttendees) throw new Error(`Found ${rows.length} attendee checks; maximum is ${c.maxAttendees}. Narrow the calendar/window.`);\nreturn rows;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b4a60dc6-1970-58a6-a363-d0f138ca7df4",
+      "name": "Find exact primary-email contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        1900,
+        320
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts/search",
+        "method": "POST",
+        "options": {
+          "timeout": 30000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 300
+            }
+          }
+        },
+        "jsonBody": "={{ {filterGroups:[{filters:[{propertyName:'email',operator:'EQ',value:$json.attendee_email}]}],properties:['email','hubspot_owner_id','lifecyclestage'],limit:2} }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "c789d2f0-8e93-568d-88a0-f3f9fae0bccf",
+      "name": "Classify CRM coverage",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2160,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const row=$('Prepare attendee checks').item.json;const r=$json;const owners=$('Index active owners').first().json.owners;\nif(!Array.isArray(r.results) || !Number.isInteger(r.total) || r.total<0) throw new Error('HubSpot contact search returned an invalid response');\nlet status,action,contactId='',ownerName='',lifecycle='';\nif(r.total===0){status='NO_PRIMARY_EMAIL_MATCH';action='Check alternate email and booking details before creating or merging any contact.';}\nelse if(r.total>1){status='AMBIGUOUS_CONTACT';action='Resolve duplicate primary-email matches in HubSpot before assigning a handoff.';}\nelse {\n const contact=r.results[0];if(!contact?.id || String(contact.properties?.email||'').toLowerCase()!==row.attendee_email) throw new Error('HubSpot exact-match response is inconsistent; no readiness report was sent');\n contactId=String(contact.id);lifecycle=contact.properties.lifecyclestage||'';const ownerId=String(contact.properties.hubspot_owner_id||'');\n if(!ownerId){status='UNASSIGNED_CONTACT';action='Assign an accountable contact owner before the demo.';}\n else if(!owners[ownerId]){status='OWNER_NOT_ACTIVE';action='Review the owner assignment; this ID is absent from the active owner directory.';}\n else {status='READY';ownerName=owners[ownerId].name;action='Primary email matches one contact with an active owner.';}\n}\nreturn {json:{...row,contact_id:contactId,owner_name:ownerName,lifecycle_stage:lifecycle,status,recommended_action:action}};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "120daf99-e2dc-5f5c-bd3d-49aefde6a8e8",
+      "name": "Update demo review queue",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2460,
+        320
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "rsvp": "={{ $json.rsvp }}",
+            "status": "={{ $json.status }}",
+            "event_id": "={{ $json.event_id }}",
+            "starts_at": "={{ $json.starts_at }}",
+            "checked_at": "={{ $json.checked_at }}",
+            "contact_id": "={{ $json.contact_id }}",
+            "owner_name": "={{ $json.owner_name }}",
+            "review_key": "={{ $json.review_key }}",
+            "event_title": "={{ $json.event_title }}",
+            "calendar_url": "={{ $json.calendar_url }}",
+            "attendee_email": "={{ $json.attendee_email }}",
+            "lifecycle_stage": "={{ $json.lifecycle_stage }}",
+            "recommended_action": "={{ $json.recommended_action }}"
+          },
+          "schema": [
+            {
+              "id": "review_key",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "review_key",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "starts_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "starts_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "attendee_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "attendee_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "rsvp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "rsvp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "calendar_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "calendar_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "checked_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "checked_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "contact_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "owner_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "owner_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lifecycle_stage",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "lifecycle_stage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "recommended_action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "review_key"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set config values').first().json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set config values').first().json.spreadsheetId }}"
+        }
+      },
+      "typeVersion": 4.7,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "42ceb50f-d3ef-58f8-bda0-12dbbb78199b",
+      "name": "Build exception digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2720,
+        320
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const rows=$('Classify CRM coverage').all().map(x=>x.json);const c=$('Validate setup').first().json;\nconst issues=rows.filter(r=>r.status!=='READY');if(!issues.length)return [];\nconst esc=s=>String(s).replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/[\\r\\n]/g,' ').slice(0,180);\nconst counts={};for(const r of issues)counts[r.status]=(counts[r.status]||0)+1;\nconst lines=issues.slice(0,12).map(r=>`• ${esc(r.event_title)} — ${esc(r.starts_at)} — ${r.status}${r.calendar_url?' <'+r.calendar_url+'|Calendar>':''}`);\nreturn [{json:{text:`*Demo readiness review*\\n${rows.length} attendee checks; ${issues.length} require review. ${Object.entries(counts).map(([k,v])=>k+': '+v).join(' · ')}\\n${lines.join('\\n')}\\n${issues.length>12?'Showing 12; all findings are in the queue.\\n':''}<https://docs.google.com/spreadsheets/d/${encodeURIComponent(c.spreadsheetId)}/edit|Open review queue>\\nSnapshot: ${c.checkedAt}. Filter checked_at to this run. No primary-email match can mean an alias; verify before creating records.`}}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a9e70976-1c08-5aa9-bd93-8db30b4ec8f6",
+      "name": "Send review digest to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2980,
+        320
+      ],
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set config values').first().json.slackChannelId }}"
+        },
+        "operation": "post",
+        "otherOptions": {
+          "link_names": false,
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "298f08b0-ca02-53c9-a1e6-27475df2f4ee",
+      "name": "Workflow overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -720,
+        -160
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 600,
+        "height": 1120,
+        "content": "## Demo readiness for sales operations\n### How it works\nReconcile upcoming demo attendees with HubSpot before the meeting starts. A weekday schedule reads a dedicated Google Calendar, removes canceled events, declined attendees and internal domains, and gives recently created bookings a short grace period. Each remaining attendee is checked against the exact primary email in HubSpot. The workflow distinguishes no match, ambiguous matches, missing ownership and owners absent from the active directory. It never guesses an alternate email match.\n\nA stable event-and-attendee key updates a Google Sheets review queue. After the sheet succeeds, Slack receives one bounded digest of exceptions with calendar links. Healthy attendees are recorded without an alert. API failures and incomplete owner pagination stop the report instead of implying readiness.\n### Setup\n1. Connect Google Calendar, HubSpot App Token, Google Sheets and Slack credentials on their nodes. HubSpot needs contact and owner read access; invite the Slack bot to the destination channel.\n2. In Set config values, enter a dedicated demo calendar, your internal domains, spreadsheet ID, tab name and channel ID. Review the look-ahead window, booking grace and attendee limit.\n3. Create the sheet headers listed in the template setup, then run a manual check with test bookings. Use the workflow timezone for the weekday schedule.\n4. Filter the queue by checked_at for the current snapshot; older rows remain historical observations. Enable the schedule after reviewing the results.\n### Customization tips\nUse primary-email results as a review queue, not proof that a person is absent from the CRM. No attendee messages or CRM changes are sent."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0e916172-15c6-5a75-bae2-1da10cd70c8a",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 480,
+        "content": "## Start and configure"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a3607c61-6955-5353-9185-96d76fdc69df",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        760,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 540,
+        "height": 480,
+        "content": "## Load and index active owners"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cd49ce30-bf23-5058-a972-d8af4888656a",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1320,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 550,
+        "height": 480,
+        "content": "## Read and prepare demo attendees"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5ea87453-b818-5517-813a-057c058fc5a8",
+      "name": "Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1860,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 480,
+        "content": "## Reconcile primary email and ownership"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "375b64e5-e030-5484-8e28-60cb0e8403a2",
+      "name": "Section 5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2420,
+        140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 810,
+        "height": 480,
+        "content": "## Save review queue and report exceptions"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "timezone": "America/New_York",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Validate setup": {
+      "main": [
+        [
+          {
+            "node": "Read active HubSpot owners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config values": {
+      "main": [
+        [
+          {
+            "node": "Validate setup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run a manual check": {
+      "main": [
+        [
+          {
+            "node": "Set config values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Index active owners": {
+      "main": [
+        [
+          {
+            "node": "Read upcoming demos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read upcoming demos": {
+      "main": [
+        [
+          {
+            "node": "Prepare attendee checks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify CRM coverage": {
+      "main": [
+        [
+          {
+            "node": "Update demo review queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build exception digest": {
+      "main": [
+        [
+          {
+            "node": "Send review digest to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare attendee checks": {
+      "main": [
+        [
+          {
+            "node": "Find exact primary-email contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run each weekday morning": {
+      "main": [
+        [
+          {
+            "node": "Set config values",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update demo review queue": {
+      "main": [
+        [
+          {
+            "node": "Build exception digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read active HubSpot owners": {
+      "main": [
+        [
+          {
+            "node": "Index active owners",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find exact primary-email contact": {
+      "main": [
+        [
+          {
+            "node": "Classify CRM coverage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Reconcile Google Calendar demo attendees with HubSpot, Google Sheets and Slack",
+    "wechat": "youandme10086",
+    "id": 19542,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# studio : 7
+# studio : 14
 
 |id|file|
 |----|----|
@@ -9,3 +9,10 @@
 |12682|[12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12682_Text___Viral_Shorts___AI_Video_Studio_in_Telegram__w_Setup_Video.json)|
 |13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|
 |13602|[13602_Create_sprint_goals_from_Google_Sheets_with_Pega_Agile_Studio_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13602_Create_sprint_goals_from_Google_Sheets_with_Pega_Agile_Studio_and_Google_Gemini.json)|
+|16896|[16896_Generate_studio_product_photos_for_new_Shopify_products_with_Dreem_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16896_Generate_studio_product_photos_for_new_Shopify_products_with_Dreem_AI.json)|
+|17033|[17033_Generate_studio_and_on-model_product_photos_for_new_Shopify_products_with_Dreem_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17033_Generate_studio_and_on-model_product_photos_for_new_Shopify_products_with_Dreem_AI.json)|
+|17324|[17324_Backfill_Shopify_product_photos_with_Dreem.ai_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17324_Backfill_Shopify_product_photos_with_Dreem.ai_and_Slack.json)|
+|18664|[18664_Generate_marketing_images_in_a_webhook_image_studio_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18664_Generate_marketing_images_in_a_webhook_image_studio_with_Google_Gemini.json)|
+|18763|[18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json)|
+|18795|[18795_Generate_and_audit_original_revenge_stories_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18795_Generate_and_audit_original_revenge_stories_with_OpenAI.json)|
+|19349|[19349_Create_studio_product_videos_from_3_photos_with_OpenAI__fal.ai_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19349_Create_studio_product_videos_from_3_photos_with_OpenAI__fal.ai_and_YouTube.json)|

@@ -1,4 +1,4 @@
-# grok : 17
+# grok : 19
 
 |id|file|
 |----|----|
@@ -19,3 +19,5 @@
 |15587|[15587_Generate_AI_videos_using_Havis_AI_Grok_Imagine.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15587_Generate_AI_videos_using_Havis_AI_Grok_Imagine.json)|
 |16121|[16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json)|
 |16349|[16349_Create_AI_social_posts_from_Telegram_links_with_OpenAI__Grok_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16349_Create_AI_social_posts_from_Telegram_links_with_OpenAI__Grok_and_Blotato.json)|
+|17173|[17173_Generate_image-to-video_clips_with_audio_using_Grok_Imagine_Video_1.5_via_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17173_Generate_image-to-video_clips_with_audio_using_Grok_Imagine_Video_1.5_via_Pollo_API.json)|
+|17183|[17183_Report_workflow_errors_to_Asana_tasks_with_Google_Chat_and_Grok_4.5_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17183_Report_workflow_errors_to_Asana_tasks_with_Google_Chat_and_Grok_4.5_analysis.json)|

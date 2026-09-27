@@ -1,4 +1,4 @@
-# get : 230
+# get : 243
 
 |id|file|
 |----|----|
@@ -232,3 +232,16 @@
 |15885|[15885_Get_Douyin_video_comments_and_replies_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15885_Get_Douyin_video_comments_and_replies_with_JustOneAPI.json)|
 |16017|[16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json)|
 |16098|[16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json)|
+|17087|[17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json)|
+|17247|[17247_Send_new_BookMyShow_movie_or_event_alerts_to_Telegram_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17247_Send_new_BookMyShow_movie_or_event_alerts_to_Telegram_with_Apify.json)|
+|17248|[17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json)|
+|17257|[17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json)|
+|17319|[17319_Review_your_budget_from_bank_statement_CSV_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17319_Review_your_budget_from_bank_statement_CSV_with_Google_Gemini_and_Gmail.json)|
+|17373|[17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json)|
+|17415|[17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json)|
+|17657|[17657_Watch_web_pages_for_changes_with_Google_Gemini__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17657_Watch_web_pages_for_changes_with_Google_Gemini__Google_Sheets__and_Slack.json)|
+|17824|[17824_Send_daily_meeting_prep_briefs_from_Google_Calendar_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17824_Send_daily_meeting_prep_briefs_from_Google_Calendar_with_Gemini_and_Gmail.json)|
+|17954|[17954_Answer_PDF_questions_with_cited_answers_using_Google_Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17954_Answer_PDF_questions_with_cited_answers_using_Google_Gemini__Gmail_and_Sheets.json)|
+|18281|[18281_Answer_website_leads_instantly_and_notify_the_owner_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18281_Answer_website_leads_instantly_and_notify_the_owner_via_Telegram.json)|
+|18526|[18526_Get_pre-call_briefs_for_Calendly_bookings_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18526_Get_pre-call_briefs_for_Calendly_bookings_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|18880|[18880_Send_Slack_alerts_for_negative_Google_Maps_reviews_with_API_Direct.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18880_Send_Slack_alerts_for_negative_Google_Maps_reviews_with_API_Direct.json)|

@@ -1,4 +1,4 @@
-# pull : 18
+# pull : 22
 
 |id|file|
 |----|----|
@@ -20,3 +20,7 @@
 |15107|[15107_Pull_bulk_domain_backlink_profiles_into_Google_Sheets_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15107_Pull_bulk_domain_backlink_profiles_into_Google_Sheets_with_DataForSEO.json)|
 |15306|[15306_Review_GitHub_pull_requests_with_GPT-4o_and_send_feedback_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15306_Review_GitHub_pull_requests_with_GPT-4o_and_send_feedback_and_Slack_alerts.json)|
 |16750|[16750_Review_GitHub_pull_requests_with_Mistral_and_send_decisions_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16750_Review_GitHub_pull_requests_with_Mistral_and_send_decisions_to_Slack.json)|
+|18981|[18981_Draft_customer-facing_changelogs_from_merged_GitHub_PRs_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18981_Draft_customer-facing_changelogs_from_merged_GitHub_PRs_with_OpenAI_and_Gmail.json)|
+|19073|[19073_Post_PR_preview_page_screenshots_to_GitHub_pull_requests_with_Snapshot_Site.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19073_Post_PR_preview_page_screenshots_to_GitHub_pull_requests_with_Snapshot_Site.json)|
+|19175|[19175_Review_Terraform_pull_requests_with_GitHub__GPT-4.1__Postgres_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19175_Review_Terraform_pull_requests_with_GitHub__GPT-4.1__Postgres_and_Slack.json)|
+|19269|[19269_Sync_staging_n8n_workflows_to_GitHub_via_pull_request.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19269_Sync_staging_n8n_workflows_to_GitHub_via_pull_request.json)|

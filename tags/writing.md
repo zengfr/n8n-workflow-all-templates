@@ -1,4 +1,4 @@
-# writing : 14
+# writing : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|
 |14673|[14673_Send_scheduled_IELTS_grammar__writing_and_reading_practice_via_Telegram_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14673_Send_scheduled_IELTS_grammar__writing_and_reading_practice_via_Telegram_with_Gemini_AI.json)|
 |16676|[16676_Create_blog_drafts__images__and_LinkedIn_posts_with_Tavily__Gemini__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16676_Create_blog_drafts__images__and_LinkedIn_posts_with_Tavily__Gemini__and_OpenAI.json)|
+|18770|[18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json)|

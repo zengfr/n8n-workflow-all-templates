@@ -1,4 +1,4 @@
-# position : 11
+# position : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |11440|[11440_Discord_AI_Trading_Assistant_with_Proper_Position_Sizing__metatrader5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11440_Discord_AI_Trading_Assistant_with_Proper_Position_Sizing__metatrader5.json)|
 |11461|[11461_AI_Trading_Assistant_for_Telegram_using_chatGPT-4o__with_Position_Sizing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11461_AI_Trading_Assistant_for_Telegram_using_chatGPT-4o__with_Position_Sizing.json)|
 |15184|[15184_Track_URL-level_keyword_rankings_in_Google_Sheets_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15184_Track_URL-level_keyword_rankings_in_Google_Sheets_with_DataForSEO.json)|
+|18774|[18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json)|

@@ -1,4 +1,4 @@
-# openweather : 4
+# openweather : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |8040|[8040_Weather_Alerts_via_SMS__OpenWeather___Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8040_Weather_Alerts_via_SMS__OpenWeather___Twilio.json)|
 |9953|[9953_Plant_Care_Reminder_with_OpenWeather__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9953_Plant_Care_Reminder_with_OpenWeather__Sheets_and_Telegram.json)|
 |13687|[13687_Predict_construction_delays_with_Claude__OpenWeather_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13687_Predict_construction_delays_with_Claude__OpenWeather_and_Slack_alerts.json)|
+|17729|[17729_Alert_on_at-risk_nursery_plants_with_OpenWeather__Google_Sheets__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17729_Alert_on_at-risk_nursery_plants_with_OpenWeather__Google_Sheets__Gemini__and_Slack.json)|

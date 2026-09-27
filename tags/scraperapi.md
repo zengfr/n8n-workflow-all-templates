@@ -1,4 +1,4 @@
-# scraperapi : 5
+# scraperapi : 11
 
 |id|file|
 |----|----|
@@ -7,3 +7,9 @@
 |16363|[16363_Send_daily_AI_competitor_change_digests_via_ScraperAPI__Claude__Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16363_Send_daily_AI_competitor_change_digests_via_ScraperAPI__Claude__Slack_and_email.json)|
 |16436|[16436_Track_Google_Shopping_price_alerts_with_ScraperAPI__Airtable_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16436_Track_Google_Shopping_price_alerts_with_ScraperAPI__Airtable_and_Gmail.json)|
 |16447|[16447_Send_weekly_Reddit_sentiment_digests_to_Notion_with_ScraperAPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16447_Send_weekly_Reddit_sentiment_digests_to_Notion_with_ScraperAPI_and_OpenAI.json)|
+|16823|[16823_Track_Amazon_best_seller_ranks_in_Airtable_with_ScraperAPI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16823_Track_Amazon_best_seller_ranks_in_Airtable_with_ScraperAPI_and_Slack.json)|
+|16864|[16864_Send_daily_brand_mention_digests_to_Slack_with_ScraperAPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16864_Send_daily_brand_mention_digests_to_Slack_with_ScraperAPI_and_OpenAI.json)|
+|16872|[16872_Collect_local_business_leads_from_Google_Maps_with_ScraperAPI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16872_Collect_local_business_leads_from_Google_Maps_with_ScraperAPI_and_Google_Sheets.json)|
+|16981|[16981_Save_Amazon_reviews_to_Notion_with_ScraperAPI_and_OpenAI_GPT-5_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16981_Save_Amazon_reviews_to_Notion_with_ScraperAPI_and_OpenAI_GPT-5_Mini.json)|
+|17030|[17030_Send_daily_Zillow_new-listing_digests_to_Gmail_with_ScraperAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17030_Send_daily_Zillow_new-listing_digests_to_Gmail_with_ScraperAPI.json)|
+|17131|[17131_Start_ScraperAPI_crawler_jobs_from_webhooks_and_store_results_in_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17131_Start_ScraperAPI_crawler_jobs_from_webhooks_and_store_results_in_data_tables.json)|

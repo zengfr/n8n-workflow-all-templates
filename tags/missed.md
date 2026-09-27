@@ -1,4 +1,4 @@
-# missed : 6
+# missed : 15
 
 |id|file|
 |----|----|
@@ -8,3 +8,12 @@
 |15103|[15103_Recover_missed_calls_and_book_HVAC_appointments_with_GoHighLevel__Twilio__Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15103_Recover_missed_calls_and_book_HVAC_appointments_with_GoHighLevel__Twilio__Gemini.json)|
 |16155|[16155_Send_missed_appointment_rescheduling_emails_with_webhook_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16155_Send_missed_appointment_rescheduling_emails_with_webhook_and_Gmail.json)|
 |16533|[16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json)|
+|17144|[17144_Text_back_missed_callers_with_Twilio__CallRail__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17144_Text_back_missed_callers_with_Twilio__CallRail__and_email_alerts.json)|
+|17512|[17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17512_Text_back_missed_calls_and_notify_business_owners_with_Twilio_and_Telegram.json)|
+|18582|[18582_Reply_to_missed_calls_with_Twilio_and_log_leads_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18582_Reply_to_missed_calls_with_Twilio_and_log_leads_in_Google_Sheets.json)|
+|18714|[18714_Text_back_missed_calls_with_Twilio__GPT-5.6__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18714_Text_back_missed_calls_with_Twilio__GPT-5.6__Google_Sheets_and_Slack.json)|
+|18949|[18949_Route_missed_roofing_calls_to_a_Retell_AI_agent_with_Twilio_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18949_Route_missed_roofing_calls_to_a_Retell_AI_agent_with_Twilio_and_Google_Workspace.json)|
+|19004|[19004_Recover_missed_appointments_with_Google_Calendar__Twilio__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19004_Recover_missed_appointments_with_Google_Calendar__Twilio__Gmail_and_Sheets.json)|
+|19018|[19018_Log_missed_EDI_sales_from_Gmail_CSVs_into_GoHighLevel_with_Slack_error_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19018_Log_missed_EDI_sales_from_Gmail_CSVs_into_GoHighLevel_with_Slack_error_alerts.json)|
+|19054|[19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json)|
+|19427|[19427_Respond_to_missed_calls_with_Twilio_SMS_and_email_alerts_from_CallRail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19427_Respond_to_missed_calls_with_Twilio_SMS_and_email_alerts_from_CallRail.json)|

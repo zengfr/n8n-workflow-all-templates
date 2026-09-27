@@ -1,4 +1,4 @@
-# virtual : 16
+# virtual : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |14006|[14006_Create_a_virtual_outfit_try-on_Telegram_bot_with_async_polling_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14006_Create_a_virtual_outfit_try-on_Telegram_bot_with_async_polling_and_Google_Sheets.json)|
 |15479|[15479_AI_Restaurant_Virtual_Waiter_Chatbot____for_WhatsApp___Website.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15479_AI_Restaurant_Virtual_Waiter_Chatbot____for_WhatsApp___Website.json)|
 |16236|[16236_Review_business_ideas_as_a_virtual_board_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16236_Review_business_ideas_as_a_virtual_board_with_Anthropic_Claude.json)|
+|18310|[18310_Book_and_manage_law_office_appointments_via_Telegram__OpenAI_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18310_Book_and_manage_law_office_appointments_via_Telegram__OpenAI_and_Google_Calendar.json)|

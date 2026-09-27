@@ -1,4 +1,4 @@
-# registration : 17
+# registration : 20
 
 |id|file|
 |----|----|
@@ -19,3 +19,6 @@
 |13842|[13842_Enrich_event_registrations_with_HubSpot__Clearbit__LinkedIn_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13842_Enrich_event_registrations_with_HubSpot__Clearbit__LinkedIn_and_Gemini_AI.json)|
 |13843|[13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13843_Re-engage_event_participants_from_HubSpot_with_Gemini_and_email_outreach.json)|
 |13844|[13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json)|
+|17229|[17229_Verify_Japanese_invoice_registration_numbers_from_Gmail_using_Gemini__NTA_API__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17229_Verify_Japanese_invoice_registration_numbers_from_Gmail_using_Gemini__NTA_API__Sheets_and_Slack.json)|
+|17578|[17578_Send_daily_keyword-based_domain_registration_alerts_with_DomainKits_via_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17578_Send_daily_keyword-based_domain_registration_alerts_with_DomainKits_via_email.json)|
+|18302|[18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json)|

@@ -1,4 +1,4 @@
-# strategy : 29
+# strategy : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |14465|[14465_Automate_ESG_carbon_monitoring_and_strategy_execution_with_GPT-4o__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14465_Automate_ESG_carbon_monitoring_and_strategy_execution_with_GPT-4o__Slack_and_Google_Sheets.json)|
 |15473|[15473_Generate_competitor_SEO_topical_maps_with_Gemini_2.5_Flash__Olostep_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15473_Generate_competitor_SEO_topical_maps_with_Gemini_2.5_Flash__Olostep_and_Google_Sheets.json)|
 |15482|[15482_Monitor_competitor_pages_with_Gemini__Olostep__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15482_Monitor_competitor_pages_with_Gemini__Olostep__Google_Sheets_and_Gmail.json)|
+|17555|[17555_Generate_business_strategy_canvases_with_GPT-4o__Tavily__MongoDB_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17555_Generate_business_strategy_canvases_with_GPT-4o__Tavily__MongoDB_and_Gmail.json)|
+|18767|[18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json)|

@@ -1,4 +1,4 @@
-# node : 63
+# node : 67
 
 |id|file|
 |----|----|
@@ -65,3 +65,7 @@
 |15229|[15229_Classify_documents_and_score_confidence_with_easybits_Extractor_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15229_Classify_documents_and_score_confidence_with_easybits_Extractor_and_Slack.json)|
 |16373|[16373_Score_LinkedIn_ICP_leads_and_draft_outreach_with_Claude__Notion_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16373_Score_LinkedIn_ICP_leads_and_draft_outreach_with_Claude__Notion_and_Sheets.json)|
 |16609|[16609_Build_self-improving_agent_skills_with_cognee.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16609_Build_self-improving_agent_skills_with_cognee.json)|
+|17667|[17667_Analyze_SEO_visibility_and_opportunities_with_TalorData__GPT-4o__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17667_Analyze_SEO_visibility_and_opportunities_with_TalorData__GPT-4o__Google_Sheets__and_Gmail.json)|
+|18308|[18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json)|
+|18693|[18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18693_Train_and_run_a_deep_neural_network_via_webhooks_using_pure_code_nodes.json)|
+|18806|[18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json)|

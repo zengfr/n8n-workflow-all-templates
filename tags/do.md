@@ -1,4 +1,4 @@
-# do : 20
+# do : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |15509|[15509_Create_a_daily_Jira_to-do_email_with_Gmail_and_OpenRouter_GPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15509_Create_a_daily_Jira_to-do_email_with_Gmail_and_OpenRouter_GPT.json)|
 |15895|[15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15895_Triage_VIP_Outlook_emails_using_Excel__GPT-4o_and_Microsoft_To_Do.json)|
 |15896|[15896_Extract_meeting_decisions_and_tasks_with_Outlook__GPT-4o__SharePoint__and_To_Do.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15896_Extract_meeting_decisions_and_tasks_with_Outlook__GPT-4o__SharePoint__and_To_Do.json)|
+|18963|[18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json)|

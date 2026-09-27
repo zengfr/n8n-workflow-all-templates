@@ -1,4 +1,4 @@
-# digital : 17
+# digital : 23
 
 |id|file|
 |----|----|
@@ -19,3 +19,9 @@
 |15039|[15039_Compare_physical_vs_digital_24K_gold_costs_and_returns_with_GoldAPI__IBJA__Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15039_Compare_physical_vs_digital_24K_gold_costs_and_returns_with_GoldAPI__IBJA__Groq_and_Google_Sheets.json)|
 |15464|[15464_Send_digital_products_after_Stripe_payments_with_Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15464_Send_digital_products_after_Stripe_payments_with_Google_Drive_and_email.json)|
 |16670|[16670_Generate_digital_product_launch_content_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16670_Generate_digital_product_launch_content_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json)|
+|16978|[16978_Audit_digital_identities_with_Apify_BreachHound_and_PDF.co.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16978_Audit_digital_identities_with_Apify_BreachHound_and_PDF.co.json)|
+|17146|[17146_Answer_Slack_knowledge_base_questions_with_Notion__Pinecone__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17146_Answer_Slack_knowledge_base_questions_with_Notion__Pinecone__and_OpenAI.json)|
+|17361|[17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json)|
+|18042|[18042_Deliver_digital_products_via_WhatsApp_and_Telegram_after_Stripe_payment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18042_Deliver_digital_products_via_WhatsApp_and_Telegram_after_Stripe_payment.json)|
+|18096|[18096_Remediate_critical_attack_paths_with_Neo4j__OpenAI__GitHub_and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18096_Remediate_critical_attack_paths_with_Neo4j__OpenAI__GitHub_and_Jira.json)|
+|19817|[19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json)|

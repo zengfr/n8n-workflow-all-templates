@@ -1,0 +1,833 @@
+{
+  "id": "a7ldLty8xYKwUCqw",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Review and remediate Kubernetes manifests in GitHub PRs with GPT-4.1",
+    "wechat": "youandme10086",
+    "id": 19232,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Kubernetes Security & Policy Agent",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ff03dbcd-3af7-472f-aa49-3533bdd087fe",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1424,
+        -4032
+      ],
+      "parameters": {
+        "width": 1152,
+        "height": 1504,
+        "content": "## AI Kubernetes Security & Policy Agent — Manifest Analysis, Auto-Remediation & PR Review\n\nThis is a manifest-review agent, not a fixed linter pipeline. A GitHub pull request touching Kubernetes YAML manifests triggers the flow. An LLM AGENT decides for itself which checks to run against the changed manifests — it can call a privileged-container scanner, an RBAC/permissions analyzer, an exposed-services detector, a resource-limits checker, and a policy/RAG tool over your org's Pod Security Standards / OPA-Gatekeeper policies — before writing a structured findings report. Wherever it finds an issue, the agent also generates a corrected, secure version of the manifest. Findings + secure manifests are logged for audit, posted back to the PR as a review comment, and a human must approve before the agent's suggested fix is committed to a remediation branch and opened as its own PR (or pushed as a suggested-change commit) — nothing is auto-merged.\n\n### How it works\n1. GitHub Trigger - PR Opened/Updated fires on pull_request events (opened, synchronize) for repos containing Kubernetes manifests\n2. Set - Config extracts PR number, repo, branch, changed file paths, and a sessionId (PR number) for continuity across pushes\n3. Get - PR Manifest Files pulls the actual changed YAML content from GitHub before handing it to the agent\n4. AI Agent - K8s Security Reviewer (GPT-4.1 + session memory) is given five tools — Tool - Scan Privileged Containers, Tool - Scan RBAC Permissions, Tool - Scan Exposed Services, Tool - Scan Resource Limits, Tool - RAG Search Security Policies — and decides on its own which to call, possibly more than once across multiple manifests, before writing findings AND a generated secure manifest for each flagged file\n5. Set - Parse Agent Output extracts the agent's structured JSON (findings per manifest/category, overallRisk, verdict, securedManifests)\n6. Postgres - Log Security Review persists every review into a k8s_manifest_reviews table for audit history and trend tracking\n7. GitHub - Post Review Comment always posts the full findings (plus a diff-style preview of proposed fixes) back to the PR, regardless of verdict\n8. IF - Issues Found only continues toward remediation when the agent actually flagged something; clean manifests just get the passing comment and stop\n9. Slack - Request Remediation Approval posts the proposed secure manifests to the platform/security team; Wait - For Remediation Approval pauses on the approval webhook\n10. IF - Remediation Approved gates the actual write: approved fixes get committed to a new branch and opened as a remediation PR linked back to the original; rejected ones just notify Slack so a human edits manually\n\n### How to set up\n1. Import this workflow into n8n\n2. Add GitHub credentials (repo scope, PR + branch write access) on the trigger and all GitHub nodes\n3. Add an OpenAI (or compatible) credential on the OpenAI Chat Model, plus a Vector Store credential on the RAG tool pointed at your Pod Security Standards / OPA-Gatekeeper / internal K8s policy docs\n4. Wire the four scanner tools to wherever these actually run (a CI job via HTTP callback, kube-score/kubesec/Polaris-style scanners, or an Execute Command node if n8n has the binaries installed locally) — these are read-only static analyses, never applied to a live cluster\n5. Add a Postgres credential and create the `k8s_manifest_reviews` table (columns per the node's sticky note)\n6. Add Slack credentials on the remediation-approval and notification nodes\n7. Point Wait - For Remediation Approval's resume webhook at your reviewer UI's approve/reject action\n8. Open a test PR touching a Kubernetes manifest (e.g. a Deployment with `privileged: true` and no resource limits) to run end-to-end"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "252ce9eb-823c-485d-a8d6-a48013d442ba",
+      "name": "Sticky Note - Trigger & Analysis Agent",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        -3744
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1760,
+        "height": 944,
+        "content": "## 1. PR Trigger, Manifest Retrieval & Tool-Calling Security Agent\n\n- **GitHub Trigger - PR Opened/Updated** — fires on pull_request opened/synchronize events for repos containing K8s manifests.\n- **Set - Config** — extracts PR number, repo, branch, changed file paths, and derives a sessionId (PR number) for continuity across pushes.\n- **Get - PR Manifest Files** — fetches the changed YAML manifest content from GitHub for the agent to analyze.\n- **Tool - Scan Privileged Containers** — callable tool; the agent decides when to check for `privileged: true`, `allowPrivilegeEscalation`, host namespaces (hostPID/hostNetwork/hostIPC), and root-user containers.\n- **Tool - Scan RBAC Permissions** — callable tool; the agent decides when to check Roles/ClusterRoles/RoleBindings for wildcard verbs/resources, cluster-admin bindings, or overly broad ServiceAccount permissions.\n- **Tool - Scan Exposed Services** — callable tool; the agent decides when to check Services/Ingresses for unintended NodePort/LoadBalancer exposure, missing NetworkPolicies, or public ingress without auth.\n- **Tool - Scan Resource Limits** — callable tool; the agent decides when to check containers for missing/absent CPU-memory requests and limits, or limits set unreasonably high relative to node capacity.\n- **Tool - RAG Search Security Policies** — callable tool backed by a vector store of the org's Pod Security Standards, OPA-Gatekeeper constraints, and past review precedents.\n- **OpenAI Chat Model** — the LLM powering the agent. 🔑\n- **Window Buffer Memory** — session-keyed memory (by PR number) so re-review after a push considers prior findings.\n- **AI Agent - K8s Security Reviewer** — orchestrates: calls whichever tools are relevant per manifest, then returns structured findings, an overall risk rating, a verdict, and a generated secure manifest for each flagged file."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "359a505b-76dc-4ea8-bdc3-da0793eb782c",
+      "name": "Sticky Note - Logging & Gate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1952,
+        -3808
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 864,
+        "height": 944,
+        "content": "## 2. Audit Logging, PR Comment & Remediation Gate\n\n- **Set - Parse Agent Output** — extracts the agent's structured JSON (findings[], overallRisk, verdict, securedManifests[]).\n- **Postgres - Log Security Review** — inserts every review into `k8s_manifest_reviews` (prNumber, repo, findings, overallRisk, verdict, securedManifests, createdAt) — audit trail and trend data.\n- **GitHub - Post Review Comment** — always posts findings + a preview of proposed secure manifests back to the PR, whatever the verdict.\n- **IF - Issues Found** — only continues toward remediation when findings is non-empty; clean manifests stop here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "001dd7d2-e8bc-45a2-b40a-f99ba79239ea",
+      "name": "Sticky Note - Human Approval & Remediation PR",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2880,
+        -3824
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1616,
+        "height": 944,
+        "content": "## 3. Human Approval & Remediation PR (only when issues are found)\n\n- **Slack - Request Remediation Approval** — posts the flagged findings + generated secure manifests to the platform/security team with Approve/Reject options.\n- **IF - Remediation Approved** — the single gate before any secure manifest is written to a branch.\n- **GitHub - Create Remediation Branch** — branches off the PR head to hold the fix.\n- **GitHub - Commit Secure Manifests** — commits each generated secure manifest to the remediation branch.\n- **GitHub - Open Remediation PR** — opens a PR from the remediation branch back into the original PR's branch, linked in the description.\n- **Slack - Post Remediation PR Link** — notifies the team the fix PR is ready to review/merge.\n- **Slack - Post Rejection Notice** — notifies the team when the proposed fix was rejected, so a human edits the manifests manually instead."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "082e035e-1c7d-4a60-a99d-569bae09cad0",
+      "name": "GitHub Trigger - PR Opened/Updated",
+      "type": "n8n-nodes-base.githubTrigger",
+      "position": [
+        208,
+        -3216
+      ],
+      "webhookId": "c1d2e3f4-k8s-pr-review-trigger-0001",
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "events": [
+          "pull_request"
+        ],
+        "options": {},
+        "repository": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f492b6e7-9898-430e-b51b-f2bd76f378fa",
+      "name": "Set - Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        432,
+        -3216
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "prNumber",
+              "type": "string",
+              "value": "={{ $json.pull_request.number }}"
+            },
+            {
+              "name": "repoOwner",
+              "type": "string",
+              "value": "={{ $json.repository.owner.login }}"
+            },
+            {
+              "name": "repoName",
+              "type": "string",
+              "value": "={{ $json.repository.name }}"
+            },
+            {
+              "name": "branch",
+              "type": "string",
+              "value": "={{ $json.pull_request.head.ref }}"
+            },
+            {
+              "name": "prAuthor",
+              "type": "string",
+              "value": "={{ $json.pull_request.user.login }}"
+            },
+            {
+              "name": "prTitle",
+              "type": "string",
+              "value": "={{ $json.pull_request.title }}"
+            },
+            {
+              "name": "remediationBranch",
+              "type": "string",
+              "value": "={{ 'security-fix/pr-' + $json.pull_request.number }}"
+            },
+            {
+              "name": "sessionId",
+              "type": "string",
+              "value": "={{ $json.repository.full_name + '#' + $json.pull_request.number }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "28232514-eff6-4f8a-94d4-284c08f70984",
+      "name": "Get - PR Manifest Files",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        656,
+        -3216
+      ],
+      "webhookId": "c56c77b4-f8d3-491c-9fb3-7f0bd3fd250f",
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoOwner }}"
+        },
+        "resource": "pullRequest",
+        "operation": "getFiles",
+        "repository": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoName }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3bba6f1d-81f4-4591-bfd2-e9a1e60f0d1c",
+      "name": "Tool - Scan Privileged Containers",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1136,
+        -2992
+      ],
+      "parameters": {
+        "url": "=https://ci.internal.example.com/api/k8s/scan-privileged",
+        "method": "POST",
+        "jsonBody": "={{ JSON.stringify({ manifestYaml: $fromAI('manifest_yaml', 'The raw YAML content of the manifest to scan'), filePath: $fromAI('file_path', 'Path of the manifest file within the repo') }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "Scan a Kubernetes manifest for privileged/insecure container settings: privileged:true, allowPrivilegeEscalation, hostPID/hostNetwork/hostIPC, runAsUser 0 or missing runAsNonRoot, missing seccomp/AppArmor profile, dangerous capabilities (SYS_ADMIN, NET_ADMIN). Returns a list of findings with severity."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1cdd8d76-f9e9-46c9-b3a4-07b85bbedee5",
+      "name": "Tool - Scan RBAC Permissions",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1264,
+        -2992
+      ],
+      "parameters": {
+        "url": "=https://ci.internal.example.com/api/k8s/scan-rbac",
+        "method": "POST",
+        "jsonBody": "={{ JSON.stringify({ manifestYaml: $fromAI('manifest_yaml', 'The raw YAML content of the Role/ClusterRole/RoleBinding/ServiceAccount manifest to scan'), filePath: $fromAI('file_path', 'Path of the manifest file within the repo') }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "Scan RBAC-related manifests (Role, ClusterRole, RoleBinding, ClusterRoleBinding, ServiceAccount) for excessive permissions: wildcard verbs/resources ('*'), cluster-admin bindings, ServiceAccount tokens auto-mounted where not needed, or bindings granting secrets access broadly. Returns a list of findings with severity."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "cad2efc8-ec01-48d3-bd47-c6d84e2f8f47",
+      "name": "Tool - Scan Exposed Services",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1392,
+        -2992
+      ],
+      "parameters": {
+        "url": "=https://ci.internal.example.com/api/k8s/scan-exposure",
+        "method": "POST",
+        "jsonBody": "={{ JSON.stringify({ manifestYaml: $fromAI('manifest_yaml', 'The raw YAML content of the Service/Ingress manifest to scan'), filePath: $fromAI('file_path', 'Path of the manifest file within the repo') }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "Scan Service/Ingress manifests for unintended exposure: type LoadBalancer/NodePort on internal-only workloads, Ingress without TLS or auth annotations, missing NetworkPolicy isolating the workload, or ports opened wider than the app requires. Returns a list of findings with severity."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1c88a96c-5794-4323-8f0e-bb7ffd24bbea",
+      "name": "Tool - Scan Resource Limits",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        1520,
+        -2992
+      ],
+      "parameters": {
+        "url": "=https://ci.internal.example.com/api/k8s/scan-resource-limits",
+        "method": "POST",
+        "jsonBody": "={{ JSON.stringify({ manifestYaml: $fromAI('manifest_yaml', 'The raw YAML content of the workload manifest (Deployment/StatefulSet/DaemonSet/Pod) to scan'), filePath: $fromAI('file_path', 'Path of the manifest file within the repo') }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "toolDescription": "Scan workload manifests (Deployment, StatefulSet, DaemonSet, Pod) for missing or unreasonable CPU/memory requests and limits per container, missing livenessProbe/readinessProbe, and missing PodDisruptionBudget for multi-replica workloads. Returns a list of findings with severity."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2e0b0ecf-caf2-4ef3-922c-1bef1bb6593e",
+      "name": "Tool - RAG Search Security Policies",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "position": [
+        1648,
+        -2992
+      ],
+      "parameters": {
+        "name": "search_security_policies",
+        "description": "Semantic search over the org's Pod Security Standards, OPA-Gatekeeper constraint templates, and past manifest review precedents. Use this to check the change against internal policy, not just generic best practice."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d4ff630-80e9-4412-b4de-0ddeb6712ff0",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        880,
+        -2992
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "8e7c5760-9085-4a97-a2ad-3d0fff7f886b",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1008,
+        -2992
+      ],
+      "parameters": {
+        "sessionKey": "={{ $json.sessionId }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 20
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b9895f03-7ca8-46d6-84c6-7bf1a922ad80",
+      "name": "AI Agent - K8s Security Reviewer",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1200,
+        -3216
+      ],
+      "parameters": {
+        "text": "=You are a senior Kubernetes security engineer reviewing manifests changed in a pull request.\n\nRepo: {{ $json.repoOwner }}/{{ $json.repoName }} | Branch: {{ $json.branch }}\nPR #{{ $json.prNumber }} by {{ $json.prAuthor }}: \"{{ $json.prTitle }}\"\n\nChanged files:\n{{ $json.files.map(f => '- ' + f.filename).join('\\n') }}\n\nYou have five tools: scan_privileged_containers, scan_rbac_permissions, scan_exposed_services, scan_resource_limits, search_security_policies. For each changed manifest, call whichever scanners are relevant to its kind (Deployment/Pod → privileged + resource limits; Role/RoleBinding/ServiceAccount → RBAC; Service/Ingress → exposure) — call tools more than once across multiple files as needed. Do not guess scanner findings; only state what the tools returned. Use search_security_policies to check any ambiguous case against org policy before flagging it.\n\nIf earlier turns exist in this conversation (same PR), treat this as a re-review after a new push and note what changed since the prior review.\n\nFor every finding, assign a severity ('low'|'medium'|'high'|'critical') and a category ('privileged'|'rbac'|'exposure'|'resource_limits'|'other'). For every file with at least one 'medium'+ finding, generate a corrected, secure version of that manifest's full YAML that fixes the issues found (add resource limits, drop privileges, add runAsNonRoot, restrict RBAC verbs/resources, add NetworkPolicy, etc.) while preserving the manifest's original intent and unrelated fields. Set overallRisk to the highest severity present, and verdict to 'issues_found' if findings is non-empty, else 'pass'.\n\nReturn ONLY a JSON object (no markdown fences, no commentary) with keys: summary (2-4 sentences), findings (array of {file, category, description, severity}), overallRisk ('low'|'medium'|'high'|'critical'|'none'), verdict ('pass'|'issues_found'), securedManifests (array of {file, yaml, changesSummary}).",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "3d9a1288-ecb2-44eb-85c8-fa625d527b05",
+      "name": "Set - Parse Agent Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2016,
+        -3216
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "parsedOutput",
+              "type": "object",
+              "value": "={{ JSON.parse(String($json.output || $json.text || $json.response || '{}').replace(/```json|```/g, '').trim()) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d418dc8a-69b8-4649-9562-4d20dfb0dbd3",
+      "name": "Postgres - Log Security Review",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        2240,
+        -3216
+      ],
+      "parameters": {
+        "table": "k8s_manifest_reviews",
+        "schema": "public",
+        "columns": "pr_number, repo, author, findings, overall_risk, verdict, secured_manifests, created_at",
+        "options": {}
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "4e4c3d3b-15d6-4d4c-9c00-4004be4d75e0",
+      "name": "GitHub - Post Review Comment",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        2464,
+        -3216
+      ],
+      "webhookId": "84640a28-7bfd-41bc-bcc1-6e627892f88f",
+      "parameters": {
+        "body": "=### 🛡️ Kubernetes Security Review — Verdict: {{ $json.parsedOutput.verdict.toUpperCase() }} (risk: {{ $json.parsedOutput.overallRisk }})\n\n{{ $json.parsedOutput.summary }}\n\n**Findings**\n{{ $json.parsedOutput.findings.map(f => '- [' + f.severity + '] (' + f.category + ') `' + f.file + '`: ' + f.description).join('\\n') }}\n\n{{ $json.parsedOutput.securedManifests.length ? '**Proposed fixes available for:** ' + $json.parsedOutput.securedManifests.map(m => m.file).join(', ') + '\\n\\nA remediation PR will be opened pending approval.' : 'No fixes needed.' }}",
+        "owner": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoOwner }}"
+        },
+        "operation": "createComment",
+        "repository": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoName }}"
+        },
+        "issueNumber": "={{ $json.prNumber }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "210eab27-29e0-4646-b500-8228d1e1321b",
+      "name": "IF - Issues Found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2688,
+        -3216
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.parsedOutput.verdict }}",
+              "rightValue": "issues_found"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1bc385cf-f44d-4efe-bd3a-aa3612e32b6e",
+      "name": "Slack - Request Remediation Approval",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3024,
+        -3216
+      ],
+      "webhookId": "09065904-a5dc-4675-b6a8-b404acbd9472",
+      "parameters": {
+        "text": "=🛡️ *K8s manifest security fixes ready for review*\n\n*PR:* {{ $json.repoOwner }}/{{ $json.repoName }}#{{ $json.prNumber }} — \"{{ $json.prTitle }}\" by {{ $json.prAuthor }}\n*Overall risk:* {{ $json.parsedOutput.overallRisk }}\n\n*Findings:*\n{{ $json.parsedOutput.findings.map(f => '- [' + f.severity + '] (' + f.category + ') `' + f.file + '`: ' + f.description).join('\\n') }}\n\n*Proposed fixes:*\n{{ $json.parsedOutput.securedManifests.map(m => '- `' + m.file + '`: ' + m.changesSummary).join('\\n') }}\n\nReply or use the Approve/Reject action to authorize opening a remediation PR with these secure manifests.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#k8s-security-review"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "4ac1a700-7681-4931-918b-27fecb154596",
+      "name": "IF - Remediation Approved",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3264,
+        -3216
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.remediationApproved === true || $json.remediationApproved === 'true' }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d21b06a6-143c-4bd6-a7b5-dd4ed3c5a5d5",
+      "name": "Slack - Post Rejection Notice",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3584,
+        -3120
+      ],
+      "webhookId": "1022ce2e-2fa2-4dcb-b43b-e75038f8f191",
+      "parameters": {
+        "text": "=🛑 Proposed security fixes for PR {{ $json.repoOwner }}/{{ $json.repoName }}#{{ $json.prNumber }} were *rejected*. A human will need to edit the manifests manually.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#k8s-security-review"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3,
+      "continueOnFail": true
+    },
+    {
+      "id": "e1c7f7d7-5594-4561-9654-e8e2adb11597",
+      "name": "GitHub - Create Remediation Branch",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        3584,
+        -3312
+      ],
+      "webhookId": "e6890b43-a05e-47dc-ab1e-0d6c3d1e887f",
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoOwner }}"
+        },
+        "resource": "repository",
+        "operation": "createBranch",
+        "repository": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoName }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0f6d5310-8a86-49c8-884f-2552de3c36d2",
+      "name": "GitHub - Commit Secure Manifests",
+      "type": "n8n-nodes-base.github",
+      "notes": "For multiple flagged files, loop this node over parsedOutput.securedManifests (e.g. with a Split In Batches node) — shown here for one file for clarity.",
+      "position": [
+        3808,
+        -3312
+      ],
+      "webhookId": "372dacbf-e841-4693-b7b8-2e789bf1f695",
+      "parameters": {
+        "owner": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoOwner }}"
+        },
+        "filePath": "={{ $json.parsedOutput.securedManifests[0].file }}",
+        "resource": "file",
+        "operation": "edit",
+        "repository": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoName }}"
+        },
+        "fileContent": "={{ $json.parsedOutput.securedManifests[0].yaml }}",
+        "commitMessage": "=security: apply automated fixes for {{ $json.parsedOutput.securedManifests[0].file }}\n\n{{ $json.parsedOutput.securedManifests[0].changesSummary }}"
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "ab7c78b4-dd75-4618-a81a-bb68be3d6e7e",
+      "name": "GitHub - Open Remediation PR",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        4032,
+        -3312
+      ],
+      "webhookId": "740f334f-92ab-49c0-bc29-3e5d18a8019d",
+      "parameters": {
+        "body": "=Automated security remediation for #{{ $json.prNumber }}, approved by a human reviewer.\n\n**Findings addressed:**\n{{ $json.parsedOutput.findings.map(f => '- [' + f.severity + '] (' + f.category + ') `' + f.file + '`: ' + f.description).join('\\n') }}\n\n**Changes:**\n{{ $json.parsedOutput.securedManifests.map(m => '- `' + m.file + '`: ' + m.changesSummary).join('\\n') }}",
+        "owner": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoOwner }}"
+        },
+        "title": "=security: automated manifest fixes for PR #{{ $json.prNumber }}",
+        "resource": "pullRequest",
+        "repository": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.repoName }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "121e5a38-69b3-423d-9213-5d6e4bfda33a",
+      "name": "Slack - Post Remediation PR Link",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4256,
+        -3312
+      ],
+      "webhookId": "7b2f0862-5aaa-47ea-8485-9664ed90defe",
+      "parameters": {
+        "text": "=✅ Remediation PR opened for {{ $json.repoOwner }}/{{ $json.repoName }}#{{ $json.prNumber }}: {{ $json.html_url }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#k8s-security-review"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3,
+      "continueOnFail": true
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "e0970614-e225-4552-9282-aa766679c5c4",
+  "nodeGroups": [],
+  "connections": {
+    "Set - Config": {
+      "main": [
+        [
+          {
+            "node": "Get - PR Manifest Files",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Issues Found": {
+      "main": [
+        [
+          {
+            "node": "Slack - Request Remediation Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get - PR Manifest Files": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Parse Agent Output": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Log Security Review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Remediation Approved": {
+      "main": [
+        [
+          {
+            "node": "GitHub - Create Remediation Branch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Post Rejection Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Scan Resource Limits": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub - Open Remediation PR": {
+      "main": [
+        [
+          {
+            "node": "Slack - Post Remediation PR Link",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub - Post Review Comment": {
+      "main": [
+        [
+          {
+            "node": "IF - Issues Found",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Scan Exposed Services": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Scan RBAC Permissions": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Log Security Review": {
+      "main": [
+        [
+          {
+            "node": "GitHub - Post Review Comment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - K8s Security Reviewer": {
+      "main": [
+        [
+          {
+            "node": "Set - Parse Agent Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub - Commit Secure Manifests": {
+      "main": [
+        [
+          {
+            "node": "GitHub - Open Remediation PR",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Scan Privileged Containers": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub - Create Remediation Branch": {
+      "main": [
+        [
+          {
+            "node": "GitHub - Commit Secure Manifests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "GitHub Trigger - PR Opened/Updated": {
+      "main": [
+        [
+          {
+            "node": "Set - Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - RAG Search Security Policies": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - K8s Security Reviewer",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Request Remediation Approval": {
+      "main": [
+        [
+          {
+            "node": "IF - Remediation Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,277 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Send weekly Bitcoin DCA signals from Coinbase Exchange to Telegram",
+    "wechat": "youandme10086",
+    "id": 19843,
+    "update_time": "2026-09-27"
+  },
+  "name": "Weekly Bitcoin DCA signal (200-day MA) from Coinbase to Telegram",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "0756f0e9-48df-42f5-b966-a61e8e73710c",
+      "name": "Every Monday 09:00",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9,
+              "weeksInterval": 1,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "4d2542b1-a0a2-46ad-b620-0f2400a45241",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c1",
+              "name": "PRODUCT_ID",
+              "type": "string",
+              "value": "BTC-EUR"
+            },
+            {
+              "id": "c2",
+              "name": "DCA_AMOUNT_EUR",
+              "type": "number",
+              "value": 20
+            },
+            {
+              "id": "c3",
+              "name": "MA_DAYS",
+              "type": "number",
+              "value": 200
+            },
+            {
+              "id": "c4",
+              "name": "MULTIPLIER_ABOVE_MA",
+              "type": "number",
+              "value": 1.5
+            },
+            {
+              "id": "c5",
+              "name": "MULTIPLIER_BELOW_MA",
+              "type": "number",
+              "value": 0.5
+            },
+            {
+              "id": "c6",
+              "name": "TELEGRAM_CHAT_ID",
+              "type": "string",
+              "value": "YOUR_CHAT_ID"
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "91aa2b3c-8c80-42c9-909d-dc2ebf237d49",
+      "name": "Get daily candles (public API)",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        520,
+        300
+      ],
+      "parameters": {
+        "url": "=https://api.exchange.coinbase.com/products/{{ $json.PRODUCT_ID }}/candles",
+        "method": "GET",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "granularity",
+              "value": "86400"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "3a9a094d-59c8-47a5-85b3-c7f78911319f",
+      "name": "Compute MA200 signal",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        780,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const cfg = $('Configuration').first().json;\nconst raw = $input.first().json.data;\nconst candles = (typeof raw === 'string' ? JSON.parse(raw) : raw)\n  .map(c => ({ time: Number(c[0]), close: Number(c[4]) }))\n  .filter(c => Number.isFinite(c.close))\n  .sort((a, b) => a.time - b.time);\nconst maDays = Number(cfg.MA_DAYS) || 200;\nif (candles.length < maDays) {\n  throw new Error(`Not enough candles (${candles.length}) for a ${maDays}-day moving average`);\n}\nconst closes = candles.map(c => c.close);\nconst lastClose = closes[closes.length - 1];\nconst window = closes.slice(closes.length - maDays);\nconst ma = window.reduce((s, v) => s + v, 0) / window.length;\nconst aboveMa = lastClose >= ma;\nconst multiplier = aboveMa ? Number(cfg.MULTIPLIER_ABOVE_MA) : Number(cfg.MULTIPLIER_BELOW_MA);\nconst amountEur = Math.round(Number(cfg.DCA_AMOUNT_EUR) * multiplier * 100) / 100;\nreturn [{ json: {\n  product_id: cfg.PRODUCT_ID,\n  date: new Date().toISOString(),\n  last_close: lastClose,\n  ma_days: maDays,\n  ma_value: Math.round(ma * 100) / 100,\n  ratio: Math.round((lastClose / ma) * 1000) / 1000,\n  regime: aboveMa ? 'BULLISH (price > MA)' : 'BEARISH (price < MA)',\n  multiplier,\n  amount_eur: amountEur\n} }];",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7de93758-00dd-4744-88a9-6965e5b41efe",
+      "name": "Build message",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "const s = $input.first().json;\nconst esc = t => String(t).replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;');\nconst num = v => Number(v).toLocaleString('en-US', { minimumFractionDigits: 2, maximumFractionDigits: 2 });\nconst head = `📊 DCA signal ${s.product_id} — ${s.date.slice(0, 10)}\\nPrice: ${num(s.last_close)} | MA${s.ma_days}: ${num(s.ma_value)} (x${s.ratio})\\nRegime: ${s.regime} → multiplier x${s.multiplier}`;\nconst body = s.amount_eur < 1\n  ? '⏸ Signal: pause this week (amount < 1).'\n  : `👉 Suggested amount this week: ${num(s.amount_eur)}.\\n(No order is placed: this workflow only computes the signal.)`;\nreturn [{ json: { text: esc(`${head}\\n\\n${body}`) } }];",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bc490026-05ac-4d0d-a07f-d4e3cf3c4517",
+      "name": "Telegram",
+      "type": "n8n-nodes-base.telegram",
+      "position": [
+        1300,
+        300
+      ],
+      "webhookId": "a16def6b-265f-43a7-b29c-a60b71d46ca1",
+      "parameters": {
+        "text": "={{ $json.text }}",
+        "chatId": "={{ $(\"Configuration\").first().json.TELEGRAM_CHAT_ID }}",
+        "resource": "message",
+        "operation": "sendMessage",
+        "additionalFields": {
+          "parse_mode": "HTML",
+          "appendAttribution": false
+        }
+      },
+      "credentials": {
+        "telegramApi": {
+          "id": "",
+          "name": "Telegram account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "064eaeb8-3830-4875-8c97-dfe275474694",
+      "name": "Note - How it works",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -300
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 460,
+        "content": "## 📊 Weekly Bitcoin DCA signal (MA200) → Telegram\n\nEvery Monday at 9:00, this workflow reads 300 daily candles from the **public** Coinbase Exchange API (no key), computes the 200-day moving average and sends you the suggested DCA amount on Telegram:\n- price **above** MA200 → base amount × 1.5\n- price **below** MA200 → base amount × 0.5 (0 = pause)\n\n### Setup\n1. Create a Telegram bot with @BotFather and add a **Telegram API** credential to the Telegram node.\n2. In **Configuration**, set `TELEGRAM_CHAT_ID`, `PRODUCT_ID` (BTC-EUR, ETH-EUR, BTC-USD…), `DCA_AMOUNT_EUR` (base amount, any quote currency), `MA_DAYS` and both multipliers.\n3. Execute once to test, then activate.\n\nNo order is placed and no account access is needed. Not financial advice."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e6035921-c4ff-4fc3-b0ad-69e9d7a7ea6a",
+      "name": "Note - Going further",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        -300
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 520,
+        "height": 240,
+        "content": "## ⚡ Going further\n\nFull protocol with real numbers (17 live orders, 1.2% taker fees, a DCA that silently stopped): https://utikcoin.com/article/dca-automatise-coinbase-protocole\n\nFrench README and source: https://github.com/HATEM6584/n8n-dca-signal-mm200"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Build message": {
+      "main": [
+        [
+          {
+            "node": "Telegram",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Get daily candles (public API)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 09:00": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute MA200 signal": {
+      "main": [
+        [
+          {
+            "node": "Build message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get daily candles (public API)": {
+      "main": [
+        [
+          {
+            "node": "Compute MA200 signal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

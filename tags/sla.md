@@ -1,4 +1,4 @@
-# sla : 16
+# sla : 23
 
 |id|file|
 |----|----|
@@ -18,3 +18,10 @@
 |15432|[15432_Classify_Gmail_leads_with_Groq_AI_and_sync_SLA_cases_to_Supabase_via_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15432_Classify_Gmail_leads_with_Groq_AI_and_sync_SLA_cases_to_Supabase_via_Redis.json)|
 |15941|[15941_Monitor_Shopify_dispatch_SLA_breaches_with_Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15941_Monitor_Shopify_dispatch_SLA_breaches_with_Google_Sheets__Slack_and_Gmail.json)|
 |16228|[16228_Score_and_route_website_leads_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16228_Score_and_route_website_leads_with_Google_Sheets_and_Gmail.json)|
+|18528|[18528_Score_and_route_B2B_website_leads_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18528_Score_and_route_B2B_website_leads_with_Google_Sheets_and_Gmail.json)|
+|18739|[18739_Triage_and_escalate_support_tickets_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18739_Triage_and_escalate_support_tickets_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|18860|[18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json)|
+|19097|[19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json)|
+|19315|[19315_Track_complaint_SLAs_and_escalation_alerts_with_Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19315_Track_complaint_SLAs_and_escalation_alerts_with_Gmail_and_data_tables.json)|
+|19561|[19561_Track_supplier_SLA_breaches_and_corrective_actions_with_Google_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19561_Track_supplier_SLA_breaches_and_corrective_actions_with_Google_Sheets__Gemini__and_Gmail.json)|
+|19683|[19683_Triage_Gmail_support_inquiries_with_Google_Gemini__Calendar__Sheets__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19683_Triage_Gmail_support_inquiries_with_Google_Gemini__Calendar__Sheets__and_Discord.json)|

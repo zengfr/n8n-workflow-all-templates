@@ -1,4 +1,4 @@
-# marketing : 78
+# marketing : 87
 
 |id|file|
 |----|----|
@@ -80,3 +80,12 @@
 |15619|[15619_Send_AI-personalized_WhatsApp_campaigns_with_WhatsApp_Business_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15619_Send_AI-personalized_WhatsApp_campaigns_with_WhatsApp_Business_API_and_Google_Sheets.json)|
 |15864|[15864_Send_SMS_and_RCS_marketing_campaigns_from_Google_Sheets_with_RCSZilla.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15864_Send_SMS_and_RCS_marketing_campaigns_from_Google_Sheets_with_RCSZilla.json)|
 |16670|[16670_Generate_digital_product_launch_content_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16670_Generate_digital_product_launch_content_with_OpenAI_GPT-4o-mini_and_Google_Sheets.json)|
+|17283|[17283_Generate_and_compare_marketing_content_with_GPT__Claude__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17283_Generate_and_compare_marketing_content_with_GPT__Claude__Gemini__and_Google_Sheets.json)|
+|17460|[17460_Repurpose_law_firm_field_notes_into_compliant_marketing_content_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17460_Repurpose_law_firm_field_notes_into_compliant_marketing_content_with_Anthropic_Claude.json)|
+|17530|[17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json)|
+|17606|[17606_Flag_Meta_Audience_Network_wasted_spend_with_Meta_Marketing_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17606_Flag_Meta_Audience_Network_wasted_spend_with_Meta_Marketing_API_and_Claude.json)|
+|17854|[17854_Track_marketing_revenue_attribution_with_Google_Sheets__Anthropic_Claude__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17854_Track_marketing_revenue_attribution_with_Google_Sheets__Anthropic_Claude__and_Gmail.json)|
+|18117|[18117_Create_and_publish_short_marketing_videos_with_Feishu__DeepSeek__Jimeng_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18117_Create_and_publish_short_marketing_videos_with_Feishu__DeepSeek__Jimeng_and_Blotato.json)|
+|18664|[18664_Generate_marketing_images_in_a_webhook_image_studio_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18664_Generate_marketing_images_in_a_webhook_image_studio_with_Google_Gemini.json)|
+|18821|[18821_Send_weekly_marketing_performance_briefs_from_GA4__GSC__SegMetrics_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18821_Send_weekly_marketing_performance_briefs_from_GA4__GSC__SegMetrics_and_Slack.json)|
+|19782|[19782_Create_fruit_character_marketing_videos_from_product_images_with_insMind_CLI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19782_Create_fruit_character_marketing_videos_from_product_images_with_insMind_CLI.json)|

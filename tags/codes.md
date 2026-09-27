@@ -1,4 +1,4 @@
-# codes : 16
+# codes : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |13621|[13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13621_Capture_vCard_QR_code_contacts_with_AllCodeRelay_and_add_them_to_KlickTipp.json)|
 |14216|[14216_Generate_concert_ticket_PDFs_with_QR_codes_using_PDF_Generator_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14216_Generate_concert_ticket_PDFs_with_QR_codes_using_PDF_Generator_API.json)|
 |14500|[14500_Generate_and_email_event_e-tickets_with_QR_codes_using_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14500_Generate_and_email_event_e-tickets_with_QR_codes_using_Google_Workspace.json)|
+|18437|[18437_Find_nearby_ZIP_codes_by_radius_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18437_Find_nearby_ZIP_codes_by_radius_with_Searchbug_and_Google_Sheets.json)|
+|18905|[18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18905_Generate_bulk_QR_code_PNGs_from_links_with_Bulk_QR_Generator_API.json)|

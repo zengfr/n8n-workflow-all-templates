@@ -1,4 +1,4 @@
-# veo : 50
+# veo : 53
 
 |id|file|
 |----|----|
@@ -52,3 +52,6 @@
 |15151|[15151_Generate_addictive_ASMR_Veo_3_reels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15151_Generate_addictive_ASMR_Veo_3_reels.json)|
 |16115|[16115_Generate_Veo_3_short-form_videos_from_a_form_using_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16115_Generate_Veo_3_short-form_videos_from_a_form_using_Groq_and_Google_Sheets.json)|
 |16572|[16572_Create_Veo_3.1_Fast_AI_shorts_from_Telegram_with_AtlasCloud__OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16572_Create_Veo_3.1_Fast_AI_shorts_from_Telegram_with_AtlasCloud__OpenAI_and_Blotato.json)|
+|16890|[16890_Generate_Google_Veo_3.1_AI_videos_from_form_prompts_using_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16890_Generate_Google_Veo_3.1_AI_videos_from_form_prompts_using_Pollo_API.json)|
+|17978|[17978_Create_metaphor-driven_video_ads_with_Google_Veo_3_via_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17978_Create_metaphor-driven_video_ads_with_Google_Veo_3_via_Pollo_API.json)|
+|17979|[17979_Generate_realistic_short-form_videos_with_Veo_3.1_via_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17979_Generate_realistic_short-form_videos_with_Veo_3.1_via_Pollo_API.json)|

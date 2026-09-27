@@ -1,0 +1,392 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Reply to grouped WhatsApp messages with Wafly and OpenAI",
+    "wechat": "youandme10086",
+    "id": 17700,
+    "update_time": "2026-09-27"
+  },
+  "name": "Reply to grouped WhatsApp messages with an AI agent using Wafly and OpenAI",
+  "nodes": [
+    {
+      "id": "sticky-why",
+      "name": "Template description",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1180,
+        0
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1400,
+        "content": "## Reply to grouped WhatsApp messages with an AI agent\n\n> **Community node — self-hosted n8n only.** This template uses `n8n-nodes-wafly`, which cannot be installed on n8n Cloud.\n\n### Who's it for\n\nAnyone running an AI agent on WhatsApp: support, pre-sales qualification, booking. It solves a problem you only hit in production.\n\n### How it works\n\nNobody writes a paragraph on WhatsApp. People send \"hi\", \"you there?\", \"how much is the pro plan?\" as three messages. That is three webhook calls, so the agent answers three times, spends three LLM calls, and reads like a bot.\n\nThe usual workaround is a Wait node plus a Redis lock. This template solves it at the API level: the WhatsApp provider holds the messages for a silence window and sends **one** webhook with the text already joined, keeping the payload shape unchanged.\n\nVoice notes are handled too. Transcription uses your own OpenAI key, so the provider cost lands on your account, and the transcript arrives in the same webhook.\n\n### How to set up\n\n1. Create the Wafly API credential and an OpenAI credential.\n2. Run the two setup nodes at the bottom once (grouping, then optional transcription).\n3. Activate the workflow and register the Webhook production URL on your instance with the curl in the grey note.\n\n### Requirements\n\nSelf-hosted n8n, a Wafly account (3-day trial, no card), an OpenAI API key.\n\n### How to customize\n\nEdit the system message in the AI Agent node. Tune the silence window (8s) and the hard ceiling (30s) in the first setup node. Swap the memory node for a database if you need history beyond the last 12 turns."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 560,
+        "height": 1400,
+        "content": "## Setup (run once)\n\n1. Create the **Wafly API** credential (Client-Token, instance, token). No card needed for the 3 day trial at wafly.com.br.\n2. Activate this workflow and copy the **Production URL** of the Webhook node.\n3. Point your instance at that URL, once:\n\n```\nBASE=https://wafly.com.br/api-bridge-whats\nINST=YOUR_INSTANCE\nTOKEN=YOUR_TOKEN\n\ncurl -X PUT \\\n  \"$BASE/instances/$INST/token/$TOKEN/update-webhook-received\" \\\n  -H \"Client-Token: YOUR_CLIENT_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"value\":\"PASTE_THE_PRODUCTION_URL\"}'\n```\n\n> Do not use the node's `Webhook > Set Webhook` operation: it calls a route that does not exist and returns 404. Use the curl above.\n\n4. Hit **Test step** on *1. Group split messages* below. Optionally also *2. Transcribe voice notes* after pasting your OpenAI key.\n\nThe inbound payload is Z-API shaped: `body.type`, `body.phone`, `body.text.message`, `body.fromMe`, `body.isGroup`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "setup-trigger",
+      "name": "Run setup once",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "wafly-set-buffer",
+      "name": "1. Group split messages",
+      "type": "n8n-nodes-wafly.wafly",
+      "notes": "Silence window of 8s, hard ceiling of 30s",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "resource": "instance",
+        "operation": "setMessageBuffer",
+        "bufferMode": "concat",
+        "bufferMaxMessages": 10,
+        "bufferIncludeGroups": false,
+        "bufferWindowSeconds": 8,
+        "bufferMaxWaitSeconds": 30
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "wafly-set-transcription",
+      "name": "2. Transcribe voice notes (optional)",
+      "type": "n8n-nodes-wafly.wafly",
+      "notes": "Paste your own OpenAI key. Capped at 500 min/month.",
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "resource": "instance",
+        "operation": "setTranscription",
+        "transcriptionApiKey": "",
+        "transcriptionMonthlyCap": 500,
+        "transcriptionMaxAudioSeconds": 300
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "webhook-inbound",
+      "name": "Wafly Inbound",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        360
+      ],
+      "webhookId": "REPLACE_WEBHOOK_ID",
+      "parameters": {
+        "path": "wafly-ai-agent",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "normalize",
+      "name": "Text or voice, one field",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        260,
+        360
+      ],
+      "parameters": {
+        "jsCode": "// One inbound message can carry text OR a voice note. Normalize both into\n// a single `question` field so the agent below never has to care which.\n//\n// When the buffer grouped several messages, body.text.message already arrives\n// joined and body.buffered is present — nothing extra to handle here, which is\n// the point of concat mode.\nconst b = $input.first().json.body || {};\n\nconst spoken = b.transcription?.status === 'ok' ? (b.transcription.text || '') : '';\nconst typed = b.text?.message || '';\nconst question = (spoken || typed).trim();\n\nreturn [{\n  json: {\n    phone: b.phone || '',\n    question,\n    isVoice: Boolean(spoken),\n    grouped: Boolean(b.buffered),\n    fromMe: Boolean(b.fromMe),\n    isGroup: Boolean(b.isGroup),\n    type: b.type || '',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-filter",
+      "name": "A customer said something?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        520,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-type",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.type }}",
+              "rightValue": "ReceivedCallback"
+            },
+            {
+              "id": "cond-fromme",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.fromMe }}",
+              "rightValue": ""
+            },
+            {
+              "id": "cond-group",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isGroup }}",
+              "rightValue": ""
+            },
+            {
+              "id": "cond-question",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.question }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ai-agent",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueRegularOutput",
+      "position": [
+        820,
+        340
+      ],
+      "parameters": {
+        "text": "={{ $json.question }}",
+        "options": {
+          "systemMessage": "You are the company's assistant on WhatsApp. Reply in the same language the customer used, in at most 3 short sentences, with no markdown (WhatsApp does not render it).\n\nRules:\n- Never invent a price, a deadline or a policy. If you do not know, say you will check and ask for their email.\n- If they ask for a human, say you are transferring and stop replying.\n- Never ask for card details, passwords or ID numbers.\n- The customer may have sent several messages at once; treat them as one question."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "llm",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        760,
+        640
+      ],
+      "parameters": {
+        "model": "gpt-4o-mini",
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "REPLACE_OPENAI_CREDENTIAL_ID",
+          "name": "OpenAI account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "memory",
+      "name": "Memory per phone number",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1060,
+        640
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Text or voice, one field').item.json.phone }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 12
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "wafly-send",
+      "name": "Reply on WhatsApp",
+      "type": "n8n-nodes-wafly.wafly",
+      "maxTries": 3,
+      "position": [
+        1160,
+        340
+      ],
+      "parameters": {
+        "phone": "={{ $('Text or voice, one field').item.json.phone }}",
+        "message": "={{ $json.output }}",
+        "resource": "message",
+        "operation": "sendText"
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "noop-ignore",
+      "name": "Ignore (group, echo, no text)",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        820,
+        920
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "Reply on WhatsApp",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wafly Inbound": {
+      "main": [
+        [
+          {
+            "node": "Text or voice, one field",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run setup once": {
+      "main": [
+        [
+          {
+            "node": "1. Group split messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "1. Group split messages": {
+      "main": [
+        [
+          {
+            "node": "2. Transcribe voice notes (optional)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Memory per phone number": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Text or voice, one field": {
+      "main": [
+        [
+          {
+            "node": "A customer said something?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "A customer said something?": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignore (group, echo, no text)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

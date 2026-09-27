@@ -1,0 +1,697 @@
+{
+  "id": "gOySWYooKXWbepYL",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Capture social DMs with purchase intent using FanBase, Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18123,
+    "update_time": "2026-09-27"
+  },
+  "name": "Turn Social Engagement into Qualified Leads with FanBase MCP, Apify and Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "22167bc8-dcba-499e-9665-49cd4bb24b5f",
+      "name": "Every 15 Minutes Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -816,
+        640
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "79dfccc2-496e-4e42-adb3-d5f3cdfa3561",
+      "name": "Retrieve Watermark Data",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -608,
+        640
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "key",
+              "keyValue": "funnel_last_ts"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_YOUR_DATA_TABLE",
+          "cachedResultName": "time_stamp"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "1f11c635-dfaa-4d16-b9e0-b4e332705756",
+      "name": "Fetch Direct Messages",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        -432,
+        640
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "id",
+          "value": "query_activity"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "={\n  \"after\": \"{{ $json.value ? new Date(Number($json.value) * 1000).toISOString() : new Date(Date.now() - 86400000).toISOString() }}\",\n  \"limit\": 100,\n  \"sortDirection\": \"desc\"\n}",
+        "endpointUrl": "https://api.copilot.fanbase.gg/mcp",
+        "authentication": "mcpOAuth2Api"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d0929153-6a0a-443b-981a-9d50db46a1a0",
+      "name": "Identify Intent in DMs",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -240,
+        640
+      ],
+      "parameters": {
+        "jsCode": "\n// DMs with purchase intent since the last poll. Emits ONE item: { watermark, leads[] }.\n// DMs only — likes, comments, follows and mentions are ignored.\nconst raw = $input.first().json;\nlet payload = (raw && raw.content && raw.content[0]) ? raw.content[0].text : raw;\nif (typeof payload === 'string') { try { payload = JSON.parse(payload); } catch (e) { payload = null; } }\nconst events = (payload && Array.isArray(payload.events)) ? payload.events : [];\nconst apiTotal = (payload && typeof payload.total === 'number') ? payload.total : events.length;\nconst organization_id = (payload && payload.organizationId) ? String(payload.organizationId) : '';\n\nconst prevTs = Number(($('Retrieve Watermark Data').first().json || {}).value || 0) || 0;\n\nconst DM_TYPES = ['message', 'dm', 'direct_message'];\n\n// word-boundary matcher — stops \"order\" matching \"border\", \"cost\" matching \"costume\"\nfunction boundary(kw) {\n  const esc = String(kw).replace(/[.*+?^${}()|[\\]\\\\]/g, '\\\\$&');\n  try { return new RegExp('(?<![\\\\p{L}\\\\p{N}])' + esc + '(?![\\\\p{L}\\\\p{N}])', 'iu'); }\n  catch (e) { return new RegExp(esc, 'i'); }\n}\nconst INTENT = ['buy','buying','purchase','purchasing','order','preorder','pre-order','price','pricing',\n  'cost','checkout','payment','how much','where can i buy','where can i get','in stock','restock',\n  'sold out','discount','promo code','sign up','subscribe','upgrade','interested','want one','get one'];\nconst intentRes = INTENT.map(boundary);\n\nfunction igThreadId(messageId) {\n  if (!messageId) return null;\n  const s = String(messageId);\n  const cands = s.indexOf('ZA') === -1 ? [s] : [s, s.replace(/ZA/g, 'Z')];\n  for (const c of cands) for (let p = 0; p < 4; p++) {\n    let dec = '';\n    try { dec = Buffer.from(c + '='.repeat(p), 'base64').toString('utf8'); } catch (e) { continue; }\n    const m = dec.match(/^ig_dm_item:\\d+:IGMessageID:\\d+:(\\d+):\\d+/);\n    if (m) return m[1];\n  }\n  return null;\n}\nfunction replyUrl(ev) {\n  const inbox = organization_id ? 'https://copilot.fanbase.gg/o/' + organization_id + '/inbox' : '';\n  const p = String(ev.platform || '').toLowerCase();\n  const meta = ev.metadata || {};\n  if (p === 'instagram') {\n    const tid = igThreadId(meta.messageId);\n    if (tid) return 'https://www.instagram.com/direct/t/' + tid + '/';\n  }\n  return inbox;\n}\nconst secs = (ev) => {\n  const t = new Date((ev.metadata && ev.metadata.timestamp) || ev.createdAt || '').getTime();\n  return Number.isFinite(t) ? Math.floor(t / 1000) : 0;\n};\n\nlet newest = prevTs;\nconst leads = [];\nconst seen = new Set();\n\nfor (const ev of events.slice().sort((a, b) => secs(b) - secs(a))) {   // newest first\n  const ts = secs(ev);\n  if (ts > newest) newest = ts;\n  if (ts && ts <= prevTs) continue;                                    // already handled\n  if (DM_TYPES.indexOf(String(ev.type || '').toLowerCase()) === -1) continue;   // DMs only\n\n  const text = (ev.metadata && ev.metadata.text) ? String(ev.metadata.text) : '';\n  if (!intentRes.some(re => re.test(text))) continue;\n\n  const fanId = (ev.fan && ev.fan.id) ? String(ev.fan.id) : '';\n  if (!fanId || seen.has(fanId)) continue;                             // one lead per fan per poll\n  seen.add(fanId);\n\n  leads.push({\n    fan_id: fanId,\n    fan_name: (ev.fan && ev.fan.name) || '',\n    platform: ev.platform || '',\n    intent_text: text.slice(0, 500),\n    intent_at: (ev.metadata && ev.metadata.timestamp) || ev.createdAt || '',\n    reply_url: replyUrl(ev),\n  });\n}\n\nif (!newest) newest = Math.floor(Date.now() / 1000);\nreturn [{ json: { watermark: String(newest), leads, lead_count: leads.length,\n                  scanned: events.length, api_truncated: apiTotal > events.length } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9521dc06-a6e2-48fe-8c5b-1a8dfcf0e989",
+      "name": "Store Watermark Data",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        80,
+        320
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "key": "funnel_last_ts",
+            "value": "={{ $json.watermark }}"
+          },
+          "schema": [
+            {
+              "id": "key",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "key",
+              "defaultMatch": false
+            },
+            {
+              "id": "value",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "value",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "key",
+              "keyValue": "funnel_last_ts"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_YOUR_DATA_TABLE",
+          "cachedResultName": "time_stamp"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b0c8055a-4fa1-41b1-801c-641eb2c0f363",
+      "name": "Process CRM Page 1",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        32,
+        576
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "id",
+          "value": "list_crm"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "{\n  \"page\": 1,\n  \"limit\": 100,\n  \"sortBy\": \"engagement\"\n}",
+        "endpointUrl": "https://api.copilot.fanbase.gg/mcp",
+        "authentication": "mcpOAuth2Api"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3fdf04cb-6641-4674-b416-b68f178045ea",
+      "name": "Process CRM Page 2",
+      "type": "@n8n/n8n-nodes-langchain.mcpClient",
+      "position": [
+        32,
+        752
+      ],
+      "parameters": {
+        "tool": {
+          "__rl": true,
+          "mode": "id",
+          "value": "list_crm"
+        },
+        "options": {},
+        "inputMode": "json",
+        "jsonInput": "{\n  \"page\": 2,\n  \"limit\": 100,\n  \"sortBy\": \"engagement\"\n}",
+        "endpointUrl": "https://api.copilot.fanbase.gg/mcp",
+        "authentication": "mcpOAuth2Api"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "712db4c9-5d6f-4ef9-964e-f446fb502952",
+      "name": "Merge CRM Page Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        288,
+        672
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "409cd450-4c9f-4e52-9eb2-400080a3e389",
+      "name": "Resolve Social Handles",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        512,
+        672
+      ],
+      "parameters": {
+        "jsCode": "\n// Joins each intent lead to its CRM record to get the handle, then emits ONE ITEM PER LEAD.\n// fan.id (query_activity) == clusterId (list_crm) — verified against live data.\n// list_crm caps at 100 rows per page and page 1 is all high-engagement twitter fans, so the\n// Instagram fans who actually DM only appear on later pages — hence the merged page inputs.\nconst leads = ($('Identify Intent in DMs').first().json.leads) || [];\nif (!leads.length) return [];\n\nconst fans = [];\nlet crmTotal = 0;\nfor (const item of $input.all()) {\n  let p = (item.json && item.json.content && item.json.content[0]) ? item.json.content[0].text : item.json;\n  if (typeof p === 'string') { try { p = JSON.parse(p); } catch (e) { continue; } }\n  if (!p) continue;\n  if (typeof p.total === 'number') crmTotal = Math.max(crmTotal, p.total);\n  for (const f of (p.fans || [])) fans.push(f);\n}\nconst byId = {};\nfor (const f of fans) if (f && f.clusterId) byId[String(f.clusterId)] = f;\n\nfunction profileUrl(platform, u) {\n  if (!u) return '';\n  const p = String(platform || '').toLowerCase();\n  if (p === 'instagram') return 'https://www.instagram.com/' + u;\n  if (p === 'twitter' || p === 'x') return 'https://x.com/' + u;\n  if (p === 'tiktok') return 'https://www.tiktok.com/@' + u;\n  return '';\n}\n\nreturn leads.map(lead => {\n  const fan = byId[String(lead.fan_id)] || null;\n  const profile = (fan && fan.profile) || {};\n  return { json: Object.assign({}, lead, {\n    handle: String(profile.username || ''),\n    profile_url: profileUrl(lead.platform, profile.username),\n    crm_truncated: crmTotal > fans.length,\n  }) };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1fd8093c-0f31-4f59-a80f-c024fc266f40",
+      "name": "Assemble CRM Data Row",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1056,
+        672
+      ],
+      "parameters": {
+        "jsCode": "// Merges each Apify profile with its lead and produces ONE ROW PER LEAD.\n// The Apify node (\"Run an Actor and get dataset\") emits dataset items FLAT — there is no MCP\n// content[0].text envelope — and it emits NOTHING for a run that returns 0 items (bad/renamed\n// handle), so rows are driven off the leads and matched to profiles by username, never by\n// position. pairedItem (set by the Apify node to the input item index) is the fallback.\nconst leads = $('Resolve Social Handles').all().map(i => i.json);\nconst results = $input.all();\n\nfunction unwrap(item) {\n  const raw = (item && item.json) || {};\n  if (Array.isArray(raw.content)) {                 // MCP shape, if that node is ever swapped back in\n    for (const blk of raw.content) {\n      let o = blk && blk.text;\n      if (typeof o === 'string') { try { o = JSON.parse(o); } catch (e) { continue; } }\n      if (o && Array.isArray(o.items) && o.items.length) return o.items[0];\n      if (Array.isArray(o) && o.length && o[0] && o[0].username) return o[0];\n      if (o && (o.username || o.biography)) return o;\n    }\n    return null;\n  }\n  return (raw.username || raw.biography) ? raw : null;   // flat dataset item\n}\n\nconst norm = (u) => String(u || '').trim().replace(/^@/, '').toLowerCase();\nconst slot = (item, i) => {\n  const p = item && item.pairedItem;\n  if (typeof p === 'number') return p;\n  if (p && typeof p === 'object' && typeof p.item === 'number') return p.item;\n  if (Array.isArray(p) && p.length && typeof p[0].item === 'number') return p[0].item;\n  return i;\n};\n\nconst byHandle = {}, byIndex = {}, errByIndex = {};\nresults.forEach((item, i) => {\n  const idx = slot(item, i);\n  const profile = unwrap(item);\n  if (!profile) {\n    const err = item && item.json && item.json.error;\n    if (err && errByIndex[idx] === undefined) errByIndex[idx] = String(err.message || err);\n    return;\n  }\n  const key = norm(profile.username);\n  if (key && byHandle[key] === undefined) byHandle[key] = profile;\n  if (byIndex[idx] === undefined) byIndex[idx] = profile;\n});\n\nconst EMAIL = /[A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\\.[A-Za-z]{2,}/;\nfunction emailOf(profile, bio) {\n  if (!profile) return '';\n  // Instagram only exposes a contact email on some business accounts, so the bio is the main source.\n  for (const v of [profile.businessEmail, profile.publicEmail, profile.email]) {\n    const m = String(v || '').match(EMAIL);\n    if (m) return m[0];\n  }\n  const inBio = String(bio || '').match(EMAIL);\n  if (inBio) return inBio[0];\n  for (const l of (Array.isArray(profile.externalUrls) ? profile.externalUrls : [])) {\n    const u = String((l && l.url) || '');\n    if (/^mailto:/i.test(u)) {\n      const m = u.slice(7).match(EMAIL);\n      if (m) return m[0];\n    }\n  }\n  return '';\n}\n\nreturn leads.map((lead, i) => {\n  const profile = byHandle[norm(lead.handle)] || byIndex[i] || null;\n  const bio = profile ? String(profile.biography || '') : '';\n\n  let note = '';\n  if (!lead.handle) note = 'no handle in CRM' + (lead.crm_truncated ? ' (CRM paging incomplete)' : '');\n  else if (!profile) note = errByIndex[i] ? 'scrape failed: ' + errByIndex[i] : 'scrape returned nothing';\n  else if (profile.private) note = 'private account';\n\n  return { json: {\n    captured_at: new Date().toISOString(),\n    fan_name: lead.fan_name || (profile ? profile.fullName : '') || '',\n    handle: lead.handle || (profile ? String(profile.username || '') : ''),\n    profile_url: lead.profile_url || (profile ? String(profile.url || '') : ''),\n    platform: lead.platform || '',\n    email: emailOf(profile, bio),\n    link_in_bio: profile ? String(profile.externalUrl || '') : '',\n    followers: profile && typeof profile.followersCount === 'number' ? profile.followersCount : '',\n    posts: profile && typeof profile.postsCount === 'number' ? profile.postsCount : '',\n    is_business: profile ? !!profile.isBusinessAccount : '',\n    bio: bio.replace(/\\s+/g, ' ').slice(0, 300),\n    intent_text: lead.intent_text || '',\n    intent_at: lead.intent_at || '',\n    reply_url: lead.reply_url || '',\n    fan_id: lead.fan_id || '',\n    status: note ? 'captured (' + note + ')' : 'captured',\n  } };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4a815cd6-410a-4a96-9f7c-602e5dc184ab",
+      "name": "Insert to CRM Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1392,
+        672
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "bio": "={{ $json.bio }}",
+            "email": "={{ $json.email }}",
+            "posts": "={{ $json.posts }}",
+            "fan_id": "={{ $json.fan_id }}",
+            "handle": "={{ $json.handle }}",
+            "status": "={{ $json.status }}",
+            "fan_name": "={{ $json.fan_name }}",
+            "platform": "={{ $json.platform }}",
+            "followers": "={{ $json.followers }}",
+            "intent_at": "={{ $json.intent_at }}",
+            "reply_url": "={{ $json.reply_url }}",
+            "captured_at": "={{ $json.captured_at }}",
+            "intent_text": "={{ $json.intent_text }}",
+            "is_business": "={{ $json.is_business }}",
+            "link_in_bio": "={{ $json.link_in_bio }}",
+            "profile_url": "={{ $json.profile_url }}"
+          },
+          "schema": [
+            {
+              "id": "captured_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "captured_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "fan_name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "fan_name",
+              "defaultMatch": false
+            },
+            {
+              "id": "handle",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "handle",
+              "defaultMatch": false
+            },
+            {
+              "id": "profile_url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "profile_url",
+              "defaultMatch": false
+            },
+            {
+              "id": "platform",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "platform",
+              "defaultMatch": false
+            },
+            {
+              "id": "email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "email",
+              "defaultMatch": false
+            },
+            {
+              "id": "link_in_bio",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "link_in_bio",
+              "defaultMatch": false
+            },
+            {
+              "id": "followers",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "followers",
+              "defaultMatch": false
+            },
+            {
+              "id": "posts",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "posts",
+              "defaultMatch": false
+            },
+            {
+              "id": "is_business",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "is_business",
+              "defaultMatch": false
+            },
+            {
+              "id": "bio",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "bio",
+              "defaultMatch": false
+            },
+            {
+              "id": "intent_text",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "intent_text",
+              "defaultMatch": false
+            },
+            {
+              "id": "intent_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "intent_at",
+              "defaultMatch": false
+            },
+            {
+              "id": "reply_url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "reply_url",
+              "defaultMatch": false
+            },
+            {
+              "id": "fan_id",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "fan_id",
+              "defaultMatch": false
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "status",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "fan_id"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": true
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_YOUR_SHEET_URL/edit"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e4954212-0900-415a-9d18-0a8bf8c7c214",
+      "name": "Execute Actor for Lead Data",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "onError": "continueRegularOutput",
+      "position": [
+        784,
+        672
+      ],
+      "parameters": {
+        "actorId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "dSCLg0C3YEZ83HzYX",
+          "cachedResultUrl": "https://console.apify.com/actors/dSCLg0C3YEZ83HzYX/input",
+          "cachedResultName": "Instagram Profile Scraper (apify/instagram-profile-scraper)"
+        },
+        "operation": "Run actor and get dataset",
+        "customBody": "={\n    \"usernames\": [\n        \"{{$json.handle}}\"\n    ]\n} "
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "34fb08d5-1d02-44c1-969f-b9fac95cb373",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1424,
+        160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 480,
+        "height": 1236,
+        "content": "## GTM Engineering: Turn Social Engagement into Qualified Leads with FanBase MCP, Apify and Sheets\n\n### How it works\n\nEvery 15 minutes this workflow pulls the FanBase DMs received since the last saved watermark and keeps only the ones showing **purchase intent** — likes, comments, follows and mentions are dropped. A DM only carries a display name, so it looks the fan up in the CRM (`fan.id == clusterId`) to get their @handle, scrapes that public profile with Apify, and appends one enriched, CRM-ready row per lead to a Google Sheet. The watermark is then advanced so the next run only sees new engagement.\n\nEach row carries the DM that triggered it and a deep link straight back into the conversation, next to the enrichment — so you can reply while the fan is still in the chat.\n\n### Setup steps\n\n- Create a **Data Table** with two string columns, `key` and `value`, and select it on *Retrieve Watermark Data* and *Store Watermark Data*. Nothing to seed — the first run scans the last 24 h and writes the row itself.\n- Connect the **FanBase MCP** credential (`https://api.copilot.fanbase.gg/mcp`) on the three MCP nodes.\n- Add your **Apify** credential on *Execute Actor for Lead Data*. The actor (`apify/instagram-profile-scraper`) is already selected.\n- Create a Google Sheet with a **`Leads`** tab whose header row is exactly:\n`captured_at, fan_name, handle, profile_url, platform, email, link_in_bio, followers, posts, is_business, bio, intent_text, intent_at, reply_url, fan_id, status`\nthen connect **Google Sheets** and paste the sheet URL into *Insert to CRM Sheet*.\n- Adjust the 15-minute schedule to your DM volume, then run once manually before activating.\n\n### Customization\n\nEdit the keyword lexicon in *Identify Intent in DMs* to match how your audience asks to buy — or add partnership/collab terms to catch inbound deals too. Swap the Apify actor for another network, add CRM pages 3+ if you have more than 200 fans, and repoint the final node at HubSpot, Airtable or Notion: *Assemble CRM Data Row* emits a flat object, so nothing upstream changes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d1075926-8f1b-4098-b87e-8482ef310f7f",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -864,
+        112
+      ],
+      "parameters": {
+        "width": 784,
+        "height": 426,
+        "content": "## 1 · Scheduled DM intake\n\n**Every 15 Minutes Trigger** — schedule. Nothing here needs to be realtime, and a wider interval keeps the API calls cheap.\n\n**Retrieve Watermark Data** — reads the `funnel_last_ts` row: the timestamp of the newest DM handled last poll, so no message is ever processed twice. *Always Output Data* is on, so a missing row on the first run can't stall the chain.\n\n**Fetch Direct Messages** — FanBase MCP `query_activity`, asking only for activity *after* that watermark (last 24 h on the first run).\n\n**Identify Intent in DMs** — Code. Keeps DMs only, matches a 26-keyword intent lexicon with word boundaries so \"border\" never matches \"order\", takes one lead per fan per poll, and rebuilds a deep link to the conversation from the message id. Emits one item: `{ watermark, leads[] }`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8e8131b6-1025-47f3-887c-42b43aa9205d",
+      "name": "Section 1b",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "width": 524,
+        "height": 286,
+        "content": "## Advance the watermark\n\n**Store Watermark Data** — upserts the newest DM timestamp so the next poll starts where this one stopped.\n\nIt runs in parallel with the enrichment branch. Move it after *Insert to CRM Sheet* if you would rather re-scan leads whose row failed to write."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "191ab72a-ae83-47c4-b593-ed2d6a22484f",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        912
+      ],
+      "parameters": {
+        "width": 716,
+        "height": 388,
+        "content": "## 2 · Turn the fan into a scrapeable handle\n\nA DM event carries only `fan: {id, name}` — a display name, no @handle. The handle lives in the CRM, keyed by `clusterId`, and `fan.id == clusterId`.\n\n**Process CRM Page 1 / Page 2** — FanBase MCP `list_crm`. The API caps at 100 rows per page and ignores a larger limit, and page 1 is dominated by your most-engaged fans, so a single page can resolve nobody. Add page 3+ for a larger CRM.\n\n**Merge CRM Page Data** — appends both pages into one stream. Two edges into one input port would *not* merge — n8n counts input ports — so each page gets its own port.\n\n**Resolve Social Handles** — Code. Indexes fans by `clusterId`, joins each lead to its `profile.username`, and builds the profile URL for that platform (Instagram, X or TikTok). A lead with no CRM match is kept and flagged, not dropped."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ffe6ff6e-6f72-4a16-a00e-2c9407ffca51",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        736,
+        48
+      ],
+      "parameters": {
+        "height": 572,
+        "content": "## 3 · Scrape lead profiles\n\n**Execute Actor for Lead Data** — Apify, running `apify/instagram-profile-scraper` with `{\"usernames\": [\"{{ $json.handle }}\"]}`. Runs once per lead, waits, and returns the dataset item flat: `biography`, `followersCount`, `postsCount`, `externalUrl`, `private`…\n\n*On Error → Continue* so one bad or renamed handle can't kill the poll, and *Always Output Data* so rows are still written when every scrape comes back empty."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ba488f2-fca2-45b8-89f9-58161d7de097",
+      "name": "Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1040,
+        48
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 560,
+        "content": "## 4 · Build and save rows\n\n**Assemble CRM Data Row** — Code. One row per lead, matched to its scraped profile **by username, never by position** — the Apify node emits nothing at all for a profile it could not scrape, so index pairing would put one lead's data on another lead's row. The email is read from `businessEmail`/`publicEmail`, then the bio text, then a `mailto:` bio link — and left blank rather than invented. Every lead reaches the sheet, with a `status` note when the handle or the scrape is missing.\n\n**Insert to CRM Sheet** — Google Sheets *append or update* matching on `fan_id`, so a fan who DMs again updates their row instead of duplicating it."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "07437fb9-a3b1-4f3c-9b53-64ba230dba09",
+  "nodeGroups": [],
+  "connections": {
+    "Process CRM Page 1": {
+      "main": [
+        [
+          {
+            "node": "Merge CRM Page Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process CRM Page 2": {
+      "main": [
+        [
+          {
+            "node": "Merge CRM Page Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Merge CRM Page Data": {
+      "main": [
+        [
+          {
+            "node": "Resolve Social Handles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble CRM Data Row": {
+      "main": [
+        [
+          {
+            "node": "Insert to CRM Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Direct Messages": {
+      "main": [
+        [
+          {
+            "node": "Identify Intent in DMs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Identify Intent in DMs": {
+      "main": [
+        [
+          {
+            "node": "Store Watermark Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Process CRM Page 1",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Process CRM Page 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve Social Handles": {
+      "main": [
+        [
+          {
+            "node": "Execute Actor for Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Watermark Data": {
+      "main": [
+        [
+          {
+            "node": "Fetch Direct Messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 Minutes Trigger": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Watermark Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Execute Actor for Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Assemble CRM Data Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

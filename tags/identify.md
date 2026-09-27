@@ -1,4 +1,4 @@
-# identify : 12
+# identify : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |12600|[12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12600_Identify_buying-intent_leads_on_Twitter_and_Instagram_with_Slack_and_Notion_CRM.json)|
 |13495|[13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json)|
 |16415|[16415_Identify_company_decision_makers_with_Coresignal_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16415_Identify_company_decision_makers_with_Coresignal_and_Google_Sheets.json)|
+|17415|[17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json)|
+|17610|[17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json)|
+|18113|[18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json)|
+|18255|[18255_Identify_competitor_YouTube_outlier_videos_with_Bright_Data__OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18255_Identify_competitor_YouTube_outlier_videos_with_Bright_Data__OpenAI__Sheets_and_Slack.json)|

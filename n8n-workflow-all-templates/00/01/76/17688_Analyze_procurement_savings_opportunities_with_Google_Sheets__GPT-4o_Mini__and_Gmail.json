@@ -1,0 +1,609 @@
+{
+  "id": "bvJHUXWTdxt0Zj7k",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Analyze procurement savings opportunities with Google Sheets, GPT-4o Mini, and Gmail",
+    "wechat": "youandme10086",
+    "id": 17688,
+    "update_time": "2026-09-27"
+  },
+  "name": "Procurement Savings Opportunity Engine",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7e6a4c3f-e85c-46d1-8e80-1931dd8f5279",
+      "name": "Every Monday 8AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        832,
+        832
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "9f2a60dd-92df-4056-bbe7-ae42e2d987f9",
+      "name": "Read Procurement Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueErrorOutput",
+      "position": [
+        1056,
+        832
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WHlJkY_NmFTm4WN462iysXsH0gyquqzefv0T8MPOKRc/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1WHlJkY_NmFTm4WN462iysXsH0gyquqzefv0T8MPOKRc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WHlJkY_NmFTm4WN462iysXsH0gyquqzefv0T8MPOKRc/edit?usp=drivesdk",
+          "cachedResultName": "transaction dataset"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7
+    },
+    {
+      "id": "aa64c325-d498-41f1-af9f-c2859e947e42",
+      "name": "Data Aggregation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1280,
+        832
+      ],
+      "parameters": {
+        "jsCode": "\nconst items = $input.all();\nconst rows = items.map(i => i.json);\n\nconst spendByCategory = {};\nconst spendBySupplier = {};\nconst suppliersByCategory = {};\nconst pricesByItem = {};\nlet preferredSpend = 0;\nlet nonPreferredSpend = 0;\n\nfor (const row of rows) {\n  const category = row['Category'] || 'Unknown';\n  const supplier = row['Supplier'] || 'Unknown';\n  const item = row['Item Description'] || 'Unknown';\n  const totalSpend = parseFloat(row['Total Spend']) || 0;\n  const unitPrice = parseFloat(row['Unit Price']) || 0;\n  const isPreferred = (row['Preferred Supplier'] || '').toString().trim().toLowerCase() === 'yes';\n\n  // Spend by category\n  spendByCategory[category] = (spendByCategory[category] || 0) + totalSpend;\n\n  // Spend by supplier\n  spendBySupplier[supplier] = (spendBySupplier[supplier] || 0) + totalSpend;\n\n  // Supplier count by category\n  if (!suppliersByCategory[category]) {\n    suppliersByCategory[category] = new Set();\n  }\n  suppliersByCategory[category].add(supplier);\n\n  // Price tracking by item\n  if (!pricesByItem[item]) {\n    pricesByItem[item] = { prices: [], totalQty: 0, totalSpend: 0 };\n  }\n  pricesByItem[item].prices.push(unitPrice);\n  pricesByItem[item].totalQty += parseFloat(row['Quantity']) || 0;\n  pricesByItem[item].totalSpend += totalSpend;\n\n  // Preferred vs non-preferred spend\n  if (isPreferred) {\n    preferredSpend += totalSpend;\n  } else {\n    nonPreferredSpend += totalSpend;\n  }\n}\n\n// Compute price stats per item\nconst itemPriceStats = {};\nfor (const [item, data] of Object.entries(pricesByItem)) {\n  const prices = data.prices;\n  const avg = prices.reduce((a, b) => a + b, 0) / prices.length;\n  itemPriceStats[item] = {\n    averageUnitPrice: Math.round(avg * 100) / 100,\n    highestUnitPrice: Math.max(...prices),\n    lowestUnitPrice: Math.min(...prices),\n    totalSpend: data.totalSpend\n  };\n}\n\n// Convert suppliersByCategory Sets to counts\nconst supplierCountByCategory = {};\nfor (const [cat, suppliers] of Object.entries(suppliersByCategory)) {\n  supplierCountByCategory[cat] = suppliers.size;\n}\n\nreturn [{\n  json: {\n    rawRows: rows,\n    spendByCategory,\n    spendBySupplier,\n    supplierCountByCategory,\n    suppliersByCategory: Object.fromEntries(Object.entries(suppliersByCategory).map(([k, v]) => [k, [...v]])),\n    itemPriceStats,\n    preferredSpend,\n    nonPreferredSpend,\n    totalSpend: preferredSpend + nonPreferredSpend\n  }\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1af32992-25e5-430d-8e32-3067e76bddcc",
+      "name": "Opportunity Detection",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1600,
+        832
+      ],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\nconst {\n  rawRows,\n  spendByCategory,\n  supplierCountByCategory,\n  suppliersByCategory,\n  itemPriceStats,\n  preferredSpend,\n  nonPreferredSpend,\n  totalSpend\n} = data;\n\nconst opportunities = [];\n\n/*\n=========================================\nA. SUPPLIER FRAGMENTATION\n=========================================\n*/\n\nfor (const [category, supplierCount] of Object.entries(supplierCountByCategory)) {\n\n  if (supplierCount > 2) {\n\n    const categorySpend = spendByCategory[category] || 0;\n\n    opportunities.push({\n      type: \"Supplier Fragmentation\",\n      category,\n      severity:\n        supplierCount >= 5 ? \"High\" :\n        supplierCount >= 3 ? \"Medium\" :\n        \"Low\",\n\n      description:\n        `${supplierCount} suppliers are servicing the ${category} category.`,\n\n      supplierCount,\n      suppliers: suppliersByCategory[category] || [],\n      currentSpend: categorySpend,\n\n      potentialSavings: Math.round(categorySpend * 0.08)\n    });\n  }\n}\n\n/*\n=========================================\nB. PRICE VARIANCE\n=========================================\n*/\n\nfor (const [item, stats] of Object.entries(itemPriceStats)) {\n\n  const highest = stats.highestUnitPrice;\n  const lowest = stats.lowestUnitPrice;\n  const spend = stats.totalSpend;\n\n  if (lowest <= 0) continue;\n\n  const variancePct =\n    ((highest - lowest) / lowest) * 100;\n\n  if (variancePct > 15) {\n\n    opportunities.push({\n      type: \"Price Variance\",\n\n      item,\n\n      severity:\n        variancePct > 40 ? \"High\" :\n        variancePct > 25 ? \"Medium\" :\n        \"Low\",\n\n      description:\n        `${item} shows ${variancePct.toFixed(1)}% price variance.`,\n\n      highestPrice: highest,\n      lowestPrice: lowest,\n      variancePercent: Number(variancePct.toFixed(2)),\n      currentSpend: spend,\n\n      potentialSavings:\n        Math.round(spend * (variancePct / 100) * 0.3)\n    });\n  }\n}\n\n/*\n=========================================\nC. MAVERICK SPEND\n=========================================\n*/\n\nconst maverickByCategory = {};\n\nfor (const row of rawRows) {\n\n  const isPreferred =\n    (row[\"Preferred Supplier\"] || \"\")\n      .toString()\n      .trim()\n      .toLowerCase() === \"yes\";\n\n  if (!isPreferred) {\n\n    const category =\n      row[\"Category\"] || \"Unknown\";\n\n    const spend =\n      parseFloat(row[\"Total Spend\"]) || 0;\n\n    maverickByCategory[category] =\n      (maverickByCategory[category] || 0) +\n      spend;\n  }\n}\n\nconst maverickRate =\n  totalSpend > 0\n    ? (nonPreferredSpend / totalSpend) * 100\n    : 0;\n\nfor (const [category, spend] of Object.entries(maverickByCategory)) {\n\n  opportunities.push({\n    type: \"Maverick Spend\",\n\n    category,\n\n    severity:\n      maverickRate > 40 ? \"High\" :\n      maverickRate > 20 ? \"Medium\" :\n      \"Low\",\n\n    description:\n      `${category} contains spend with non-preferred suppliers.`,\n\n    currentSpend: spend,\n    maverickRate: Number(maverickRate.toFixed(2)),\n\n    potentialSavings:\n      Math.round(spend * 0.05)\n  });\n}\n\n/*\n=========================================\nD. CONTRACT LEAKAGE\n=========================================\n*/\n\nconst leakageByCategory = {};\n\nfor (const row of rawRows) {\n\n  const unitPrice =\n    parseFloat(row[\"Unit Price\"]) || 0;\n\n  const contractPrice =\n    parseFloat(row[\"Contract Price\"]) || 0;\n\n  const qty =\n    parseFloat(row[\"Quantity\"]) || 0;\n\n  if (\n    contractPrice > 0 &&\n    unitPrice > contractPrice\n  ) {\n\n    const leakage =\n      (unitPrice - contractPrice) * qty;\n\n    const category =\n      row[\"Category\"] || \"Unknown\";\n\n    if (!leakageByCategory[category]) {\n\n      leakageByCategory[category] = {\n        leakageAmount: 0,\n        items: []\n      };\n    }\n\n    leakageByCategory[category].leakageAmount += leakage;\n\n    leakageByCategory[category].items.push(\n      row[\"Item Description\"] || \"Unknown\"\n    );\n  }\n}\n\nfor (const [category, details] of Object.entries(leakageByCategory)) {\n\n  opportunities.push({\n\n    type: \"Contract Leakage\",\n\n    category,\n\n    severity:\n      details.leakageAmount > 5000 ? \"High\" :\n      details.leakageAmount > 1000 ? \"Medium\" :\n      \"Low\",\n\n    description:\n      `Purchases exceeded negotiated contract pricing.`,\n\n    affectedItems:\n      [...new Set(details.items)],\n\n    leakageAmount:\n      Number(details.leakageAmount.toFixed(2)),\n\n    potentialSavings:\n      Number(details.leakageAmount.toFixed(2))\n  });\n}\n\n/*\n=========================================\nSUMMARY\n=========================================\n*/\n\nconst summary = {\n  totalSpend,\n  preferredSpend,\n  nonPreferredSpend,\n  maverickRate:\n    Number(\n      ((nonPreferredSpend / totalSpend) * 100)\n      .toFixed(2)\n    ),\n\n  totalOpportunities:\n    opportunities.length\n};\n\n/*\n=========================================\nRETURN\n=========================================\n*/\n\nreturn [\n  {\n    json: {\n      opportunities,\n      summary\n    }\n  }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a9bbf861-88dd-49a4-a38d-92f76691b831",
+      "name": "AI Opportunity Analysis",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueErrorOutput",
+      "position": [
+        1824,
+        832
+      ],
+      "parameters": {
+        "text": "=Analyze the following procurement savings opportunities and provide structured analysis for each:\n\n{{ JSON.stringify($json.opportunities, null, 2) }}\n\nContext:\n- Total Spend: ${{ $json.summary.totalSpend }}\n- Preferred Spend: ${{ $json.summary.preferredSpend }}\n- Non-Preferred Spend: ${{ $json.summary.nonPreferredSpend }}\n\nFor each opportunity, provide: opportunityType, category, description (detailed analysis), savingsPercentage (realistic estimate), savingsAmount (in dollars), effortLevel (Low/Medium/High), and recommendedActions (array of 2-3 specific actions).",
+        "options": {
+          "maxIterations": 3,
+          "systemMessage": "You are a procurement savings expert. Analyze procurement data opportunities and provide accurate, data-driven recommendations. Be specific about savings amounts and percentages. Return ONLY valid JSON matching the schema provided - no additional text."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "9a39531e-5a3b-429b-ad6a-2055abfe9bd4",
+      "name": "GPT-4o Mini",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1840,
+        1056
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.3
+        },
+        "builtInTools": {}
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "077f64ea-3f90-45ca-b37d-5cdbce169172",
+      "name": "Opportunities Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        2000,
+        1056
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"opportunities\":[{\"opportunityType\":\"Supplier Fragmentation\",\"category\":\"Office Supplies\",\"description\":\"Detailed analysis of the savings opportunity\",\"savingsPercentage\":12.5,\"savingsAmount\":687.5,\"effortLevel\":\"Medium\",\"recommendedActions\":[\"Action 1\",\"Action 2\"]}]}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "084309ff-c936-40f4-bfc7-146c78f50a3e",
+      "name": "Priority Scoring",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2416,
+        816
+      ],
+      "parameters": {
+        "jsCode": "const data = $input.first().json;\n\n// OpenAI output structure\nconst opportunities = data.output?.opportunities || [];\n\nconst effortScoreMap = {\n  Low: 1,\n  Medium: 2,\n  High: 3\n};\n\nconst scored = opportunities.map(opp => {\n\n  const impactScore =\n    Number(opp.savingsAmount || 0);\n\n  const effortScore =\n    effortScoreMap[opp.effortLevel] || 2;\n\n  const priorityScore =\n    impactScore / effortScore;\n\n  let classification;\n\n  if (priorityScore >= 3000) {\n    classification = \"Strategic Initiative\";\n  }\n  else if (priorityScore >= 1000) {\n    classification = \"Quick Win\";\n  }\n  else {\n    classification = \"Low Priority\";\n  }\n\n  return {\n    ...opp,\n\n    impactScore,\n    effortScore,\n\n    priorityScore:\n      Number(priorityScore.toFixed(2)),\n\n    classification,\n\n    status: \"New\",\n\n    analysisDate:\n      new Date()\n      .toISOString()\n      .split('T')[0]\n  };\n});\n\n// Sort highest priority first\n\nscored.sort(\n  (a,b) => b.priorityScore - a.priorityScore\n);\n\nreturn scored.map(item => ({\n  json: item\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d8c37f76-80a4-4431-8d69-ed407a1b680b",
+      "name": "Sort by Priority Score",
+      "type": "n8n-nodes-base.sort",
+      "position": [
+        2672,
+        816
+      ],
+      "parameters": {
+        "options": {},
+        "sortFieldsUi": {
+          "sortField": [
+            {
+              "order": "descending",
+              "fieldName": "priorityScore"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "26139a19-33ef-4d65-958b-0dbeba8bc81a",
+      "name": "Save Opportunities to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueErrorOutput",
+      "position": [
+        3008,
+        816
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "={{ $json.status }}",
+            "Category": "={{ $json.category }}",
+            "Description": "={{ $json.description }}",
+            "Effort Score": "={{ $json.effortScore }}",
+            "Analysis Date": "={{ $json.analysisDate }}",
+            "Classification": "={{ $json.classification }}",
+            "Priority Score": "={{ $json.priorityScore }}",
+            "Savings Amount": "={{ $json.savingsAmount }}",
+            "Opportunity Type": "={{ $json.opportunityType }}"
+          },
+          "schema": [
+            {
+              "id": "Analysis Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Analysis Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Opportunity Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Opportunity Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Description",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Savings Amount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Savings Amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Effort Score",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Effort Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Priority Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Classification",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Classification",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1228584865,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WHlJkY_NmFTm4WN462iysXsH0gyquqzefv0T8MPOKRc/edit#gid=1228584865",
+          "cachedResultName": "Sheet2"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1WHlJkY_NmFTm4WN462iysXsH0gyquqzefv0T8MPOKRc",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1WHlJkY_NmFTm4WN462iysXsH0gyquqzefv0T8MPOKRc/edit?usp=drivesdk",
+          "cachedResultName": "transection dataset"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "c91af184-9336-4623-93ac-c34edd387193",
+      "name": "Prepare Top 5 Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3232,
+        800
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nconst sorted = items.sort((a, b) =>\n  (b.json[\"Priority Score\"] || 0) -\n  (a.json[\"Priority Score\"] || 0)\n);\n\nconst top5 = sorted.slice(0, 5);\n\nconst totalSavings = top5.reduce(\n  (sum, item) => sum + (Number(item.json[\"Savings Amount\"]) || 0),\n  0\n);\n\nlet rows = '';\n\ntop5.forEach((item, index) => {\n\n  const opp = item.json;\n\n  let color = '#ffcdd2';\n\n  if (opp[\"Classification\"] === 'Strategic Initiative') {\n    color = '#c8e6c9';\n  } else if (opp[\"Classification\"] === 'Quick Win') {\n    color = '#fff9c4';\n  }\n\n  rows += `\n<tr>\n<td>${index + 1}</td>\n<td>${opp[\"Category\"] || ''}</td>\n<td>${opp[\"Opportunity Type\"] || ''}</td>\n<td>$${Number(opp[\"Savings Amount\"] || 0).toLocaleString()}</td>\n<td>${Number(opp[\"Priority Score\"] || 0).toLocaleString()}</td>\n<td>\n<span style=\"background:${color};padding:4px 8px;border-radius:4px;\">\n${opp[\"Classification\"] || ''}\n</span>\n</td>\n<td>${opp[\"Description\"] || ''}</td>\n</tr>`;\n});\n\nconst emailBody = `\n<html>\n<body>\n<h2>Top 5 Procurement Savings Opportunities</h2>\n\n<p>\nTotal Potential Savings:\n<strong>$${totalSavings.toLocaleString()}</strong>\n</p>\n\n<table border=\"1\" cellpadding=\"8\" cellspacing=\"0\">\n<tr>\n<th>#</th>\n<th>Category</th>\n<th>Opportunity</th>\n<th>Savings</th>\n<th>Priority Score</th>\n<th>Classification</th>\n<th>Description</th>\n</tr>\n\n${rows}\n\n</table>\n\n</body>\n</html>\n`;\n\nreturn [{\n  json: {\n    subject: 'Procurement Savings Report',\n    body: emailBody,\n    totalSavings\n  }\n}];"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "2119bd81-d076-4897-8119-e970e461cf42",
+      "name": "Send Weekly Savings Report",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3440,
+        800
+      ],
+      "webhookId": "e0a7f904-2e8c-4ef1-90b5-e2699f779d07",
+      "parameters": {
+        "message": "={{ $json.body }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.subject }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7d0172d8-7a9b-4ad5-9847-239cb2e68ead",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3904,
+        1024
+      ],
+      "webhookId": "036ab412-cd4b-417d-871c-ca7bcfdc9955",
+      "parameters": {
+        "message": "=<h2>Procurement Workflow Failed</h2>\n\n<p><b>Node:</b> </p>\n\n<p><b>Error:</b></p>\n\n<p><b>Time:</b> {{$now}}</p>\n\n<p>\n<a href=\"https://YOUR-N8N-URL/execution/{{$execution.id}}\">\nOpen Execution\n</a>\n</p>",
+        "options": {},
+        "subject": "=Procurement Savings Workflow Failed"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7c8ac124-b806-402c-a1d6-b49a1701b3ae",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        336
+      ],
+      "parameters": {
+        "width": 784,
+        "height": 832,
+        "content": "## Overview\n\nThis workflow analyzes procurement spending data to identify potential cost-saving opportunities. It detects supplier fragmentation, price variances, maverick spending, and contract leakage using predefined business rules. AI then evaluates each opportunity and estimates potential savings, effort, and recommended actions. Opportunities are prioritized based on impact versus effort and stored for reporting. Finally, a weekly summary report is generated and sent to stakeholders for review and execution.\n\n## How to Setup \n\n1. Create a Google Sheet with the following columns:\n**Category, Supplier, Item Description, Quantity, Unit Price, Total Spend, Contract Price, Preferred Supplier**\n\n2. Configure Google Sheets credentials in n8n.\n3. Update the Read Procurement Data node with your spreadsheet and sheet information.\n4. Configure **OpenAI credentials** and select a supported model (GPT-4o Mini or equivalent).\n5. Create a second sheet to store analyzed opportunities with columns:\n**Analysis Date, Opportunity Type, Category, Description, Savings Amount, Effort Score, Priority Score, Classification, Status**\n\n6. Configure **Gmail credentials** and update the recipient email address in the Send Weekly Savings Report node.\n7. Adjust the workflow schedule if required (default: Every Monday at 8:00 AM).\n8. Activate the workflow to begin automated procurement savings analysis and reporting."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de7f02e9-8cf0-4520-9d43-4095dde77a9d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 672,
+        "height": 816,
+        "content": "### Spend Data Collection & Preparation\n\nCollect procurement spend data from Google Sheets\nand prepare it for analysis.\n\nActivities:\n• Load transaction records\n• Aggregate spend by category & supplier \n• Calculate supplier concentration\n• Analyze item pricing trends\n• Compare preferred vs non-preferred spend\n\nOutput:\nA consolidated spend dataset ready for opportunity detection."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7131cc3e-6d55-419a-adc1-c16cf34df1d7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1504,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 688,
+        "height": 832,
+        "content": "### Savings Opportunity Identification Engine\n\nIdentify untapped procurement savings opportunities\nusing business rules and AI-powered analysis.\n\nDetection Areas:\n• Supplier fragmentation\n• Price variance\n• Maverick spending\n• Contract leakage\n\nAI enriches each opportunity with:\n• Savings estimates\n• Business impact\n• Effort assessment\n• Recommended actions"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "da7e4947-0d35-4901-93f6-35d9288911df",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2320,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 832,
+        "content": "### Impact-Based Opportunity Prioritization\n\nEvaluate each savings opportunity based on\npotential financial impact and implementation effort.\n\nActivities:\n• Calculate Priority Score\n• Classify opportunities\n  - Quick Wins\n  - Strategic Initiatives\n  - Low Priority\n• Rank opportunities by business value\n\nOutput:\nPrioritized list of savings opportunities\nfor stakeholder review and execution."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6eb7777-8687-4e35-81ac-62295a3af4d5",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        352
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 688,
+        "height": 832,
+        "content": "### Opportunity Reporting & Notification\n\nStore identified savings opportunities and\ncommunicate the highest-value initiatives to stakeholders.\n\nActivities:\n• Save prioritized opportunities\n• Maintain savings opportunity history\n• Generate Top 5 opportunities report\n• Summarize potential savings impact\n• Distribute insights to category managers\n\nOutput:\nActionable procurement savings recommendations\ndelivered through dashboards and weekly reports."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ab8e4139-36ca-413e-bcdf-da15d795a2af",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3712,
+        672
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 512,
+        "height": 512,
+        "content": "### Workflow Monitoring & Error Alerts\n\nCapture workflow failures and notify\nstakeholders immediately."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "8bba1293-a8c2-42d2-ba6e-a02b0d737aec",
+  "nodeGroups": [],
+  "connections": {
+    "GPT-4o Mini": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Opportunity Analysis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Data Aggregation": {
+      "main": [
+        [
+          {
+            "node": "Opportunity Detection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday 8AM": {
+      "main": [
+        [
+          {
+            "node": "Read Procurement Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Priority Scoring": {
+      "main": [
+        [
+          {
+            "node": "Sort by Priority Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Top 5 Email": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Savings Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opportunities Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Opportunity Analysis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Opportunity Detection": {
+      "main": [
+        [
+          {
+            "node": "AI Opportunity Analysis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Procurement Data": {
+      "main": [
+        [
+          {
+            "node": "Data Aggregation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sort by Priority Score": {
+      "main": [
+        [
+          {
+            "node": "Save Opportunities to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Opportunity Analysis": {
+      "main": [
+        [
+          {
+            "node": "Priority Scoring",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Opportunities to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Prepare Top 5 Email",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

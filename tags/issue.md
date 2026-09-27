@@ -1,4 +1,4 @@
-# issue : 20
+# issue : 26
 
 |id|file|
 |----|----|
@@ -22,3 +22,9 @@
 |15438|[15438_Issue_branded_certificate_PDFs_from_Google_Sheets_with_TemplateFox_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15438_Issue_branded_certificate_PDFs_from_Google_Sheets_with_TemplateFox_and_Gmail.json)|
 |16035|[16035_Implement_AI-ready_GitHub_issues_with_CloudCLI_and_Telegram_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16035_Implement_AI-ready_GitHub_issues_with_CloudCLI_and_Telegram_summaries.json)|
 |16121|[16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json)|
+|17547|[17547_Issue_sequential_invoice_and_ticket_numbers_via_webhook_and_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17547_Issue_sequential_invoice_and_ticket_numbers_via_webhook_and_Data_Table.json)|
+|17986|[17986_Send_monthly_volunteer_hour_statements_from_Google_Sheets_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17986_Send_monthly_volunteer_hour_statements_from_Google_Sheets_with_Gmail.json)|
+|18044|[18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18044_Cross-post_newsletter_issues_to_Bluesky__Telegram__Discord_and_Slack_with_OpenAI.json)|
+|18133|[18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json)|
+|18709|[18709_Issue_cohort_completion_certificates_with_pdfmill__Gmail_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18709_Issue_cohort_completion_certificates_with_pdfmill__Gmail_and_Google_Drive.json)|
+|18743|[18743_Issue_warehouse_packing_slips_with_pdfmill__Gmail__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18743_Issue_warehouse_packing_slips_with_pdfmill__Gmail__and_Google_Drive.json)|

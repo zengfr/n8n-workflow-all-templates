@@ -1,4 +1,4 @@
-# screening : 45
+# screening : 53
 
 |id|file|
 |----|----|
@@ -47,3 +47,11 @@
 |15155|[15155_Screen_and_rank_CVs_with_GPT-4o__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15155_Screen_and_rank_CVs_with_GPT-4o__Google_Sheets__Gmail_and_Telegram.json)|
 |15288|[15288_Generate_comparative_CV_screening_reports_with_OpenAI__Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15288_Generate_comparative_CV_screening_reports_with_OpenAI__Google_Sheets.json)|
 |16030|[16030_Screen_and_score_candidate_CVs_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16030_Screen_and_score_candidate_CVs_with_Google_Gemini_and_Gmail.json)|
+|16894|[16894_Score_and_triage_job_candidates_with_OpenAI_o3-mini__OpenRouter__and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16894_Score_and_triage_job_candidates_with_OpenAI_o3-mini__OpenRouter__and_ClickUp.json)|
+|17172|[17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json)|
+|17288|[17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json)|
+|17303|[17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json)|
+|18288|[18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json)|
+|18519|[18519_Score_and_triage_job_candidates_with_OpenAI__Google_Drive__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18519_Score_and_triage_job_candidates_with_OpenAI__Google_Drive__Google_Sheets__and_Gmail.json)|
+|19400|[19400_Screen_and_triage_job_applications_with_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19400_Screen_and_triage_job_applications_with_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|19674|[19674_Track_tenant_reference_requests_with_forms__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19674_Track_tenant_reference_requests_with_forms__Gmail__and_Google_Sheets.json)|

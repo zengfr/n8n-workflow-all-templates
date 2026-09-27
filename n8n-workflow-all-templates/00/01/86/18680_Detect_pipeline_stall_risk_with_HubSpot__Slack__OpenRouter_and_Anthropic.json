@@ -1,0 +1,1187 @@
+{
+  "id": "nnQvdZwckYvf6Orm",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Detect pipeline stall risk with HubSpot, Slack, OpenRouter and Anthropic",
+    "wechat": "youandme10086",
+    "id": 18680,
+    "update_time": "2026-09-27"
+  },
+  "name": "Pipeline Risk & Stall Detector",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ecf0fcef-0b53-4d18-9541-3a91ae8fb1aa",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        26064,
+        -9376
+      ],
+      "parameters": {
+        "width": 600,
+        "height": 900,
+        "content": "## Pipeline Risk & Stall Detector\n\n### How it works\nFlags deals stuck in your pipeline before they die quietly. A deterministic score (activity gaps, stage aging, single-threading, pushed close dates, missing next step) decides which deals are worth analyzing. High-risk deals go to a generator LLM for diagnosis, then a separate auditor LLM checks that diagnosis against the raw data before anything reaches Slack. Two independent triggers feed the same pipeline: a weekly HubSpot scan and a CRM-agnostic webhook, so it isn't locked to one CRM. Most templates in this space use either pure deterministic rules or a single unverified LLM pass, the dual-LLM audit and true dual-CRM coverage are the differentiators here.\n\n### Setup\n1. Attach a HubSpot credential (Private App token) to Fetch Open Deals (HubSpot).\n2. Attach an OpenRouter credential to both OpenRouter Chat Model nodes (Generator + Auditor), a separate credential from HubSpot's.\n3. Attach an Anthropic API credential to Anthropic Chat Model, this powers the Content Safety Guardrails checks and is a third, separate credential from HubSpot and OpenRouter.\n4. Add a stage filter to Fetch Open Deals (HubSpot) once you know your pipeline's open-stage IDs.\n5. Point Slack nodes at your workspace and update the #sales-alerts / #sales-ops-alerts channels.\n6. Set crmBaseUrl on Write Alert Back to CRM, or swap it for a native CRM node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3561f1f6-0080-4dbf-93b1-877ef53e9a14",
+      "name": "Weekly Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        26832,
+        -9072
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "eb1cb4cc-6053-43c4-ac1d-aee1f5be51f5",
+      "name": "Webhook: Deal Stage Change",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        27056,
+        -8832
+      ],
+      "webhookId": "pipeline-risk-webhook",
+      "parameters": {
+        "path": "deal-stage-change",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3fae68fb-c154-4799-823c-65d1865f0002",
+      "name": "Respond 202 Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "notes": "Intentional fire-and-forget: alerting downstream is async, this ack just confirms receipt. If the CRM needs a synchronous verdict, expose a separate status-lookup endpoint instead of blocking here.",
+      "position": [
+        27280,
+        -8784
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ { \"status\": \"accepted\" } }}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e2bed0a9-9a1d-40ce-bf6b-c5ab97e2efee",
+      "name": "Fetch Open Deals (HubSpot)",
+      "type": "n8n-nodes-base.hubspot",
+      "notes": "Native HubSpot node, resource=deal/getAll. Returns one n8n item per deal already, no Split Out step needed. Add a stage filter here (Filters field) once you know your pipeline's open-stage IDs -- these are account-specific in HubSpot, not standardized. hubspot_owner_id is an ID, not an email; Normalize Deal Data notes this gap for owner_email.",
+      "position": [
+        27056,
+        -9072
+      ],
+      "parameters": {
+        "filters": {},
+        "resource": "deal",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d44eba2e-c0e7-4c0b-b1f8-b40726e7770e",
+      "name": "Normalize Deal Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        27280,
+        -9024
+      ],
+      "parameters": {
+        "jsCode": "// Normalize either a HubSpot deal object (from Fetch Open Deals) or a webhook payload into\n// one internal schema. HubSpot's native node returns deals as { id, properties: {...} }.\n// If your webhook sends a different CRM's shape, add a branch here.\n\nconst isHubSpotShape = !!$json.properties;\nconst d = isHubSpotShape ? $json.properties : ($json.deal || $json);\nconst hubspotId = isHubSpotShape ? $json.id : null;\n\nconst now = new Date();\n\nconst lastActivityRaw = isHubSpotShape\n  ? (d.notes_last_activity_date || d.hs_lastmodifieddate)\n  : d.last_activity_date;\nconst lastActivity = lastActivityRaw ? new Date(lastActivityRaw) : null;\n\n\nconst stageEntered = isHubSpotShape ? null : (d.stage_entered_date ? new Date(d.stage_entered_date) : null);\n\nconst closeDateRaw = isHubSpotShape ? d.closedate : d.close_date;\nconst closeDate = closeDateRaw ? new Date(closeDateRaw) : null;\n\nconst daysSince = (date) => date ? Math.floor((now - date) / (1000 * 60 * 60 * 24)) : -1;\n\nreturn {\n  json: {\n    deal_id: isHubSpotShape ? hubspotId : (d.deal_id || d.id),\n    deal_name: isHubSpotShape ? d.dealname : (d.deal_name || d.name),\n\n    owner_email: isHubSpotShape ? null : d.owner_email,\n    owner_slack_id: isHubSpotShape ? null : (d.owner_slack_id || null),\n    hubspot_owner_id: isHubSpotShape ? d.hubspot_owner_id : null,\n    deal_value: isHubSpotShape ? Number(d.amount || 0) : (d.amount || d.deal_value || 0),\n    stage: isHubSpotShape ? d.dealstage : d.stage,\n    days_since_last_activity: daysSince(lastActivity),\n    days_in_current_stage: daysSince(stageEntered),\n    avg_stage_duration_days: d.avg_stage_duration_days || 14,\n\n    stakeholder_count: d.stakeholder_count || (d.contacts ? d.contacts.length : 1),\n    close_date_pushes: d.close_date_pushes || 0,\n    has_next_step: !!d.next_step,\n    close_date: closeDateRaw || null\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d2877046-737c-4b73-84a5-038c9c202a19",
+      "name": "Calculate Stall Risk Score",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        27632,
+        -9024
+      ],
+      "parameters": {
+        "jsCode": "// Deterministic stall-risk scorer -- same weighted-factor pattern as the Renewal Risk Analyser.\nconst d = $json;\nlet score = 0;\nconst factors = [];\n\nif (d.days_since_last_activity > 30) {\n  score += 0.40;\n  factors.push('No activity in over 30 days');\n} else if (d.days_since_last_activity > 14) {\n  score += 0.25;\n  factors.push('No activity in over 14 days');\n}\n\nif (d.avg_stage_duration_days > 0 && d.days_in_current_stage > d.avg_stage_duration_days * 1.5) {\n  score += 0.20;\n  factors.push('Stalled in current stage well beyond average duration');\n}\n\nif (d.stakeholder_count <= 1) {\n  score += 0.15;\n  factors.push('Single-threaded: only one stakeholder engaged');\n}\n\nif (d.close_date_pushes >= 2) {\n  score += 0.20;\n  factors.push('Close date pushed back multiple times');\n} else if (d.close_date_pushes === 1) {\n  score += 0.10;\n  factors.push('Close date pushed back once');\n}\n\nif (!d.has_next_step) {\n  score += 0.15;\n  factors.push('No next step defined');\n}\n\nscore = Math.min(Math.round(score * 100) / 100, 1.0);\n\nlet tier = 'low';\nif (score >= 0.65) tier = 'high';\nelse if (score >= 0.35) tier = 'medium';\n\nif (factors.length === 0) {\n  factors.push('No significant stall risk factors detected');\n}\n\nreturn {\n  json: {\n    ...d,\n    risk_score: score,\n    risk_tier: tier,\n    contributing_factors: factors\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "da582831-5bb9-461c-a373-4e5974c2b9c8",
+      "name": "Is Risk High Enough to Analyze",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        27840,
+        -9024
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "risk-high-1",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.risk_score }}",
+              "rightValue": 0.65
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "9dd6d335-aab8-48d4-b7a2-9f4f35cdb47b",
+      "name": "Log: Low/Medium Risk",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        28080,
+        -8880
+      ],
+      "parameters": {
+        "jsCode": "return { json: { ...$json, log_status: 'completed_low_or_medium_risk', llm_total_cost_usd: 0 } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "27f8e0fc-f103-4f46-8bfa-f877e8781bff",
+      "name": "OpenRouter Chat Model (Generator)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "notes": "Language-model sub-node feeding LLM: Generate Stall Diagnosis via the ai_languageModel connection. Needs an OpenRouter API credential attached.",
+      "position": [
+        28512,
+        -8992
+      ],
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "4rmQt5vVvnVIo23p",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bebdf481-fd96-4238-b8e8-a9fffe9d054d",
+      "name": "Stall Diagnosis Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "notes": "Forces the generator's reply into the required JSON shape instead of manually JSON.parse-ing free text.",
+      "position": [
+        28640,
+        -8992
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={{ JSON.stringify({\n  \"type\": \"object\",\n  \"properties\": {\n    \"likely_cause\": { \"type\": \"string\" },\n    \"recommended_action\": { \"type\": \"string\" },\n    \"urgency\": { \"type\": \"string\", \"enum\": [\"low\", \"medium\", \"high\"] },\n    \"confidence\": { \"type\": \"number\" }\n  },\n  \"required\": [\"likely_cause\", \"recommended_action\", \"urgency\", \"confidence\"]\n}) }}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4cf6595a-3cfb-40c3-b8f7-7826c560618b",
+      "name": "LLM: Generate Stall Diagnosis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "notes": "Generator model, via n8n's native LLM Chain node (not raw HTTP). Errors route to Handle LLM Generate Failure instead of breaking the run. NOTE: token-usage field names on the output vary across n8n/LangChain node versions -- verify the usage path used in Parse and Validate LLM Output against your installed version before relying on the cost numbers.",
+      "onError": "continueErrorOutput",
+      "position": [
+        28496,
+        -9200
+      ],
+      "parameters": {
+        "text": "=You are a sales operations analyst. Given this deal record and its contributing stall-risk factors, diagnose the likely cause and recommend an action.\n\nDeal data:\n{{ JSON.stringify($json) }}",
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "058f2cdf-56ca-4ba9-9f09-986b15bb6083",
+      "name": "Handle LLM Generate Failure",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        28848,
+        -9248
+      ],
+      "parameters": {
+        "jsCode": "// Error path from the generator LLM call: assign a safe default and notify ops.\nconst source = $('Calculate Stall Risk Score').item.json;\nreturn {\n  json: {\n    ...source,\n    failure_stage: 'llm_generate',\n    error_message: $json.error ? ($json.error.message || JSON.stringify($json.error)) : 'Unknown error from generator LLM call',\n    log_status: 'llm_generate_failed'\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b28bac48-cd09-4eaa-b141-5dce2bb3b8cf",
+      "name": "Slack: LLM Generate Failure",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        29136,
+        -9248
+      ],
+      "webhookId": "295cfc2d-df3d-437e-858a-ca8ddf95fa21",
+      "parameters": {
+        "text": "=LLM generate call failed for deal {{ $json.deal_name }} ({{ $json.deal_id }}), risk tier {{ $json.risk_tier }}. Error: {{ $json.error_message }}. Needs manual review.",
+        "select": "channel",
+        "channelId": "={{ '#sales-ops-alerts' }}",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "62907601-e3ce-4c49-a9d7-eef4a993d936",
+      "name": "Parse and Validate LLM Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        28848,
+        -8944
+      ],
+      "parameters": {
+        "jsCode": "// The Basic LLM Chain node + Structured Output Parser already deliver validated JSON --\n// no manual JSON.parse needed. The parsed object lands at $json.output in most current\n// n8n/LangChain versions; fall back to $json directly for older versions that flatten it.\nconst parsed = $json.output || $json;\n\nconst required = ['likely_cause', 'recommended_action', 'urgency', 'confidence'];\nfor (const field of required) {\n  if (!(field in parsed)) throw new Error('LLM generator output missing field: ' + field + ' -- check the output-parser field path for your n8n version');\n}\n\n\nconst usage = $json.tokenUsage || $json.usage || {};\nconst RATE_IN_PER_1K = 0.003;\nconst RATE_OUT_PER_1K = 0.015;\nconst generatorCost = ((usage.promptTokens || usage.prompt_tokens || 0) / 1000) * RATE_IN_PER_1K\n  + ((usage.completionTokens || usage.completion_tokens || 0) / 1000) * RATE_OUT_PER_1K;\n\nreturn {\n  json: {\n    ...$('Calculate Stall Risk Score').item.json,\n    diagnosis: parsed,\n    llm_generator_tokens: usage,\n    llm_generator_cost_usd: Math.round(generatorCost * 100000) / 100000\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7f8715cb-0fbd-47d7-bc7c-91f981155201",
+      "name": "OpenRouter Chat Model (Auditor)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenRouter",
+      "notes": "Language-model sub-node feeding LLM: Audit Diagnosis via the ai_languageModel connection. Needs an OpenRouter API credential attached.",
+      "position": [
+        29072,
+        -8704
+      ],
+      "parameters": {
+        "model": "anthropic/claude-sonnet-4.5",
+        "options": {}
+      },
+      "credentials": {
+        "openRouterApi": {
+          "id": "4rmQt5vVvnVIo23p",
+          "name": "OpenRouter account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0c75b96-7768-4d49-b764-6ab0cf9e4d3a",
+      "name": "Auditor Verdict Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "notes": "Forces the auditor's reply into the required JSON shape instead of manually JSON.parse-ing free text.",
+      "position": [
+        29216,
+        -8704
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "={{ JSON.stringify({\n  \"type\": \"object\",\n  \"properties\": {\n    \"agrees\": { \"type\": \"boolean\" },\n    \"notes\": { \"type\": \"string\" }\n  },\n  \"required\": [\"agrees\", \"notes\"]\n}) }}"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "db0a9460-a22d-4832-b19c-774e89968ace",
+      "name": "LLM: Audit Diagnosis",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "notes": "Auditor model, via n8n's native LLM Chain node (not raw HTTP). Errors route to Handle LLM Audit Failure instead of breaking the run. NOTE: token-usage field names on the output vary across n8n/LangChain node versions -- verify the usage path used in Parse Auditor Verdict against your installed version before relying on the cost numbers.",
+      "onError": "continueErrorOutput",
+      "position": [
+        29072,
+        -8944
+      ],
+      "parameters": {
+        "text": "=You are auditing a sales stall diagnosis for accuracy against the raw deal data.\n\nDeal data and proposed diagnosis:\n{{ JSON.stringify($json) }}",
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "f73148c7-f756-4b20-85df-94c15362909a",
+      "name": "Handle LLM Audit Failure",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        29456,
+        -8800
+      ],
+      "parameters": {
+        "jsCode": "// Error path from the auditor LLM call: assign a safe default and notify ops.\nconst source = $('Parse and Validate LLM Output').item.json;\nreturn {\n  json: {\n    ...source,\n    failure_stage: 'llm_audit',\n    error_message: $json.error ? ($json.error.message || JSON.stringify($json.error)) : 'Unknown error from auditor LLM call',\n    log_status: 'llm_audit_failed'\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c3453081-00ec-4eb3-bb84-f56151d88531",
+      "name": "Slack: LLM Audit Failure",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        29664,
+        -8800
+      ],
+      "webhookId": "4a7463a1-6643-4e6c-8dcc-fdd766a8045d",
+      "parameters": {
+        "text": "=LLM audit call failed for deal {{ $json.deal_name }} ({{ $json.deal_id }}), risk tier {{ $json.risk_tier }}. Error: {{ $json.error_message }}. Generator diagnosis was not verified, needs manual review.",
+        "select": "channel",
+        "channelId": "={{ '#sales-ops-alerts' }}",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "7e96d826-ddcb-4414-b2db-d3d2a900195a",
+      "name": "Parse Auditor Verdict",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        29456,
+        -9104
+      ],
+      "parameters": {
+        "jsCode": "// Same native-output shape as the generator step -- structured parser output at $json.output,\n// falling back to $json directly for older node versions.\nconst verdict = $json.output || $json;\n\nconst required = ['agrees', 'notes'];\nfor (const field of required) {\n  if (!(field in verdict)) throw new Error('LLM auditor output missing field: ' + field + ' -- check the output-parser field path for your n8n version');\n}\n\nconst source = $('Parse and Validate LLM Output').item.json;\n\n\nconst usage = $json.tokenUsage || $json.usage || {};\nconst RATE_IN_PER_1K = 0.003;\nconst RATE_OUT_PER_1K = 0.015;\nconst auditorCost = ((usage.promptTokens || usage.prompt_tokens || 0) / 1000) * RATE_IN_PER_1K\n  + ((usage.completionTokens || usage.completion_tokens || 0) / 1000) * RATE_OUT_PER_1K;\nconst totalCost = (source.llm_generator_cost_usd || 0) + auditorCost;\n\nreturn {\n  json: {\n    ...source,\n    auditor_verdict: verdict,\n    llm_auditor_tokens: usage,\n    llm_auditor_cost_usd: Math.round(auditorCost * 100000) / 100000,\n    llm_total_cost_usd: Math.round(totalCost * 100000) / 100000\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "af6dca98-90d2-4955-b4e5-7ed5b7c64eb8",
+      "name": "Auditor Disagreement?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        29664,
+        -9104
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "auditor-disagrees-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.auditor_verdict.agrees }}",
+              "rightValue": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0a7f8f9e-e66d-42ba-8839-1fc6521d2794",
+      "name": "Slack: Auditor Disagreement",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        29920,
+        -9120
+      ],
+      "webhookId": "fd713398-37ba-4342-9af5-4161bc176fc9",
+      "parameters": {
+        "text": "=Auditor disagreement on stall diagnosis for deal {{ $json.deal_name }} ({{ $json.deal_id }}).\\nGenerator said: {{ $json.diagnosis.likely_cause }}\\nAuditor notes: {{ $json.auditor_verdict.notes }}",
+        "select": "channel",
+        "channelId": "={{ $json.owner_slack_id || '#sales-alerts' }}",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "lfebDAWbs1hiEYUg",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "4021ac9c-6b72-43b5-9462-e82a3a3f9064",
+      "name": "Log: Auditor Disagreement",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        30112,
+        -9120
+      ],
+      "parameters": {
+        "jsCode": "return { json: { ...$json, log_status: 'completed_auditor_disagreement' } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "81d5b5b3-ef6c-4ce8-a297-34d22bdc42a6",
+      "name": "Guardrails Check",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        30400,
+        -8928
+      ],
+      "parameters": {
+        "jsCode": "// Guardrails: schema check plus no leaking sensitive deal terms into the wrong channel.\nconst d = $json;\nconst violations = [];\n\nconst allowedUrgency = ['low', 'medium', 'high'];\nif (!allowedUrgency.includes(d.diagnosis.urgency)) {\n  violations.push('urgency field out of allowed range');\n}\nif (typeof d.diagnosis.confidence !== 'number' || d.diagnosis.confidence < 0 || d.diagnosis.confidence > 1) {\n  violations.push('confidence field out of 0-1 range');\n}\nif (!d.diagnosis.recommended_action || d.diagnosis.recommended_action.length < 3) {\n  violations.push('recommended_action missing or too short');\n}\n\nreturn {\n  json: {\n    ...d,\n    guardrails_passed: violations.length === 0,\n    guardrails_violations: violations\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d2b94519-6fd5-4deb-8642-266b8c94f477",
+      "name": "Guardrails Passed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        31232,
+        -8960
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "guardrails-pass-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.guardrails_passed }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7b2ff9f7-44b8-42da-8918-a674a9beba47",
+      "name": "Slack: Guardrails Violation",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        31456,
+        -8784
+      ],
+      "webhookId": "a63e7f8b-fcdb-4133-9b07-338302378d29",
+      "parameters": {
+        "text": "=Guardrails violation on stall diagnosis for deal {{ $json.deal_name }}: {{ $json.guardrails_violations.join(', ') }}",
+        "select": "channel",
+        "channelId": "={{ $json.owner_slack_id || '#sales-alerts' }}",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e771520b-ba6b-4ea9-bd91-e7b76029222c",
+      "name": "Log: Guardrails Violation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        31712,
+        -8784
+      ],
+      "parameters": {
+        "jsCode": "return { json: { ...$json, log_status: 'completed_guardrails_violation' } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "434160bd-830a-4d3e-9461-4f90a129d3eb",
+      "name": "Get Last Alert Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        31456,
+        -9040
+      ],
+      "parameters": {
+        "jsCode": "// Real duplicate-suppression lookup using n8n workflow static data.\n\nconst staticData = $getWorkflowStaticData('global');\nstaticData.alertHistory = staticData.alertHistory || {};\nconst record = staticData.alertHistory[$json.deal_id] || null;\n\nreturn {\n  json: {\n    ...$json,\n    last_alerted_score: record ? record.score : null,\n    last_alerted_at: record ? record.at : null\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2c70ff2d-50e1-48f9-a953-0e31d859d7b9",
+      "name": "Check Duplicate Alert",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        31696,
+        -9040
+      ],
+      "parameters": {
+        "jsCode": "// Duplicate suppression: re-alert only if the score moved meaningfully OR it's been 7+ days.\nconst d = $json;\nconst scoreMoved = d.last_alerted_score === null || Math.abs(d.risk_score - d.last_alerted_score) >= 0.10;\n\nlet daysSinceLastAlert = null;\nif (d.last_alerted_at) {\n  daysSinceLastAlert = Math.floor((Date.now() - new Date(d.last_alerted_at)) / (1000 * 60 * 60 * 24));\n}\nconst staleAlert = daysSinceLastAlert === null || daysSinceLastAlert >= 7;\n\nreturn {\n  json: {\n    ...d,\n    should_alert: scoreMoved || staleAlert\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b06309dc-b15e-4cc1-b3f1-0105c92d7568",
+      "name": "Should We Send a New Alert?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        31920,
+        -9040
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "new-alert-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.should_alert }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "16071fe4-3404-406a-839f-b3cbdf3b02d3",
+      "name": "Log: Duplicate Suppressed",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        32096,
+        -8864
+      ],
+      "parameters": {
+        "jsCode": "return { json: { ...$json, log_status: 'completed_duplicate_suppressed' } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f7af60d0-f822-4cf7-88ce-e1998de3a216",
+      "name": "Slack: Alert Deal Owner",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        32480,
+        -9056
+      ],
+      "webhookId": "f214dff6-4053-42fe-8980-d2d719a23b44",
+      "parameters": {
+        "text": "=Deal at risk: {{ $json.deal_name }} ({{ $json.risk_tier }} risk, score {{ $json.risk_score }})\\nLikely cause: {{ $json.diagnosis.likely_cause }}\\nRecommended action: {{ $json.diagnosis.recommended_action }}\\nUrgency: {{ $json.diagnosis.urgency }}",
+        "select": "channel",
+        "channelId": "={{ $json.owner_slack_id || '#sales-alerts' }}",
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "lfebDAWbs1hiEYUg",
+          "name": "Slack account 2"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c11ce6df-e697-41c2-9f22-6c5e1c7e1678",
+      "name": "Write Alert Back to CRM",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Swap for the CRM's native 'create note/task' node if available.",
+      "position": [
+        32480,
+        -8880
+      ],
+      "parameters": {
+        "url": "={{ $json.crmBaseUrl }}/deals/{{ $json.deal_id }}/notes",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ note: 'Stall risk alert: ' + $json.risk_tier + ' (' + $json.risk_score + '). ' + $json.diagnosis.recommended_action }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "89a12e40-7ded-473a-9b98-d1ad5cdb423b",
+      "name": "Wait for Slack + CRM Write",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        32704,
+        -8976
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {}
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "c1eb5e0a-f5b8-42f5-93e7-e6f4d0155b3f",
+      "name": "Record Alert + Log Sent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        32928,
+        -8976
+      ],
+      "parameters": {
+        "jsCode": "// Persist this alert so the next run's Get Last Alert Record can suppress duplicates.\nconst staticData = $getWorkflowStaticData('global');\nstaticData.alertHistory = staticData.alertHistory || {};\nstaticData.alertHistory[$json.deal_id] = { score: $json.risk_score, at: new Date().toISOString() };\n\nreturn { json: { ...$json, log_status: 'completed_alert_sent' } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7813ad26-2c48-4760-a550-c39ce20d787c",
+      "name": "Section: Triggers & Data Fetch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        26720,
+        -9376
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 904,
+        "content": "## Triggers & Data Fetch\nWeekly HubSpot scan or CRM-agnostic webhook, both feed Normalize Deal Data. Webhook responds 202 immediately since alerting is async."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d328b0b6-d272-470c-b034-add894e447e0",
+      "name": "Section: Deterministic Risk Scoring",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        27584,
+        -9376
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 692,
+        "height": 900,
+        "content": "## Deterministic Risk Scoring\nSeven weighted factors produce a 0-1 score. Threshold 0.65 for high risk. Low/medium deals skip the LLM entirely."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1a14003-c8b0-4e7e-a803-a43915fc4b92",
+      "name": "Section: Dual-LLM Diagnosis",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        28320,
+        -9376
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1972,
+        "height": 904,
+        "content": "## Dual-LLM Diagnosis\nGenerator writes the diagnosis, auditor checks it against raw data before it reaches Slack. Cost tracked per call. Errors route to #sales-ops-alerts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "466699d5-e34d-4af4-abc2-79c31688d4e6",
+      "name": "Section: Guardrails & Duplicate Suppression",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        30336,
+        -9376
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1944,
+        "height": 900,
+        "content": "## Guardrails & Duplicate Suppression\nSchema check plus native PII/secrets scan (needs its own Anthropic credential) before alerting. Re-alerts only if score moves 0.10+ or 7+ days pass, via workflow static data."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ebb28899-bb96-4cb3-a7a8-5a1fb0dea5e6",
+      "name": "Section: Alerting & CRM Write-back",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32320,
+        -9376
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 832,
+        "height": 900,
+        "content": "## Alerting & CRM Write-back\nSlack + CRM note fire in parallel. Falls back to #sales-alerts if owner_slack_id is missing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5e997b70-05cc-4be2-a074-1d6211609732",
+      "name": "Content Safety Guardrails",
+      "type": "@n8n/n8n-nodes-langchain.guardrails",
+      "notes": "Native n8n Guardrails node, scans the LLM-generated diagnosis text (not the JSON schema, that's the Code node before this) for PII and secret/key leakage before it reaches Slack or the CRM. NOTE: the exact parameter names (checks.pii, checks.secrets) and output shape are version-sensitive since this node is newer in the LangChain package -- verify the 'checks' options available in your instance's node panel and the field names read in Combine Guardrails Results below. If this node errors (e.g. misconfigured checks), it fails open rather than blocking the whole run: Combine Guardrails Results treats a content-safety error as skipped, not failed, so a broken optional check doesn't take down alerting. Remove or tighten that behavior if you'd rather fail closed.",
+      "onError": "continueErrorOutput",
+      "position": [
+        30592,
+        -8944
+      ],
+      "parameters": {
+        "text": "={{ $json.diagnosis.likely_cause + '\\n' + $json.diagnosis.recommended_action + '\\n' + ($json.auditor_verdict && $json.auditor_verdict.notes ? $json.auditor_verdict.notes : '') }}",
+        "guardrails": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d18a4696-eeee-4518-9016-d409dd54352f",
+      "name": "Combine Guardrails Results",
+      "type": "n8n-nodes-base.code",
+      "notes": "Merges the schema check (Guardrails Check) with the content-safety check. Overall guardrails_passed requires both to pass; a skipped content-safety check (due to a node error) does not block on its own.",
+      "position": [
+        31008,
+        -8960
+      ],
+      "parameters": {
+        "jsCode": "// Combines the business-rule schema check (Guardrails Check) with the native Content Safety\n// Guardrails node's verdict. Defensive parsing since the native node's output field names are\n// version-sensitive -- adjust the 'flagged'/'violations' extraction below if your version differs.\nconst d = $json;\n\nlet contentSafetyPassed = true;\nlet contentSafetyViolations = [];\nlet contentSafetySkipped = false;\n\nif (d.error) {\n  // Content Safety Guardrails node errored -- fail open, log it, don't block alerting on an\n  // optional check being unavailable.\n  contentSafetySkipped = true;\n} else {\n  // Common shapes across guardrail-style nodes: a boolean flag plus a list of triggered checks.\n  const flagged = d.flagged ?? d.blocked ?? (Array.isArray(d.violations) && d.violations.length > 0) ?? false;\n  contentSafetyPassed = !flagged;\n  contentSafetyViolations = d.violations || d.flaggedChecks || (flagged ? ['content safety check flagged, see native node output for detail'] : []);\n}\n\nconst violations = [...(d.guardrails_violations || [])];\nif (!contentSafetyPassed) violations.push(...contentSafetyViolations);\n\nreturn {\n  json: {\n    ...d,\n    guardrails_passed: (d.guardrails_passed !== false) && contentSafetyPassed,\n    guardrails_violations: violations,\n    content_safety_skipped: contentSafetySkipped\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1bbbad10-9310-4bcb-ae07-8ddd07feff0b",
+      "name": "Anthropic Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "notes": "Language-model sub-node feeding Content Safety Guardrails via the ai_languageModel connection. Needs its own Anthropic API credential, separate from the HubSpot and OpenRouter credentials used elsewhere in this workflow. Powers whichever checks in Content Safety Guardrails require model reasoning (e.g. jailbreak/topical checks, if enabled) -- pattern-based checks like PII/secrets typically don't need it, but the node expects a language model connected regardless in this n8n version.",
+      "position": [
+        30592,
+        -8720
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-6",
+          "cachedResultName": "Claude Sonnet 4.6"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "19cc22a7-efab-4c78-ad19-3994f7263918",
+  "nodeGroups": [],
+  "connections": {
+    "Guardrails Check": {
+      "main": [
+        [
+          {
+            "node": "Content Safety Guardrails",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Guardrails Passed?": {
+      "main": [
+        [
+          {
+            "node": "Get Last Alert Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Guardrails Violation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Deal Data": {
+      "main": [
+        [
+          {
+            "node": "Calculate Stall Risk Score",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Content Safety Guardrails",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Audit Diagnosis": {
+      "main": [
+        [
+          {
+            "node": "Parse Auditor Verdict",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle LLM Audit Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auditor Disagreement?": {
+      "main": [
+        [
+          {
+            "node": "Slack: Auditor Disagreement",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Guardrails Check",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Duplicate Alert": {
+      "main": [
+        [
+          {
+            "node": "Should We Send a New Alert?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Last Alert Record": {
+      "main": [
+        [
+          {
+            "node": "Check Duplicate Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Auditor Verdict": {
+      "main": [
+        [
+          {
+            "node": "Auditor Disagreement?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Alert Deal Owner": {
+      "main": [
+        [
+          {
+            "node": "Wait for Slack + CRM Write",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Weekly Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Fetch Open Deals (HubSpot)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Alert Back to CRM": {
+      "main": [
+        [
+          {
+            "node": "Wait for Slack + CRM Write",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Handle LLM Audit Failure": {
+      "main": [
+        [
+          {
+            "node": "Slack: LLM Audit Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Content Safety Guardrails": {
+      "main": [
+        [
+          {
+            "node": "Combine Guardrails Results",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Combine Guardrails Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Stall Risk Score": {
+      "main": [
+        [
+          {
+            "node": "Is Risk High Enough to Analyze",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Guardrails Results": {
+      "main": [
+        [
+          {
+            "node": "Guardrails Passed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Open Deals (HubSpot)": {
+      "main": [
+        [
+          {
+            "node": "Normalize Deal Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Slack + CRM Write": {
+      "main": [
+        [
+          {
+            "node": "Record Alert + Log Sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook: Deal Stage Change": {
+      "main": [
+        [
+          {
+            "node": "Respond 202 Accepted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Normalize Deal Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle LLM Generate Failure": {
+      "main": [
+        [
+          {
+            "node": "Slack: LLM Generate Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Should We Send a New Alert?": {
+      "main": [
+        [
+          {
+            "node": "Slack: Alert Deal Owner",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Write Alert Back to CRM",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log: Duplicate Suppressed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Auditor Disagreement": {
+      "main": [
+        [
+          {
+            "node": "Log: Auditor Disagreement",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Guardrails Violation": {
+      "main": [
+        [
+          {
+            "node": "Log: Guardrails Violation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Auditor Verdict Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "LLM: Audit Diagnosis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LLM: Generate Stall Diagnosis": {
+      "main": [
+        [
+          {
+            "node": "Parse and Validate LLM Output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Handle LLM Generate Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse and Validate LLM Output": {
+      "main": [
+        [
+          {
+            "node": "LLM: Audit Diagnosis",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stall Diagnosis Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "LLM: Generate Stall Diagnosis",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Is Risk High Enough to Analyze": {
+      "main": [
+        [
+          {
+            "node": "LLM: Generate Stall Diagnosis",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log: Low/Medium Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model (Auditor)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM: Audit Diagnosis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenRouter Chat Model (Generator)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "LLM: Generate Stall Diagnosis",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

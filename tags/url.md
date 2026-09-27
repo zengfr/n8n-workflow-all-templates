@@ -1,4 +1,4 @@
-# url : 54
+# url : 62
 
 |id|file|
 |----|----|
@@ -56,3 +56,11 @@
 |15184|[15184_Track_URL-level_keyword_rankings_in_Google_Sheets_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15184_Track_URL-level_keyword_rankings_in_Google_Sheets_with_DataForSEO.json)|
 |15319|[15319_Collect_keyword_clusters_for_URLs_in_Google_Sheets_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15319_Collect_keyword_clusters_for_URLs_in_Google_Sheets_with_DataForSEO.json)|
 |16022|[16022_Summarize_web_pages_from_URLs_to_Notion_with_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16022_Summarize_web_pages_from_URLs_to_Notion_with_OpenAI_GPT-4o.json)|
+|16994|[16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json)|
+|17482|[17482_Publish_Facebook_Reels_from_a_video_URL_with_a_webhook_and_Graph_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17482_Publish_Facebook_Reels_from_a_video_URL_with_a_webhook_and_Graph_API.json)|
+|17485|[17485_Scrape_Google_Maps_leads_with_Apify_and_export_them_to_CSV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17485_Scrape_Google_Maps_leads_with_Apify_and_export_them_to_CSV.json)|
+|17527|[17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json)|
+|18116|[18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json)|
+|18432|[18432_Monitor_competitor_prices_with_OpenAI__Google_Sheets__Slack__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18432_Monitor_competitor_prices_with_OpenAI__Google_Sheets__Slack__and_Notion.json)|
+|19380|[19380_Analyze_URL_phishing_risk_with_VirusTotal__Safe_Browsing__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19380_Analyze_URL_phishing_risk_with_VirusTotal__Safe_Browsing__Gemini__and_Slack.json)|
+|19545|[19545_Generate_video_ad_scenes_from_URLs_with_Tavily__Google_Gemini__OpenAI_and_JSON2Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19545_Generate_video_ad_scenes_from_URLs_with_Tavily__Google_Gemini__OpenAI_and_JSON2Video.json)|

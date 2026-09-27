@@ -1,4 +1,4 @@
-# simulation : 7
+# simulation : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |6914|[6914_Creative_Design_Agency_Simulation_with_OpenAI_O3_and_GPT-4.1-mini_Multi-Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/69/6914_Creative_Design_Agency_Simulation_with_OpenAI_O3_and_GPT-4.1-mini_Multi-Agent.json)|
 |14884|[14884_Generate_Seedance_crowd_previs_passes_from_chat_using_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14884_Generate_Seedance_crowd_previs_passes_from_chat_using_Azure_OpenAI.json)|
 |15027|[15027_Forecast_property_CAPEX_and_ROI_weekly_using_Google_Sheets_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15027_Forecast_property_CAPEX_and_ROI_weekly_using_Google_Sheets_and_GPT-4o.json)|
+|18718|[18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json)|

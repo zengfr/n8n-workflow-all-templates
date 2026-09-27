@@ -1,4 +1,4 @@
-# source : 34
+# source : 43
 
 |id|file|
 |----|----|
@@ -36,3 +36,12 @@
 |15249|[15249_Watermark_images_between_Google_Drive_source_and_destination_folders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15249_Watermark_images_between_Google_Drive_source_and_destination_folders.json)|
 |16425|[16425_Source_and_approve_emergency_equipment_rentals_with_Telegram__Gmail_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16425_Source_and_approve_emergency_equipment_rentals_with_Telegram__Gmail_and_Azure_OpenAI.json)|
 |16638|[16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json)|
+|16820|[16820_Book_calendar_appointments_with_availability_checks_in_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16820_Book_calendar_appointments_with_availability_checks_in_Google_Calendar.json)|
+|17179|[17179_Reschedule_calendar_appointments_with_Google_Sheets_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17179_Reschedule_calendar_appointments_with_Google_Sheets_and_Google_Calendar.json)|
+|17337|[17337_Track_lead-source_ROI_with_Fluent_Forms__CallRail__Salesmate__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17337_Track_lead-source_ROI_with_Fluent_Forms__CallRail__Salesmate__and_Google_Sheets.json)|
+|17929|[17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json)|
+|18125|[18125_Source_candidate_shortlists_from_Slack_job_ads_with_Coresignal_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18125_Source_candidate_shortlists_from_Slack_job_ads_with_Coresignal_and_Claude.json)|
+|18210|[18210_Generate_RAG-based_study_flashcards_from_notes_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18210_Generate_RAG-based_study_flashcards_from_notes_with_OpenAI_and_Slack.json)|
+|18584|[18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json)|
+|18728|[18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json)|
+|19640|[19640_Build_a_source-diverse_web_evidence_pack_from_Google_and_Bing_with_SearchCans.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19640_Build_a_source-diverse_web_evidence_pack_from_Google_and_Bing_with_SearchCans.json)|

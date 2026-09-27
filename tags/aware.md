@@ -1,4 +1,4 @@
-# aware : 15
+# aware : 19
 
 |id|file|
 |----|----|
@@ -17,3 +17,7 @@
 |15185|[15185_Send_timezone-aware_drip_emails_with_Gmail_and_Google_Sheets_using_daily_limits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15185_Send_timezone-aware_drip_emails_with_Gmail_and_Google_Sheets_using_daily_limits.json)|
 |16259|[16259_Run_a_margin-aware_paid_AI_agent_with_Alephant_x402_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16259_Run_a_margin-aware_paid_AI_agent_with_Alephant_x402_and_Discord.json)|
 |16573|[16573_Generate_gender-aware_email_greetings_with_OpenAI_and_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16573_Generate_gender-aware_email_greetings_with_OpenAI_and_KlickTipp.json)|
+|17880|[17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json)|
+|18102|[18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json)|
+|18946|[18946_Monitor_ScribeTo_uptime_via_HTTP_and_send_state-aware_Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18946_Monitor_ScribeTo_uptime_via_HTTP_and_send_state-aware_Discord_alerts.json)|
+|19405|[19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json)|

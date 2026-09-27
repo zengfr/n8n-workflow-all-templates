@@ -1,0 +1,476 @@
+{
+  "name": "Summarise new YouTube videos with AI and file them to Slack, Notion and Sheets",
+  "nodes": [
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000001",
+      "name": "Every 2 hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -260,
+        300
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 2
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000002",
+      "name": "Channels to watch",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -40,
+        300
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "channels",
+              "type": "array",
+              "value": "=[\"@AnthropicAI\", \"@Apify\"]"
+            },
+            {
+              "id": "s2",
+              "name": "maxResultsPerChannel",
+              "type": "number",
+              "value": 5
+            },
+            {
+              "id": "s3",
+              "name": "slackChannel",
+              "type": "string",
+              "value": "#content"
+            },
+            {
+              "id": "s4",
+              "name": "language",
+              "type": "string",
+              "value": "en"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000003",
+      "name": "Find new uploads",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        180,
+        300
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~youtube-channel-monitor",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ channels: $json.channels, maxResultsPerChannel: $json.maxResultsPerChannel, onlyNewSinceLastRun: true }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000004",
+      "name": "Keep real videos",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        400,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": ""
+            },
+            {
+              "id": "c2",
+              "operator": {
+                "type": "string",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.videoId }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000005",
+      "name": "Summarise each video once",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        620,
+        300
+      ],
+      "parameters": {
+        "logic": "removeItemsWithAlreadySeenKeyValues",
+        "options": {},
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.videoId }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000006",
+      "name": "Fetch the transcript",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        880,
+        300
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~youtube-transcript-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ videoIds: [$json.videoId], languagePreferences: [$('Channels to watch').first().json.language] }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000007",
+      "name": "Summarise and tag",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1100,
+        300
+      ],
+      "parameters": {
+        "text": "=You are summarising one YouTube video for a team that will not watch it.\n\nTitle: {{ $('Summarise each video once').item.json.title }}\nChannel: {{ $('Summarise each video once').item.json.channelName }}\nTranscript:\n{{ ($json.transcript || $json.text || '').toString().slice(0, 12000) }}\n\nReturn ONLY valid JSON, no code fence, with these keys:\n\"summary\": three sentences on what the video actually says, not what it promises.\n\"takeaways\": array of up to four short strings, each a concrete point someone could act on.\n\"topics\": array of up to five lowercase tags.\n\"worthWatching\": true or false — is the full video worth 20 minutes for someone who has read the summary?\n\nIf the transcript is empty or unusable, set summary to \"No transcript available\" and worthWatching to false rather than inventing content.",
+        "messages": {
+          "messageValues": []
+        },
+        "promptType": "define",
+        "hasOutputParser": false
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000008",
+      "name": "OpenAI chat model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1100,
+        520
+      ],
+      "parameters": {
+        "model": {
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-000000000009",
+      "name": "Post the summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1360,
+        160
+      ],
+      "parameters": {
+        "text": "=*{{ $('Summarise each video once').item.json.title }}*\n{{ $('Summarise each video once').item.json.url }}\n\n{{ JSON.parse($json.text).summary }}\n\n{{ JSON.parse($json.text).takeaways.map(t => '• ' + t).join('\\n') }}\n\n_Worth watching in full: {{ JSON.parse($json.text).worthWatching ? 'yes' : 'probably not' }}_",
+        "select": "channel",
+        "channelId": "={{ $('Channels to watch').first().json.slackChannel }}",
+        "otherOptions": {
+          "mrkdwn": true
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-00000000000a",
+      "name": "Archive it in Notion",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        1360,
+        320
+      ],
+      "parameters": {
+        "title": "={{ $('Summarise each video once').item.json.title }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": "",
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "URL|url",
+              "urlValue": "={{ $('Summarise each video once').item.json.url }}"
+            },
+            {
+              "key": "Channel|rich_text",
+              "textContent": "={{ $('Summarise each video once').item.json.channelName }}"
+            },
+            {
+              "key": "Summary|rich_text",
+              "textContent": "={{ JSON.parse($json.text).summary }}"
+            },
+            {
+              "key": "Topics|multi_select",
+              "multiSelectValue": "={{ JSON.parse($json.text).topics }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-00000000000b",
+      "name": "Log it to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1360,
+        480
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "URL": "={{ $('Summarise each video once').item.json.url }}",
+            "Date": "={{ $now.toISO() }}",
+            "Title": "={{ $('Summarise each video once').item.json.title }}",
+            "Topics": "={{ JSON.parse($json.text).topics.join(', ') }}",
+            "Channel": "={{ $('Summarise each video once').item.json.channelName }}",
+            "Summary": "={{ JSON.parse($json.text).summary }}",
+            "Worth watching": "={{ JSON.parse($json.text).worthWatching }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-0000000000f0",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        60
+      ],
+      "parameters": {
+        "width": 500,
+        "height": 1340,
+        "content": "## Summarise new YouTube videos and file them to Slack, Notion and Sheets\n\n### Who's it for\n\nAnyone tracking more channels than they have time to watch — competitors, customers, or a research\narea. If your Slack already has a channel full of links nobody opened, this is that problem.\n\n### How it works\n\nExisting summarisers are on-demand: you must already know the video exists and paste it in. This\nwatches the channels instead.\n\n1. Every two hours the monitor returns only uploads it has not seen before, so there is no date\n   arithmetic to maintain.\n2. Non-videos are dropped, then a dedupe on video ID means one video is never summarised twice.\n3. The transcript scraper pulls the captions. No YouTube Data API key, no quota.\n4. A model returns strict JSON: a three-sentence summary, up to four concrete takeaways, topic tags,\n   and whether the full video is worth watching. If the transcript is missing it says so rather than\n   inventing one.\n5. Slack to read now, Notion to filter by topic later, Sheets for reporting.\n\n### How to set up\n\n1. Paste your Apify API token into the credential on both Apify nodes. Spend is capped at $1 per run.\n2. Add your OpenAI credential to the chat model node.\n3. Pick your Slack workspace, Notion database and Google Sheet.\n4. Edit *Channels to watch* — handles, channel IDs or full URLs all work.\n\n### Requirements\n\nAn Apify account (free tier is enough), an OpenAI API key, and whichever of Slack, Notion and Google\nSheets you want to write to.\n\n### How to customize\n\n*Channels to watch* is the only node you normally edit. Delete any destination you do not want;\nnothing upstream changes. The Notion database needs URL, Channel, Summary and Topics properties."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-0000000000f1",
+      "name": "Sticky Note setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -280,
+        60
+      ],
+      "parameters": {
+        "width": 360,
+        "height": 240,
+        "content": "### 1. Schedule and settings\nEvery two hours is a good default. Everything you normally edit lives in the next node: channels, how many uploads to check, the Slack channel and the caption language."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-0000000000f3",
+      "name": "Sticky Note collect",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        160,
+        60
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 180,
+        "content": "### 3. Find new uploads and clean them\nThe monitor returns only videos it has not seen before. Anything that is not a real video is dropped, then a dedupe on video ID guarantees one summary per video no matter how many runs see it."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-0000000000f4",
+      "name": "Sticky Note enrich",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        840,
+        60
+      ],
+      "parameters": {
+        "width": 420,
+        "height": 180,
+        "content": "### 4. Read it so nobody has to\nCaptions are pulled without a Data API key, then a model returns strict JSON: summary, takeaways, topics, and a yes/no on watching it in full."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1b2c3d4-1111-4aaa-9001-0000000000f5",
+      "name": "Sticky Note deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        60
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 220,
+        "content": "### 5. Three places at once\nSlack to read now, Notion to filter by topic later, Sheets for reporting. Delete any you do not want."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Every 2 hours": {
+      "main": [
+        [
+          {
+            "node": "Channels to watch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find new uploads": {
+      "main": [
+        [
+          {
+            "node": "Keep real videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep real videos": {
+      "main": [
+        [
+          {
+            "node": "Summarise each video once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Channels to watch": {
+      "main": [
+        [
+          {
+            "node": "Find new uploads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI chat model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarise and tag",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise and tag": {
+      "main": [
+        [
+          {
+            "node": "Post the summary to Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Archive it in Notion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log it to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch the transcript": {
+      "main": [
+        [
+          {
+            "node": "Summarise and tag",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarise each video once": {
+      "main": [
+        [
+          {
+            "node": "Fetch the transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Summarize new YouTube uploads with Apify, OpenAI, Slack, Notion and Sheets",
+    "wechat": "youandme10086",
+    "id": 18666,
+    "update_time": "2026-09-27"
+  }
+}

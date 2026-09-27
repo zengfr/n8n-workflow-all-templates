@@ -1,4 +1,4 @@
-# optional : 5
+# optional : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |10222|[10222_Automate_Employee_Recognition_with_Slack__Sheets__Gmail___Optional_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10222_Automate_Employee_Recognition_with_Slack__Sheets__Gmail___Optional_GPT-4.json)|
 |11507|[11507_Automated_Error_Notifications_with_Optional_GPT-4o_Diagnostics_via_Email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11507_Automated_Error_Notifications_with_Optional_GPT-4o_Diagnostics_via_Email.json)|
 |13699|[13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json)|
+|16926|[16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16926_Create_Xero_AR_AP_Markdown_snapshots_with_optional_OpenAI_GPT_summaries.json)|
+|19339|[19339_Discuss_GitHub_issues_with_council-style_AI_reviewers_and_optional_BVC.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19339_Discuss_GitHub_issues_with_council-style_AI_reviewers_and_optional_BVC.json)|

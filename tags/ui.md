@@ -1,4 +1,4 @@
-# ui : 13
+# ui : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |11893|[11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11893_Automate_SEO_research___content_gap_analysis_with_GPT-4o__SerpAPI__and_Gmail.json)|
 |13269|[13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13269_Design_UI_projects_____with_Google_Stitch_via_Telegram_using_MCP_and_Gemini_AI.json)|
 |15200|[15200_Analyze_UX_heuristics_from_UI_screenshots_with_GPT-4_Vision_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15200_Analyze_UX_heuristics_from_UI_screenshots_with_GPT-4_Vision_and_Google_Sheets.json)|
+|19254|[19254_Design_UI_screens_from_chat_with_Google_Stitch__Gemini__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19254_Design_UI_screens_from_chat_with_Google_Stitch__Gemini__Telegram_and_Sheets.json)|

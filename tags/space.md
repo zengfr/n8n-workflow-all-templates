@@ -1,4 +1,4 @@
-# space : 16
+# space : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |13679|[13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13679_Validate_email_hero_images_with_Gmail__Dropbox__OCR.Space_and_Google_Sheets.json)|
 |14210|[14210_Log_LINE_invoice_photos_to_Google_Sheets_with_OCR.space_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14210_Log_LINE_invoice_photos_to_Google_Sheets_with_OCR.space_and_Gemini_AI.json)|
 |16350|[16350_Process_Telegram_invoice_OCR_with_OCR.space__OpenAI__Sheets_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16350_Process_Telegram_invoice_OCR_with_OCR.space__OpenAI__Sheets_and_Drive.json)|
+|17077|[17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json)|
+|18113|[18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18113_Identify_enterprise_white_space_opportunities_with_Salesforce__Gemini_and_Gmail.json)|

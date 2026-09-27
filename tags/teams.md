@@ -1,4 +1,4 @@
-# teams : 55
+# teams : 58
 
 |id|file|
 |----|----|
@@ -57,3 +57,6 @@
 |16537|[16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json)|
 |16538|[16538_Generate_monthly_BigQuery_KPI_PDF_reports_with_Claude__Google_Docs__Outlook_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16538_Generate_monthly_BigQuery_KPI_PDF_reports_with_Claude__Google_Docs__Outlook_and_Teams.json)|
 |16603|[16603_Score_mortgage_loan_risk_from_Google_Drive_PDFs_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16603_Score_mortgage_loan_risk_from_Google_Drive_PDFs_with_OpenAI_and_Gmail.json)|
+|17075|[17075_Route_insurance_quote_leads_with_OpenAI__Airtable__Sheets__Teams__Slack_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17075_Route_insurance_quote_leads_with_OpenAI__Airtable__Sheets__Teams__Slack_and_Twilio.json)|
+|19011|[19011_Create_Qwease_incidents_from_monitoring_alerts_and_notify_Microsoft_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19011_Create_Qwease_incidents_from_monitoring_alerts_and_notify_Microsoft_Teams.json)|
+|19649|[19649_Probe_AISIX_model_aliases_and_generate_health_reports_for_SRE_teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19649_Probe_AISIX_model_aliases_and_generate_health_reports_for_SRE_teams.json)|

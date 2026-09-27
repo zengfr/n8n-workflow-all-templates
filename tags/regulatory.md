@@ -1,4 +1,4 @@
-# regulatory : 9
+# regulatory : 18
 
 |id|file|
 |----|----|
@@ -11,3 +11,12 @@
 |14434|[14434_Route_legal_contract_risks_with_GPT-4o__Slack__Google_Sheets_and_a_regulatory_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14434_Route_legal_contract_risks_with_GPT-4o__Slack__Google_Sheets_and_a_regulatory_API.json)|
 |15326|[15326_Summarize_regulatory_news_from_NewsAPI_with_Gemini_and_Google_Sheets_plus_error_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15326_Summarize_regulatory_news_from_NewsAPI_with_Gemini_and_Google_Sheets_plus_error_alerts.json)|
 |16296|[16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json)|
+|16873|[16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16873_Validate_invoice_tax_compliance_from_Gmail_using_Groq__Notion__and_Google_Sheets.json)|
+|17230|[17230_Check_Japanese_ad_copy_compliance_with_Google_Gemini__Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17230_Check_Japanese_ad_copy_compliance_with_Google_Gemini__Sheets__Slack_and_Gmail.json)|
+|17867|[17867_Send_regulatory_incident_emails_from_webhook_payloads_and_Gotenberg_PDF_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17867_Send_regulatory_incident_emails_from_webhook_payloads_and_Gotenberg_PDF_reports.json)|
+|17947|[17947_Monitor_regulatory_website_changes_with_Claude_Sonnet_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17947_Monitor_regulatory_website_changes_with_Claude_Sonnet_and_Gmail_alerts.json)|
+|18290|[18290_Summarize_Japanese_regulatory_news_with_Claude__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18290_Summarize_Japanese_regulatory_news_with_Claude__Slack__and_Google_Sheets.json)|
+|18722|[18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json)|
+|19133|[19133_Monitor_pharma_regulatory_updates_with_Anthropic_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19133_Monitor_pharma_regulatory_updates_with_Anthropic_Claude_and_Slack_alerts.json)|
+|19470|[19470_Draft_and_track_regulatory_digests_from_RSS_feeds_with_Google_Sheets_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19470_Draft_and_track_regulatory_digests_from_RSS_feeds_with_Google_Sheets_and_email.json)|
+|19490|[19490_Audit_procurement_compliance_with_Google_Sheets__Google_Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19490_Audit_procurement_compliance_with_Google_Sheets__Google_Gemini__and_Gmail.json)|

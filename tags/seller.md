@@ -1,4 +1,4 @@
-# seller : 8
+# seller : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |13311|[13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13311_Monitor_and_enforce_seller_compliance_with_GPT-4o__email_alerts_and_Slack.json)|
 |13913|[13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13913_Enforce_marketplace_seller_compliance_with_GPT-4o__Gmail_and_Slack.json)|
 |16274|[16274_Route_real_estate_buyer_and_seller_leads_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16274_Route_real_estate_buyer_and_seller_leads_with_Claude_and_Google_Sheets.json)|
+|16823|[16823_Track_Amazon_best_seller_ranks_in_Airtable_with_ScraperAPI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16823_Track_Amazon_best_seller_ranks_in_Airtable_with_ScraperAPI_and_Slack.json)|
+|17659|[17659_Qualify_seller_leads_and_generate_CMA-lite_reports_with_Gemini_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17659_Qualify_seller_leads_and_generate_CMA-lite_reports_with_Gemini_and_HubSpot.json)|
+|18298|[18298_Convert_seller_leads_into_listing_appointments_with_email__Google_Calendar__and_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18298_Convert_seller_leads_into_listing_appointments_with_email__Google_Calendar__and_CRM.json)|

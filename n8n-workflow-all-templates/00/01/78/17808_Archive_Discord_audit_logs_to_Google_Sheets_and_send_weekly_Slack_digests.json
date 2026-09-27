@@ -1,0 +1,778 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Archive Discord audit logs to Google Sheets and send weekly Slack digests",
+    "wechat": "youandme10086",
+    "id": 17808,
+    "update_time": "2026-09-27"
+  },
+  "name": "Archive Discord audit log entries to Google Sheets and roll up weekly in Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a1394f1e-3ab0-4415-93ef-5533be22a32e",
+      "name": "Every Day at 3 AM",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -32,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1255de14-3bb2-4cb5-bf16-d2d27f45f441",
+      "name": "Set Audit Ledger Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "guild-id",
+              "name": "guildId",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Discord server ID, turn on Developer Mode then right click the server and copy the ID__>"
+            },
+            {
+              "id": "sheet-url",
+              "name": "sheetUrl",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Google Sheet URL for the ledger, e.g. https://docs.google.com/spreadsheets/d/1AbC.../edit__>"
+            },
+            {
+              "id": "slack-channel",
+              "name": "slackChannel",
+              "type": "string",
+              "value": "<__PLACEHOLDER_VALUE__Slack channel name for the weekly digest, e.g. mod-team__>"
+            },
+            {
+              "id": "page-size",
+              "name": "pageSize",
+              "type": "number",
+              "value": 100
+            },
+            {
+              "id": "max-pages",
+              "name": "maxPagesPerRun",
+              "type": "number",
+              "value": 5
+            },
+            {
+              "id": "digest-weekday",
+              "name": "digestWeekday",
+              "type": "number",
+              "value": 1
+            },
+            {
+              "id": "digest-days",
+              "name": "digestLookbackDays",
+              "type": "number",
+              "value": 7
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c4e5451d-362c-4264-9ba4-0dfc5e335960",
+      "name": "Read Stored Watermark",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        512,
+        0
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "guild_id",
+              "keyValue": "={{ $json.guildId }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_DATA_TABLE_ID",
+          "cachedResultName": "discord_audit_watermark"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "f6ddfede-ef3d-4743-a4cf-38b6c515fda3",
+      "name": "Build Fetch Cursor",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        864,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const config = $('Set Audit Ledger Config').first().json;\nconst stored = $input.all().filter(i => i.json && i.json.last_entry_id);\nreturn [{ json: {\n  guildId: String(config.guildId || ''),\n  afterId: stored.length ? String(stored[0].json.last_entry_id) : '0',\n  pageSize: Number(config.pageSize || 100),\n  maxPagesPerRun: Number(config.maxPagesPerRun || 5),\n  digestWeekday: Number(config.digestWeekday || 1),\n  digestLookbackDays: Number(config.digestLookbackDays || 7),\n  runStartedAt: new Date().toISOString(),\n  isFirstRun: stored.length === 0\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6cb11c50-34b5-41fe-9acd-967a0abb7600",
+      "name": "Get Discord Audit Log Pages",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "url": "=https://discord.com/api/v10/guilds/{{ $json.guildId }}/audit-logs",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "after",
+                    "value": "={{ $response.body.audit_log_entries.length ? $response.body.audit_log_entries[$response.body.audit_log_entries.length - 1].id : $json.afterId }}"
+                  }
+                ]
+              },
+              "maxRequests": "={{ $json.maxPagesPerRun }}",
+              "requestInterval": 1000,
+              "limitPagesFetched": true,
+              "completeExpression": "={{ $response.body.audit_log_entries.length < $json.pageSize }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "={{ $json.pageSize }}"
+            },
+            {
+              "name": "after",
+              "value": "={{ $json.afterId }}"
+            }
+          ]
+        },
+        "nodeCredentialType": "discordBotApi"
+      },
+      "credentials": {
+        "discordBotApi": {
+          "id": "credential-id",
+          "name": "Discord Bot account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "129602aa-3305-4ed3-936d-0b56ace1c9cf",
+      "name": "Map Action Types and Users",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1424,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const actionNames = {\n  1: 'guild update', 10: 'channel create', 11: 'channel update', 12: 'channel delete',\n  13: 'overwrite create', 14: 'overwrite update', 15: 'overwrite delete',\n  20: 'member kick', 21: 'member prune', 22: 'member ban add', 23: 'member ban remove',\n  24: 'member update', 25: 'member role update', 26: 'member move', 27: 'member disconnect',\n  28: 'bot add', 30: 'role create', 31: 'role update', 32: 'role delete',\n  40: 'invite create', 42: 'invite delete', 50: 'webhook create', 51: 'webhook update',\n  52: 'webhook delete', 60: 'emoji create', 61: 'emoji update', 62: 'emoji delete',\n  72: 'message delete', 73: 'message bulk delete', 74: 'message pin', 75: 'message unpin',\n  80: 'integration create', 82: 'integration delete', 83: 'stage create', 85: 'stage delete',\n  90: 'sticker create', 92: 'sticker delete', 100: 'event create', 102: 'event delete',\n  110: 'thread create', 111: 'thread update', 112: 'thread delete',\n  121: 'command permission update', 140: 'automod rule create',\n  143: 'automod block message', 145: 'automod timeout'\n};\nconst channelActions = [10, 11, 12, 13, 14, 15, 110, 111, 112];\nconst messageActions = [72, 73, 74, 75];\nconst roleActions = [30, 31, 32];\nconst cursor = $('Build Fetch Cursor').first().json;\nconst users = {};\nconst entries = [];\nfor (const item of $input.all()) {\n  const page = item.json || {};\n  for (const u of (page.users || [])) { users[u.id] = u.global_name || u.username || u.id; }\n  for (const e of (page.audit_log_entries || [])) { entries.push(e); }\n}\nentries.sort((a, b) => a.id.length - b.id.length || (a.id < b.id ? -1 : a.id > b.id ? 1 : 0));\nconst rows = entries.map(e => {\n  const type = Number(e.action_type);\n  const changes = e.changes || [];\n  let action = actionNames[type] || ('action ' + type);\n  if (type === 24) {\n    const timeout = changes.filter(c => c.key === 'communication_disabled_until')[0];\n    if (timeout && timeout.new_value) { action = 'member timeout add'; }\n    else if (timeout) { action = 'member timeout remove'; }\n  }\n  let targetKind = 'user';\n  if (channelActions.indexOf(type) !== -1) { targetKind = 'channel'; }\n  else if (messageActions.indexOf(type) !== -1) { targetKind = 'message'; }\n  else if (roleActions.indexOf(type) !== -1) { targetKind = 'role'; }\n  const targetId = e.target_id ? String(e.target_id) : '';\n  const targetName = targetKind === 'user' ? (users[targetId] || targetId) : targetId;\n  const createdAt = new Date(Number(BigInt(e.id) >> BigInt(22)) + 142+1234567890).toISOString();\n  return { json: {\n    entry_id: String(e.id),\n    created_at: createdAt,\n    guild_id: cursor.guildId,\n    action: action,\n    action_type: type,\n    moderator_id: e.user_id ? String(e.user_id) : '',\n    moderator_name: users[e.user_id] || (e.user_id ? String(e.user_id) : 'unknown'),\n    target_kind: targetKind,\n    target_id: targetId,\n    target_name: targetName,\n    reason: e.reason || '',\n    changed_keys: changes.map(c => c.key).join(', '),\n    archived_at: cursor.runStartedAt,\n    run_max_entry_id: ''\n  } };\n});\nif (rows.length === 0) { return []; }\nconst maxId = rows[rows.length - 1].json.entry_id;\nfor (const r of rows) { r.json.run_max_entry_id = maxId; }\nreturn rows;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f8ac07f1-11fb-436c-b795-06ca07825101",
+      "name": "Append Entries in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1904,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "action": "={{ $json.action }}",
+            "reason": "={{ $json.reason }}",
+            "entry_id": "={{ $json.entry_id }}",
+            "guild_id": "={{ $json.guild_id }}",
+            "target_id": "={{ $json.target_id }}",
+            "created_at": "={{ $json.created_at }}",
+            "action_type": "={{ $json.action_type }}",
+            "archived_at": "={{ $json.archived_at }}",
+            "target_kind": "={{ $json.target_kind }}",
+            "target_name": "={{ $json.target_name }}",
+            "changed_keys": "={{ $json.changed_keys }}",
+            "moderator_id": "={{ $json.moderator_id }}",
+            "moderator_name": "={{ $json.moderator_name }}"
+          },
+          "schema": [
+            {
+              "id": "entry_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "entry_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "created_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "created_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "guild_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "guild_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "action_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "action_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "moderator_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "moderator_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "moderator_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "moderator_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "target_kind",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "target_kind",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "target_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "target_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "target_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "target_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "changed_keys",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "changed_keys",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "archived_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "archived_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "options": {
+          "useAppend": true,
+          "cellFormat": "RAW"
+        },
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "audit_log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Set Audit Ledger Config').first().json.sheetUrl }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "b92a6799-a085-40de-8935-ba54212f1264",
+      "name": "Update Stored Watermark",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2224,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "guild_id": "={{ $('Build Fetch Cursor').first().json.guildId }}",
+            "updated_at": "={{ $now.toISO() }}",
+            "last_entry_id": "={{ $('Map Action Types and Users').first().json.run_max_entry_id }}"
+          },
+          "schema": [
+            {
+              "id": "guild_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "guild_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_entry_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_entry_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "updated_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "updated_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "guild_id"
+          ]
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "guild_id",
+              "keyValue": "={{ $('Build Fetch Cursor').first().json.guildId }}"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "REPLACE_WITH_DATA_TABLE_ID",
+          "cachedResultName": "discord_audit_watermark"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 1.1
+    },
+    {
+      "id": "11c05b21-2ee6-4f5f-a95f-6f1b1a34ba57",
+      "name": "Check If Digest Day",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1088,
+        464
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "digest-weekday-match",
+              "operator": {
+                "type": "number",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $now.weekday }}",
+              "rightValue": "={{ $json.digestWeekday }}"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b438a0c1-05fe-4b61-8ef2-02f6a66f5f2e",
+      "name": "Read Ledger Rows in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1392,
+        448
+      ],
+      "parameters": {
+        "options": {
+          "dataLocationOnSheet": {
+            "values": {
+              "readRowsUntil": "firstEmptyRow",
+              "rangeDefinition": "detectAutomatically"
+            }
+          }
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "audit_log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "={{ $('Set Audit Ledger Config').first().json.sheetUrl }}"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.7
+    },
+    {
+      "id": "d30dc756-3195-4fb3-a343-10ff3bf76b20",
+      "name": "Count Actions by Moderator",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1664,
+        448
+      ],
+      "parameters": {
+        "jsCode": "const br = '\\n';\nconst cursor = $('Build Fetch Cursor').first().json;\nconst days = Number(cursor.digestLookbackDays || 7);\nconst cutoff = Date.now() - days * 24 * 60 * 60 * 1000;\nconst rows = $input.all().map(i => i.json)\n  .filter(r => r && r.created_at && Date.parse(r.created_at) >= cutoff);\nconst byModerator = {};\nconst byAction = {};\nfor (const r of rows) {\n  const mod = r.moderator_name || r.moderator_id || 'unknown';\n  byModerator[mod] = (byModerator[mod] || 0) + 1;\n  const act = r.action || 'unknown';\n  byAction[act] = (byAction[act] || 0) + 1;\n}\nconst rank = o => Object.keys(o).map(k => [k, o[k]]).sort((a, b) => b[1] - a[1]).slice(0, 10);\nconst render = o => rank(o).map(p => '- ' + p[0] + ': ' + p[1]).join(br) || '- nothing logged';\nconst header = '*Discord audit log digest, last ' + days + ' days*';\nconst total = rows.length + ' entries from ' + Object.keys(byModerator).length + ' moderators.';\nconst body = [header, total, '', '*By moderator*', render(byModerator), '', '*By action*',\n  render(byAction)].join(br);\nreturn [{ json: {\n  windowDays: days,\n  totalEntries: rows.length,\n  moderatorCount: Object.keys(byModerator).length,\n  digestText: body.slice(0, 2800)\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "603fa3c2-9ecb-476a-b8ef-fc08c26cd531",
+      "name": "Post Weekly Digest to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1952,
+        448
+      ],
+      "parameters": {
+        "text": "={{ $json.digestText }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set Audit Ledger Config').first().json.slackChannel }}"
+        },
+        "otherOptions": {
+          "mrkdwn": true,
+          "unfurl_links": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 2.5
+    },
+    {
+      "id": "68abb472-1c20-45b8-9d7e-4702513fe148",
+      "name": "Overview Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -1152
+      ],
+      "parameters": {
+        "width": 1412,
+        "height": 728,
+        "content": "## Archive Discord audit log entries to Google Sheets and roll up weekly in Slack\n\nDiscord deletes audit log entries after 45 days. This workflow copies them into a Google Sheets ledger before that happens, so the moderation record outlives the retention window, and it posts a weekly per-moderator summary to Slack.\n\n### How it works\n\n1. A daily schedule reads the stored watermark, the id of the last entry already archived.\n2. An HTTP Request calls the guild audit log endpoint with an `after` cursor and pages forward until a page comes back short.\n3. A Code node maps integer `action_type` values to readable names and joins the response `users` array to resolve moderator and target names.\n4. New rows are appended to the ledger sheet, then the watermark advances to the highest entry id.\n5. On the configured digest day a second branch reads recent ledger rows and posts per-moderator counts to Slack.\n\n### Setup steps\n\n- [ ] Create a Discord bot, invite it to the server, and grant it View Audit Log. No privileged intents are needed.\n- [ ] Add the bot token as a Discord Bot API credential and select it on `Get Discord Audit Log Pages`.\n- [ ] Create a Data Table called `discord_audit_watermark` with columns `guild_id`, `last_entry_id`, `updated_at`, then select it on `Read Stored Watermark` and `Update Stored Watermark`.\n- [ ] Create a spreadsheet with a tab named `audit_log` carrying the 13 header cells listed on the grey note beside the Sheets nodes.\n- [ ] Fill in the guild id, the spreadsheet URL and the Slack channel name in `Set Audit Ledger Config`.\n- [ ] Connect Google Sheets and Slack credentials on their nodes.\n\n### Customization\n\nRaise `maxPagesPerRun` to backfill more history per run, and change `digestWeekday` and `digestLookbackDays` to move or widen the Slack summary. Extend the map in `Map Action Types and Users` to name more of the 60-plus Discord action type integers."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c5af9933-2aa0-4159-bf0d-58062c4ff0d3",
+      "name": "Config Section Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        -304
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 824,
+        "height": 516,
+        "content": "## Schedule and run configuration\n\nRuns once a day, well inside the 45 day retention window.\n\n`Set Audit Ledger Config` holds every user specific value: guild id, page size, page cap and digest settings.\n\n`Read Stored Watermark` looks up the last archived entry id for this guild."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "89e7e03f-fb5c-4de5-8522-2b8f26cc436e",
+      "name": "Fetch Section Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        -272
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 856,
+        "height": 484,
+        "content": "## Paged audit log fetch\n\nThe audit log endpoint is the one Discord read endpoint with a real server side cursor. With `after` set, entries come back ascending and paging stops when a page returns fewer than `limit`.\n\n`Map Action Types and Users` decodes `action_type` integers and joins the response `users` array."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "783af973-662d-49ab-8ee4-e9efaeaaa0c7",
+      "name": "Write Section Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        -304
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 876,
+        "height": 516,
+        "content": "## Append and advance watermark\n\nRows are appended, never updated, so the sheet stays an audit trail.\n\nThe watermark only moves after the append succeeds, so a failed run retries from the same point.\nHeader row for the `audit_log` tab: entry_id, created_at, guild_id, action, action_type, moderator_id, moderator_name, target_kind, target_id, target_name, reason, changed_keys, archived_at.\n\nThe Data Table picker points at the author table, so repoint it after import."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16a1edbf-f97f-4d31-bda4-02725066fc50",
+      "name": "Digest Section Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        976,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1232,
+        "height": 420,
+        "content": "## Weekly moderator digest\n\nThis branch runs on every execution but only posts on the configured weekday. It reads the ledger, counts entries per moderator and per action over the lookback window, and sends one Slack message. The execution order runs the top row first, so the digest sees rows appended in the same run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "60e80219-dacb-4f88-a8d5-c2437ae4aeb9",
+      "name": "Retention Warning Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -112,
+        320
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 796,
+        "height": 208,
+        "content": "## Discord deletes audit entries after 45 days\n\nAnything older than the retention window is gone from the API and cannot be recovered, so a workflow that stays paused for more than 45 days leaves a permanent hole in the ledger. Each request also returns at most 100 entries, so raise `maxPagesPerRun` for the first run on a busy server."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Every Day at 3 AM": {
+      "main": [
+        [
+          {
+            "node": "Set Audit Ledger Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Fetch Cursor": {
+      "main": [
+        [
+          {
+            "node": "Get Discord Audit Log Pages",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Check If Digest Day",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Digest Day": {
+      "main": [
+        [
+          {
+            "node": "Read Ledger Rows in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Stored Watermark": {
+      "main": [
+        [
+          {
+            "node": "Build Fetch Cursor",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Audit Ledger Config": {
+      "main": [
+        [
+          {
+            "node": "Read Stored Watermark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Entries in Sheets": {
+      "main": [
+        [
+          {
+            "node": "Update Stored Watermark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Count Actions by Moderator": {
+      "main": [
+        [
+          {
+            "node": "Post Weekly Digest to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Map Action Types and Users": {
+      "main": [
+        [
+          {
+            "node": "Append Entries in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Ledger Rows in Sheets": {
+      "main": [
+        [
+          {
+            "node": "Count Actions by Moderator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Discord Audit Log Pages": {
+      "main": [
+        [
+          {
+            "node": "Map Action Types and Users",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

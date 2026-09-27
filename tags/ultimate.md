@@ -1,4 +1,4 @@
-# ultimate : 16
+# ultimate : 17
 
 |id|file|
 |----|----|
@@ -18,3 +18,4 @@
 |6158|[6158_Multi-Language_Telegram_RAG_Chatbot_with_Supervisor_AI___Automated_Google_Drive_Pipeline.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/61/6158_Multi-Language_Telegram_RAG_Chatbot_with_Supervisor_AI___Automated_Google_Drive_Pipeline.json)|
 |7961|[7961_WordPress_Blog_Automation_with_Airtable_Interface__Human_Review___AI_Research_v2.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7961_WordPress_Blog_Automation_with_Airtable_Interface__Human_Review___AI_Research_v2.json)|
 |8021|[8021_Create_Research-Backed_Blog_Content_with_Slack__Perplexity__Pinecone_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/80/8021_Create_Research-Backed_Blog_Content_with_Slack__Perplexity__Pinecone_and_Google_Docs.json)|
+|18142|[18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json)|

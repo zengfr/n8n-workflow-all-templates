@@ -1,4 +1,4 @@
-# change : 22
+# change : 34
 
 |id|file|
 |----|----|
@@ -24,3 +24,15 @@
 |16221|[16221_Monitor_website_uptime_and_content_changes_with_HTTP_checks_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16221_Monitor_website_uptime_and_content_changes_with_HTTP_checks_and_Slack.json)|
 |16363|[16363_Send_daily_AI_competitor_change_digests_via_ScraperAPI__Claude__Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16363_Send_daily_AI_competitor_change_digests_via_ScraperAPI__Claude__Slack_and_email.json)|
 |16391|[16391_Monitor_website_changes_with_PolyDoc_screenshots_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16391_Monitor_website_changes_with_PolyDoc_screenshots_and_email_alerts.json)|
+|17227|[17227_Track_competitor_pricing_changes_with_Google_Sheets__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17227_Track_competitor_pricing_changes_with_Google_Sheets__OpenAI__and_Gmail.json)|
+|17687|[17687_Send_daily_business_change_digest_with_OpenAI__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17687_Send_daily_business_change_digest_with_OpenAI__Google_Sheets_and_Telegram.json)|
+|18127|[18127_Track_alumni_job_changes_with_Coresignal__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18127_Track_alumni_job_changes_with_Coresignal__Google_Sheets_and_Slack.json)|
+|18334|[18334_Post_FX_rate_change_commentary_to_Slack_with_Frankfurter_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18334_Post_FX_rate_change_commentary_to_Slack_with_Frankfurter_and_Claude.json)|
+|18339|[18339_Monitor_attack_surface_changes_with_OpenAI__Postgres__Slack__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18339_Monitor_attack_surface_changes_with_OpenAI__Postgres__Slack__and_email.json)|
+|18454|[18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json)|
+|18574|[18574_Send_Meta_Ads_creative_change_reports_to_Telegram_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18574_Send_Meta_Ads_creative_change_reports_to_Telegram_with_Apify.json)|
+|18806|[18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json)|
+|19070|[19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json)|
+|19135|[19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19135_Analyze_pharma_label_change_impact_with_Anthropic_Claude_and_Slack.json)|
+|19449|[19449_Send_webpage_change_alerts_with_Browserless__Google_Drive__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19449_Send_webpage_change_alerts_with_Browserless__Google_Drive__Gemini_and_Gmail.json)|
+|19503|[19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json)|

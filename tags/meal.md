@@ -1,4 +1,4 @@
-# meal : 10
+# meal : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |12380|[12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12380_Track_meal_nutrition_from_meal_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
 |13815|[13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13815_Generate_weekly_dinner_meal_plans_and_shopping_lists_using_Mealie.json)|
 |15309|[15309_Log_meal_nutrition_from_LINE_food_photos_to_Google_Sheets_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15309_Log_meal_nutrition_from_LINE_food_photos_to_Google_Sheets_with_Gemini_AI.json)|
+|16868|[16868_Track_meal_nutrition_from_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16868_Track_meal_nutrition_from_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
+|17464|[17464_Estimate_meal_calories_from_Telegram_text_and_photos_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17464_Estimate_meal_calories_from_Telegram_text_and_photos_with_Google_Gemini.json)|
+|19152|[19152_Reward_kids__clean_plates_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19152_Reward_kids__clean_plates_with_LINE__Google_Gemini_and_Google_Sheets.json)|

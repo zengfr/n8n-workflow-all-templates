@@ -1,0 +1,546 @@
+{
+  "name": "n8n to GitHub backup",
+  "nodes": [
+    {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "Daily at 03:05",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -720,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "daysInterval": 1,
+              "triggerAtHour": 3,
+              "triggerAtMinute": 5
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -500,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ==========================================================\n// CONFIGURATION - the only node you need to edit\n// ==========================================================\nconst owner = 'YOUR_GITHUB_USERNAME';   // GitHub user or organisation\nconst repo = 'my-n8n-backup';           // PRIVATE repo, already initialised (at least one commit)\nconst branch = 'main';                  // target branch\nconst folder = 'workflows';             // folder holding the exports inside the repo\n\nreturn [{ json: { owner: owner, repo: repo, branch: branch, folder: folder } }];\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "List workflows",
+      "type": "n8n-nodes-base.n8n",
+      "position": [
+        -280,
+        0
+      ],
+      "parameters": {
+        "filters": {
+          "excludePinnedData": true
+        },
+        "resource": "workflow",
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "name": "Normalise workflows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -60,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ==========================================================\n// Turn every workflow into a deterministic JSON file\n// Goal: clean git diffs, no timestamp noise\n// Archived workflows go to <folder>/archives/\n// ==========================================================\n\nconst cfg = $('Configuration').first().json;\nconst folder = cfg.folder || 'workflows';\n\n// Volatile or sensitive fields, stripped from the export.\n// isArchived is kept on purpose: it is status, not noise.\nconst VOLATILE = [\n  'createdAt', 'updatedAt', 'versionId', 'activeVersionId', 'triggerCount',\n  'shared', 'sharedWithProjects', 'homeProject', 'scopes', 'canExecute',\n  'usedCredentials', 'staticData', 'meta', 'pinData',\n  'parentFolderId', 'nodeGroups', 'availableInMCP', 'activeVersion'\n];\n\nconst ACCENTS = {\n  'à': 'a', 'á': 'a', 'â': 'a', 'ã': 'a', 'ä': 'a', 'å': 'a',\n  'è': 'e', 'é': 'e', 'ê': 'e', 'ë': 'e',\n  'ì': 'i', 'í': 'i', 'î': 'i', 'ï': 'i',\n  'ò': 'o', 'ó': 'o', 'ô': 'o', 'õ': 'o', 'ö': 'o',\n  'ù': 'u', 'ú': 'u', 'û': 'u', 'ü': 'u',\n  'ç': 'c', 'ñ': 'n', 'ý': 'y'\n};\n\nfunction deaccent(value) {\n  return String(value).toLowerCase().replace(/[àáâãäåèéêëìíîïòóôõöùúûüçñý]/g, function (c) {\n    return ACCENTS[c] || c;\n  });\n}\n\nfunction slugify(value) {\n  const base = deaccent(value || 'untitled')\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace(/^-+/, '')\n    .replace(/-+$/, '')\n    .slice(0, 60);\n  return base || 'untitled';\n}\n\n// Recursive key sorting: two identical exports produce identical bytes\nfunction sortKeys(value) {\n  if (Array.isArray(value)) {\n    return value.map(sortKeys);\n  }\n  if (value && typeof value === 'object') {\n    const out = {};\n    const keys = Object.keys(value).sort();\n    for (let i = 0; i < keys.length; i++) {\n      out[keys[i]] = sortKeys(value[keys[i]]);\n    }\n    return out;\n  }\n  return value;\n}\n\nconst workflows = $input.all().map(function (item) { return item.json; });\n\nif (!workflows.length) {\n  throw new Error('n8n API returned no workflow: backup aborted so the repo is not wiped');\n}\n\nworkflows.sort(function (a, b) { return String(a.id).localeCompare(String(b.id)); });\n\nconst files = [];\nconst liveRows = [];\nconst archivedRows = [];\nlet activeCount = 0;\nlet liveCount = 0;\nlet archivedCount = 0;\n\nfor (let i = 0; i < workflows.length; i++) {\n  const wf = workflows[i];\n  const archived = wf.isArchived === true;\n\n  const clean = {};\n  const keys = Object.keys(wf);\n  for (let k = 0; k < keys.length; k++) {\n    if (VOLATILE.indexOf(keys[k]) === -1) {\n      clean[keys[k]] = wf[keys[k]];\n    }\n  }\n\n  // Stable node order: n8n does not depend on it\n  if (Array.isArray(clean.nodes)) {\n    clean.nodes = clean.nodes.slice().sort(function (a, b) {\n      return String(a.name).localeCompare(String(b.name));\n    });\n  }\n\n  if (Array.isArray(clean.tags)) {\n    clean.tags = clean.tags.map(function (t) {\n      return t && t.name ? t.name : t;\n    }).sort();\n  }\n\n  const dir = archived ? folder + '/archives' : folder;\n  const path = dir + '/' + slugify(wf.name) + '.' + wf.id + '.json';\n  const content = JSON.stringify(sortKeys(clean), null, 2) + '\\n';\n\n  files.push({ path: path, content: content });\n\n  const safeName = String(wf.name || 'untitled').split('|').join('/');\n  const nodeCount = Array.isArray(wf.nodes) ? wf.nodes.length : 0;\n\n  if (archived) {\n    archivedCount++;\n    archivedRows.push('| ' + safeName + ' | `' + wf.id + '` | ' + nodeCount + ' | [json](' + path + ') |');\n  } else {\n    liveCount++;\n    if (wf.active) { activeCount++; }\n    liveRows.push('| ' + safeName + ' | `' + wf.id + '` | ' + (wf.active ? 'active' : 'inactive') + ' | ' + nodeCount + ' | [json](' + path + ') |');\n  }\n}\n\n// The README carries no timestamp on purpose: it would change on every run\nconst readme = [\n  '# n8n workflow backup',\n  '',\n  'Automatic mirror of an n8n instance, published by the \"n8n to GitHub backup\" workflow.',\n  'Every run compares the content and only commits when something actually changed.',\n  '',\n  '- Current workflows: ' + liveCount + ' (' + activeCount + ' active), in `' + folder + '/`',\n  '- Archived workflows: ' + archivedCount + ', in `' + folder + '/archives/`',\n  '- Credentials: never exported, only their IDs and names appear inside nodes',\n  '- Pinned data and staticData: excluded',\n  '',\n  '## Restoring a workflow',\n  '',\n  'In n8n: Workflows, Import from File, pick the JSON file.',\n  'The `id` field is preserved, so importing overwrites the existing workflow when that id still exists.',\n  '',\n  '## Current workflows',\n  '',\n  '| Workflow | ID | Status | Nodes | File |',\n  '| --- | --- | --- | --- | --- |'\n].concat(liveRows).concat([\n  '',\n  '## Archived workflows',\n  '',\n  '| Workflow | ID | Nodes | File |',\n  '| --- | --- | --- | --- |'\n]).concat(archivedRows).join('\\n') + '\\n';\n\nfiles.push({ path: 'README.md', content: readme });\n\nconst stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');\n\nreturn [{\n  json: {\n    files: files,\n    fileCount: files.length,\n    workflowCount: workflows.length,\n    liveCount: liveCount,\n    archivedCount: archivedCount,\n    activeCount: activeCount,\n    commitMessage: 'n8n backup ' + stamp + ' UTC: ' + liveCount + ' workflows (' + activeCount + ' active) + ' + archivedCount + ' archived'\n  }\n}];\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "name": "Read branch ref",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        160,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $(\"Configuration\").first().json.owner }}/{{ $(\"Configuration\").first().json.repo }}/git/ref/heads/{{ $(\"Configuration\").first().json.branch }}",
+        "method": "GET",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000006",
+      "name": "Read current commit",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        380,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $(\"Configuration\").first().json.owner }}/{{ $(\"Configuration\").first().json.repo }}/git/commits/{{ $json.object.sha }}",
+        "method": "GET",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000007",
+      "name": "Read repo tree",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        600,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $(\"Configuration\").first().json.owner }}/{{ $(\"Configuration\").first().json.repo }}/git/trees/{{ $json.tree.sha }}?recursive=1",
+        "method": "GET",
+        "options": {
+          "timeout": 60000
+        },
+        "sendHeaders": true,
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000008",
+      "name": "Build new tree",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        820,
+        0
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ==========================================================\n// Build the Git Tree payload: additions, updates, deletions\n// base_tree keeps everything that lives outside the workflows folder\n// ==========================================================\n\nconst cfg = $('Configuration').first().json;\nconst folder = cfg.folder || 'workflows';\nconst prepared = $('Normalise workflows').first().json;\n\nconst current = $input.first().json;\n\nif (current.truncated === true) {\n  throw new Error('GitHub tree truncated: repository too large to read in a single call');\n}\n\nconst baseTreeSha = $('Read current commit').first().json.tree.sha;\n\nconst wanted = {};\nconst tree = [];\n\nfor (let i = 0; i < prepared.files.length; i++) {\n  const f = prepared.files[i];\n  wanted[f.path] = true;\n  tree.push({ path: f.path, mode: '100644', type: 'blob', content: f.content });\n}\n\n// Drop orphan exports: workflow deleted in n8n, or renamed\nconst existing = Array.isArray(current.tree) ? current.tree : [];\nlet removed = 0;\n\nfor (let j = 0; j < existing.length; j++) {\n  const entry = existing[j];\n  if (entry.type !== 'blob') { continue; }\n  if (entry.path.indexOf(folder + '/') !== 0) { continue; }\n  if (wanted[entry.path]) { continue; }\n  tree.push({ path: entry.path, mode: '100644', type: 'blob', sha: null });\n  removed++;\n}\n\nreturn [{\n  json: {\n    baseTreeSha: baseTreeSha,\n    removedCount: removed,\n    treePayload: { base_tree: baseTreeSha, tree: tree }\n  }\n}];\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000009",
+      "name": "Push new tree",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $(\"Configuration\").first().json.owner }}/{{ $(\"Configuration\").first().json.repo }}/git/trees",
+        "method": "POST",
+        "options": {
+          "timeout": 120000
+        },
+        "jsonBody": "={{ JSON.stringify($json.treePayload) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000010",
+      "name": "Anything changed",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1260,
+        0
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "tree-sha-differs",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.sha }}",
+              "rightValue": "={{ $(\"Read current commit\").first().json.tree.sha }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000011",
+      "name": "Create commit",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1480,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $(\"Configuration\").first().json.owner }}/{{ $(\"Configuration\").first().json.repo }}/git/commits",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "jsonBody": "={{ JSON.stringify({ message: $(\"Normalise workflows\").first().json.commitMessage, tree: $json.sha, parents: [$(\"Read current commit\").first().json.sha] }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000012",
+      "name": "Move branch",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1700,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $(\"Configuration\").first().json.owner }}/{{ $(\"Configuration\").first().json.repo }}/git/refs/heads/{{ $(\"Configuration\").first().json.branch }}",
+        "method": "PATCH",
+        "options": {
+          "timeout": 60000
+        },
+        "jsonBody": "={{ JSON.stringify({ sha: $json.sha, force: false }) }}",
+        "sendBody": true,
+        "contentType": "json",
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "specifyHeaders": "keypair",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/vnd.github+json"
+            },
+            {
+              "name": "X-GitHub-Api-Version",
+              "value": "2022-11-28"
+            }
+          ]
+        },
+        "nodeCredentialType": "githubApi"
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000013",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1400,
+        -160
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 980,
+        "content": "## Back up n8n workflows to GitHub\n\nKeeps every workflow of your instance in a private GitHub repo, with one commit per run and nothing written when nothing changed.\n\n### How it works\n\nThe workflow pulls every workflow from the n8n API, archived ones included, and turns each into a JSON file. Volatile fields like updatedAt and versionId are stripped and keys are sorted, so a workflow you did not touch produces the same bytes as yesterday.\n\nThe whole set goes to GitHub through the Git Data API as one tree, which becomes one commit. If that tree matches what the branch already points at, the run stops and nothing is written.\n\n### Setup steps\n\n- Private repo, initialised with a README. An empty repo has no branch to read\n- GitHub fine-grained token scoped to that repo, Contents read and write\n- n8n API key from Settings, in an n8n API credential on List workflows\n- The GitHub credential on the six HTTP Request nodes\n- Fill owner, repo, branch and folder in Configuration\n- Run it twice. The second run should commit nothing\n\n### Customization\n\nSwitch to a six hour schedule if losing a day of changes is too much. Point it at a dedicated branch to review changes through pull requests. If a field keeps changing between runs, add it to the VOLATILE list in Normalise workflows."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000014",
+      "name": "Section collect",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 900,
+        "height": 300,
+        "content": "### Collect and normalise\n\nEvery workflow comes from the n8n API, archived ones included. Volatile fields are stripped and keys sorted, so untouched workflows produce identical files."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000015",
+      "name": "Section read",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        120,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 300,
+        "content": "### Read the repo state\n\nWhere the branch points, which tree that commit carries, and what the repo holds today. That last read is what makes deletions possible."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000016",
+      "name": "Section commit",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        800,
+        -160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1060,
+        "height": 300,
+        "content": "### Commit only if something changed\n\nOne tree carries every file plus the deletions. If its SHA matches the current commit, the IF closes and the run ends. Otherwise one commit lands and the branch moves."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000017",
+      "name": "Warning setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -500,
+        180
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 420,
+        "height": 140,
+        "content": "### Before the first run\n\nThe repo needs one commit already, otherwise reading the branch returns 404. The token needs Contents read and write: read only passes the three GET calls and fails on the first write."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "List workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create commit": {
+      "main": [
+        [
+          {
+            "node": "Move branch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Push new tree": {
+      "main": [
+        [
+          {
+            "node": "Anything changed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build new tree": {
+      "main": [
+        [
+          {
+            "node": "Push new tree",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily at 03:05": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "List workflows": {
+      "main": [
+        [
+          {
+            "node": "Normalise workflows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read repo tree": {
+      "main": [
+        [
+          {
+            "node": "Build new tree",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read branch ref": {
+      "main": [
+        [
+          {
+            "node": "Read current commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything changed": {
+      "main": [
+        [
+          {
+            "node": "Create commit",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise workflows": {
+      "main": [
+        [
+          {
+            "node": "Read branch ref",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read current commit": {
+      "main": [
+        [
+          {
+            "node": "Read repo tree",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Back up workflows to GitHub with deterministic JSON exports",
+    "wechat": "youandme10086",
+    "id": 18512,
+    "update_time": "2026-09-27"
+  }
+}

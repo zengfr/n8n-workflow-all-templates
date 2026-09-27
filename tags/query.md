@@ -1,4 +1,4 @@
-# query : 46
+# query : 50
 
 |id|file|
 |----|----|
@@ -48,3 +48,7 @@
 |14254|[14254_Query_Databricks_data_and_SQL_insights_via_Slack_with_Gemini_AI_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14254_Query_Databricks_data_and_SQL_insights_via_Slack_with_Gemini_AI_agent.json)|
 |16166|[16166_Log_receipts_from_Telegram_to_Google_Sheets_and_query_spending_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16166_Log_receipts_from_Telegram_to_Google_Sheets_and_query_spending_with_Gemini.json)|
 |16635|[16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json)|
+|16991|[16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json)|
+|17442|[17442_Query_PostgreSQL_from_Slack_using_Google_Sheets_metadata_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17442_Query_PostgreSQL_from_Slack_using_Google_Sheets_metadata_and_Gemini.json)|
+|17780|[17780_Answer_document_questions_with_Ollama_and_Qdrant_retrieval_chat_bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17780_Answer_document_questions_with_Ollama_and_Qdrant_retrieval_chat_bot.json)|
+|18168|[18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json)|

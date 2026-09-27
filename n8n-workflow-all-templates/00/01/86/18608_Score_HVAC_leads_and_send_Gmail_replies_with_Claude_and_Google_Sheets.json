@@ -1,0 +1,1503 @@
+{
+  "id": "KziX95lf9vpB25ou",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Score HVAC leads and send Gmail replies with Claude and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18608,
+    "update_time": "2026-09-27"
+  },
+  "name": "Speed-to-Lead v1",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "webhook-1",
+      "name": "Tally Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "onError": "continueRegularOutput",
+      "position": [
+        128,
+        432
+      ],
+      "webhookId": "1bc2f394-20ec-4b45-a187-299e08327ef1",
+      "parameters": {
+        "path": "hvac-speed-to-lead",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "code-1",
+      "name": "Normalize Lead Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        368,
+        432
+      ],
+      "parameters": {
+        "jsCode": "// Parse Tally webhook - body is either nested under .body or root level\nconst input = $input.first().json;\nconst body = input.body || input;\nconst fields = body?.data?.fields || [];\n\nconst fieldMap = {};\nfor (const field of fields) {\n  const key = (field.label || '')\n    .toLowerCase().trim()\n    .replace(/[^a-z0-9]+/g, '_')\n    .replace(/^_|_$/g, '');\n  const val = (() => {\n    if (field.options && field.options.length > 0) {\n      const ids = Array.isArray(field.value) ? field.value : [field.value];\n      return ids\n        .map(id => {\n          const opt = field.options.find(o => o.id === id);\n          return opt ? opt.text : id;\n        })\n        .filter(Boolean)\n        .join(', ');\n    }\n    return Array.isArray(field.value)\n      ? field.value.filter(Boolean).join(', ')\n      : String(field.value ?? '');\n  })();\n  if (key) fieldMap[key] = val;\n  if (field.type === 'INPUT_EMAIL' && !fieldMap.email) fieldMap.email = val;\n  if (field.type === 'INPUT_PHONE_NUMBER' && !fieldMap.phone) fieldMap.phone = val;\n}\n\nconst lead = {\n  name:          fieldMap.full_name      || fieldMap.name           || fieldMap.your_name    || fieldMap.first_name    || '',\n  email:         fieldMap.email          || fieldMap.email_address   || fieldMap.your_email   || '',\n  phone:         fieldMap.phone          || fieldMap.phone_number    || fieldMap.your_phone   || fieldMap.mobile        || '',\n  company:       fieldMap.company        || fieldMap.company_name    || fieldMap.business     || fieldMap.organisation  || '',\n  message:       fieldMap.message        || fieldMap.your_message    || fieldMap.how_can_we_help || fieldMap.inquiry    || fieldMap.tell_us_more || fieldMap.problem_description || fieldMap.any_message || Object.entries(fieldMap).find(([k]) => k.includes('message'))?.[1] || '',\n  budget:        fieldMap.budget         || fieldMap.your_budget     || fieldMap.monthly_budget || '',\n  service_type:  fieldMap.service_type   || fieldMap.service         || fieldMap.service_interest || fieldMap.type_of_service || '',\n  property_type: fieldMap.property_type  || fieldMap.property        || '',\n  urgency:       fieldMap.urgency        || fieldMap.urgency_level   || fieldMap.timeline      || '',\n  location:      fieldMap.location       || fieldMap.zip_code        || fieldMap.location_zip_code || fieldMap.city || fieldMap.address || '',\n  source:        'tally_form',\n  submittedAt:   body?.data?.submittedAt || new Date().toISOString(),\n  responseId:    body?.data?.responseId  || '',\n  _rawFields:    fields,\n};\n\nlead.firstName = lead.name.split(' ')[0] || 'there';\n\n// NORMALIZATION: Email lowercase + trim, Phone digits only\nlead.email = (lead.email || '').toLowerCase().trim();\nlead.phone = (lead.phone || '').replace(/\\D/g, '');\n\nreturn [{ json: lead }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "claude-1",
+      "name": "Score & Draft with Claude",
+      "type": "@n8n/n8n-nodes-langchain.anthropic",
+      "onError": "continueRegularOutput",
+      "position": [
+        608,
+        432
+      ],
+      "parameters": {
+        "modelId": {
+          "mode": "id",
+          "value": "claude-sonnet-4-6"
+        },
+        "options": {
+          "system": "You are an expert lead qualification specialist for HVAC businesses and a direct-response email copywriter. Analyze inbound HVAC service leads, score them, and draft personalized reply emails. Return ONLY valid JSON - no markdown fences, no extra text.",
+          "maxTokens": 1500,
+          "temperature": 0.3,
+          "includeMergedResponse": true
+        },
+        "messages": {
+          "values": [
+            {
+              "content": "=Analyze this HVAC lead and return ONLY valid JSON.\n\nLEAD DATA:\n- Name: {{ $json.name || 'Not provided' }}\n- First Name: {{ $json.firstName }}\n- Email: {{ $json.email }}\n- Phone: {{ $json.phone || 'Not provided' }}\n- Company: {{ $json.company || 'Not provided' }}\n- Service Type: {{ $json.service_type || 'Not provided' }}\n- Property Type: {{ $json.property_type || 'Not provided' }}\n- Urgency: {{ $json.urgency || 'Not provided' }}\n- Location/ZIP: {{ $json.location || 'Not provided' }}\n- Budget: {{ $json.budget || 'Not provided' }}\n- Message: {{ $json.message || 'No message provided' }}\n- Submitted: {{ $json.submittedAt }}\n\nSTEP 1 - READ THE LEAD:\nIdentify: their specific HVAC problem, urgency level, property type, and tone.\nIf message is vague, infer from Service Type and Urgency fields.\n\nSTEP 2 - SCORE THE LEAD:\nHOT:\n- Urgency = \"ASAP\" or message contains emergency/broken/not working/no AC/no heat\n- Phone number provided\n- Specific unit, service type, or location mentioned\n- Commercial project with budget\n\nWARM:\n- Clear service type selected (install, maintenance, commercial)\n- Location provided\n- Budget or timeline given\n- Message has detail but no urgency signals\n\nCOLD:\n- Urgency = \"Just exploring\"\n- No phone number\n- No service type or location\n- Vague or one-line message\n- Looks like spam or test submission\n\nSTEP 3 - WRITE THE EMAIL:\nUse this structure:\n\nSubject: Got your request, [FirstName] - here's what happens next\n\nHey [FirstName],\n\n[1 sentence validating their specific HVAC problem - make them feel heard. Emergency? Lead with speed. Install? Lead with getting it right.]\n\n[1-2 sentences: what the delay costs them - comfort, safety, or money - then: \"We're on it.\"]\n\nHere's what happens next:\n? [Specific next step - e.g. \"A certified tech will call you within the hour\"]\n? [Reassurance - e.g. \"Upfront pricing before any work begins - no surprises\"]\n? [Trust signal - e.g. \"Licensed, insured, and local\"]\n\n[CTA: Call us at [PHONE] or reply here and we'll call you.]\n\nEMAIL RULES:\n- Under 100 words total\n- Emergency leads: emphasize SPEED (\"within the hour\", \"today\")\n- Installation/maintenance leads: emphasize getting the assessment booked\n- One sentence per paragraph\n- No \"thanks for reaching out\", no \"we look forward to hearing from you\"\n- Plain text only - no HTML\n- Separate every paragraph and bullet with \\n\\n\n- Bullets exactly: ? Benefit\\n\\n? Benefit\\n\\n? Benefit\n\nReturn ONLY this JSON (no markdown fences, no extra text):\n{\n  \"score\": \"hot|warm|cold\",\n  \"score_reason\": \"1-2 sentences explaining the score\",\n  \"email_subject\": \"Got your request, [FirstName] - here's what happens next\",\n  \"email_body\": \"Full email using structure above\",\n  \"follow_up_priority\": \"high|medium|low\",\n  \"key_signals\": [\"signal1\", \"signal2\"]\n}\n\n\n"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account 3"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "parse-1",
+      "name": "Parse Claude Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        864,
+        432
+      ],
+      "parameters": {
+        "jsCode": "const claudeOut = $input.first().json;\nconst lead = $('Normalize Lead Data').first().json;\n\nconst rawText = claudeOut.text ||\n  (Array.isArray(claudeOut.content) ? claudeOut.content.map(b => b.text || '').join('') : '') ||\n  JSON.stringify(claudeOut);\n\nlet parsed = {};\ntry {\n  const jsonMatch = rawText.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(jsonMatch ? jsonMatch[0] : rawText);\n} catch (e) {\n  parsed = {\n    score: 'warm',\n    score_reason: 'AI response could not be parsed - defaulting to warm',\n    email_subject: 'Thanks for reaching out',\n    email_body: `Hi ${lead.firstName},\\n\\nThank you for your message! We have received your inquiry and will be in touch within 24 hours.\\n\\nBest regards`,\n    follow_up_priority: 'medium',\n    key_signals: ['parse_error']\n  };\n}\n\nreturn [{ json: { ...lead, ...parsed } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-1",
+      "name": "Route: Hot vs Standard",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1104,
+        432
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "hot-check",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.score }}",
+              "rightValue": "hot"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "gmail-hot",
+      "name": "Send Reply - Hot Lead",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1344,
+        304
+      ],
+      "webhookId": "fd577eb8-66a1-4428-b799-8b0a74a1ddf9",
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "message": "={{ $json.email_body }}",
+        "options": {},
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "gmail-std",
+      "name": "Send Reply - Standard Lead",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1344,
+        544
+      ],
+      "webhookId": "8eb4952d-ed8d-4096-8795-f01061a00bf9",
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "message": "={{ $json.email_body }}",
+        "options": {},
+        "subject": "={{ $json.email_subject }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "merge-1",
+      "name": "Merge Branches",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1584,
+        432
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "gmail-brief",
+      "name": "Send Lead Brief to Sales",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1792,
+        432
+      ],
+      "webhookId": "a1f763c5-c161-496d-91de-226fe0c35df6",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=?? NEW HVAC LEAD - {{ $('Parse Claude Response').first().json.score === 'hot' ? '?? HOT' : $('Parse Claude Response').first().json.score === 'warm' ? '??? WARM' : '?? COLD' }}\nSubmitted: {{ $('Parse Claude Response').first().json.submittedAt }}\n????????????????????????\nLEAD DETAILS\n????????????????????????\nName:          {{ $('Parse Claude Response').first().json.name || '-' }}\nEmail:         {{ $('Parse Claude Response').first().json.email }}\nPhone:         {{ $('Parse Claude Response').first().json.phone || '-' }}\nCompany:       {{ $('Parse Claude Response').first().json.company || '-' }}\nService:       {{ $('Parse Claude Response').first().json.service_type || '-' }}\nProperty:      {{ $('Parse Claude Response').first().json.property_type || '-' }}\nUrgency:       {{ $('Parse Claude Response').first().json.urgency || '-' }}\nLocation:      {{ $('Parse Claude Response').first().json.location || '-' }}\nBudget:        {{ $('Parse Claude Response').first().json.budget || '-' }}\n\nTHEIR MESSAGE:\n{{ $('Parse Claude Response').first().json.message || 'No message provided' }}\n????????????????????????\nAI ASSESSMENT\n????????????????????????\nScore:         {{ $('Parse Claude Response').first().json.score.toUpperCase() }}\nPriority:      {{ $('Parse Claude Response').first().json.follow_up_priority.toUpperCase() }}\nReason:        {{ $('Parse Claude Response').first().json.score_reason }}\nSignals:       {{ Array.isArray($('Parse Claude Response').first().json.key_signals) ? $('Parse Claude Response').first().json.key_signals.join(', ') : '' }}\n????????????????????????\nEMAIL SENT TO LEAD\n????????????????????????\nSubject: {{ $('Parse Claude Response').first().json.email_subject }}\n{{ $('Parse Claude Response').first().json.email_body }}\n????????????????????????\nResponse ID: {{ $('Parse Claude Response').first().json.responseId }}",
+        "options": {},
+        "subject": "={{ $('Parse Claude Response').first().json.score === 'hot' ? '??' : $('Parse Claude Response').first().json.score === 'warm' ? '???' : '??' }} New Lead [{{ $('Parse Claude Response').first().json.score.toUpperCase() }}] - {{ $('Parse Claude Response').first().json.name }} - {{ $('Parse Claude Response').first().json.urgency || $('Parse Claude Response').first().json.service_type }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "sheets-1",
+      "name": "Log to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        2688,
+        432
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $('Parse Claude Response').item.json.name }}",
+            "Email": "={{ $('Parse Claude Response').item.json.email }}",
+            "Phone": "={{ $('Parse Claude Response').item.json.phone }}",
+            "Score": "={{ $('Parse Claude Response').item.json.score }}",
+            "Budget": "={{ $('Parse Claude Response').item.json.budget }}",
+            "Source": "={{ $('Parse Claude Response').item.json.source }}",
+            "Status": "New",
+            "Company": "={{ $('Parse Claude Response').item.json.company }}",
+            "Message": "={{ $('Parse Claude Response').item.json.message }}",
+            "Priority": "={{ $('Parse Claude Response').item.json.follow_up_priority }}",
+            "Urgency ": "={{ $('Parse Claude Response').item.json.urgency }}",
+            "Location ": "={{ $('Parse Claude Response').item.json.location }}",
+            "Timestamp": "={{ $('Parse Claude Response').item.json.submittedAt }}",
+            "Key Signals": "={{ $('Parse Claude Response').item.json.key_signals }}",
+            "Response ID": "={{ $('Parse Claude Response').item.json.responseId }}",
+            "Last Updated": "={{ $now.toISO() }}",
+            "Score Reason": "={{ $('Parse Claude Response').item.json.score_reason }}",
+            "Service Type": "={{ $('Parse Claude Response').item.json.service_type }}",
+            "Submitted At": "={{ $('Parse Claude Response').item.json.submittedAt }}",
+            "Property Type ": "={{ $('Parse Claude Response').item.json.property_type }}",
+            "Email Subject Sent": "={{ $('Parse Claude Response').item.json.email_subject }}"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Company",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Service Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property Type ",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Property Type ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency ",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Urgency ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location ",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Location ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Budget",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score Reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Score Reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Priority",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Key Signals",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Key Signals",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Subject Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email Subject Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Source",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submitted At",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Submitted At",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Last Updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aCdVgqGwyEKWZRm3q3993x0Rozzk40DD7VA58gmOi6s/edit#gid=0",
+          "cachedResultName": "Sheet 1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "wait-d2",
+      "name": "Wait - Day 2",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        128,
+        720
+      ],
+      "webhookId": "1ab78931-07c7-41c8-be75-747abe5bad5d",
+      "parameters": {
+        "unit": "days",
+        "amount": 2
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "gmail-d2",
+      "name": "Send Day 2 Follow-up",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        848,
+        720
+      ],
+      "webhookId": "795872f2-b20f-404b-bdd8-d4b69b9709e8",
+      "parameters": {
+        "sendTo": "={{ $('Parse Claude Response').first().json.email }}",
+        "message": "=Hi {{ $('Parse Claude Response').first().json.firstName }},\n\nJust checking in - if you're still having issues with {{ $('Parse Claude Response').first().json.service_type || 'your HVAC system' }}, we'd love to help.\n\nMost jobs in {{ $('Parse Claude Response').first().json.location || 'your area' }} we can schedule within 24-48 hours.\n\nCall us at [PHONE] or just reply here.",
+        "options": {},
+        "subject": "=Re: {{ $('Parse Claude Response').first().json.email_subject }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "wait-d5",
+      "name": "Wait - Day 5",
+      "type": "n8n-nodes-base.wait",
+      "disabled": true,
+      "position": [
+        1088,
+        720
+      ],
+      "webhookId": "9f3e4de9-67ca-4f7d-97e3-bd123b9208a3",
+      "parameters": {
+        "unit": "days",
+        "amount": 3
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "gmail-d5",
+      "name": "Send Day 5 Follow-up",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1808,
+        720
+      ],
+      "webhookId": "0077f75d-90c8-437f-ae8c-d5da2aaadb4d",
+      "parameters": {
+        "sendTo": "={{ $('Parse Claude Response').first().json.email }}",
+        "message": "=Hi {{ $('Parse Claude Response').first().json.firstName }},\n\nLast follow-up from us - didn't want to let your request go unnoticed.\n\nIf the timing wasn't right, no problem at all. Save our number for when you need us: [PHONE]\n\nWhenever you're ready, we're here.",
+        "options": {},
+        "subject": "=Last follow-up - {{ $('Parse Claude Response').first().json.name }}",
+        "emailType": "text"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "check-booking-status-day-2",
+      "name": "Check Booking Status - Day 2",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        368,
+        720
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $('Parse Claude Response').first().json.responseId }}",
+              "lookupColumn": "Response ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet 1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "if-active-d2",
+      "name": "IF - Still Active? (Day 2)",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        608,
+        720
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "booked-check-d2",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.Status || '' }}",
+              "rightValue": "Booked"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "check-booking-status-day-5",
+      "name": "Check Booking Status - Day 5",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        1328,
+        720
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $('Parse Claude Response').first().json.responseId }}",
+              "lookupColumn": "Response ID"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet 1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "if-active-d5",
+      "name": "IF - Still Active? (Day 5)",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1568,
+        720
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "booked-check-d5",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.Status || '' }}",
+              "rightValue": "Booked"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "webhook-booking",
+      "name": "Booking Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        96,
+        1136
+      ],
+      "webhookId": "6d971143-2e84-467c-a7e3-e2514fae7fdb",
+      "parameters": {
+        "path": "hvac-lead-booked",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "update-status-booked-sheets",
+      "name": "Update Status to Booked",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        400,
+        1136
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Status": "Booked",
+            "Response ID": "={{ $json.body.responseId }}"
+          },
+          "schema": [
+            {
+              "id": "Response ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response ID",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Response ID"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet 1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "d54b4420-3097-4f47-be32-ea60b13565b5",
+      "name": "Search Google Sheets by Email/Phone",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        2016,
+        432
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $('Parse Claude Response').item.json.email }}",
+              "lookupColumn": "Email"
+            },
+            {
+              "lookupValue": "={{ $('Parse Claude Response').item.json.phone }}",
+              "lookupColumn": "Phone"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aCdVgqGwyEKWZRm3q3993x0Rozzk40DD7VA58gmOi6s/edit#gid=0",
+          "cachedResultName": "Sheet 1 "
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "if-row-found-node",
+      "name": "IF - Row Found?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        432
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "row-found-cond",
+              "operator": {
+                "type": "number",
+                "operation": "exists",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.row_number }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "update-sheets-row-node",
+      "name": "Update Google Sheets Row",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        2464,
+        432
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Name": "={{ $('Parse Claude Response').item.json.name }}",
+            "Email": "={{ $('Parse Claude Response').item.json.email }}",
+            "Phone": "={{ $('Parse Claude Response').item.json.phone }}",
+            "Score": "={{ $('Parse Claude Response').item.json.score }}",
+            "Budget": "={{ $('Parse Claude Response').item.json.budget }}",
+            "Source": "={{ $('Parse Claude Response').item.json.source }}",
+            "Status": "={{ $json.Status || \"New\" }}",
+            "Company": "={{ $('Parse Claude Response').item.json.company }}",
+            "Message": "={{ $('Parse Claude Response').item.json.message }}",
+            "Priority": "={{ $('Parse Claude Response').item.json.follow_up_priority }}",
+            "Urgency ": "={{ $('Parse Claude Response').item.json.urgency }}",
+            "Location ": "={{ $('Parse Claude Response').item.json.location }}",
+            "row_number": "={{ $json.row_number }}",
+            "Key Signals": "={{ $('Parse Claude Response').item.json.key_signals }}",
+            "Response ID": "={{ $('Parse Claude Response').item.json.responseId }}",
+            "Last Updated": "={{ $now.toISO() }}",
+            "Score Reason": "={{ $('Parse Claude Response').item.json.score_reason }}",
+            "Service Type": "={{ $('Parse Claude Response').item.json.service_type }}",
+            "Submitted At": "={{ $('Parse Claude Response').item.json.submittedAt }}",
+            "Property Type ": "={{ $('Parse Claude Response').item.json.property_type }}",
+            "Email Subject Sent": "={{ $('Parse Claude Response').item.json.email_subject }}"
+          },
+          "schema": [
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Response ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Response ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Company",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Company",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Service Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Service Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Property Type ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Property Type ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Urgency ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Urgency ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Location ",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Location ",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Budget",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Budget",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Message",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Score Reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Score Reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Priority",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Priority",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Key Signals",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Key Signals",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email Subject Sent",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Email Subject Sent",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Source",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Submitted At",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Submitted At",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Last Updated",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Last Updated",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false,
+          "matchingColumnsSchema": []
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultName": "Sheet 1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_GOOGLE_SHEET_ID"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "sticky-main",
+      "name": "Main Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -768,
+        384
+      ],
+      "parameters": {
+        "width": 680,
+        "height": 620,
+        "content": "## Speed-to-Lead: AI-Qualified HVAC Replies\n\nTurns a Tally form submission into an instant, AI-scored reply so hot leads get a response in minutes, not hours.\n\n### How it works\n1. Tally webhook captures the form and normalizes messy field names into a clean lead object.\n2. Claude scores the lead Hot / Warm / Cold and drafts a short personalized reply.\n3. Hot leads route through a priority send; Warm/Cold use the standard branch - both email the customer via Gmail.\n4. The lead is logged to Google Sheets, matched by email/phone to avoid duplicate rows, and a full lead brief is emailed to sales.\n5. If the lead hasn't booked, automatic follow-ups fire on Day 2 and Day 5. A booking webhook marks the row \"Booked\" and stops further follow-ups.\n\n### Setup\n- Connect Anthropic, Gmail, and Google Sheets credentials\n- Point all Google Sheets nodes at your CRM sheet\n- Point your Tally form's webhook at /hvac-speed-to-lead\n- Set your sales team email in \"Send Lead Brief to Sales\"\n- Wire your booking tool to call /hvac-lead-booked on confirmed bookings\n\n### Customization tips\nSwap the scoring prompt for another trade (plumbing, roofing), adjust the Hot/Warm/Cold criteria, or change follow-up timing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec-capture",
+      "name": "Section: Capture",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "content": "## 1. Capture & Normalize\nWebhook receives the Tally submission and flattens it into a clean lead object."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec-score",
+      "name": "Section: AI Scoring",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "content": "## 2. AI Score & Draft\nClaude scores Hot/Warm/Cold and drafts a reply, then routes hot leads to a priority send."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec-crm",
+      "name": "Section: CRM",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1728,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1060,
+        "content": "## 3. CRM Dedupe & Sales Brief\nMatches lead by email/phone, updates or appends the row, then emails a lead brief to sales."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec-followup",
+      "name": "Section: Follow-ups",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        128,
+        896
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1700,
+        "content": "## 4. Follow-ups & Booking\nDay 2 / Day 5 nudges fire only if the lead hasn't booked; a booking webhook stops them."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-warning",
+      "name": "Warning: Dedupe Search Settings",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1936,
+        -96
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 636,
+        "height": 288,
+        "content": "## Critical: dedupe search settings\n\nOn \"Search Google Sheets by Email/Phone\":\n- Options > Combine Filters must be set to OR (default AND breaks matching)\n- Settings tab > turn ON \"Always Output Data\" (without it, brand-new leads silently never get logged)\n- Watch for trailing newline characters in the saved Email/Phone filter expressions - they silently break matching too"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {
+    "Tally Webhook": [
+      {
+        "json": {
+          "body": {
+            "data": {
+              "fields": [
+                {
+                  "label": "Full Name",
+                  "value": "Milestone Test One"
+                },
+                {
+                  "label": "Email Address",
+                  "value": "miletest1@example.com"
+                },
+                {
+                  "label": "Phone Number",
+                  "value": "5559990001"
+                },
+                {
+                  "label": "Service Type",
+                  "value": "Maintenance & Tune-up"
+                },
+                {
+                  "label": "Urgency",
+                  "value": "Just exploring"
+                }
+              ]
+            }
+          }
+        }
+      }
+    ],
+    "Send Reply — Standard Lead": [
+      {
+        "json": {
+          "id": "19e2eef9b1bd2e52",
+          "labelIds": [
+            "UNREAD",
+            "SENT",
+            "INBOX"
+          ],
+          "threadId": "19e2eef9b1bd2e52"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "settings": {
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "9c803932-2127-4ada-9217-900bf84f901a",
+  "connections": {
+    "Wait - Day 2": {
+      "main": [
+        [
+          {
+            "node": "Check Booking Status - Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Day 5": {
+      "main": [
+        [
+          {
+            "node": "Check Booking Status - Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tally Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Branches": {
+      "main": [
+        [
+          {
+            "node": "Search Google Sheets by Email/Phone",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Lead Brief to Sales",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Booking Webhook": {
+      "main": [
+        [
+          {
+            "node": "Update Status to Booked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Row Found?": {
+      "main": [
+        [
+          {
+            "node": "Update Google Sheets Row",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Score & Draft with Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Wait - Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Day 2 Follow-up": {
+      "main": [
+        [
+          {
+            "node": "Wait - Day 5",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Claude Response": {
+      "main": [
+        [
+          {
+            "node": "Route: Hot vs Standard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reply - Hot Lead": {
+      "main": [
+        [
+          {
+            "node": "Merge Branches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route: Hot vs Standard": {
+      "main": [
+        [
+          {
+            "node": "Send Reply - Hot Lead",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Reply - Standard Lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Google Sheets Row": {
+      "main": [
+        [
+          {
+            "node": "Wait - Day 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score & Draft with Claude": {
+      "main": [
+        [
+          {
+            "node": "Parse Claude Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Still Active? (Day 2)": {
+      "main": [
+        [
+          {
+            "node": "Send Day 2 Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Still Active? (Day 5)": {
+      "main": [
+        [
+          {
+            "node": "Send Day 5 Follow-up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Reply - Standard Lead": {
+      "main": [
+        [
+          {
+            "node": "Merge Branches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Booking Status - Day 2": {
+      "main": [
+        [
+          {
+            "node": "IF - Still Active? (Day 2)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Booking Status - Day 5": {
+      "main": [
+        [
+          {
+            "node": "IF - Still Active? (Day 5)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Google Sheets by Email/Phone": {
+      "main": [
+        [
+          {
+            "node": "IF - Row Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

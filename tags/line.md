@@ -1,4 +1,4 @@
-# line : 53
+# line : 62
 
 |id|file|
 |----|----|
@@ -55,3 +55,12 @@
 |14502|[14502_Convert_LINE_handwritten_memo_images_to_tagged__searchable_notes_with_Gemini__Google_Drive_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14502_Convert_LINE_handwritten_memo_images_to_tagged__searchable_notes_with_Gemini__Google_Drive_and_Google_Sheets.json)|
 |15308|[15308_Save_business_card_contacts_from_LINE_photos_to_Google_Sheets_using_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15308_Save_business_card_contacts_from_LINE_photos_to_Google_Sheets_using_Gemini.json)|
 |15309|[15309_Log_meal_nutrition_from_LINE_food_photos_to_Google_Sheets_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15309_Log_meal_nutrition_from_LINE_food_photos_to_Google_Sheets_with_Gemini_AI.json)|
+|16868|[16868_Track_meal_nutrition_from_photos_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16868_Track_meal_nutrition_from_photos_with_LINE__Google_Gemini_and_Google_Sheets.json)|
+|17256|[17256_Extract_business_card_contacts_from_LINE_with_Google_Gemini_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17256_Extract_business_card_contacts_from_LINE_with_Google_Gemini_and_Notion.json)|
+|17620|[17620_Log_LINE_receipt_photos_to_Google_Sheets_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17620_Log_LINE_receipt_photos_to_Google_Sheets_using_OpenAI.json)|
+|17952|[17952_Reply_to_LINE_customer_chats_with_Google_Gemini_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17952_Reply_to_LINE_customer_chats_with_Google_Gemini_and_log_to_Google_Sheets.json)|
+|18662|[18662_Handle_voice_food_orders_with_Google_Sheets_and_WhatsApp_Cloud_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18662_Handle_voice_food_orders_with_Google_Sheets_and_WhatsApp_Cloud_API.json)|
+|18933|[18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json)|
+|19152|[19152_Reward_kids__clean_plates_with_LINE__Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19152_Reward_kids__clean_plates_with_LINE__Google_Gemini_and_Google_Sheets.json)|
+|19373|[19373_Migrate_Salesforce_opportunity_line_items_to_GoHighLevel_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19373_Migrate_Salesforce_opportunity_line_items_to_GoHighLevel_with_Google_Sheets.json)|
+|19754|[19754_Manage_fridge_inventory_and_expiry_alerts_with_LINE__Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19754_Manage_fridge_inventory_and_expiry_alerts_with_LINE__Google_Sheets_and_Gemini.json)|

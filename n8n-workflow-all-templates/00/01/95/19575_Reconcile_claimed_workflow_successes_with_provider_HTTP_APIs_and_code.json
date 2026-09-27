@@ -1,0 +1,719 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Reconcile claimed workflow successes with provider HTTP APIs and code",
+    "wechat": "youandme10086",
+    "id": 19575,
+    "update_time": "2026-09-27"
+  },
+  "name": "Reconcile claimed workflow successes against provider records with HTTP Request and Code",
+  "nodes": [
+    {
+      "id": "run-reconciliation-every-15-minutes",
+      "name": "Run reconciliation every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -900,
+        640
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "set-reconciliation-window-and-thresh",
+      "name": "Set reconciliation window and thresholds",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -500,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "w1",
+              "name": "window_start",
+              "type": "string",
+              "value": "={{ $now.minus({ hours: 6 }).toUTC().toISO() }}"
+            },
+            {
+              "id": "w2",
+              "name": "window_end",
+              "type": "string",
+              "value": "={{ $now.minus({ minutes: 15 }).toUTC().toISO() }}"
+            },
+            {
+              "id": "w3",
+              "name": "provider_name",
+              "type": "string",
+              "value": "REPLACE_ME (e.g. postmark / sendgrid / twilio / stripe)"
+            },
+            {
+              "id": "w4",
+              "name": "overdue_after_minutes",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "id": "w5",
+              "name": "realert_after_hours",
+              "type": "number",
+              "value": 24
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fetch-what-we-claimed-succeeded",
+      "name": "Fetch what WE claimed succeeded",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -100,
+        416
+      ],
+      "parameters": {
+        "url": "https://REPLACE_ME/your-own-log-of-claimed-successes",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "nextURL": "={{ $response.body.next_url }}",
+              "maxPages": 50,
+              "paginationMode": "responseContainsNextURL",
+              "limitPagesFetched": true,
+              "completeExpression": "={{ !$response.body.next_url }}",
+              "maxRequestsPerHour": 0,
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "={{ $json.window_start }}"
+            },
+            {
+              "name": "to",
+              "value": "={{ $json.window_end }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fetch-what-the-provider-confirms",
+      "name": "Fetch what the PROVIDER confirms",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -100,
+        864
+      ],
+      "parameters": {
+        "url": "https://REPLACE_ME/provider-events-api",
+        "options": {
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "nextURL": "={{ $response.body.next_url }}",
+              "maxPages": 50,
+              "paginationMode": "responseContainsNextURL",
+              "limitPagesFetched": true,
+              "completeExpression": "={{ !$response.body.next_url }}",
+              "maxRequestsPerHour": 0,
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "from",
+              "value": "={{ $('Set reconciliation window and thresholds').item.json.window_start }}"
+            },
+            {
+              "name": "to",
+              "value": "={{ $('Set reconciliation window and thresholds').item.json.window_end }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "check-both-sources-answered",
+      "name": "Check both sources answered",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        640
+      ],
+      "parameters": {
+        "jsCode": "\n// A source that FAILED must never look like a source that returned nothing.\n// If either side is unreadable, every claim in this window is UNKNOWN - not RECONCILED,\n// and not a DELTA either. This node exists because \"empty\" and \"broken\" are different facts.\nconst ok = (pages) => pages.length > 0 && pages.every(p => {\n  const s = p.json.statusCode;\n  return typeof s === 'number' && s >= 200 && s < 300;\n});\n\nconst claimPages    = $('Fetch what WE claimed succeeded').all();\nconst providerPages = $('Fetch what the PROVIDER confirms').all();\n\nconst claimsOk   = ok(claimPages);\nconst providerOk = ok(providerPages);\n\nconst codes = (pages) => pages.map(p => p.json.statusCode);\n\nreturn [{ json: {\n  sources_readable: claimsOk && providerOk,\n  claims_ok: claimsOk,\n  provider_ok: providerOk,\n  claim_status_codes: codes(claimPages),\n  provider_status_codes: codes(providerPages),\n  claim_pages: claimPages.length,\n  provider_pages: providerPages.length,\n  unreadable_reason: (claimsOk && providerOk) ? null\n    : (!claimsOk && !providerOk ? 'BOTH_SOURCES_UNREADABLE'\n      : (!claimsOk ? 'CLAIM_SOURCE_UNREADABLE' : 'PROVIDER_SOURCE_UNREADABLE'))\n}}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "are-both-sources-readable?",
+      "name": "Are both sources readable?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        700,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.sources_readable }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "report-window-as-unknown-not-reconci",
+      "name": "Report window as UNKNOWN not reconciled",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1100,
+        1120
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "u1",
+              "name": "verdict",
+              "type": "string",
+              "value": "UNKNOWN_WINDOW"
+            },
+            {
+              "id": "u2",
+              "name": "subject",
+              "type": "string",
+              "value": "=[UNKNOWN] reconciliation could not run: {{ $json.unreadable_reason }}"
+            },
+            {
+              "id": "u3",
+              "name": "body",
+              "type": "string",
+              "value": "={{ JSON.stringify($json, null, 2) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "normalise-both-sides-to-one-shape",
+      "name": "Normalise both sides to one shape",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1100,
+        640
+      ],
+      "parameters": {
+        "jsCode": "\n// Flatten every page of BOTH sources into one comparable shape.\n// Pagination matters: a single unpaginated page silently truncates the provider side,\n// and truncation looks exactly like a missing confirmation. That is a false alarm generator.\nconst CLAIM_LIST_PATH    = 'body.data';     // array of your claimed-success rows\nconst PROVIDER_LIST_PATH = 'body.data';     // array of provider events\nconst CLAIM_KEY          = 'idempotency_key';\nconst PROVIDER_KEY       = 'idempotency_key';\nconst PROVIDER_STATE     = 'status';\nconst CLAIM_TIME         = 'claimed_at';\nconst PROVIDER_TIME      = 'occurred_at';\n\nconst dig = (o, p) => p.split('.').reduce((x, k) => (x == null ? x : x[k]), o);\nconst collect = (pages, path) => pages.flatMap(p => {\n  const v = dig(p.json, path);\n  return Array.isArray(v) ? v : (v ? [v] : []);\n});\n\nconst claims = collect($('Fetch what WE claimed succeeded').all(), CLAIM_LIST_PATH)\n  .map(r => ({ key: r[CLAIM_KEY] ?? null, claimed_at: r[CLAIM_TIME] ?? null, raw: r }));\n\nconst events = collect($('Fetch what the PROVIDER confirms').all(), PROVIDER_LIST_PATH)\n  .map(e => ({ key: e[PROVIDER_KEY] ?? null, state: e[PROVIDER_STATE] ?? null,\n               occurred_at: e[PROVIDER_TIME] ?? null, raw: e }));\n\n// Claims with no shared key cannot be reconciled by anyone. Say so; do not drop them.\nconst keyless = claims.filter(c => !c.key).length;\n\nreturn [{ json: { claims, events, claim_count: claims.length,\n                  event_count: events.length, keyless_claims: keyless } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "reconcile-claims-against-provider-ev",
+      "name": "Reconcile claims against provider events",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1500,
+        640
+      ],
+      "parameters": {
+        "jsCode": "\n// The core join. Rule 0: UNKNOWN is never converted to SUCCESS.\n// Every claim lands in exactly one bucket, and the bucket names are honest about\n// what we actually know - \"no event yet\" is NOT \"the provider rejected it\".\nconst ACCEPT_STATES = ['delivered','accepted','succeeded','confirmed','paid'];\nconst REJECT_STATES = ['bounced','failed','rejected','canceled','cancelled','refunded'];\n\nconst { claims, events, keyless_claims } = $input.first().json;\nconst win = $('Set reconciliation window and thresholds').first().json;\nconst overdueMs = (win.overdue_after_minutes ?? 30) * 60 * 1000;\nconst now = Date.now();\n\nconst byKey = new Map();\nfor (const e of events) {\n  if (!e.key) continue;\n  if (!byKey.has(e.key)) byKey.set(e.key, []);\n  byKey.get(e.key).push(e);\n}\n\nconst norm = (s) => String(s ?? '').toLowerCase().trim();\nconst rows = claims.map(c => {\n  if (!c.key) return { ...c, verdict: 'UNRECONCILABLE_NO_KEY' };\n\n  const evs = byKey.get(c.key) || [];\n  if (evs.length === 0) {\n    const age = c.claimed_at ? now - Date.parse(c.claimed_at) : null;\n    // Young and unconfirmed is normal latency. Old and unconfirmed is a real gap.\n    return { ...c, verdict: (age != null && age > overdueMs) ? 'MISSING_OVERDUE' : 'PENDING',\n             age_minutes: age == null ? null : Math.round(age / 60000) };\n  }\n  if (evs.some(e => REJECT_STATES.includes(norm(e.state))))\n    return { ...c, verdict: 'PROVIDER_REJECTED', provider_states: evs.map(e => e.state) };\n  if (evs.some(e => ACCEPT_STATES.includes(norm(e.state))))\n    return { ...c, verdict: 'CONFIRMED', provider_states: evs.map(e => e.state) };\n\n  // The provider answered with something we were never told how to read.\n  return { ...c, verdict: 'AMBIGUOUS_PROVIDER_STATE', provider_states: evs.map(e => e.state) };\n});\n\n// Events the provider has that we never claimed at all - the reverse gap, and it is\n// just as real: work happened that our own records do not know about.\nconst claimKeys = new Set(claims.map(c => c.key).filter(Boolean));\nconst unclaimed = events.filter(e => e.key && !claimKeys.has(e.key));\n\nconst count = (v) => rows.filter(r => r.verdict === v).length;\nreturn [{ json: {\n  totals: {\n    claimed: claims.length, provider_events: events.length,\n    confirmed: count('CONFIRMED'), pending: count('PENDING'),\n    missing_overdue: count('MISSING_OVERDUE'), provider_rejected: count('PROVIDER_REJECTED'),\n    ambiguous: count('AMBIGUOUS_PROVIDER_STATE'),\n    unreconcilable_no_key: count('UNRECONCILABLE_NO_KEY') + 0,\n    keyless_claims, unclaimed_provider_events: unclaimed.length\n  },\n  rows, unclaimed\n}}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "suppress-rows-already-alerted",
+      "name": "Suppress rows already alerted",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1900,
+        640
+      ],
+      "parameters": {
+        "jsCode": "\n// Without this, one stuck record alerts every 15 minutes forever and the whole\n// channel gets muted by the humans reading it. Alert fatigue kills monitoring\n// faster than missing alerts do.\nconst state = $getWorkflowStaticData('global');\nstate.alerted = state.alerted || {};\n\nconst win = $('Set reconciliation window and thresholds').first().json;\nconst cooldownMs = (win.realert_after_hours ?? 24) * 60 * 60 * 1000;\nconst now = Date.now();\n\n// Forget entries older than twice the cooldown so the store cannot grow without bound.\nfor (const [k, t] of Object.entries(state.alerted))\n  if (now - t > cooldownMs * 2) delete state.alerted[k];\n\nconst ACTIONABLE = ['MISSING_OVERDUE','PROVIDER_REJECTED','AMBIGUOUS_PROVIDER_STATE','UNRECONCILABLE_NO_KEY'];\nconst data = $input.first().json;\n\nconst actionable = data.rows.filter(r => ACTIONABLE.includes(r.verdict));\nconst fresh = actionable.filter(r => {\n  const id = `${r.verdict}:${r.key ?? JSON.stringify(r.raw).slice(0, 80)}`;\n  const last = state.alerted[id];\n  if (last && now - last < cooldownMs) return false;\n  state.alerted[id] = now;\n  return true;\n});\n\nreturn [{ json: { ...data,\n  actionable_count: actionable.length,\n  new_since_last_alert: fresh.length,\n  suppressed_as_duplicate: actionable.length - fresh.length,\n  rows_to_alert: fresh }}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "anything-new-to-report?",
+      "name": "Anything new to report?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2300,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.new_since_last_alert }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "build-source-traceable-alert",
+      "name": "Build source-traceable alert",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2700,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "subject",
+              "type": "string",
+              "value": "=[{{ $json.totals.missing_overdue }} overdue / {{ $json.totals.provider_rejected }} rejected / {{ $json.totals.ambiguous }} ambiguous] {{ $('Set reconciliation window and thresholds').item.json.provider_name }} reconciliation"
+            },
+            {
+              "id": "a2",
+              "name": "body",
+              "type": "string",
+              "value": "={{ JSON.stringify({ window: { from: $('Set reconciliation window and thresholds').item.json.window_start, to: $('Set reconciliation window and thresholds').item.json.window_end }, totals: $json.totals, suppressed_as_duplicate: $json.suppressed_as_duplicate, rows: $json.rows_to_alert, unclaimed_provider_events: $json.unclaimed }, null, 2) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "everything-reconciled---stay-quiet",
+      "name": "Everything reconciled - stay quiet",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2700,
+        1120
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "note-1",
+      "name": "Note: Run reconciliation every 15 minutes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1024,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 400,
+        "content": "### Run reconciliation every 15 minutes\n\n**Trigger.** Starts the reconciliation pass every 15 minutes. Frequent enough that an overdue record is caught within the hour, cheap enough that it is two API reads per pass."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-2",
+      "name": "Note: Set reconciliation window and thresholds",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -624,
+        336
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 464,
+        "content": "### Set reconciliation window and thresholds\n\n**Configuration.** The only node most users need to edit besides the two URLs. Sets the time window to reconcile, the provider name used in alerts, how long a record may stay unconfirmed before it counts as overdue, and how long to wait before re-alerting the same record."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-3",
+      "name": "Note: Fetch what WE claimed succeeded",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 432,
+        "content": "### Fetch what WE claimed succeeded\n\n**Source A - our own claim.** Reads the rows *you* recorded as successful for this window. Paginated: it follows `next_url` until the provider stops returning one. `neverError` + `fullResponse` are on so a failure arrives as a status code to inspect rather than as a dead execution."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-4",
+      "name": "Note: Fetch what the PROVIDER confirms",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -224,
+        640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 384,
+        "content": "### Fetch what the PROVIDER confirms\n\n**Source B - the provider's truth.** Reads the same window from the provider's own events API. Also paginated. These two nodes run in parallel from the same window so both sides describe exactly the same span of time."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-5",
+      "name": "Note: Check both sources answered",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 416,
+        "content": "### Check both sources answered\n\n**Failure guard.** Inspects the status code of every page from both sources. An unreadable source is not an empty source: if either side failed, this marks the whole window unreadable so the run cannot quietly report 'nothing wrong' during an outage."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-6",
+      "name": "Note: Are both sources readable?",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        576,
+        416
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 384,
+        "content": "### Are both sources readable?\n\n**Branch on trust.** True -> reconcile normally. False -> skip reconciliation entirely and report the window as UNKNOWN. This is the node that stops a broken API from being read as a clean bill of health."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-7",
+      "name": "Note: Report window as UNKNOWN not reconciled",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        976,
+        864
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 416,
+        "content": "### Report window as UNKNOWN not reconciled\n\n**Honest failure output.** Emits an UNKNOWN verdict naming which source was unreadable and the status codes seen. UNKNOWN is a reportable state in its own right - it is never rounded down to success or up to an alarm."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-8",
+      "name": "Note: Normalise both sides to one shape",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        976,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 416,
+        "content": "### Normalise both sides to one shape\n\n**Normalisation.** Flattens every page of both sources into one comparable shape: a join key, a timestamp, a state, and the untouched original row for evidence. Also counts claims that carry no shared key at all, instead of silently dropping them."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-9",
+      "name": "Note: Reconcile claims against provider events",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1376,
+        336
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 464,
+        "content": "### Reconcile claims against provider events\n\n**The join.** Matches each claim to the provider's events and assigns exactly one verdict: CONFIRMED, PENDING (unconfirmed but still young), MISSING_OVERDUE, PROVIDER_REJECTED, AMBIGUOUS_PROVIDER_STATE, or UNRECONCILABLE_NO_KEY. Also reports the reverse gap: provider events you never claimed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-10",
+      "name": "Note: Suppress rows already alerted",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1776,
+        416
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 384,
+        "content": "### Suppress rows already alerted\n\n**De-duplication.** Remembers which rows were already alerted using workflow static data, and holds them for the cooldown period. Without it a single stuck record alerts every 15 minutes until someone mutes the channel."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-11",
+      "name": "Note: Anything new to report?",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2176,
+        432
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 368,
+        "content": "### Anything new to report?\n\n**Alert gate.** Continues only if something is both actionable and not already reported. A quiet run here means genuinely nothing new, not nothing checked."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-12",
+      "name": "Note: Build source-traceable alert",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2576,
+        368
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 432,
+        "content": "### Build source-traceable alert\n\n**Alert payload.** Builds a subject counting overdue, rejected and ambiguous rows, and a body carrying the reconciled window, the totals, and the original provider and claim records for each flagged row - so the alert can be verified against the source rather than trusted."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-13",
+      "name": "Note: Everything reconciled - stay quiet",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2576,
+        864
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 416,
+        "content": "### Everything reconciled - stay quiet\n\n**Silent success.** Reached when every claim in the window is confirmed and nothing new needs reporting. Deliberately does nothing, so silence from this workflow means a checked and reconciled window."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-readme",
+      "name": "README",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1856,
+        144
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 760,
+        "height": 1500,
+        "content": "## Reconcile claimed workflow successes against provider records\n\nA green execution means **your workflow finished**. It does not mean the provider accepted the\nemail, the charge settled, or the record was created. That gap is where silent failures live,\nand nothing in a normal run history shows it. This template closes the gap by comparing what you\nrecorded as a success against what the provider will actually confirm, and by refusing to turn\n\"I do not know\" into \"it worked\".\n\n### Who's it for\nOperators and agencies running n8n in production - especially anyone responsible for workflows\nthey did not build, cannot watch all day, or run on behalf of clients.\n\n### How it works\nEvery 15 minutes it reads the same time window from two independent sources: **A**, your own log\nof runs you reported as successful, and **B**, the provider's events API. Both reads are\npaginated, because a truncated provider page looks identical to a missing confirmation and would\nmanufacture false alarms.\n\nBefore anything is compared, a guard checks the status code of every page. If either source is\nunreadable the window is reported as **UNKNOWN** and reconciliation is skipped - an outage must\nnever read as a clean bill of health.\n\nWhen both sources answer, the rows are normalised to one shape and joined on a shared\nidempotency key. Each claim gets exactly one verdict:\n\n- **CONFIRMED** - the provider confirms it.\n- **PENDING** - not confirmed yet, but still inside the latency allowance.\n- **MISSING_OVERDUE** - past the allowance with no provider event. This is the silent failure.\n- **PROVIDER_REJECTED** - the provider has an event, and it is a bounce, failure or refund.\n- **AMBIGUOUS_PROVIDER_STATE** - the provider answered with a state not in your accept or reject\n  list. Reported rather than guessed.\n- **UNRECONCILABLE_NO_KEY** - the claim carries no shared key, so nothing could verify it.\n\nIt also reports the reverse gap: provider events that your own records never claimed.\n\nActionable rows pass through a de-duplication step backed by workflow static data, so one stuck\nrecord does not alert every 15 minutes until the channel gets muted. Only genuinely new findings\nraise an alert, and the alert carries the original source records so it can be verified rather\nthan trusted.\n\n### How to set up\n1. **Fetch what WE claimed succeeded** - point the URL at your own log of runs you reported as\n   successful. It must accept `from` and `to` query parameters.\n2. **Fetch what the PROVIDER confirms** - point the URL at the provider's events or messages API.\n3. Attach credentials to both HTTP Request nodes through n8n credentials. Do not paste keys into\n   the URL.\n4. **Set reconciliation window and thresholds** - set `provider_name`, `overdue_after_minutes`\n   and `realert_after_hours` for your provider's real latency.\n5. **Normalise both sides to one shape** - set the list paths, key field names and timestamp\n   field names for your two APIs.\n6. **Reconcile claims against provider events** - set `ACCEPT_STATES` and `REJECT_STATES` to the\n   vocabulary your provider actually uses.\n7. Connect **Build source-traceable alert** to wherever your alerts go.\n\n### Requirements\n- An API you can read your own claimed successes from.\n- A provider API that exposes per-record events or statuses.\n- One **shared idempotency key**, generated before the send and passed to the provider. Without\n  a shared key there is nothing to reconcile, and the template says so with\n  UNRECONCILABLE_NO_KEY rather than guessing.\n\n### How to customize\n- Change the schedule for a provider with slower ingestion, and widen the 15 minute end-of-window\n  lag to match. Reconciling right up to *now* manufactures false overdue rows.\n- Add provider-specific states to the accept and reject lists as you learn them. Leave anything\n  genuinely unrecognised as AMBIGUOUS rather than forcing it into a bucket.\n- Replace the join key if your provider exposes its own request id instead.\n- Fan the alert out per row with a Split Out node if you want one ticket per failure.\n- Raise `realert_after_hours` if a known-broken integration is expected to stay broken.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Anything new to report?": {
+      "main": [
+        [
+          {
+            "node": "Build source-traceable alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Everything reconciled - stay quiet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Are both sources readable?": {
+      "main": [
+        [
+          {
+            "node": "Normalise both sides to one shape",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report window as UNKNOWN not reconciled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check both sources answered": {
+      "main": [
+        [
+          {
+            "node": "Are both sources readable?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Suppress rows already alerted": {
+      "main": [
+        [
+          {
+            "node": "Anything new to report?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch what WE claimed succeeded": {
+      "main": [
+        [
+          {
+            "node": "Check both sources answered",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch what the PROVIDER confirms": {
+      "main": [
+        [
+          {
+            "node": "Check both sources answered",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise both sides to one shape": {
+      "main": [
+        [
+          {
+            "node": "Reconcile claims against provider events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run reconciliation every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "Set reconciliation window and thresholds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconcile claims against provider events": {
+      "main": [
+        [
+          {
+            "node": "Suppress rows already alerted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set reconciliation window and thresholds": {
+      "main": [
+        [
+          {
+            "node": "Fetch what WE claimed succeeded",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Fetch what the PROVIDER confirms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

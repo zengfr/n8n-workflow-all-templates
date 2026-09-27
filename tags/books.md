@@ -1,4 +1,4 @@
-# books : 7
+# books : 11
 
 |id|file|
 |----|----|
@@ -9,3 +9,7 @@
 |7350|[7350_Extract_and_Verify_Book_Titles_from_Bookshelf_Photos_using_GPT-4o_and_Google_Books.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/73/7350_Extract_and_Verify_Book_Titles_from_Bookshelf_Photos_using_GPT-4o_and_Google_Books.json)|
 |7482|[7482_Create_AI-Generated_Books_with_GPT-4.1-mini__DALL-E__Google_Drive_and_AWS_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/74/7482_Create_AI-Generated_Books_with_GPT-4.1-mini__DALL-E__Google_Drive_and_AWS_S3.json)|
 |10211|[10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10211_Food_Photo_Analysis_to_Restaurant___Book_Recommendations_with_GPT_Vision_and_Google_APIs.json)|
+|17198|[17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json)|
+|17234|[17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json)|
+|17245|[17245_Archive_and_index_legal_PDFs_from_Gmail_with_Gemini__Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17245_Archive_and_index_legal_PDFs_from_Gmail_with_Gemini__Sheets_and_Google_Drive.json)|
+|17582|[17582_Process_invoice_emails_to_Zoho_Books_with_Gmail__Parseur__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17582_Process_invoice_emails_to_Zoho_Books_with_Gmail__Parseur__and_Google_Drive.json)|

@@ -1,0 +1,924 @@
+{
+  "name": "Track economic regime shifts with a FRED MCP server, OpenAI and Slack",
+  "nodes": [
+    {
+      "id": "sticky-main",
+      "name": "Sticky Note main",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -748,
+        -108
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 560,
+        "height": 1394,
+        "content": "## Watch the backdrop change, not the headline\n\nUnemployment at 4.1% is not information. Unemployment at 4.1% after three straight monthly rises, against a twelve-month low of 3.7%, is. Every macro series publishes its level everywhere and its shape nowhere, so the only way to know the backdrop moved is to have written down what it was.\n\n### How it works\n\nThe data comes from a **FRED MCP server**, called over plain HTTP. n8n's MCP Client Tool is an agent sub-node, so the usual route is to hand an agent the tool and hope it calls. Streamable HTTP is JSON-RPC over POST, so the two calls per series are made directly and in parallel.\n\nThere are two calls because the observations call answers `native` whatever the frequency actually is. `get_series_info` carries the real one, and it decides how many rows back a quarter is - three rows back on a daily series is three days.\n\n**`Add The Derived Signals`** computes the three that are not series at all: the 10-year minus 2-year spread, the Sahm rule, and the policy rate net of inflation. Each needs two series held at once.\n\n**`Save This Week's Reading`** hangs beside the IF, and runs on quiet weeks too - otherwise the next comparison silently spans two of them.\n\n### Setup\n\n1. Get a free key at `fredaccount.stlouisfed.org/apikeys`.\n\n2. Run the server: `FRED_API_KEY=... npx -y fred-economic-mcp@1.1.0 --http --host 0.0.0.0 --port 8933`.\n\n3. Point `mcp_url` in **Settings** at it: `http://host.docker.internal:8933/mcp` from n8n in Docker, `http://127.0.0.1:8933/mcp` otherwise.\n\n4. Create a Data Table named `macro_watch` with the columns `series_id`, `seen_on`, `value` and `regime`.\n\n5. An OpenAI credential and a Slack credential. Put your series in **Settings** and describe your business in `business_context`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec1",
+      "name": "Sticky Note sec1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -108,
+        -84
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1176,
+        "height": 997,
+        "content": "## 1. Is the server there?\n`tools/list` is the cheapest call in the protocol. It also catches a server started without FRED_API_KEY."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec2",
+      "name": "Sticky Note sec2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        92
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 581,
+        "content": "## 2. Last week's reading\nFRED publishes every level and nobody's yesterday. This table is the only place the earlier reading exists."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec3",
+      "name": "Sticky Note sec3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1932,
+        -108
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 888,
+        "height": 1021,
+        "content": "## 3. Two calls per series, no agent\nThe observations call answers `native` for every frequency. The real one is on get_series_info, and it decides how far back a quarter is."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec4",
+      "name": "Sticky Note sec4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2952,
+        92
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 888,
+        "height": 581,
+        "content": "## 4. Shape, not level\nStreak, quarter move and a z-score against the series' own year. Then the three signals that are not series at all."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec5",
+      "name": "Sticky Note sec5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3972,
+        -108
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 781,
+        "content": "## 5. Write it down either way\nThe snapshot runs on quiet weeks too, or the next comparison silently spans two of them."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec6",
+      "name": "Sticky Note sec6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4720,
+        116
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 952,
+        "height": 797,
+        "content": "## 6. What it means for you\nThe model reads the shifts and your own description of the business. It computes nothing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-warn",
+      "name": "Sticky Note warn",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1932,
+        973
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 452,
+        "content": "## A missing day is a dot\n\nFRED writes an unpublished observation as the string `\".\"`. `Number(\".\")` is NaN, and a NaN in a comparison is quietly false rather than loudly broken, so every value is coerced before it is used."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "t62-s",
+      "name": "Every Monday Morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        260
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8,
+              "weeksInterval": 1,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "t62-m",
+      "name": "Or Run It Now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        700
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "t62-cfg",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        288,
+        460
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0",
+              "name": "mcp_url",
+              "type": "string",
+              "value": "http://host.docker.internal:8933/mcp"
+            },
+            {
+              "id": "c1",
+              "name": "series",
+              "type": "string",
+              "value": "UNRATE, CPIAUCSL, PAYEMS, DGS10, DGS2, FEDFUNDS, ICSA, UMCSENT"
+            },
+            {
+              "id": "c2",
+              "name": "max_series",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "c3",
+              "name": "history_points",
+              "type": "number",
+              "value": 300
+            },
+            {
+              "id": "c4",
+              "name": "z_threshold",
+              "type": "number",
+              "value": 1.5
+            },
+            {
+              "id": "c5",
+              "name": "business_context",
+              "type": "string",
+              "value": "A B2B SaaS company selling to mid-market US retailers."
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "t62-h0",
+      "name": "Ask What The Server Offers",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        576,
+        460
+      ],
+      "parameters": {
+        "url": "={{ $('Settings').first().json.mcp_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "mcp"
+            }
+          }
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/list\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/event-stream"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.4,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "t62-c0",
+      "name": "Check The Tools Are There",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        864,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// --- reading a Streamable HTTP MCP reply ------------------------------------\n// The transport answers `event: message\\ndata: {...}` even for a one-shot call,\n// so the JSON-RPC envelope has to be lifted out of the SSE frame before\n// anything can be read from it.\nfunction unwrap(text) {\n  const body = String(text === null || text === undefined ? '' : text);\n  for (const line of body.split('\\n')) {\n    if (line.startsWith('data:')) {\n      try { return JSON.parse(line.slice(5).trim()); } catch (e) { return null; }\n    }\n  }\n  try { return JSON.parse(body); } catch (e) { return null; }\n}\n\n// Three ways a call comes back without data and only one is an error: a\n// transport failure, a tool error (HTTP 200 with `isError` on the envelope),\n// and a tool with nothing to say answering in prose despite\n// response_format \"json\". The third is what an unknown series ID does - it\n// returns \"The series does not exist\" on a successful call - and it throws\n// JSON.parse on a response that is otherwise perfectly healthy.\nfunction payloadOf(item) {\n  const raw = item && item.json ? (item.json.mcp !== undefined ? item.json.mcp : item.json.data) : '';\n  const env = unwrap(raw);\n  if (!env) return { error: 'no JSON-RPC envelope came back from the server' };\n  if (env.error) return { error: String((env.error && env.error.message) || 'JSON-RPC error') };\n  const result = env.result || {};\n  const text = String((((result.content || [])[0]) || {}).text || '');\n  if (result.isError) return { error: text.slice(0, 300) };\n  // Python's json.dumps writes a bare NaN for a missing float, and neither NaN\n  // nor Infinity is valid JSON. Only value positions are rewritten, so a string\n  // that happens to read \"NaN\" is left alone.\n  try {\n    return { data: JSON.parse(String(text).replace(/:\\s*(-?Infinity|NaN)(\\s*[,}\\]])/g, ': null$2')) };\n  } catch (e) {\n    return { note: text.replace(/\\s+/g, ' ').trim().slice(0, 200) };\n  }\n}\n\n// FRED writes an observation it has not published as the string \".\". Number('.')\n// is NaN and Number('') is 0, and either one reaching a comparison makes a trend\n// test quietly wrong rather than loudly broken.\nfunction num(value) {\n  if (value === null || value === undefined || value === '' || value === '.') return null;\n  const n = Number(value);\n  return Number.isFinite(n) ? n : null;\n}\n\n// The endpoint answering at all is not proof it is an MCP server, and an MCP\n// server answering is not proof it is this one. tools/list is the cheapest call\n// in the protocol, so a wrong URL surfaces here rather than as an empty brief\n// six nodes later.\nconst url = $('Settings').first().json.mcp_url;\nconst NEEDED = ['get_series_observations', 'get_series_info'];\n\nconst env = unwrap($json.mcp !== undefined ? $json.mcp : $json.data);\nconst tools = env && env.result && Array.isArray(env.result.tools) ? env.result.tools : null;\n\nif (!tools) {\n  throw new Error(\n    'No tool list came back from ' + url + '. A Streamable HTTP MCP server ' +\n    'answers POST on /mcp: a 404 usually means the path is missing /mcp, and a ' +\n    '421 means the server is up but your Host header is not on its allow-list ' +\n    '(start it with --allowed-host). From n8n in Docker the host machine is ' +\n    'host.docker.internal, not localhost.'\n  );\n}\n\nconst have = new Set(tools.map((t) => String(t.name)));\nconst missing = NEEDED.filter((t) => !have.has(t));\nif (missing.length) {\n  throw new Error(\n    'The server at ' + url + ' is missing ' + missing.join(', ') + '. It offers ' +\n    tools.length + ' tool(s), so it is an MCP server - just not this one. ' +\n    'Expected fred-economic-mcp 1.1.0 or later. If get_series_observations is ' +\n    'there and the calls still fail, the server is running without FRED_API_KEY.'\n  );\n}\n\nreturn [{ json: { mcp_url: url, tools_offered: tools.length } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-dt1",
+      "name": "Read Last Week's Reading",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1308,
+        460
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": []
+        },
+        "options": {},
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "macro_watch"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "t62-c1",
+      "name": "Pick The Indicators",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1596,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// One item per series, so both calls below run once each and the two lanes stay\n// index-aligned all the way to the merge.\nconst cfg = $('Settings').first().json;\n\nconst ids = String(cfg.series || '')\n  .split(',')\n  .map((s) => s.trim().toUpperCase())\n  // A FRED series ID is letters, digits and underscore. Anything else is a\n  // typo, and it would be interpolated straight into the JSON-RPC body below.\n  .filter((s) => /^[A-Z0-9_]{2,32}$/.test(s))\n  .slice(0, Math.max(1, Number(cfg.max_series) || 10));\n\nif (!ids.length) {\n  throw new Error(\n    'No usable series IDs in Settings. Expected a comma separated list like ' +\n    '\"UNRATE, CPIAUCSL, DGS10\". Find IDs at fred.stlouisfed.org.'\n  );\n}\n\n// Deduplicated, because the Data Table is keyed on the series ID and the same\n// one listed twice would race itself on the upsert.\nreturn [...new Set(ids)].map((series_id) => ({ json: { series_id } }));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-h1",
+      "name": "Ask What The Series Is",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        2040,
+        260
+      ],
+      "parameters": {
+        "url": "={{ $('Settings').first().json.mcp_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "mcp"
+            }
+          }
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_series_info\",\n    \"arguments\": {\n      \"series_id\": \"{{ $json.series_id }}\",\n      \"response_format\": \"json\"\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/event-stream"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "t62-h2",
+      "name": "Ask For The History",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        2040,
+        700
+      ],
+      "parameters": {
+        "url": "={{ $('Settings').first().json.mcp_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "responseFormat": "text",
+              "outputPropertyName": "mcp"
+            }
+          }
+        },
+        "jsonBody": "={\n  \"jsonrpc\": \"2.0\",\n  \"id\": 1,\n  \"method\": \"tools/call\",\n  \"params\": {\n    \"name\": \"get_series_observations\",\n    \"arguments\": {\n      \"series_id\": \"{{ $json.series_id }}\",\n      \"limit\": {{ $('Settings').first().json.history_points }},\n      \"sort_order\": \"desc\",\n      \"response_format\": \"json\"\n    }\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json, text/event-stream"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "t62-c2",
+      "name": "Read The Series Description",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2328,
+        260
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// --- reading a Streamable HTTP MCP reply ------------------------------------\n// The transport answers `event: message\\ndata: {...}` even for a one-shot call,\n// so the JSON-RPC envelope has to be lifted out of the SSE frame before\n// anything can be read from it.\nfunction unwrap(text) {\n  const body = String(text === null || text === undefined ? '' : text);\n  for (const line of body.split('\\n')) {\n    if (line.startsWith('data:')) {\n      try { return JSON.parse(line.slice(5).trim()); } catch (e) { return null; }\n    }\n  }\n  try { return JSON.parse(body); } catch (e) { return null; }\n}\n\n// Three ways a call comes back without data and only one is an error: a\n// transport failure, a tool error (HTTP 200 with `isError` on the envelope),\n// and a tool with nothing to say answering in prose despite\n// response_format \"json\". The third is what an unknown series ID does - it\n// returns \"The series does not exist\" on a successful call - and it throws\n// JSON.parse on a response that is otherwise perfectly healthy.\nfunction payloadOf(item) {\n  const raw = item && item.json ? (item.json.mcp !== undefined ? item.json.mcp : item.json.data) : '';\n  const env = unwrap(raw);\n  if (!env) return { error: 'no JSON-RPC envelope came back from the server' };\n  if (env.error) return { error: String((env.error && env.error.message) || 'JSON-RPC error') };\n  const result = env.result || {};\n  const text = String((((result.content || [])[0]) || {}).text || '');\n  if (result.isError) return { error: text.slice(0, 300) };\n  // Python's json.dumps writes a bare NaN for a missing float, and neither NaN\n  // nor Infinity is valid JSON. Only value positions are rewritten, so a string\n  // that happens to read \"NaN\" is left alone.\n  try {\n    return { data: JSON.parse(String(text).replace(/:\\s*(-?Infinity|NaN)(\\s*[,}\\]])/g, ': null$2')) };\n  } catch (e) {\n    return { note: text.replace(/\\s+/g, ' ').trim().slice(0, 200) };\n  }\n}\n\n// FRED writes an observation it has not published as the string \".\". Number('.')\n// is NaN and Number('') is 0, and either one reaching a comparison makes a trend\n// test quietly wrong rather than loudly broken.\nfunction num(value) {\n  if (value === null || value === undefined || value === '' || value === '.') return null;\n  const n = Number(value);\n  return Number.isFinite(n) ? n : null;\n}\n\n// The only reason this call exists: the observations endpoint answers\n// \"frequency\": \"native\" for every series, whatever it actually is. Without the\n// real frequency, \"three months ago\" is three rows back - which on DGS10 is\n// three trading days, and the trend test then reports a quiet week as a\n// collapse. frequency_short is D, W, M or Q.\nconst asked = $('Pick The Indicators').all().map((i) => i.json.series_id);\nconst items = $input.all();\n\nreturn asked.map((series_id, i) => {\n  const got = payloadOf(items[i]);\n  const d = got.data || {};\n  return {\n    json: {\n      series_id,\n      title: d.title || series_id,\n      units: d.units || '',\n      units_short: d.units_short || '',\n      frequency: String(d.frequency_short || 'M').toUpperCase(),\n      seasonal: d.seasonal_adjustment_short || '',\n      last_updated: d.last_updated || null,\n      info_error: got.error || got.note || null,\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-c3",
+      "name": "Read The History",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2328,
+        700
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// --- reading a Streamable HTTP MCP reply ------------------------------------\n// The transport answers `event: message\\ndata: {...}` even for a one-shot call,\n// so the JSON-RPC envelope has to be lifted out of the SSE frame before\n// anything can be read from it.\nfunction unwrap(text) {\n  const body = String(text === null || text === undefined ? '' : text);\n  for (const line of body.split('\\n')) {\n    if (line.startsWith('data:')) {\n      try { return JSON.parse(line.slice(5).trim()); } catch (e) { return null; }\n    }\n  }\n  try { return JSON.parse(body); } catch (e) { return null; }\n}\n\n// Three ways a call comes back without data and only one is an error: a\n// transport failure, a tool error (HTTP 200 with `isError` on the envelope),\n// and a tool with nothing to say answering in prose despite\n// response_format \"json\". The third is what an unknown series ID does - it\n// returns \"The series does not exist\" on a successful call - and it throws\n// JSON.parse on a response that is otherwise perfectly healthy.\nfunction payloadOf(item) {\n  const raw = item && item.json ? (item.json.mcp !== undefined ? item.json.mcp : item.json.data) : '';\n  const env = unwrap(raw);\n  if (!env) return { error: 'no JSON-RPC envelope came back from the server' };\n  if (env.error) return { error: String((env.error && env.error.message) || 'JSON-RPC error') };\n  const result = env.result || {};\n  const text = String((((result.content || [])[0]) || {}).text || '');\n  if (result.isError) return { error: text.slice(0, 300) };\n  // Python's json.dumps writes a bare NaN for a missing float, and neither NaN\n  // nor Infinity is valid JSON. Only value positions are rewritten, so a string\n  // that happens to read \"NaN\" is left alone.\n  try {\n    return { data: JSON.parse(String(text).replace(/:\\s*(-?Infinity|NaN)(\\s*[,}\\]])/g, ': null$2')) };\n  } catch (e) {\n    return { note: text.replace(/\\s+/g, ' ').trim().slice(0, 200) };\n  }\n}\n\n// FRED writes an observation it has not published as the string \".\". Number('.')\n// is NaN and Number('') is 0, and either one reaching a comparison makes a trend\n// test quietly wrong rather than loudly broken.\nfunction num(value) {\n  if (value === null || value === undefined || value === '' || value === '.') return null;\n  const n = Number(value);\n  return Number.isFinite(n) ? n : null;\n}\n\n// Newest first, and every value coerced here rather than at the point of\n// comparison. A \".\" left as a string sorts and compares without complaint.\nconst asked = $('Pick The Indicators').all().map((i) => i.json.series_id);\nconst items = $input.all();\n\nreturn asked.map((series_id, i) => {\n  const got = payloadOf(items[i]);\n\n  if (got.error || got.note) {\n    return {\n      json: {\n        series_id,\n        values: [],\n        history_error: got.error || got.note,\n      },\n    };\n  }\n\n  const d = got.data || {};\n  const raw = Array.isArray(d.observations) ? d.observations : [];\n  const values = raw\n    .map((o) => ({ date: String(o.date), value: num(o.value) }))\n    .filter((o) => o.value !== null);\n\n  return {\n    json: {\n      series_id,\n      title: d.title || series_id,\n      values,\n      returned: raw.length,\n      // Said out loud, because \"2 of 300 observations were unpublished\" and\n      // \"298 observations\" are different facts and only one of them is visible\n      // once the dots are gone.\n      unpublished: raw.length - values.length,\n      history_error: values.length < 4\n        ? 'Only ' + values.length + ' usable observation(s) came back. A trend needs at least four.'\n        : null,\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-mg",
+      "name": "Wait For Both Calls",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2616,
+        460
+      ],
+      "parameters": {
+        "mode": "append",
+        "numberInputs": 2
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "t62-c4",
+      "name": "Score Each Indicator",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3060,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Everything the brief says about a single series is decided here, and none of\n// it is a level. A level is published everywhere; the shape is what nobody\n// writes down.\nconst cfg = $('Settings').first().json;\nconst zBand = Math.max(0.5, Number(cfg.z_threshold) || 1.5);\n\n// How many observations back a month, a quarter and a year are. The observations\n// call cannot tell you this - it answers \"native\" for everything - so it comes\n// from get_series_info. A daily series is trading days, not calendar days.\nconst STEPS = {\n  D: { month: 21, quarter: 63, year: 252 },\n  W: { month: 4, quarter: 13, year: 52 },\n  M: { month: 1, quarter: 3, year: 12 },\n  Q: { month: 1, quarter: 1, year: 4 },\n};\n\nconst info = new Map($('Read The Series Description').all().map((i) => [i.json.series_id, i.json]));\n\n// Both lanes are read by name rather than off the input. The merge above is a\n// barrier, not a join: it appends, so $input here is the eight description rows\n// followed by the eight history rows, and scoring that gives sixteen items -\n// eight of them a description with no observations, scored as \"no data\" and\n// saved to the table as such. Every node stays green while the watchlist\n// silently doubles.\nconst history = $('Read The History').all().map((i) => i.json);\n\nfunction pct(now, then) {\n  if (now === null || then === null || then === 0) return null;\n  return Math.round(((now - then) / Math.abs(then)) * 1000) / 10;\n}\n\nreturn history.map((h) => {\n  const meta = info.get(h.series_id) || {};\n  const values = h.values || [];\n\n  if (h.history_error || values.length < 4) {\n    return {\n      json: {\n        series_id: h.series_id,\n        title: meta.title || h.series_id,\n        usable: false,\n        reason: h.history_error || 'not enough history',\n        regime: 'no data',\n      },\n    };\n  }\n\n  const step = STEPS[meta.frequency] || STEPS.M;\n  const at = (n) => (values[n] ? values[n].value : null);\n  const latest = at(0);\n\n  // Consecutive moves in the same direction, newest first. A flat print ends\n  // the streak rather than extending it - three rises then a flat month is not\n  // a four-month trend, and calling it one is how a chart lies.\n  let streak = 0;\n  const dir = latest > at(1) ? 1 : latest < at(1) ? -1 : 0;\n  if (dir !== 0) {\n    for (let i = 0; i + 1 < values.length; i += 1) {\n      const d = values[i].value > values[i + 1].value ? 1 : values[i].value < values[i + 1].value ? -1 : 0;\n      if (d !== dir) break;\n      streak += 1;\n    }\n  }\n\n  // Against the last year of its own history rather than a fixed band, because\n  // a 0.2 move is nothing on the unemployment rate and a lot on the fed funds\n  // rate. Population standard deviation: this is the whole window, not a sample\n  // drawn from it.\n  const window = values.slice(0, step.year).map((v) => v.value);\n  const mean = window.reduce((a, b) => a + b, 0) / window.length;\n  const variance = window.reduce((a, b) => a + (b - mean) * (b - mean), 0) / window.length;\n  const sd = Math.sqrt(variance);\n  const z = sd > 0 ? Math.round(((latest - mean) / sd) * 100) / 100 : 0;\n\n  const quarterMove = pct(latest, at(step.quarter));\n  const yearMove = pct(latest, at(step.year));\n\n  // Five bands rather than up/down, because \"rising\" and \"rising faster than it\n  // has all year\" are the two different messages this is for.\n  let regime = 'steady';\n  if (z >= zBand) regime = 'stretched high';\n  else if (z <= -zBand) regime = 'stretched low';\n  else if (quarterMove !== null && quarterMove > 0 && streak >= 3) regime = 'rising';\n  else if (quarterMove !== null && quarterMove < 0 && streak >= 3) regime = 'falling';\n\n  return {\n    json: {\n      series_id: h.series_id,\n      title: meta.title || h.series_id,\n      units: meta.units_short || meta.units || '',\n      frequency: meta.frequency || 'M',\n      usable: true,\n      as_of: values[0].date,\n      value: latest,\n      previous: at(1),\n      month_move_pct: pct(latest, at(step.month)),\n      quarter_move_pct: quarterMove,\n      year_move_pct: yearMove,\n      streak: streak,\n      streak_direction: dir > 0 ? 'up' : dir < 0 ? 'down' : 'flat',\n      z_score: z,\n      year_low: Math.min(...window),\n      year_high: Math.max(...window),\n      unpublished: h.unpublished || 0,\n      regime: regime,\n      derived: false,\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-c5",
+      "name": "Add The Derived Signals",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3348,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// The three signals worth having are not series, and none of them can be\n// fetched: each needs two series held at the same time. This is the node that\n// justifies pulling the whole set in one run rather than alerting per series.\nconst cfg = $('Settings').first().json;\nconst rows = $input.all().map((i) => i.json);\nconst by = new Map(rows.filter((r) => r.usable).map((r) => [r.series_id, r]));\nconst out = rows.slice();\n\nfunction add(row) {\n  out.push({ ...row, usable: true, derived: true, frequency: 'M', unpublished: 0 });\n}\n\n// 1. The yield curve. Inverted means the 2-year pays more than the 10-year, and\n//    the sign is the whole signal - the magnitude is commentary.\nconst ten = by.get('DGS10');\nconst two = by.get('DGS2');\nif (ten && two) {\n  const spread = Math.round((ten.value - two.value) * 100) / 100;\n  add({\n    series_id: 'DERIVED_CURVE',\n    title: '10-year minus 2-year Treasury spread',\n    units: '%',\n    as_of: ten.as_of,\n    value: spread,\n    regime: spread < 0 ? 'inverted' : spread < 0.25 ? 'flat' : 'normal',\n    note:\n      'The 10-year is at ' + ten.value + '% and the 2-year at ' + two.value + '%. ' +\n      (spread < 0\n        ? 'An inverted curve means the market is paid more to lend for two years than for ten.'\n        : 'A positive spread is the ordinary shape.'),\n  });\n}\n\n// 2. The Sahm rule: the three-month average unemployment rate against its lowest\n//    three-month average of the previous year. Half a point above it has marked\n//    the start of every post-war US recession. It needs the raw history, not the\n//    scored row, so it reads the series back by name.\nconst unrateHistory = $('Read The History').all().map((i) => i.json).find((h) => h.series_id === 'UNRATE');\nif (unrateHistory && (unrateHistory.values || []).length >= 15) {\n  const v = unrateHistory.values.map((o) => o.value);\n  const avg3 = (start) => (v[start] + v[start + 1] + v[start + 2]) / 3;\n  const current = avg3(0);\n  let low = Infinity;\n  for (let i = 1; i <= 12; i += 1) low = Math.min(low, avg3(i));\n  const gap = Math.round((current - low) * 100) / 100;\n  add({\n    series_id: 'DERIVED_SAHM',\n    title: 'Sahm rule gap (3-month unemployment average above its 12-month low)',\n    units: 'pp',\n    as_of: unrateHistory.values[0].date,\n    value: gap,\n    regime: gap >= 0.5 ? 'triggered' : gap >= 0.3 ? 'approaching' : 'clear',\n    note:\n      'The three-month average is ' + Math.round(current * 100) / 100 + '% against a ' +\n      'twelve-month low of ' + Math.round(low * 100) / 100 + '%. Half a point is the trigger.',\n  });\n}\n\n// 3. The policy rate net of inflation. A nominal rate says nothing on its own:\n//    4% with 2% inflation and 4% with 6% inflation are opposite policies.\nconst funds = by.get('FEDFUNDS');\nconst cpiHistory = $('Read The History').all().map((i) => i.json).find((h) => h.series_id === 'CPIAUCSL');\nif (funds && cpiHistory && (cpiHistory.values || []).length >= 13) {\n  const cv = cpiHistory.values;\n  const inflation = ((cv[0].value - cv[12].value) / cv[12].value) * 100;\n  const real = Math.round((funds.value - inflation) * 100) / 100;\n  add({\n    series_id: 'DERIVED_REALRATE',\n    title: 'Fed funds rate net of CPI inflation',\n    units: '%',\n    as_of: funds.as_of,\n    value: real,\n    regime: real > 1 ? 'restrictive' : real < 0 ? 'accommodative' : 'neutral',\n    note:\n      'The fed funds rate is ' + funds.value + '% and CPI is up ' +\n      Math.round(inflation * 10) / 10 + '% over the year.',\n  });\n}\n\n// Never empty. A run where every series failed still has to reach the IF, or\n// the \"nothing shifted\" branch is the one branch that never fires.\nif (!out.length) {\n  return [{ json: { series_id: 'NONE', usable: false, regime: 'no data', reason: 'No series returned data.' } }];\n}\nreturn out.map((json) => ({ json }));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-c6",
+      "name": "Compare With Last Week",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3636,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// The regime label is the memory. A level moving is not news - FRED publishes\n// levels - and the shape of a series only becomes visible once you have last\n// week's reading of it to hold the new one against.\nconst last = new Map(\n  $('Read Last Week\\'s Reading').all()\n    .filter((i) => i.json && i.json.series_id)\n    .map((i) => [String(i.json.series_id), i.json])\n);\n\nreturn $input.all().map((item) => {\n  const r = item.json;\n  const prior = last.get(r.series_id);\n  const priorRegime = prior ? String(prior.regime || '') : '';\n\n  // First run: everything is new and nothing has shifted. Reporting the whole\n  // watchlist as a change on day one would train the reader to ignore it.\n  const firstSighting = !prior;\n  const shifted = !firstSighting && priorRegime !== '' && priorRegime !== r.regime;\n\n  return {\n    json: {\n      ...r,\n      previous_regime: priorRegime || null,\n      previous_value: prior ? Number(prior.value) : null,\n      previous_seen_on: prior ? prior.seen_on : null,\n      first_sighting: firstSighting,\n      shifted: !!(r.usable && shifted),\n    },\n  };\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-f1",
+      "name": "Only Series With Data",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        4080,
+        260
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "t62-f1-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.usable }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "t62-dt2",
+      "name": "Save This Week's Reading",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        4368,
+        260
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "value": "={{ $json.value }}",
+            "regime": "={{ $json.regime }}",
+            "seen_on": "={{ $json.as_of }}",
+            "series_id": "={{ $json.series_id }}"
+          },
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "series_id",
+              "keyValue": "={{ $json.series_id }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "macro_watch"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "t62-if",
+      "name": "Did A Regime Shift?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4080,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.shifted }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "t62-ch",
+      "name": "Explain What It Means",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "onError": "continueRegularOutput",
+      "position": [
+        4812,
+        460
+      ],
+      "parameters": {
+        "text": "=You write the opening paragraph of a weekly macro note for one business. Every number below has already been computed and checked - do not restate them all, do not recalculate them, and do not add any figure that is not here.\n\nThe business: {{ $('Settings').first().json.business_context }}\n\nWhat changed regime this week:\n{{ JSON.stringify($('Compare With Last Week').all().map(i => i.json).filter(r => r.shifted).map(r => ({series: r.series_id, title: r.title, value: r.value, units: r.units, was: r.previous_regime, now: r.regime, quarter_move_pct: r.quarter_move_pct, year_move_pct: r.year_move_pct, streak: r.streak, streak_direction: r.streak_direction, z: r.z_score, note: r.note})), null, 1) }}\n\nThe rest of the watchlist, for context only:\n{{ JSON.stringify($('Compare With Last Week').all().map(i => i.json).filter(r => r.usable && !r.shifted).map(r => ({series: r.series_id, value: r.value, units: r.units, regime: r.regime})), null, 1) }}\n\nWrite three to five sentences on what these shifts mean for this business specifically - demand, hiring, borrowing or pricing. Say which one matters most and why. If a shift is a technical artefact of a noisy series rather than a real turn, say so. Do not forecast and do not give investment advice. No preamble, no bullet points, no sign-off.",
+        "batching": {},
+        "promptType": "define"
+      },
+      "executeOnce": true,
+      "typeVersion": 1.9
+    },
+    {
+      "id": "t62-md",
+      "name": "Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "onError": "continueRegularOutput",
+      "position": [
+        4820,
+        700
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.6-terra"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "t62-c7",
+      "name": "Write The Brief",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5180,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// One message for the whole watchlist, not one per series. The IF above has\n// narrowed this branch to the weeks where something moved, and the full picture\n// is read back by name.\nconst rows = $('Compare With Last Week').all().map((i) => i.json);\nconst shifted = rows.filter((r) => r.shifted);\nconst usable = rows.filter((r) => r.usable);\nconst broken = rows.filter((r) => !r.usable);\n// A single-item input by construction: the chain above runs executeOnce, so it\n// answers with one paragraph for the whole watchlist rather than one per series.\nconst reading = String(($input.first().json || {}).text || '').trim();\n\n// FRED titles are catalogue entries, not labels: DGS10 is \"Market Yield on U.S.\n// Treasury Securities at 10-Year Constant Maturity, Quoted on an Investment\n// Basis\". Printed whole they push the number off the end of a Slack line. The\n// qualifying clause after the first comma is the part nobody needs.\nconst label = (r) => {\n  const t = String(r.title || r.series_id);\n  const head = t.split(',')[0];\n  // Only when the head still names the series on its own. PAYEMS is \"All\n  // Employees, Total Nonfarm\", and \"All Employees\" of what is not a label.\n  if (head.length >= 20 && head.length <= 62) return head;\n  return t.length > 62 ? t.slice(0, 59).trimEnd() + '...' : t;\n};\n\n// \"4.1 %\" reads like a typo and \"206000 Number\" reads like a bug. A unit that is\n// a symbol joins the number, a unit that is a word follows a space, and FRED's\n// placeholder unit for a plain count is dropped.\nconst withUnits = (r) => {\n  const u = String(r.units || '').trim();\n  if (!u || u.toLowerCase() === 'number') return String(r.value);\n  return /^[%°]/.test(u) || u === 'pp' ? r.value + u : r.value + ' ' + u;\n};\n\nconst arrow = (r) => {\n  if (r.quarter_move_pct === null || r.quarter_move_pct === undefined) return '';\n  const s = r.quarter_move_pct > 0 ? '+' : '';\n  return '  (' + s + r.quarter_move_pct + '% over the quarter)';\n};\n\nconst lines = [];\nlines.push('*Macro regime check* - ' + new Date().toISOString().slice(0, 10));\nlines.push('');\nlines.push(reading || '_no reading was returned this week_');\nlines.push('');\nlines.push('*Changed regime*');\nshifted.forEach((r) => {\n  lines.push(\n    '- *' + label(r) + '*: ' + withUnits(r) +\n    ' - ' + (r.previous_regime || 'unknown') + ' to *' + r.regime + '*' + arrow(r)\n  );\n  if (r.note) lines.push('    ' + r.note);\n  if (r.streak >= 3) {\n    lines.push('    ' + r.streak + ' consecutive moves ' + r.streak_direction + '.');\n  }\n});\n\nlines.push('');\nlines.push('*Unchanged* - ' + usable.filter((r) => !r.shifted).length + ' of ' + usable.length + ' series');\nusable\n  .filter((r) => !r.shifted)\n  .forEach((r) => {\n    lines.push('- ' + label(r) + ': ' + withUnits(r) + ' (' + r.regime + ')');\n  });\n\n// A series that failed is reported, not dropped. A watchlist that quietly\n// shrinks reads as a calm week.\nif (broken.length) {\n  lines.push('');\n  lines.push('*Not read this week*');\n  broken.forEach((r) => lines.push('- ' + r.series_id + ': ' + (r.reason || 'no data')));\n}\n\nconst holidays = usable.reduce((a, r) => a + (r.unpublished || 0), 0);\nif (holidays) {\n  lines.push('');\n  lines.push('_' + holidays + ' observation(s) were unpublished and skipped._');\n}\n\nreturn [{ json: { message: lines.join('\\n'), shifted: shifted.length } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t62-sl",
+      "name": "Send The Brief",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        5468,
+        460
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#macro"
+        },
+        "operation": "post",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "t62-np",
+      "name": "Nothing Shifted This Week",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        5180,
+        700
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Explain What It Means",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Ask What The Server Offers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Or Run It Now": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write The Brief": {
+      "main": [
+        [
+          {
+            "node": "Send The Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The History": {
+      "main": [
+        [
+          {
+            "node": "Wait For Both Calls",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Ask For The History": {
+      "main": [
+        [
+          {
+            "node": "Read The History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Did A Regime Shift?": {
+      "main": [
+        [
+          {
+            "node": "Explain What It Means",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nothing Shifted This Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick The Indicators": {
+      "main": [
+        [
+          {
+            "node": "Ask What The Series Is",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Ask For The History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait For Both Calls": {
+      "main": [
+        [
+          {
+            "node": "Score Each Indicator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday Morning": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Each Indicator": {
+      "main": [
+        [
+          {
+            "node": "Add The Derived Signals",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explain What It Means": {
+      "main": [
+        [
+          {
+            "node": "Write The Brief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only Series With Data": {
+      "main": [
+        [
+          {
+            "node": "Save This Week's Reading",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask What The Series Is": {
+      "main": [
+        [
+          {
+            "node": "Read The Series Description",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare With Last Week": {
+      "main": [
+        [
+          {
+            "node": "Only Series With Data",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Did A Regime Shift?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add The Derived Signals": {
+      "main": [
+        [
+          {
+            "node": "Compare With Last Week",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Last Week's Reading": {
+      "main": [
+        [
+          {
+            "node": "Pick The Indicators",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check The Tools Are There": {
+      "main": [
+        [
+          {
+            "node": "Read Last Week's Reading",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask What The Server Offers": {
+      "main": [
+        [
+          {
+            "node": "Check The Tools Are There",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Series Description": {
+      "main": [
+        [
+          {
+            "node": "Wait For Both Calls",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track macro regime shifts with FRED MCP, OpenAI, and Slack alerts",
+    "wechat": "youandme10086",
+    "id": 19402,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,0 +1,544 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Sync Asana task due dates with Google Calendar events",
+    "wechat": "youandme10086",
+    "id": 17269,
+    "update_time": "2026-09-27"
+  },
+  "name": "Sync Asana task due dates to Google Calendar",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "19d87d38-fd11-466f-8c4d-9f3608811bca",
+      "name": "Every 15 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        128
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "9a8281a5-ad63-4a8f-b8d2-f5de8af5e4d0",
+      "name": "Set Sync Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        224,
+        128
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "asanaProjectGid",
+              "type": "string",
+              "value": "REPLACE_WITH_YOUR_ASANA_PROJECT_GID"
+            },
+            {
+              "id": "a2",
+              "name": "calendarId",
+              "type": "string",
+              "value": "REPLACE_WITH_YOUR_CALENDAR_ID"
+            },
+            {
+              "id": "a3",
+              "name": "timedEventMinutes",
+              "type": "number",
+              "value": 30
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2f5befff-da59-4ee9-b700-3c8419d911eb",
+      "name": "Get Asana Tasks",
+      "type": "n8n-nodes-base.asana",
+      "position": [
+        80,
+        544
+      ],
+      "parameters": {
+        "filters": {
+          "project": "={{ $('Set Sync Config').first().json.asanaProjectGid }}",
+          "opt_fields": [
+            "gid",
+            "name",
+            "due_on",
+            "due_at",
+            "completed",
+            "permalink_url",
+            "assignee.name"
+          ]
+        },
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "credentials": {
+        "asanaApi": {
+          "id": "REPLACE_WITH_YOUR_ASANA_CREDENTIAL",
+          "name": "Asana account"
+        }
+      },
+      "typeVersion": 1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "fda8d57b-bc99-42f2-94a3-997e5598983b",
+      "name": "Get Synced Events",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        304,
+        544
+      ],
+      "parameters": {
+        "options": {
+          "query": "asana_gid:"
+        },
+        "timeMax": "={{ $now.plus({ years: 5 }) }}",
+        "timeMin": "={{ $now.minus({ years: 5 }) }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set Sync Config').first().json.calendarId }}"
+        },
+        "operation": "getAll",
+        "returnAll": true
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 1.3,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "62243335-0dbd-41eb-8fae-035d3d38b029",
+      "name": "Reconcile Tasks and Events",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        592,
+        544
+      ],
+      "parameters": {
+        "jsCode": "// Reconcile Asana tasks against the calendar events this workflow created.\n// Idempotency key: the \"asana_gid:<GID>\" token stored in each event description.\nconst cfg = $('Set Sync Config').first().json;\nconst calendarId = cfg.calendarId;\nconst durationMin = Number(cfg.timedEventMinutes) || 30;\n\nconst tasks = $('Get Asana Tasks').all().map((i) => i.json);\nconst events = $input.all().map((i) => i.json);\n\nconst TOKEN = 'asana_gid:';\nconst eventByGid = {};\nfor (const ev of events) {\n  const desc = String(ev.description || '');\n  const m = desc.match(/asana_gid:(\\d+)/);\n  if (m) eventByGid[m[1]] = ev;\n}\n\nconst dateOnly = (iso) => iso.slice(0, 10);\nconst out = [];\nconst seen = new Set();\n\nfor (const t of tasks) {\n  const gid = t.gid == null ? '' : String(t.gid);\n  if (!gid) continue;\n  seen.add(gid);\n\n  const hasDue = Boolean(t.due_on || t.due_at);\n  const isOpen = t.completed !== true;\n  const existing = eventByGid[gid];\n\n  if (isOpen && hasDue) {\n    const timed = Boolean(t.due_at);\n    let start;\n    let end;\n    let allday;\n    if (timed) {\n      allday = 'no';\n      start = t.due_at;\n      end = new Date(new Date(t.due_at).getTime() + durationMin * 60000).toISOString();\n    } else {\n      allday = 'yes';\n      start = t.due_on;\n      end = dateOnly(new Date(new Date(t.due_on + 'T00:00:00Z').getTime() + 86400000).toISOString());\n    }\n    const assignee = t.assignee && t.assignee.name ? t.assignee.name : 'Unassigned';\n    const link = t.permalink_url ? 'Asana task: ' + t.permalink_url : '';\n    const description = [\n      link,\n      'Assignee: ' + assignee,\n      '',\n      TOKEN + gid,\n      'Synced from Asana by n8n. Keep the line above so updates match this event.',\n    ].filter((l) => l !== '').join('\\n');\n\n    out.push({\n      json: {\n        action: existing ? 'update' : 'create',\n        eventId: existing ? existing.id || '' : '',\n        calendarId,\n        summary: t.name || 'Untitled task',\n        description,\n        start,\n        end,\n        allday,\n        gid,\n      },\n    });\n  } else if (existing) {\n    out.push({\n      json: { action: 'delete', eventId: existing.id || '', calendarId, gid, summary: t.name || '' },\n    });\n  }\n}\n\nfor (const gid of Object.keys(eventByGid)) {\n  if (!seen.has(gid)) {\n    out.push({\n      json: { action: 'delete', eventId: eventByGid[gid].id || '', calendarId, gid, summary: '' },\n    });\n  }\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2697aabf-cb8d-4c70-93d8-e06f5a5bf1fc",
+      "name": "Route by Action",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        848,
+        528
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "create",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "create"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "update",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "update"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "delete",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.action }}",
+                    "rightValue": "delete"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "612af32b-33ef-4757-9c0b-d98cba781136",
+      "name": "Create Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        1280,
+        336
+      ],
+      "parameters": {
+        "end": "={{ $json.end }}",
+        "start": "={{ $json.start }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.calendarId }}"
+        },
+        "additionalFields": {
+          "allday": "={{ $json.allday }}",
+          "summary": "={{ $json.summary }}",
+          "description": "={{ $json.description }}"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "8c65c933-fcf2-4043-b655-cf07e95d5d02",
+      "name": "Build Run Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        608,
+        976
+      ],
+      "parameters": {
+        "jsCode": "// Count what the reconcile step decided this run.\nconst actions = $('Reconcile Tasks and Events').all().map((i) => i.json.action);\nconst summary = {\n  created: actions.filter((a) => a === 'create').length,\n  updated: actions.filter((a) => a === 'update').length,\n  deleted: actions.filter((a) => a === 'delete').length,\n  total: actions.length,\n  ranAt: $now.toISO(),\n};\nreturn [{ json: summary }];"
+      },
+      "executeOnce": true,
+      "typeVersion": 2
+    },
+    {
+      "id": "b52c0edb-a0a5-48e2-8e6a-e16eb7a587ed",
+      "name": "Done",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        816,
+        976
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "005be5f0-9b2e-43d5-8da2-57f1e01f4f7a",
+      "name": "Update Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        1280,
+        544
+      ],
+      "parameters": {
+        "eventId": "={{ $json.eventId }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.calendarId }}"
+        },
+        "operation": "update",
+        "updateFields": {
+          "end": "={{ $json.end }}",
+          "start": "={{ $json.start }}",
+          "allday": "={{ $json.allday }}",
+          "summary": "={{ $json.summary }}",
+          "description": "={{ $json.description }}"
+        }
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "880fa3d0-7c90-4a08-8675-0dc316a3ef41",
+      "name": "Delete Calendar Event",
+      "type": "n8n-nodes-base.googleCalendar",
+      "position": [
+        1280,
+        768
+      ],
+      "parameters": {
+        "eventId": "={{ $json.eventId }}",
+        "options": {},
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $json.calendarId }}"
+        },
+        "operation": "delete"
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_CALENDAR_CREDENTIAL",
+          "name": "Google Calendar account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "3c73dd2c-6a57-41b8-b99c-baf066371ec7",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        144
+      ],
+      "parameters": {
+        "width": 528,
+        "height": 764,
+        "content": "## Sync Asana task due dates to Google Calendar\n\n### How it works\n\n1. A schedule trigger runs every 15 minutes and reads the target project and calendar from one config node.\n2. It pulls every Asana task in the project with its due date, completion state, and assignee.\n3. It lists the calendar events this workflow already created, matched by the `asana_gid` token in each event.\n4. A code node compares the two sets and decides, per task, whether to create, update, or delete an event.\n5. A switch routes each task to the matching Google Calendar action, so a task never gets a duplicate event.\n\n### Setup steps\n\n- [ ] Add an Asana Personal Access Token credential and select it on the `Get Asana Tasks` node.\n- [ ] Add a Google Calendar credential and select it on the three calendar nodes.\n- [ ] Open `Set Sync Config` and set your Asana project GID and target calendar ID.\n- [ ] Run the workflow once to backfill, then activate it.\n\n### Customization\n\nChange the schedule interval, point it at a different project or calendar, or edit the event title and description in the `Reconcile Tasks and Events` node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6abdfa45-542b-466f-ba25-a9f5bf0f4b11",
+      "name": "Section Config",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 444,
+        "height": 368,
+        "content": "## Schedule and configuration\n\nRuns on a timer and reads the one project and one calendar to sync."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "db119cfc-3109-4b0a-9d25-b959f5e45d49",
+      "name": "Section Read",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        368
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 444,
+        "height": 368,
+        "content": "## Read tasks and calendar events\n\nPulls Asana tasks with due dates and the events this workflow already created."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "03fa4b18-855b-4c91-8a61-b446856014d7",
+      "name": "Section Match",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        368
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 492,
+        "height": 368,
+        "content": "## Match events by task GID\n\nThe `asana_gid` token in each event is the idempotency key. The code node diffs tasks against events."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ffd912b5-c0b2-420f-8e18-6c07c845d608",
+      "name": "Section Write",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1104,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 456,
+        "height": 788,
+        "content": "## Create, update, or delete events\n\nCreates an event for a new task, updates the existing one, or deletes it when the task is done or loses its date."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "99281985-0fde-48cd-9f24-a74cec67b093",
+      "name": "Section Summary",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        816
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 476,
+        "height": 312,
+        "content": "## Summarize the run\n\nCounts how many events were created, updated, and deleted this run."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Get Asana Tasks": {
+      "main": [
+        [
+          {
+            "node": "Get Synced Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Action": {
+      "main": [
+        [
+          {
+            "node": "Create Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Update Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Delete Calendar Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Sync Config": {
+      "main": [
+        [
+          {
+            "node": "Get Asana Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Set Sync Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Run Summary": {
+      "main": [
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Synced Events": {
+      "main": [
+        [
+          {
+            "node": "Reconcile Tasks and Events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconcile Tasks and Events": {
+      "main": [
+        [
+          {
+            "node": "Route by Action",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Run Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

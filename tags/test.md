@@ -1,4 +1,4 @@
-# test : 28
+# test : 36
 
 |id|file|
 |----|----|
@@ -30,3 +30,11 @@
 |16639|[16639_Log_Strava_zone_2_and_5K_test_runs_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16639_Log_Strava_zone_2_and_5K_test_runs_to_Google_Sheets.json)|
 |16749|[16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json)|
 |16785|[16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json)|
+|16832|[16832_Sync_Salesforce_MQL_lead_journey_timelines_with_Factors.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16832_Sync_Salesforce_MQL_lead_journey_timelines_with_Factors.ai.json)|
+|17361|[17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json)|
+|18000|[18000_Optimize_daily_schedules_with_Groq__Google_Sheets__Calendar__Gmail__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18000_Optimize_daily_schedules_with_Groq__Google_Sheets__Calendar__Gmail__and_Twilio.json)|
+|18133|[18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json)|
+|18347|[18347_Analyze_pentest_reports_and_create_remediation_tickets_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18347_Analyze_pentest_reports_and_create_remediation_tickets_with_OpenAI_and_Slack.json)|
+|19075|[19075_Block_noindex_SEO_regressions_in_deploy_pipelines_with_webhook_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19075_Block_noindex_SEO_regressions_in_deploy_pipelines_with_webhook_and_Slack.json)|
+|19276|[19276_Detect_missing_alcohol_test_records_with_Gemini__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19276_Detect_missing_alcohol_test_records_with_Gemini__Gmail__Slack_and_Google_Sheets.json)|
+|19355|[19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json)|

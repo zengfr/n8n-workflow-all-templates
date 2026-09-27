@@ -1,4 +1,4 @@
-# reconciliation : 14
+# reconciliation : 19
 
 |id|file|
 |----|----|
@@ -16,3 +16,8 @@
 |15222|[15222_Fetch_Telr_payment_reports_to_SQL_and_send_daily_email_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15222_Fetch_Telr_payment_reports_to_SQL_and_send_daily_email_summaries.json)|
 |15838|[15838_Invoice_Reconciliation_Automation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15838_Invoice_Reconciliation_Automation.json)|
 |15856|[15856_Reconcile_trade_mismatches_in_Google_Sheets_with_Groq_OpenAI_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15856_Reconcile_trade_mismatches_in_Google_Sheets_with_Groq_OpenAI_and_Gmail_alerts.json)|
+|18420|[18420_Reconcile_bank_payments_to_invoices_with_webhooks__Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18420_Reconcile_bank_payments_to_invoices_with_webhooks__Gmail_and_data_tables.json)|
+|19010|[19010_Reconcile_invoice_payments_from_bank_statements_using_n8n_Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19010_Reconcile_invoice_payments_from_bank_statements_using_n8n_Forms.json)|
+|19067|[19067_Reconcile_LMS_student_access_with_Google_Sheets_payment_records.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19067_Reconcile_LMS_student_access_with_Google_Sheets_payment_records.json)|
+|19347|[19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json)|
+|19552|[19552_Reconcile_bank_payments_with_ERP_invoices__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19552_Reconcile_bank_payments_with_ERP_invoices__Google_Sheets__and_Slack.json)|

@@ -1,4 +1,4 @@
-# assign : 13
+# assign : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |12632|[12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12632_Scrape_Google_Maps_leads_with_GPT-4_and_assign_them_in_Notion_via_Telegram.json)|
 |15780|[15780_Triage_maintenance_tickets_and_assign_vendors_with_Airtable__Twilio_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15780_Triage_maintenance_tickets_and_assign_vendors_with_Airtable__Twilio_and_Gmail.json)|
 |16121|[16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json)|
+|18085|[18085_Score_and_assign_wealth_advisory_leads_with_Google_Sheets__Gmail__and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18085_Score_and_assign_wealth_advisory_leads_with_Google_Sheets__Gmail__and_Google_Gemini.json)|

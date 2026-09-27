@@ -1,4 +1,4 @@
-# trades : 9
+# trades : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |15192|[15192_Scan_biotech_news_for_catalyst_trades_with_FinBERT__Alpaca__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15192_Scan_biotech_news_for_catalyst_trades_with_FinBERT__Alpaca__and_Gemini.json)|
 |15329|[15329_Monitor_futures_trades_and_send_risk_alerts_using_Binance__Sheets__Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15329_Monitor_futures_trades_and_send_risk_alerts_using_Binance__Sheets__Slack_and_email.json)|
 |15857|[15857_Analyze_failed_trades_in_Google_Sheets_with_Gemini_and_send_Slack__email__and_task_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15857_Analyze_failed_trades_in_Google_Sheets_with_Gemini_and_send_Slack__email__and_task_alerts.json)|
+|17541|[17541_Track_and_alert_congressional_and_insider_trades_via_EDGAR__House.gov__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17541_Track_and_alert_congressional_and_insider_trades_via_EDGAR__House.gov__and_Gmail.json)|
+|17594|[17594_Log_US_Congress_stock_trades_for_your_watchlist_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17594_Log_US_Congress_stock_trades_for_your_watchlist_with_Apify_and_Google_Sheets.json)|

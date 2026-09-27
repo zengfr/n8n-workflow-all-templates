@@ -1,4 +1,4 @@
-# drift : 7
+# drift : 15
 
 |id|file|
 |----|----|
@@ -9,3 +9,11 @@
 |15135|[15135_Monitor_AI_quality_drift_with_GPT-4o-mini_evaluations_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15135_Monitor_AI_quality_drift_with_GPT-4o-mini_evaluations_and_Slack_alerts.json)|
 |15333|[15333_Track_commodity_portfolio_drift_with_Google_Sheets__Gemini_AI_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15333_Track_commodity_portfolio_drift_with_Google_Sheets__Gemini_AI_and_Gmail_alerts.json)|
 |16699|[16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json)|
+|17616|[17616_Reconcile_Discord_roles_with_Google_Sheets_rosters_and_report_drift_weekly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17616_Reconcile_Discord_roles_with_Google_Sheets_rosters_and_report_drift_weekly.json)|
+|18376|[18376_Track_IBM_Quantum_backend_drift_with_Bell_tests__Sheets__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18376_Track_IBM_Quantum_backend_drift_with_Bell_tests__Sheets__Gmail_and_OpenAI.json)|
+|18449|[18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json)|
+|19069|[19069_Send_nightly_staging_vs_production_drift_digest_from_Google_Sheets_with_Snapshot_Site_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19069_Send_nightly_staging_vs_production_drift_digest_from_Google_Sheets_with_Snapshot_Site_and_Slack.json)|
+|19070|[19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json)|
+|19199|[19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19199_Track_analyst_target_and_rating_drift_with_Yahoo_Finance_MCP__OpenAI__and_Telegram.json)|
+|19347|[19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json)|
+|19635|[19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json)|

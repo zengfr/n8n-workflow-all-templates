@@ -1,4 +1,4 @@
-# stage : 14
+# stage : 16
 
 |id|file|
 |----|----|
@@ -16,3 +16,5 @@
 |16011|[16011_Score_inbound_leads_with_Claude_and_route_HubSpot_lifecycle_stages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16011_Score_inbound_leads_with_Claude_and_route_HubSpot_lifecycle_stages.json)|
 |16076|[16076_Notify_HubSpot_deal_stage_changes_with_OpenAI__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16076_Notify_HubSpot_deal_stage_changes_with_OpenAI__Slack_and_Gmail.json)|
 |16667|[16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json)|
+|17122|[17122_Draft_and_stage_LinkedIn_re-engagements_with_HeyReach__Twain__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17122_Draft_and_stage_LinkedIn_re-engagements_with_HeyReach__Twain__and_Slack.json)|
+|18563|[18563_Build_a_dual-stage_RAG_chat_assistant_with_Google_Drive__Ollama__Pinecone_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18563_Build_a_dual-stage_RAG_chat_assistant_with_Google_Drive__Ollama__Pinecone_and_Gemini.json)|

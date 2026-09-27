@@ -1,4 +1,4 @@
-# ffmpeg : 9
+# ffmpeg : 17
 
 |id|file|
 |----|----|
@@ -11,3 +11,11 @@
 |11584|[11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11584_Extract_Viral-Worthy_Clips_from_YouTube_Videos_with_Gemini_AI___FFmpeg_Editing.json)|
 |11591|[11591_Create___Publish_Inspirational_Videos_with_FFmpeg__Google_Drive___YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11591_Create___Publish_Inspirational_Videos_with_FFmpeg__Google_Drive___YouTube.json)|
 |13088|[13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13088_Create_hours-long_wave_music_videos_with_Suno__ffmpeg-api_and_YouTube.json)|
+|17184|[17184_Create_voiceover_MP3s_and_karaoke_subtitles_using_Edge_TTS_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17184_Create_voiceover_MP3s_and_karaoke_subtitles_using_Edge_TTS_and_FFmpeg.json)|
+|17261|[17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json)|
+|17566|[17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json)|
+|17847|[17847_Normalize_audio_loudness_to_broadcast_and_social_standards_with_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17847_Normalize_audio_loudness_to_broadcast_and_social_standards_with_FFmpeg.json)|
+|18485|[18485_Combine_mismatched_video_clips_into_a_single_MP4_with_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18485_Combine_mismatched_video_clips_into_a_single_MP4_with_FFmpeg.json)|
+|18486|[18486_Burn_word-highlighted_karaoke_captions_onto_videos_with_FFmpeg_and_FFprobe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18486_Burn_word-highlighted_karaoke_captions_onto_videos_with_FFmpeg_and_FFprobe.json)|
+|18487|[18487_Detect_silence_and_speech_segments_in_audio_files_with_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18487_Detect_silence_and_speech_segments_in_audio_files_with_FFmpeg.json)|
+|19684|[19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json)|

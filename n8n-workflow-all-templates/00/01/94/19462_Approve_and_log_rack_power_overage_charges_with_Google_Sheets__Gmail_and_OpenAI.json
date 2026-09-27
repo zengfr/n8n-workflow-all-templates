@@ -1,0 +1,1154 @@
+{
+  "id": "sTaJayZmb61VwElZ",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Approve and log rack power overage charges with Google Sheets, Gmail and OpenAI",
+    "wechat": "youandme10086",
+    "id": 19462,
+    "update_time": "2026-09-27"
+  },
+  "name": "Data Center Colocation Rack Power Overage Billing Approval",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "60d58155-572a-4761-ae22-7d91d1510ed4",
+      "name": "Rack Power Threshold Alert",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        640,
+        208
+      ],
+      "webhookId": "c6627cd9-ca51-4be4-918e-e6b903a661ce",
+      "parameters": {
+        "path": "dcim-power-alert",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "18c4e243-af95-48d5-9cff-f7313fef2e61",
+      "name": "Normalize Alert Payload",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1008,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "customerId",
+              "type": "string",
+              "value": "={{ $json.customerId }}"
+            },
+            {
+              "name": "rackId",
+              "type": "string",
+              "value": "={{ $json.rackId }}"
+            },
+            {
+              "name": "measuredKw",
+              "type": "number",
+              "value": "={{ Number($json.measuredKw ?? 0) }}"
+            },
+            {
+              "name": "measuredAt",
+              "type": "string",
+              "value": "={{ $json.measuredAt ?? $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "590e663b-7d24-4f31-992b-2e652b105d4c",
+      "name": "Fetch Customer Contract Power Allocation",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1360,
+        208
+      ],
+      "parameters": {
+        "operation": "lookup",
+        "documentId": {
+          "mode": "list",
+          "value": "Colocation Contract Ledger"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "ca111acd-b2cd-4c36-b561-02d8669a2cd3",
+      "name": "Compute Overage Amount & Billing Tier",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1728,
+        208
+      ],
+      "parameters": {
+        "jsCode": "const item = $json;\nconst allocatedKw = Number(item.allocatedKw ?? 5);\nconst graceThresholdPct = 0.05; // 5% grace band before any charge\nconst overageKw = Math.max(0, item.measuredKw - allocatedKw);\nconst overagePct = allocatedKw > 0 ? overageKw / allocatedKw : 0;\nconst withinGrace = overagePct <= graceThresholdPct;\nlet tierRate = 0;\nif (overagePct > 0.25) tierRate = 450;       // $/kW critical tier\nelse if (overagePct > 0.10) tierRate = 300;  // $/kW high tier\nelse if (overagePct > graceThresholdPct) tierRate = 180; // $/kW standard tier\nconst overageAmount = Math.round(overageKw * tierRate * 100) / 100;\nreturn {\n  ...item,\n  allocatedKw,\n  overageKw,\n  overagePct,\n  withinGrace,\n  tierRate,\n  overageAmount,\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7b681db0-9663-4f85-beae-7d4dcfb2b1fc",
+      "name": "Check Overage Threshold",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2080,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "equal"
+              },
+              "leftValue": "={{ $json.withinGrace }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4b0788fe-2fc5-496a-a2bc-3b8c1ddd4140",
+      "name": "Log Grace Period Pass",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1888,
+        656
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "billingOutcome",
+              "type": "string",
+              "value": "within_grace_no_charge"
+            },
+            {
+              "name": "finalAmount",
+              "type": "number",
+              "value": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e5786e35-f591-41e4-95f6-3012cea074d0",
+      "name": "Draft Overage Invoice Adjustment",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2448,
+        208
+      ],
+      "parameters": {
+        "text": "=Customer {{ $json.customerId }}, rack {{ $json.rackId }}, drew {{ $json.measuredKw }}kW against an allocation of {{ $json.allocatedKw }}kW ({{ (($json.overagePct)*100).toFixed(1) }}% over). Tier rate ${{ $json.tierRate }}/kW applies, computed overage amount ${{ $json.overageAmount }}. Draft a short, factual overage line-item explanation an account manager can send alongside the invoice adjustment.",
+        "options": {
+          "systemMessage": "You are a data center billing analyst. Explain overage charges factually using the given numbers only; never invent a rate or a kW figure not provided."
+        },
+        "promptType": "define"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.7,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "3c59e539-49fe-4341-9869-23839251e42e",
+      "name": "Overage Drafting Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2448,
+        1040
+      ],
+      "parameters": {
+        "model": {
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "n8n free OpenAI API credits"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "3d06664c-07a1-4690-a405-4d546fa002d6",
+      "name": "Request Ops Manager Approval",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2800,
+        208
+      ],
+      "webhookId": "84119199-9d5d-4f01-b93d-d2e784ca09e0",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ $json.text }}",
+        "options": {},
+        "subject": "=Approve overage charge: {{ $json.customerId }} / rack {{ $json.rackId }} - ${{ $json.overageAmount }}",
+        "operation": "sendAndWait",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Decision",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "approved"
+                  },
+                  {
+                    "option": "edited"
+                  },
+                  {
+                    "option": "rejected"
+                  }
+                ]
+              }
+            },
+            {
+              "fieldType": "number",
+              "fieldLabel": "overrideAmount"
+            }
+          ]
+        },
+        "responseType": "customForm"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "78714996-a55c-40d4-a3ac-21c7ff2fe209",
+      "name": "Branch on Approval",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        3168,
+        208
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.Decision }}",
+                    "rightValue": "approved"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.Decision }}",
+                    "rightValue": "edited"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.data.Decision }}",
+                    "rightValue": "rejected"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "c96c8a94-b9de-4240-a1b6-27e5b33001ed",
+      "name": "Apply Manager Override Amount",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3520,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const item = $json;\nconst overrideAmount = Number(item.data.overrideAmount);\nconst finalAmount = isFinite(overrideAmount) && overrideAmount >= 0 ? overrideAmount : item.overageAmount;\nreturn { ...item, finalAmount, billingOutcome: 'approved_with_override' };\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9bfd62ca-47c8-420b-af7b-3a4eef036f9c",
+      "name": "Log Waiver Granted",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3168,
+        1072
+      ],
+      "parameters": {
+        "columns": {
+          "rackId": "={{ $json.rackId }}",
+          "customerId": "={{ $json.customerId }}",
+          "overageAmount": "={{ $json.overageAmount }}"
+        },
+        "options": {},
+        "dataTableId": "colo_overage_waivers"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "7881c0b8-6b58-4157-8b2e-d5af48d12971",
+      "name": "Notify Customer No Charge",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3920,
+        1088
+      ],
+      "webhookId": "1e2eeb8c-9cc5-4313-880f-996e12509dd3",
+      "parameters": {
+        "sendTo": "={{ $json.customerId }}@billing-contact.example.com",
+        "message": "=Your rack briefly exceeded its allocated power draw; after review, no overage charge has been applied this cycle.",
+        "options": {},
+        "subject": "=Power usage notice - rack {{ $json.rackId }}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "115c1e68-5003-4215-8509-adf2f1641854",
+      "name": "Commit Overage Charge",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        3888,
+        208
+      ],
+      "parameters": {
+        "url": "https://api.billing.example.com/v1/charges",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "authentication": "genericCredentialType",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "customerId",
+              "value": "={{ $json.customerId }}"
+            },
+            {
+              "name": "amount",
+              "value": "={{ $json.finalAmount ?? $json.overageAmount }}"
+            },
+            {
+              "name": "billingOutcome",
+              "value": "={{ $json.billingOutcome ?? 'approved_as_drafted' }}"
+            }
+          ]
+        },
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "1bfba040-e668-4f88-af36-fb27f52fb274",
+      "name": "Merge Billing Outcomes",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        4240,
+        208
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineAll"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "c779f1b6-9fe4-4774-9128-536f13545f52",
+      "name": "Shape Billing Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4608,
+        208
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "customerId",
+              "type": "string",
+              "value": "={{ $json.customerId }}"
+            },
+            {
+              "name": "rackId",
+              "type": "string",
+              "value": "={{ $json.rackId }}"
+            },
+            {
+              "name": "billingOutcome",
+              "type": "string",
+              "value": "={{ $json.billingOutcome ?? 'approved_as_drafted' }}"
+            },
+            {
+              "name": "finalAmount",
+              "type": "number",
+              "value": "={{ $json.finalAmount ?? $json.overageAmount ?? 0 }}"
+            },
+            {
+              "name": "decidedAt",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "44aa7a90-daf5-49c3-9052-aac8b79ad83a",
+      "name": "Log Billing Decision",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4960,
+        208
+      ],
+      "parameters": {
+        "columns": {
+          "rackId": "={{ $('Shape Billing Record').item.json.rackId }}",
+          "customerId": "={{ $('Shape Billing Record').item.json.customerId }}",
+          "finalAmount": "={{ $('Shape Billing Record').item.json.finalAmount }}",
+          "billingOutcome": "={{ $('Shape Billing Record').item.json.billingOutcome }}"
+        },
+        "options": {},
+        "dataTableId": "colo_billing_decisions"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "6c4547d1-3112-4688-a0c1-597a44181020",
+      "name": "Update Sheets Billing Ledger",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5328,
+        208
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "rackId": "={{ $('Shape Billing Record').item.json.rackId }}",
+            "decidedAt": "={{ $('Shape Billing Record').item.json.decidedAt }}",
+            "customerId": "={{ $('Shape Billing Record').item.json.customerId }}",
+            "finalAmount": "={{ $('Shape Billing Record').item.json.finalAmount }}",
+            "billingOutcome": "={{ $('Shape Billing Record').item.json.billingOutcome }}"
+          }
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "mode": "list",
+          "value": "Overage Billing Log"
+        },
+        "documentId": {
+          "mode": "list",
+          "value": "Colocation Contract Ledger"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.5,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "65c18eec-e940-47cb-8772-07d427984920",
+      "name": "Notify Finance",
+      "type": "n8n-nodes-base.telegram",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5680,
+        208
+      ],
+      "webhookId": "034fee7e-c34d-4071-85e7-05c000107183",
+      "parameters": {
+        "text": "=Billing decision for {{ $('Shape Billing Record').item.json.customerId }} / rack {{ $('Shape Billing Record').item.json.rackId }}: {{ $('Shape Billing Record').item.json.billingOutcome }}, ${{ $('Shape Billing Record').item.json.finalAmount }}.",
+        "chatId": "colo_finance_channel",
+        "additionalFields": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "9385028e-a7c1-434d-8094-10ca0180b7e4",
+      "name": "📘 WORKFLOW DETAILS",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -64
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 460,
+        "height": 570,
+        "content": "DATA CENTER COLOCATION RACK POWER OVERAGE BILLING APPROVAL\nValue: turns a raw DCIM power-threshold alert into a manager-approved, correctly-tiered overage charge with a full audit trail.\n\nWHO IT'S FOR: colocation operations and billing teams who currently calculate power overage charges by hand and chase down manager sign-off over email or Slack.\n\nHOW IT WORKS:\n1. Webhook receives a rack power threshold alert from the DCIM monitoring system.\n2. Normalize + Fetch Contract pull the customer's contracted kW allocation.\n3. Compute Overage Amount & Billing Tier (Code) applies a grace band and a 3-tier $/kW rate — real math, not a prompt.\n4. Branch 1 exits draws within the grace band with no charge.\n5. For billable overages, AI drafts a factual invoice-adjustment explanation.\n6. A Gmail send-and-wait pauses the workflow for ops manager approval (Approve / Edit / Reject) — nothing bills without a human.\n7. Branch 2 (3-way) commits the charge, applies a manager override amount, or waives it entirely.\n8. Every outcome merges into one audit log across a Data Table, a Sheets ledger, and a Telegram alert to finance.\n\nNODE SUMMARY: Rack Power Threshold Alert (webhook) -> Normalize Alert Payload -> Fetch Customer Contract Power Allocation -> Compute Overage Amount & Billing Tier (Code) -> Check Overage Threshold (branch) -> Draft Overage Invoice Adjustment (AI) / Log Grace Period Pass -> Request Ops Manager Approval (send-and-wait) -> Branch on Approval (branch, 3-way) -> Commit Overage Charge / Apply Manager Override Amount / Log Waiver Granted -> Notify Customer No Charge -> Merge Billing Outcomes -> Shape Billing Record -> Log Billing Decision -> Update Sheets Billing Ledger -> Notify Finance.\n\nINPUT: a DCIM power-threshold alert webhook. OUTPUT: a committed billing charge (or waiver), a customer email where relevant, and a billing-decision log in a Data Table, Sheet, and Telegram alert.\n\nSTICKY COLOUR LEGEND: trigger=1 (yellow), transform=2 (grey/teal), ai=3 (purple/blue), branch=4 (orange), storage=5 (green), notify=6 (red/pink)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3d8d381-1f45-4109-b5da-c098b5809f03",
+      "name": "⚙️ SETUP GUIDE",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        576
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 460,
+        "height": 618,
+        "content": "REQUIRED CREDENTIALS:\n- Google Sheets OAuth2 -> Fetch Customer Contract Power Allocation, Update Sheets Billing Ledger\n- OpenAI API -> Overage Drafting Model\n- Gmail OAuth2 (swapnilailabs@gmail.com) -> Request Ops Manager Approval, Notify Customer No Charge\n- Telegram API -> Notify Finance\n- HTTP header auth for your billing system -> Commit Overage Charge\n\nSETUP STEPS:\n1. Point your DCIM/power-monitoring system's threshold-alert webhook at this workflow's URL.\n2. Create/verify the Colocation Contract Ledger Sheet with a Power Allocations tab (customerId, allocatedKw) and an Overage Billing Log tab.\n3. Attach the Sheets credential to both Sheets nodes.\n4. Attach OpenAI credential to the Overage Drafting Model sub-node.\n5. Set the ops manager's real email on Request Ops Manager Approval and confirm the approval form fields (Decision, overrideAmount).\n6. Set real billing API URL/auth on Commit Overage Charge.\n7. Set the finance Telegram chat ID on Notify Finance.\n8. Adjust the grace band (default 5%) and tier rates (180/300/450 $/kW) in Compute Overage Amount & Billing Tier.\n\nCONFIG VALUES TO CHANGE: grace band %, tier rates, billing API URL/auth, ops manager email, Telegram chat ID.\n\nTEST: send a test webhook with measuredKw well above a sample allocation, approve the request when it lands in your inbox, and confirm Commit Overage Charge fires and the ledger updates.\n\nESTIMATED SETUP TIME: 30-35 minutes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5ca8a9c3-5b64-487f-ab87-ce2954d7699c",
+      "name": "🎨 CUSTOMISATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        1248
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 460,
+        "height": 420,
+        "content": "1. SWAP NOTIFICATION CHANNEL: replace Notify Finance's Telegram node with a Gmail digest for finance teams that prefer email.\n2. ADD AN APPROVAL BRANCH: add a second sendAndWait to Request Ops Manager Approval's edited path so a director co-signs overrides above a dollar threshold.\n3. CHANGE THE SCORING MODEL: adjust the grace band and tier boundaries/rates in Compute Overage Amount & Billing Tier to match your actual tariff schedule.\n4. ADD A SECOND DATA SINK: append committed charges to your accounting system via an additional HTTP Request node after Commit Overage Charge.\n5. ADAPT TO AN ADJACENT VERTICAL: retarget this exact approval-gated billing skeleton to cloud egress overage billing, shared-office metered utility overages, or manufacturing machine-time overage billing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "593440c8-d5d8-4de2-840d-91b5e10c71c3",
+      "name": "ℹ️ ADDITIONAL INFORMATION",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        1728
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 460,
+        "height": 420,
+        "content": "ERROR HANDLING: every external action node (Sheets read/write, Gmail send/wait, Data Table insert, billing API call, Telegram send) uses onError=continueRegularOutput with 3 retries at 2s intervals, so one failed call never blocks the rest of the audit log from being written.\n\nAPI COST & RATE LIMITS: 1 OpenAI call per billable overage alert (grace-band passes make none); Gmail send-and-wait consumes no extra API calls but pauses workflow execution until the manager responds or the wait times out.\n\nDATA PRIVACY: customer ID, rack ID, and power/billing figures are sent to OpenAI for the invoice-adjustment draft — no customer contact or payment details. Only billing metadata is stored in the Data Table and Sheet.\n\nLIMITATIONS: the send-and-wait step depends on the ops manager's email client supporting the response form; a manager who never responds will leave the run waiting until n8n's wait node timeout is reached. Grace band and tier rates are placeholders and must match your actual customer tariff.\n\nPREREQUISITES: a DCIM system able to fire a webhook, an OpenAI API key, Gmail/Sheets/Telegram credentials, and Data Tables created in your n8n project.\n\nCREATOR CREDIT: Swapnil AI Labs - swapnil.mandloi7@gmail.com - swapnilailabs.netlify.app"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "952a8bd0-45ce-42cc-98ff-ed17065dff64",
+      "name": "Note - Rack Power Threshold Alert",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        608,
+        -96
+      ],
+      "parameters": {
+        "width": 300,
+        "height": 214,
+        "content": "**Rack Power Threshold Alert**\nWebhook fired by the DCIM power-monitoring system when a rack crosses its alert threshold.\nPath: /dcim-power-alert.\nEntry point — carries customerId, rackId, and measuredKw."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16a4d92b-d93e-4b0c-bdc3-651df39e9fb0",
+      "name": "Note - Normalize Alert Payload",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        976,
+        -112
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 230,
+        "content": "**Normalize Alert Payload**\nFlattens the DCIM alert into stable fields: customerId, rackId, measuredKw, measuredAt.\nProtects downstream nodes from DCIM payload format changes.\nKeeps the rest of the workflow vendor-agnostic."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "87eef908-afe0-49fb-bb12-3c0d8a64d586",
+      "name": "Note - Fetch Customer Contract Power Allocation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        -96
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 214,
+        "content": "**Fetch Customer Contract Power Allocation**\nLooks up the customer's contracted kW allocation from the Colocation Contract Ledger Sheet.\nMatch key: customerId.\nRetry 3x/2s, continues on error."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6a5c71ea-7fe5-40b1-b726-d7c01286e4f5",
+      "name": "Note - Compute Overage Amount & Billing Tier",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1696,
+        -128
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 246,
+        "content": "**Compute Overage Amount & Billing Tier**\nCode node computes overageKw, a 5% grace band, and a 3-tier $/kW rate (180/300/450).\nOutputs: withinGrace, tierRate, overageAmount.\nThe real billing math lives here, not in a prompt."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a4a33542-e5d9-4b48-8a67-06f3c91a403a",
+      "name": "Note - Check Overage Threshold",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2048,
+        -96
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 214,
+        "content": "**Check Overage Threshold**\nBranch point 1: separates draws inside the 5% grace band from billable overages.\nCondition: withinGrace == true.\nMost minor fluctuations should exit here with no charge."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "81a9748e-f46e-4c9b-8075-880f136010a8",
+      "name": "Note - Log Grace Period Pass",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1744,
+        912
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 214,
+        "content": "**Log Grace Period Pass**\nRecords a no-charge outcome for draws within the grace band.\nFields: billingOutcome = within_grace_no_charge, finalAmount = 0.\nFeeds the same audit Merge as billable outcomes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "84c55c71-d792-4fc7-90db-05aa9ae539db",
+      "name": "Note - Draft Overage Invoice Adjustment",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2416,
+        -96
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 214,
+        "content": "**Draft Overage Invoice Adjustment**\nAI Agent drafts a factual overage line-item explanation using only the computed numbers.\nNever invents a rate or kW figure.\nFeeds directly into the human approval gate."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0aa6610c-39cd-4cf3-a54c-55819ce67f86",
+      "name": "Note - Overage Drafting Model",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        1264
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 300,
+        "height": 214,
+        "content": "**Overage Drafting Model**\nOpenAI chat model (gpt-4o-mini, temp 0.2) powering the invoice adjustment draft.\nLow temperature keeps the explanation factual.\nSwap here to change tone/cost."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ed62439a-4107-4d2f-bc3d-8c7927edb6d5",
+      "name": "Note - Request Ops Manager Approval",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2768,
+        -112
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 230,
+        "content": "**Request Ops Manager Approval**\nGmail send-and-wait: pauses the workflow until the ops manager responds Approve / Edit / Reject.\nControl-flow floor — nothing bills without a human decision.\nOverride amount field lets the manager adjust the charge."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "857097df-3224-4890-bce5-f9875d542e1f",
+      "name": "Note - Branch on Approval",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3136,
+        -80
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 300,
+        "height": 198,
+        "content": "**Branch on Approval**\nBranch point 2: 3-way switch on the manager's Decision field.\nOutputs: approved, edited, rejected.\nEach path leads to a genuinely different billing outcome."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "33a6c6ff-aa4b-402b-9fe4-c592321d39bf",
+      "name": "Note - Apply Manager Override Amount",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3392,
+        800
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 214,
+        "content": "**Apply Manager Override Amount**\nCode node substitutes the manager's override amount for the AI-drafted overage amount.\nFalls back to the original overageAmount if no valid override was entered.\nOnly reached on the edited branch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "49eb1b2c-9560-4e75-8870-9218f23a9f1a",
+      "name": "Note - Log Waiver Granted",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3024,
+        1264
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 182,
+        "content": "**Log Waiver Granted**\nWrites a waiver record when the manager rejects the charge.\nData Table: colo_overage_waivers.\nCustomer is not billed for this cycle's overage."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "67ca3fb4-f090-4116-9ce3-2a9b0a8d9c86",
+      "name": "Note - Notify Customer No Charge",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3760,
+        1312
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 300,
+        "height": 198,
+        "content": "**Notify Customer No Charge**\nEmails the customer that no overage charge applies after manager review.\nOnly reached on the rejected branch.\nRetry 3x/2s, continues on error."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5fad0789-d767-46a2-bd0c-e39e075f8f88",
+      "name": "Note - Commit Overage Charge",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3856,
+        -96
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 214,
+        "content": "**Commit Overage Charge**\nPOSTs the final approved (or overridden) charge to the billing API.\nEndpoint: /v1/charges.\nRetry 3x/2s, continues on error — fed by both the approved and edited branches."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3406641f-c5aa-4159-9a4b-17b50a432a16",
+      "name": "Note - Merge Billing Outcomes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4208,
+        -112
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 230,
+        "content": "**Merge Billing Outcomes**\nRecombines the committed-charge, no-charge, and grace-period branches into one audit stream.\n3 inputs, combine-all mode.\nEvery alert reaches the log regardless of outcome."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e7c26368-0c24-4ea4-b6de-5df463c30e71",
+      "name": "Note - Shape Billing Record",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4576,
+        -160
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 300,
+        "height": 278,
+        "content": "**Shape Billing Record**\nSingle source of truth for the logged decision: customerId, rackId, billingOutcome, finalAmount.\nDownstream nodes read via $('Shape Billing Record').item.json.*.\nNever read $json directly after this point."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0026945-c1d6-4138-8bcb-2f4633134ffc",
+      "name": "Note - Log Billing Decision",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4928,
+        -96
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 214,
+        "content": "**Log Billing Decision**\nWrites the final billing decision to the colo_billing_decisions Data Table.\nColumns: customerId, rackId, billingOutcome, finalAmount.\nRetry 3x/2s, continues on error."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4bfcf576-51bc-4230-a378-4edc314ea529",
+      "name": "Note - Update Sheets Billing Ledger",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5296,
+        -112
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 300,
+        "height": 230,
+        "content": "**Update Sheets Billing Ledger**\nAppends the same decision to the human-readable Overage Billing Log tab.\nGives finance a spreadsheet view alongside the Data Table.\nRetry 3x/2s, continues on error."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b8062d41-15ae-44b8-a8d4-f13fa2e1be39",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5728,
+        -144
+      ],
+      "parameters": {
+        "width": 336,
+        "height": 224,
+        "content": "**Notify Finance**\nPosts the final billing outcome and amount to the finance Telegram channel.\nFinal step in the approval-to-billing pipeline.\nGives finance real-time visibility without opening the ledger."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "81249f89-8f8a-4b63-9eca-6cb1f38e2b8f",
+  "nodeGroups": [],
+  "connections": {
+    "Branch on Approval": {
+      "main": [
+        [
+          {
+            "node": "Commit Overage Charge",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Apply Manager Override Amount",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Waiver Granted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Waiver Granted": {
+      "main": [
+        [
+          {
+            "node": "Notify Customer No Charge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Billing Decision": {
+      "main": [
+        [
+          {
+            "node": "Update Sheets Billing Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Billing Record": {
+      "main": [
+        [
+          {
+            "node": "Log Billing Decision",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Commit Overage Charge": {
+      "main": [
+        [
+          {
+            "node": "Merge Billing Outcomes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Billing Outcomes": {
+      "main": [
+        [
+          {
+            "node": "Shape Billing Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Overage Drafting Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Draft Overage Invoice Adjustment",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Overage Threshold": {
+      "main": [
+        [
+          {
+            "node": "Draft Overage Invoice Adjustment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Grace Period Pass",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Alert Payload": {
+      "main": [
+        [
+          {
+            "node": "Fetch Customer Contract Power Allocation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify Customer No Charge": {
+      "main": [
+        [
+          {
+            "node": "Merge Billing Outcomes",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Rack Power Threshold Alert": {
+      "main": [
+        [
+          {
+            "node": "Normalize Alert Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Request Ops Manager Approval": {
+      "main": [
+        [
+          {
+            "node": "Branch on Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Sheets Billing Ledger": {
+      "main": [
+        [
+          {
+            "node": "Notify Finance",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Manager Override Amount": {
+      "main": [
+        [
+          {
+            "node": "Commit Overage Charge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Draft Overage Invoice Adjustment": {
+      "main": [
+        [
+          {
+            "node": "Request Ops Manager Approval",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compute Overage Amount & Billing Tier": {
+      "main": [
+        [
+          {
+            "node": "Check Overage Threshold",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Customer Contract Power Allocation": {
+      "main": [
+        [
+          {
+            "node": "Compute Overage Amount & Billing Tier",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

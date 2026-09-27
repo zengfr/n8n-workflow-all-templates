@@ -1,4 +1,4 @@
-# advanced : 34
+# advanced : 41
 
 |id|file|
 |----|----|
@@ -36,3 +36,10 @@
 |13410|[13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13410_Search_hardware_inventory_with_Supabase_vector_RAG_and_Google_Gemini.json)|
 |16432|[16432_Analyze_inflation_hedges_with_OpenAI_GPT-4.1-mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16432_Analyze_inflation_hedges_with_OpenAI_GPT-4.1-mini_and_Gmail.json)|
 |16714|[16714_Generate_Salesforce_opportunity_next_steps_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16714_Generate_Salesforce_opportunity_next_steps_with_Gemini_and_Slack.json)|
+|18246|[18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json)|
+|18248|[18248_Predict_transformer_overload_risk_and_send_alerts_via_HTTP_APIs__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18248_Predict_transformer_overload_risk_and_send_alerts_via_HTTP_APIs__email__and_Slack.json)|
+|18268|[18268_Extract_invoice_data_from_Gmail_PDF_attachments_to_Google_Sheets_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18268_Extract_invoice_data_from_Gmail_PDF_attachments_to_Google_Sheets_with_GPT-4.1-mini.json)|
+|18449|[18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json)|
+|18451|[18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18451_Summarize_daily_security_logs_with_OpenAI_and_send_briefings_via_WhatsApp_and_email.json)|
+|19463|[19463_Route_Alertmanager_incidents_with_OpenAI_GPT-4.1__Slack__PagerDuty__and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19463_Route_Alertmanager_incidents_with_OpenAI_GPT-4.1__Slack__PagerDuty__and_ClickUp.json)|
+|19741|[19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json)|

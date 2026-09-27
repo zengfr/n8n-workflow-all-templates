@@ -1,4 +1,4 @@
-# icebreakers : 15
+# icebreakers : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |13282|[13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13282_Generate_research-backed_cold_email_icebreakers_with_web_scraping__OpenAI_and_Google_Sheets.json)|
 |14199|[14199_Generate_cold_email_icebreakers_and_subject_lines_with_Google_Sheets_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14199_Generate_cold_email_icebreakers_and_subject_lines_with_Google_Sheets_and_OpenAI.json)|
 |16213|[16213_Enrich_new_leads_and_write_personalized_icebreakers_with_Google_Sheets_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16213_Enrich_new_leads_and_write_personalized_icebreakers_with_Google_Sheets_and_Claude.json)|
+|17126|[17126_Find_and_verify_business_emails_with_ScraperCity__OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17126_Find_and_verify_business_emails_with_ScraperCity__OpenAI__Google_Sheets__and_Gmail.json)|
+|19381|[19381_Qualify_roofing_leads_and_send_WhatsApp_icebreakers_with_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19381_Qualify_roofing_leads_and_send_WhatsApp_icebreakers_with_Gemini_and_Sheets.json)|

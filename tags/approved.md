@@ -1,4 +1,4 @@
-# approved : 8
+# approved : 14
 
 |id|file|
 |----|----|
@@ -10,3 +10,9 @@
 |15977|[15977_Generate_and_publish_approved_employee_LinkedIn_posts_with_OpenAI_and_LinkedIn.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15977_Generate_and_publish_approved_employee_LinkedIn_posts_with_OpenAI_and_LinkedIn.json)|
 |16457|[16457_Generate_and_review_patient_SOAP_notes_with_GPT-4o_Mini__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16457_Generate_and_review_patient_SOAP_notes_with_GPT-4o_Mini__Gmail__and_Google_Sheets.json)|
 |16558|[16558_Schedule_approved_Notion_content_calendar_posts_with_Posta.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16558_Schedule_approved_Notion_content_calendar_posts_with_Posta.json)|
+|16856|[16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json)|
+|18185|[18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json)|
+|18689|[18689_Publish_approved_LinkedIn_carousels_with_Claude__Gemini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18689_Publish_approved_LinkedIn_carousels_with_Claude__Gemini__Gmail_and_Google_Sheets.json)|
+|19064|[19064_Analyze_competitor_YouTube_thumbnails_with_OpenAI_and_hand_off_approved_concepts_to_ThumbCanvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19064_Analyze_competitor_YouTube_thumbnails_with_OpenAI_and_hand_off_approved_concepts_to_ThumbCanvas.json)|
+|19419|[19419_Send_approved_Google_Sheets_rows_as_Scribble_handwritten_cards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19419_Send_approved_Google_Sheets_rows_as_Scribble_handwritten_cards.json)|
+|19591|[19591_Turn_creative_briefs_into_approved_MaxVideoAI_generations_with_human_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19591_Turn_creative_briefs_into_approved_MaxVideoAI_generations_with_human_review.json)|

@@ -1,4 +1,4 @@
-# specific : 22
+# specific : 24
 
 |id|file|
 |----|----|
@@ -24,3 +24,5 @@
 |9998|[9998_Generate_Platform-Specific_Social_Media_Posts_with_ChatGPT__Tavily___G-Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9998_Generate_Platform-Specific_Social_Media_Posts_with_ChatGPT__Tavily___G-Sheets.json)|
 |11652|[11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11652_News_Collection___Multi-Platform_Publishing_with_GPT__DALL-E__and_Social_Media_APIs.json)|
 |12355|[12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json)|
+|18716|[18716_Create_platform-specific_social_posts_from_blog_RSS_with_PostWire.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18716_Create_platform-specific_social_posts_from_blog_RSS_with_PostWire.json)|
+|19091|[19091_Compare_iOS_and_Android_review_complaints_with_Apify__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19091_Compare_iOS_and_Android_review_complaints_with_Apify__OpenAI_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# ssh : 12
+# ssh : 17
 
 |id|file|
 |----|----|
@@ -14,3 +14,8 @@
 |13565|[13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13565_Monitor_Docker_host_health_via_SSH_with_GPT-4o-mini_and_alerts_to_Discord.json)|
 |16191|[16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json)|
 |16669|[16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json)|
+|17031|[17031_Guard_Hostinger_VPS_CPU_spikes_with_Anthropic__SSH__and_email_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17031_Guard_Hostinger_VPS_CPU_spikes_with_Anthropic__SSH__and_email_approvals.json)|
+|18029|[18029_Assess_Wazuh_platform_health_and_email_HTML_reports_with_SSH_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18029_Assess_Wazuh_platform_health_and_email_HTML_reports_with_SSH_and_SMTP.json)|
+|18309|[18309_Generate_and_deploy_nginx_configs_with_SSH__web_forms_and_Cloudflare.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18309_Generate_and_deploy_nginx_configs_with_SSH__web_forms_and_Cloudflare.json)|
+|18799|[18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json)|
+|18924|[18924_Back_up_Linux_server_directories_to_Google_Drive_with_Borg_over_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18924_Back_up_Linux_server_directories_to_Google_Drive_with_Borg_over_SSH.json)|

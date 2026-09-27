@@ -1,4 +1,4 @@
-# instant : 29
+# instant : 36
 
 |id|file|
 |----|----|
@@ -31,3 +31,10 @@
 |16092|[16092_Qualify_real_estate_leads_and_send_instant_replies_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16092_Qualify_real_estate_leads_and_send_instant_replies_with_OpenAI__Gmail__and_Google_Sheets.json)|
 |16098|[16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json)|
 |16386|[16386_Qualify_inbound_leads_with_OpenAI__HubSpot__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16386_Qualify_inbound_leads_with_OpenAI__HubSpot__Slack_and_Gmail.json)|
+|16819|[16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json)|
+|16973|[16973_Search_and_preview_GIFs_with_forms_and_GIPHY.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16973_Search_and_preview_GIFs_with_forms_and_GIPHY.json)|
+|17144|[17144_Text_back_missed_callers_with_Twilio__CallRail__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17144_Text_back_missed_callers_with_Twilio__CallRail__and_email_alerts.json)|
+|17190|[17190_Send_WhatsApp_booking_links_for_Facebook_leads_with_Sheets__Redis__and_Cal.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17190_Send_WhatsApp_booking_links_for_Facebook_leads_with_Sheets__Redis__and_Cal.com.json)|
+|17475|[17475_Send_workflow_failure_alerts_via_email_and_Telegram_using_error_triggers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17475_Send_workflow_failure_alerts_via_email_and_Telegram_using_error_triggers.json)|
+|18440|[18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json)|
+|19427|[19427_Respond_to_missed_calls_with_Twilio_SMS_and_email_alerts_from_CallRail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19427_Respond_to_missed_calls_with_Twilio_SMS_and_email_alerts_from_CallRail.json)|

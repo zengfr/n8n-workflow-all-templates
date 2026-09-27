@@ -1,4 +1,4 @@
-# contract : 33
+# contract : 46
 
 |id|file|
 |----|----|
@@ -35,3 +35,16 @@
 |16379|[16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json)|
 |16699|[16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json)|
 |16753|[16753_Send_DocuSign_envelopes_with_Supabase_contract_data.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16753_Send_DocuSign_envelopes_with_Supabase_contract_data.json)|
+|16870|[16870_Review_contract_risk_and_rewrite_clauses_with_Groq__Google_Drive__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16870_Review_contract_risk_and_rewrite_clauses_with_Groq__Google_Drive__Notion__and_Slack.json)|
+|17413|[17413_Explain_contract_PDFs_and_flag_risky_clauses_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17413_Explain_contract_PDFs_and_flag_risky_clauses_with_Gemini_and_Gmail.json)|
+|17452|[17452_Analyze_contract_risk_and_red_flags_with_OpenAI_from_a_web_form.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17452_Analyze_contract_risk_and_red_flags_with_OpenAI_from_a_web_form.json)|
+|17895|[17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json)|
+|18114|[18114_Assess_contract_risk_from_Google_Drive_with_Groq__Salesforce_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18114_Assess_contract_risk_from_Google_Drive_with_Groq__Salesforce_and_Slack.json)|
+|18196|[18196_Review_contract_risks_and_route_approvals_with_Google_Drive__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18196_Review_contract_risks_and_route_approvals_with_Google_Drive__OpenAI__and_Gmail.json)|
+|18395|[18395_Track_contract_utilization_and_send_risk_alerts_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18395_Track_contract_utilization_and_send_risk_alerts_with_Groq_and_Google_Sheets.json)|
+|18592|[18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18592_Track_contract_signatures_and_onboard_clients_with_Airtable__Groq__Gmail__Trello_and_Slack.json)|
+|18748|[18748_Review_contract_clauses_against_your_playbook_with_Google_Drive_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18748_Review_contract_clauses_against_your_playbook_with_Google_Drive_and_Claude.json)|
+|18897|[18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json)|
+|19445|[19445_Check_invoice_contract_price_compliance_with_Google_Sheets_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19445_Check_invoice_contract_price_compliance_with_Google_Sheets_and_Telegram_alerts.json)|
+|19489|[19489_Triage_contract_auto-renewal_risks_with_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19489_Triage_contract_auto-renewal_risks_with_Google_Sheets__Groq__and_Slack.json)|
+|19722|[19722_Verify_contract_extraction_and_flag_hallucinated_fields_with_Judgment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19722_Verify_contract_extraction_and_flag_hallucinated_fields_with_Judgment_API.json)|

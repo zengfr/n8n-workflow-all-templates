@@ -1,4 +1,4 @@
-# agents : 123
+# agents : 133
 
 |id|file|
 |----|----|
@@ -125,3 +125,13 @@
 |16093|[16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16093_Expose_Hacker_News_tools_as_an_MCP_server_for_AI_agents.json)|
 |16537|[16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json)|
 |16638|[16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16638_Handle_clinic_appointments_via_MCP_tools_for_Vapi_and_Retell_voice_agents.json)|
+|17194|[17194_Review_HeyReach_campaign_performance_and_tune_Twain_agents_from_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17194_Review_HeyReach_campaign_performance_and_tune_Twain_agents_from_Slack.json)|
+|17314|[17314_Expose_workflows_as_an_MCP_server_for_Claude_and_OpenAI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17314_Expose_workflows_as_an_MCP_server_for_Claude_and_OpenAI_agents.json)|
+|17807|[17807_Send_certification_expiry_alerts_from_Google_Sheets_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17807_Send_certification_expiry_alerts_from_Google_Sheets_with_Gmail.json)|
+|17811|[17811_Send_weekly_shift_reminders_from_Google_Sheets_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17811_Send_weekly_shift_reminders_from_Google_Sheets_with_Gmail.json)|
+|17815|[17815_Send_weekly_timesheet_reminders_to_active_agents_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17815_Send_weekly_timesheet_reminders_to_active_agents_with_Gmail_and_Google_Sheets.json)|
+|18024|[18024_Collect_packaging_declarations_from_CSV_with_forms__AI_agents_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18024_Collect_packaging_declarations_from_CSV_with_forms__AI_agents_and_email.json)|
+|18443|[18443_Manage_LinkedIn_posts_and_engagement_with_an_MCP_server_and_AI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18443_Manage_LinkedIn_posts_and_engagement_with_an_MCP_server_and_AI_agents.json)|
+|18475|[18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json)|
+|18994|[18994_Run_real_estate_SMS_campaigns_with_GPT-4.1__Apify__Twilio__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18994_Run_real_estate_SMS_campaigns_with_GPT-4.1__Apify__Twilio__and_Google_Sheets.json)|
+|19264|[19264_Red-team_AI_agents_with_jailbreak_probes_using_Groq__Discord__and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19264_Red-team_AI_agents_with_jailbreak_probes_using_Groq__Discord__and_data_tables.json)|

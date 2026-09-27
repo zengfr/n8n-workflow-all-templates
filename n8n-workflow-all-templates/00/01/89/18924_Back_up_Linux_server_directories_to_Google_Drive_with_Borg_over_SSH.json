@@ -1,0 +1,899 @@
+{
+  "name": "Back Up Server Directories to Google Drive with Borg",
+  "nodes": [
+    {
+      "id": "fa35199c-8a8d-4ca7-816f-443cf09ade8c",
+      "name": "Build Initial Config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1264,
+        416
+      ],
+      "parameters": {
+        "jsCode": "const form = $('Get Backup Settings').first().json;\n\nconst sourceDir = (form['Source directory on the server'] || '').trim();\nconst driveId = (form['Google Drive folder ID'] || '').trim();\nconst passphrase = form['Borg encryption passphrase'] || '';\n\nconst SAFE_PATH_RE = /^\\/[A-Za-z0-9_\\-./]+$/;\nconst SAFE_DRIVE_ID_RE = /^[A-Za-z0-9_-]+$/;\nconst SHELL_METACHAR_RE = /[;&|`$(){}<>\\\\'\"\\n\\r]/;\n\nif (!SAFE_PATH_RE.test(sourceDir)) {\n  throw new Error('Invalid source directory: must be an absolute path using only letters, numbers, underscores, hyphens, dots and slashes.');\n}\n\nif (sourceDir.includes('..')) {\n  throw new Error('Invalid source directory: path traversal is not allowed.');\n}\n\nif (!SAFE_DRIVE_ID_RE.test(driveId)) {\n  throw new Error('Invalid Google Drive folder ID: only letters, numbers, underscores and hyphens are allowed.');\n}\n\nif (SHELL_METACHAR_RE.test(passphrase)) {\n  throw new Error('Invalid passphrase: contains disallowed characters.');\n}\n\nconst modeLabel = $('Get Backup Settings').first().json['Google Drive backup mode']|| '';\nconst mode = modeLabel.toLowerCase().includes('sync') ? 'sync' : 'versioned';\n\nconst encryptLabel = form['Encrypt the backup?'] || '';\nconst encrypted = !encryptLabel.toLowerCase().startsWith('no');\n\nconst config = {\n  sourceDir,\n  mode,\n  encrypted,\n  driveId\n};\n\nreturn [{\n  json: {\n    config,\n    borgPassphrase: passphrase\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "26a4452d-9e23-4bdb-a48e-e689635ade8c",
+      "name": "Export Backup Archive",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2832,
+        512
+      ],
+      "parameters": {
+        "command": "=set -e\n\nREPO=\"{{ $('Build Runtime Config').item.json.config.repoPath }}\"\nSTAGING=\"{{ $('Build Runtime Config').item.json.config.stagingDir }}\"\nOUTFILE=\"{{ $('Build Runtime Config').item.json.config.exportFileName }}\"\n\nmkdir -p \"$STAGING\"\n\n# Package the entire Borg repository into a single tar.gz\ntar -czf \"$STAGING/$OUTFILE\" \\\n    -C \"$(dirname \"$REPO\")\" \\\n    \"$(basename \"$REPO\")\"\n\necho \"export-done\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ff8a5ccc-2391-42d4-8c73-7a693a500688",
+      "name": "Download Backup Archive",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        3056,
+        512
+      ],
+      "parameters": {
+        "path": "=/tmp/borg-staging/{{ $('Build Runtime Config').item.json.config.exportFileName }}",
+        "options": {},
+        "resource": "file",
+        "operation": "download"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af21a472-54ca-4aea-bccd-6e60e9eef3f5",
+      "name": "Existing File Info",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3280,
+        512
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst existingFileId = (items.length > 0 && items[0].json && items[0].json.id) ? items[0].json.id : '';\nconst cfg = $('Build Runtime Config').item.json.config;\n\nreturn {\n  existingFileId,\n  fileBaseName: cfg.fileBaseName,\n  driveFolderId: cfg.driveFolderId,\n  driveMode: cfg.driveMode,\n  exportFileName: cfg.exportFileName,\n  archiveName: cfg.archiveName\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "afa98910-df59-457d-b11b-2319c770ba3e",
+      "name": "Cleanup: Remove Local Backup File",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        4400,
+        512
+      ],
+      "parameters": {
+        "command": "=rm -f \"{{ $('Build Runtime Config').item.json.config.stagingDir }}/{{ $('Build Runtime Config').item.json.config.exportFileName }}\"\necho \"cleanup-done\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3a7381b9-7601-45ac-a457-5755476379f3",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        1712,
+        608
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1dcbec9e-7ca3-40fe-9973-dcfa95dd613b",
+      "name": "Store Borg Passphrase on Server",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        1488,
+        416
+      ],
+      "parameters": {
+        "command": "=set -e\n\nENCRYPTED=\"{{ $json.config.encrypted }}\"\nPASSPHRASE_DIR=\"$HOME/.borg\"\nPASSPHRASE_FILE=\"$PASSPHRASE_DIR/passphrase\"\n\nmkdir -p \"$PASSPHRASE_DIR\"\nchmod 700 \"$PASSPHRASE_DIR\"\n\nif [ \"$ENCRYPTED\" = \"true\" ]; then\n  printf '%s' \"{{ $('Get Backup Settings').item.json['Borg encryption passphrase'] }}\" > \"$PASSPHRASE_FILE\"\n  chmod 600 \"$PASSPHRASE_FILE\"\n  echo \"passphrase-saved\"\nelse\n  rm -f \"$PASSPHRASE_FILE\"\n  echo \"no-encryption-configured\"\nfi"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "57bd2ef0-ca12-441e-99ea-4619ad479bdb",
+      "name": "Install Borg on Server",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2160,
+        512
+      ],
+      "parameters": {
+        "command": "=#!/bin/bash\nset -e\n\nif command -v borg >/dev/null 2>&1; then\n\techo \"Borg installed:\"\n\tborg --version\n\texit 0\nfi\n\necho \"Borg is not installed.\"\n\nif [ ! -f /etc/os-release ]; then\n\techo \"Unsupported OS\"\n\texit 1\nfi\n\n. /etc/os-release\n\nOS_ID=\"${ID:-unknown}\"\n\ncase \"$OS_ID\" in\nubuntu | debian)\n\tsudo apt-get update\n\tsudo apt-get install -y borgbackup\n\t;;\n\nfedora)\n\tsudo dnf install -y borgbackup\n\t;;\n\nrocky | rhel | centos | almalinux)\n\tif command -v dnf >/dev/null 2>&1; then\n\t\tsudo dnf install -y dnf-plugins-core\n\t\tVERSION_ID=\"${VERSION_ID:-0}\"\n\t\t# Rocky/RHEL 9+\n\t\tif [ \"${VERSION_ID%%.*}\" -ge 9 ]; then\n\t\t\tsudo dnf install -y epel-release\n\t\t\tsudo dnf config-manager --set-enabled crb\n\t\telse\n\t\t\t# Rocky/RHEL 8\n\t\t\tsudo dnf install -y epel-release\n\t\t\tsudo dnf config-manager --set-enabled powertools\n\t\tfi\n\n\t\tsudo dnf install -y borgbackup\n\n\telif command -v yum >/dev/null 2>&1; then\n\n\t\tsudo yum install -y epel-release\n\t\tsudo yum install -y borgbackup\n\n\telse\n\t\techo \"ERROR: Neither dnf nor yum is available.\"\n\t\texit 1\n\tfi\n\t;;\n\n*)\n\techo \"Unsupported OS: $OS_ID\"\n\texit 1\n\t;;\nesac\n\necho \"Borg installed:\"\nborg --version\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4033b5ce-c50e-4fd5-b280-a2646a4d74d7",
+      "name": "Build Runtime Config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2384,
+        512
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Get Config').item.json;\n\nconst sourceDir = (cfg.sourceDir || '').replace(/\\/+$/, '');\nconst fileBaseName = sourceDir.split('/').filter(Boolean).pop() || 'backup';\n\nconst now = new Date();\nconst dateStr = now.toISOString().replace(/[:.]/g, '-').slice(0, 19);\n\nconst repoPath = `$HOME/.borg-repos/${fileBaseName}`;\nconst archiveName = `${fileBaseName}-${dateStr}`;\nconst stagingDir = '/tmp/borg-staging';\n\nconst driveMode = $('Get Config').first().json.backupMode\n\nconst exportFileName = driveMode === 'versioned'\n  ? `${archiveName}.tar.gz`\n  : `${fileBaseName}-latest-backup.tar.gz`;\n\nreturn {\n  config: {\n    sourceDir,\n    fileBaseName,\n    encrypted:$('Get Config').first().json.encrypted,\n    driveFolderId: cfg.driveFolderId,\n    driveMode,\n    repoPath,\n    archiveName,\n    stagingDir,\n    exportFileName\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e3fd5c43-15af-4f32-9c49-b18e5dbfb55c",
+      "name": "Upload New Backup File (Sync)",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        4176,
+        512
+      ],
+      "parameters": {
+        "name": "={{ $('Existing File Info').item.json.exportFileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "mode": "id",
+          "value": "={{ $('Existing File Info').item.json.driveFolderId }}"
+        },
+        "inputDataFieldName": "={{ $('Download Backup Archive').item.binary.data }}"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "2d61c7ef-920f-443f-929d-6dafe7500902",
+      "name": "Upload New Backup File (Versioned)",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        4176,
+        704
+      ],
+      "parameters": {
+        "name": "={{ $('Build Runtime Config').item.json.config.archiveName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Build Runtime Config').item.json.config.driveFolderId }}"
+        },
+        "inputDataFieldName": "={{ $('Download Backup Archive').item.binary.data }}"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "6f572706-e480-4e71-8fd5-8a37b7d87a08",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        -48
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 736,
+        "content": "# Borg Backup to Google Drive\n\nThis workflow creates a Borg backup of a server directory, compresses it, and uploads it to Google Drive.\n\n## Setup\n\n1. Connect your SSH and Google Drive credentials.\n2. Open **Get Backup Settings** and complete the form.\n3. Run the workflow once to save your configuration.\n4. Configure the Schedule Trigger for automatic backups.\n\n**Important:** The form only needs to be completed on the first run. After that, scheduled executions will use the saved configuration automatically.\n\n## Backup Modes\n\n• **Sync:** Keeps only the latest backup file.\n• **Versioned:** Creates a new timestamped backup on every run.\n\n\n💡 Tip\n\nThis form is publicly reachable with basic auth only.\nFor extra safety, consider publishing the workflow only\nwhen you need to submit the form, then unpublishing it\nright after."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b669878-ba2e-4d75-9d41-358ea7b206ef",
+      "name": "Find Existing File",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        3504,
+        512
+      ],
+      "parameters": {
+        "filter": {},
+        "options": {},
+        "resource": "fileFolder",
+        "queryString": "={{ $('Build Runtime Config').item.json.config.fileBaseName }}-latest-backup.tar.gz"
+      },
+      "typeVersion": 3,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "db43557c-4f87-4b9b-8150-b6af450390a3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        208,
+        720
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 576,
+        "content": "# Restore a Backup\n\n1. Download the backup archive from Google Drive.\n2. Extract the archive:\n```\ntar -xzf backup.tar.gz\n```\n\n3. List available archives:\n```\nborg list /path/to/repository\n```\n\n4. Restore an archive:\n```\nborg extract /path/to/repository::<archive-name>\n```\n\nFor more restore options and examples:\nhttps://borgbackup.readthedocs.io/en/stable/"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c018c194-da24-487b-8e73-3a7fe24676dc",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 320,
+        "content": "## Build initial configuration\n\nTransforms the submitted settings into a stored backup configuration and writes the Borg passphrase securely on the server."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2875c5b-62ee-4815-b660-fd2448472f4b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1664,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 512,
+        "content": "## Load saved configuration\n\nSaves setup data, accepts scheduled executions, and retrieves the active configuration for the backup run."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7994517-d7ab-44ff-90a4-4b6045735b8b",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2112,
+        336
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 336,
+        "content": "## Prepare Borg runtime\n\nEnsures Borg is installed on the server and builds the final runtime values used by the backup commands."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6fbfcaf-e468-4c6c-a187-d8aa108fe1d3",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        336
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 336,
+        "content": "## Create backup archive\n\nRuns the Borg backup over SSH, exports the resulting archive, and downloads the backup artifact for upload handling."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ceb56f4-1999-4b0c-8639-55d6ddf53e13",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3232,
+        336
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 336,
+        "content": "## Find Drive target\n\nPrepares lookup details for the backup file and searches Google Drive for an existing matching archive."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18774d54-f914-4c47-8229-f498fec82d78",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3680,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 432,
+        "content": "## Choose upload route\n\nBranches based on whether the Drive mode is sync or versioned, and in sync mode checks whether an existing file should be updated."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a420d9aa-f018-4395-aa40-8174d48bb26f",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4128,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 720,
+        "content": "## Upload and clean up\n\nUpdates an existing Drive file or uploads a new backup file, then removes the temporary local backup archive from the server."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dfcf9094-6812-4f4c-944e-0b90e3b8a890",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        768,
+        256
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 320,
+        "content": "## Collect backup settings\n\nStarts the setup flow from a form and initializes the data table structure used to store backup configuration."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e63b7e43-f75d-4197-80e5-b5e1aae57829",
+      "name": "Init Backup Config Table",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        1040,
+        416
+      ],
+      "parameters": {
+        "columns": {
+          "column": [
+            {
+              "name": "sourceDir"
+            },
+            {
+              "name": "encrypted",
+              "type": "boolean"
+            },
+            {
+              "name": "driveFolderId"
+            },
+            {
+              "name": "backupMode"
+            }
+          ]
+        },
+        "options": {},
+        "resource": "table",
+        "operation": "create",
+        "tableName": "Backup_Config"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5c5fb1ca-a170-4260-9d15-9040afdaa80f",
+      "name": "Create Server Backup",
+      "type": "n8n-nodes-base.ssh",
+      "position": [
+        2608,
+        512
+      ],
+      "parameters": {
+        "command": "=set -e\n\nSRC=\"{{ $('Build Runtime Config').item.json.config.sourceDir }}\"\nREPO=\"{{ $('Build Runtime Config').item.json.config.repoPath }}\"\nARCHIVE=\"{{ $('Build Runtime Config').item.json.config.archiveName }}\"\nENCRYPTED=\"{{ $('Build Runtime Config').item.json.config.encrypted }}\"\n\nmkdir -p \"$REPO\"\n\nif [ \"$ENCRYPTED\" = \"true\" ]; then\n  PASSPHRASE_FILE=\"$HOME/.borg/passphrase\"\n  if [ ! -f \"$PASSPHRASE_FILE\" ]; then\n    echo \"ERROR: passphrase file not found at $PASSPHRASE_FILE\"\n    exit 1\n  fi\n  export BORG_PASSPHRASE=$(cat \"$PASSPHRASE_FILE\")\n  ENCRYPTION_MODE=\"repokey-blake2\"\nelse\n  ENCRYPTION_MODE=\"none\"\nfi\n\nborg init --encryption=\"$ENCRYPTION_MODE\" \"$REPO\" 2>/dev/null || true\n\nborg create --stats --compression zstd \"$REPO::$ARCHIVE\" \"$SRC\"\n\nborg prune --keep-last 1 \"$REPO\"\nborg compact \"$REPO\"\n\nunset BORG_PASSPHRASE\necho \"backup-created\""
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "003ce301-ce44-4693-8ce4-e95c51d334e5",
+      "name": "Check Drive Mode for Sync",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3728,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "6adacdae-db3e-431a-9b17-8a3e87061cbd",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Existing File Info').item.json.driveMode }}",
+              "rightValue": "sync"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "39526efc-9f2d-4069-95e3-9af24cbd1be3",
+      "name": "Check If Existing File Found",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3952,
+        416
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c7ff588f-4bd9-43ee-b1c0-39111bc18849",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Build Runtime Config').item.json.config.fileBaseName }}-latest-backup.tar.gz",
+              "rightValue": "={{ $('Find Existing File').item.json.name }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ad55c143-5c68-4dc8-97d9-b355a9f73202",
+      "name": "Save Config",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1712,
+        416
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "encrypted": "={{ $('Build Initial Config').item.json.config.encrypted }}",
+            "sourceDir": "={{ $('Build Initial Config').item.json.config.sourceDir }}",
+            "backupMode": "={{ $('Build Initial Config').item.json.config.mode }}",
+            "driveFolderId": "={{ $('Build Initial Config').item.json.config.driveId }}"
+          },
+          "schema": [
+            {
+              "id": "sourceDir",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "sourceDir",
+              "defaultMatch": false
+            },
+            {
+              "id": "encrypted",
+              "type": "boolean",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "encrypted",
+              "defaultMatch": false
+            },
+            {
+              "id": "driveFolderId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "driveFolderId",
+              "defaultMatch": false
+            },
+            {
+              "id": "backupMode",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "readOnly": false,
+              "required": false,
+              "displayName": "backupMode",
+              "defaultMatch": false
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "1"
+            }
+          ]
+        },
+        "options": {},
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Backup_Config"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9655703a-17ef-488a-80b3-79cd4ee51cf7",
+      "name": "Get Config",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        1936,
+        512
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyValue": "1"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Backup_Config"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "1882630c-9e10-4859-87e7-6f0012741b9b",
+      "name": "Get Backup Settings",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        816,
+        416
+      ],
+      "webhookId": "45b3222c-4d1a-4e21-bac2-91f03c9086fe",
+      "parameters": {
+        "path": "backup",
+        "options": {
+          "buttonLabel": "Start backup"
+        },
+        "formTitle": "Borg Backup Settings",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Source directory on the server",
+              "placeholder": "/home/ubuntu/data",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Encrypt the backup?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Yes (recommended)"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "password",
+              "fieldLabel": "Borg encryption passphrase",
+              "placeholder": "leave blank if you chose \"No\" above"
+            },
+            {
+              "fieldLabel": "Google Drive folder ID",
+              "placeholder": "1AbCdEfGhIjKlMnOpQrStUvWxYz",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Google Drive backup mode",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sync - keep only the latest backup file"
+                  },
+                  {
+                    "option": "Versioned - keep a new dated file every run"
+                  }
+                ]
+              },
+              "requiredField": true
+            }
+          ]
+        },
+        "authentication": "basicAuth",
+        "formDescription": "Enter the details needed to back up a directory on the server, package it, and send it to Google Drive."
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f7b95684-f43a-4006-aae1-a8d0f595d555",
+      "name": "Update Existing Backup File (Sync)",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        4176,
+        320
+      ],
+      "parameters": {
+        "fileId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Find Existing File').item.json.id }}"
+        },
+        "options": {},
+        "operation": "update",
+        "changeFileContent": true,
+        "inputDataFieldName": "={{ $('Download Backup Archive').item.binary.data }}"
+      },
+      "typeVersion": 3
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Get Config": {
+      "main": [
+        [
+          {
+            "node": "Install Borg on Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Config": {
+      "main": [
+        [
+          {
+            "node": "Get Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Get Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Existing File Info": {
+      "main": [
+        [
+          {
+            "node": "Find Existing File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Existing File": {
+      "main": [
+        [
+          {
+            "node": "Check Drive Mode for Sync",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Backup Settings": {
+      "main": [
+        [
+          {
+            "node": "Init Backup Config Table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Initial Config": {
+      "main": [
+        [
+          {
+            "node": "Store Borg Passphrase on Server",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Runtime Config": {
+      "main": [
+        [
+          {
+            "node": "Create Server Backup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Server Backup": {
+      "main": [
+        [
+          {
+            "node": "Export Backup Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Export Backup Archive": {
+      "main": [
+        [
+          {
+            "node": "Download Backup Archive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Install Borg on Server": {
+      "main": [
+        [
+          {
+            "node": "Build Runtime Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download Backup Archive": {
+      "main": [
+        [
+          {
+            "node": "Existing File Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Init Backup Config Table": {
+      "main": [
+        [
+          {
+            "node": "Build Initial Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Drive Mode for Sync": {
+      "main": [
+        [
+          {
+            "node": "Check If Existing File Found",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload New Backup File (Versioned)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check If Existing File Found": {
+      "main": [
+        [
+          {
+            "node": "Update Existing Backup File (Sync)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Upload New Backup File (Sync)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload New Backup File (Sync)": {
+      "main": [
+        [
+          {
+            "node": "Cleanup: Remove Local Backup File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Borg Passphrase on Server": {
+      "main": [
+        [
+          {
+            "node": "Save Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Existing Backup File (Sync)": {
+      "main": [
+        [
+          {
+            "node": "Cleanup: Remove Local Backup File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload New Backup File (Versioned)": {
+      "main": [
+        [
+          {
+            "node": "Cleanup: Remove Local Backup File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Back up Linux server directories to Google Drive with Borg over SSH",
+    "wechat": "youandme10086",
+    "id": 18924,
+    "update_time": "2026-09-27"
+  }
+}

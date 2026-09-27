@@ -1,4 +1,4 @@
-# reddit : 101
+# reddit : 113
 
 |id|file|
 |----|----|
@@ -103,3 +103,15 @@
 |16086|[16086_Send_weekly_brand_and_competitor_intel_digests_to_Slack_with_Claude_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16086_Send_weekly_brand_and_competitor_intel_digests_to_Slack_with_Claude_web_search.json)|
 |16159|[16159_Generate_and_score_MVP_ideas_from_Reddit_with_OpenRouter_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16159_Generate_and_score_MVP_ideas_from_Reddit_with_OpenRouter_LLMs.json)|
 |16447|[16447_Send_weekly_Reddit_sentiment_digests_to_Notion_with_ScraperAPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16447_Send_weekly_Reddit_sentiment_digests_to_Notion_with_ScraperAPI_and_OpenAI.json)|
+|17567|[17567_Draft_Reddit_reply_suggestions_with_OpenAI_and_send_them_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17567_Draft_Reddit_reply_suggestions_with_OpenAI_and_send_them_to_Slack.json)|
+|18497|[18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json)|
+|18564|[18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json)|
+|18578|[18578_Build_a_labeled_Reddit_opinion_dataset_with_Apify__OpenAI__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18578_Build_a_labeled_Reddit_opinion_dataset_with_Apify__OpenAI__and_Supabase.json)|
+|18979|[18979_Qualify_Reddit_leads_with_API_Direct_and_OpenAI_and_send_a_daily_Gmail_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18979_Qualify_Reddit_leads_with_API_Direct_and_OpenAI_and_send_a_daily_Gmail_digest.json)|
+|19088|[19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19088_Find_software_startup_opportunities_in_Reddit_posts_with_Apify__Gemini_and_Sheets.json)|
+|19131|[19131_Discover_monetizable_Reddit_problems_with_Apify__Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19131_Discover_monetizable_Reddit_problems_with_Apify__Gemini_and_Google_Sheets.json)|
+|19185|[19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json)|
+|19405|[19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json)|
+|19529|[19529_Monitor_Reddit_brand_mentions_and_send_lead_alerts_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19529_Monitor_Reddit_brand_mentions_and_send_lead_alerts_with_Apify_and_Slack.json)|
+|19751|[19751_Create_Reddit-style_story_videos_from_text_or_Reddit_with_OpenRouter__ElevenLabs__and_Zvid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19751_Create_Reddit-style_story_videos_from_text_or_Reddit_with_OpenRouter__ElevenLabs__and_Zvid.json)|
+|19834|[19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json)|

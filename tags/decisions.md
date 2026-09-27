@@ -1,4 +1,4 @@
-# decisions : 11
+# decisions : 18
 
 |id|file|
 |----|----|
@@ -13,3 +13,10 @@
 |16183|[16183_Simulate_business_decisions_with_Google_Sheets__GPT-4.1_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16183_Simulate_business_decisions_with_Google_Sheets__GPT-4.1_and_Slack.json)|
 |16227|[16227_Extract_meeting_action_items_and_decisions_with_OpenAI__Asana_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16227_Extract_meeting_action_items_and_decisions_with_OpenAI__Asana_and_Sheets.json)|
 |16750|[16750_Review_GitHub_pull_requests_with_Mistral_and_send_decisions_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16750_Review_GitHub_pull_requests_with_Mistral_and_send_decisions_to_Slack.json)|
+|16999|[16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json)|
+|17172|[17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json)|
+|17614|[17614_Review_Google_Drive_inbox_files_with_Discord_and_log_decisions_in_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17614_Review_Google_Drive_inbox_files_with_Discord_and_log_decisions_in_Sheets.json)|
+|18102|[18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json)|
+|19267|[19267_Track_probation_reviews_and_decisions_with_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19267_Track_probation_reviews_and_decisions_with_Slack_and_Google_Sheets.json)|
+|19384|[19384_Log_GDPR_Article_22_decisions_and_route_review_requests_with_Groq_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19384_Log_GDPR_Article_22_decisions_and_route_review_requests_with_Groq_and_Discord.json)|
+|19548|[19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19548_Route_ecommerce_risk_and_inventory_decisions_with_Claude__Postgres__and_Slack.json)|

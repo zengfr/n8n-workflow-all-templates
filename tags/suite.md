@@ -1,4 +1,4 @@
-# suite : 30
+# suite : 31
 
 |id|file|
 |----|----|
@@ -32,3 +32,4 @@
 |12153|[12153_Schedule_BlueSky_posts_and_threads_using_Google_Sheets_as_content_calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12153_Schedule_BlueSky_posts_and_threads_using_Google_Sheets_as_content_calendar.json)|
 |12156|[12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12156_Track_BlueSky_post_engagement_metrics_in_Google_Sheets_automatically.json)|
 |12159|[12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12159_Automate_follower_resource_distribution_on_BlueSky_with_keyword-triggered_DMs.json)|
+|17260|[17260_Run_AI_employee_onboarding_with_Groq__Google_Workspace__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17260_Run_AI_employee_onboarding_with_Groq__Google_Workspace__and_Gemini.json)|

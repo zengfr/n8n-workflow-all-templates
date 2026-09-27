@@ -1,4 +1,4 @@
-# qwen : 11
+# qwen : 12
 
 |id|file|
 |----|----|
@@ -13,3 +13,4 @@
 |15570|[15570_Turn_a_GitHub_knowledge_base_into_a_Telegram_RAG_bot_with_Qwen_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15570_Turn_a_GitHub_knowledge_base_into_a_Telegram_RAG_bot_with_Qwen_via_OpenRouter.json)|
 |15755|[15755_Triage_GitHub_issues_to_a_Notion_board_with_Qwen_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15755_Triage_GitHub_issues_to_a_Notion_board_with_Qwen_via_OpenRouter.json)|
 |15898|[15898_Send_weekly_GitHub_digests_to_Telegram_with_Qwen_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15898_Send_weekly_GitHub_digests_to_Telegram_with_Qwen_via_OpenRouter.json)|
+|17933|[17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json)|

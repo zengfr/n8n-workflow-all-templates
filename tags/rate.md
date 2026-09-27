@@ -1,4 +1,4 @@
-# rate : 25
+# rate : 30
 
 |id|file|
 |----|----|
@@ -27,3 +27,8 @@
 |16075|[16075_Filter_WhatsApp_messages_using_a_Google_Sheets_blacklist_and_rate_limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16075_Filter_WhatsApp_messages_using_a_Google_Sheets_blacklist_and_rate_limiting.json)|
 |16269|[16269_Monitor_API_rate_limits_and_alert_with_Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16269_Monitor_API_rate_limits_and_alert_with_Slack__Gmail_and_Google_Sheets.json)|
 |16341|[16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json)|
+|17518|[17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json)|
+|17844|[17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17844_Roast_and_optimize_landing_page_conversion_copy_with_OpenAI.json)|
+|18334|[18334_Post_FX_rate_change_commentary_to_Slack_with_Frankfurter_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18334_Post_FX_rate_change_commentary_to_Slack_with_Frankfurter_and_Claude.json)|
+|18774|[18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json)|
+|19668|[19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19668_Route_API_traffic_with_Stripe_RBAC_and_Redis_rate_limiting.json)|

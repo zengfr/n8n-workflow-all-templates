@@ -1,4 +1,4 @@
-# activity : 26
+# activity : 30
 
 |id|file|
 |----|----|
@@ -28,3 +28,7 @@
 |15419|[15419_Detect_fraud_in_user_activity_with_PostgreSQL__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15419_Detect_fraud_in_user_activity_with_PostgreSQL__OpenAI_and_Slack.json)|
 |15940|[15940_Sync_HubSpot_contacts_to_Klaviyo_and_log_activity_to_Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15940_Sync_HubSpot_contacts_to_Klaviyo_and_log_activity_to_Slack_and_Google_Sheets.json)|
 |16371|[16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json)|
+|18302|[18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json)|
+|18580|[18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json)|
+|19585|[19585_Track_HubSpot_deal_lead-response_SLAs_using_activity_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19585_Track_HubSpot_deal_lead-response_SLAs_using_activity_history.json)|
+|19686|[19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json)|

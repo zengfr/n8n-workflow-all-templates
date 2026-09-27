@@ -1,4 +1,4 @@
-# reorder : 7
+# reorder : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |15972|[15972_Send_predictive_Shopify_low-stock_alerts_with_Google_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15972_Send_predictive_Shopify_low-stock_alerts_with_Google_Sheets__Slack__and_Gmail.json)|
 |16473|[16473_Manage_inventory_reorders_with_Google_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16473_Manage_inventory_reorders_with_Google_Sheets__Slack__and_Gmail.json)|
 |16541|[16541_Send_low-stock_inventory_reorder_emails_from_Snowflake_with_Claude_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16541_Send_low-stock_inventory_reorder_emails_from_Snowflake_with_Claude_and_Outlook.json)|
+|17724|[17724_Send_low-stock_purchase_orders_with_Google_Sheets__Slack__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17724_Send_low-stock_purchase_orders_with_Google_Sheets__Slack__and_OpenAI.json)|
+|17725|[17725_Parse_and_normalize_resume_PDFs_with_Telegram__OpenAI__and_Gotenberg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17725_Parse_and_normalize_resume_PDFs_with_Telegram__OpenAI__and_Gotenberg.json)|

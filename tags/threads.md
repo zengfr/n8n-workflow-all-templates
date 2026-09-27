@@ -1,4 +1,4 @@
-# threads : 33
+# threads : 43
 
 |id|file|
 |----|----|
@@ -35,3 +35,13 @@
 |16066|[16066_Schedule_X_posts__threads__images_and_polls_with_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16066_Schedule_X_posts__threads__images_and_polls_with_webhooks.json)|
 |16392|[16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json)|
 |16634|[16634_Scrape_Hacker_News_hiring_threads_with_OpenAI_GPT-4o-mini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16634_Scrape_Hacker_News_hiring_threads_with_OpenAI_GPT-4o-mini_and_Airtable.json)|
+|16821|[16821_Triage_and_reply_to_email_threads_with_GPT-5.2__IMAP__Gmail__and_ESP_suppression.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16821_Triage_and_reply_to_email_threads_with_GPT-5.2__IMAP__Gmail__and_ESP_suppression.json)|
+|16893|[16893_Summarize_Slack_threads_into_Jira_tickets_with_OpenRouter_and_Slack_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16893_Summarize_Slack_threads_into_Jira_tickets_with_OpenRouter_and_Slack_approval.json)|
+|17057|[17057_Publish_AI_social_posts_from_Telegram_to_LinkedIn__Instagram__Facebook_and_Threads_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17057_Publish_AI_social_posts_from_Telegram_to_LinkedIn__Instagram__Facebook_and_Threads_with_OpenAI_and_Blotato.json)|
+|17506|[17506_Create_LinkedIn_posts_and_Twitter_threads_from_Telegram_with_Groq_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17506_Create_LinkedIn_posts_and_Twitter_threads_from_Telegram_with_Groq_AI.json)|
+|17800|[17800_Post_RSS_blog_articles_as_X_threads_and_LinkedIn_posts_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17800_Post_RSS_blog_articles_as_X_threads_and_LinkedIn_posts_with_Groq.json)|
+|18463|[18463_Generate_blog_posts_and_tweet_threads_from_YouTube_with_Supadata_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18463_Generate_blog_posts_and_tweet_threads_from_YouTube_with_Supadata_and_OpenAI.json)|
+|18497|[18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json)|
+|18980|[18980_Find_reply-worthy_Hacker_News_and_Stack_Overflow_threads_with_GPT_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18980_Find_reply-worthy_Hacker_News_and_Stack_Overflow_threads_with_GPT_and_Discord.json)|
+|19294|[19294_Send_date-range_Threads_insights_reports_with_Threads_API_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19294_Send_date-range_Threads_insights_reports_with_Threads_API_and_Telegram.json)|
+|19572|[19572_Create_validated_social_content_for_Instagram__TikTok__Shorts_and_Threads_with_Telegram_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19572_Create_validated_social_content_for_Instagram__TikTok__Shorts_and_Threads_with_Telegram_and_OpenAI.json)|

@@ -1,4 +1,4 @@
-# instantly : 21
+# instantly : 26
 
 |id|file|
 |----|----|
@@ -23,3 +23,8 @@
 |14211|[14211_Optimize_Cold_Email_Copy_with_Claude__Instantly__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14211_Optimize_Cold_Email_Copy_with_Claude__Instantly__and_Google_Sheets.json)|
 |14220|[14220_Classify_cold_email_replies_and_notify_via_Telegram_with_OpenAI_and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14220_Classify_cold_email_replies_and_notify_via_Telegram_with_OpenAI_and_Instantly.json)|
 |14622|[14622_Classify_and_route_cold_email_replies_using_Claude_and_Instantly.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14622_Classify_and_route_cold_email_replies_using_Claude_and_Instantly.ai.json)|
+|18242|[18242_Route_RB2B_leads_to_multichannel_outreach_with_HeyReach__Instantly__and_FullEnrich.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18242_Route_RB2B_leads_to_multichannel_outreach_with_HeyReach__Instantly__and_FullEnrich.json)|
+|18281|[18281_Answer_website_leads_instantly_and_notify_the_owner_via_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18281_Answer_website_leads_instantly_and_notify_the_owner_via_Telegram.json)|
+|18545|[18545_Qualify_and_personalize_sales_leads_with_GetProspect__DeepSeek__and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18545_Qualify_and_personalize_sales_leads_with_GetProspect__DeepSeek__and_Instantly.json)|
+|18786|[18786_Send_UK_hiring-signal_leads_from_Apify_to_Instantly.ai_campaigns_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18786_Send_UK_hiring-signal_leads_from_Apify_to_Instantly.ai_campaigns_and_Google_Sheets.json)|
+|19778|[19778_Enrich_and_verify_partnership_leads_from_Google_Sheets_with_Apollo_and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19778_Enrich_and_verify_partnership_leads_from_Google_Sheets_with_Apollo_and_Instantly.json)|

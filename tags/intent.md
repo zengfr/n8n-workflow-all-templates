@@ -1,4 +1,4 @@
-# intent : 19
+# intent : 26
 
 |id|file|
 |----|----|
@@ -21,3 +21,10 @@
 |15418|[15418_Qualify_and_route_high-intent_leads_with_OpenAI__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15418_Qualify_and_route_high-intent_leads_with_OpenAI__Airtable_and_Slack.json)|
 |15927|[15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15927_Transcribe_voice_messages_and_classify_intent_with_OpenAI_Whisper_and_GPT-4o-mini.json)|
 |16304|[16304_Classify_Gmail_intents_with_Google_Gemini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16304_Classify_Gmail_intents_with_Google_Gemini__Slack_and_Google_Sheets.json)|
+|16970|[16970_Monitor_Google_rankings_and_search_intent_with_SerpAPI__OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16970_Monitor_Google_rankings_and_search_intent_with_SerpAPI__OpenAI__Notion__and_Slack.json)|
+|16989|[16989_Route_WhatsApp_support_requests_with_Groq__Google_Sheets__Gmail__Telegram_and_AiSensy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16989_Route_WhatsApp_support_requests_with_Groq__Google_Sheets__Gmail__Telegram_and_AiSensy.json)|
+|18123|[18123_Capture_social_DMs_with_purchase_intent_using_FanBase__Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18123_Capture_social_DMs_with_purchase_intent_using_FanBase__Apify_and_Google_Sheets.json)|
+|18497|[18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json)|
+|19160|[19160_Score_and_cluster_Google_keywords_with_Apify__Groq__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19160_Score_and_cluster_Google_keywords_with_Apify__Groq__Google_Sheets_and_Slack.json)|
+|19185|[19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json)|
+|19381|[19381_Qualify_roofing_leads_and_send_WhatsApp_icebreakers_with_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19381_Qualify_roofing_leads_and_send_WhatsApp_icebreakers_with_Gemini_and_Sheets.json)|

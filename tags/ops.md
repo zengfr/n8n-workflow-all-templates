@@ -1,4 +1,4 @@
-# ops : 7
+# ops : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |12686|[12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12686_Predict_incidents_and_run_autonomous_remediation_with_GPT-4_and_Slack.json)|
 |12970|[12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12970_Schedule_and_confirm_revenue_ops_meetings_with_Pipedrive__Google_Calendar_and_Slack.json)|
 |16433|[16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json)|
+|17293|[17293_Detect_Stripe_payment_anomalies_with_Groq__Supabase__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17293_Detect_Stripe_payment_anomalies_with_Groq__Supabase__Slack__and_Google_Sheets.json)|
+|18148|[18148_Send_daily_ops_digests_and_age-based_anomaly_alerts_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18148_Send_daily_ops_digests_and_age-based_anomaly_alerts_with_OpenAI_and_Gmail.json)|
+|18247|[18247_Monitor_grid_frequency_anomalies_and_incidents_with_SCADA_and_ops_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18247_Monitor_grid_frequency_anomalies_and_incidents_with_SCADA_and_ops_APIs.json)|
+|18332|[18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json)|
+|18926|[18926_Triage_ops_intake_requests_with_Gemini__Google_Sheets__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18926_Triage_ops_intake_requests_with_Gemini__Google_Sheets__Gmail__and_Slack.json)|
+|19244|[19244_Generate_legal_ops_briefings_with_Claude__Clio__Plaid__AppFolio___Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19244_Generate_legal_ops_briefings_with_Claude__Clio__Plaid__AppFolio___Google.json)|

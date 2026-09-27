@@ -1,4 +1,4 @@
-# drop : 13
+# drop : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |15609|[15609_Send_daily_price-drop_digest_emails_for_Amazon__Walmart_and_Google_via_ScraperAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15609_Send_daily_price-drop_digest_emails_for_Amazon__Walmart_and_Google_via_ScraperAPI.json)|
 |16003|[16003_Route_low-scoring_HubSpot_leads_with_Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16003_Route_low-scoring_HubSpot_leads_with_Slack__Gmail_and_Google_Sheets.json)|
 |16098|[16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json)|
+|17391|[17391_Send_Amazon_price_drop_alerts_with_Google_Sheets__ScrapeUnblocker__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17391_Send_Amazon_price_drop_alerts_with_Google_Sheets__ScrapeUnblocker__and_Gmail.json)|
+|17524|[17524_Send_sneaker_restock_alerts_using_ScrapeUnblocker__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17524_Send_sneaker_restock_alerts_using_ScrapeUnblocker__Google_Sheets__and_Gmail.json)|
+|18854|[18854_Send_Amazon_wishlist_price_drop_alerts_with_Apify__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18854_Send_Amazon_wishlist_price_drop_alerts_with_Apify__Google_Sheets__and_Telegram.json)|

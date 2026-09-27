@@ -1,4 +1,4 @@
-# scorer : 6
+# scorer : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |13686|[13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13686_Score_property_investments_using_Claude__Anthropic___Google_Sheets_and_Slack.json)|
 |16326|[16326_Score_and_route_BANT_leads_with_Groq__Slack_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16326_Score_and_route_BANT_leads_with_Groq__Slack_and_email.json)|
 |16438|[16438_Score_company_ad_spend_from_Meta__Google_and_LinkedIn_Ads_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16438_Score_company_ad_spend_from_Meta__Google_and_LinkedIn_Ads_with_Google_Sheets.json)|
+|17078|[17078_Score_and_triage_inbound_leads_with_Groq__Slack__Google_Sheets__and_Google_Tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17078_Score_and_triage_inbound_leads_with_Groq__Slack__Google_Sheets__and_Google_Tasks.json)|
+|17427|[17427_Score_and_qualify_Google_Sheets_leads_with_OpenAI_gpt-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17427_Score_and_qualify_Google_Sheets_leads_with_OpenAI_gpt-4o-mini.json)|
+|17629|[17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json)|
+|17935|[17935_Score_freelancer_proposal_PDFs_from_form_submissions_with_OpenAI_GPT-4o_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17935_Score_freelancer_proposal_PDFs_from_form_submissions_with_OpenAI_GPT-4o_Mini.json)|

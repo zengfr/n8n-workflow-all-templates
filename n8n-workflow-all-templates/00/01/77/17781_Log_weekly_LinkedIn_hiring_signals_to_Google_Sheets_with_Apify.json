@@ -1,0 +1,421 @@
+{
+  "name": "Log weekly hiring signals from LinkedIn jobs into Google Sheets",
+  "nodes": [
+    {
+      "id": "e0b3c427-0001-4f01-a001-000000000001",
+      "name": "Every Monday morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "e0b3c427-0002-4f02-a002-000000000002",
+      "name": "Set your hiring signal watch",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "e0b3c427-0011-4f11-a011-+1234567890",
+              "name": "roles",
+              "type": "array",
+              "value": "[\"head of revenue operations\", \"director of demand generation\"]"
+            },
+            {
+              "id": "e0b3c427-0012-4f12-a012-+1234567890",
+              "name": "location",
+              "type": "string",
+              "value": "United States"
+            },
+            {
+              "id": "e0b3c427-0013-4f13-a013-+1234567890",
+              "name": "company",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "e0b3c427-0014-4f14-a014-+1234567890",
+              "name": "lookbackDays",
+              "type": "number",
+              "value": "30"
+            },
+            {
+              "id": "e0b3c427-0015-4f15-a015-+1234567890",
+              "name": "maxJobs",
+              "type": "number",
+              "value": "25"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e0b3c427-0003-4f03-a003-000000000003",
+      "name": "One search per role",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        520,
+        520
+      ],
+      "parameters": {
+        "include": "allOtherFields",
+        "options": {},
+        "fieldToSplitOut": "roles"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0004-4f04-a004-000000000004",
+      "name": "Search LinkedIn jobs",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        780,
+        520
+      ],
+      "parameters": {
+        "memory": 128,
+        "actorId": "johnvc~linkedin-jobs-api",
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ keyword: $json.roles, location: $json.location, company: $json.company || undefined, maxJobs: $json.maxJobs }) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0005-4f05-a005-000000000005",
+      "name": "Keep rows that are real jobs",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1040,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e0b3c427-0041-4f41-a041-+1234567890",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.result_type }}",
+              "rightValue": "job"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e0b3c427-0006-4f06-a006-000000000006",
+      "name": "Keep recent postings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// Keep only postings inside the lookback window, then shape them for a sheet.\n// The date filter lives here rather than in the search because the Actor's\n// timeRange input is rejected upstream on every value, so the search returns\n// postings of all ages and they have to be trimmed after the fact.\nconst cfg = $('Set your hiring signal watch').first().json;\nconst weekOf = $now.toFormat('yyyy-MM-dd');\nconst maxAgeDays = Number(cfg.lookbackDays) || 30;\n\nconst clip = (s, n) => {\n  const v = String(s || '').replace(/\\s+/g, ' ').trim();\n  return v.length > n ? v.slice(0, n - 3) + '...' : v;\n};\n\nconst rows = [];\nfor (const item of $input.all()) {\n  const j = item.json;\n  const posted = j.postedDate ? new Date(j.postedDate) : null;\n  if (!posted || isNaN(posted)) continue;\n\n  const ageDays = Math.floor(($now.toJSDate() - posted) / 86400000);\n  if (ageDays > maxAgeDays || ageDays < 0) continue;\n\n  rows.push({\n    json: {\n      'Week of': weekOf,\n      'Job title': clip(j.title, 150),\n      Company: j.companyName || '',\n      Location: j.location || '',\n      Posted: String(j.postedDate).slice(0, 10),\n      'Days old': ageDays,\n      Seniority: j.seniorityLevel || '',\n      'Employment type': j.employmentType || '',\n      'Job function': clip(j.jobFunction, 120),\n      Applicants: typeof j.numApplicants === 'number' ? j.numApplicants : '',\n      'Job link': j.jobUrl || '',\n    },\n  });\n}\nreturn rows;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e0b3c427-0007-4f07-a007-000000000007",
+      "name": "Append hiring signals to sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1560,
+        520
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "e0b3c427-0090-4f90-a090-000000000090",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1240,
+        "content": "## Log weekly hiring signals from LinkedIn jobs into Google Sheets\n\nNo Bright Data account and no scraping vendor subscription. Every week this searches public LinkedIn job listings for the roles you care about and appends one row per posting to your sheet: title, company, location, when it was posted, how old it is, seniority, and how many people have applied.\n\nA company hiring for a role you sell into is a buying signal with a timestamp on it. Set the company field instead and it becomes an account watch: everything a target company is hiring for, which tells you where their budget went this quarter.\n\n**Who's it for**\nSales teams working hiring as an intent signal, recruiters tracking who is staffing up, and job seekers who would rather have a spreadsheet than an alert email.\n\n**How it works**\n1. A schedule trigger fires once a week\n2. One Set node holds your roles, location, optional company, and lookback window\n3. The Apify node runs one LinkedIn job search per role\n4. A Code node keeps the postings inside your window and shapes them for the sheet\n\n**Setup**\n1. Create a free Apify account and add your API token to the Apify credential\n2. Connect your Google account in the Sheets node and pick a spreadsheet\n3. Replace the example roles in the config node, and set a company if you want to watch one account\n\n**Good to know**\nAbout a cent per job returned, so two roles at 25 jobs each is roughly 20 cents a week.\nSearch results are not sorted by date, so the workflow filters on posting age itself. Widening maxJobs finds more recent postings but costs more.\nThe Applicants column is a useful freshness signal: a posting with very few applicants is usually days old.\nActor: https://apify.com/johnvc/linkedin-jobs-api?fpr=9n7kx3&fp_sid=n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0091-4f91-a091-000000000091",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 1. Schedule\nRuns every Monday morning. Change the cadence, or swap in a manual trigger while you test."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0092-4f92-a092-000000000092",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 2. Your input\nRoles to watch, location, an optional company, and the lookback window. This is the only node you edit."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0093-4f93-a093-000000000093",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 3. Fan out\nTurns your role list into one LinkedIn job search each."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0094-4f94-a094-000000000094",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 4. Search\nRuns the LinkedIn Jobs API actor for one role. Add your Apify credential here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0095-4f95-a095-000000000095",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 5. Clean\nKeeps only real job rows, so an upstream error never reaches the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0096-4f96-a096-000000000096",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 6. Filter and shape\nDrops postings older than your window and works out how many days old each one is."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0097-4f97-a097-000000000097",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 240,
+        "content": "### 7. Deliver\nPick your spreadsheet and tab. Columns map automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0080-4f80-a080-000000000080",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        860
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 240,
+        "content": "### Watch an account, not just a role\nLeave the roles broad and set `company` to a target account. You then get everything that company is hiring for, which is the clearest public read on where their budget is going."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e0b3c427-0081-4f81-a081-000000000081",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        660,
+        860
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 240,
+        "content": "### Self-hosting n8n?\nThere is also a dedicated community node for this actor: `n8n-nodes-linkedin-jobs-api` on npm."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "One search per role": {
+      "main": [
+        [
+          {
+            "node": "Search LinkedIn jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday morning": {
+      "main": [
+        [
+          {
+            "node": "Set your hiring signal watch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep recent postings": {
+      "main": [
+        [
+          {
+            "node": "Append hiring signals to sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search LinkedIn jobs": {
+      "main": [
+        [
+          {
+            "node": "Keep rows that are real jobs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep rows that are real jobs": {
+      "main": [
+        [
+          {
+            "node": "Keep recent postings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set your hiring signal watch": {
+      "main": [
+        [
+          {
+            "node": "One search per role",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Log weekly LinkedIn hiring signals to Google Sheets with Apify",
+    "wechat": "youandme10086",
+    "id": 17781,
+    "update_time": "2026-09-27"
+  }
+}

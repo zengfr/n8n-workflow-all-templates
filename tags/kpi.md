@@ -1,4 +1,4 @@
-# kpi : 11
+# kpi : 16
 
 |id|file|
 |----|----|
@@ -13,3 +13,8 @@
 |15742|[15742_Export_Mirakl_KPIs_to_CSV_and_send_by_email_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15742_Export_Mirakl_KPIs_to_CSV_and_send_by_email_with_Gmail.json)|
 |16248|[16248_Send_daily_marketplace_KPI_reports_via_Slack_and_Microsoft_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16248_Send_daily_marketplace_KPI_reports_via_Slack_and_Microsoft_Outlook.json)|
 |16538|[16538_Generate_monthly_BigQuery_KPI_PDF_reports_with_Claude__Google_Docs__Outlook_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16538_Generate_monthly_BigQuery_KPI_PDF_reports_with_Claude__Google_Docs__Outlook_and_Teams.json)|
+|17827|[17827_Send_weekly_KPI_summary_emails_from_Google_Sheets_using_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17827_Send_weekly_KPI_summary_emails_from_Google_Sheets_using_Gemini_and_Gmail.json)|
+|19059|[19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19059_Detect_and_explain_KPI_anomalies_with_Postgres__Slack__GitHub__Gmail_and_Claude.json)|
+|19312|[19312_Send_weekly_KPI_executive_summaries_from_Google_Sheets_via_Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19312_Send_weekly_KPI_executive_summaries_from_Google_Sheets_via_Gemini__Gmail_and_Slack.json)|
+|19650|[19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json)|
+|19804|[19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19804_Monitor_KPI_anomalies_with_Postgres__Slack__Gmail__GitHub_and_Claude.json)|

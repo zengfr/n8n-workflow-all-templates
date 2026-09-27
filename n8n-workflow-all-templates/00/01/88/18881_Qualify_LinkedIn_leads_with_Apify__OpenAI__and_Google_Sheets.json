@@ -1,0 +1,422 @@
+{
+  "name": "Qualify LinkedIn profiles into a lead list with Apify, OpenAI and Google Sheets",
+  "nodes": [
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000001",
+      "name": "Manually, when you need a list",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        520
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000002",
+      "name": "Who you are looking for",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-searchQuery",
+              "name": "searchQuery",
+              "type": "string",
+              "value": "head of operations"
+            },
+            {
+              "id": "cfg-locations",
+              "name": "locations",
+              "type": "string",
+              "value": "London"
+            },
+            {
+              "id": "cfg-customer",
+              "name": "customer",
+              "type": "string",
+              "value": "B2B SaaS companies of 50-500 people that run their own support team"
+            },
+            {
+              "id": "cfg-maxItems",
+              "name": "maxItems",
+              "type": "number",
+              "value": 25
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000003",
+      "name": "Search LinkedIn profiles",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        480,
+        520
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~linkedin-profile-search-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ searchQuery: $json.searchQuery, locations: $json.locations.split(',').map(s => s.trim()), maxItems: $json.maxItems }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000005",
+      "name": "Keep judgeable profiles",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        720,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "b7c3d1e0-0000-4a00-9+1234567890",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ !!($json.headline || '').toString().trim() }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000006",
+      "name": "Only profiles not scored yet",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        960,
+        520
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 100000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.profileUrl || $json.publicIdentifier }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000007",
+      "name": "Score fit and draft the opener",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1200,
+        520
+      ],
+      "parameters": {
+        "text": "=You are deciding whether one person is worth contacting, for someone selling to:\n{{ $('Who you are looking for').item.json.customer }}\n\nName: {{ $json.fullName }}\nHeadline: {{ $json.headline }}\nCompany: {{ $json.currentCompany || 'unknown' }}\nLocation: {{ $json.location || 'unknown' }}\nAbout: {{ ($json.snippet || '').toString().slice(0, 1500) }}\n\nReturn ONLY valid JSON, no code fence, with these keys:\n\"score\": 1 to 5, where 5 means they clearly match the customer description above.\n\"reason\": one sentence quoting the part of the profile that decided it.\n\"opener\": a single first line referencing something specific on this profile. If the profile has nothing specific in it, return exactly \"nothing specific to reference\" - do not invent a compliment.\n\"risk\": anything suggesting they are the wrong contact, e.g. they just left, or the title is not the buyer.",
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000008",
+      "name": "OpenAI chat model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1200,
+        720
+      ],
+      "parameters": {
+        "model": {
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000009",
+      "name": "Log the scored lead to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1460,
+        520
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $now.toISO() }}",
+            "Name": "={{ $('Only profiles not scored yet').item.json.fullName }}",
+            "Risk": "={{ JSON.parse($json.text).risk }}",
+            "Score": "={{ JSON.parse($json.text).score }}",
+            "Opener": "={{ JSON.parse($json.text).opener }}",
+            "Reason": "={{ JSON.parse($json.text).reason }}",
+            "Profile": "={{ $('Only profiles not scored yet').item.json.profileUrl }}",
+            "Headline": "={{ $('Only profiles not scored yet').item.json.headline }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000010",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        40
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1364,
+        "content": "## Qualify LinkedIn profiles into a lead list with Apify, OpenAI and Google Sheets\n\nSearch LinkedIn, then have a model decide which results are worth contacting and write the first line of the message using something actually on the profile.\n\n**Who is this for?**\nAnyone doing outbound who has a search that returns 200 people and time for 20.\n\n**What problem is this workflow solving?**\nA LinkedIn search gives you names, not a shortlist. Sorting by hand means opening every profile, and the personalised opener people talk about usually degrades into \"loved your post\" because nobody has time to read that far.\n\n**What this workflow does**\n- Runs the LinkedIn search you configure and pulls the matching profiles.\n- Drops rows with no headline or company, which cannot be judged.\n- Skips profiles already scored in a previous run.\n- Asks a model to score fit against the customer description you write, and to justify the score from the profile text.\n- Writes the score, the reason and a first line grounded in a specific detail to Google Sheets.\n\n**Setup**\n1. Add an Apify credential and an OpenAI credential.\n2. Pick your Google Sheet and worksheet in the last node.\n3. Set the search terms, locations and — most importantly — describe your actual customer in \"Who you are looking for\".\n\n**Requirements**\n- An Apify account and API token. The search runs on the dami_studio/linkedin-profile-search-scraper actor.\n- An OpenAI API key.\n- A Google account with a sheet you can append to.\n\n**How to customize this workflow to your needs**\n- Narrow with `currentJobTitles` and `currentCompanies` rather than a broader search term — precision upstream costs less than filtering downstream.\n- Change the score threshold in the prompt if the list comes back too generous.\n- Ask for a second opener in a different register if you A/B test your first lines.\n\n**Good to know**\nThe opener is only as specific as the profile. When a profile is a job title and nothing else, the model is told to say so rather than invent a compliment, so expect some rows to come back with \"nothing specific to reference\"."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000011",
+      "name": "Sticky Note s0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 210,
+        "content": "### 1. Run it\nManual by default. A lead list is something you pull when you need one, not on a timer."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000012",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 210,
+        "content": "### 2. Your input\nSearch terms, locations, and a description of your actual customer. The description does the real work."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000013",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 182,
+        "content": "### 3. Search LinkedIn\nRuns the search through Apify. No LinkedIn login and no Sales Navigator seat."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000014",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 210,
+        "content": "### 4. Drop the unjudgeable\nA row with no headline cannot be scored honestly, so it does not reach the model."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000015",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 210,
+        "content": "### 5. Skip repeats\nProfiles scored in an earlier run are dropped, so re-running a search only costs you the new people."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000016",
+      "name": "Sticky Note s5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 210,
+        "content": "### 6. Score and draft\nThe model scores fit against your description and writes one opener grounded in the profile."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b7c3d1e0-0000-4a00-9000-000000000017",
+      "name": "Sticky Note s6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 182,
+        "content": "### 7. File it\nScore, reason, opener and risk into Google Sheets. Sort by score and work down."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "OpenAI chat model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Score fit and draft the opener",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep judgeable profiles": {
+      "main": [
+        [
+          {
+            "node": "Only profiles not scored yet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Who you are looking for": {
+      "main": [
+        [
+          {
+            "node": "Search LinkedIn profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search LinkedIn profiles": {
+      "main": [
+        [
+          {
+            "node": "Keep judgeable profiles",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only profiles not scored yet": {
+      "main": [
+        [
+          {
+            "node": "Score fit and draft the opener",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Manually, when you need a list": {
+      "main": [
+        [
+          {
+            "node": "Who you are looking for",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score fit and draft the opener": {
+      "main": [
+        [
+          {
+            "node": "Log the scored lead to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Qualify LinkedIn leads with Apify, OpenAI, and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 18881,
+    "update_time": "2026-09-27"
+  }
+}

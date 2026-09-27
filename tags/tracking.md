@@ -1,4 +1,4 @@
-# tracking : 169
+# tracking : 182
 
 |id|file|
 |----|----|
@@ -171,3 +171,16 @@
 |16392|[16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16392_Post_scheduled_Threads_updates_from_Google_Sheets_with_error_tracking.json)|
 |16394|[16394_Extract_tracking_numbers_from_Gmail_PDF_attachments_to_Google_Sheets_with_okraPDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16394_Extract_tracking_numbers_from_Gmail_PDF_attachments_to_Google_Sheets_with_okraPDF.json)|
 |16428|[16428_Track_post-therapy_wellness_with_GPT-4o-mini__Telegram__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16428_Track_post-therapy_wellness_with_GPT-4o-mini__Telegram__Slack_and_Sheets.json)|
+|17083|[17083_Answer_WooCommerce_order_and_DHL_tracking_questions_with_GPT-4_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17083_Answer_WooCommerce_order_and_DHL_tracking_questions_with_GPT-4_chat.json)|
+|17104|[17104_Send_purchase_conversions_from_Bitrix24_deals_to_Google_Ads_using_offline_click_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17104_Send_purchase_conversions_from_Bitrix24_deals_to_Google_Ads_using_offline_click_tracking.json)|
+|17382|[17382_Complete_Google_Tasks_from_GitHub_commits_with_Gemini__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17382_Complete_Google_Tasks_from_GitHub_commits_with_Gemini__Slack__and_Sheets.json)|
+|17747|[17747_Send_RSS_blog_newsletters_via_email_with_Google_Sheets_tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17747_Send_RSS_blog_newsletters_via_email_with_Google_Sheets_tracking.json)|
+|17777|[17777_Track_weekly_Google_Shopping_prices_and_log_summaries_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17777_Track_weekly_Google_Shopping_prices_and_log_summaries_to_Google_Sheets.json)|
+|17907|[17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json)|
+|18246|[18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json)|
+|18320|[18320_Handle_order_tracking_and_FAQ_requests_with_Telegram__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18320_Handle_order_tracking_and_FAQ_requests_with_Telegram__Gemini__and_Google_Sheets.json)|
+|18703|[18703_Run_an_anonymous_whistleblower_channel_with_Groq_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18703_Run_an_anonymous_whistleblower_channel_with_Groq_and_data_tables.json)|
+|18764|[18764_Manage_reference_checks_with_OpenAI__Airtable__Gmail__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18764_Manage_reference_checks_with_OpenAI__Airtable__Gmail__and_Discord.json)|
+|18907|[18907_Track_game_prices_and_deals_from_Discord_using_IsThereAnyDeal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18907_Track_game_prices_and_deals_from_Discord_using_IsThereAnyDeal.json)|
+|19122|[19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json)|
+|19619|[19619_Log_receipt_expenses_in_Notion_with_Gmail__Telegram__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19619_Log_receipt_expenses_in_Notion_with_Gmail__Telegram__and_OpenAI.json)|

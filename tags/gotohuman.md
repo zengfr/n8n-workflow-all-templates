@@ -1,4 +1,4 @@
-# gotohuman : 8
+# gotohuman : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |8520|[8520_Lead_Analysis___Personalized_Email_Generation_with_OpenAI__Firecrawl___gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8520_Lead_Analysis___Personalized_Email_Generation_with_OpenAI__Firecrawl___gotoHuman.json)|
 |9402|[9402_Create_Multi-Platform_Social_Media_Content_with_Sonnet_4.5__GoToHuman_Approval___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9402_Create_Multi-Platform_Social_Media_Content_with_Sonnet_4.5__GoToHuman_Approval___Sheets.json)|
 |10065|[10065_Auto-Reply___Create_Linear_Tickets_from_Gmail_with_GPT-5__gotoHuman___Human_Review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10065_Auto-Reply___Create_Linear_Tickets_from_Gmail_with_GPT-5__gotoHuman___Human_Review.json)|
+|17172|[17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json)|
+|17490|[17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json)|
+|18405|[18405_Create_multi-platform_social_posts_with_DeepSeek__Gemini__Google_Sheets__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18405_Create_multi-platform_social_posts_with_DeepSeek__Gemini__Google_Sheets__and_gotoHuman.json)|

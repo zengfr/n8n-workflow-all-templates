@@ -1,4 +1,4 @@
-# final : 15
+# final : 16
 
 |id|file|
 |----|----|
@@ -17,3 +17,4 @@
 |15816|[15816_Resolve_Xiaohongshu_share_links_to_final_URLs_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15816_Resolve_Xiaohongshu_share_links_to_final_URLs_with_JustOneAPI.json)|
 |16114|[16114_Generate_new_video_audio_and_merge_the_final_result_with_Fal.run_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16114_Generate_new_video_audio_and_merge_the_final_result_with_Fal.run_and_Google_Drive.json)|
 |16226|[16226_Track_customer_support_hiring_signals_with_Coresignal__Elasticsearch__and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16226_Track_customer_support_hiring_signals_with_Coresignal__Elasticsearch__and_HubSpot.json)|
+|17488|[17488_Send_personalized_cold_email_sequences_with_Google_Sheets__Gmail__Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17488_Send_personalized_cold_email_sequences_with_Google_Sheets__Gmail__Gemini_and_Slack.json)|

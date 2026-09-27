@@ -1,4 +1,4 @@
-# places : 10
+# places : 14
 
 |id|file|
 |----|----|
@@ -12,3 +12,7 @@
 |11952|[11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11952_Automate_B2B_lead_generation_using_Google_Places_API___SendGrid_with_dashboard.json)|
 |15516|[15516_Monitor_restaurant_ratings_with_Google_Places__Gemini__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15516_Monitor_restaurant_ratings_with_Google_Places__Gemini__Sheets__and_Slack.json)|
 |16424|[16424_Find_and_save_local_lead_prospects_with_Google_Places__Firecrawl_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16424_Find_and_save_local_lead_prospects_with_Google_Places__Firecrawl_and_Supabase.json)|
+|16940|[16940_Send_daily_AI-personalized_cold_emails_with_Google_Places_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16940_Send_daily_AI-personalized_cold_emails_with_Google_Places_and_OpenAI.json)|
+|17776|[17776_Discover_and_enrich_B2B_leads_with_Google_Places_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17776_Discover_and_enrich_B2B_leads_with_Google_Places_and_Google_Sheets.json)|
+|18801|[18801_Generate__score__and_send_B2B_leads_with_Google_Places__Airtable__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18801_Generate__score__and_send_B2B_leads_with_Google_Places__Airtable__and_email.json)|
+|18933|[18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json)|

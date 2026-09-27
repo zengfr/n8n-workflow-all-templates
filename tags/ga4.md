@@ -1,4 +1,4 @@
-# ga4 : 8
+# ga4 : 13
 
 |id|file|
 |----|----|
@@ -10,3 +10,8 @@
 |13038|[13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13038_Query_GA4_data_with_Google_Gemini_AI_in_a_Slack_channel.json)|
 |13993|[13993_Send_weekly_GA4_WoW_email_reports_with_Gemini_AI_executive_summary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13993_Send_weekly_GA4_WoW_email_reports_with_Gemini_AI_executive_summary.json)|
 |15651|[15651_Generate_monthly_SEO_analytics_reports_with_GA4__Search_Console__GPT-4.1_and_Slack_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15651_Generate_monthly_SEO_analytics_reports_with_GA4__Search_Console__GPT-4.1_and_Slack_Teams.json)|
+|17055|[17055_Send_weekly_blended_ad_performance_reports_with_Meta__Google_Ads__GA4_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17055_Send_weekly_blended_ad_performance_reports_with_Meta__Google_Ads__GA4_and_OpenAI.json)|
+|17080|[17080_Send_weekly_blended_ad_performance_reports_with_Meta_Ads__Google_Ads__GA4_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17080_Send_weekly_blended_ad_performance_reports_with_Meta_Ads__Google_Ads__GA4_and_OpenAI.json)|
+|17561|[17561_Send_weekly_SEO_and_competitor_intelligence_reports_with_SEMrush__GA4__OpenAI__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17561_Send_weekly_SEO_and_competitor_intelligence_reports_with_SEMrush__GA4__OpenAI__Gmail_and_Slack.json)|
+|18241|[18241_Detect_SEO_opportunities_with_GSC__GA4__GPT-4o__Sheets__Notion__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18241_Detect_SEO_opportunities_with_GSC__GA4__GPT-4o__Sheets__Notion__Slack_and_Gmail.json)|
+|18821|[18821_Send_weekly_marketing_performance_briefs_from_GA4__GSC__SegMetrics_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18821_Send_weekly_marketing_performance_briefs_from_GA4__GSC__SegMetrics_and_Slack.json)|

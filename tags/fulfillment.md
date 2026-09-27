@@ -1,4 +1,4 @@
-# fulfillment : 8
+# fulfillment : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |11968|[11968_Sync_WooCommerce_orders_and_inventory_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11968_Sync_WooCommerce_orders_and_inventory_with_Google_Sheets_and_Slack.json)|
 |14164|[14164_Automate_service_order_fulfillment_with_Claude__Freshworks_CRM_and_SLA_escalation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14164_Automate_service_order_fulfillment_with_Claude__Freshworks_CRM_and_SLA_escalation.json)|
 |16475|[16475_Flag_delayed_Shopify_orders_with_Slack__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16475_Flag_delayed_Shopify_orders_with_Slack__Google_Sheets_and_Gmail.json)|
+|18987|[18987_Run_an_AI_Telegram_shopping_assistant_with_AWS_Bedrock__Paystack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18987_Run_an_AI_Telegram_shopping_assistant_with_AWS_Bedrock__Paystack_and_Google_Sheets.json)|
+|19122|[19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19122_Manage_e-commerce_orders_end-to-end_with_PostgreSQL__Gmail__PDFMonkey_and_Slack.json)|

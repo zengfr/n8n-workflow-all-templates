@@ -1,4 +1,4 @@
-# urls : 60
+# urls : 72
 
 |id|file|
 |----|----|
@@ -62,3 +62,15 @@
 |16022|[16022_Summarize_web_pages_from_URLs_to_Notion_with_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16022_Summarize_web_pages_from_URLs_to_Notion_with_OpenAI_GPT-4o.json)|
 |16055|[16055_Create_instrumental_tracks_from_song_URLs_with_StemSplit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16055_Create_instrumental_tracks_from_song_URLs_with_StemSplit.json)|
 |16633|[16633_Enrich_company_records_with_social_media_URLs_using_Supabase_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16633_Enrich_company_records_with_social_media_URLs_using_Supabase_and_GPT-4o.json)|
+|16994|[16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json)|
+|17114|[17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json)|
+|17154|[17154_Investigate_scam_URLs_with_URLScan.io__Telegram__Gmail__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17154_Investigate_scam_URLs_with_URLScan.io__Telegram__Gmail__and_Data_Tables.json)|
+|17375|[17375_Create_Notion_page_summaries_from_URLs_with_Snapshot_Site_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17375_Create_Notion_page_summaries_from_URLs_with_Snapshot_Site_and_Slack_alerts.json)|
+|17527|[17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json)|
+|17755|[17755_Enrich_company_data_from_website_URLs_using_TinyFish_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17755_Enrich_company_data_from_website_URLs_using_TinyFish_AI_and_Google_Sheets.json)|
+|18116|[18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json)|
+|18421|[18421_Transcribe_media_URLs_to_AI-summarized_Google_Drive_notes_with_Apify_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18421_Transcribe_media_URLs_to_AI-summarized_Google_Drive_notes_with_Apify_Whisper.json)|
+|18782|[18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json)|
+|18851|[18851_Transcribe_media_URLs_into_SRT_subtitles_with_Inwista.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18851_Transcribe_media_URLs_into_SRT_subtitles_with_Inwista.json)|
+|19538|[19538_Burn_in_captions_for_video_URLs_or_files_with_CaptionPipe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19538_Burn_in_captions_for_video_URLs_or_files_with_CaptionPipe.json)|
+|19545|[19545_Generate_video_ad_scenes_from_URLs_with_Tavily__Google_Gemini__OpenAI_and_JSON2Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19545_Generate_video_ad_scenes_from_URLs_with_Tavily__Google_Gemini__OpenAI_and_JSON2Video.json)|

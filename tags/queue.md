@@ -1,4 +1,4 @@
-# queue : 10
+# queue : 23
 
 |id|file|
 |----|----|
@@ -12,3 +12,16 @@
 |9888|[9888_Automated_Spotify_Playlist_Organizer_-_Sort_and_Queue_Tracks_by_Popularity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9888_Automated_Spotify_Playlist_Organizer_-_Sort_and_Queue_Tracks_by_Popularity.json)|
 |16185|[16185_Predict_airport_queue_wait_times_and_email_alerts_with_OpenAI_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16185_Predict_airport_queue_wait_times_and_email_alerts_with_OpenAI_and_SendGrid.json)|
 |16434|[16434_Prioritize_exception_queues_with_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16434_Prioritize_exception_queues_with_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|16836|[16836_Send_railway_queue_predictions_with_OpenAI_GPT-4o-mini__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16836_Send_railway_queue_predictions_with_OpenAI_GPT-4o-mini__Gmail__and_Google_Sheets.json)|
+|17270|[17270_Answer_Notion_knowledge_base_questions_with_You.com_Research.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17270_Answer_Notion_knowledge_base_questions_with_You.com_Research.json)|
+|17719|[17719_Validate_and_deduplicate_webhook_leads_into_a_Google_Sheets_review_queue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17719_Validate_and_deduplicate_webhook_leads_into_a_Google_Sheets_review_queue.json)|
+|17846|[17846_Validate_scheduled_post_queues_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17846_Validate_scheduled_post_queues_in_Google_Drive.json)|
+|17919|[17919_Extract_invoice_data_from_PDFs_with_Claude_and_a_Google_Sheets_review_queue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17919_Extract_invoice_data_from_PDFs_with_Claude_and_a_Google_Sheets_review_queue.json)|
+|18927|[18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18927_Clean_Google_Sheets_contact_data_for_phone__email__and_dates_on_an_hourly_schedule.json)|
+|18968|[18968_Route_X_mentions_to_Notion__Slack_and_Google_Sheets_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18968_Route_X_mentions_to_Notion__Slack_and_Google_Sheets_with_Apify_and_OpenAI.json)|
+|19001|[19001_Create_SEO_WordPress_blog_drafts_from_a_Google_Sheets_queue_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19001_Create_SEO_WordPress_blog_drafts_from_a_Google_Sheets_queue_with_Gemini.json)|
+|19196|[19196_Queue_OpenAI-compatible_LLM_chat_requests_with_PostgreSQL_and_a_local_GPU.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19196_Queue_OpenAI-compatible_LLM_chat_requests_with_PostgreSQL_and_a_local_GPU.json)|
+|19246|[19246_Classify_support_tickets_and_build_a_human_review_queue_with_Apixly_OpenAI_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19246_Classify_support_tickets_and_build_a_human_review_queue_with_Apixly_OpenAI_API.json)|
+|19302|[19302_Build_an_Airbnb_guest_feedback_review_queue_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19302_Build_an_Airbnb_guest_feedback_review_queue_with_Apify_and_Google_Sheets.json)|
+|19783|[19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json)|
+|19784|[19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json)|

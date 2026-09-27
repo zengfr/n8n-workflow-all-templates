@@ -1,4 +1,4 @@
-# apollo : 38
+# apollo : 43
 
 |id|file|
 |----|----|
@@ -40,3 +40,8 @@
 |14406|[14406_Scrape_Apollo.io_leads_with_ScraperCity_and_sync_enriched_contacts_to_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14406_Scrape_Apollo.io_leads_with_ScraperCity_and_sync_enriched_contacts_to_Airtable.json)|
 |15176|[15176_Extract_leads_from_an_Apollo_search_URL_into_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15176_Extract_leads_from_an_Apollo_search_URL_into_Google_Sheets.json)|
 |15684|[15684_Fetch_and_enrich_Apollo_leads_and_sync_verified_contacts_to_MeldFlow_GHL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15684_Fetch_and_enrich_Apollo_leads_and_sync_verified_contacts_to_MeldFlow_GHL.json)|
+|18609|[18609_Enrich_and_score_B2B_leads_with_Apollo__then_sync_tiers_to_Brevo_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18609_Enrich_and_score_B2B_leads_with_Apollo__then_sync_tiers_to_Brevo_and_Slack.json)|
+|19102|[19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19102_Score_and_enrich_Webflow_leads_with_OpenAI__Apollo__Pipedrive_and_Gmail.json)|
+|19146|[19146_Score_and_enrich_B2B_leads_with_Apollo_Official_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19146_Score_and_enrich_B2B_leads_with_Apollo_Official_API_and_Google_Sheets.json)|
+|19778|[19778_Enrich_and_verify_partnership_leads_from_Google_Sheets_with_Apollo_and_Instantly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19778_Enrich_and_verify_partnership_leads_from_Google_Sheets_with_Apollo_and_Instantly.json)|
+|19792|[19792_Run_autonomous_SDR_outreach_with_Apollo__OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19792_Run_autonomous_SDR_outreach_with_Apollo__OpenAI__Gmail__and_Google_Sheets.json)|

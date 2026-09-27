@@ -1,4 +1,4 @@
-# sendgrid : 25
+# sendgrid : 33
 
 |id|file|
 |----|----|
@@ -27,3 +27,11 @@
 |16491|[16491_Generate_and_send_personalized_client_proposals_with_OpenAI__SendGrid__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16491_Generate_and_send_personalized_client_proposals_with_OpenAI__SendGrid__Slack__and_Google_Sheets.json)|
 |16737|[16737_Generate_vendor_negotiation_strategies_from_pricing_data_with_GPT-4_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16737_Generate_vendor_negotiation_strategies_from_pricing_data_with_GPT-4_and_SendGrid.json)|
 |16759|[16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json)|
+|16827|[16827_Match_lost_and_found_items_with_OpenAI__SendGrid_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16827_Match_lost_and_found_items_with_OpenAI__SendGrid_and_Google_Sheets.json)|
+|16908|[16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json)|
+|17143|[17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json)|
+|17360|[17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17360_Hunt_brand_impersonation_and_deepfake_threats_with_Claude__Google_Sheets_and_SendGrid.json)|
+|17504|[17504_Run_synthetic_campaign_focus_groups_with_Claude_and_Google_Sheets_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17504_Run_synthetic_campaign_focus_groups_with_Claude_and_Google_Sheets_and_SendGrid.json)|
+|17505|[17505_Score_supplier_reliability_from_incidents_with_Claude__Google_Sheets__and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17505_Score_supplier_reliability_from_incidents_with_Claude__Google_Sheets__and_SendGrid.json)|
+|18093|[18093_Review_electricity_bills_and_flag_anomalies_with_OpenAI__Google_Sheets__and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18093_Review_electricity_bills_and_flag_anomalies_with_OpenAI__Google_Sheets__and_SendGrid.json)|
+|18095|[18095_Remediate_Kubernetes_CrashLoopBackOff_incidents_with_OpenAI__Slack__SendGrid_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18095_Remediate_Kubernetes_CrashLoopBackOff_incidents_with_OpenAI__Slack__SendGrid_and_Google_Sheets.json)|

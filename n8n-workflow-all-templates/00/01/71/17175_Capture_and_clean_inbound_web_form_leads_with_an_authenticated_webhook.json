@@ -1,0 +1,406 @@
+{
+  "name": "Capture and clean inbound web form leads with a secure webhook",
+  "nodes": [
+    {
+      "id": "webhook",
+      "name": "Web form posts here",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        480
+      ],
+      "webhookId": "web-form-leads",
+      "parameters": {
+        "path": "web-form-leads",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "auth",
+      "name": "Refuse anything unsigned",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Fail-closed: senza segreto configurato non passa niente.\n// Un webhook n8n attivo è un URL pubblico: chiunque lo conosca può scriverci\n// dentro. Questa è la sola cosa che sta fra il tuo foglio e il mondo.\nlet secret;\ntry { secret = $env.LEAD_WEBHOOK_SECRET; } catch (e) {}\nif (!secret) { try { secret = $vars.LEAD_WEBHOOK_SECRET; } catch (e) {} }\nif (!secret) {\n  throw new Error(\n    'Set LEAD_WEBHOOK_SECRET first: an environment variable when self-hosted, ' +\n    'or Settings → Variables on n8n Cloud. Until then every request is refused.'\n  );\n}\n\nconst out = [];\nfor (const item of $input.all()) {\n  const headers = item.json.headers || {};\n  // I nomi degli header arrivano già in minuscolo, ma non su ogni proxy.\n  const chiave = String(\n    headers['x-webhook-key'] ?? headers['X-Webhook-Key'] ?? ''\n  );\n  // Il confronto non esce al primo carattere sbagliato: percorre comunque\n  // tutta la chiave ricevuta. Non è una garanzia di tempo costante — in\n  // JavaScript non si può promettere, il JIT fa quello che vuole — ma toglie\n  // il segnale più grossolano. Se il tuo n8n può usarla, l'autenticazione\n  // header nativa del nodo Webhook è la scelta migliore.\n  const atteso = String(secret);\n  let diverso = chiave.length === atteso.length ? 0 : 1;\n  for (let i = 0; i < chiave.length; i++) {\n    if (chiave.charCodeAt(i) !== atteso.charCodeAt(i)) diverso |= 1;\n  }\n  if (diverso) throw new Error('Refused: missing or wrong x-webhook-key header');\n  out.push(item);\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "spam",
+      "name": "Spot the junk, with a reason",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        600,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Quello che arriva davvero in un form pubblico: bot che riempiono ogni\n// campo, indirizzi usa-e-getta, messaggi di due caratteri, muri di link.\n// Qui non si butta niente in silenzio: ogni scarto esce con il motivo scritto.\n\nconst MIN_MESSAGGIO = 15;      // caratteri sotto i quali un messaggio non dice nulla\nconst MAX_LINK = 2;            // link in un primo contatto: oltre, è pubblicità\nconst USA_E_GETTA = [\n  'mailinator.com', 'guerrillamail.com', 'yopmail.com', '10minutemail.com',\n  'tempmail.com', 'trashmail.com', 'sharklasers.com', 'getnada.com',\n  'temp-mail.org', 'dispostable.com', 'maildrop.cc', 'fakeinbox.com',\n];\n// I nomi del campo trappola. NON usare `website`: moltissimi form ne hanno uno\n// vero («il tuo sito»), e chi lo compila sarebbe scartato per sempre.\nconst TRAPPOLE = ['_gotcha', 'hp_field', 'nickname_confirm'];\nconst EMAIL_RE = /^[^\\s@]+@[^\\s@]+\\.[^\\s@]{2,}$/;\n\nconst out = [];\nfor (const item of $input.all()) {\n  const raw = item.json.body ?? item.json;\n  const email = String(raw.email ?? '').trim().toLowerCase();\n  const messaggio = String(raw.message ?? raw.comments ?? '').trim();\n  const dominio = email.includes('@') ? email.split('@').pop() : '';\n  const cifreTel = String(raw.phone ?? raw.telephone ?? '').replace(/[^0-9]/g, '');\n  const raggiungibile = EMAIL_RE.test(email) || cifreTel.length >= 7;\n  // Maiuscole comprese: «HTTPS://» conta come link quanto «https://».\n  const link = (messaggio.match(/https?:\\/\\//gi) || []).length;\n\n  const motivi = [];\n  if (TRAPPOLE.some((c) => String(raw[c] ?? '').trim() !== '')) motivi.push('honeypot field was filled in');\n\n  // Un modo per richiamare deve esserci. Ma il telefono basta: un form che\n  // chiede solo il numero è normale, e scartare quel lead sarebbe un errore\n  // che nessuno vedrebbe mai.\n  if (!raggiungibile) motivi.push('no usable email address and no phone number');\n\n  // Sottodomini compresi: mail.tempmail.com è tempmail.com.\n  if (dominio && USA_E_GETTA.some((d) => dominio === d || dominio.endsWith('.' + d))) {\n    motivi.push('disposable email domain: ' + dominio);\n  }\n\n  // «Call me» è corto ma non è spazzatura, se ha lasciato un numero.\n  if (messaggio.length > 0 && messaggio.length < MIN_MESSAGGIO && cifreTel.length < 7) {\n    motivi.push('message is too short to act on, and no phone number');\n  }\n\n  if (link > MAX_LINK) motivi.push(link + ' links in a first message');\n\n  out.push({ json: { ...raw, junk: motivi.length > 0, junk_reason: motivi.join('; '),\n                     received_at: new Date().toISOString() } });\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-junk",
+      "name": "Junk?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        900,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "is-junk",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.junk }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "trim-junk",
+      "name": "Keep three fields, safely",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1200,
+        60
+      ],
+      "parameters": {
+        "jsCode": "// Il ramo dello scarto scrive comunque su un foglio, quindi passa dalla stessa\n// protezione del ramo buono: lo spam è proprio il posto dove una formula ha più\n// probabilità di essere stata messa apposta.\n// Si tengono tre campi soltanto: di un bot non serve conservare l'intero corpo.\nconst pericoloso = /^[=+\\-@\\t\\r]/;\nconst sicuro = (v) => (typeof v === 'string' && pericoloso.test(v) ? \"'\" + v : v);\n\nreturn $input.all().map((item) => ({ json: {\n  received_at: item.json.received_at,\n  email: sicuro(String(item.json.email ?? '').slice(0, 200)),\n  reason: sicuro(String(item.json.junk_reason ?? '')),\n} }));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "log-junk",
+      "name": "Write it down anyway",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1500,
+        60
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "rejected"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.LEADS_SHEET_ID || $env.LEADS_SHEET_ID || 'YOUR_SPREADSHEET_ID' }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "respond-junk",
+      "name": "Answer 200, say nothing",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1800,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true }) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "normalise",
+      "name": "Normalise the lead",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1200,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// La stessa persona scrive «MARIA rossi», « Maria Rossi » e «maria rossi».\n// Senza questo passaggio il foglio diventa illeggibile in due settimane.\n\nconst PAESE_PREDEFINITO = '+39';   // prefisso da mettere ai numeri senza indicatore\n\n// Lo «zero di tronco» iniziale: in Italia fa parte del numero (+1234567890),\n// nel Regno Unito e in Francia va tolto (+44 20 ..., non +44 020 ...). Non\n// esiste una regola universale, quindi non si indovina: si dichiara. Il valore\n// predefinito segue PAESE_PREDEFINITO qui sopra.\nconst TOGLI_ZERO_INIZIALE = false;\nconst MAIL_GRATUITE = [\n  'gmail.com', 'yahoo.com', 'hotmail.com', 'outlook.com', 'live.com',\n  'icloud.com', 'aol.com', 'gmx.com', 'proton.me', 'protonmail.com', 'mail.com',\n];\n\nconst maiuscola = (s) => s.charAt(0).toUpperCase() + s.slice(1);\n\n// «de rossi», «o'brien», «anna-maria» devono restare leggibili.\nconst nomeProprio = (s) => s\n  .toLowerCase()\n  .split(/(\\s+|-|')/)\n  .map((p) => (/^[\\s\\-']+$/.test(p) ? p : maiuscola(p)))\n  .join('');\n\nconst out = [];\nfor (const item of $input.all()) {\n  const raw = item.json;\n  const email = String(raw.email ?? '').trim().toLowerCase();\n  const dominio = email.includes('@') ? email.split('@').pop() : '';\n\n  const intero = String(raw.name ?? raw.full_name ?? '').trim();\n  const pezzi = intero.split(/\\s+/).filter(Boolean);\n\n  // Telefono. Tre forme arrivano davvero: «+39 02 …», «0039 02 …» e «02 …».\n  // Le prime due sono già internazionali e non vanno toccate; solo la terza\n  // prende il prefisso. Un'estensione («… int. 12») allunga il numero fino a\n  // renderlo impossibile, quindi vale il tetto E.164 di 15 cifre.\n  const grezzo = String(raw.phone ?? raw.telephone ?? '').trim();\n  const cifre = grezzo.replace(/[^0-9]/g, '');\n  const giaInternazionale = grezzo.startsWith('+') || cifre.startsWith('00');\n  let telefono = '';\n  if (cifre.length >= 7) {\n    let finale;\n    if (giaInternazionale) {\n      finale = cifre.replace(/^00/, '');            // 0039… → 39…\n    } else {\n      finale = PAESE_PREDEFINITO.replace('+', '')\n             + (TOGLI_ZERO_INIZIALE ? cifre.replace(/^0+/, '') : cifre);\n    }\n    telefono = finale.length <= 15 ? '+' + finale : '';\n  }\n\n  const aziendale = Boolean(dominio) && !MAIL_GRATUITE.includes(dominio);\n\n  out.push({ json: {\n    first_name: pezzi[0] ? nomeProprio(pezzi[0]) : '',\n    last_name: pezzi.slice(1).map(nomeProprio).join(' '),\n    email,\n    phone: telefono,\n    company_domain: aziendale ? dominio : '',\n    business_email: aziendale,\n    message: String(raw.message ?? raw.comments ?? '').replace(/\\s+/g, ' ').trim(),\n    source: String(raw.source ?? raw.utm_source ?? 'web form').trim(),\n    received_at: raw.received_at ?? new Date().toISOString(),\n  } });\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "safe",
+      "name": "Make it safe for a spreadsheet",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1500,
+        480
+      ],
+      "parameters": {
+        "jsCode": "// Un foglio di calcolo esegue quello che comincia per = + - @, perché il nodo\n// Sheets scrive in modalità USER_ENTERED: la cella viene interpretata come se\n// l'avessi digitata tu. «=HYPERLINK(...)» dentro il campo nome diventa un link\n// cliccabile nel foglio di chi legge i lead. Nessuno lo controlla, perché «è\n// solo un form».\nconst pericoloso = /^[=+\\-@\\t\\r]/;\n\n// Ricorsivo: un form può mandare oggetti annidati e liste, e proteggere solo il\n// primo livello lascia passare esattamente i casi che nessuno guarda.\nfunction ripulisci(v) {\n  if (typeof v === 'string') return pericoloso.test(v) ? \"'\" + v : v;\n  if (Array.isArray(v)) return v.map(ripulisci);\n  if (v && typeof v === 'object') {\n    const o = {};\n    for (const [k, x] of Object.entries(v)) o[k] = ripulisci(x);\n    return o;\n  }\n  return v;\n}\n\nreturn $input.all().map((item) => ({ json: ripulisci(item.json) }));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "append",
+      "name": "Append to the leads sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1800,
+        480
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.LEADS_SHEET_ID || $env.LEADS_SHEET_ID || 'YOUR_SPREADSHEET_ID' }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "respond-ok",
+      "name": "Answer with the clean lead",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2100,
+        480
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -820,
+        -160
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 900,
+        "content": "## Capture and clean inbound web form leads\n\nA form that writes straight into a spreadsheet produces a spreadsheet nobody\ntrusts: `MARIA rossi` beside `Maria Rossi`, phone numbers in four shapes, bot\nsubmissions among the real ones. This hands back one tidy record instead.\n\n### How it works\n1. A webhook receives the submission.\n2. **Anything unsigned is refused.** An active n8n webhook is a public URL —\n   the shared secret is the only thing between your sheet and the internet.\n3. **Junk is separated, with the reason written down**: honeypot filled in,\n   unusable address, disposable domain, two-character message, a wall of links.\n   Rejections get a row too, so you see what you turn away.\n4. **The rest is normalised**: names in readable case — `de rossi`, `o'brien`\n   and `anna-maria` all survive — phones to one international shape, company\n   domain derived from the address, free-mail providers marked as such.\n5. **The text is neutralised before it reaches the sheet.** A cell that starts\n   with `=` is a formula, and nobody inspects a form field for one.\n6. The row is appended and the caller gets the clean record back.\n\nNo scoring, no deduplication, no MX lookups: one stage done properly instead of\nhalf of five.\n\n### Setup\n1. Set **`LEAD_WEBHOOK_SECRET`** to a long random string — an environment\n   variable when self-hosted, Settings → Variables on Cloud.\n2. Set **`LEADS_SHEET_ID`** to your spreadsheet id, the part of the URL between\n   `/d/` and `/edit`. Give it two tabs: `leads` and `rejected`.\n3. Add your Google Sheets credential to both Sheets nodes.\n4. Post to the **Production** URL with header `x-webhook-key: <secret>`.\n5. Add an empty hidden field named `website`: bots fill it in, people don't.\n\n**Requirements:** n8n 2.29+ and a Google Sheets credential. No AI, no paid API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "receive-and-authenticate",
+      "name": "Receive and authenticate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        305
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 596,
+        "height": 365,
+        "content": "### Nothing gets in unsigned\nThe comparison does not stop at the first wrong character. No secret configured\nmeans every request is refused — never the other way round."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sort-the-junk-from-the-leads",
+      "name": "Sort the junk from the leads",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        552,
+        305
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 596,
+        "height": 365,
+        "content": "### Every rejection has a reason\nHoneypot, unusable address, disposable domain, too short, too many links. The\nreason travels with the record, so a real person turned away by mistake is\nvisible instead of silently lost."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "rejected,-not-deleted",
+      "name": "Rejected, not deleted",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1152,
+        -115
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 896,
+        "height": 365,
+        "content": "### Say nothing useful to a bot\nA rejected submission still gets a row, and a plain `200`. Telling a bot it was\ncaught only teaches it what to change next time."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "clean-it,-protect-it,-store-it",
+      "name": "Clean it, protect it, store it",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1152,
+        305
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1196,
+        "height": 365,
+        "content": "### One tidy record, every time\nNormalise, neutralise, append, answer. `=HYPERLINK(...)` in a name field would\nbecome a clickable link in the sheet of whoever reads the leads — here it\narrives as plain text, and the caller gets the cleaned record back."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Junk?": {
+      "main": [
+        [
+          {
+            "node": "Keep three fields, safely",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Normalise the lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalise the lead": {
+      "main": [
+        [
+          {
+            "node": "Make it safe for a spreadsheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Web form posts here": {
+      "main": [
+        [
+          {
+            "node": "Refuse anything unsigned",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write it down anyway": {
+      "main": [
+        [
+          {
+            "node": "Answer 200, say nothing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Refuse anything unsigned": {
+      "main": [
+        [
+          {
+            "node": "Spot the junk, with a reason",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append to the leads sheet": {
+      "main": [
+        [
+          {
+            "node": "Answer with the clean lead",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep three fields, safely": {
+      "main": [
+        [
+          {
+            "node": "Write it down anyway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Spot the junk, with a reason": {
+      "main": [
+        [
+          {
+            "node": "Junk?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Make it safe for a spreadsheet": {
+      "main": [
+        [
+          {
+            "node": "Append to the leads sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Capture and clean inbound web form leads with an authenticated webhook",
+    "wechat": "youandme10086",
+    "id": 17175,
+    "update_time": "2026-09-27"
+  }
+}

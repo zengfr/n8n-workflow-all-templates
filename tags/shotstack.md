@@ -1,4 +1,4 @@
-# shotstack : 8
+# shotstack : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |14985|[14985_Generate_AI_music_and_publish_YouTube_videos_automatically_with_Blotato__OpenAI__ElevenLabs__and_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14985_Generate_AI_music_and_publish_YouTube_videos_automatically_with_Blotato__OpenAI__ElevenLabs__and_Shotstack.json)|
 |15639|[15639_Auto-post_Amazon_India_affiliate_videos_to_6_platforms_with_FLUX__Shotstack_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15639_Auto-post_Amazon_India_affiliate_videos_to_6_platforms_with_FLUX__Shotstack_and_Buffer.json)|
 |16201|[16201_Create_daily_AI_news_YouTube_Shorts_with_Groq__VoiceRSS__Pexels_and_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16201_Create_daily_AI_news_YouTube_Shorts_with_Groq__VoiceRSS__Pexels_and_Shotstack.json)|
+|19788|[19788_Add_burned-in_subtitles_to_Google_Drive_videos_with_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19788_Add_burned-in_subtitles_to_Google_Drive_videos_with_Shotstack.json)|

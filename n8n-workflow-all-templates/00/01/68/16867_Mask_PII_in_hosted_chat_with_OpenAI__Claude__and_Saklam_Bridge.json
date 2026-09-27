@@ -1,0 +1,258 @@
+{
+  "name": "Summarize support emails with PII masked before OpenAI or Claude (Saklam Bridge)",
+  "nodes": [
+    {
+      "id": "sticky-main",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        -40
+      ],
+      "parameters": {
+        "width": 660,
+        "height": 1240,
+        "content": "## Mask PII before OpenAI or Claude — support-email triage (Saklam Bridge)\n\n**Who it's for:** self-hosted n8n users who want to run incoming support mail through an LLM **without** leaking customer names, emails, IBANs or phone numbers to the provider.\n\n### How it works\n\n1. Gmail trigger picks up a new support email.\n2. The AI Agent summarizes it and rates urgency. Its chat model points at a self-hosted **Saklam Bridge** (Docker, on-prem) via an OpenAI-compatible endpoint.\n3. The Bridge masks PII into placeholders like `[PER_1a2b]` **before anything leaves your network**, forwards to the provider with **your** API key (BYOK), and restores the real values in the reply. The mapping table never leaves your infrastructure.\n4. A Code node shows which PII types were protected; the summary is posted to Slack.\n\n**Why the Bridge and not a DIY masking sub-flow?** Detection, the reversible mapping, German PII coverage and model updates all live inside **one on-prem container** — no Postgres vault, no token tables, no detection code to build or maintain in n8n. Point *any* model node at the same credential and that workflow is masked too. The raw text and the mapping never leave your network — verify with `docker logs`.\n\n### Setup\n\n1. Run the Bridge in the same Docker network as n8n:\n```\ncurl -fsSL https://saklam.com/bridge/docker-compose.yml -o docker-compose.yml\ncurl -fsSL https://saklam.com/bridge/env.example -o .env\n# add SAKLAM_LICENSE_KEY + your provider API key\ndocker compose up -d\n```\n2. Create an **OpenAI credential** (yes, also for Claude — the Anthropic credential has no base-URL field): API Key = your `BRIDGE_MASTER_KEY`, Base URL = `http://saklam-bridge:4000/v1`. Select it on the *Claude via Saklam Bridge* node.\n3. In **⚙️ Settings** set your Slack channel and summary language.\n4. Add Gmail + Slack credentials, then activate the workflow.\n5. Verify what actually left your network: `docker logs saklam-bridge`\n\nFull guide: https://saklam.com/en/docs/n8n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 420,
+        "content": "## 1 · New support email in\n\nThe Gmail trigger fires on each new mail. **⚙️ Settings** groups the two things you configure — Slack channel and summary language — so nothing is hardcoded deeper in the flow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-2",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        620,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 640,
+        "content": "## 2 · Mask & summarize\n\nThe agent's chat model routes through the self-hosted **Saklam Bridge**. The provider only ever sees placeholders like `[PER_1a2b]` — real names, emails and IBANs are restored afterwards, inside your network."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-3",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1080,
+        120
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 460,
+        "height": 420,
+        "content": "## 3 · Proof & notify\n\nThe Code node lists which PII types were masked out of **this** email, then posts the summary to Slack. Cross-check the raw truth any time with `docker logs saklam-bridge`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "node-gmail",
+      "name": "When new support email arrives",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        60,
+        360
+      ],
+      "parameters": {
+        "simple": false,
+        "filters": {},
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "node-settings",
+      "name": "⚙️ Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        360,
+        360
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "set-1",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "support"
+            },
+            {
+              "id": "set-2",
+              "name": "summary_language",
+              "type": "string",
+              "value": "English"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "node-agent",
+      "name": "Summarize & triage (masked)",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        720,
+        360
+      ],
+      "parameters": {
+        "text": "=Subject: {{ $('When new support email arrives').item.json.Subject }}\nFrom: {{ $('When new support email arrives').item.json.From }}\n\n{{ $('When new support email arrives').item.json.text || $('When new support email arrives').item.json.snippet }}",
+        "options": {
+          "systemMessage": "=You are a support-desk triage assistant. Read the customer email and reply with ONLY a valid JSON object — no markdown, no code fences — in exactly this shape:\n{\n  \"summary\": \"2-3 sentence summary written in {{ $('⚙️ Settings').item.json.summary_language }}\",\n  \"urgency\": \"high | medium | low\",\n  \"action_items\": [\"short imperative task\"]\n}\nJudge urgency from tone, deadlines and business impact. Any names, emails, IBANs or phone numbers you see are already masked as placeholders like [PER_1a2b] or [IBAN_1a2b] — keep those placeholders exactly as-is in your output."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "node-model",
+      "name": "Claude via Saklam Bridge",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        720,
+        600
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "id",
+          "value": "claude-haiku-4-5"
+        },
+        "options": {}
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "node-code",
+      "name": "🔍 What got masked",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1160,
+        360
+      ],
+      "parameters": {
+        "jsCode": "const raw = $input.first().json.output ?? '';\nlet parsed;\ntry { parsed = typeof raw === 'string' ? JSON.parse(raw.replace(/```json|```/g, '').trim()) : raw; }\ncatch (e) { parsed = { summary: String(raw), urgency: 'unknown', action_items: [] }; }\n\nconst mail = $('When new support email arrives').first().json;\nconst original = `${mail.Subject ?? ''} ${mail.text ?? mail.snippet ?? ''}`;\n\nconst patterns = {\n  'email address': /[A-Z0-9._%+-]+@[A-Z0-9.-]+\\.[A-Z]{2,}/gi,\n  'IBAN': /\\b[A-Z]{2}\\d{2}[A-Z0-9]{10,30}\\b/g,\n  'phone number': /\\b\\+?\\d[\\d\\s().-]{7,}\\d\\b/g,\n};\nconst found = [];\nfor (const [label, re] of Object.entries(patterns)) {\n  const n = (original.match(re) || []).length;\n  if (n) found.push(`${n}× ${label}`);\n}\n\nconst emoji = { high: '🔴', medium: '🟡', low: '🟢' }[String(parsed.urgency).toLowerCase()] || '⚪';\nconst items = (parsed.action_items || []).map(i => `• ${i}`).join('\\n') || '• —';\nconst maskedNote = found.length\n  ? `Masked before leaving your network: ${found.join(', ')}.`\n  : 'No obvious PII pattern detected locally — confirm with `docker logs saklam-bridge`.';\n\nconst slack_text = [\n  `${emoji} *Support summary — ${parsed.urgency ?? 'n/a'} priority*`,\n  `*From:* ${mail.From ?? 'unknown'}`,\n  `*Subject:* ${mail.Subject ?? '(none)'}`,\n  '',\n  parsed.summary ?? '',\n  '',\n  '*Action items:*',\n  items,\n  '',\n  `🔒 _${maskedNote}_`,\n].join('\\n');\n\nreturn [{ json: { slack_text, urgency: parsed.urgency ?? 'unknown', masked: found } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "node-slack",
+      "name": "Post summary to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1400,
+        360
+      ],
+      "parameters": {
+        "text": "={{ $json.slack_text }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('⚙️ Settings').item.json.slack_channel }}"
+        },
+        "operation": "post",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "⚙️ Settings": {
+      "main": [
+        [
+          {
+            "node": "Summarize & triage (masked)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🔍 What got masked": {
+      "main": [
+        [
+          {
+            "node": "Post summary to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Claude via Saklam Bridge": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Summarize & triage (masked)",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize & triage (masked)": {
+      "main": [
+        [
+          {
+            "node": "🔍 What got masked",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When new support email arrives": {
+      "main": [
+        [
+          {
+            "node": "⚙️ Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Mask PII in hosted chat with OpenAI, Claude, and Saklam Bridge",
+    "wechat": "youandme10086",
+    "id": 16867,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# between : 46
+# between : 53
 
 |id|file|
 |----|----|
@@ -48,3 +48,10 @@
 |15297|[15297_Sync_and_score_PLG_leads_between_Segment__Attio__Intercom__Lemlist_and_ActiveCampaign_with_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15297_Sync_and_score_PLG_leads_between_Segment__Attio__Intercom__Lemlist_and_ActiveCampaign_with_Claude_and_OpenAI.json)|
 |16330|[16330_Route_AI_prompts_between_Anthropic__Google_Gemini__Mistral_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16330_Route_AI_prompts_between_Anthropic__Google_Gemini__Mistral_and_OpenAI.json)|
 |16654|[16654_Manage_Etsy_OAuth_2.0_tokens_and_API_headers_between_workflows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16654_Manage_Etsy_OAuth_2.0_tokens_and_API_headers_between_workflows.json)|
+|17176|[17176_Audit_inventory_prices_between_a_website_scraper_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17176_Audit_inventory_prices_between_a_website_scraper_and_Google_Sheets.json)|
+|17206|[17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17206_Sync_SAP_sales_project_fields_between_Microsoft_SQL_and_Asana.json)|
+|17284|[17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json)|
+|18178|[18178_Reconcile_and_diagnose_discrepancies_between_two_CSV_exports_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18178_Reconcile_and_diagnose_discrepancies_between_two_CSV_exports_with_Gemini.json)|
+|18570|[18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18570_Migrate_SmartSuite_record_comments_into_Monday.com_items_between_tools.json)|
+|18580|[18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18580_Sync_activities_two-way_between_BROSH_AI_CRM_and_Google_Calendar.json)|
+|19320|[19320_Close_the_support_loop_and_send_CSAT_between_Jira__Gmail__WhatsApp_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19320_Close_the_support_loop_and_send_CSAT_between_Jira__Gmail__WhatsApp_and_HubSpot.json)|

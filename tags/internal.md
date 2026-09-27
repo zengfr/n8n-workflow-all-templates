@@ -1,4 +1,4 @@
-# internal : 14
+# internal : 24
 
 |id|file|
 |----|----|
@@ -16,3 +16,13 @@
 |11234|[11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11234_Simple_Scheduling_and_Internal_Document_Query_Bot_with_Telegram.json)|
 |13959|[13959_Build_a_Google_Drive_internal_knowledge_base_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13959_Build_a_Google_Drive_internal_knowledge_base_with_OpenAI_and_Pinecone.json)|
 |16202|[16202_Create_WordPress_articles_in_author_style_with_Gemini__Telegram_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16202_Create_WordPress_articles_in_author_style_with_Gemini__Telegram_and_Pinecone.json)|
+|16985|[16985_Add_internal_links_to_WordPress_posts_with_OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16985_Add_internal_links_to_WordPress_posts_with_OpenAI__Notion__and_Slack.json)|
+|17146|[17146_Answer_Slack_knowledge_base_questions_with_Notion__Pinecone__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17146_Answer_Slack_knowledge_base_questions_with_Notion__Pinecone__and_OpenAI.json)|
+|17677|[17677_Generate_SEO-audited_blog_posts_with_internal_links_from_forms_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17677_Generate_SEO-audited_blog_posts_with_internal_links_from_forms_using_OpenAI.json)|
+|17722|[17722_Answer_Slack_knowledge_questions_with_Notion__Google_Drive__Pinecone__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17722_Answer_Slack_knowledge_questions_with_Notion__Google_Drive__Pinecone__and_OpenAI.json)|
+|17812|[17812_Suggest_SEO_internal_links_using_Google_Search_Console__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17812_Suggest_SEO_internal_links_using_Google_Search_Console__Claude__and_Google_Sheets.json)|
+|18111|[18111_Detect_and_escalate_Salesforce_bottlenecks_with_Gemini__Slack__Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18111_Detect_and_escalate_Salesforce_bottlenecks_with_Gemini__Slack__Gmail.json)|
+|18342|[18342_Capture_Gmail_website_leads_in_Google_Sheets_with_internal_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18342_Capture_Gmail_website_leads_in_Google_Sheets_with_internal_email_alerts.json)|
+|19287|[19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json)|
+|19671|[19671_Answer_internal_policy_questions_from_Google_Drive_with_OpenAI_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19671_Answer_internal_policy_questions_from_Google_Drive_with_OpenAI_and_Qdrant.json)|
+|19825|[19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json)|

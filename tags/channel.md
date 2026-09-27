@@ -1,4 +1,4 @@
-# channel : 122
+# channel : 134
 
 |id|file|
 |----|----|
@@ -124,3 +124,15 @@
 |16359|[16359_Send_daily_birthday_greetings_via_Gmail__WhatsApp__Telegram_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16359_Send_daily_birthday_greetings_via_Gmail__WhatsApp__Telegram_and_Slack.json)|
 |16545|[16545_Route_RAG_customer_support_across_WhatsApp_and_Outlook_with_Pinecone_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16545_Route_RAG_customer_support_across_WhatsApp_and_Outlook_with_Pinecone_and_OpenRouter.json)|
 |16667|[16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16667_Notify_on_server_restarts_with_Discord__Telegram__and_Slack_alerts.json)|
+|17137|[17137_Rotate_YouTube_channel_banners_on_a_schedule_with_Google_Sheets_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17137_Rotate_YouTube_channel_banners_on_a_schedule_with_Google_Sheets_and_Drive.json)|
+|17210|[17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json)|
+|17703|[17703_Send_daily_AI_YouTube_news_digests_to_Telegram_with_Firecrawl_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17703_Send_daily_AI_YouTube_news_digests_to_Telegram_with_Firecrawl_and_Claude.json)|
+|17733|[17733_Export_Telegram_channel_posts_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17733_Export_Telegram_channel_posts_to_Google_Sheets_with_Apify.json)|
+|17734|[17734_Monitor_Telegram_channel_intelligence_with_Apify__OpenAI__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17734_Monitor_Telegram_channel_intelligence_with_Apify__OpenAI__Google_Sheets__and_Telegram.json)|
+|17798|[17798_Post_new_and_moved_Trello_cards_to_a_Discord_channel_via_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17798_Post_new_and_moved_Trello_cards_to_a_Discord_channel_via_webhooks.json)|
+|18462|[18462_Summarize_multi-channel_Slack_standups_with_OpenAI_and_post_and_escalate_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18462_Summarize_multi-channel_Slack_standups_with_OpenAI_and_post_and_escalate_digests.json)|
+|18507|[18507_Analyze_YouTube_channel_performance_with_Telegram__Google_Sheets__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18507_Analyze_YouTube_channel_performance_with_Telegram__Google_Sheets__and_Gemini.json)|
+|18703|[18703_Run_an_anonymous_whistleblower_channel_with_Groq_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18703_Run_an_anonymous_whistleblower_channel_with_Groq_and_data_tables.json)|
+|18771|[18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json)|
+|18898|[18898_Fetch_YouTube_channel_banner_and_avatar_images_with_YouTubeThumb.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18898_Fetch_YouTube_channel_banner_and_avatar_images_with_YouTubeThumb.com.json)|
+|19197|[19197_Send_daily_TMDB_movie_recommendations_to_a_Telegram_channel_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19197_Send_daily_TMDB_movie_recommendations_to_a_Telegram_channel_with_OpenAI.json)|

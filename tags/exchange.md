@@ -1,4 +1,4 @@
-# exchange : 11
+# exchange : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |8611|[8611_Get_Exchange_Data_with_KuCoin_AI_Agent___GPT-4o___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/86/8611_Get_Exchange_Data_with_KuCoin_AI_Agent___GPT-4o___Telegram.json)|
 |9308|[9308_Automate_Bitcoin_Trading_Insights_with_10-Exchange_Liquidity_Data_and_GPT-4.1_Analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/93/9308_Automate_Bitcoin_Trading_Insights_with_10-Exchange_Liquidity_Data_and_GPT-4.1_Analysis.json)|
 |12539|[12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json)|
+|18334|[18334_Post_FX_rate_change_commentary_to_Slack_with_Frankfurter_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18334_Post_FX_rate_change_commentary_to_Slack_with_Frankfurter_and_Claude.json)|
+|19794|[19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json)|
+|19843|[19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json)|

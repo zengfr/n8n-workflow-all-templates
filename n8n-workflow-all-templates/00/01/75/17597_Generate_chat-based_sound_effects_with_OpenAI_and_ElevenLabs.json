@@ -1,0 +1,331 @@
+{
+  "id": "yYF8xR5q4y9D1DuL",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Generate chat-based sound effects with OpenAI and ElevenLabs",
+    "wechat": "youandme10086",
+    "id": 17597,
+    "update_time": "2026-09-27"
+  },
+  "name": "Generate sound effects from chat using OpenAI and ElevenLabs",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "eb94f891-c347-43d7-80d3-ac432498de73",
+      "name": "When Chat Message Received",
+      "type": "@n8n/n8n-nodes-langchain.chatTrigger",
+      "position": [
+        -544,
+        224
+      ],
+      "webhookId": "26e4982a-12ca-439a-9c28-a6ef6e3920d8",
+      "parameters": {
+        "options": {
+          "responseMode": "lastNode"
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "3571324e-8bfb-4ae4-a577-58dbb6f90b37",
+      "name": "Compose Sound Effect Prompt",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "onError": "continueErrorOutput",
+      "position": [
+        -128,
+        224
+      ],
+      "parameters": {
+        "text": "={{ $json.chatInput }}",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are an expert sound-effects director for the ElevenLabs sound-generation API. Turn the user's casual description into ONE richly detailed, literal sound-effects prompt, then choose sensible settings.\n\nWrite the prompt so it describes the sound literally: the source, material, action, environment, and how it evolves over time. Prefer concrete audio detail (for example, \"a heavy oak door slowly creaking open, hinges groaning, faint echo in a stone hall\") over vague labels (for example, \"door sound\"). Keep it to one continuous sound event unless the user clearly asks for a sequence. Do not add music or narration unless asked.\n\nPick duration_seconds between 0.5 and 30 (0.5 to 2 for short impacts like clicks or thuds, 8 to 20 for ambiences or drones). Pick prompt_influence between 0 and 1 (about 0.3 for organic or natural sounds, 0.6 to 0.8 for precise, mechanical, or branded sounds).\n\nReturn ONLY a JSON object and nothing else. No markdown, no code fences, no commentary. Use exactly these keys:\n{\"sfx_prompt\": \"a literal detailed description\", \"duration_seconds\": 6, \"prompt_influence\": 0.3}"
+            }
+          ]
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "41faa985-9c3f-4f70-8429-c73fd9674fc2",
+      "name": "OpenAI Sound Director Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -128,
+        400
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "6h3DfVhNPw9I25nO",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1e825253-3ccd-4243-967a-7891fc7bb8d3",
+      "name": "Clamp Sound Settings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        208,
+        144
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Parse the sound director's JSON reply, then normalize and clamp it.\n// Robust by design: any parse failure falls back to the user's own words,\n// so an empty, garbled, or non-JSON reply still yields a valid request.\n\nconst rawMessage = ($('When Chat Message Received').item.json.chatInput || '').toString().trim();\n\n// Basic LLM Chain returns the model text; be liberal about where it sits.\nconst text = ($json.text ?? $json.response?.text ?? $json.output ?? $json.data ?? '').toString();\n\nlet parsed = {};\ntry {\n  // Drop any markdown fences, then grab the first {...} block if prose surrounds it.\n  const cleaned = text.replace(/```(?:json)?/gi, '').trim();\n  const match = cleaned.match(/\\{[\\s\\S]*\\}/);\n  parsed = JSON.parse(match ? match[0] : cleaned);\n} catch (e) {\n  parsed = {};\n}\n\nconst clamp = (n, lo, hi) => Math.min(hi, Math.max(lo, n));\nconst toNum = (v) => {\n  const n = typeof v === 'number' ? v : parseFloat(v);\n  return Number.isFinite(n) ? n : null;\n};\n\n// Prompt: prefer the director's rewrite, fall back to the raw words, then a safe default.\nlet sfxPrompt = (parsed && typeof parsed.sfx_prompt === 'string') ? parsed.sfx_prompt.trim() : '';\nif (!sfxPrompt) sfxPrompt = rawMessage;\nif (!sfxPrompt) sfxPrompt = 'a soft, short ambient tone';\n\n// Duration: clamp to the ElevenLabs 0.5-30s window; default 3s if missing.\nlet duration = toNum(parsed ? parsed.duration_seconds : null);\nduration = duration === null ? 3 : Math.round(clamp(duration, 0.5, 30) * 10) / 10;\n\n// Prompt influence: clamp to 0-1; default 0.3 (the ElevenLabs default).\nlet influence = toNum(parsed ? parsed.prompt_influence : null);\ninfluence = influence === null ? 0.3 : clamp(influence, 0, 1);\n\nreturn { json: { sfx_prompt: sfxPrompt, duration_seconds: duration, prompt_influence: influence } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d4bfacc8-dedc-43c9-896d-f28ee52d7ad3",
+      "name": "Generate Sound With ElevenLabs",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        400,
+        224
+      ],
+      "parameters": {
+        "url": "https://api.elevenlabs.io/v1/sound-generation",
+        "method": "POST",
+        "options": {
+          "timeout": 120000,
+          "response": {
+            "response": {
+              "responseFormat": "file"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ text: $json.sfx_prompt, duration_seconds: $json.duration_seconds, prompt_influence: $json.prompt_influence }) }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "output_format",
+              "value": "mp3_44100_128"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "9qX70l5N9X8qgOp2",
+          "name": "ElevenLabs API"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "df10b8f1-88b8-4ac9-a9e2-41f071b8cf11",
+      "name": "Reply In Chat With Sound",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        608,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "64f5195f-b64c-433e-999d-8a2747ff43a5",
+              "name": "output",
+              "type": "string",
+              "value": "=🔊 Your sound effect is ready, listen to it above.\n\n**Prompt used:** {{ $('Clamp Sound Settings').item.json.sfx_prompt }}\n**Duration:** {{ $('Clamp Sound Settings').item.json.duration_seconds }}s  ·  **Prompt influence:** {{ $('Clamp Sound Settings').item.json.prompt_influence }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6bbc04fd-28cc-4d67-b214-c878c2eedd0a",
+      "name": "Report Sound Failure",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        608,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "67d98c22-f143-40cd-ba1e-a55567153163",
+              "name": "output",
+              "type": "string",
+              "value": "⚠️ I couldn't generate that sound effect just now. The sound service may be busy, or the description was unclear. Please try again with a clear description like \"a heavy wooden door creaking open\" or \"distant thunder rumbling\"."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "bdb47582-df10-4bac-8370-184f29d6a7d5",
+      "name": "Sticky Note 3737cb97",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1488,
+        -224
+      ],
+      "parameters": {
+        "width": 672,
+        "height": 1548,
+        "content": "# Generate sound effects from chat using OpenAI and ElevenLabs\n# 📥  [Open full documentation on Notion](https://automatisation.notion.site/Course-Generate-sound-effects-from-chat-using-OpenAI-and-ElevenLabs-39f3d6550fd9818aa664cfde59a5d1cd)\n\n## How it works\n\n1. The user describes a sound in plain words in the n8n chat.\n2. An OpenAI model acts as a sound-effects director and rewrites the request into a literal, richly detailed ElevenLabs prompt, then picks a duration and a prompt influence.\n3. A Code node parses that JSON and clamps the settings to safe ranges, then calls the ElevenLabs sound-generation API.\n4. The generated MP3 is attached directly to the chat reply (no external storage needed) along with the prompt and settings used.\n\n## Setup\n\n- [ ] Select your \"OpenAi account\" credential on OpenAI Sound Director Model.\n- [ ] Create a Header Auth credential named \"ElevenLabs API\" with header name xi-api-key and your ElevenLabs API key, then select it on Generate Sound With ElevenLabs.\n\n## Requirements\n\n- An OpenAI API key (OpenAi account credential).\n- An ElevenLabs API key (Header Auth credential, header name xi-api-key).\n- n8n Cloud or self-hosted with the built-in Chat Trigger enabled.\n\n## Customization\n\nSwap the chat trigger for a form or webhook, tune the duration and prompt-influence guidance in the director's system prompt, or change the OpenAI model used for sound direction.\n\nNeed help customizing?\nContact me for consulting and support : [Linkedin](https://www.linkedin.com/in/doctor-firass/)\n\n# MY NEW YOUTUBE CHANNEL\n👉 [Subscribe to my new YouTube channel](https://www.youtube.com/@DrFiras_AI). Here I'll share videos and Shorts with practical tutorials and FREE templates for n8n.\n\n[![The AI Doctor](https://www.dr-firas.com/the-ai-doctor.png)](https://www.youtube.com/@DrFiras_AI)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2eafdbef-0b55-41da-8d36-9b7733d7a60b",
+      "name": "Sticky Note e0973466",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -176,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 428,
+        "height": 300,
+        "content": "## Describe and direct the sound\n\nTakes the chat message and turns it into a clean, literal sound prompt with parsed, clamped settings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d6f37dcb-959b-477e-9690-e044886bb28d",
+      "name": "Sticky Note adf541be",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 444,
+        "height": 296,
+        "content": "## Generate the sound effect\n\nBuilds a safely escaped JSON body and calls ElevenLabs, with retries and an error path."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8cef16a2-925f-4575-ac41-ea5ad4a867f4",
+      "name": "Sticky Note e66a09f4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -672,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 476,
+        "height": 308,
+        "content": "## Reply in chat\n\nAttaches the generated MP3 directly to the chat reply, or sends a friendly message on failure. No external storage required."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "7d57d672-4b4a-48fb-ab73-ea3943397f80",
+  "nodeGroups": [],
+  "connections": {
+    "Clamp Sound Settings": {
+      "main": [
+        [
+          {
+            "node": "Generate Sound With ElevenLabs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Chat Message Received": {
+      "main": [
+        [
+          {
+            "node": "Compose Sound Effect Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compose Sound Effect Prompt": {
+      "main": [
+        [
+          {
+            "node": "Clamp Sound Settings",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Clamp Sound Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI Sound Director Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Compose Sound Effect Prompt",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Sound With ElevenLabs": {
+      "main": [
+        [
+          {
+            "node": "Reply In Chat With Sound",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Report Sound Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

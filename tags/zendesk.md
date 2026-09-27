@@ -1,4 +1,4 @@
-# zendesk : 48
+# zendesk : 52
 
 |id|file|
 |----|----|
@@ -50,3 +50,7 @@
 |14861|[14861_Handle_Zendesk_WooCommerce_refund_tickets_with_Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14861_Handle_Zendesk_WooCommerce_refund_tickets_with_Slack_and_Gmail.json)|
 |14977|[14977_Generate_daily_business_briefing_podcasts_with_OpenAI__Azure_TTS__HubSpot__Zendesk__Pipedrive__Discord__Twilio_and_Confluence.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14977_Generate_daily_business_briefing_podcasts_with_OpenAI__Azure_TTS__HubSpot__Zendesk__Pipedrive__Discord__Twilio_and_Confluence.json)|
 |15664|[15664_Turn_support_calls_into_Zendesk_tickets_with_WayinVideo__GPT-4o-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15664_Turn_support_calls_into_Zendesk_tickets_with_WayinVideo__GPT-4o-mini__and_Google_Sheets.json)|
+|18974|[18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18974_Route_grounded_RAG_support_tickets_with_Claude__Pinecone__Zendesk__Slack.json)|
+|19109|[19109_Manage_Zendesk_tickets_and_contacts_via_Placetel_AI_Voice_Agent_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19109_Manage_Zendesk_tickets_and_contacts_via_Placetel_AI_Voice_Agent_calls.json)|
+|19633|[19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json)|
+|19796|[19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json)|

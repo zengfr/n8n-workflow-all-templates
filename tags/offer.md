@@ -1,4 +1,4 @@
-# offer : 5
+# offer : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |11916|[11916_Automate_offer_letters___notifications_with_Google_Sheets__Gmail___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11916_Automate_offer_letters___notifications_with_Google_Sheets__Gmail___Slack.json)|
 |13241|[13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13241_Generate_HR_offer_letters_and_contracts_with_GPT-4.1-mini_and_Google_Docs.json)|
 |13278|[13278_Generate_and_track_offer_letters_with_Google_Sheets__Docs__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13278_Generate_and_track_offer_letters_with_Google_Sheets__Docs__Drive_and_Gmail.json)|
+|18092|[18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json)|
+|18873|[18873_Send_fixed-price_client_quotes_with_approvals_using_Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18873_Send_fixed-price_client_quotes_with_approvals_using_Gmail_and_data_tables.json)|

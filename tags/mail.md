@@ -1,4 +1,4 @@
-# mail : 17
+# mail : 20
 
 |id|file|
 |----|----|
@@ -19,3 +19,6 @@
 |10121|[10121_Automated_Email_Follow-up_System_with_CentralStationCRM__Gmail_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10121_Automated_Email_Follow-up_System_with_CentralStationCRM__Gmail_and_Slack_Alerts.json)|
 |11065|[11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11065_Strip_Secrets_from_JSON_file_via_AI_Formatter___Merge_node_send_mail_report.json)|
 |13845|[13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13845_Forward_Zoho_Mail_emails_to_Gmail_with_Gemini_AI_analysis_and_Telegram_digest.json)|
+|17056|[17056_Upload_email_invoice_attachments_to_Lexware_and_notify_via_Pushover.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17056_Upload_email_invoice_attachments_to_Lexware_and_notify_via_Pushover.json)|
+|19043|[19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json)|
+|19848|[19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json)|

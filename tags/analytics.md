@@ -1,4 +1,4 @@
-# analytics : 79
+# analytics : 83
 
 |id|file|
 |----|----|
@@ -81,3 +81,7 @@
 |16521|[16521_Send_a_weekly_Plausible_analytics_digest_to_Telegram_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16521_Send_a_weekly_Plausible_analytics_digest_to_Telegram_chat.json)|
 |16585|[16585_Monitor_warehouse_receiving_performance_with_Google_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16585_Monitor_warehouse_receiving_performance_with_Google_Sheets__Gemini__and_Gmail.json)|
 |16742|[16742_Monitor_AI_search_citations_and_competitors_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16742_Monitor_AI_search_citations_and_competitors_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|16929|[16929_Triage_support_tickets_with_Claude_Sonnet__Infini_Analytics__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16929_Triage_support_tickets_with_Claude_Sonnet__Infini_Analytics__and_Slack.json)|
+|16933|[16933_Send_weekly_Vercel_analytics_digest_emails_with_Groq_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16933_Send_weekly_Vercel_analytics_digest_emails_with_Groq_and_SMTP.json)|
+|17601|[17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json)|
+|17827|[17827_Send_weekly_KPI_summary_emails_from_Google_Sheets_using_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17827_Send_weekly_KPI_summary_emails_from_Google_Sheets_using_Gemini_and_Gmail.json)|

@@ -1,4 +1,4 @@
-# suggestions : 12
+# suggestions : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |15305|[15305_Analyze_error_logs_with_GPT-4o_and_create_GitHub_issues_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15305_Analyze_error_logs_with_GPT-4o_and_create_GitHub_issues_plus_Slack_alerts.json)|
 |15385|[15385_Analyze_Google_Ads_search_terms_and_get_negative_keyword_suggestions_with_OpenAI_GPT-5.4-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15385_Analyze_Google_Ads_search_terms_and_get_negative_keyword_suggestions_with_OpenAI_GPT-5.4-mini.json)|
 |15817|[15817_Get_Xiaohongshu_keyword_suggestions_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15817_Get_Xiaohongshu_keyword_suggestions_with_JustOneAPI.json)|
+|17477|[17477_Draft_Gmail_reply_suggestions_with_Groq_Llama_3.3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17477_Draft_Gmail_reply_suggestions_with_Groq_Llama_3.3.json)|
+|17567|[17567_Draft_Reddit_reply_suggestions_with_OpenAI_and_send_them_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17567_Draft_Reddit_reply_suggestions_with_OpenAI_and_send_them_to_Slack.json)|
+|17591|[17591_Draft_Gmail_reply_suggestions_with_OpenAI_for_inbound_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17591_Draft_Gmail_reply_suggestions_with_OpenAI_for_inbound_emails.json)|
+|18878|[18878_Monitor_your_brand_s_Google_suggestions_with_Bright_Data__GPT-5.6__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18878_Monitor_your_brand_s_Google_suggestions_with_Bright_Data__GPT-5.6__and_Slack.json)|

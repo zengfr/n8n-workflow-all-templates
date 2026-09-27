@@ -1,4 +1,4 @@
-# convert : 148
+# convert : 155
 
 |id|file|
 |----|----|
@@ -150,3 +150,10 @@
 |15652|[15652_Convert_Telegram_voice_notes_into_markdown_journals_with_Groq_Whisper_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15652_Convert_Telegram_voice_notes_into_markdown_journals_with_Groq_Whisper_and_Gemini.json)|
 |15797|[15797_Convert_Outlook_emails_to_Planner_tasks_and_monitor_Secure_Score_with_Teams_alerts_in_M365.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15797_Convert_Outlook_emails_to_Planner_tasks_and_monitor_Secure_Score_with_Teams_alerts_in_M365.json)|
 |15985|[15985_Convert_handwritten_meeting_notes_to_Google_Docs_with_Gmail_and_easybits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15985_Convert_handwritten_meeting_notes_to_Google_Docs_with_Gmail_and_easybits.json)|
+|17087|[17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17087_Audit_landing_page_CRO_and_log_results_with_OpenAI_and_Data_Tables.json)|
+|17723|[17723_Convert_WhatsApp_video_to_transcripts_and__tts_text_to_voice_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17723_Convert_WhatsApp_video_to_transcripts_and__tts_text_to_voice_with_Gemini.json)|
+|17880|[17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json)|
+|18298|[18298_Convert_seller_leads_into_listing_appointments_with_email__Google_Calendar__and_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18298_Convert_seller_leads_into_listing_appointments_with_email__Google_Calendar__and_CRM.json)|
+|18521|[18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json)|
+|18782|[18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json)|
+|19277|[19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json)|

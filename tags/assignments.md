@@ -1,4 +1,4 @@
-# assignments : 9
+# assignments : 11
 
 |id|file|
 |----|----|
@@ -11,3 +11,5 @@
 |10312|[10312_Automate_Peer_Review_Assignments_with_Sonar_Pro_AI___Multi-Channel_Deadline_Reminders.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10312_Automate_Peer_Review_Assignments_with_Sonar_Pro_AI___Multi-Channel_Deadline_Reminders.json)|
 |11746|[11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11746_Automate_Personalized_Assignment_Reminders_for_Students_with_Canvas.json)|
 |13806|[13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13806_Grade_PDF_assignments_with_Google_Gemini_and_upload_reports_to_Google_Drive.json)|
+|17379|[17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json)|
+|18322|[18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json)|

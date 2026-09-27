@@ -1,4 +1,4 @@
-# console : 24
+# console : 31
 
 |id|file|
 |----|----|
@@ -26,3 +26,10 @@
 |15651|[15651_Generate_monthly_SEO_analytics_reports_with_GA4__Search_Console__GPT-4.1_and_Slack_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15651_Generate_monthly_SEO_analytics_reports_with_GA4__Search_Console__GPT-4.1_and_Slack_Teams.json)|
 |15691|[15691_AI-Powered_SEO_Cannibalization_Monitor__Databox__Google_Search_Console___Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15691_AI-Powered_SEO_Cannibalization_Monitor__Databox__Google_Search_Console___Slack.json)|
 |16624|[16624_Send_daily_SEO_digest_from_Google_Search_Console_to_Discord_with_heartbeat_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16624_Send_daily_SEO_digest_from_Google_Search_Console_to_Discord_with_heartbeat_alerts.json)|
+|17453|[17453_Send_weekly_Google_Search_Console_performance_reports_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17453_Send_weekly_Google_Search_Console_performance_reports_via_Gmail.json)|
+|17736|[17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json)|
+|17752|[17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json)|
+|17812|[17812_Suggest_SEO_internal_links_using_Google_Search_Console__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17812_Suggest_SEO_internal_links_using_Google_Search_Console__Claude__and_Google_Sheets.json)|
+|18367|[18367_Fix_striking_distance_SEO_keywords_with_Google_Search_Console__Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18367_Fix_striking_distance_SEO_keywords_with_Google_Search_Console__Bright_Data__GPT-5.6_and_Slack.json)|
+|18952|[18952_Find_and_triage_keyword_cannibalization_with_Search_Console__OpenAI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18952_Find_and_triage_keyword_cannibalization_with_Search_Console__OpenAI__and_Gmail.json)|
+|19494|[19494_Send_Google_Search_Console_performance_reports_to_Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19494_Send_Google_Search_Console_performance_reports_to_Gmail_and_Telegram.json)|

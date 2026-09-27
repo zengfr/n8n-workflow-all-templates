@@ -1,4 +1,4 @@
-# all : 146
+# all : 151
 
 |id|file|
 |----|----|
@@ -148,3 +148,8 @@
 |13896|[13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13896_Merge_Google_Drive_PDFs_with_dynamic_cover_pages_and_watermark_using_Autype.json)|
 |16597|[16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json)|
 |16743|[16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json)|
+|16810|[16810_Back_up_all_workflows_to_GitHub_with_daily_schedule_and_Telegram__backup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16810_Back_up_all_workflows_to_GitHub_with_daily_schedule_and_Telegram__backup.json)|
+|16963|[16963_Handle_LinkedIn_inbox_RAG_replies_with_Unipile__Claude__Pinecone__and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16963_Handle_LinkedIn_inbox_RAG_replies_with_Unipile__Claude__Pinecone__and_Airtable.json)|
+|17046|[17046_Handle_WhatsApp_support_chats_with_OpenRouter__Pinecone__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17046_Handle_WhatsApp_support_chats_with_OpenRouter__Pinecone__and_Gemini.json)|
+|18868|[18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json)|
+|19848|[19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json)|

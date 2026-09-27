@@ -1,4 +1,4 @@
-# enriched : 10
+# enriched : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |14406|[14406_Scrape_Apollo.io_leads_with_ScraperCity_and_sync_enriched_contacts_to_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14406_Scrape_Apollo.io_leads_with_ScraperCity_and_sync_enriched_contacts_to_Airtable.json)|
 |15938|[15938_Enrich_Google_Maps_business_leads_with_emails_using_SerpApi_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15938_Enrich_Google_Maps_business_leads_with_emails_using_SerpApi_and_Airtable.json)|
 |16280|[16280_Generate_verified_local_leads_from_Google_Maps_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16280_Generate_verified_local_leads_from_Google_Maps_with_Apify_and_Google_Sheets.json)|
+|17541|[17541_Track_and_alert_congressional_and_insider_trades_via_EDGAR__House.gov__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17541_Track_and_alert_congressional_and_insider_trades_via_EDGAR__House.gov__and_Gmail.json)|
+|18167|[18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18167_Send_Wazuh_security_alerts_as_Gemini-enriched_email_reports_and_notifications.json)|

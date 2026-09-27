@@ -1,4 +1,4 @@
-# bank : 17
+# bank : 27
 
 |id|file|
 |----|----|
@@ -19,3 +19,13 @@
 |12377|[12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12377_Reconcile_bank_transactions_and_generate_reports_with_GPT-4_and_Gmail.json)|
 |12493|[12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12493_Reconcile_Stripe__bank__and_e-commerce_data_with_GPT-4.1_and_Google_Sheets.json)|
 |14131|[14131_Convert_PDF_content_to_an_MCQ_question_bank_in_Excel_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14131_Convert_PDF_content_to_an_MCQ_question_bank_in_Excel_with_Google_Gemini.json)|
+|17319|[17319_Review_your_budget_from_bank_statement_CSV_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17319_Review_your_budget_from_bank_statement_CSV_with_Google_Gemini_and_Gmail.json)|
+|17414|[17414_Find_and_audit_recurring_subscriptions_with_Gemini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17414_Find_and_audit_recurring_subscriptions_with_Gemini__Gmail_and_Google_Sheets.json)|
+|17753|[17753_Create_interactive_bank_expense_reports_from_statements_with_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17753_Create_interactive_bank_expense_reports_from_statements_with_OpenAI_GPT-4o.json)|
+|18420|[18420_Reconcile_bank_payments_to_invoices_with_webhooks__Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18420_Reconcile_bank_payments_to_invoices_with_webhooks__Gmail_and_data_tables.json)|
+|18454|[18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json)|
+|18718|[18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18718_Assess_procurement_inflation_risk_with_Groq__Google_Sheets__World_Bank_and_Slack.json)|
+|19010|[19010_Reconcile_invoice_payments_from_bank_statements_using_n8n_Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19010_Reconcile_invoice_payments_from_bank_statements_using_n8n_Forms.json)|
+|19220|[19220_Reconcile_bank_payments_with_GPT-4o-mini__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19220_Reconcile_bank_payments_with_GPT-4o-mini__Google_Sheets__Gmail_and_Telegram.json)|
+|19552|[19552_Reconcile_bank_payments_with_ERP_invoices__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19552_Reconcile_bank_payments_with_ERP_invoices__Google_Sheets__and_Slack.json)|
+|19771|[19771_Chase_overdue_invoices_and_match_bank_payments_with_Gmail__Sheets__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19771_Chase_overdue_invoices_and_match_bank_payments_with_Gmail__Sheets__and_OpenAI.json)|

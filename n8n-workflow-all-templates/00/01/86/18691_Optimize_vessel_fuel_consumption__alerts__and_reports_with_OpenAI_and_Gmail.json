@@ -1,0 +1,1267 @@
+{
+  "id": "68wLx3SyqAqHH0Xg",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Optimize vessel fuel consumption, alerts, and reports with OpenAI and Gmail",
+    "wechat": "youandme10086",
+    "id": 18691,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Fuel-Minimizing Agent",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "2842c7a6-a897-4818-978d-039b49656b85",
+      "name": "Vessel Data Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -448,
+        496
+      ],
+      "webhookId": "8db1b145-9916-4ec7-bdc4-3731af649b75",
+      "parameters": {
+        "path": "vessel-fuel-optimize",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "8defd05f-ed27-4167-bf6b-0407aa4e3ce7",
+      "name": "Normalize Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -32,
+        672
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\nconst out = [];\nconst num = (v) => { const n = Number(v); return Number.isFinite(n) ? n : null; };\nfor (const it of items) {\n  const b = (it.json && it.json.body) ? it.json.body : it.json;\n  const speed = num(b.speed_knots);\n  const rpm = num(b.engine_rpm);\n  const load = num(b.engine_load_pct);\n  const fuel = num(b.fuel_consumption_lph);\n  const current = num(b.current_knots);\n  const wave = num(b.wave_height_m);\n  const required = [speed, rpm, load, fuel];\n  let reliable = required.every(v => v !== null);\n  const reasons = [];\n  if (!reliable) reasons.push('missing required telemetry field(s)');\n  if (reliable) {\n    if (speed < 0 || speed > 40) { reliable = false; reasons.push('speed out of range'); }\n    if (rpm < 0 || rpm > 300) { reliable = false; reasons.push('engine RPM out of range'); }\n    if (load < 0 || load > 100) { reliable = false; reasons.push('engine load out of range'); }\n    if (fuel < 0 || fuel > 100000) { reliable = false; reasons.push('fuel consumption out of range'); }\n  }\n  out.push({ json: {\n    vessel_id: String(b.vessel_id != null ? b.vessel_id : 'unknown'),\n    voyage_id: String(b.voyage_id != null ? b.voyage_id : 'unknown'),\n    speed_knots: speed,\n    engine_rpm: rpm,\n    engine_load_pct: load,\n    actual_fuel_lph: fuel,\n    current_knots: current,\n    wave_height_m: wave,\n    weather_summary: String(b.weather_summary != null ? b.weather_summary : ''),\n    eta_required: b.eta_required != null ? b.eta_required : null,\n    distance_remaining_nm: num(b.distance_remaining_nm),\n    max_safe_speed_knots: num(b.max_safe_speed_knots),\n    data_reliable: reliable,\n    data_reliability_reasons: reasons.join('; '),\n    recorded_at: new Date().toISOString()\n  }});\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "263d5350-c27e-485c-93f4-beee055ce224",
+      "name": "Get Vessel History",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        192,
+        672
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "vessel_id",
+              "keyValue": "={{ $json.vessel_id }}"
+            }
+          ]
+        },
+        "orderBy": true,
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "kiCoWErmQ9UofkFv",
+          "cachedResultName": "vessel_fuel_history"
+        },
+        "orderByColumn": "recorded_at"
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "aa27fb8d-2318-4f67-bb04-c9de8a487aad",
+      "name": "Aggregate Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        416,
+        672
+      ],
+      "parameters": {
+        "jsCode": "const current = $(\"Normalize Data\").first().json;\nconst history = $input.all().map(i => i.json).filter(r => r && Object.keys(r).length > 0);\nreturn [{ json: { current, history, history_count: history.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "01567241-84a4-4c0c-af7e-b6b64725c3ea",
+      "name": "Statistical Baseline",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        672
+      ],
+      "parameters": {
+        "jsCode": "const ctx = $input.first().json;\nconst current = ctx.current || {};\nconst history = Array.isArray(ctx.history) ? ctx.history : [];\nconst reliable = history.filter(r => r && r.data_reliable !== false && Number.isFinite(Number(r.actual_fuel_lph)));\nconst fuels = reliable.map(r => Number(r.actual_fuel_lph));\nconst mean = fuels.length ? fuels.reduce((a, b) => a + b, 0) / fuels.length : null;\nlet std = null;\nif (fuels.length > 1) {\n  const v = fuels.reduce((a, b) => a + Math.pow(b - mean, 2), 0) / (fuels.length - 1);\n  std = Math.sqrt(v);\n}\nconst cs = Number(current.speed_knots);\nconst sim = reliable.filter(r => Number.isFinite(Number(r.speed_knots)) && Math.abs(Number(r.speed_knots) - cs) <= 1.5);\nconst simFuels = sim.map(r => Number(r.actual_fuel_lph));\nconst simMean = simFuels.length ? simFuels.reduce((a, b) => a + b, 0) / simFuels.length : null;\nconst cur = Number(current.actual_fuel_lph);\nlet z = null;\nif (mean != null && std && std > 0 && Number.isFinite(cur)) z = (cur - mean) / std;\nconst statistical_anomaly = (z != null && Math.abs(z) > 2);\nconst baseline = {\n  sample_size: fuels.length,\n  mean_fuel_lph: mean != null ? Number(mean.toFixed(2)) : null,\n  std_fuel_lph: std != null ? Number(std.toFixed(2)) : null,\n  similar_speed_mean_fuel_lph: simMean != null ? Number(simMean.toFixed(2)) : null,\n  z_score: z != null ? Number(z.toFixed(2)) : null,\n  statistical_anomaly\n};\nreturn [{ json: { current, history, history_count: history.length, baseline } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c79880cb-79aa-478c-999b-cab1eb11b4cf",
+      "name": "Fuel Prediction Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1248,
+        624
+      ],
+      "parameters": {
+        "text": "=Current vessel telemetry and voyage data: {{ JSON.stringify($json.current) }}. Statistical baseline for this vessel (mean/std/similar-speed mean/z-score): {{ JSON.stringify($json.baseline) }}. Recent historical records: {{ JSON.stringify($json.history) }}. Predict fuel consumption (L/h) for CURRENT conditions and for candidate speed/RPM settings spanning slower-than-current to current. If you need more history than provided, call the get_vessel_history tool.",
+        "options": {
+          "systemMessage": "You are a marine Fuel Consumption Prediction Agent. Predict fuel consumption (L/h) from speed, engine RPM, engine load, weather, waves, current and voyage data. CALIBRATE your prediction against the provided statistical baseline and historical actuals: your current-condition estimate should be consistent with the similar-speed mean unless conditions clearly differ, and you must explain any large deviation. You have a get_vessel_history tool to pull more records when needed. Account for added resistance from waves, adverse current and weather. Return your best current-condition prediction, a confidence 0-1, and candidate predictions for alternative speed/RPM settings. Prioritise accuracy and explainability. Output only the required structured fields."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "dc867b01-0d81-488a-a5f4-a9eef1d5904c",
+      "name": "Prediction Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1104,
+        880
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OGYj7DgYv5GFLFZk",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c51f0646-4ba4-41ab-8a10-043fac04986f",
+      "name": "Vessel Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        1264,
+        848
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('Normalize Data').item.json.vessel_id }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "f76c912d-64bd-415c-a3d8-deba581c43d6",
+      "name": "get_vessel_history",
+      "type": "n8n-nodes-base.dataTableTool",
+      "position": [
+        1392,
+        880
+      ],
+      "parameters": {
+        "limit": 20,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "vessel_id",
+              "keyValue": "={{ /*n8n-auto-generated-fromAI-override*/ $fromAI('vessel_id', 'The vessel identifier to fetch historical fuel records for') }}"
+            }
+          ]
+        },
+        "orderBy": true,
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "kiCoWErmQ9UofkFv",
+          "cachedResultName": "vessel_fuel_history"
+        },
+        "orderByColumn": "recorded_at"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4c443d03-08d7-48e9-8889-c910b0a1fb40",
+      "name": "Prediction Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1552,
+        912
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"predicted_fuel_lph\":245.7,\"prediction_confidence\":0.9,\"candidate_predictions\":[{\"speed_knots\":13.5,\"engine_rpm\":82,\"predicted_fuel_lph\":198},{\"speed_knots\":14.5,\"engine_rpm\":88,\"predicted_fuel_lph\":224}],\"notes\":\"Prediction calibrated against statistical baseline and historical actuals.\"}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "66c7cd0b-674a-47bc-b886-54e9ec35688c",
+      "name": "Optimization Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1712,
+        624
+      ],
+      "parameters": {
+        "text": "=Fuel predictions from the prediction agent: {{ JSON.stringify($json.output) }}. Current conditions and voyage constraints: {{ JSON.stringify($(\"Statistical Baseline\").item.json.current) }}. Statistical baseline: {{ JSON.stringify($(\"Statistical Baseline\").item.json.baseline) }}. Choose the most fuel-efficient speed and engine RPM.",
+        "options": {
+          "systemMessage": "You are a marine Fuel Optimization Agent. Using the candidate fuel predictions and the voyage constraints, select the most fuel-efficient speed and engine RPM that STILL meets the ETA (given distance_remaining_nm and eta_required) and stays within safety limits (must not exceed max_safe_speed_knots; keep engine load safe). Compute expected fuel savings percent versus the current actual consumption, and expected CO2 savings in kg using 3.2 kg CO2 per litre of fuel saved over the estimated remaining voyage hours. Set meets_eta and meets_safety booleans honestly; if no safe setting meets ETA, recommend the safest feasible one and set meets_eta=false. Prioritise fuel savings, safety, operational efficiency and explainability."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "786f6645-1bf2-42c5-8724-d2bbd9169fd0",
+      "name": "Optimization Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        1728,
+        864
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OGYj7DgYv5GFLFZk",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "bba3ee2c-241e-468a-ba76-172ee78559b5",
+      "name": "Optimization Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1872,
+        864
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"recommended_speed_knots\":13.5,\"recommended_rpm\":82,\"expected_fuel_savings_pct\":8.4,\"expected_co2_savings_kg\":410,\"meets_eta\":true,\"meets_safety\":true,\"rationale\":\"Chosen setting cuts fuel while arriving within ETA and staying under max safe speed.\"}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "32102f37-9189-4591-856e-125243ee3528",
+      "name": "Advisory & Monitoring Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2064,
+        624
+      ],
+      "parameters": {
+        "text": "=Optimization result: {{ JSON.stringify($json.output) }}. Fuel predictions: {{ JSON.stringify($(\"Fuel Prediction Agent\").item.json.output) }}. Current telemetry and reliability: {{ JSON.stringify($(\"Statistical Baseline\").item.json.current) }}. Statistical baseline (incl. z-score & statistical_anomaly): {{ JSON.stringify($(\"Statistical Baseline\").item.json.baseline) }}. Produce a clear operator recommendation and an explainable justification.",
+        "options": {
+          "systemMessage": "You are a marine Advisory & Monitoring Agent. Write a clear, actionable recommendation for the vessel operator and a plain-language explainable justification of WHY (reference speed, RPM, weather, waves, current, ETA and safety). Set anomaly=true if the current fuel consumption is unusually high versus the prediction, the statistical baseline (z-score) and historical records for similar conditions, OR if data_reliable is false. Set alert_needed=true and give a concise alert_reason when either fuel consumption is unusually high or the data are unreliable; otherwise alert_needed=false. Prioritise fuel savings, safety, operational efficiency and explainable decisions."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "a9876989-ade0-4b95-bede-5739ac3da60b",
+      "name": "Advisory Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        2080,
+        864
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5-mini"
+        },
+        "options": {
+          "temperature": 0.3
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "OGYj7DgYv5GFLFZk",
+          "name": "OpenAi account 2"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "59e6fa8a-ff79-4a6f-8b4e-b89ab4ff6cb0",
+      "name": "Advisory Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        2304,
+        864
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\"recommendation\":\"Reduce speed to 13.5 kn (82 RPM) to save ~8% fuel while arriving on time.\",\"explanation\":\"Because seas are moderate and there is spare time to ETA, a lower speed sharply reduces fuel use; the setting stays under the max safe speed.\",\"anomaly\":false,\"alert_needed\":false,\"alert_reason\":\"\"}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "b2ff4d92-8535-445e-9226-a28e182ff971",
+      "name": "Safety Guardrail",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2624,
+        784
+      ],
+      "parameters": {
+        "jsCode": "const norm = $(\"Normalize Data\").first().json;\nconst opt = ($(\"Optimization Agent\").first().json.output) || {};\nlet rs = Number(opt.recommended_speed_knots);\nlet rr = Number(opt.recommended_rpm);\nlet override = false;\nconst notes = [];\nconst maxSpeed = Number(norm.max_safe_speed_knots);\nif (Number.isFinite(maxSpeed) && rs > maxSpeed) { rs = maxSpeed; override = true; notes.push('recommended speed clamped to max safe speed (' + maxSpeed + ' kn)'); }\nif (Number.isFinite(Number(norm.engine_load_pct)) && Number(norm.engine_load_pct) > 95 && rr > Number(norm.engine_rpm)) { rr = Number(norm.engine_rpm); override = true; notes.push('RPM not increased: engine load already above 95%'); }\nif (!(rs > 0)) { rs = Number(norm.speed_knots); notes.push('missing recommended speed; held current speed'); override = true; }\nif (!(rr > 0)) { rr = Number(norm.engine_rpm); notes.push('missing recommended RPM; held current RPM'); override = true; }\nreturn [{ json: { final_recommended_speed_knots: rs, final_recommended_rpm: rr, safety_override: override, safety_note: notes.join('; ') } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5c673ac8-7f5b-46fb-a5ed-1a5f7f2ce42e",
+      "name": "Consolidate Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2848,
+        784
+      ],
+      "parameters": {
+        "jsCode": "const norm = $(\"Normalize Data\").first().json;\nconst base = ($(\"Statistical Baseline\").first().json.baseline) || {};\nconst a1 = ($(\"Fuel Prediction Agent\").first().json.output) || {};\nconst a2 = ($(\"Optimization Agent\").first().json.output) || {};\nconst a3 = ($(\"Advisory & Monitoring Agent\").first().json.output) || {};\nconst g = ($(\"Safety Guardrail\").first().json) || {};\nconst actual = Number(norm.actual_fuel_lph);\nconst pred = Number(a1.predicted_fuel_lph);\nlet absErr = null;\nif (Number.isFinite(actual) && actual > 0 && Number.isFinite(pred)) absErr = Number((Math.abs(actual - pred) / actual * 100).toFixed(2));\nconst statAnom = base.statistical_anomaly === true;\nconst aiAnom = a3.anomaly === true;\nconst override = g.safety_override === true;\nconst unreliable = norm.data_reliable === false;\nlet severity = 'none';\nif (unreliable || override || statAnom || a2.meets_eta === false) severity = 'critical';\nelse if (aiAnom) severity = 'warning';\nconst alertNeeded = severity !== 'none';\nlet alertReason = a3.alert_reason || '';\nif (unreliable) alertReason = 'Data unreliable: ' + norm.data_reliability_reasons;\nelse if (override) alertReason = 'Safety override applied: ' + g.safety_note;\nelse if (statAnom) alertReason = 'Statistical anomaly: fuel z-score ' + base.z_score + ' vs vessel baseline';\nelse if (a2.meets_eta === false) alertReason = 'No safe setting meets the required ETA';\nreturn [{ json: {\n  vessel_id: norm.vessel_id,\n  voyage_id: norm.voyage_id,\n  speed_knots: norm.speed_knots,\n  engine_rpm: norm.engine_rpm,\n  engine_load_pct: norm.engine_load_pct,\n  actual_fuel_lph: norm.actual_fuel_lph,\n  current_knots: norm.current_knots,\n  wave_height_m: norm.wave_height_m,\n  weather_summary: norm.weather_summary,\n  data_reliable: norm.data_reliable,\n  predicted_fuel_lph: (a1.predicted_fuel_lph != null ? a1.predicted_fuel_lph : null),\n  prediction_confidence: (a1.prediction_confidence != null ? a1.prediction_confidence : null),\n  abs_error_pct: absErr,\n  baseline_mean_fuel_lph: (base.mean_fuel_lph != null ? base.mean_fuel_lph : null),\n  baseline_z_score: (base.z_score != null ? base.z_score : null),\n  statistical_anomaly: statAnom,\n  recommended_speed_knots: (g.final_recommended_speed_knots != null ? g.final_recommended_speed_knots : null),\n  recommended_rpm: (g.final_recommended_rpm != null ? g.final_recommended_rpm : null),\n  safety_override: override,\n  safety_note: (g.safety_note != null ? g.safety_note : ''),\n  expected_fuel_savings_pct: (a2.expected_fuel_savings_pct != null ? a2.expected_fuel_savings_pct : null),\n  expected_co2_savings_kg: (a2.expected_co2_savings_kg != null ? a2.expected_co2_savings_kg : null),\n  meets_eta: (a2.meets_eta != null ? a2.meets_eta : null),\n  meets_safety: (a2.meets_safety != null ? a2.meets_safety : null),\n  recommendation: (a3.recommendation != null ? a3.recommendation : ''),\n  explanation: (a3.explanation != null ? a3.explanation : ''),\n  anomaly: aiAnom,\n  severity,\n  alert_needed: alertNeeded,\n  alert_reason: alertReason,\n  recorded_at: norm.recorded_at\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f145ec89-d469-4e6e-bec3-55f685ca8614",
+      "name": "Record Result",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        3072,
+        688
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "anomaly": "={{ $json.anomaly }}",
+            "severity": "={{ $json.severity }}",
+            "vessel_id": "={{ $json.vessel_id }}",
+            "voyage_id": "={{ $json.voyage_id }}",
+            "engine_rpm": "={{ $json.engine_rpm }}",
+            "explanation": "={{ $json.explanation }}",
+            "recorded_at": "={{ $json.recorded_at }}",
+            "speed_knots": "={{ $json.speed_knots }}",
+            "abs_error_pct": "={{ $json.abs_error_pct }}",
+            "current_knots": "={{ $json.current_knots }}",
+            "data_reliable": "={{ $json.data_reliable }}",
+            "wave_height_m": "={{ $json.wave_height_m }}",
+            "recommendation": "={{ $json.recommendation }}",
+            "actual_fuel_lph": "={{ $json.actual_fuel_lph }}",
+            "engine_load_pct": "={{ $json.engine_load_pct }}",
+            "recommended_rpm": "={{ $json.recommended_rpm }}",
+            "safety_override": "={{ $json.safety_override }}",
+            "weather_summary": "={{ $json.weather_summary }}",
+            "predicted_fuel_lph": "={{ $json.predicted_fuel_lph }}",
+            "statistical_anomaly": "={{ $json.statistical_anomaly }}",
+            "expected_co2_savings_kg": "={{ $json.expected_co2_savings_kg }}",
+            "recommended_speed_knots": "={{ $json.recommended_speed_knots }}",
+            "expected_fuel_savings_pct": "={{ $json.expected_fuel_savings_pct }}"
+          },
+          "schema": [
+            {
+              "id": "vessel_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "vessel_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "voyage_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "voyage_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "speed_knots",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "speed_knots",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "engine_rpm",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "engine_rpm",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "engine_load_pct",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "engine_load_pct",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "actual_fuel_lph",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "actual_fuel_lph",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "predicted_fuel_lph",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "predicted_fuel_lph",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "abs_error_pct",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "abs_error_pct",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "current_knots",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "current_knots",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "wave_height_m",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "wave_height_m",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "weather_summary",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "weather_summary",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "data_reliable",
+              "type": "boolean",
+              "display": true,
+              "required": false,
+              "displayName": "data_reliable",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "anomaly",
+              "type": "boolean",
+              "display": true,
+              "required": false,
+              "displayName": "anomaly",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "statistical_anomaly",
+              "type": "boolean",
+              "display": true,
+              "required": false,
+              "displayName": "statistical_anomaly",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "safety_override",
+              "type": "boolean",
+              "display": true,
+              "required": false,
+              "displayName": "safety_override",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "severity",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "severity",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_speed_knots",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "recommended_speed_knots",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_rpm",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "recommended_rpm",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "expected_fuel_savings_pct",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "expected_fuel_savings_pct",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "expected_co2_savings_kg",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "expected_co2_savings_kg",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommendation",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "recommendation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "explanation",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "explanation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recorded_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "recorded_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "kiCoWErmQ9UofkFv",
+          "cachedResultName": "vessel_fuel_history"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "4ba9440f-474d-4bab-931c-340f0ce7fa1a",
+      "name": "Respond With Recommendation",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3072,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify($json) }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "048fb460-dd41-49a8-b151-3e5787617b87",
+      "name": "Route by Severity",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        3072,
+        1072
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "critical",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "critical"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "warning",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.severity }}",
+                    "rightValue": "warning"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "normal"
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0e592802-2369-487f-92b0-f423212f6cd9",
+      "name": "Send Critical Alert",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3456,
+        800
+      ],
+      "webhookId": "eb132fc4-532a-476e-8e2c-05eb846d51c5",
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Operator alert email address__>",
+        "message": "=<h3 style=\"color:#b00\">CRITICAL Fuel Minimizing Agent Alert</h3><p><b>Vessel:</b> {{ $json.vessel_id }} &nbsp; <b>Voyage:</b> {{ $json.voyage_id }}</p><p><b>Reason:</b> {{ $json.alert_reason }}</p><p><b>Actual fuel:</b> {{ $json.actual_fuel_lph }} L/h &nbsp; <b>Predicted:</b> {{ $json.predicted_fuel_lph }} L/h (err {{ $json.abs_error_pct }}%)</p><p><b>Baseline mean:</b> {{ $json.baseline_mean_fuel_lph }} L/h &nbsp; <b>z-score:</b> {{ $json.baseline_z_score }}</p><p><b>Data reliable:</b> {{ $json.data_reliable }} &nbsp; <b>Safety override:</b> {{ $json.safety_override }} ({{ $json.safety_note }})</p><p><b>Recommendation:</b> {{ $json.recommendation }}</p><p><b>Why:</b> {{ $json.explanation }}</p><p><b>Expected savings:</b> {{ $json.expected_fuel_savings_pct }}% fuel, {{ $json.expected_co2_savings_kg }} kg CO2</p>",
+        "options": {},
+        "subject": "=[CRITICAL] Fuel Alert - {{ $json.vessel_id }} / {{ $json.voyage_id }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "u1N5nBDvQ0AWhNnV",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "833590ad-c500-4237-bf56-337bef33ab0c",
+      "name": "Send Warning Alert",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3456,
+        992
+      ],
+      "webhookId": "06be596c-8239-40a2-a77f-57fe45e1eb4e",
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Operator alert email address__>",
+        "message": "=<h3>Fuel Minimizing Agent Warning</h3><p><b>Vessel:</b> {{ $json.vessel_id }} &nbsp; <b>Voyage:</b> {{ $json.voyage_id }}</p><p><b>Reason:</b> {{ $json.alert_reason }}</p><p><b>Actual fuel:</b> {{ $json.actual_fuel_lph }} L/h &nbsp; <b>Predicted:</b> {{ $json.predicted_fuel_lph }} L/h</p><p><b>Recommendation:</b> {{ $json.recommendation }}</p><p><b>Why:</b> {{ $json.explanation }}</p>",
+        "options": {},
+        "subject": "=[Warning] Fuel Advisory - {{ $json.vessel_id }} / {{ $json.voyage_id }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "u1N5nBDvQ0AWhNnV",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a209bdcd-abe1-4bb6-a4c0-f448cc3a34b4",
+      "name": "No Alert Needed",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3456,
+        1184
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "733e6fe3-4f0c-4a38-b6df-0258b29ca030",
+      "name": "Daily Report Schedule",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -464,
+        1056
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "010aa33c-484c-4359-9a02-fd91a45d7f45",
+      "name": "Get All History",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        -96,
+        1104
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": []
+        },
+        "orderBy": true,
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "kiCoWErmQ9UofkFv",
+          "cachedResultName": "vessel_fuel_history"
+        },
+        "orderByColumn": "recorded_at"
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "2c8efa06-8fa9-4eb2-ac01-ad0219f29d7c",
+      "name": "Build Fleet Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        128,
+        1104
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json).filter(r => r && Object.keys(r).length > 0);\nconst LF = String.fromCharCode(10);\nconst n = rows.length;\nconst num = (v) => { const x = Number(v); return Number.isFinite(x) ? x : null; };\nconst avg = (arr) => arr.length ? arr.reduce((a, b) => a + b, 0) / arr.length : null;\nconst totalCo2 = rows.map(r => num(r.expected_co2_savings_kg)).filter(v => v != null).reduce((a, b) => a + b, 0);\nconst savings = rows.map(r => num(r.expected_fuel_savings_pct)).filter(v => v != null);\nconst errors = rows.map(r => num(r.abs_error_pct)).filter(v => v != null);\nconst avgSavings = avg(savings);\nconst avgErr = avg(errors);\nconst anomalies = rows.filter(r => r.anomaly === true || r.statistical_anomaly === true).length;\nconst overrides = rows.filter(r => r.safety_override === true).length;\nconst critical = rows.filter(r => r.severity === 'critical').length;\nconst vessels = {};\nfor (const r of rows) {\n  const v = String(r.vessel_id != null ? r.vessel_id : 'unknown');\n  if (!vessels[v]) vessels[v] = { count: 0, co2: 0, savings: [], errors: [] };\n  vessels[v].count++;\n  const c = num(r.expected_co2_savings_kg); if (c != null) vessels[v].co2 += c;\n  const s = num(r.expected_fuel_savings_pct); if (s != null) vessels[v].savings.push(s);\n  const e = num(r.abs_error_pct); if (e != null) vessels[v].errors.push(e);\n}\nconst perVessel = Object.keys(vessels).map(v => {\n  const d = vessels[v];\n  return '<tr><td>' + v + '</td><td>' + d.count + '</td><td>' + d.co2.toFixed(0) + '</td><td>' + (avg(d.savings) != null ? avg(d.savings).toFixed(1) : 'n/a') + '</td><td>' + (avg(d.errors) != null ? avg(d.errors).toFixed(1) : 'n/a') + '</td></tr>';\n}).join('');\nconst html = '<h2>Fuel-Minimizing Agent - Daily Fleet Report</h2>' +\n  '<p><b>Records analysed:</b> ' + n + '</p>' +\n  '<ul>' +\n  '<li><b>Total expected CO2 savings:</b> ' + totalCo2.toFixed(0) + ' kg</li>' +\n  '<li><b>Average expected fuel savings:</b> ' + (avgSavings != null ? avgSavings.toFixed(1) : 'n/a') + '%</li>' +\n  '<li><b>Average prediction error (accuracy):</b> ' + (avgErr != null ? avgErr.toFixed(1) : 'n/a') + '%</li>' +\n  '<li><b>Anomalies detected:</b> ' + anomalies + '</li>' +\n  '<li><b>Safety overrides applied:</b> ' + overrides + '</li>' +\n  '<li><b>Critical events:</b> ' + critical + '</li>' +\n  '</ul>' +\n  '<table border=\"1\" cellpadding=\"4\" cellspacing=\"0\"><tr><th>Vessel</th><th>Records</th><th>CO2 saved (kg)</th><th>Avg savings %</th><th>Avg err %</th></tr>' + perVessel + '</table>';\nreturn [{ json: {\n  report_html: html,\n  records_analysed: n,\n  total_co2_savings_kg: Number(totalCo2.toFixed(0)),\n  avg_fuel_savings_pct: avgSavings != null ? Number(avgSavings.toFixed(1)) : null,\n  avg_prediction_error_pct: avgErr != null ? Number(avgErr.toFixed(1)) : null,\n  anomalies, overrides, critical\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2e76df6b-2a66-43a2-886c-aed0fdf150b2",
+      "name": "Send Fleet Report",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        352,
+        1104
+      ],
+      "webhookId": "56dabc33-54ff-443d-ba60-806af369b419",
+      "parameters": {
+        "sendTo": "<__PLACEHOLDER_VALUE__Fleet report email address__>",
+        "message": "={{ $json.report_html }}",
+        "options": {},
+        "subject": "=Fuel-Minimizing Agent - Daily Fleet Report ({{ $now.toFormat(\"yyyy-MM-dd\") }})"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "u1N5nBDvQ0AWhNnV",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8545732a-3e79-4c6b-a191-989a04b1d609",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -592,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 416,
+        "content": "## Ingest vessel data\nReceive real-time vessel data through the webhook, including speed, RPM, engine load, fuel consumption, weather, and voyage information.\n\n\n\n\n \n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "84c9603d-7c34-4155-95ae-60f786058ca1",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1296,
+        272
+      ],
+      "parameters": {
+        "width": 624,
+        "height": 576,
+        "content": "## How It Works\n\nThis workflow helps vessel operators and fleet teams reduce fuel consumption using AI-driven prediction and optimization. Vessel data enters through a webhook, is normalized, combined with historical vessel data, and compared with a statistical baseline. AI agents then predict fuel consumption, optimize operating conditions, and generate recommendations. Safety guardrails validate decisions before results are recorded and routed by severity. Critical and warning conditions trigger email alerts, while routine results require no alert. A scheduled reporting flow summarizes fleet performance for continuous monitoring and improvement.\n\n## Setup Steps\n\n1. Configure webhook and vessel data.\n2. Connect historical-data storage.\n3. Configure AI models and schemas.\n4. Connect Gmail for alerts.\n5. Set schedule and thresholds."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e97ca4b7-db28-4398-bb24-54498607d3bf",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1296,
+        896
+      ],
+      "parameters": {
+        "width": 640,
+        "height": 464,
+        "content": "\n## Prerequisites\n\nn8n, vessel data source, AI model/API, historical database or spreadsheet, and Gmail credentials.\n\n## Use Cases\n\nFuel optimization, voyage planning, fleet monitoring, anomaly alerts, and daily performance reporting.\n\n## Customization\n\nAdjust AI models, thresholds, data sources, alerts, and optimization constraints.\n\n## Benefits\n\nLower fuel consumption, safer decisions, faster monitoring, explainable recommendations, and continuous fleet learning."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9ad9fbc7-751d-40cb-aab0-1d53193aaa0d",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1008,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 624,
+        "content": "## Predict fuel consumption\nThe Fuel Prediction Agent estimates fuel consumption using vessel history, operating conditions, and environmental factors.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b2f8b223-9123-4868-9d6c-fd9df5c291d7",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2032,
+        416
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 496,
+        "height": 576,
+        "content": "## Generate recommendations\nThe Advisory Agent converts optimization results into clear, explainable recommendations for operators.\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c255c19c-6afb-4307-9009-a681fe2e9614",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -544,
+        864
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1360,
+        "height": 592,
+        "content": "### Record and report results\nStore results, route alerts by severity, and generate scheduled fleet reports.Historical results support performance tracking, model improvement, and future optimization."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d11b8e64-818b-48ee-9b64-56be39794634",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 896,
+        "height": 432,
+        "content": "## Normalize and enrich data\nStandardize incoming data, retrieve historical vessel records, aggregate context, and establish a statistical baseline.\n\n\n\n \n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d4e696b7-59a5-4f0b-9ce0-185be13530fd",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1664,
+        416
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 336,
+        "height": 592,
+        "content": "## Optimize vessel operation\nThe Optimization Agent evaluates operating options and identifies fuel-efficient conditions while considering operational constraints."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5679f2ef-7d84-4894-bc39-121ef2b4b695",
+      "name": "Sticky Note9",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2528,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 1056,
+        "content": "## Apply safety guardrails and Commendation\nValidate recommendations against predefined safety and operational limits before recording or sending alerts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2542ff90-149f-4b03-88d3-83d354aecbf4",
+      "name": "Sticky Note10",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3264,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 496,
+        "height": 1056,
+        "content": "## Send Alert\nRecord events and send alerts when predefined conditions or thresholds are met."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "e3165209-66f5-49b6-bd0a-8e06b0d395ef",
+  "nodeGroups": [],
+  "connections": {
+    "Vessel Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Fuel Prediction Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Optimization Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Advisory & Monitoring Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advisory Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Advisory & Monitoring Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Data": {
+      "main": [
+        [
+          {
+            "node": "Get Vessel History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advisory Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Advisory & Monitoring Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get All History": {
+      "main": [
+        [
+          {
+            "node": "Build Fleet Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prediction Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Fuel Prediction Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Safety Guardrail": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Context": {
+      "main": [
+        [
+          {
+            "node": "Statistical Baseline",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prediction Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Fuel Prediction Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Severity": {
+      "main": [
+        [
+          {
+            "node": "Send Critical Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Warning Alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No Alert Needed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Fleet Report": {
+      "main": [
+        [
+          {
+            "node": "Send Fleet Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate Result": {
+      "main": [
+        [
+          {
+            "node": "Record Result",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Respond With Recommendation",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Route by Severity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Vessel History": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Optimization Agent": {
+      "main": [
+        [
+          {
+            "node": "Advisory & Monitoring Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Optimization Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Optimization Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "get_vessel_history": {
+      "ai_tool": [
+        [
+          {
+            "node": "Fuel Prediction Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Optimization Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Optimization Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vessel Data Webhook": {
+      "main": [
+        [
+          {
+            "node": "Normalize Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Statistical Baseline": {
+      "main": [
+        [
+          {
+            "node": "Fuel Prediction Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Daily Report Schedule": {
+      "main": [
+        [
+          {
+            "node": "Get All History",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fuel Prediction Agent": {
+      "main": [
+        [
+          {
+            "node": "Optimization Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advisory & Monitoring Agent": {
+      "main": [
+        [
+          {
+            "node": "Safety Guardrail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

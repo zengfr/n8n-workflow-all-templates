@@ -1,4 +1,4 @@
-# actions : 14
+# actions : 24
 
 |id|file|
 |----|----|
@@ -16,3 +16,13 @@
 |15198|[15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json)|
 |15336|[15336_Analyze_corporate_action_impact_from_NSE_RSS_with_Google_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15336_Analyze_corporate_action_impact_from_NSE_RSS_with_Google_Sheets__Gemini__and_Gmail.json)|
 |16167|[16167_Monitor_GitHub_Actions_budget_and_send_usage_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16167_Monitor_GitHub_Actions_budget_and_send_usage_alerts_to_Slack.json)|
+|17214|[17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json)|
+|17629|[17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17629_Score_Cloudflare_firewall_bot_threats_and_suggest_manual_block_actions.json)|
+|18065|[18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json)|
+|18761|[18761_Manage_safety_inspections_and_corrective_actions_with_DeepSeek__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18761_Manage_safety_inspections_and_corrective_actions_with_DeepSeek__Sheets__Gmail_and_Telegram.json)|
+|19072|[19072_Find_and_track_flaky_CI_jobs_in_GitHub_Actions_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19072_Find_and_track_flaky_CI_jobs_in_GitHub_Actions_with_OpenAI_and_Slack.json)|
+|19283|[19283_Search_and_outreach_to_top-fit_jobs_with_LinkedIn__RemoteOK__WWR__Claude_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19283_Search_and_outreach_to_top-fit_jobs_with_LinkedIn__RemoteOK__WWR__Claude_and_Sheets.json)|
+|19561|[19561_Track_supplier_SLA_breaches_and_corrective_actions_with_Google_Sheets__Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19561_Track_supplier_SLA_breaches_and_corrective_actions_with_Google_Sheets__Gemini__and_Gmail.json)|
+|19781|[19781_Generate_GoHighLevel_deal_follow-up_actions_with_OpenAI_and_Cognee.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19781_Generate_GoHighLevel_deal_follow-up_actions_with_OpenAI_and_Cognee.json)|
+|19825|[19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json)|
+|19840|[19840_Score_LinkedIn_post_engagers_as_leads_with_Periodix_Actions__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19840_Score_LinkedIn_post_engagers_as_leads_with_Periodix_Actions__Claude__and_Google_Sheets.json)|

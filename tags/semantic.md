@@ -1,4 +1,4 @@
-# semantic : 10
+# semantic : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |14827|[14827_Build_an_OpenAI_RAG_system_with_document_upload__semantic_search_and_caching.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14827_Build_an_OpenAI_RAG_system_with_document_upload__semantic_search_and_caching.json)|
 |15274|[15274_Index_n8n_workflows_and_enable_semantic_AI_search_with_OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15274_Index_n8n_workflows_and_enable_semantic_AI_search_with_OpenAI_and_Supabase.json)|
 |16540|[16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json)|
+|16835|[16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json)|
+|17352|[17352_Back_up_and_sync_workflow_JSONs_with_GitHub_using_semantic_SHAs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17352_Back_up_and_sync_workflow_JSONs_with_GitHub_using_semantic_SHAs.json)|

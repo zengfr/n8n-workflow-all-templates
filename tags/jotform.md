@@ -1,4 +1,4 @@
-# jotform : 81
+# jotform : 83
 
 |id|file|
 |----|----|
@@ -83,3 +83,5 @@
 |10617|[10617_Brand_DNA_Generator_Using_JotForm__Google_Search__Gemini_AI___Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10617_Brand_DNA_Generator_Using_JotForm__Google_Search__Gemini_AI___Notion.json)|
 |13018|[13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13018_Vet_Jotform_leads_with_ZeroBounce_and_sync_qualified_contacts_to_ActiveCampaign.json)|
 |15377|[15377_Intelligent_Support_Triage___Auto-Response_Engine_with_Jotform__Airtable__Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15377_Intelligent_Support_Triage___Auto-Response_Engine_with_Jotform__Airtable__Gemini.json)|
+|17584|[17584_Process_Jotform_submissions_with_Parseur_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17584_Process_Jotform_submissions_with_Parseur_and_Airtable.json)|
+|19693|[19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json)|

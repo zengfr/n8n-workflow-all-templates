@@ -1,4 +1,4 @@
-# seedance : 22
+# seedance : 29
 
 |id|file|
 |----|----|
@@ -24,3 +24,10 @@
 |16168|[16168_Create_AI_video_reels_from_images_with_GPT_Image_2__Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16168_Create_AI_video_reels_from_images_with_GPT_Image_2__Seedance_and_Blotato.json)|
 |16576|[16576_Create_Seedance_2.0_short_videos_from_Telegram_ideas_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16576_Create_Seedance_2.0_short_videos_from_Telegram_ideas_with_OpenAI_and_Blotato.json)|
 |16606|[16606_Create_vertical_AI_videos_from_web_articles_with_OpenAI__Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16606_Create_vertical_AI_videos_from_web_articles_with_OpenAI__Seedance_and_Blotato.json)|
+|16938|[16938_Create_Seedance_2_image-to-video_clips_for_TikTok_and_YouTube_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16938_Create_Seedance_2_image-to-video_clips_for_TikTok_and_YouTube_with_OpenAI.json)|
+|16939|[16939_Create_talking_avatar_TikTok_videos_with_Seedance__OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16939_Create_talking_avatar_TikTok_videos_with_Seedance__OpenAI_and_Blotato.json)|
+|17007|[17007_Generate_CCTV-style_animal_TikTok_videos_with_OpenAI__Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17007_Generate_CCTV-style_animal_TikTok_videos_with_OpenAI__Seedance_and_Blotato.json)|
+|17157|[17157_Generate_Seedance_videos_with_the_Vancine_Doubao_API_using_polling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17157_Generate_Seedance_videos_with_the_Vancine_Doubao_API_using_polling.json)|
+|17438|[17438_Generate_Seedance_2_AI_videos_from_form_input_and_email_links_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17438_Generate_Seedance_2_AI_videos_from_form_input_and_email_links_with_Gmail.json)|
+|17593|[17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17593_Create_UGC_Instagram_reels_from_product_photos_with_OpenAI__AtlasCloud_Seedance_and_Blotato.json)|
+|17838|[17838_Generate_Seedance_video_ads_from_Telegram_photos_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17838_Generate_Seedance_video_ads_from_Telegram_photos_with_OpenAI_and_Blotato.json)|

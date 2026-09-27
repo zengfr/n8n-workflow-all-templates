@@ -1,4 +1,4 @@
-# different : 8
+# different : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |3276|[3276_Daylight_Saving_Time_Notification_For_Different_Timezones.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/32/3276_Daylight_Saving_Time_Notification_For_Different_Timezones.json)|
 |3711|[3711_Compare_Different_LLM_Responses_Side-by-Side_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/37/3711_Compare_Different_LLM_Responses_Side-by-Side_with_Google_Sheets.json)|
 |12299|[12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12299_Generate_5-level_AI_explanations_for_different_audiences_from_Telegram_to_Google_Docs_with_GPT-4.1-mini.json)|
+|19503|[19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19503_Require_two-person_email_approvals_for_Airtable_change_requests_with_Gmail.json)|

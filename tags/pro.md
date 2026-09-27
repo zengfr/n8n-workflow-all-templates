@@ -1,4 +1,4 @@
-# pro : 61
+# pro : 65
 
 |id|file|
 |----|----|
@@ -63,3 +63,7 @@
 |16654|[16654_Manage_Etsy_OAuth_2.0_tokens_and_API_headers_between_workflows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16654_Manage_Etsy_OAuth_2.0_tokens_and_API_headers_between_workflows.json)|
 |16655|[16655_Generate_daily_Etsy_sales_and_ledger_reports_via_Shop_Operations_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16655_Generate_daily_Etsy_sales_and_ledger_reports_via_Shop_Operations_API.json)|
 |16656|[16656_Sync_Etsy_customers_with_Meta_custom_audiences_using_hashed_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16656_Sync_Etsy_customers_with_Meta_custom_audiences_using_hashed_emails.json)|
+|16865|[16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16865_Generate_images_from_text_prompts_with_MuAPI_Nano_Banana_2_Pro.json)|
+|17123|[17123_Send_appointment_confirmations__reminders_and_reviews_with_Sheets__Gmail___Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17123_Send_appointment_confirmations__reminders_and_reviews_with_Sheets__Gmail___Twilio.json)|
+|17145|[17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json)|
+|19242|[19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19242_Guide_home-service_sales_calls_with_GoHighLevel__Housecall_Pro__and_OpenAI.json)|

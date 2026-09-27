@@ -1,0 +1,548 @@
+{
+  "id": "ZjppPToVEhX437yL",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Route monitoring incidents to self-healing with Claude, Cursor, ClickUp and WhatsApp",
+    "wechat": "youandme10086",
+    "id": 18888,
+    "update_time": "2026-09-27"
+  },
+  "name": "Self-Healing Production Incident System - Alert to Auto-Deploy",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a94105bd-0a7d-4955-94aa-f6ef166fa345",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2016,
+        16
+      ],
+      "parameters": {
+        "width": 720,
+        "height": 1120,
+        "content": "## Self-Healing Production Incident System\n\nMonitoring alert -> ClickUp incident -> AI root-cause analysis -> Cursor background agent implements & PRs a fix -> auto-deploy if safe -> WhatsApp status.\n\n### Flow logic\n1. **Webhook** receives the raw alert from your monitoring tool (Datadog, Grafana, Prometheus Alertmanager, etc.) and acks immediately (`responseMode: onReceived`) so the monitor doesn't time out.\n2. **Code 1** normalizes the payload, scores severity, deduplicates recurring alerts using workflow static data, and decides if the affected service is even eligible for unsupervised auto-remediation.\n3. **ClickUp** creates the incident task (native ClickUp node - not one of your 2 API nodes).\n4. **Wait 1** is a debounce window so a single flapping alert doesn't burn an AI call.\n5. **API 1 (HTTP Request)** sends the incident context to Claude for structured root-cause analysis: cause, confidence score, risk level, suggested fix, files likely affected.\n6. **Code 2** parses that JSON, applies a confidence/risk gate, and decides: auto-fix or escalate.\n7. **IF** branches on that decision.\n   - **Auto-fix branch:** Wait 2 (safety override window - gives on-call a chance to cancel) -> API 2 (HTTP Request) triggers a Cursor background agent to implement the fix, open a PR, run tests, and auto-merge/deploy if configured -> Wait 3 (build/test/deploy grace period) -> Code 3 evaluates the agent's result and deployment status.\n   - **Escalation branch:** Code 4 builds a human-readable escalation report explaining exactly why it wasn't auto-fixed.\n8. **Merge** rejoins both branches.\n9. **ClickUp** updates the same incident task with the outcome (2nd use of the native node).\n10. **WhatsApp** sends the final status to the on-call channel/number.\n\n### Setup\n1. Add credentials: monitoring webhook (no auth needed unless you add a shared secret header), ClickUp API, Anthropic API key, Cursor API key, WhatsApp Business Cloud.\n2. Set your ClickUp list ID on both ClickUp nodes.\n3. Edit the `AUTO_REMEDIATION_ALLOWLIST` in Code 1 to match services you actually trust for unsupervised fixes.\n4. Point the webhook URL at your monitoring tool's alert-notification integration.\n5. Activate.\n\n-"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4c9064aa-b9a0-4d1d-8acb-4fa049bf13b8",
+      "name": "Sticky Note - Stage 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -992,
+        112
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1240,
+        "height": 980,
+        "content": "## Stage 1: Ingest, Classify, Log Incident\nWebhook -> Code 1 (classify + dedupe) -> ClickUp create -> Wait 1 (debounce) -> API 1 (Claude RCA)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e786ac90-2189-49dd-9929-4ff1aba64125",
+      "name": "Sticky Note - Stage 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        288,
+        128
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1272,
+        "height": 1116,
+        "content": "## Stage 2: Decide & Act\nCode 2 parses the RCA JSON and gates on confidence + risk. IF routes to autonomous fix (Wait 2 -> API 2 Cursor agent -> Wait 3 -> Code 3) or human escalation (Code 4)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5658e147-7529-4042-ab14-ecc846598944",
+      "name": "Sticky Note - Stage 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1616,
+        176
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1196,
+        "height": 932,
+        "content": "## Stage 3: Close the Loop\nMerge rejoins both branches. ClickUp is updated with the final resolution status. WhatsApp notifies the on-call channel either way - auto-resolved, or needs a human."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f3e97d43-7b2a-4e11-a7b0-a2b1abe34fcc",
+      "name": "Webhook - Monitoring Alert",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -928,
+        768
+      ],
+      "webhookId": "monitoring-alert-incoming-001",
+      "parameters": {
+        "path": "monitoring-alert-incident",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f3e5dd55-2a62-4a07-8e42-0795a07d0ada",
+      "name": "Code 1 - Parse, Classify & Deduplicate Alert",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -656,
+        768
+      ],
+      "parameters": {
+        "jsCode": "const payload = $input.first().json.body || $input.first().json;\n\nconst service = payload.service || payload.labels?.service || 'unknown-service';\nconst severityRaw = (payload.severity || payload.labels?.severity || payload.priority || 'warning').toString().toLowerCase();\nconst errorMessage = payload.message || payload.annotations?.summary || payload.title || 'No error message provided';\nconst errorSignature = (payload.errorSignature || payload.fingerprint || `${service}:${errorMessage}`).slice(0, 160);\n\nconst severityMap = { critical: 90, high: 75, warning: 50, low: 25, info: 10 };\nconst severityScore = severityMap[severityRaw] ?? 50;\n\n// Simple deterministic hash (avoids needing external crypto module in the sandbox)\nfunction simpleHash(str) {\n  let hash = 5381;\n  for (let i = 0; i < str.length; i++) {\n    hash = ((hash << 5) + hash) + str.charCodeAt(i);\n    hash = hash & hash;\n  }\n  return Math.abs(hash).toString(16);\n}\nconst dedupeKey = simpleHash(errorSignature);\n\n// Recurrence tracking across executions using workflow static data\nconst staticData = $getWorkflowStaticData('node');\nif (!staticData.incidents) staticData.incidents = {};\nconst existing = staticData.incidents[dedupeKey];\nconst occurrenceCount = existing ? existing.count + 1 : 1;\nstaticData.incidents[dedupeKey] = { count: occurrenceCount, lastSeen: new Date().toISOString(), service };\n\n// Only these services are trusted for unsupervised auto-remediation, and never at the top severity tier\nconst AUTO_REMEDIATION_ALLOWLIST = ['checkout-service', 'payments-api', 'auth-service', 'notification-worker'];\nconst autoRemediationEligible = AUTO_REMEDIATION_ALLOWLIST.includes(service) && severityScore < 90;\n\nreturn [{\n  json: {\n    service,\n    severityRaw,\n    severityScore,\n    errorMessage,\n    errorSignature,\n    dedupeKey,\n    occurrenceCount,\n    isRecurring: occurrenceCount > 1,\n    autoRemediationEligible,\n    receivedAt: new Date().toISOString(),\n    rawPayload: payload\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "04d61112-e882-45ef-946c-4597b8da1a11",
+      "name": "ClickUp - Create Incident Task",
+      "type": "n8n-nodes-base.clickUp",
+      "position": [
+        -400,
+        768
+      ],
+      "parameters": {
+        "list": "YOUR_CLICKUP_LIST_ID",
+        "name": "=[{{$json.severityRaw.toUpperCase()}}] {{$json.service}} - {{$json.errorMessage}}",
+        "additionalFields": {
+          "tags": "=incident,auto-detected,{{$json.service}}",
+          "content": "=Auto-detected incident.\n\nService: {{$json.service}}\nSeverity: {{$json.severityRaw}} (score {{$json.severityScore}})\nOccurrences: {{$json.occurrenceCount}} (recurring: {{$json.isRecurring}})\nDedupe key: {{$json.dedupeKey}}\nError: {{$json.errorMessage}}\nReceived: {{$json.receivedAt}}",
+          "priority": "={{ $json.severityScore >= 90 ? 1 : ($json.severityScore >= 75 ? 2 : ($json.severityScore >= 50 ? 3 : 4)) }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1cf38aa6-5a0c-4fad-b4ea-18a6d04e4b04",
+      "name": "Wait 1 - Debounce Window",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        -144,
+        768
+      ],
+      "webhookId": "wait-debounce-001",
+      "parameters": {
+        "amount": 90
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "9bb93009-58cd-4e82-b29d-9d065f044364",
+      "name": "API 1 - AI Root Cause Analysis (Claude)",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 2,
+      "position": [
+        128,
+        768
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ model: 'claude-sonnet-4-6', max_tokens: 1500, system: 'You are an SRE performing root cause analysis on a production incident. Respond ONLY with valid JSON, no prose, matching exactly this shape: {\"rootCause\": string, \"confidenceScore\": number (0-100), \"riskLevel\": \"low\"|\"medium\"|\"high\", \"suggestedFixSummary\": string, \"filesLikelyAffected\": string[], \"cursorInstructions\": string}.', messages: [ { role: 'user', content: 'Incident details:\\nService: ' + $json.service + '\\nSeverity: ' + $json.severityRaw + '\\nOccurrences: ' + $json.occurrenceCount + ' (recurring: ' + $json.isRecurring + ')\\nError: ' + $json.errorMessage + '\\nRaw payload: ' + JSON.stringify($json.rawPayload).slice(0,2000) } ] }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "authentication": "genericCredentialType",
+      "genericAuthType": "httpHeaderAuth",
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "8852e1f5-0a0b-4f83-9708-63c04daddbfe",
+      "name": "Code 2 - Parse RCA & Decide Remediation Path",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        384,
+        768
+      ],
+      "parameters": {
+        "jsCode": "const aiResponse = $input.first().json;\nconst alert = $('Code 1 - Parse, Classify & Deduplicate Alert').first().json;\n\nlet rca;\ntry {\n  const rawText = aiResponse.content?.[0]?.text || aiResponse.completion || '{}';\n  const cleaned = rawText.replace(/```json|```/g, '').trim();\n  rca = JSON.parse(cleaned);\n} catch (e) {\n  rca = { rootCause: 'Unable to parse AI response', confidenceScore: 0, riskLevel: 'high', suggestedFixSummary: '', filesLikelyAffected: [], cursorInstructions: '' };\n}\n\nconst MIN_CONFIDENCE_FOR_AUTOFIX = 70;\nconst autoFixApproved = alert.autoRemediationEligible\n  && (rca.confidenceScore ?? 0) >= MIN_CONFIDENCE_FOR_AUTOFIX\n  && rca.riskLevel !== 'high';\n\nreturn [{\n  json: {\n    ...alert,\n    rootCause: rca.rootCause,\n    confidenceScore: rca.confidenceScore ?? 0,\n    riskLevel: rca.riskLevel || 'high',\n    suggestedFixSummary: rca.suggestedFixSummary || '',\n    filesLikelyAffected: rca.filesLikelyAffected || [],\n    cursorInstructions: rca.cursorInstructions || rca.suggestedFixSummary || '',\n    autoFixApproved\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9c42de93-6d80-4946-8030-d56870a49a6c",
+      "name": "IF - Confidence & Risk Gate",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        640,
+        768
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "gate-cond-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.autoFixApproved }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8003190a-856d-484c-b8bd-67b6cc77b18b",
+      "name": "Wait 2 - Safety Override Window",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        912,
+        544
+      ],
+      "webhookId": "wait-safety-001",
+      "parameters": {
+        "amount": 180
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1e12b480-3402-439d-a51f-2e9ba47c5569",
+      "name": "API 2 - Trigger Cursor Background Agent",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 2,
+      "position": [
+        1168,
+        544
+      ],
+      "parameters": {
+        "url": "https://api.cursor.sh/v0/background-agents",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ repository: 'org/' + $json.service, instructions: $json.cursorInstructions, context: { rootCause: $json.rootCause, filesLikelyAffected: $json.filesLikelyAffected, incidentSeverity: $json.severityRaw, incidentId: $json.dedupeKey }, runTests: true, autoOpenPullRequest: true, autoMergeIfTestsPass: $json.severityScore < 75 }) }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "authentication": "genericCredentialType",
+      "genericAuthType": "httpHeaderAuth",
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "624d79db-e5eb-4488-a0fe-b6faad36d05c",
+      "name": "Wait 3 - Build, Test & Deploy Grace Period",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1424,
+        544
+      ],
+      "webhookId": "wait-builddeploy-001",
+      "parameters": {
+        "amount": 300
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "89a698b0-7c8c-4d72-a028-aaffe9b34c54",
+      "name": "Code 3 - Evaluate Agent Outcome & Deployment Status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1680,
+        544
+      ],
+      "parameters": {
+        "jsCode": "const agentResponse = $input.first().json;\nconst context = $('Code 2 - Parse RCA & Decide Remediation Path').first().json;\n\nconst prUrl = agentResponse.pullRequestUrl || agentResponse.pr_url || null;\nconst testsPassed = agentResponse.testsPassed ?? agentResponse.tests_passed ?? false;\nconst deployed = agentResponse.deployed ?? agentResponse.autoMerged ?? agentResponse.auto_merged ?? false;\n\nlet resolutionStatus = 'Needs Manual Review';\nif (prUrl && testsPassed && deployed) resolutionStatus = 'Auto-Resolved & Deployed';\nelse if (prUrl && testsPassed) resolutionStatus = 'Fix Ready - Awaiting Merge';\nelse if (prUrl) resolutionStatus = 'PR Opened - Tests Failed';\nelse resolutionStatus = 'Agent Did Not Produce a Fix';\n\nreturn [{\n  json: {\n    ...context,\n    path: 'auto-fix',\n    prUrl,\n    testsPassed,\n    deployed,\n    resolutionStatus,\n    resolvedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1c5e01fc-e9b9-4b31-94c2-2ff7dbcd1f34",
+      "name": "Code 4 - Build Human Escalation Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        912,
+        976
+      ],
+      "parameters": {
+        "jsCode": "const item = $input.first().json;\n\nconst reasons = [];\nif (!item.autoRemediationEligible) reasons.push('Service is not on the auto-remediation allowlist, or severity is too high for unsupervised action.');\nif ((item.confidenceScore ?? 0) < 70) reasons.push(`AI confidence too low (${item.confidenceScore}%).`);\nif (item.riskLevel === 'high') reasons.push('AI assessed the fix as high risk.');\nif (reasons.length === 0) reasons.push('Did not meet auto-fix criteria.');\n\nreturn [{\n  json: {\n    ...item,\n    path: 'escalation',\n    resolutionStatus: 'Escalated to On-Call',\n    escalationReasons: reasons,\n    resolvedAt: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c32a79ea-81a0-447d-a328-cf805c699e37",
+      "name": "Merge - Rejoin Auto-Fix & Escalation Paths",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1952,
+        768
+      ],
+      "parameters": {
+        "mode": "chooseBranch",
+        "output": "input1"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "3d0e56dd-f19b-4df5-887f-ddd0c3cf2180",
+      "name": "ClickUp - Update Incident with Resolution",
+      "type": "n8n-nodes-base.clickUp",
+      "position": [
+        2208,
+        768
+      ],
+      "parameters": {
+        "id": "={{ $('ClickUp - Create Incident Task').first().json.id }}",
+        "operation": "update",
+        "updateFields": {
+          "status": "={{ $json.resolutionStatus === 'Auto-Resolved & Deployed' ? 'closed' : 'in review' }}",
+          "content": "=Resolution: {{ $json.resolutionStatus }}\n\nRoot cause: {{ $json.rootCause }}\nConfidence: {{ $json.confidenceScore }}% | Risk: {{ $json.riskLevel }}\n{{ $json.path === 'auto-fix' ? 'PR: ' + ($json.prUrl || 'n/a') + ' | Tests passed: ' + $json.testsPassed + ' | Deployed: ' + $json.deployed : 'Escalation reasons: ' + ($json.escalationReasons || []).join('; ') }}\nResolved at: {{ $json.resolvedAt }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6c61897c-6392-4fff-be3a-c7cb29256b0a",
+      "name": "WhatsApp - Notify On-Call",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        2464,
+        768
+      ],
+      "webhookId": "d1f5a065-e55b-45c6-bbef-93dbd9ef7e32",
+      "parameters": {
+        "textBody": "=*{{ $json.resolutionStatus }}* - {{ $json.service }} ({{ $json.severityRaw }})\n\nRoot cause: {{ $json.rootCause }}\n{{ $json.path === 'auto-fix' ? 'PR: ' + ($json.prUrl || 'n/a') : 'Reasons: ' + ($json.escalationReasons || []).join('; ') }}\n\nIncident: {{ $('Code 1 - Parse, Classify & Deduplicate Alert').first().json.dedupeKey }}",
+        "operation": "send",
+        "phoneNumberId": "YOUR_WHATSAPP_PHONE_NUMBER_ID",
+        "additionalFields": {},
+        "recipientPhoneNumber": "YOUR_ONCALL_WHATSAPP_NUMBER"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d5616d4c-b09d-4e72-8b78-aa70ed15a160",
+      "name": "Wait - Test & Deploy Period",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1296,
+        976
+      ],
+      "webhookId": "wait-builddeploy-001",
+      "parameters": {
+        "amount": 300
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "666f7ba2-e9a1-417c-bf71-0a1106ece7db",
+  "nodeGroups": [],
+  "connections": {
+    "Wait 1 - Debounce Window": {
+      "main": [
+        [
+          {
+            "node": "API 1 - AI Root Cause Analysis (Claude)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Monitoring Alert": {
+      "main": [
+        [
+          {
+            "node": "Code 1 - Parse, Classify & Deduplicate Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Confidence & Risk Gate": {
+      "main": [
+        [
+          {
+            "node": "Wait 2 - Safety Override Window",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code 4 - Build Human Escalation Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Test & Deploy Period": {
+      "main": [
+        [
+          {
+            "node": "Merge - Rejoin Auto-Fix & Escalation Paths",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "ClickUp - Create Incident Task": {
+      "main": [
+        [
+          {
+            "node": "Wait 1 - Debounce Window",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 2 - Safety Override Window": {
+      "main": [
+        [
+          {
+            "node": "API 2 - Trigger Cursor Background Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 4 - Build Human Escalation Report": {
+      "main": [
+        [
+          {
+            "node": "Wait - Test & Deploy Period",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API 1 - AI Root Cause Analysis (Claude)": {
+      "main": [
+        [
+          {
+            "node": "Code 2 - Parse RCA & Decide Remediation Path",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "API 2 - Trigger Cursor Background Agent": {
+      "main": [
+        [
+          {
+            "node": "Wait 3 - Build, Test & Deploy Grace Period",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClickUp - Update Incident with Resolution": {
+      "main": [
+        [
+          {
+            "node": "WhatsApp - Notify On-Call",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Rejoin Auto-Fix & Escalation Paths": {
+      "main": [
+        [
+          {
+            "node": "ClickUp - Update Incident with Resolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait 3 - Build, Test & Deploy Grace Period": {
+      "main": [
+        [
+          {
+            "node": "Code 3 - Evaluate Agent Outcome & Deployment Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 1 - Parse, Classify & Deduplicate Alert": {
+      "main": [
+        [
+          {
+            "node": "ClickUp - Create Incident Task",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 2 - Parse RCA & Decide Remediation Path": {
+      "main": [
+        [
+          {
+            "node": "IF - Confidence & Risk Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code 3 - Evaluate Agent Outcome & Deployment Status": {
+      "main": [
+        [
+          {
+            "node": "Merge - Rejoin Auto-Fix & Escalation Paths",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

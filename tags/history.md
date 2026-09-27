@@ -1,4 +1,4 @@
-# history : 23
+# history : 29
 
 |id|file|
 |----|----|
@@ -25,3 +25,9 @@
 |12991|[12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json)|
 |13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|
 |14026|[14026_Auto-reply_to_Instagram_DMs_with_an_AI_chatbot_and_Google_Gemini_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14026_Auto-reply_to_Instagram_DMs_with_an_AI_chatbot_and_Google_Gemini_history.json)|
+|17892|[17892_Remember_per-customer_chat_history_with_Amazon_Bedrock_AgentCore.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17892_Remember_per-customer_chat_history_with_Amazon_Bedrock_AgentCore.json)|
+|18449|[18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json)|
+|18566|[18566_Publish_weekly_family_history_stories_with_GPT-4__Pinecone_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18566_Publish_weekly_family_history_stories_with_GPT-4__Pinecone_and_WordPress.json)|
+|18669|[18669_Monitor_Amazon_keyword_rankings_and_alerts_with_Pangolinfo_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18669_Monitor_Amazon_keyword_rankings_and_alerts_with_Pangolinfo_and_email.json)|
+|18712|[18712_Trace_people_and_address_history_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18712_Trace_people_and_address_history_with_Searchbug_and_Google_Sheets.json)|
+|19585|[19585_Track_HubSpot_deal_lead-response_SLAs_using_activity_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19585_Track_HubSpot_deal_lead-response_SLAs_using_activity_history.json)|

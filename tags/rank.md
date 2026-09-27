@@ -1,4 +1,4 @@
-# rank : 12
+# rank : 22
 
 |id|file|
 |----|----|
@@ -14,3 +14,13 @@
 |15167|[15167_Generate_and_rank_landing_page_headlines_with_GPT-4o-mini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15167_Generate_and_rank_landing_page_headlines_with_GPT-4o-mini__Google_Sheets_and_Gmail.json)|
 |16096|[16096_Score_and_rank_ad_copy_variants_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16096_Score_and_rank_ad_copy_variants_with_Claude_and_Google_Sheets.json)|
 |16720|[16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json)|
+|17202|[17202_Track_weekly_Google_keyword_rankings_with_SearchApi_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17202_Track_weekly_Google_keyword_rankings_with_SearchApi_and_Slack.json)|
+|17238|[17238_Track_weekly_Google_SERP_rankings_with_Bright_Data__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17238_Track_weekly_Google_SERP_rankings_with_Bright_Data__Google_Sheets__and_Slack.json)|
+|17612|[17612_Score_Meta_ad_account_health_weekly_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17612_Score_Meta_ad_account_health_weekly_with_Claude_and_Gmail.json)|
+|17907|[17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json)|
+|18287|[18287_Find_and_rank_job_listings_from_Adzuna_and_Remotive_via_Telegram_with_Gemini_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18287_Find_and_rank_job_listings_from_Adzuna_and_Remotive_via_Telegram_with_Gemini_and_Sheets.json)|
+|18669|[18669_Monitor_Amazon_keyword_rankings_and_alerts_with_Pangolinfo_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18669_Monitor_Amazon_keyword_rankings_and_alerts_with_Pangolinfo_and_email.json)|
+|18918|[18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json)|
+|18934|[18934_Rank_and_triage_dependency_risk_with_GitHub__OSV__Slack__npm__PyPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18934_Rank_and_triage_dependency_risk_with_GitHub__OSV__Slack__npm__PyPI_and_OpenAI.json)|
+|19711|[19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json)|
+|19731|[19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json)|

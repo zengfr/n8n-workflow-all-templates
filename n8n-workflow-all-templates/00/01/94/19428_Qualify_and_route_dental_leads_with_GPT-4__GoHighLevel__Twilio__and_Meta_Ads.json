@@ -1,0 +1,1690 @@
+{
+  "id": "eCTY2tDcaQNEDJ5w",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Qualify and route dental leads with GPT-4, GoHighLevel, Twilio, and Meta Ads",
+    "wechat": "youandme10086",
+    "id": 19428,
+    "update_time": "2026-09-27"
+  },
+  "name": "Local Service Lead Qualification & Follow-Up Engine",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "fdfb2c52-7760-496e-afa7-35d86c52e883",
+      "name": "When Lead Received via Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -3376,
+        512
+      ],
+      "webhookId": "9b613974-49b5-4439-8a40-4fe277763395",
+      "parameters": {
+        "path": "9b613974-49b5-4439-8a40-4fe277763395",
+        "options": {}
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "4487b06c-93e0-4078-8dc7-075ff4d00a69",
+      "name": "Set Workflow Defaults",
+      "type": "n8n-nodes-base.set",
+      "notes": "Centralised config: GHL/Twilio/Slack/Calendar/Pinecone credentials and IDs, plus scoring/timing thresholds referenced throughout the workflow. Replace every YOUR_* placeholder before activating.",
+      "position": [
+        -2864,
+        704
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-1",
+              "name": "PRACTICE_NAME",
+              "type": "string",
+              "value": "YOUR_PRACTICE_NAME"
+            },
+            {
+              "id": "cfg-2",
+              "name": "GHL_API_BASE",
+              "type": "string",
+              "value": "https://services.leadconnectorhq.com"
+            },
+            {
+              "id": "cfg-3",
+              "name": "GHL_API_TOKEN",
+              "type": "string",
+              "value": "YOUR_GHL_API_TOKEN"
+            },
+            {
+              "id": "cfg-4",
+              "name": "GHL_LOCATION_ID",
+              "type": "string",
+              "value": "YOUR_GHL_LOCATION_ID"
+            },
+            {
+              "id": "cfg-5",
+              "name": "TWILIO_FROM_NUMBER",
+              "type": "string",
+              "value": "YOUR_TWILIO_FROM_NUMBER"
+            },
+            {
+              "id": "cfg-6",
+              "name": "SLACK_HOT_LEAD_CHANNEL",
+              "type": "string",
+              "value": "#hot-leads"
+            },
+            {
+              "id": "cfg-7",
+              "name": "GOOGLE_CALENDAR_ID",
+              "type": "string",
+              "value": "YOUR_GOOGLE_CALENDAR_ID"
+            },
+            {
+              "id": "cfg-8",
+              "name": "PINECONE_INDEX_NAME",
+              "type": "string",
+              "value": "YOUR_PINECONE_INDEX_NAME"
+            },
+            {
+              "id": "cfg-9",
+              "name": "DASHBOARD_EMAIL",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "cfg-10",
+              "name": "HIGH_PRIORITY_SCORE_THRESHOLD",
+              "type": "number",
+              "value": 70
+            },
+            {
+              "id": "cfg-11",
+              "name": "FOLLOW_UP_DAYS_UNRESPONSIVE",
+              "type": "number",
+              "value": 3
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fe10cd2a-2f96-4cce-89ef-f74c570ea270",
+      "name": "Prepare Lead Data",
+      "type": "n8n-nodes-base.code",
+      "notes": "Normalizes the 3 merged intake shapes (website form webhook, Twilio SMS reply, Meta Lead Ads) into one common lead record. Converted from Set to Code since normalization needs per-source branching logic, not a flat field mapping.",
+      "position": [
+        -2576,
+        704
+      ],
+      "parameters": {
+        "jsCode": "// Normalizes leads from three different intake shapes into one common\n// record used by every downstream node (AI agent, GHL sync, messaging).\nconst j = $json;\nconst cfg = $('Set Workflow Defaults').first().json;\n\n// Detect source by shape: webhook form body / Twilio SMS payload / Meta Lead Ads payload\nlet source, name, phone, email, message, treatmentInterest, contactId;\n\nif (j.body?.form_type || j.body?.name) {\n  // Website/form webhook\n  source = 'website_form';\n  name = j.body?.name || '';\n  phone = j.body?.phone || '';\n  email = j.body?.email || '';\n  message = j.body?.message || j.body?.notes || '';\n  treatmentInterest = j.body?.treatment_interest || j.body?.service || '';\n  contactId = j.body?.contact_id || '';\n} else if (j.From || j.Body !== undefined) {\n  // Twilio SMS reply (standard Twilio webhook fields)\n  source = 'sms_reply';\n  name = j.ProfileName || '';\n  phone = j.From || '';\n  email = '';\n  message = j.Body || '';\n  treatmentInterest = '';\n  contactId = '';\n} else {\n  // Meta Lead Ads\n  source = 'meta_lead_ad';\n  const fieldData = j.field_data || j.leadgen_id ? j : (j.body || j);\n  name = fieldData.full_name || fieldData.name || '';\n  phone = fieldData.phone_number || fieldData.phone || '';\n  email = fieldData.email || '';\n  message = '';\n  treatmentInterest = fieldData.treatment_interest || fieldData.ad_name || '';\n  contactId = '';\n}\n\nreturn [{\n  json: {\n    source,\n    lead_name: name,\n    lead_phone: phone,\n    lead_email: email,\n    lead_message: message,\n    treatment_interest: treatmentInterest,\n    contact_id: contactId,\n    practice_name: cfg.PRACTICE_NAME,\n    received_at: new Date().toISOString()\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ae8bed45-e2eb-4fee-8e6e-48e17347f540",
+      "name": "Lead Qualifier Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Classifies each inbound lead into a treatment category (feeding Route by Lead Treatment), scores it via the Calculate Lead Score tool, and checks GHL history/calendar availability/knowledge base as needed.",
+      "position": [
+        -1728,
+        656
+      ],
+      "parameters": {
+        "text": "=A new lead has come in for {{ $json.practice_name }}. Qualify this lead and recommend the right treatment pathway.\n\nLead source: {{ $json.source }}\nName: {{ $json.lead_name }}\nPhone: {{ $json.lead_phone }}\nEmail: {{ $json.lead_email }}\nStated interest: {{ $json.treatment_interest }}\nMessage/notes: {{ $json.lead_message }}",
+        "options": {
+          "systemMessage": "You are a lead qualification assistant for a local dental/aesthetic practice. Your job is to read an inbound lead's details and:\n\n1. Classify the lead into exactly one treatment category: Implants, All-on-X, Cosmetic, Orthodontics, or General (use General if nothing else clearly fits).\n2. Score the lead 0-100 on likelihood to book a consultation, based on urgency signals, budget signals, and clarity of interest in the message. Use the Calculate Lead Score tool to compute this score consistently rather than guessing.\n3. Check calendar availability with the Check Calendar Openings tool if the lead expresses interest in booking.\n4. Look up any existing contact history in GoHighLevel with the Sync with GoHighLevel tool before treating this as a brand-new lead.\n5. Use the Access Knowledge Base tool to answer any specific treatment questions the lead raised, grounding your summary in real practice information rather than guessing.\n\nAlways return your final answer in the structured format required. Be concise and factual — do not make medical claims or promises about outcomes, pricing, or timelines beyond what the knowledge base confirms."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "bf894a31-18f4-40f1-8366-caefa5665778",
+      "name": "Chat with GPT-4 Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -2192,
+        880
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "35e215ca-608d-4142-8d73-849358c46b27",
+      "name": "Capture Conversation Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "notes": "Keeps conversation context isolated per lead (keyed by phone/contact ID) rather than sharing memory across unrelated leads.",
+      "position": [
+        -2064,
+        880
+      ],
+      "parameters": {
+        "sessionKey": "={{ $json.lead_phone || $json.contact_id || $execution.id }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 10
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "6c057f73-2ac3-42fe-af54-bb691a0acaa8",
+      "name": "Parse Lead Results",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -1264,
+        880
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"treatment_category\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Implants\",\n        \"All-on-X\",\n        \"Cosmetic\",\n        \"Orthodontics\",\n        \"General\"\n      ],\n      \"description\": \"The single best-fit treatment category for this lead\"\n    },\n    \"lead_score\": {\n      \"type\": \"number\",\n      \"description\": \"0-100 likelihood-to-book score computed by the Calculate Lead Score tool\"\n    },\n    \"summary\": {\n      \"type\": \"string\",\n      \"description\": \"1-2 sentence summary of the lead's stated need and any relevant history found in GHL\"\n    },\n    \"recommended_next_step\": {\n      \"type\": \"string\",\n      \"description\": \"What should happen next: e.g. 'Book consultation', 'Send info pack', 'Escalate to voice call'\"\n    }\n  },\n  \"required\": [\n    \"treatment_category\",\n    \"lead_score\",\n    \"summary\",\n    \"recommended_next_step\"\n  ]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "d3c0e82f-f33c-4fa2-a5f3-bacdc5b441f3",
+      "name": "Access Knowledge Base",
+      "type": "@n8n/n8n-nodes-langchain.vectorStorePinecone",
+      "notes": "Retrieval tool over the practice's Pinecone knowledge base — index name pulled from Set Workflow Defaults. Populate the index with real treatment/FAQ/pricing content before relying on this.",
+      "position": [
+        -1936,
+        880
+      ],
+      "parameters": {
+        "mode": "retrieve-as-tool",
+        "options": {},
+        "pineconeIndex": {
+          "__rl": true,
+          "mode": "list",
+          "value": "={{ $('Set Workflow Defaults').first().json.PINECONE_INDEX_NAME }}"
+        },
+        "toolDescription": "Searches the practice's treatment information knowledge base (procedures, pricing ranges, financing options, FAQs) to answer specific questions a lead raised."
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "6a71415b-f51e-4e13-ad80-59842397001a",
+      "name": "Generate OpenAI Embeddings",
+      "type": "@n8n/n8n-nodes-langchain.embeddingsOpenAi",
+      "position": [
+        -1856,
+        1088
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "4bb8232c-ab12-40ed-b152-6157ab2a5e77",
+      "name": "Check Calendar Openings",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "notes": "Calls a separate sub-workflow (not included here) that queries Google Calendar for open slots — replace YOUR_CALENDAR_CHECK_SUBWORKFLOW_ID with a real n8n workflow ID that performs the calendar lookup and returns available slots.",
+      "position": [
+        -1648,
+        880
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_CALENDAR_CHECK_SUBWORKFLOW_ID"
+        },
+        "description": "Checks the practice's Google Calendar for open consultation slots in the next 7 days. Call this when a lead expresses interest in booking.",
+        "workflowInputs": {
+          "value": {
+            "daysAhead": "={{ 7 }}",
+            "calendarId": "={{ $('Set Workflow Defaults').first().json.GOOGLE_CALENDAR_ID }}"
+          },
+          "mappingMode": "defineBelow"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "5b93e66d-a7ae-420c-87dc-eaac71f4d951",
+      "name": "Sync with GoHighLevel",
+      "type": "@n8n/n8n-nodes-langchain.toolWorkflow",
+      "notes": "Calls a separate sub-workflow (not included here) that looks up or creates the GHL contact by phone/email — replace YOUR_GHL_SYNC_SUBWORKFLOW_ID with a real n8n workflow ID.",
+      "position": [
+        -1520,
+        880
+      ],
+      "parameters": {
+        "workflowId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_GHL_SYNC_SUBWORKFLOW_ID"
+        },
+        "description": "Looks up this lead's existing contact record and pipeline history in GoHighLevel by phone/email, or creates a new contact if none exists. Call this before treating a lead as brand-new.",
+        "workflowInputs": {
+          "value": {
+            "email": "={{ $('Prepare Lead Data').first().json.lead_email }}",
+            "phone": "={{ $('Prepare Lead Data').first().json.lead_phone }}",
+            "ghlApiBase": "={{ $('Set Workflow Defaults').first().json.GHL_API_BASE }}",
+            "ghlApiToken": "={{ $('Set Workflow Defaults').first().json.GHL_API_TOKEN }}",
+            "ghlLocationId": "={{ $('Set Workflow Defaults').first().json.GHL_LOCATION_ID }}"
+          },
+          "mappingMode": "defineBelow"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ea2acb6d-e6f7-4e9c-bfa1-cdd9fbac1789",
+      "name": "Calculate Lead Score",
+      "type": "@n8n/n8n-nodes-langchain.toolCode",
+      "notes": "Deterministic scoring tool (not left to LLM guesswork): urgency/budget keywords, treatment value, message detail, and contact completeness.",
+      "position": [
+        -1392,
+        880
+      ],
+      "parameters": {
+        "jsCode": "// Deterministic lead scoring — call with { message: string, treatmentInterest: string, hasPhone: boolean, hasEmail: boolean }\nconst message = ($input.message || '').toLowerCase();\nconst interest = ($input.treatmentInterest || '').toLowerCase();\n\nlet score = 30; // baseline for any lead with contact info\n\nconst urgencyWords = ['asap', 'urgent', 'pain', 'emergency', 'today', 'this week', 'soon as possible'];\nif (urgencyWords.some(w => message.includes(w))) score += 25;\n\nconst budgetWords = ['financing', 'insurance', 'payment plan', 'afford', 'cost', 'price'];\nif (budgetWords.some(w => message.includes(w))) score += 10;\n\nconst highValueTreatments = ['implant', 'all-on', 'all on 4', 'all on x'];\nif (highValueTreatments.some(w => interest.includes(w))) score += 20;\n\nif (message.length > 40) score += 10; // clear, detailed message\nif ($input.hasPhone) score += 5;\nif ($input.hasEmail) score += 5;\n\nscore = Math.max(0, Math.min(100, score));\n\nreturn { score, reasoning: `Base 30 + signals from urgency/budget/treatment-value/message-detail/contact-completeness` };",
+        "description": "Computes a deterministic 0-100 lead score from urgency, budget, and message-clarity signals. Call this instead of guessing a score."
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "c571047c-d4d8-442e-8aef-5309977db32b",
+      "name": "Route by Lead Treatment",
+      "type": "n8n-nodes-base.switch",
+      "notes": "FIX: All 6 conditions were '' equals '' (always matched the first branch — Implants — regardless of the AI's actual classification), and only 1 of 6 outputs was wired downstream (the other 5 dead-ended). Now routes on the AI agent's real treatment_category output, with a fallback output for anything unmatched, and all 6 outputs (5 named + 1 fallback) are wired to Fetch GHL Contact Info.",
+      "position": [
+        -928,
+        656
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Implants",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rt-implants",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.treatment_category || $json.treatment_category }}",
+                    "rightValue": "Implants"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "All-on-X",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rt-allonx",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.treatment_category || $json.treatment_category }}",
+                    "rightValue": "All-on-X"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Cosmetic",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rt-cosmetic",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.treatment_category || $json.treatment_category }}",
+                    "rightValue": "Cosmetic"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Orthodontics",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rt-ortho",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.treatment_category || $json.treatment_category }}",
+                    "rightValue": "Orthodontics"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "General",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "rt-general",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.treatment_category || $json.treatment_category }}",
+                    "rightValue": "General"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b3fb2278-de7c-4e10-8750-9b699f9c0a81",
+      "name": "Fetch GHL Contact Info",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Looks up the GHL contact by phone number to attach pipeline/custom-field data to this lead.",
+      "position": [
+        -656,
+        720
+      ],
+      "parameters": {
+        "url": "={{ $('Set Workflow Defaults').first().json.GHL_API_BASE }}/contacts/lookup?phone={{ $('Prepare Lead Data').first().json.lead_phone }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Set Workflow Defaults').first().json.GHL_API_TOKEN }}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "2daf8513-92c7-4451-9be8-792943343f9d",
+      "name": "Fetch GHL Pipeline Stage",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Fetches this contact's current pipeline/opportunity stage, if one already exists (returning lead vs. brand-new).",
+      "position": [
+        -480,
+        720
+      ],
+      "parameters": {
+        "url": "={{ $('Set Workflow Defaults').first().json.GHL_API_BASE }}/opportunities/search?contact_id={{ $json.contact?.id || $json.id }}&location_id={{ $('Set Workflow Defaults').first().json.GHL_LOCATION_ID }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Set Workflow Defaults').first().json.GHL_API_TOKEN }}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "4156779e-09e6-4e1d-90f2-88a61360044b",
+      "name": "Fetch GHL Custom Field Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Fetches the full contact record including custom fields (treatment history, referral source, etc.) before branching into priority checking, messaging, scheduling, and logging.",
+      "position": [
+        -304,
+        720
+      ],
+      "parameters": {
+        "url": "={{ $('Set Workflow Defaults').first().json.GHL_API_BASE }}/contacts/{{ $('Fetch GHL Contact Info').first().json.contact?.id || $('Fetch GHL Contact Info').first().json.id }}",
+        "options": {},
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Set Workflow Defaults').first().json.GHL_API_TOKEN }}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "8441f5dd-4fa5-4793-9a0f-82df6b002435",
+      "name": "Send SMS via Twilio",
+      "type": "n8n-nodes-base.twilio",
+      "notes": "Sends an immediate acknowledgement SMS to every new lead regardless of priority — Twilio credentials need to be attached separately in n8n's credential UI (Twilio isn't a header-auth service like GHL).",
+      "position": [
+        160,
+        496
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare Lead Data').first().json.lead_phone }}",
+        "from": "={{ $('Set Workflow Defaults').first().json.TWILIO_FROM_NUMBER }}",
+        "message": "=Hi {{ $('Prepare Lead Data').first().json.lead_name }}, thanks for reaching out to {{ $('Prepare Lead Data').first().json.practice_name }}! We received your enquiry about {{ $('Lead Qualifier Agent').first().json.output?.treatment_category || 'our services' }} and a team member will be in touch shortly. Reply STOP to opt out.",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "75eb1653-9055-4371-9d62-fbc50ba7526f",
+      "name": "Send Email via SMTP",
+      "type": "n8n-nodes-base.emailSend",
+      "notes": "Sends an intake confirmation email — skipped naturally if the lead has no email (SMTP will fail gracefully or should be gated on lead_email being non-empty if strict validation is desired).",
+      "position": [
+        160,
+        688
+      ],
+      "webhookId": "a87467a9-ed85-4486-9268-c659def6c8a8",
+      "parameters": {
+        "options": {},
+        "subject": "=Thanks for reaching out to {{ $('Prepare Lead Data').first().json.practice_name }}"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "credential-id",
+          "name": "SMTP account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "56b06338-70ff-495e-aac5-dfeb57d1d471",
+      "name": "Check Lead Priority",
+      "type": "n8n-nodes-base.if",
+      "notes": "FIX: Had zero conditions (an empty AND with nothing to compare, so behavior was undefined). Now compares the AI agent's lead_score against HIGH_PRIORITY_SCORE_THRESHOLD from config — TRUE (high priority) triggers an immediate AI voice call and Slack alert.",
+      "position": [
+        160,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "priority-check",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $('Lead Qualifier Agent').first().json.output?.lead_score || $('Lead Qualifier Agent').first().json.lead_score || 0 }}",
+              "rightValue": "={{ $('Set Workflow Defaults').first().json.HIGH_PRIORITY_SCORE_THRESHOLD }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "162d5dce-a42f-4d66-96ff-4e606fcc9109",
+      "name": "Initiate AI Voice Call",
+      "type": "n8n-nodes-base.twilio",
+      "notes": "Fires only for high-priority leads (Check Lead Priority TRUE branch). Uses a static TwiML script — replace with a real AI voice agent integration (e.g. an ElevenLabs/Vapi call) if a genuinely conversational call is required rather than a one-way announcement.",
+      "position": [
+        384,
+        784
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare Lead Data').first().json.lead_phone }}",
+        "from": "={{ $('Set Workflow Defaults').first().json.TWILIO_FROM_NUMBER }}",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6f4bc19f-7ce7-4d17-91f5-a93dbd9975ee",
+      "name": "Post Alert to Slack",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Alerts the team's hot-lead Slack channel whenever Check Lead Priority is TRUE.",
+      "position": [
+        384,
+        976
+      ],
+      "webhookId": "1ae695aa-6c4d-4404-aad4-8a9b1ccee9bf",
+      "parameters": {
+        "text": "=🔥 High-priority lead: {{ $('Prepare Lead Data').first().json.lead_name }} ({{ $('Prepare Lead Data').first().json.lead_phone }}) — {{ $('Lead Qualifier Agent').first().json.output?.treatment_category }}, score {{ $('Lead Qualifier Agent').first().json.output?.lead_score }}/100. {{ $('Lead Qualifier Agent').first().json.output?.summary }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Set Workflow Defaults').first().json.SLACK_HOT_LEAD_CHANNEL }}"
+        },
+        "otherOptions": {}
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "b0b0a013-c6ac-4045-ade9-1b5b1f81c5b8",
+      "name": "Schedule Meeting in Calendar",
+      "type": "n8n-nodes-base.googleCalendar",
+      "notes": "Provisionally books a next-day consultation slot as a placeholder hold — adjust start/end to use real availability from the Check Calendar Openings tool's result rather than a fixed next-day offset once that sub-workflow is wired up.",
+      "position": [
+        160,
+        1072
+      ],
+      "parameters": {
+        "end": "={{ $now.plus({days: 1, hours: 10}).toISO() }}",
+        "start": "={{ $now.plus({days: 1, hours: 9}).toISO() }}",
+        "calendar": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set Workflow Defaults').first().json.GOOGLE_CALENDAR_ID }}"
+        },
+        "additionalFields": {
+          "summary": "=Consultation: {{ $('Prepare Lead Data').first().json.lead_name }} — {{ $('Lead Qualifier Agent').first().json.output?.treatment_category || 'General' }}",
+          "description": "=Lead source: {{ $('Prepare Lead Data').first().json.source }}. Score: {{ $('Lead Qualifier Agent').first().json.output?.lead_score }}. Summary: {{ $('Lead Qualifier Agent').first().json.output?.summary }}"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "a48d543a-e583-4453-a6c7-83cc2b49515a",
+      "name": "Log to Database",
+      "type": "n8n-nodes-base.postgres",
+      "notes": "Logs every qualified lead to a Postgres 'leads' table — replace 'leads' with your real table name if different, and ensure the table's columns match the auto-mapped fields (lead_name, lead_phone, lead_email, treatment_interest, source, etc.).",
+      "position": [
+        160,
+        1264
+      ],
+      "parameters": {
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "leads"
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData"
+        },
+        "options": {}
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "0d55b9a9-fba2-49ee-970b-eec816a934e1",
+      "name": "When SMS Reply Received",
+      "type": "n8n-nodes-base.twilioTrigger",
+      "notes": "FIX: Had empty parameters and no credentials — a Twilio trigger with no config would never register a real webhook. Now configured to fire on incoming SMS messages.",
+      "position": [
+        -3376,
+        704
+      ],
+      "webhookId": "d814770a-a019-4696-9cdc-1b53fe487f2a",
+      "parameters": {
+        "updates": [
+          "incoming-message"
+        ]
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9c1c3763-b390-4fb0-b097-b98cc1d74845",
+      "name": "When Meta Lead Ad Received",
+      "type": "n8n-nodes-base.facebookLeadAdsTrigger",
+      "notes": "FIX: page/form resource-locator values were empty strings — replaced with placeholders to be swapped for real IDs.",
+      "position": [
+        -3376,
+        896
+      ],
+      "webhookId": "7228c2af-cf55-4f1a-94f9-24f440716356",
+      "parameters": {
+        "form": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_FACEBOOK_LEAD_FORM_ID",
+          "cachedResultName": "YOUR_LEAD_FORM_NAME"
+        },
+        "page": {
+          "__rl": true,
+          "mode": "list",
+          "value": "YOUR_FACEBOOK_PAGE_ID",
+          "cachedResultName": "YOUR_FACEBOOK_PAGE_NAME"
+        },
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "50beba8b-a847-4d33-9f6c-3c5497cdd1da",
+      "name": "Reply to Facebook DMs",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "notes": "Only meaningful for meta_lead_ad-sourced leads (no Facebook messenger thread exists for website/SMS leads) — this fires for every lead regardless of source since Fetch GHL Custom Field Data fans out unconditionally; consider gating this on source === 'meta_lead_ad' if noisy Graph API calls for non-Facebook leads become an issue.",
+      "position": [
+        160,
+        304
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "12522a50-00e9-44d1-8e69-1006ca3f6c9b",
+      "name": "When Follow-Up Time Reached",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "FIX: Was an empty interval (undefined behavior). Now checks for unresponsive leads every 6 hours.",
+      "position": [
+        -3360,
+        1216
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours",
+              "hoursInterval": 6
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "5fcfea1a-2566-40df-a5b7-49e2b56c3350",
+      "name": "Fetch Unresponsive GHL Leads",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Pulls contacts tagged as unresponsive (adjust the tag name/filter to match your real GHL tagging convention) that are due for a follow-up touch (older than FOLLOW_UP_DAYS_UNRESPONSIVE).",
+      "position": [
+        -3120,
+        1216
+      ],
+      "parameters": {
+        "url": "={{ $('Set Workflow Defaults').first().json.GHL_API_BASE }}/contacts/search",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"locationId\": \"{{ $('Set Workflow Defaults').first().json.GHL_LOCATION_ID }}\",\n  \"filters\": [\n    { \"field\": \"tags\", \"operator\": \"contains\", \"value\": \"new-lead-no-response\" }\n  ]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Set Workflow Defaults').first().json.GHL_API_TOKEN }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "5c39c3e4-d578-4aeb-b379-075907232b17",
+      "name": "Follow-Up Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Decides the right re-engagement approach per unresponsive lead. Its output feeds Route by Follow-Up Type.",
+      "position": [
+        -2912,
+        1216
+      ],
+      "parameters": {
+        "text": "=This lead has not responded since initial contact. Decide the best follow-up action.\n\nContact: {{ $json.contact?.firstName || $json.firstName }} {{ $json.contact?.lastName || $json.lastName }}\nPhone: {{ $json.contact?.phone || $json.phone }}\nDays since last contact: {{ $json.daysSinceLastContact || 'unknown' }}\nPrevious treatment interest: {{ $json.customField?.treatment_interest || 'unknown' }}",
+        "options": {
+          "systemMessage": "You are a follow-up strategist for a local dental/aesthetic practice. For each unresponsive lead, decide exactly one follow-up type:\n\n- Re-engage: the lead showed real interest but went quiet — worth a direct, personalized SMS/call attempt\n- Nurture: the lead is early-stage or low-urgency — worth a gentle informational email instead of a hard sell\n- Voice Call: the lead is high-value or previously expressed urgency — worth a live callback attempt\n- Default: use this only if none of the above clearly fits\n\nBase your decision on how much time has passed, the treatment interest, and any conversation history in memory. Do not fabricate details not present in the record."
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "15fdf30b-0d0a-4200-ad6b-e4c91c2746e3",
+      "name": "OpenAI GPT-4 Follow-Up",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "notes": "Language model backing the Follow-Up Agent.",
+      "position": [
+        -2912,
+        1424
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1-mini"
+        },
+        "options": {},
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "4ef8ef4b-a15e-4d75-bf97-188343c1fa2e",
+      "name": "Parse Follow-Up Results",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -2784,
+        1424
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"follow_up_type\": {\n      \"type\": \"string\",\n      \"enum\": [\n        \"Re-engage\",\n        \"Nurture\",\n        \"Voice Call\",\n        \"Default\"\n      ],\n      \"description\": \"The single best-fit follow-up action for this unresponsive lead\"\n    },\n    \"message_draft\": {\n      \"type\": \"string\",\n      \"description\": \"A short, ready-to-send SMS or email draft appropriate to the chosen follow_up_type\"\n    },\n    \"reasoning\": {\n      \"type\": \"string\",\n      \"description\": \"Brief explanation of why this follow-up type was chosen\"\n    }\n  },\n  \"required\": [\n    \"follow_up_type\",\n    \"message_draft\",\n    \"reasoning\"\n  ]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "748eddad-db90-493b-bbe9-e45eed726436",
+      "name": "Route by Follow-Up Type",
+      "type": "n8n-nodes-base.switch",
+      "notes": "FIX: Previously had broken always-true empty-string conditions AND zero outgoing connections (entire follow-up branch was dead code). Now routes on Follow-Up Agent's structured follow_up_type output, with a fallback (Default) branch for anything unmatched.",
+      "position": [
+        -2560,
+        1248
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Re-engage",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fu-cond-1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.follow_up_type || $json.follow_up_type }}",
+                    "rightValue": "Re-engage"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Nurture",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fu-cond-2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.follow_up_type || $json.follow_up_type }}",
+                    "rightValue": "Nurture"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "Voice Call",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "fu-cond-3",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.output?.follow_up_type || $json.follow_up_type }}",
+                    "rightValue": "Voice Call"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "2a91fced-c85e-4ba1-8dd6-18c76d05cfef",
+      "name": "Merge Leads from All Sources",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        -3152,
+        688
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "24c43c8f-4542-4232-861a-06e27bc7c49f",
+      "name": "When Report Scheduled",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -3360,
+        1776
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {}
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "096d6ae8-6bc5-4fd8-baa0-bad8cb25d803",
+      "name": "Fetch Performance Metrics",
+      "type": "n8n-nodes-base.postgres",
+      "notes": "Pulls the last 7 days of lead records from the leads table (populated by Log to Database) for weekly reporting.",
+      "position": [
+        -3136,
+        1776
+      ],
+      "parameters": {
+        "limit": 500,
+        "table": {
+          "__rl": true,
+          "mode": "list",
+          "value": "leads"
+        },
+        "where": {
+          "values": [
+            {
+              "value": "={{ $now.minus({days: 7}).toISO() }}",
+              "column": "created_at",
+              "condition": ">="
+            }
+          ]
+        },
+        "schema": {
+          "__rl": true,
+          "mode": "list",
+          "value": "public"
+        },
+        "options": {},
+        "operation": "select"
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "7eb1d11f-11b2-4a94-961f-cfc9077c0b1a",
+      "name": "Aggregate Metrics for Dashboard",
+      "type": "n8n-nodes-base.code",
+      "notes": "FIX: Was an empty Set node with no aggregation logic. Converted to a Code node that computes real totals, high-priority counts, category breakdown, and average score from the fetched rows.",
+      "position": [
+        -2912,
+        1776
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i => i.json);\n\nconst totalLeads = rows.length;\nconst highPriority = rows.filter(r => (r.lead_score || 0) >= 70).length;\n\nconst byCategory = {};\nfor (const r of rows) {\n  const cat = r.treatment_category || 'Unknown';\n  byCategory[cat] = (byCategory[cat] || 0) + 1;\n}\n\nconst avgScore = totalLeads > 0\n  ? Math.round(rows.reduce((sum, r) => sum + (r.lead_score || 0), 0) / totalLeads)\n  : 0;\n\nreturn [{\n  json: {\n    reportPeriod: 'Last 7 days',\n    generatedAt: new Date().toISOString(),\n    totalLeads,\n    highPriorityLeads: highPriority,\n    averageLeadScore: avgScore,\n    leadsByCategory: byCategory\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "53bab78b-141a-462a-bbab-1292a8057065",
+      "name": "Build Dashboard Report",
+      "type": "n8n-nodes-base.set",
+      "notes": "FIX: Was an empty Set node. Now formats the aggregated metrics into a real report title/body for posting to GHL and emailing to the team.",
+      "position": [
+        -2688,
+        1776
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "rpt-1",
+              "name": "reportTitle",
+              "type": "string",
+              "value": "=Weekly Lead Qualification Report — {{ $('Set Workflow Defaults').first().json.PRACTICE_NAME }}"
+            },
+            {
+              "id": "rpt-2",
+              "name": "reportBody",
+              "type": "string",
+              "value": "=Period: {{ $json.reportPeriod }}\nTotal Leads: {{ $json.totalLeads }}\nHigh-Priority Leads: {{ $json.highPriorityLeads }}\nAverage Lead Score: {{ $json.averageLeadScore }}\nBy Category: {{ JSON.stringify($json.leadsByCategory) }}"
+            },
+            {
+              "id": "rpt-3",
+              "name": "generatedAt",
+              "type": "string",
+              "value": "={{ $json.generatedAt }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "66449c9c-916f-4304-b4c4-6dd507280ffd",
+      "name": "Post Report to GHL Dashboard",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "FIX: Was an empty HTTP node. Posts the weekly report summary as a GHL note (adjust the endpoint to a real dashboard/reporting resource if your GHL setup has one).",
+      "position": [
+        -2464,
+        1696
+      ],
+      "parameters": {
+        "url": "={{ $('Set Workflow Defaults').first().json.GHL_API_BASE }}/notes/",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"locationId\": \"{{ $('Set Workflow Defaults').first().json.GHL_LOCATION_ID }}\",\n  \"body\": \"{{ $json.reportTitle }}\\n\\n{{ $json.reportBody }}\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Set Workflow Defaults').first().json.GHL_API_TOKEN }}"
+            },
+            {
+              "name": "Version",
+              "value": "2021-07-28"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "2dc1671b-5406-4e0f-b0f6-d3f10d80cc05",
+      "name": "Email Report to Team",
+      "type": "n8n-nodes-base.emailSend",
+      "notes": "FIX: Was an empty Email node (existing SMTP credentials preserved, not overwritten).",
+      "position": [
+        -2464,
+        1872
+      ],
+      "webhookId": "add65ae3-b676-4551-b890-17f84ce1f225",
+      "parameters": {
+        "text": "={{ $json.reportBody }}",
+        "options": {},
+        "subject": "={{ $json.reportTitle }}",
+        "toEmail": "={{ $('Set Workflow Defaults').first().json.DASHBOARD_EMAIL }}",
+        "fromEmail": "={{ $('Set Workflow Defaults').first().json.DASHBOARD_EMAIL }}",
+        "emailFormat": "text"
+      },
+      "credentials": {
+        "smtp": {
+          "id": "credential-id",
+          "name": "SMTP account"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "af86fa3b-ec07-4800-8e77-55f44197196d",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3952,
+        336
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 1950,
+        "content": "## Local Service Lead Qualification & Follow-Up Engine\n\n### How it works\n\nNew leads arrive through a website form webhook, an inbound SMS reply, or a Meta Lead Ad, and are merged into a single stream and normalized into a common record alongside workflow-wide configuration such as GoHighLevel credentials and score thresholds. An AI Lead Qualifier Agent scores and categorizes each lead using a knowledge base, calendar availability, a GHL sync tool, and a deterministic scoring function, then the lead is routed by treatment category and enriched with contact, pipeline, and custom field data from GoHighLevel. A priority check decides whether the lead gets an immediate high-touch response (SMS, voice call, calendar booking, Slack alert to the team) or a standard acknowledgement (email, database log, Facebook reply). On a recurring schedule, unresponsive leads are re-fetched from GHL and handed to a Follow-Up Agent that decides whether to re-engage, nurture, or attempt a voice callback, routing to the same outreach actions. A separate weekly schedule aggregates recent lead activity into a performance report delivered to GHL and the team's inbox.\n\n### Setup steps\n\n- Configure Set Workflow Defaults with your real practice name, GoHighLevel API base/token/location ID, Twilio number, Slack channel, Google Calendar ID, Pinecone index name, dashboard email, and scoring thresholds.\n- Add real credentials for OpenAI, Twilio, Slack, Google Calendar, Postgres, Facebook Lead Ads / Graph API, and Pinecone wherever a YOUR_*_CREDENTIAL_ID placeholder appears.\n- Replace the placeholder sub-workflow IDs on the Check Calendar Openings and Sync with GoHighLevel tool nodes with real sub-workflow IDs once those are built.\n- Set real page/form values on When Meta Lead Ad Received and confirm the Postgres leads table schema matches the fields written by Log to Database and read by Fetch Performance Metrics.\n- Review the system prompts on Lead Qualifier Agent and Follow-Up Agent, and adjust the message templates on the SMS/email/Slack/voice-call action nodes to match your practice's tone.\n\n### Customization\n\nAdjust lead scoring weights in Calculate Lead Score's code, change the routing categories in Route by Lead Treatment or Route by Follow-Up Type to match your service offerings, and edit Aggregate Metrics for Dashboard if you want different metrics in the weekly report."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a4c51fde-454d-4ebb-b5bb-784800b1c932",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3424,
+        336
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1116,
+        "height": 720,
+        "content": "## Capture leads from all channels\n\nLeads arrive from a website form webhook, an inbound SMS reply, or a Meta Lead Ad, are merged into one stream, and normalized into a common lead record alongside workflow-wide configuration."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3ec27658-bff6-4bdc-9e11-b51fe38e0791",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2224,
+        560
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1228,
+        "height": 672,
+        "content": "## AI lead qualification\n\nAn AI agent scores and categorizes each lead using a knowledge base, calendar and GHL tools, and a scoring function, with per-lead memory and a structured output parser."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ba5c0ecd-58d6-454b-8794-f29a1a7f1ae6",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -960,
+        480
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 880,
+        "height": 572,
+        "content": "## Route by treatment and enrich from GHL\n\nLeads are routed by treatment category, then enriched with contact, pipeline, and custom field data pulled from GoHighLevel, before a priority check decides urgency."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "371ecff0-4196-461c-95d8-36d920b5852e",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        48
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 572,
+        "height": 1392,
+        "content": "## Deliver outreach and follow-up actions\n\nDepending on lead priority and follow-up routing, this cluster sends the SMS, email, Facebook reply, voice call, Slack alert, calendar booking, or database log that closes the loop with the lead."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "601959ca-33f3-4e61-8339-32a12ecf485f",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3424,
+        1104
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1164,
+        "height": 480,
+        "content": "## Re-engage unresponsive leads\n\nOn a recurring schedule, unresponsive GHL leads are fetched and handed to a follow-up AI agent that decides whether to re-engage, nurture, or attempt a voice call."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dcff1b96-fee5-4ca1-ac10-37e8cde32c62",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3424,
+        1648
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1212,
+        "height": 416,
+        "content": "## Weekly performance reporting\n\nOn a weekly schedule, recent lead records are fetched from the database, aggregated into summary metrics, and delivered as a report to GHL and the team's inbox."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "61bffe0d-d10c-41e2-b441-48d61a141732",
+  "nodeGroups": [],
+  "connections": {
+    "Follow-Up Agent": {
+      "main": [
+        [
+          {
+            "node": "Route by Follow-Up Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Lead Data": {
+      "main": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Lead Results": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Lead Priority": {
+      "main": [
+        [
+          {
+            "node": "Initiate AI Voice Call",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post Alert to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calculate Lead Score": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lead Qualifier Agent": {
+      "main": [
+        [
+          {
+            "node": "Route by Lead Treatment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Access Knowledge Base": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "ai_tool",
+            "index": 0
+          },
+          {
+            "node": "Follow-Up Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat with GPT-4 Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Workflow Defaults": {
+      "main": [
+        [
+          {
+            "node": "Prepare Lead Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sync with GoHighLevel": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Report Scheduled": {
+      "main": [
+        [
+          {
+            "node": "Fetch Performance Metrics",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Dashboard Report": {
+      "main": [
+        [
+          {
+            "node": "Post Report to GHL Dashboard",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Report to Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GHL Contact Info": {
+      "main": [
+        [
+          {
+            "node": "Fetch GHL Pipeline Stage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OpenAI GPT-4 Follow-Up": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Follow-Up Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Calendar Openings": {
+      "ai_tool": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Follow-Up Results": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Follow-Up Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Follow-Up Type": {
+      "main": [
+        [
+          {
+            "node": "Send SMS via Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Send Email via SMTP",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Initiate AI Voice Call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post Alert to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Lead Treatment": {
+      "main": [
+        [
+          {
+            "node": "Fetch GHL Contact Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch GHL Contact Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch GHL Contact Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch GHL Contact Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch GHL Contact Info",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Fetch GHL Contact Info",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When SMS Reply Received": {
+      "main": [
+        [
+          {
+            "node": "Merge Leads from All Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fetch GHL Pipeline Stage": {
+      "main": [
+        [
+          {
+            "node": "Fetch GHL Custom Field Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Performance Metrics": {
+      "main": [
+        [
+          {
+            "node": "Aggregate Metrics for Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate OpenAI Embeddings": {
+      "ai_embedding": [
+        [
+          {
+            "node": "Access Knowledge Base",
+            "type": "ai_embedding",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Meta Lead Ad Received": {
+      "main": [
+        [
+          {
+            "node": "Merge Leads from All Sources",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "Capture Conversation Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "Lead Qualifier Agent",
+            "type": "ai_memory",
+            "index": 0
+          },
+          {
+            "node": "Follow-Up Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch GHL Custom Field Data": {
+      "main": [
+        [
+          {
+            "node": "Check Lead Priority",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send SMS via Twilio",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send Email via SMTP",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Schedule Meeting in Calendar",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log to Database",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Reply to Facebook DMs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Follow-Up Time Reached": {
+      "main": [
+        [
+          {
+            "node": "Fetch Unresponsive GHL Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Unresponsive GHL Leads": {
+      "main": [
+        [
+          {
+            "node": "Follow-Up Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Leads from All Sources": {
+      "main": [
+        [
+          {
+            "node": "Set Workflow Defaults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Lead Received via Webhook": {
+      "main": [
+        [
+          {
+            "node": "Merge Leads from All Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Metrics for Dashboard": {
+      "main": [
+        [
+          {
+            "node": "Build Dashboard Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

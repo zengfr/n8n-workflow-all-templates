@@ -1,4 +1,4 @@
-# trustpilot : 11
+# trustpilot : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |9985|[9985_Analyze_Trustpilot___Sitejabber_sentiment_with_Decodo___Gemini_to_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9985_Analyze_Trustpilot___Sitejabber_sentiment_with_Decodo___Gemini_to_Sheets.json)|
 |11410|[11410_Review_Aggregator_and_AI_Alerts_for_Google__Facebook__Trustpilot__and_Yelp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11410_Review_Aggregator_and_AI_Alerts_for_Google__Facebook__Trustpilot__and_Yelp.json)|
 |12654|[12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12654_Scrape_Trustpilot_reviews___with_ScrapegraphAI_and_OpenAI_Reputation_analysis.json)|
+|17054|[17054_Manage_Google_and_Trustpilot_reviews_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17054_Manage_Google_and_Trustpilot_reviews_with_OpenAI_and_Slack.json)|
+|17425|[17425_Monitor_competitor_Trustpilot_and_G2_reviews_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17425_Monitor_competitor_Trustpilot_and_G2_reviews_with_OpenAI_and_Slack.json)|

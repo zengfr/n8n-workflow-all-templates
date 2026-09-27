@@ -1,4 +1,4 @@
-# that : 22
+# that : 34
 
 |id|file|
 |----|----|
@@ -24,3 +24,15 @@
 |14369|[14369_Generate_IPL_post_match_and_weekly_email_analyses_with_GPT_4o__CricAPI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14369_Generate_IPL_post_match_and_weekly_email_analyses_with_GPT_4o__CricAPI_and_Gmail.json)|
 |14673|[14673_Send_scheduled_IELTS_grammar__writing_and_reading_practice_via_Telegram_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14673_Send_scheduled_IELTS_grammar__writing_and_reading_practice_via_Telegram_with_Gemini_AI.json)|
 |16400|[16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json)|
+|17219|[17219_Answer_customer_questions_on_WhatsApp_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17219_Answer_customer_questions_on_WhatsApp_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|17232|[17232_Triage_Gmail_and_draft_replies_with_GPT-5_Mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17232_Triage_Gmail_and_draft_replies_with_GPT-5_Mini_and_Google_Sheets.json)|
+|17234|[17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json)|
+|17516|[17516_Chat_with_a_research_assistant_using_Google_Gemini__Wikipedia__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17516_Chat_with_a_research_assistant_using_Google_Gemini__Wikipedia__and_Sheets.json)|
+|17607|[17607_Detect_Meta_Pixel_flatlines_with_Claude_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17607_Detect_Meta_Pixel_flatlines_with_Claude_and_Gmail_alerts.json)|
+|17658|[17658_Manage_CRM_leads_by_chat_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17658_Manage_CRM_leads_by_chat_with_Google_Gemini_and_Google_Sheets.json)|
+|17697|[17697_Qualify_Polish_public_tenders_with_Anthropic_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17697_Qualify_Polish_public_tenders_with_Anthropic_and_Telegram_alerts.json)|
+|18914|[18914_Monitor_empty_successful_workflows_via_the_n8n_API__Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18914_Monitor_empty_successful_workflows_via_the_n8n_API__Data_Tables_and_Slack.json)|
+|19346|[19346_Extract_PDF_report_tables_into_Google_Sheets_with_Gmail__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19346_Extract_PDF_report_tables_into_Google_Sheets_with_Gmail__OpenAI_and_Slack.json)|
+|19423|[19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json)|
+|19635|[19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json)|
+|19698|[19698_Audit_websites_from_Telegram_with_GPT-4o-mini_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19698_Audit_websites_from_Telegram_with_GPT-4o-mini_and_log_results_to_Google_Sheets.json)|

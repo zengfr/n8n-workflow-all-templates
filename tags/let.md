@@ -1,4 +1,4 @@
-# let : 7
+# let : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |5315|[5315_Let_AI_Agents_Run_Your_CRM_with_Copper_Tool_MCP_Server___all_32_operations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/53/5315_Let_AI_Agents_Run_Your_CRM_with_Copper_Tool_MCP_Server___all_32_operations.json)|
 |5320|[5320_Let_AI_Agents_manage_clients__tasks____Clockify_Tool_MCP_Server___all_operations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/53/5320_Let_AI_Agents_manage_clients__tasks____Clockify_Tool_MCP_Server___all_operations.json)|
 |7426|[7426_Auto-Respond_to_Slack_Messages_as_Yourself_using_GPT_and_Google_Docs_RAG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/74/7426_Auto-Respond_to_Slack_Messages_as_Yourself_using_GPT_and_Google_Docs_RAG.json)|
+|19347|[19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json)|

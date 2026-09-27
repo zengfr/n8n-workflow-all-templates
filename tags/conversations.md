@@ -1,4 +1,4 @@
-# conversations : 9
+# conversations : 13
 
 |id|file|
 |----|----|
@@ -11,3 +11,7 @@
 |13091|[13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13091_Store_AI_chat_conversations_with_OpenAI_GPT-4.1-mini_and_Pinecone.json)|
 |15784|[15784_Turn_Podium_conversations_into_a_full_CRM_with_Claude__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15784_Turn_Podium_conversations_into_a_full_CRM_with_Claude__Sheets_and_Gmail.json)|
 |15786|[15786_Bridge_Gmail_and_iMessage_with_Blooio_and_log_conversations_to_Close.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15786_Bridge_Gmail_and_iMessage_with_Blooio_and_log_conversations_to_Close.json)|
+|17284|[17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17284_Bridge_two-way_SMS_conversations_between_Android_and_Slack_with_Relayion.json)|
+|18453|[18453_Park_Help_Scout_retro-tagged_tickets_for_review_with_OpenAI_and_TeamRetro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18453_Park_Help_Scout_retro-tagged_tickets_for_review_with_OpenAI_and_TeamRetro.json)|
+|18546|[18546_Analyze_lost_deal_reasons_from_GoHighLevel_conversations_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18546_Analyze_lost_deal_reasons_from_GoHighLevel_conversations_with_Google_Gemini.json)|
+|18753|[18753_Sync_WhatsApp_conversations_to_GoHighLevel_notes_with_Wati_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18753_Sync_WhatsApp_conversations_to_GoHighLevel_notes_with_Wati_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# evaluate : 26
+# evaluate : 28
 
 |id|file|
 |----|----|
@@ -28,3 +28,5 @@
 |16530|[16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json)|
 |16570|[16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json)|
 |16596|[16596_Evaluate_vendor_proposal_PDFs_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16596_Evaluate_vendor_proposal_PDFs_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|17626|[17626_Evaluate_KYB_risk_scores_from_Google_Sheets_with_Ambriel_and_save_reports_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17626_Evaluate_KYB_risk_scores_from_Google_Sheets_with_Ambriel_and_save_reports_to_Google_Drive.json)|
+|19711|[19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json)|

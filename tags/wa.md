@@ -1,4 +1,4 @@
-# wa : 7
+# wa : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |3653|[3653_Collect_WhatsApp_questionnaire_responses_in_Postgres__Module__Anketa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/36/3653_Collect_WhatsApp_questionnaire_responses_in_Postgres__Module__Anketa.json)|
 |5853|[5853_Manage_Google_Calendar_Events_via_WhatsApp_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5853_Manage_Google_Calendar_Events_via_WhatsApp_with_Gemini_AI.json)|
 |5855|[5855_WhatsApp_Appointment_Scheduling_with_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/58/5855_WhatsApp_Appointment_Scheduling_with_Google_Calendar.json)|
+|17159|[17159_Handle_WhatsApp_customer_service_chats_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17159_Handle_WhatsApp_customer_service_chats_with_Google_Gemini_and_Google_Sheets.json)|

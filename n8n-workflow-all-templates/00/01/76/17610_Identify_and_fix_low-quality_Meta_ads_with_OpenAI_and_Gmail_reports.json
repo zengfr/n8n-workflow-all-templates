@@ -1,0 +1,376 @@
+{
+  "id": "adbe2c4e3e47afc2",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Identify and fix low-quality Meta ads with OpenAI and Gmail reports",
+    "wechat": "youandme10086",
+    "id": 17610,
+    "update_time": "2026-09-27"
+  },
+  "name": "Find Meta ads with below-average quality rankings and fix them with OpenAI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3e9d8435b91452f5",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -400,
+        128
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cf2444d06728e9b4",
+      "name": "Set config: quality digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -160,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Below-average quality-ranking digest - tune here.\nreturn [{ json: {\n  DATE_PRESET: 'last_7d',   // MUST be a short window: quality_ranking\n                          // returns UNKNOWN on last_30d, verified on a\n                          // 465-ad account incl. ads with 550k impressions\n  MIN_SPEND: 20,   // only flag ads that spent at least this\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "df31ba9fba2f9660",
+      "name": "Fetch ad quality rankings (Meta)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        80,
+        128
+      ],
+      "parameters": {
+        "url": "=https://graph.facebook.com/{{ $env.META_API_VERSION || 'v21.0' }}/{{ $env.META_AD_ACCOUNT_ID }}/insights",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $env.META_ACCESS_TOKEN }}"
+            },
+            {
+              "name": "level",
+              "value": "ad"
+            },
+            {
+              "name": "date_preset",
+              "value": "={{ $('Set config: quality digest').first().json.DATE_PRESET }}"
+            },
+            {
+              "name": "fields",
+              "value": "ad_name,campaign_name,adset_name,spend,impressions,quality_ranking,engagement_rate_ranking,conversion_rate_ranking"
+            },
+            {
+              "name": "limit",
+              "value": "500"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "527b5fc45e7a507b",
+      "name": "Flag below-average ads",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        128
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Set config: quality digest').first().json;\nconst rows = $json.data || [];\nconst isLow = (v) => typeof v === 'string' && v.indexOf('BELOW_AVERAGE') === 0;\nconst flagged = [];\nfor (const r of rows) {\n  const spend = Number(r.spend)||0;\n  if (spend < cfg.MIN_SPEND) continue;\n  const low = [];\n  if (isLow(r.quality_ranking)) low.push('quality');\n  if (isLow(r.engagement_rate_ranking)) low.push('engagement');\n  if (isLow(r.conversion_rate_ranking)) low.push('conversion');\n  if (!low.length) continue;\n  flagged.push({ ad: r.ad_name, campaign: r.campaign_name, adset: r.adset_name, spend:+spend.toFixed(2),\n    quality: r.quality_ranking||'UNKNOWN', engagement: r.engagement_rate_ranking||'UNKNOWN', conversion: r.conversion_rate_ranking||'UNKNOWN', below_on: low });\n}\nflagged.sort((a,b)=> b.spend-a.spend);\nreturn [{ json: { date_preset: cfg.DATE_PRESET, flagged_count: flagged.length, spend_at_risk: +flagged.reduce((n,f)=>n+f.spend,0).toFixed(2), flagged } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6347b60ff2f976e7",
+      "name": "Build AI quality prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        624,
+        128
+      ],
+      "parameters": {
+        "jsCode": "const d = $json;\nconst system = 'You are a Meta creative strategist. Meta rates each ad below/average/above average on quality, engagement-rate and conversion-rate ranking. Below-average quality points to the creative, engagement to the hook/relevance, conversion to the offer/landing page. For each flagged ad give the most likely lever and one fix. Be terse. Return ONLY valid JSON, no prose, no markdown fences.';\nconst user = 'Ads spending with a below-average ranking (worst-spend first):\\n' + JSON.stringify(d.flagged.slice(0,20)) + '\\n\\nReturn JSON exactly: {\"summary\":\"one sentence\",\"fixes\":[{\"ad\":\"\",\"below_on\":\"\",\"lever\":\"\",\"fix\":\"\"}]}';\nconst body = { model:'gpt-4o-mini', max_tokens:3000, response_format:{type:'json_object'},\n  messages:[{role:'system',content:system},{role:'user',content:user}] };\nreturn [{ json: { body, _ctx: d } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3262fecc9839803e",
+      "name": "Explain quality fixes with OpenAI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        880,
+        128
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $env.OPENAI_API_KEY }}"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fb57e12abfb2221f",
+      "name": "Print quality digest report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1312,
+        128
+      ],
+      "parameters": {
+        "jsCode": "const ctx = $('Build AI quality prompt').first().json._ctx || {};\nfunction aiJson(fallback){ const t=($json.choices&&$json.choices[0]&&$json.choices[0].message&&$json.choices[0].message.content)||''; let s=String(t).trim().replace(/^```(?:json)?/i,'').replace(/```$/,'').trim(); try{return JSON.parse(s)}catch(e){} const m=s.match(/\\{[\\s\\S]*\\}/); if(m){try{return JSON.parse(m[0])}catch(e){}} return fallback; }\nconst ai = aiJson({ summary:'AI response could not be parsed.', fixes:[] });\nconst lines=[];\nlines.push('META QUALITY-RANKING DIGEST (' + (ctx.date_preset||'') + ')');\nlines.push('Below-average ads: ' + (ctx.flagged_count||0) + ' | Spend at risk: $' + (ctx.spend_at_risk||0));\nlines.push('');\nlines.push(ai.summary||'');\nfor (const f of (ai.fixes||[])) { lines.push('- ' + f.ad + ' [' + f.below_on + ' -> ' + (f.lever||'') + ']'); if (f.fix) lines.push('    ' + f.fix); }\nreturn [{ json: { report: lines.join('\\n'), context: ctx, ai } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "46c3f9405c460a72",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1776,
+        -304
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 712,
+        "content": "## Meta Below-Average Quality-Ranking Digest\n\nSurfaces the ads Meta is quietly penalising. Meta scores every ad below/average/above average on quality, engagement-rate and conversion-rate ranking; below average means higher costs and less reach. This finds them and tells you which lever to pull.\n\n### How it works\n- Pulls ad-level insights with the three Meta ranking diagnostics from the Marketing API.\n- Flags ads spending over a floor that are below average on any ranking.\n- Maps each ranking to its lever: quality to creative, engagement to hook, conversion to offer or landing page.\n- OpenAI gives a specific fix per ad, worst-spend first.\n\n### Setup\n1. Add to your environment: META_ACCESS_TOKEN, META_AD_ACCOUNT_ID, META_API_VERSION, OPENAI_API_KEY.\n2. Run with the manual trigger, or attach a Schedule trigger for a weekly digest.\n\n### Customization\nIn the Config node, tune MIN_SPEND. Swap the report node for a Slack or email node. (Keep DATE_PRESET short. Meta only populates the three rankings on a recent rolling window, so last_30d returns UNKNOWN for every ad regardless of spend or impressions. last_7d is the safe default.)\n\nBuilt by **nocode.expert** - done-for-you automation & tracking.\n\nFull walkthrough of this workflow: https://nocode.expert/resources/n8n-meta-ads-quality-ranking-automation"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d78aa29c9a01430",
+      "name": "Sticky Note - Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        16,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 472,
+        "height": 380,
+        "content": "## 1. Fetch rankings\nPull ad-level quality, engagement and conversion rankings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b8b4e657856c4cf7",
+      "name": "Sticky Note - Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 380,
+        "content": "## 2. Flag below-average\nFind ads below average, then OpenAI gives a fix per ad."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "faeaeae044f66ffc",
+      "name": "Sticky Note - Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1168,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 380,
+        "content": "## 3. Report\nPrint the digest (swap for Slack/email)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "47939dc8335a4c0b",
+      "name": "Optional: run this weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "disabled": true,
+      "position": [
+        -368,
+        592
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "47b5945c12544191",
+      "name": "Optional: log flagged ads to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "disabled": true,
+      "position": [
+        -128,
+        608
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "93ef7a37fe1c4d55",
+      "name": "Sticky Note - Optional add-ons",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -416,
+        464
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 60,
+        "content": "## Optional add-ons (not wired up)\n\nLeft disconnected so you can plug in only what you need.\n\n- **Run this weekly** - quality ranking moves slowly and the default window is 30 days, so weekly is the right cadence. Swap this in for the manual trigger.\n- **Log flagged ads to Google Sheets** - connect after the report node. This is the one that pays off: a ranking is only useful once you can see whether last week's creative fix actually moved it.\n- **Email the digest via Outlook** - connect after the report node to send rather than read in the editor.\n\nNone are required. The workflow runs end to end from the manual trigger with all three disconnected."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "adf33bca-b9c9-4835-8820-c08a7ba3adc3",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1520,
+        128
+      ],
+      "webhookId": "c3b9dadc-502f-4495-a394-db580614529e",
+      "parameters": {
+        "message": "={{ $json.report }}",
+        "options": {}
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "41a403dc-af76-4f59-99be-a2a13b1ba8ab",
+  "nodeGroups": [],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Set config: quality digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flag below-average ads": {
+      "main": [
+        [
+          {
+            "node": "Build AI quality prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI quality prompt": {
+      "main": [
+        [
+          {
+            "node": "Explain quality fixes with OpenAI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config: quality digest": {
+      "main": [
+        [
+          {
+            "node": "Fetch ad quality rankings (Meta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Print quality digest report": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch ad quality rankings (Meta)": {
+      "main": [
+        [
+          {
+            "node": "Flag below-average ads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Explain quality fixes with OpenAI": {
+      "main": [
+        [
+          {
+            "node": "Print quality digest report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

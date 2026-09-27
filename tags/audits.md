@@ -1,4 +1,4 @@
-# audits : 10
+# audits : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |14227|[14227_Send_AI_website_audits_with_GPT-4.1_and_Gmail_as_a_lead_magnet.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14227_Send_AI_website_audits_with_GPT-4.1_and_Gmail_as_a_lead_magnet.json)|
 |15252|[15252_Run_automated_SEO_audits_with_Screaming_Frog_CLI__PageSpeed__PDF_and_Excel_fixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15252_Run_automated_SEO_audits_with_Screaming_Frog_CLI__PageSpeed__PDF_and_Excel_fixes.json)|
 |16164|[16164_Run_weekly_security_audits_via_the_n8n_API__Data_Tables__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16164_Run_weekly_security_audits_via_the_n8n_API__Data_Tables__and_Telegram.json)|
+|17752|[17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json)|
+|19698|[19698_Audit_websites_from_Telegram_with_GPT-4o-mini_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19698_Audit_websites_from_Telegram_with_GPT-4o-mini_and_log_results_to_Google_Sheets.json)|

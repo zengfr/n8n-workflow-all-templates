@@ -1,4 +1,4 @@
-# storage : 70
+# storage : 71
 
 |id|file|
 |----|----|
@@ -72,3 +72,4 @@
 |14274|[14274_Upload_documents_with_validation__deduplication_and_Postgres_storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14274_Upload_documents_with_validation__deduplication_and_Postgres_storage.json)|
 |14301|[14301_Modify_Liveblocks_storage_with_JSON_Patch_and_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14301_Modify_Liveblocks_storage_with_JSON_Patch_and_Anthropic_Claude.json)|
 |16313|[16313_Generate_and_store_Supabase_images_with_Claude_and_Cloudflare_Workers_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16313_Generate_and_store_Supabase_images_with_Claude_and_Cloudflare_Workers_AI.json)|
+|17563|[17563_Sync_Supabase_Storage_files_into_a_chat_agent_with_Supabase_vectors_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17563_Sync_Supabase_Storage_files_into_a_chat_agent_with_Supabase_vectors_and_OpenAI.json)|

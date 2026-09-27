@@ -1,0 +1,675 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Moderate WhatsApp groups, block link spam, and auto-welcome members with Wafly",
+    "wechat": "youandme10086",
+    "id": 19206,
+    "update_time": "2026-09-27"
+  },
+  "name": "Protect WhatsApp groups from link spam with strikes and auto-removal",
+  "nodes": [
+    {
+      "id": "sticky-description",
+      "name": "Template description",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1180,
+        0
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1900,
+        "content": "[![Workflow overview](https://raw.githubusercontent.com/iagovelasco3/n8n-nodes-wafly/main/assets/template-previews/05-moderate-whatsapp-group.png)](https://wafly.io/signup?utm_source=n8n&utm_medium=workflow_template&utm_campaign=group_moderation&utm_content=workflow_preview)\n\n## Protect WhatsApp groups with deduplication, allowlists and repeat-offender strikes\n\n> **Community node - self-hosted n8n only.** This template uses `n8n-nodes-wafly`, which cannot be installed on n8n Cloud.\n\n### Who's it for\n\nPaid communities, customer groups and class cohorts where admins need more than a one-rule link filter. The workflow is designed for noisy webhook delivery and applies the same policy consistently across join requests, welcome events and group messages.\n\n### What makes it production-oriented\n\n- Rejects malformed events and suppresses webhook retries for a configurable window.\n- Normalizes phone numbers and domains before comparing them.\n- Exempts admins and exact or subdomain matches from moderation.\n- Deletes disallowed links, explains the action and records time-bounded strikes.\n- Can remove repeat offenders after a configurable threshold; escalation is disabled by default for safety.\n- Keeps every policy value in one Config node.\n\n### Safety model\n\nStart with `removeRepeatOffenders = false`. Verify the allowlist and admin list with real group events, inspect n8n executions, and only then enable automatic removal. Duplicate suppression and strikes use workflow static data, so test them with an active workflow rather than manual executions.\n\n### Requirements\n\nSelf-hosted n8n, `n8n-nodes-wafly` 1.5.5+, a Wafly account, and the connected number promoted to group admin."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-setup",
+      "name": "Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -620,
+        0
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 560,
+        "height": 1900,
+        "content": "## Setup and rollout\n\n1. Create a **Wafly API** credential (Client-Token, instance, token). The connected number must be a **group admin**.\n2. In **Config**, replace the example admin phones and domains. Keep country codes and omit `+`.\n3. Choose the policy:\n   - `duplicateWindowSeconds`: ignores repeated webhook deliveries.\n   - `strikeWindowMinutes`: how long a strike remains active.\n   - `strikeLimit`: threshold for escalation.\n   - `removeRepeatOffenders`: keep `false` during validation; set `true` only after checking executions.\n4. Activate the workflow, copy the Webhook **Production URL** and register it once:\n\n```\ncurl -X PUT \\\n  \"https://wafly.com.br/api-bridge-whats/instances/YOUR_INSTANCE/token/YOUR_TOKEN/update-webhook-received\" \\\n  -H \"Client-Token: YOUR_CLIENT_TOKEN\" \\\n  -H \"Content-Type: application/json\" \\\n  -d '{\"value\":\"PASTE_THE_PRODUCTION_URL\"}'\n```\n\n### Test plan\n\nSend an allowed link as a member, a blocked link as an admin, then a blocked link as a normal member. Replay the last payload to confirm deduplication. Finally lower `strikeLimit` in a test group and enable removal to validate escalation.\n\nEvents used:\n- `MEMBERSHIP_APPROVAL_REQUEST` -> approve pending member\n- `GROUP_PARTICIPANT_INVITE` -> welcome new member\n- group message with text -> evaluate links and policy"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "webhook-group",
+      "name": "Wafly Group Events",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        400
+      ],
+      "webhookId": "REPLACE_WEBHOOK_ID",
+      "parameters": {
+        "path": "wafly-group-events",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "onReceived"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "config",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "adminPhones",
+              "type": "string",
+              "value": "5511999999999,5511888888888"
+            },
+            {
+              "id": "a2",
+              "name": "allowedDomains",
+              "type": "string",
+              "value": "wafly.com.br,youtube.com"
+            },
+            {
+              "id": "a3",
+              "name": "duplicateWindowSeconds",
+              "type": "number",
+              "value": 300
+            },
+            {
+              "id": "a4",
+              "name": "strikeWindowMinutes",
+              "type": "number",
+              "value": 1440
+            },
+            {
+              "id": "a5",
+              "name": "strikeLimit",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "a6",
+              "name": "removeRepeatOffenders",
+              "type": "boolean",
+              "value": false
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "code-validate",
+      "name": "Validate and deduplicate event",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        400
+      ],
+      "parameters": {
+        "jsCode": "// Webhook providers may retry the same event. Validate the minimum shape and\n// keep a short-lived idempotency key so one message cannot create two strikes.\nconst now = Date.now();\nconst store = $getWorkflowStaticData('global');\nstore.recentEvents ??= {};\n\nconst out = [];\nfor (const item of $input.all()) {\n  const b = item.json.body;\n  const validBody = b && typeof b === 'object' && !Array.isArray(b);\n  const isKnownEvent = validBody && (\n    typeof b.notification === 'string' ||\n    (b.isGroup === true && typeof b.text?.message === 'string')\n  );\n\n  const ttlMs = Math.max(1, Number(item.json.duplicateWindowSeconds || 300)) * 1000;\n  for (const [key, seenAt] of Object.entries(store.recentEvents)) {\n    if (now - Number(seenAt) > ttlMs) delete store.recentEvents[key];\n  }\n\n  const rawKey = validBody\n    ? (b.messageId || [b.notification, b.phone, b.group_jid, b.participantPhone, b.momment].filter(Boolean).join(':'))\n    : '';\n  const eventKey = String(rawKey || '').trim();\n  const duplicate = Boolean(eventKey && store.recentEvents[eventKey]);\n  if (eventKey && !duplicate) store.recentEvents[eventKey] = now;\n\n  out.push({\n    json: {\n      ...item.json,\n      processEvent: isKnownEvent && !duplicate,\n      validationStatus: !isKnownEvent ? 'invalid_event' : duplicate ? 'duplicate_event' : 'accepted',\n      eventKey,\n    },\n  });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-process",
+      "name": "Process this event?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        740,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "process",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.processEvent }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "noop-ignored",
+      "name": "Ignored duplicate or invalid event",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        980,
+        600
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "switch-event",
+      "name": "Which event is it?",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        980,
+        400
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "join_request",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.body.notification }}",
+                    "rightValue": "MEMBERSHIP_APPROVAL_REQUEST"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "joined",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r2",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.body.notification }}",
+                    "rightValue": "GROUP_PARTICIPANT_INVITE"
+                  }
+                ]
+              },
+              "renameOutput": true
+            },
+            {
+              "outputKey": "group_message",
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "r3a",
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.body.isGroup }}",
+                    "rightValue": ""
+                  },
+                  {
+                    "id": "r3b",
+                    "operator": {
+                      "type": "string",
+                      "operation": "notEmpty",
+                      "singleValue": true
+                    },
+                    "leftValue": "={{ $json.body.text?.message }}",
+                    "rightValue": ""
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "wafly-approve",
+      "name": "Approve join request",
+      "type": "n8n-nodes-wafly.wafly",
+      "maxTries": 3,
+      "position": [
+        1240,
+        80
+      ],
+      "parameters": {
+        "phones": "={{ $json.body.participantPhone }}",
+        "groupId": "={{ $json.body.group_jid }}",
+        "resource": "group",
+        "operation": "approveParticipant"
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "wafly-welcome",
+      "name": "Welcome the new member",
+      "type": "n8n-nodes-wafly.wafly",
+      "maxTries": 3,
+      "position": [
+        1240,
+        400
+      ],
+      "parameters": {
+        "phone": "={{ $json.body.phone }}",
+        "message": "=Welcome, {{ $json.body.notificationParameters?.[0] || 'friend' }}! Please read the group description before posting. Promotional links that were not cleared with the moderators are removed automatically.",
+        "resource": "message",
+        "operation": "sendText"
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "code-detect",
+      "name": "Detect link spam",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1240,
+        720
+      ],
+      "parameters": {
+        "jsCode": "// Detect disallowed URLs while avoiding common allowlist bypasses.\nconst out = [];\nfor (const item of $input.all()) {\n  const b = item.json.body || {};\n  const text = String(b.text?.message || '');\n  const sender = String(b.participantPhone || b.senderPhone || '').replace(/\\D/g, '');\n\n  const admins = String(item.json.adminPhones || '')\n    .split(',').map((p) => p.replace(/\\D/g, '')).filter(Boolean);\n  const allowed = String(item.json.allowedDomains || '')\n    .split(',')\n    .map((d) => d.trim().toLowerCase().replace(/^www\\./, ''))\n    .filter(Boolean);\n\n  const urls = text.match(/(?:https?:\\/\\/|www\\.)[^\\s<>()]+|chat\\.whatsapp\\.com\\/[^\\s<>()]+/gi) || [];\n  const cleaned = urls.map((u) => u.replace(/[.,!?;:)\\]}]+$/g, ''));\n  const offending = cleaned.filter((url) => {\n    const candidate = /^https?:\\/\\//i.test(url) ? url : `https://${url}`;\n    try {\n      const host = new URL(candidate).hostname.toLowerCase().replace(/^www\\./, '');\n      return !allowed.some((domain) => host === domain || host.endsWith(`.${domain}`));\n    } catch {\n      return true;\n    }\n  });\n\n  const isAdmin = admins.includes(sender);\n  out.push({\n    json: {\n      shouldModerate: offending.length > 0 && !isAdmin,\n      groupId: b.phone || b.group_jid,\n      messageId: b.messageId,\n      offender: sender,\n      offendingUrls: offending,\n      decision: isAdmin ? 'admin_bypass' : offending.length ? 'blocked_domain' : 'allowed',\n      strikeWindowMinutes: item.json.strikeWindowMinutes,\n      strikeLimit: item.json.strikeLimit,\n      removeRepeatOffenders: item.json.removeRepeatOffenders,\n    },\n  });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if-moderate",
+      "name": "Moderate?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1500,
+        720
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "mod",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.shouldModerate }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "code-strike",
+      "name": "Record time-bounded strike",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1760,
+        640
+      ],
+      "parameters": {
+        "jsCode": "// Keep a per-group, per-sender strike window in workflow static data.\n// Static data persists when the workflow is active; manual test runs may not persist it.\nconst now = Date.now();\nconst store = $getWorkflowStaticData('global');\nstore.moderationStrikes ??= {};\n\nreturn $input.all().map((item) => {\n  const key = `${item.json.groupId}:${item.json.offender}`;\n  const windowMs = Math.max(1, Number(item.json.strikeWindowMinutes || 1440)) * 60 * 1000;\n  const previous = Array.isArray(store.moderationStrikes[key]) ? store.moderationStrikes[key] : [];\n  const active = previous.map(Number).filter((time) => now - time <= windowMs);\n  active.push(now);\n  store.moderationStrikes[key] = active;\n\n  const strikeLimit = Math.max(1, Number(item.json.strikeLimit || 3));\n  return {\n    json: {\n      ...item.json,\n      strikeCount: active.length,\n      strikeLimit,\n      removeParticipant: item.json.removeRepeatOffenders === true && active.length >= strikeLimit,\n    },\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "wafly-delete",
+      "name": "Delete blocked message",
+      "type": "n8n-nodes-wafly.wafly",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        2020,
+        640
+      ],
+      "parameters": {
+        "phone": "={{ $json.groupId }}",
+        "resource": "message",
+        "messageId": "={{ $json.messageId }}",
+        "operation": "deleteMessage"
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "wafly-notify",
+      "name": "Tell the group why",
+      "type": "n8n-nodes-wafly.wafly",
+      "onError": "continueRegularOutput",
+      "position": [
+        2280,
+        640
+      ],
+      "parameters": {
+        "phone": "={{ $('Detect link spam').item.json.groupId }}",
+        "message": "=Removed a disallowed link posted by +{{ $('Detect link spam').item.json.offender }}. Strike {{ $('Record time-bounded strike').item.json.strikeCount }}/{{ $('Record time-bounded strike').item.json.strikeLimit }}. Group rule: links only with moderator approval.",
+        "resource": "message",
+        "operation": "sendText"
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "if-remove-repeat",
+      "name": "Remove repeat offender?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2540,
+        640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "remove",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Record time-bounded strike').item.json.removeParticipant }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "wafly-remove-repeat",
+      "name": "Remove repeat offender",
+      "type": "n8n-nodes-wafly.wafly",
+      "maxTries": 2,
+      "position": [
+        2800,
+        560
+      ],
+      "parameters": {
+        "phones": "={{ $('Record time-bounded strike').item.json.offender }}",
+        "groupId": "={{ $('Record time-bounded strike').item.json.groupId }}",
+        "resource": "group",
+        "operation": "removeParticipant"
+      },
+      "credentials": {
+        "waflyApi": {
+          "id": "REPLACE_WAFLY_CREDENTIAL_ID",
+          "name": "Wafly account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "noop-warning-only",
+      "name": "Warning only",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2800,
+        760
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "noop-ok",
+      "name": "Legitimate message",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1760,
+        900
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Validate and deduplicate event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Moderate?": {
+      "main": [
+        [
+          {
+            "node": "Record time-bounded strike",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Legitimate message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect link spam": {
+      "main": [
+        [
+          {
+            "node": "Moderate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell the group why": {
+      "main": [
+        [
+          {
+            "node": "Remove repeat offender?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wafly Group Events": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Which event is it?": {
+      "main": [
+        [
+          {
+            "node": "Approve join request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Welcome the new member",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Detect link spam",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process this event?": {
+      "main": [
+        [
+          {
+            "node": "Which event is it?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Ignored duplicate or invalid event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Delete blocked message": {
+      "main": [
+        [
+          {
+            "node": "Tell the group why",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Remove repeat offender?": {
+      "main": [
+        [
+          {
+            "node": "Remove repeat offender",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Warning only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record time-bounded strike": {
+      "main": [
+        [
+          {
+            "node": "Delete blocked message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate and deduplicate event": {
+      "main": [
+        [
+          {
+            "node": "Process this event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

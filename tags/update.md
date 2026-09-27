@@ -1,4 +1,4 @@
-# update : 131
+# update : 136
 
 |id|file|
 |----|----|
@@ -133,3 +133,8 @@
 |16294|[16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json)|
 |16522|[16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json)|
 |16566|[16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16566_Transcribe_and_analyze_sales_meetings_with_Deepgram__Gemini__GHL__Slack___Gmail.json)|
+|17731|[17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17731_Auto-update_Docker_containers_on_new_image_digests_with_Docker_API.json)|
+|18065|[18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18065_Update_sales_CRM_and_tasks_from_Gmail_with_Google_Gemini_and_Google_Sheets.json)|
+|18424|[18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18424_Reprice_WooCommerce_products_using_Amazon_data__Bright_Data__OpenAI_and_Slack.json)|
+|18722|[18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json)|
+|19020|[19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json)|

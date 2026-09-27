@@ -1,4 +1,4 @@
-# complete : 50
+# complete : 56
 
 |id|file|
 |----|----|
@@ -52,3 +52,9 @@
 |11734|[11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11734_Generate_Complete_Social_Media_Campaigns_with_DALL_E__GPT-4o_and_Slack_Approval.json)|
 |13245|[13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13245_Back_up_n8n_workflows_to_Google_Drive_while_preserving_folder_structure.json)|
 |13984|[13984_AI-Powered_WhatsApp_Chatbot_____Complete_Booking_Assistant_with_Gemini___Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13984_AI-Powered_WhatsApp_Chatbot_____Complete_Booking_Assistant_with_Gemini___Google.json)|
+|16910|[16910_Generate_structured_drama_scripts_from_webhook_requests_using_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16910_Generate_structured_drama_scripts_from_webhook_requests_using_OpenAI_and_Google_Sheets.json)|
+|17196|[17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json)|
+|17382|[17382_Complete_Google_Tasks_from_GitHub_commits_with_Gemini__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17382_Complete_Google_Tasks_from_GitHub_commits_with_Gemini__Slack__and_Sheets.json)|
+|17527|[17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json)|
+|18302|[18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18302_Manage_student_portal_registration__profiles__feedback_and_CGPA_with_Supabase__Gmail__Groq_and_Mistral.json)|
+|18801|[18801_Generate__score__and_send_B2B_leads_with_Google_Places__Airtable__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18801_Generate__score__and_send_B2B_leads_with_Google_Places__Airtable__and_email.json)|

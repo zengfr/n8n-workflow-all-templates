@@ -1,4 +1,4 @@
-# visual : 27
+# visual : 33
 
 |id|file|
 |----|----|
@@ -29,3 +29,9 @@
 |13825|[13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13825_Generate_visual_diagrams_and_content_assets_from_ideas_with_Claude_and_NapkinAI.json)|
 |15883|[15883_Extract_TikTok_reaction_hooks_with_RenderIO_scene_detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15883_Extract_TikTok_reaction_hooks_with_RenderIO_scene_detection.json)|
 |16632|[16632_Detect_visual_regressions_with_Apify__Google_Gemini__Sheets_and_Linear.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16632_Detect_visual_regressions_with_Apify__Google_Gemini__Sheets_and_Linear.json)|
+|17570|[17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17570_Generate_AI_images_from_form_inputs_with_Claude_Sonnet_and_Google_Gemini.json)|
+|17746|[17746_Publish_AI-written_LinkedIn_posts_with_OpenAI_GPT-5_mini_and_Canvora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17746_Publish_AI-written_LinkedIn_posts_with_OpenAI_GPT-5_mini_and_Canvora.json)|
+|17972|[17972_Inspect_product_quality_from_Telegram_photos_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17972_Inspect_product_quality_from_Telegram_photos_with_Google_Sheets_and_Gemini.json)|
+|18133|[18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18133_Report_post-deploy_visual_regressions_with_Snapshot_Site__Slack__and_GitHub.json)|
+|18933|[18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18933_Annotate_video_scripts_with_DeepSeek__Kie.ai__Google_Sheets_and_Google_Drive.json)|
+|19070|[19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19070_Monitor_website_uptime_and_visual_drift_with_Snapshot_Site__Google_Sheets_and_Slack.json)|

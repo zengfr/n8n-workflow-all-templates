@@ -1,4 +1,4 @@
-# decision : 15
+# decision : 19
 
 |id|file|
 |----|----|
@@ -17,3 +17,7 @@
 |16343|[16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json)|
 |16345|[16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16345_Find_ICP-matched_companies_or_decision-makers_with_Agent_Jesse.json)|
 |16415|[16415_Identify_company_decision_makers_with_Coresignal_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16415_Identify_company_decision_makers_with_Coresignal_and_Google_Sheets.json)|
+|17038|[17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json)|
+|18128|[18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json)|
+|18293|[18293_Enrich_Google_Sheets_domains_with_verified_decision_makers_via_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18293_Enrich_Google_Sheets_domains_with_verified_decision_makers_via_Apify.json)|
+|18748|[18748_Review_contract_clauses_against_your_playbook_with_Google_Drive_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18748_Review_contract_clauses_against_your_playbook_with_Google_Drive_and_Claude.json)|

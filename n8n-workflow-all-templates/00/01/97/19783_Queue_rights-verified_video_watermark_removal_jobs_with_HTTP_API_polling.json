@@ -1,0 +1,450 @@
+{
+  "name": "Queue rights-verified video watermark cleanup jobs with bounded status polling",
+  "nodes": [
+    {
+      "id": "0f25d05b-b639-4ef3-a64d-31565c05375d",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "d14f1b7b-d27b-4a57-a1c8-67844e9875bc",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        250,
+        0
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\"mode\": \"demo\", \"providerBaseUrl\": \"https://api.example.com/v1/watermark-removal\", \"allowPaidProcessing\": false, \"jobs\": [{\"jobId\": \"wm-demo-001\", \"videoUrl\": \"https://example.com/owned-demo.mp4\", \"rightsConfirmed\": true, \"rightsReference\": \"internal-asset-register-001\", \"keepAudio\": true, \"regions\": [{\"startSeconds\": 0, \"endSeconds\": 8, \"x\": 0.72, \"y\": 0.04, \"width\": 0.24, \"height\": 0.14}]}]}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "62bedb75-a446-4af6-b796-92adc030f628",
+      "name": "Validate rights and removal regions",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        500,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const c=$input.first().json;if(!['demo','live'].includes(c.mode))throw Error('mode must be demo or live');if(c.mode==='live'&&c.allowPaidProcessing!==true)throw Error('Set allowPaidProcessing=true after reviewing provider cost');if(c.mode==='live'&&!/^https:\\/\\/[a-z0-9.-]+(?:\\/[a-zA-Z0-9._~:/?#[\\]@!$&'()*+,;=%-]*)?$/.test(c.providerBaseUrl))throw Error('Use an HTTPS provider URL');if(!Array.isArray(c.jobs)||c.jobs.length<1||c.jobs.length>5)throw Error('Use 1-5 jobs');const seen=new Set();for(const j of c.jobs){if(!/^[a-z0-9_-]{1,64}$/i.test(j.jobId)||seen.has(j.jobId))throw Error('Unique safe jobId required');seen.add(j.jobId);if(j.rightsConfirmed!==true||typeof j.rightsReference!=='string'||j.rightsReference.trim().length<6)throw Error('Ownership or permission evidence is required');if(!/^https:\\/\\//.test(j.videoUrl))throw Error('videoUrl must use HTTPS');if(!Array.isArray(j.regions)||j.regions.length<1||j.regions.length>8)throw Error('Use 1-8 removal regions');for(const r of j.regions){for(const k of ['startSeconds','endSeconds','x','y','width','height'])if(!Number.isFinite(r[k]))throw Error('Region values must be numeric');if(r.startSeconds<0||r.endSeconds<=r.startSeconds||r.endSeconds-r.startSeconds>600)throw Error('Invalid region time range');for(const k of ['x','y','width','height'])if(r[k]<0||r[k]>1)throw Error('Region coordinates use 0-1 ratios');if(r.x+r.width>1||r.y+r.height>1)throw Error('Region exceeds frame bounds');}}return [{json:c}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b48595d6-d2dd-46fd-8b5b-037f15f93ccc",
+      "name": "Build provider requests",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        750,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const c=$input.first().json;return c.jobs.map(j=>({json:{jobId:j.jobId,idempotencyKey:'watermark-'+j.jobId,rightsReference:j.rightsReference,mode:c.mode,request:{videoUrl:j.videoUrl,keepAudio:j.keepAudio!==false,regions:j.regions,metadata:{rightsConfirmed:true,rightsReference:j.rightsReference}}},pairedItem:{item:0}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1aa87011-67a8-4be9-8585-c5f8cbd99fbf",
+      "name": "Use offline demo fixtures",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e62cb1e6-e30f-47e0-ae7b-e6af481c708c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.mode === 'demo' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7fa5f51a-b162-4525-868b-b2a787601edb",
+      "name": "Simulate accepted and completed job",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1250,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((item,n)=>({json:{...item.json,providerJobId:'demo-'+item.json.jobId,state:'completed',httpStatus:200,attempt:1,lastBody:{status:'completed'},resultUrl:'https://example.com/demo-output.mp4'},pairedItem:{item:n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bcde66d1-2d21-4116-9e06-1daaba7aa343",
+      "name": "Submit each approved job once",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1500,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $(\"Configuration\").first().json.providerBaseUrl + \"/jobs\" }}",
+        "method": "POST",
+        "options": {
+          "timeout": 60000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.request) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Idempotency-Key",
+              "value": "={{ $json.idempotencyKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "52e01163-d637-45bd-b9c4-bd7d7db85737",
+      "name": "Classify submit response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1750,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const inputs=$input.all(),requests=$('Build provider requests').all();return inputs.map((item,n)=>{const r=requests[n].json,status=Number(item.json.statusCode||0),body=item.json.body||{};let state='unknown';if(status===200||status===201||status===202)state=body.jobId?'queued':'invalid_response';else if(status>=400&&status<500)state='rejected';else if(status>=500)state='provider_error';return {json:{...r,providerJobId:body.jobId||null,state,httpStatus:status,attempt:0,lastBody:body,warning:state==='unknown'||state==='provider_error'?'Check provider billing before retrying; POST retries are disabled.':null},pairedItem:{item:n}};});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "9447cf82-3d72-4bb3-8c7f-b563f67ef01a",
+      "name": "Queued for bounded polling",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2000,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a164d4c1-05cf-4125-adf0-fcd0f7a5b095",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.state === 'queued' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "24006f86-dddd-4e01-8b95-7ef5caa0158e",
+      "name": "Wait before status check",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2250,
+        0
+      ],
+      "parameters": {
+        "unit": "seconds",
+        "amount": 15
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "e3407757-361a-4069-8a36-e9058d50707f",
+      "name": "Read job status",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        2500,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $(\"Configuration\").first().json.providerBaseUrl + \"/jobs/\" + $json.providerJobId }}",
+        "method": "GET",
+        "options": {
+          "timeout": 30000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "71540616-559a-48ee-ae36-e9da5ff5e4b6",
+      "name": "Merge poll result and cap attempts",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2750,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const inputs=$input.all(),prior=$('Classify submit response').all();return inputs.map((item,n)=>{const p=prior[n].json,body=item.json.body||{},status=Number(item.json.statusCode||0),attempt=(p.attempt||0)+1;let state=p.state;if(status>=200&&status<300){if(body.status==='completed')state='completed';else if(body.status==='failed')state='failed';else state='processing';}else if(status>=400&&status<500)state='status_rejected';else state='status_unknown';if(attempt>=4&&state==='processing')state='manual_followup';return {json:{...p,state,attempt,lastBody:body,resultUrl:state==='completed'&&typeof body.resultUrl==='string'?body.resultUrl:null},pairedItem:{item:n}};});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4c89148f-6f2c-41c7-9407-fd4cc145f83e",
+      "name": "Create audit manifest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3000,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((item,n)=>({json:{jobId:item.json.jobId,providerJobId:item.json.providerJobId,state:item.json.state,attempts:item.json.attempt,resultUrl:item.json.resultUrl||null,rightsReference:item.json.rightsReference,createdAt:new Date().toISOString(),notice:'Review the output and rights record before publishing. This workflow does not publish automatically.'},pairedItem:{item:n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2fa0af20-cebc-4195-af61-23ac52f43903",
+      "name": "Overview and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -1200
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 1100,
+        "height": 1100,
+        "content": "## Purpose\nQueue up to five watermark-cleanup jobs only after ownership or editing permission has been recorded. Every job carries normalized frame regions, an idempotency key, a rights reference, bounded status polling and a final audit manifest. It is designed for lawful cleanup of the user's own or licensed footage, not removal of third-party ownership marks.\n\n## Setup\nThe default demo is offline and produces a completed fixture without credentials or network calls. For live use, replace providerBaseUrl with your authorized processing API, configure n8n Header Auth on both HTTP nodes, review its request/response contract and set allowPaidProcessing to true. Keep secrets in n8n credentials. The expected API accepts POST /jobs and returns jobId, then GET /jobs/{jobId} with processing, completed or failed plus an optional resultUrl.\n\n## Safety and recovery\nEach job needs rightsConfirmed=true and a meaningful rightsReference. One to eight time-bounded rectangular regions use 0-1 frame ratios and are rejected if they cross frame boundaries. POST retries are disabled to avoid duplicate charges. Polling is capped; unknown or provider-error outcomes require checking the provider dashboard before retrying. The workflow never downloads, republishes or deletes media automatically.\n\n## Output\nThe final node emits one audit record per job with provider ID, terminal state, attempts, result URL and rights evidence reference. Review cleaned footage frame-by-frame and confirm that licensed logos, credits or attribution required by contract remain intact before publishing.\n\n## Attribution\nCreated by Shisan Hua, who works on [Video Watermark Remover](https://videowatermarkremover.org/). The template uses a generic authorized provider contract and does not claim a public Video Watermark Remover API."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Validate rights and removal regions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read job status": {
+      "main": [
+        [
+          {
+            "node": "Merge poll result and cap attempts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build provider requests": {
+      "main": [
+        [
+          {
+            "node": "Use offline demo fixtures",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify submit response": {
+      "main": [
+        [
+          {
+            "node": "Queued for bounded polling",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait before status check": {
+      "main": [
+        [
+          {
+            "node": "Read job status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Use offline demo fixtures": {
+      "main": [
+        [
+          {
+            "node": "Simulate accepted and completed job",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Submit each approved job once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Queued for bounded polling": {
+      "main": [
+        [
+          {
+            "node": "Wait before status check",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create audit manifest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit each approved job once": {
+      "main": [
+        [
+          {
+            "node": "Classify submit response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge poll result and cap attempts": {
+      "main": [
+        [
+          {
+            "node": "Create audit manifest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Simulate accepted and completed job": {
+      "main": [
+        [
+          {
+            "node": "Create audit manifest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate rights and removal regions": {
+      "main": [
+        [
+          {
+            "node": "Build provider requests",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Queue rights-verified video watermark removal jobs with HTTP API polling",
+    "wechat": "youandme10086",
+    "id": 19783,
+    "update_time": "2026-09-27"
+  }
+}

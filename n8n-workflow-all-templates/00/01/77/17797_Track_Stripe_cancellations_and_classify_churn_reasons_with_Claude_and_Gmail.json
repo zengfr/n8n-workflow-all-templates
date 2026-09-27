@@ -1,0 +1,590 @@
+{
+  "id": "tSJbpvriVjXmZyeE",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Track Stripe cancellations and classify churn reasons with Claude and Gmail",
+    "wechat": "youandme10086",
+    "id": 17797,
+    "update_time": "2026-09-27"
+  },
+  "name": "Ask why customers cancelled in Stripe and categorise the answer",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1232,
+        -96
+      ],
+      "parameters": {
+        "width": 764,
+        "height": 784,
+        "content": "## Ask why on every cancellation, and keep the answer\n\nCancellations are the one moment a customer will tell you the truth, and almost nobody asks. This fires on the Stripe cancellation, asks one question, sorts the answer into a category you can count, and tells you when the reply is worth a human response.\n\n### How it works\nTwo triggers sit in one workflow. The Stripe trigger fires on a cancelled subscription, looks up the customer for their email, and reads Stripe's own cancellation details, because someone who cancelled through the billing portal has often already given a reason. When they have, no survey is sent. When they have not, they get one short email with a single question and a link to the form. The form trigger catches the reply and builds the same record, so both paths meet at one place. One AI call sorts it into a fixed set of categories, decides whether it was preventable and whether a reply is worth trying, and writes one next step. You get an email flagged by urgency, and a row lands in your churn sheet so the categories add up over time.\n\n### Setup\n- Edit the config node: brand, sender name, who to notify.\n- Open the Form Trigger, copy its production URL and paste it into the config so the email can link to it.\n- Add credentials: Stripe, Anthropic on the analysis node, Gmail, and Google Sheets pointed at your churn log.\n\n### Customization\nRoute save-worth-trying replies to Slack, add a discount offer to the ask email, or branch on account value so only larger accounts get a personal follow-up.\n\nBuilt by **nocode.expert**, done-for-you automation and AI workflows. https://nocode.expert/resources/churn-exit-survey-automation"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section-cancel",
+      "name": "Section: cancel",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        64,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 204,
+        "content": "## 1. Catch the cancellation\nStripe often already holds a reason when the customer cancelled through the billing portal. If it does, do not send a survey asking again."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section-ask",
+      "name": "Section: ask",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        512,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 204,
+        "content": "## 2. Ask once, briefly\nOne question, one click, no login. The email says the cancellation is already done, so it does not read as a retention trap."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section-analyse",
+      "name": "Section: analyse",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        928,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 204,
+        "content": "## 3. Sort the answer\nA fixed set of categories so the numbers add up over months. The model never infers a reason nobody gave."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "section-act",
+      "name": "Section: act",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        96
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 380,
+        "height": 204,
+        "content": "## 4. Flag what is worth a reply\nMost cancellations need no response. The email leads with whether this one does."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "on-subscription-cancelled",
+      "name": "On subscription cancelled",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "position": [
+        0,
+        464
+      ],
+      "webhookId": "192e04a4-d0a2-4aeb-888f-c01c4cc8894e",
+      "parameters": {
+        "events": [
+          "customer.subscription.deleted"
+        ]
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "look-up-the-customer",
+      "name": "Look up the customer",
+      "type": "n8n-nodes-base.stripe",
+      "position": [
+        208,
+        464
+      ],
+      "parameters": {
+        "resource": "customer",
+        "customerId": "={{ ($json.body || $json).data.object.customer }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "read-the-cancellation",
+      "name": "Read the cancellation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        400,
+        464
+      ],
+      "parameters": {
+        "jsCode": "// Stripe sends the subscription, and the customer arrives from the node before this one.\nconst ev = $json.body || $json;\nconst sub = (ev.data && ev.data.object) || ev.object || ev;\n\nlet customer = {};\ntry { customer = $('Look up the customer').first().json || {}; } catch (e) {}\n\nconst price = ((sub.items && sub.items.data && sub.items.data[0]) || {}).price || {};\nconst minor = Number(price.unit_amount || 0);\nconst currency = String(price.currency || 'usd').toUpperCase();\nconst zeroDecimal = ['JPY','KRW','VND','CLP','ISK','UGX','XAF','XOF','BIF','DJF','GNF','KMF','MGA','PYG','RWF','VUV','XPF'];\nconst amount = zeroDecimal.includes(currency) ? minor : minor / 100;\n\nconst started = Number(sub.start_date || sub.created || 0) * 1000;\nconst tenureDays = started ? Math.max(0, Math.floor((Date.now() - started) / 86400000)) : null;\n\n// Stripe captures a reason itself when the customer cancels through the billing portal.\n// When it did, there is nothing to ask and sending a survey would be irritating.\nconst cd = sub.cancellation_details || {};\nconst feedbackMap = {\n  too_expensive: 'Too expensive',\n  missing_features: 'Missing a feature I needed',\n  switched_service: 'Switched to something else',\n  unused: 'No longer need it',\n  too_complex: 'It was harder to use than expected',\n  low_quality: 'Quality was not good enough',\n  customer_service: 'Customer service',\n  other: 'Something else',\n};\nconst stripeReason = [feedbackMap[cd.feedback] || '', String(cd.comment || '')].filter(Boolean).join('. ');\n\nreturn [{ json: {\n  source: 'stripe',\n  email: String(customer.email || sub.customer_email || '').trim(),\n  name: String(customer.name || '').trim(),\n  customerId: typeof sub.customer === 'string' ? sub.customer : ((sub.customer && sub.customer.id) || ''),\n  subscriptionId: sub.id || '',\n  plan: (price.nickname || (price.recurring && price.recurring.interval) || 'unknown'),\n  amount,\n  currency,\n  mrr: (price.recurring && price.recurring.interval === 'year') ? Math.round((amount / 12) * 100) / 100 : amount,\n  tenureDays,\n  cancelledAt: new Date().toISOString().slice(0, 10),\n  reasonText: stripeReason,\n  hasReason: !!stripeReason,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "exit-survey-form",
+      "name": "Exit survey form",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        208,
+        704
+      ],
+      "webhookId": "f1b83667-1637-45b3-bfb1-7afa8013998c",
+      "parameters": {
+        "options": {},
+        "formTitle": "Sorry to see you go",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "email",
+              "fieldLabel": "Your email",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "What made you cancel",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Too expensive"
+                  },
+                  {
+                    "option": "Missing a feature I needed"
+                  },
+                  {
+                    "option": "Switched to something else"
+                  },
+                  {
+                    "option": "No longer need it"
+                  },
+                  {
+                    "option": "It was harder to use than expected"
+                  },
+                  {
+                    "option": "Only ever needed it temporarily"
+                  },
+                  {
+                    "option": "Something else"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Anything you want to add"
+            }
+          ]
+        },
+        "formDescription": "Your cancellation is already done. This is one question, and it genuinely shapes what we build next."
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "read-the-survey-response",
+      "name": "Read the survey response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        400,
+        704
+      ],
+      "parameters": {
+        "jsCode": "// The same record shape, built from the form answers instead.\nconst raw = $json;\nconst pick = (...labels) => {\n  for (const l of labels) {\n    for (const k of Object.keys(raw)) {\n      if (k.toLowerCase().trim() === l.toLowerCase()) {\n        const v = raw[k];\n        if (v !== undefined && v !== null && String(v).trim() !== '') return String(v).trim();\n      }\n    }\n  }\n  return '';\n};\n\nconst choice = pick('What made you cancel');\nconst detail = pick('Anything you want to add');\n\nreturn [{ json: {\n  source: 'survey',\n  email: pick('Your email'),\n  name: '',\n  customerId: '',\n  subscriptionId: '',\n  plan: 'unknown',\n  amount: null,\n  currency: '',\n  mrr: null,\n  tenureDays: null,\n  cancelledAt: new Date().toISOString().slice(0, 10),\n  reasonText: [choice, detail].filter(Boolean).join('. '),\n  hasReason: !!(choice || detail),\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "normalize-the-churn-record",
+      "name": "Normalize the churn record",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        624,
+        560
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "set-config-brand-survey-link-and-recipient",
+      "name": "Set config: brand, survey link and recipient",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        800,
+        560
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "brandName",
+              "type": "string",
+              "value": "YOUR BRAND"
+            },
+            {
+              "id": "a2",
+              "name": "fromName",
+              "type": "string",
+              "value": "YOUR NAME"
+            },
+            {
+              "id": "a3",
+              "name": "surveyUrl",
+              "type": "string",
+              "value": "YOUR_FORM_TRIGGER_PRODUCTION_URL"
+            },
+            {
+              "id": "a4",
+              "name": "notifyTo",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "a5",
+              "name": "model",
+              "type": "string",
+              "value": "claude-haiku-4-5"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "do-we-already-know-why",
+      "name": "Do we already know why",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        992,
+        560
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "i1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.hasReason }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "write-the-one-question-email",
+      "name": "Write the one question email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1184,
+        768
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Set config: brand, survey link and recipient').first().json;\nconst r = $json;\nconst hi = r.name ? 'Hi ' + r.name.split(' ')[0] + ',' : 'Hi,';\n\nconst body = [\n  hi,\n  '',\n  'Your ' + cfg.brandName + ' subscription has been cancelled, and that is all done. Nothing else to do.',\n  '',\n  'One question, if you have ten seconds: what made you cancel? It is a single click and it genuinely changes what we build next.',\n  '',\n  cfg.surveyUrl,\n  '',\n  'Thanks either way,',\n  cfg.fromName,\n].join('\\n');\n\nreturn [{ json: { ...r, askSubject: 'One question about your cancellation', askBody: body } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ask-why-they-left",
+      "name": "Ask why they left",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1360,
+        768
+      ],
+      "webhookId": "5e819ac3-b54b-4a1e-afb1-8d9cbe58e666",
+      "parameters": {
+        "sendTo": "={{ $json.email }}",
+        "message": "={{ $json.askBody }}",
+        "options": {},
+        "subject": "={{ $json.askSubject }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "build-the-analysis-request",
+      "name": "Build the analysis request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1184,
+        432
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Set config: brand, survey link and recipient').first().json;\nconst r = $json;\nconst categories = ['too_expensive','missing_feature','switched_to_competitor','no_longer_needed','too_hard_to_use','temporary_need','service_quality','other'];\nconst schema = { type: 'object', additionalProperties: false,\n  required: ['category','preventable','save_worth_trying','summary','suggested_action'], properties: {\n    category: { type: 'string', enum: categories },\n    preventable: { type: 'boolean' },\n    save_worth_trying: { type: 'boolean' },\n    summary: { type: 'string' },\n    suggested_action: { type: 'string' } } };\n\nconst system = 'You categorise cancellation reasons for ' + cfg.brandName + '. Work only from what the ' +\n  'customer actually said. Never infer a reason they did not give: if the text is empty or says nothing ' +\n  'useful, use category other and say so in the summary. preventable is true only when the company could ' +\n  'plausibly have changed the outcome, so pricing, missing features and usability are preventable while ' +\n  'a genuinely temporary need or a business closing is not. save_worth_trying is about whether a human ' +\n  'reaching out now is likely to help, not about how much the account was worth. suggested_action is one ' +\n  'concrete sentence aimed at the company, not at the customer. Keep summary under 25 words. ' +\n  'Do not use em dashes.';\n\nconst user = [\n  'WHAT THEY SAID: ' + (r.reasonText || '(nothing)'),\n  'HOW WE GOT IT: ' + (r.source === 'stripe' ? 'Stripe billing portal at cancellation' : 'exit survey reply'),\n  r.plan && r.plan !== 'unknown' ? 'PLAN: ' + r.plan : '',\n  r.mrr ? 'MONTHLY VALUE: ' + r.mrr + ' ' + r.currency : '',\n  r.tenureDays !== null && r.tenureDays !== undefined ? 'THEY WERE A CUSTOMER FOR ' + r.tenureDays + ' DAYS' : '',\n].filter(Boolean).join('\\n');\n\nreturn [{ json: { body: {\n  model: cfg.model, max_tokens: 700, system,\n  messages: [{ role: 'user', content: user }],\n  output_config: { format: { type: 'json_schema', schema } },\n} } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "categorise-the-reason-with-claude",
+      "name": "Categorise the reason with Claude",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1360,
+        432
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json.body) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "write-the-churn-note",
+      "name": "Write the churn note",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        432
+      ],
+      "parameters": {
+        "jsCode": "// The config node runs with includeOtherFields, so its output carries the churn record too.\n// Reading both from one place means this node does not care which trigger fired.\nconst cfg = $('Set config: brand, survey link and recipient').first().json;\nconst r = cfg;\nconst blocks = ($json.content || []);\nconst text = (blocks.find((b) => b.type === 'text') || {}).text || '{}';\n\nlet a = {};\ntry { a = JSON.parse(text) || {}; } catch (e) {}\n\nconst category = a.category || 'other';\nconst pretty = category.replace(/_/g, ' ');\n\n// Never lose the churn record because the model misbehaved.\nconst summary = a.summary || (r.reasonText ? r.reasonText.slice(0, 140) : 'No reason was given.');\n\nconst flag = a.save_worth_trying ? 'WORTH A REPLY' : (a.preventable ? 'PREVENTABLE' : 'FYI');\nconst subject = '[' + flag + '] Cancelled: ' + pretty + (r.email ? ' (' + r.email + ')' : '');\n\nconst body = [\n  summary,\n  '',\n  'WHAT THEY SAID',\n  '  ' + (r.reasonText || '(nothing given)'),\n  '',\n  'THE ACCOUNT',\n  '  Customer:  ' + (r.name || r.email || 'unknown'),\n  r.mrr ? '  Value:     ' + r.mrr + ' ' + r.currency + ' per month' : '',\n  r.tenureDays !== null && r.tenureDays !== undefined ? '  Tenure:    ' + r.tenureDays + ' days' : '',\n  '  Source:    ' + (r.source === 'stripe' ? 'Stripe billing portal' : 'exit survey'),\n  '',\n  'READ',\n  '  Category:    ' + pretty,\n  '  Preventable: ' + (a.preventable ? 'yes' : 'no'),\n  a.suggested_action ? '  Do this:     ' + a.suggested_action : '',\n].filter((l) => l !== '').join('\\n');\n\nreturn [{ json: {\n  subject, body,\n  notifyTo: cfg.notifyTo,\n  date: r.cancelledAt,\n  email: r.email,\n  plan: r.plan,\n  mrr: r.mrr,\n  tenure_days: r.tenureDays,\n  category,\n  preventable: !!a.preventable,\n  save_worth_trying: !!a.save_worth_trying,\n  reason_text: r.reasonText,\n  suggested_action: a.suggested_action || '',\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "email-you-the-reason",
+      "name": "Email you the reason",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1728,
+        320
+      ],
+      "webhookId": "17e0b367-893b-4029-ad7a-188fc655c3da",
+      "parameters": {
+        "sendTo": "={{ $json.notifyTo }}",
+        "message": "={{ $json.body }}",
+        "options": {},
+        "subject": "={{ $json.subject }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "log-it-to-the-churn-sheet",
+      "name": "Log it to the churn sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1728,
+        528
+      ],
+      "parameters": {
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "cb8673be-f191-4c24-9fcf-aea523a8fe65",
+  "nodeGroups": [],
+  "connections": {
+    "Exit survey form": {
+      "main": [
+        [
+          {
+            "node": "Read the survey response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look up the customer": {
+      "main": [
+        [
+          {
+            "node": "Read the cancellation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the churn note": {
+      "main": [
+        [
+          {
+            "node": "Email you the reason",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log it to the churn sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the cancellation": {
+      "main": [
+        [
+          {
+            "node": "Normalize the churn record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Do we already know why": {
+      "main": [
+        [
+          {
+            "node": "Build the analysis request",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Write the one question email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the survey response": {
+      "main": [
+        [
+          {
+            "node": "Normalize the churn record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "On subscription cancelled": {
+      "main": [
+        [
+          {
+            "node": "Look up the customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build the analysis request": {
+      "main": [
+        [
+          {
+            "node": "Categorise the reason with Claude",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize the churn record": {
+      "main": [
+        [
+          {
+            "node": "Set config: brand, survey link and recipient",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the one question email": {
+      "main": [
+        [
+          {
+            "node": "Ask why they left",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Categorise the reason with Claude": {
+      "main": [
+        [
+          {
+            "node": "Write the churn note",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config: brand, survey link and recipient": {
+      "main": [
+        [
+          {
+            "node": "Do we already know why",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

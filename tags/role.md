@@ -1,4 +1,4 @@
-# role : 6
+# role : 11
 
 |id|file|
 |----|----|
@@ -8,3 +8,8 @@
 |7699|[7699_Daily_Applicant_Digest_by_Role_with_Gemini_AI_Extraction_for_Hiring_Managers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/76/7699_Daily_Applicant_Digest_by_Role_with_Gemini_AI_Extraction_for_Hiring_Managers.json)|
 |10171|[10171_Role-Based_Access_Control__RBAC__for_Telegram_Automations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/01/10171_Role-Based_Access_Control__RBAC__for_Telegram_Automations.json)|
 |14087|[14087_Gate_AI_Slack_DevOps_bot_actions_with_OpenAI_and_Permit.io_RBAC.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14087_Gate_AI_Slack_DevOps_bot_actions_with_OpenAI_and_Permit.io_RBAC.json)|
+|18234|[18234_Track_job_skill_demand_and_pay_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18234_Track_job_skill_demand_and_pay_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|
+|19195|[19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json)|
+|19288|[19288_Track_role_skill_trends_from_Google_Jobs_with_SerpApi__Claude_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19288_Track_role_skill_trends_from_Google_Jobs_with_SerpApi__Claude_and_Sheets.json)|
+|19731|[19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19731_Rank_engineering_candidates_by_role_fit_with_weighted_scoring_in_Judgment.json)|
+|19836|[19836_Find_relevant_US_job_listings_by_role_and_location_with_Jobright_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19836_Find_relevant_US_job_listings_by_role_and_location_with_Jobright_forms.json)|

@@ -1,4 +1,4 @@
-# agile : 8
+# agile : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |8102|[8102_Agile_Project_Generator_with_ClickUp_Task_Hierarchy_using_GPT-5___Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8102_Agile_Project_Generator_with_ClickUp_Task_Hierarchy_using_GPT-5___Forms.json)|
 |13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|
 |13602|[13602_Create_sprint_goals_from_Google_Sheets_with_Pega_Agile_Studio_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13602_Create_sprint_goals_from_Google_Sheets_with_Pega_Agile_Studio_and_Google_Gemini.json)|
+|18075|[18075_Generate_agile_project_plan_PDFs_from_proposals_with_Claude_and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18075_Generate_agile_project_plan_PDFs_from_proposals_with_Claude_and_SharePoint.json)|

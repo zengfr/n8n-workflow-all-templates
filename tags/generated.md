@@ -1,4 +1,4 @@
-# generated : 56
+# generated : 63
 
 |id|file|
 |----|----|
@@ -58,3 +58,10 @@
 |14545|[14545_Detect__Analyze_and_Humanize________AI-generated_text_using_Rephrasy.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14545_Detect__Analyze_and_Humanize________AI-generated_text_using_Rephrasy.json)|
 |15364|[15364_Post_daily_AI-generated_Instagram_images_from_Google_Sheets_with_GPT-4.1_Nano_and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15364_Post_daily_AI-generated_Instagram_images_from_Google_Sheets_with_GPT-4.1_Nano_and_Google_Gemini.json)|
 |15676|[15676_Generate_service_quotes_with_GPT-4.1-mini__Telegram_approval_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15676_Generate_service_quotes_with_GPT-4.1-mini__Telegram_approval_and_Gmail.json)|
+|17291|[17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json)|
+|17528|[17528_Track_supplier_compliance_and_send_AI-generated_alerts_with_Notion__Groq__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17528_Track_supplier_compliance_and_send_AI-generated_alerts_with_Notion__Groq__Gmail_and_Slack.json)|
+|18015|[18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18015_Design_and_apply_Gmail_label_systems_with_OpenAI_and_human_approval.json)|
+|18689|[18689_Publish_approved_LinkedIn_carousels_with_Claude__Gemini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18689_Publish_approved_LinkedIn_carousels_with_Claude__Gemini__Gmail_and_Google_Sheets.json)|
+|18985|[18985_Send_a_daily_digest_of_popular_MemoTune_AI_songs_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18985_Send_a_daily_digest_of_popular_MemoTune_AI_songs_to_Slack.json)|
+|19455|[19455_Send_AI-generated_WordPress_newsletters_using_OpenAI_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19455_Send_AI-generated_WordPress_newsletters_using_OpenAI_and_SMTP.json)|
+|19797|[19797_Label_AI-generated_content_for_EU_AI_Act_compliance_with_Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19797_Label_AI-generated_content_for_EU_AI_Act_compliance_with_Slack_and_Postgres.json)|

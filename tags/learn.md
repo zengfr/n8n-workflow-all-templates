@@ -1,4 +1,4 @@
-# learn : 18
+# learn : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |8258|[8258_Learn_Secure_Webhook_APIs_with_Authentication_and_Supabase_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8258_Learn_Secure_Webhook_APIs_with_Authentication_and_Supabase_Integration.json)|
 |8527|[8527_Learn_n8n_Basics_in_3_Easy_Steps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8527_Learn_n8n_Basics_in_3_Easy_Steps.json)|
 |11235|[11235_Learn_How_to_use_Binary_Data_in_n8n__Video_Included.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/12/11235_Learn_How_to_use_Binary_Data_in_n8n__Video_Included.json)|
+|17371|[17371_Send_daily_AI-personalized_inspirational_quotes_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17371_Send_daily_AI-personalized_inspirational_quotes_with_OpenAI_and_Gmail.json)|

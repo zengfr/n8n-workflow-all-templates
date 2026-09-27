@@ -1,4 +1,4 @@
-# interviews : 11
+# interviews : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
 |14546|[14546_Generate_Financial_Risk_Reports___from_ElevenLabs_interviews___using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14546_Generate_Financial_Risk_Reports___from_ElevenLabs_interviews___using_OpenAI.json)|
 |15620|[15620_Screen_and_schedule_recruitment_interviews_on_WhatsApp_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15620_Screen_and_schedule_recruitment_interviews_on_WhatsApp_with_OpenAI.json)|
+|18212|[18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json)|
+|19777|[19777_Qualify_inbound_candidate_replies_and_book_interviews_with_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19777_Qualify_inbound_candidate_replies_and_book_interviews_with_Retell_and_Google_Calendar.json)|

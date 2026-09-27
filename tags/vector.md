@@ -1,4 +1,4 @@
-# vector : 90
+# vector : 95
 
 |id|file|
 |----|----|
@@ -92,3 +92,8 @@
 |16050|[16050_Sync_OpenAI_vector_stores_from_Google_Sheets_with_Drive_and_AWS_S3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16050_Sync_OpenAI_vector_stores_from_Google_Sheets_with_Drive_and_AWS_S3.json)|
 |16528|[16528_Ingest_and_search_Cloudflare_R2_media_with_Gemini__Groq_Whisper__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16528_Ingest_and_search_Cloudflare_R2_media_with_Gemini__Groq_Whisper__and_Supabase.json)|
 |16540|[16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json)|
+|16835|[16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json)|
+|17628|[17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17628_Sync_and_audit_template_vectors_with_Ollama_embeddings_and_Qdrant.json)|
+|17730|[17730_Answer_document_questions_via_webhook_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17730_Answer_document_questions_via_webhook_with_Anthropic_Claude.json)|
+|17948|[17948_Alert_crop_scouts_to_wind-driven_pest_threats_with_GBIF__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17948_Alert_crop_scouts_to_wind-driven_pest_threats_with_GBIF__Gemini__and_Slack.json)|
+|18614|[18614_Sync_documentation_vectors_from_GitHub_with_Ollama_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18614_Sync_documentation_vectors_from_GitHub_with_Ollama_and_Qdrant.json)|

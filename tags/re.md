@@ -1,4 +1,4 @@
-# re : 17
+# re : 23
 
 |id|file|
 |----|----|
@@ -19,3 +19,9 @@
 |16371|[16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json)|
 |16423|[16423_Send_re-engagement_emails_to_inactive_users_with_Supabase__Claude_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16423_Send_re-engagement_emails_to_inactive_users_with_Supabase__Claude_and_SMTP.json)|
 |16533|[16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json)|
+|16858|[16858_Re-engage_dormant_real_estate_leads_with_Google_Sheets__Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16858_Re-engage_dormant_real_estate_leads_with_Google_Sheets__Gemini_and_Gmail.json)|
+|17122|[17122_Draft_and_stage_LinkedIn_re-engagements_with_HeyReach__Twain__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17122_Draft_and_stage_LinkedIn_re-engagements_with_HeyReach__Twain__and_Slack.json)|
+|17320|[17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17320_Re-render_product_images_and_auto-tag_VNTANA_3D_assets_with_Gemini.json)|
+|18121|[18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json)|
+|18544|[18544_Send_weekly_client_re-engagement_emails_with_Gmail__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18544_Send_weekly_client_re-engagement_emails_with_Gmail__Google_Sheets__and_Slack.json)|
+|19072|[19072_Find_and_track_flaky_CI_jobs_in_GitHub_Actions_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19072_Find_and_track_flaky_CI_jobs_in_GitHub_Actions_with_OpenAI_and_Slack.json)|

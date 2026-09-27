@@ -1,4 +1,4 @@
-# coingecko : 26
+# coingecko : 30
 
 |id|file|
 |----|----|
@@ -28,3 +28,7 @@
 |15562|[15562_Send_hourly_cryptocurrency_price_summaries_to_Telegram_with_CoinGecko.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15562_Send_hourly_cryptocurrency_price_summaries_to_Telegram_with_CoinGecko.json)|
 |15978|[15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15978_Expose_CoinGecko_crypto_data_tools_via_an_MCP_server_trigger.json)|
 |16061|[16061_Send_crypto_price_alerts__daily_digests_and__price_replies_with_CoinGecko__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16061_Send_crypto_price_alerts__daily_digests_and__price_replies_with_CoinGecko__Telegram_and_Sheets.json)|
+|17738|[17738_Track_crypto_price_crashes_with_CoinGecko__Marketaux__Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17738_Track_crypto_price_crashes_with_CoinGecko__Marketaux__Google_Gemini_and_Slack.json)|
+|18151|[18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json)|
+|18804|[18804_Send_daily_AI_crypto_morning_brief_with_CoinGecko__Google_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18804_Send_daily_AI_crypto_morning_brief_with_CoinGecko__Google_Gemini_and_Telegram.json)|
+|19457|[19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19457_Send_daily_AI_market_briefings_to_Telegram__Discord_and_Postgres_with_OpenAI__Twelve_Data__CoinGecko__FRED__QuantGist_and_Marketaux.json)|

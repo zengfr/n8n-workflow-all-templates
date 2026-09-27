@@ -1,4 +1,4 @@
-# cards : 24
+# cards : 29
 
 |id|file|
 |----|----|
@@ -26,3 +26,8 @@
 |15701|[15701_Scan_business_cards_with_Gemini_AI_and_log_contacts_to_Google_Sheets_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15701_Scan_business_cards_with_Gemini_AI_and_log_contacts_to_Google_Sheets_and_Calendar.json)|
 |15708|[15708_Scan_business_cards_from_Telegram_to_Google_Contacts_with_Mistral_OCR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15708_Scan_business_cards_from_Telegram_to_Google_Contacts_with_Mistral_OCR.json)|
 |16787|[16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json)|
+|17758|[17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json)|
+|17798|[17798_Post_new_and_moved_Trello_cards_to_a_Discord_channel_via_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17798_Post_new_and_moved_Trello_cards_to_a_Discord_channel_via_webhooks.json)|
+|18134|[18134_Generate_employee_numbers_and_ID_cards_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18134_Generate_employee_numbers_and_ID_cards_with_Google_Sheets_and_Gmail.json)|
+|19292|[19292_Create_Gmail_drafts_from_business_cards_with_Google_Drive__Gemini__Slack_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19292_Create_Gmail_drafts_from_business_cards_with_Google_Drive__Gemini__Slack_and_Discord.json)|
+|19419|[19419_Send_approved_Google_Sheets_rows_as_Scribble_handwritten_cards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19419_Send_approved_Google_Sheets_rows_as_Scribble_handwritten_cards.json)|

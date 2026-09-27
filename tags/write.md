@@ -1,4 +1,4 @@
-# write : 17
+# write : 23
 
 |id|file|
 |----|----|
@@ -19,3 +19,9 @@
 |15789|[15789_Write_Upwork_proposals_from_Vollna_alerts_using_Claude__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15789_Write_Upwork_proposals_from_Vollna_alerts_using_Claude__Gmail_and_Sheets.json)|
 |16213|[16213_Enrich_new_leads_and_write_personalized_icebreakers_with_Google_Sheets_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16213_Enrich_new_leads_and_write_personalized_icebreakers_with_Google_Sheets_and_Claude.json)|
 |16249|[16249_Write_and_track_cold_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16249_Write_and_track_cold_emails_with_Google_Gemini_and_Gmail.json)|
+|17132|[17132_Create_personalized_videos_from_Google_Sheets_with_iLoveVideoEditor_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17132_Create_personalized_videos_from_Google_Sheets_with_iLoveVideoEditor_and_Gmail.json)|
+|17692|[17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json)|
+|17995|[17995_Write_weekly_AI_news_digests_with_Gluecrawl_and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17995_Write_weekly_AI_news_digests_with_Gluecrawl_and_OpenAI_GPT-4.1.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18121|[18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json)|
+|18475|[18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json)|

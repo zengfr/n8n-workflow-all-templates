@@ -1,4 +1,4 @@
-# sell : 23
+# sell : 24
 
 |id|file|
 |----|----|
@@ -25,3 +25,4 @@
 |14059|[14059_Generate_institutional-style_stock_price_targets_and_BUY_HOLD_SELL_alerts_with_ChatGPT_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14059_Generate_institutional-style_stock_price_targets_and_BUY_HOLD_SELL_alerts_with_ChatGPT_and_Gemini.json)|
 |15388|[15388_Sell_products_in_Telegram_with_Paystack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15388_Sell_products_in_Telegram_with_Paystack_and_Google_Sheets.json)|
 |15470|[15470_Sell_products_in_Telegram_with_Flutterwave_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15470_Sell_products_in_Telegram_with_Flutterwave_and_Google_Sheets.json)|
+|19817|[19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19817_Launch_and_sell_ebooks_with_Google_Gemini__PDFShift__Google_Drive_and_email.json)|

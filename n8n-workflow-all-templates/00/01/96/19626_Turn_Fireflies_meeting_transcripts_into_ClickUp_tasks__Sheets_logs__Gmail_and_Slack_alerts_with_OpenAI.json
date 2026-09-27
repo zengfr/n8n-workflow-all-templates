@@ -1,0 +1,866 @@
+{
+  "id": "Ebjp7kwGsmpKYVwE",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Turn Fireflies meeting transcripts into ClickUp tasks, Sheets logs, Gmail and Slack alerts with OpenAI",
+    "wechat": "youandme10086",
+    "id": 19626,
+    "update_time": "2026-09-27"
+  },
+  "name": "Meeting intelligence from Fireflies: tasks, summary, Slack and alerts",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "ba2244b8-7b77-4ce8-afb2-ef9151a65302",
+      "name": "Meeting finished",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives a POST from Fireflies when a meeting transcript is ready.\n\nSetup:\n1. Activate this workflow to get the webhook URL\n2. Copy the Production URL shown below the node\n3. In Fireflies: Settings → Developer Settings → Webhooks → Add new\n4. Paste the URL and select event: Transcription completed\n5. Save — Fireflies will now call this URL after every meeting\n\nFireflies sends the meeting ID in the webhook body.\nThis workflow then fetches the full transcript via their API.",
+      "position": [
+        976,
+        176
+      ],
+      "webhookId": "fireflies-meeting-intel-001",
+      "parameters": {
+        "path": "fireflies-meeting-complete",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b8cc1963-2d3c-435b-9b3d-c06d60ae0fb4",
+      "name": "Set config",
+      "type": "n8n-nodes-base.set",
+      "notes": "REPLACE ALL THESE VALUES:\n\n1. firefliesApiKey\n   Fireflies → Settings → Developer Settings → API Key\n\n2. clickupApiKey\n   ClickUp → Profile → Apps → API Token\n   NOTE: ClickUp API uses the token directly in the Authorization header\n   Do NOT add the word Bearer before it\n\n3. clickupListId\n   Open your target ClickUp list in browser\n   URL format: app.clickup.com/123/v/l/456789\n   The last number is your List ID\n\n4. managerEmail\n   Who receives the negative sentiment alert\n   Example: you@example.com\n\n5. slackChannelId\n   Open Slack in browser → click on the channel\n   URL format: app.slack.com/client/T.../C01234ABCDE\n   The C... part is the Channel ID\n\n6. sheetId\n   Google Sheet URL: docs.google.com/spreadsheets/d/1ABC123/edit\n   Copy the part between /d/ and /edit\n\n7. teamName\n   Your company or team name — appears in meeting summaries\n   Example: Incrementors\n\n8. senderName\n   Your name for email sign-offs\n   Example: Rahul Dutt",
+      "position": [
+        1264,
+        176
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-001",
+              "name": "firefliesApiKey",
+              "type": "string",
+              "value": "YOUR_FIREFLIES_API_KEY"
+            },
+            {
+              "id": "cfg-002",
+              "name": "clickupApiKey",
+              "type": "string",
+              "value": "YOUR_CLICKUP_API_KEY"
+            },
+            {
+              "id": "cfg-003",
+              "name": "clickupListId",
+              "type": "string",
+              "value": "YOUR_CLICKUP_LIST_ID"
+            },
+            {
+              "id": "cfg-004",
+              "name": "managerEmail",
+              "type": "string",
+              "value": "YOUR_MANAGER_EMAIL"
+            },
+            {
+              "id": "cfg-005",
+              "name": "slackChannelId",
+              "type": "string",
+              "value": "YOUR_SLACK_CHANNEL_ID"
+            },
+            {
+              "id": "cfg-006",
+              "name": "sheetId",
+              "type": "string",
+              "value": "YOUR_GOOGLE_SHEET_ID"
+            },
+            {
+              "id": "cfg-007",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Meeting Intelligence"
+            },
+            {
+              "id": "cfg-008",
+              "name": "teamName",
+              "type": "string",
+              "value": "YOUR_TEAM_NAME"
+            },
+            {
+              "id": "cfg-009",
+              "name": "senderName",
+              "type": "string",
+              "value": "YOUR_NAME"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "deb0bdab-df56-4617-9b4e-dade34ec9a92",
+      "name": "Get the meeting ID",
+      "type": "n8n-nodes-base.code",
+      "notes": "Extracts the meeting ID from the Fireflies webhook body.\nThrows a clear error if the meeting ID is missing\nso you can troubleshoot the webhook connection.\n\nAlso carries all config values forward.\nNo changes needed.",
+      "position": [
+        1536,
+        176
+      ],
+      "parameters": {
+        "jsCode": "const webhook = $input.first().json;\nconst cfg = $('Set config').item.json;\n\n// Extract meeting ID from Fireflies webhook\n// Fireflies sends meetingId in the body\nconst meetingId = webhook.meetingId || webhook.id || webhook.transcriptId || '';\nconst eventType = webhook.eventType || webhook.event_type || 'Transcription completed';\n\nif (!meetingId) {\n  throw new Error('No meeting ID in webhook payload. Check Fireflies webhook configuration. Received: ' + JSON.stringify(webhook));\n}\n\nreturn [{\n  json: {\n    meetingId,\n    eventType,\n    receivedAt: new Date().toISOString(),\n    firefliesApiKey: cfg.firefliesApiKey,\n    clickupApiKey: cfg.clickupApiKey,\n    clickupListId: cfg.clickupListId,\n    managerEmail: cfg.managerEmail,\n    slackChannelId: cfg.slackChannelId,\n    sheetId: cfg.sheetId,\n    sheetName: cfg.sheetName,\n    teamName: cfg.teamName,\n    senderName: cfg.senderName\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fb4431a1-cc46-4773-9b0f-bc58a098972d",
+      "name": "Fetch the transcript",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Fetches the complete transcript from Fireflies API using GraphQL.\n\nEndpoint: POST https://api.fireflies.ai/graphql\nAuth: Bearer token from your Fireflies API key\n\nFetches:\n- Full transcript with speaker labels\n- AI filters (task, pricing, question flags per sentence)\n- Summary: overview, keywords, action items\n- Analytics: sentiment percentages, speaker talk time\n\nNo changes needed.",
+      "position": [
+        1920,
+        176
+      ],
+      "parameters": {
+        "url": "https://api.fireflies.ai/graphql",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"query\": \"query GetTranscript($id: String!) { transcript(id: $id) { id title date duration participants host_email video_url sentences { speaker_name text ai_filters { task pricing question } } summary { overview keywords action_items bullet_gist } analytics { sentiments { positive_pct neutral_pct negative_pct } speakers { name duration_pct word_count questions longest_monologue } } } }\",\n  \"variables\": { \"id\": \"{{ $json.meetingId }}\" }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $json.firefliesApiKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e0ccc842-33af-4e6a-a982-7daf2611f8ec",
+      "name": "Tidy the transcript",
+      "type": "n8n-nodes-base.code",
+      "notes": "Processes the Fireflies API response into structured, usable data.\n\nExtracts:\n- Readable transcript with speaker names\n- Sentences flagged as pricing or budget mentions\n- All questions asked during the meeting\n- Speaker participation percentages and word counts\n- Sentiment breakdown (positive, negative, neutral percentages)\n- Meeting duration, date, and participants\n\nCalculates sentiment label:\n- Negative: negative_pct above 30%\n- Mixed: negative_pct between 15% and 30%\n- Positive: positive_pct above 60%\n- Neutral: everything else\n\nNo changes needed.",
+      "position": [
+        2192,
+        176
+      ],
+      "parameters": {
+        "jsCode": "const response = $input.first().json;\nconst cfg = $('Get the meeting ID').item.json;\n\nconst transcript = response?.data?.transcript;\n\nif (!transcript) {\n  throw new Error('Fireflies transcript not found. The transcript may still be processing. Meeting ID: ' + cfg.meetingId);\n}\n\n// Build full readable transcript with speaker labels\nconst sentences = transcript.sentences || [];\nconst fullText = sentences\n  .map(s => s.speaker_name + ': ' + s.text)\n  .join('\\n')\n  .substring(0, 6000);\n\n// Identify sentences that mention pricing or budget\nconst pricingSentences = sentences\n  .filter(s => s.ai_filters?.pricing)\n  .map(s => s.text);\n\n// Identify questions asked\nconst questionSentences = sentences\n  .filter(s => s.ai_filters?.question)\n  .map(s => s.speaker_name + ' asked: ' + s.text);\n\n// Speaker analytics\nconst speakers = (transcript.analytics?.speakers || []).map(s => ({\n  name: s.name,\n  talkPercent: Math.round(s.duration_pct || 0),\n  wordCount: s.word_count || 0,\n  questions: s.questions || 0\n}));\n\n// Sentiment\nconst sentiments = transcript.analytics?.sentiments || {};\nconst positivePct = Math.round(sentiments.positive_pct || 0);\nconst negativePct = Math.round(sentiments.negative_pct || 0);\nconst neutralPct = Math.round(sentiments.neutral_pct || 0);\n\nlet sentimentLabel = 'Neutral';\nif (negativePct > 30) sentimentLabel = 'Negative';\nelse if (negativePct > 15) sentimentLabel = 'Mixed';\nelse if (positivePct > 60) sentimentLabel = 'Positive';\n\nconst durationMin = Math.round((transcript.duration || 0) / 60);\n\n// Format date nicely\nconst meetingDate = transcript.date\n  ? new Date(transcript.date).toLocaleDateString('en-GB', { day: '2-digit', month: 'short', year: 'numeric' })\n  : 'Unknown date';\n\nreturn [{\n  json: {\n    meetingId: transcript.id,\n    meetingTitle: transcript.title || 'Untitled Meeting',\n    meetingDate,\n    durationMin,\n    participants: (transcript.participants || []).join(', '),\n    hostEmail: transcript.host_email || '',\n    videoUrl: transcript.video_url || '',\n    fullText,\n    pricingSentences,\n    hasPricingSignal: pricingSentences.length > 0,\n    questionSentences,\n    speakers,\n    positivePct,\n    neutralPct,\n    negativePct,\n    sentimentLabel,\n    aiOverview: transcript.summary?.overview || '',\n    aiKeywords: (transcript.summary?.keywords || []).join(', '),\n    aiActionItems: transcript.summary?.action_items || '',\n    aiBullets: transcript.summary?.bullet_gist || '',\n    // Carry config\n    firefliesApiKey: cfg.firefliesApiKey,\n    clickupApiKey: cfg.clickupApiKey,\n    clickupListId: cfg.clickupListId,\n    managerEmail: cfg.managerEmail,\n    slackChannelId: cfg.slackChannelId,\n    sheetId: cfg.sheetId,\n    sheetName: cfg.sheetName,\n    teamName: cfg.teamName,\n    senderName: cfg.senderName\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7fb2398a-8cc3-4b26-8941-b1acd5b9528d",
+      "name": "Extract the intelligence",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "First AI agent — extracts structured meeting intelligence.\n\nOutputs 7 fields:\n1. actionItems — with owner, priority, and deadline\n2. sentimentAnalysis — client mood, concerns, positives\n3. keyTopics — main topics discussed\n4. competitorsMentioned — any competitor names\n5. hasCompetitorMention — boolean flag for routing\n6. nextMeetingNeeded — whether follow-up was requested\n7. meetingSuccessScore — 1 to 10 meeting quality score\n\nAll fields enforced by Intel Output Parser below.\nOutput is in $json.output",
+      "position": [
+        2656,
+        176
+      ],
+      "parameters": {
+        "text": "=You are a senior client success analyst for {{ $json.teamName }}.\n\nAnalyze this meeting transcript and extract structured intelligence.\n\nMeeting: {{ $json.meetingTitle }}\nDate: {{ $json.meetingDate }}\nDuration: {{ $json.durationMin }} minutes\nParticipants: {{ $json.participants }}\n\nFireflies AI overview: {{ $json.aiOverview }}\nFireflies action items summary: {{ $json.aiActionItems }}\n\nFull transcript:\n{{ $json.fullText }}\n\nPricing or budget sentences flagged:\n{{ $json.pricingSentences.join('\\n') || 'None detected' }}\n\nReturn ONLY a valid JSON object. No extra text. No markdown. No backticks.\n\nRequired fields:\n\nactionItems\nArray of objects from this meeting. Each has:\n  task: specific action item under 20 words\n  owner: person responsible (use speaker name from transcript, or Team if unclear)\n  priority: exactly one of High, Medium, or Low\n  deadline: date or timeframe mentioned in the meeting, or null if none given\n\nsentimentAnalysis\nObject with:\n  overallSentiment: exactly one of Positive, Negative, Mixed, or Neutral\n  clientMood: one sentence on how the client seemed during this meeting\n  concernsRaised: array of specific concerns or objections the client mentioned\n  positives: array of things the client responded positively to\n\nkeyTopics\nArray of 3 to 5 strings. The main business topics discussed.\n\ncompetitorsMentioned\nArray of strings. Names of any competitor products, services, or companies mentioned.\nEmpty array if none.\n\nhasCompetitorMention\nBoolean. True if any competitor was explicitly named.\n\nnextMeetingNeeded\nBoolean. True if the transcript suggests a follow-up meeting should be scheduled.\n\nmeetingSuccessScore\nNumber from 1 to 10. How productive and positive was this meeting overall?\n1 to 3 means difficult with unresolved issues.\n4 to 6 means average with some progress.\n7 to 8 means good with clear next steps.\n9 to 10 means excellent with strong alignment.",
+        "options": {},
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "8770efcd-5d24-4df6-962a-d5bc8df863e4",
+      "name": "Chat model - Intelligence",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "notes": "Connect your OpenAI API credential here.\n\n1. Go to platform.openai.com/api-keys\n2. Create a new key\n3. In n8n: Settings → Credentials → Add New → OpenAI API\n4. Connect to this node\n\ntemperature: 0.2 for precise extraction\nCost: about $0.003 per meeting analyzed",
+      "position": [
+        2656,
+        416
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "maxTokens": 1200,
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "Sposa8X466CHEY1l",
+          "name": "Open AI - Upwork Covers"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "db2b7787-1b42-4c42-90a3-838f56fb7a1e",
+      "name": "Output Parser - Intelligence",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "notes": "Schema: 7 required fields for meeting intelligence.\nNo changes needed.",
+      "position": [
+        2800,
+        416
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"actionItems\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"task\": { \"type\": \"string\" },\n          \"owner\": { \"type\": \"string\" },\n          \"priority\": { \"type\": \"string\" },\n          \"deadline\": { \"type\": \"string\" }\n        },\n        \"required\": [\"task\", \"owner\", \"priority\"]\n      }\n    },\n    \"sentimentAnalysis\": {\n      \"type\": \"object\",\n      \"properties\": {\n        \"overallSentiment\": { \"type\": \"string\" },\n        \"clientMood\": { \"type\": \"string\" },\n        \"concernsRaised\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n        \"positives\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } }\n      },\n      \"required\": [\"overallSentiment\", \"clientMood\", \"concernsRaised\", \"positives\"]\n    },\n    \"keyTopics\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n    \"competitorsMentioned\": { \"type\": \"array\", \"items\": { \"type\": \"string\" } },\n    \"hasCompetitorMention\": { \"type\": \"boolean\" },\n    \"nextMeetingNeeded\": { \"type\": \"boolean\" },\n    \"meetingSuccessScore\": { \"type\": \"number\" }\n  },\n  \"required\": [\"actionItems\", \"sentimentAnalysis\", \"keyTopics\", \"competitorsMentioned\", \"hasCompetitorMention\", \"nextMeetingNeeded\", \"meetingSuccessScore\"]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "ea572fe2-ff28-405d-94fb-c1670f029f62",
+      "name": "Prepare the deliverables",
+      "type": "n8n-nodes-base.code",
+      "notes": "Combines meeting data and AI intelligence into one complete record.\n\nPrepares:\n- Formatted action items list for ClickUp task description\n- Concerns and positives as pipe-separated strings for Sheets\n- ClickUp task title and priority (urgent if negative sentiment)\n- Routing flag: needsManagerAlert = true when sentiment is Negative or Mixed\n\nAll downstream nodes read from this node using:\n$('Prepare the deliverables').item.json\n\nNo changes needed.",
+      "position": [
+        3136,
+        176
+      ],
+      "parameters": {
+        "jsCode": "const intel = $input.first().json.output;\nconst meetingData = $('Tidy the transcript').item.json;\n\nif (!intel) {\n  throw new Error('AI intelligence extraction failed. Check your OpenAI credential.');\n}\n\nconst actionItems = intel.actionItems || [];\nconst sentiment = intel.sentimentAnalysis || {};\nconst competitors = intel.competitorsMentioned || [];\n\n// Format action items for ClickUp task description\nconst actionItemsFormatted = actionItems.length > 0\n  ? actionItems.map((item, i) =>\n      (i + 1) + '. ' + item.task +\n      '\\n   Owner: ' + item.owner +\n      ' | Priority: ' + item.priority +\n      (item.deadline ? ' | By: ' + item.deadline : '')\n    ).join('\\n\\n')\n  : 'No action items identified in this meeting.';\n\n// Format concerns for Sheets and email\nconst concernsList = (sentiment.concernsRaised || []).join(' | ') || 'None identified';\nconst positivesList = (sentiment.positives || []).join(' | ') || 'None identified';\nconst keyTopicsList = (intel.keyTopics || []).join(', ');\nconst competitorsList = competitors.join(', ') || 'None mentioned';\n\n// ClickUp task fields\nconst clickupTaskTitle = '[Meeting] ' + meetingData.meetingTitle + ' — ' + meetingData.meetingDate;\nconst clickupTaskDescription =\n  'Meeting: ' + meetingData.meetingTitle + '\\n' +\n  'Date: ' + meetingData.meetingDate + '\\n' +\n  'Duration: ' + meetingData.durationMin + ' minutes\\n' +\n  'Participants: ' + meetingData.participants + '\\n' +\n  'Sentiment: ' + (sentiment.overallSentiment || 'Unknown') + '\\n' +\n  'Success Score: ' + (intel.meetingSuccessScore || 0) + ' out of 10\\n\\n' +\n  'ACTION ITEMS:\\n' + actionItemsFormatted + '\\n\\n' +\n  'KEY TOPICS:\\n' + keyTopicsList + '\\n\\n' +\n  (meetingData.videoUrl ? 'Recording: ' + meetingData.videoUrl : '');\n\n// Priority for ClickUp (based on sentiment and success score)\nlet clickupPriority = 2; // normal\nif (sentiment.overallSentiment === 'Negative') clickupPriority = 1; // urgent\nelse if (intel.meetingSuccessScore >= 8) clickupPriority = 3; // low\n\nconst loggedAt = new Date().toISOString().replace('T', ' ').substring(0, 16);\n\n// Flag for routing\nconst needsManagerAlert =\n  sentiment.overallSentiment === 'Negative' ||\n  sentiment.overallSentiment === 'Mixed';\n\nreturn [{\n  json: {\n    ...meetingData,\n    actionItems,\n    actionItemsFormatted,\n    actionItemCount: actionItems.length,\n    sentiment,\n    overallSentiment: sentiment.overallSentiment || 'Unknown',\n    clientMood: sentiment.clientMood || '',\n    concernsList,\n    positivesList,\n    keyTopics: intel.keyTopics || [],\n    keyTopicsList,\n    competitors,\n    competitorsList,\n    hasCompetitorMention: intel.hasCompetitorMention || false,\n    nextMeetingNeeded: intel.nextMeetingNeeded || false,\n    meetingSuccessScore: intel.meetingSuccessScore || 0,\n    needsManagerAlert,\n    clickupTaskTitle,\n    clickupTaskDescription,\n    clickupPriority,\n    loggedAt\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f3da5894-9605-479d-8174-7062691d3ac5",
+      "name": "Create the ClickUp task",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Creates a ClickUp task with all action items from the meeting.\n\nTask includes:\n- Meeting title and date in task name\n- All action items with owners, priorities, and deadlines\n- Key topics covered\n- Meeting recording link (if available)\n\nClickUp API priority values:\n1 = Urgent (negative sentiment meetings)\n2 = Normal (standard meetings)\n3 = Low (high success score meetings)\n\nIMPORTANT:\nClickUp API does NOT use Bearer prefix.\nThe API key goes directly in the Authorization header.\nThis is different from most other APIs.\n\nNo changes needed.",
+      "position": [
+        3632,
+        -64
+      ],
+      "parameters": {
+        "url": "=https://api.clickup.com/api/v2/list/{{ $json.clickupListId }}/task",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"name\": \"{{ $json.clickupTaskTitle }}\",\n  \"description\": \"{{ $json.clickupTaskDescription.replace(/\\\"/g, \"'\") }}\",\n  \"priority\": {{ $json.clickupPriority }},\n  \"status\": \"Open\"\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ $json.clickupApiKey }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "776d0974-2bb0-4cbd-894d-83f4322422ea",
+      "name": "Log to the sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Logs every meeting to Google Sheets as a permanent intelligence record.\n\nHow to connect:\n1. Go to console.cloud.google.com and enable Google Sheets API\n2. In n8n: Settings → Credentials → Add New → Google Sheets OAuth2\n3. Authenticate and connect to this node\n\nSheet tab: Meeting Intelligence\nRow 1 headers:\nDate | Meeting Title | Duration | Participants | Overall Sentiment | Client Mood | Action Items Count | Key Topics | Competitors Mentioned | Success Score | Logged At\n\nUse this sheet to:\n- Track meeting quality scores over time\n- Spot clients with recurring negative sentiment\n- Build a competitor mention tracker\n- Calculate average meeting success rates per client",
+      "position": [
+        3632,
+        192
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $('Prepare the deliverables').item.json.meetingDate }}",
+            "Duration": "={{ $('Prepare the deliverables').item.json.durationMin + ' min' }}",
+            "Logged At": "={{ $('Prepare the deliverables').item.json.loggedAt }}",
+            "Key Topics": "={{ $('Prepare the deliverables').item.json.keyTopicsList }}",
+            "Client Mood": "={{ $('Prepare the deliverables').item.json.clientMood }}",
+            "Participants": "={{ $('Prepare the deliverables').item.json.participants }}",
+            "Meeting Title": "={{ $('Prepare the deliverables').item.json.meetingTitle }}",
+            "Success Score": "={{ $('Prepare the deliverables').item.json.meetingSuccessScore + ' out of 10' }}",
+            "Overall Sentiment": "={{ $('Prepare the deliverables').item.json.overallSentiment }}",
+            "Action Items Count": "={{ $('Prepare the deliverables').item.json.actionItemCount }}",
+            "Competitors Mentioned": "={{ $('Prepare the deliverables').item.json.competitorsList }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {
+          "cellFormat": "USER_ENTERED"
+        },
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Prepare the deliverables').item.json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Prepare the deliverables').item.json.sheetId }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "fefd0eb7-7427-4834-9965-615f6f7344c6",
+      "name": "Write the summary",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "notes": "Second AI agent — writes the professional meeting summary email.\n\nThis agent uses the structured data from the first agent.\nIt writes in natural language, not bullet points.\n\nThe summary references:\n- What was actually discussed (from key topics)\n- Agreed action items with owners\n- Client sentiment and concerns (handled diplomatically)\n- Next steps\n\nOutput is in $json.output (plain text email body)",
+      "position": [
+        3632,
+        480
+      ],
+      "parameters": {
+        "text": "=You are a professional business communication specialist for {{ $json.teamName }}.\n\nWrite a polished meeting summary email for this meeting.\n\nMeeting: {{ $json.meetingTitle }}\nDate: {{ $json.meetingDate }}\nDuration: {{ $json.durationMin }} minutes\nParticipants: {{ $json.participants }}\n\nKey topics covered: {{ $json.keyTopicsList }}\n\nAction items: {{ $json.actionItemsFormatted }}\n\nClient mood summary: {{ $json.clientMood }}\n\nPositive responses: {{ $json.positivesList }}\n\nConcerns raised: {{ $json.concernsList }}\n\nNext meeting needed: {{ $json.nextMeetingNeeded }}\n\nWrite a professional meeting summary email. Plain text only. No markdown. No bullet points. Write in full paragraphs.\n\nStructure:\n\nOpening paragraph: Brief warm thank-you and one sentence on what was accomplished.\n\nKey discussion points: 2 to 3 paragraphs covering the main topics in natural language. Reference what was agreed.\n\nAction items section: List all action items with owners and deadlines in a clear numbered format.\n\nClosing: One sentence on next steps. If next meeting is needed, say so. Sign off professionally with {{ $json.senderName }} and {{ $json.teamName }}.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.7
+    },
+    {
+      "id": "eae0130b-5045-42e1-b222-e63d4f8ce1b9",
+      "name": "Chat model - Summary",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "notes": "Connect the same OpenAI credential here.\ntemperature: 0.5 for natural-sounding professional writing\nCost: about $0.002 per summary",
+      "position": [
+        3632,
+        736
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini"
+        },
+        "options": {
+          "maxTokens": 800,
+          "temperature": 0.5
+        }
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "Sposa8X466CHEY1l",
+          "name": "Open AI - Upwork Covers"
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "bf8e7ac9-573d-4d69-a800-2ebf52dcf85f",
+      "name": "Format the messages",
+      "type": "n8n-nodes-base.code",
+      "notes": "Builds all outgoing messages in one place:\n1. Gmail subject and body for participant summary\n2. Slack debrief message for team channel\n3. Manager alert email body (used if sentiment is negative)\n4. Competitor intelligence alert email body (used if competitor mentioned)\n\nAll messages reference $('Prepare the deliverables') for consistent data.\nNo changes needed.",
+      "position": [
+        3984,
+        480
+      ],
+      "parameters": {
+        "jsCode": "const summaryText = $input.first().json.output || 'Meeting summary could not be generated. Please review the transcript manually.';\nconst d = $('Prepare the deliverables').item.json;\n\n// Gmail summary email\nconst emailSubject = 'Meeting Summary — ' + d.meetingTitle + ' — ' + d.meetingDate;\nconst emailBody = summaryText;\n\n// Slack team debrief message\nconst slackMsg =\n  'Meeting debrief: ' + d.meetingTitle + '\\n' +\n  'Date: ' + d.meetingDate + ' | Duration: ' + d.durationMin + ' min\\n' +\n  'Participants: ' + d.participants + '\\n' +\n  'Sentiment: ' + d.overallSentiment + ' | Score: ' + d.meetingSuccessScore + '/10\\n\\n' +\n  'Action items: ' + d.actionItemCount + '\\n' +\n  d.actionItems.slice(0, 3).map((a, i) => (i + 1) + '. ' + a.task + ' — ' + a.owner).join('\\n') +\n  (d.actionItemCount > 3 ? '\\n... and ' + (d.actionItemCount - 3) + ' more in ClickUp' : '') + '\\n\\n' +\n  'Key topics: ' + d.keyTopicsList +\n  (d.hasCompetitorMention ? '\\n\\nCompetitor mentioned: ' + d.competitorsList : '') +\n  (d.videoUrl ? '\\n\\nRecording: ' + d.videoUrl : '');\n\n// Manager alert email (for negative sentiment)\nconst managerEmailBody =\n  'Hi,\\n\\nThis is an automated flag from your meeting intelligence system.\\n\\n' +\n  'Meeting: ' + d.meetingTitle + '\\n' +\n  'Date: ' + d.meetingDate + '\\n' +\n  'Participants: ' + d.participants + '\\n' +\n  'Sentiment detected: ' + d.overallSentiment + '\\n' +\n  'Success score: ' + d.meetingSuccessScore + ' out of 10\\n\\n' +\n  'Client mood: ' + d.clientMood + '\\n\\n' +\n  'Concerns raised by client:\\n' +\n  (d.sentiment?.concernsRaised || []).map((c, i) => (i + 1) + '. ' + c).join('\\n') + '\\n\\n' +\n  'Recommended action: Review the meeting recording and follow up with the client within 24 hours.\\n\\n' +\n  (d.videoUrl ? 'Recording: ' + d.videoUrl + '\\n\\n' : '') +\n  'Best regards,\\n' + d.teamName + ' Meeting Intelligence';\n\n// Competitor alert email\nconst competitorEmailBody =\n  'Hi,\\n\\nA competitor was mentioned during a recent client meeting.\\n\\n' +\n  'Meeting: ' + d.meetingTitle + '\\n' +\n  'Date: ' + d.meetingDate + '\\n' +\n  'Client: ' + d.participants + '\\n' +\n  'Competitors mentioned: ' + d.competitorsList + '\\n\\n' +\n  'Key topics in this meeting: ' + d.keyTopicsList + '\\n\\n' +\n  'Recommended action: Research the mentioned competitors and prepare a comparison document before the next client interaction.\\n\\n' +\n  (d.videoUrl ? 'Recording: ' + d.videoUrl + '\\n\\n' : '') +\n  'Best regards,\\n' + d.teamName + ' Meeting Intelligence';\n\nreturn [{\n  json: {\n    ...d,\n    emailSubject,\n    emailBody,\n    slackMsg,\n    managerEmailBody,\n    competitorEmailBody\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4bdb76da-9625-4d5e-b67a-61c919780d60",
+      "name": "Email the summary",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Sends the AI-written meeting summary to the meeting host.\n\nHow to connect:\n1. Go to console.cloud.google.com and enable the Gmail API\n2. In n8n: Settings → Credentials → Add New → Gmail OAuth2\n3. Authenticate and connect to this node\n\nSends to the meeting host email from Fireflies.\nTo CC all participants, use the additionalFields → CC field\nand set it to: $('Prepare the deliverables').item.json.participants",
+      "position": [
+        4512,
+        352
+      ],
+      "webhookId": "cc97e9bd-3fc8-4335-81da-4aeb52e95462",
+      "parameters": {
+        "sendTo": "={{ $('Prepare the deliverables').item.json.hostEmail }}",
+        "message": "={{ $json.emailBody }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.emailSubject }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "d1bf360f-f946-49fa-9dde-3ee44d4a3070",
+      "name": "Post the team debrief",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Posts the meeting debrief to your Slack team channel.\n\nHow to connect:\n1. In n8n: Settings → Credentials → Add New → Slack OAuth2\n2. Authenticate with your Slack workspace\n3. Connect to this node\n\nThe Slack message includes:\n- Meeting title, date, duration\n- Sentiment and success score\n- First 3 action items (others are in ClickUp)\n- Key topics\n- Competitor flag if applicable\n- Recording link",
+      "position": [
+        4512,
+        624
+      ],
+      "webhookId": "3aa7bff5-5fe2-4599-b292-cb9ceb9f47b1",
+      "parameters": {
+        "text": "={{ $json.slackMsg }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Prepare the deliverables').item.json.slackChannelId }}"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "slackOAuth2Api": {
+          "id": "Yq1c63Qg1P3pWwwt",
+          "name": "Slack crm"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "8e9d308e-9d42-40cd-ae85-de75cdc6ecd4",
+      "name": "Sentiment a concern?",
+      "type": "n8n-nodes-base.if",
+      "notes": "TRUE — sentiment is Negative or Mixed — send manager alert\nFALSE — sentiment is Positive or Neutral — no escalation needed\n\nReads needsManagerAlert from Prepare All Deliverables.\nChange the threshold by editing the Process Transcript node:\nChange negativePct threshold from 15 to 20 for less sensitive alerts.\nNo changes needed here.",
+      "position": [
+        4800,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-negative",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('Prepare the deliverables').item.json.needsManagerAlert }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6e2e3b34-9d2d-423c-906b-af41fa59d1af",
+      "name": "Alert the manager",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Sends a manager alert when the meeting sentiment was Negative or Mixed.\n\nConnect the same Gmail credential here.\n\nEmail includes:\n- Meeting details and sentiment score\n- Specific concerns the client raised\n- Client mood description\n- Recording link for review\n- Recommended follow-up action\n\nTo change who gets this alert, update managerEmail in Set Config Values.",
+      "position": [
+        5072,
+        240
+      ],
+      "webhookId": "0538d9b8-ff1c-405c-8a00-0dacf9c4aff2",
+      "parameters": {
+        "sendTo": "={{ $('Prepare the deliverables').item.json.managerEmail }}",
+        "message": "={{ $('Format the messages').item.json.managerEmailBody }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Client Sentiment Alert — {{ $('Prepare the deliverables').item.json.overallSentiment }} — {{ $('Prepare the deliverables').item.json.meetingTitle }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "9863770c-43d0-47fa-a82f-0d4789ed9ed5",
+      "name": "Competitor mentioned?",
+      "type": "n8n-nodes-base.if",
+      "notes": "TRUE — a competitor was named in this meeting — send intelligence alert\nFALSE — no competitor mentioned — no alert needed\n\nReads hasCompetitorMention from Prepare All Deliverables.\nNo changes needed.",
+      "position": [
+        4800,
+        624
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-competitor",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('Prepare the deliverables').item.json.hasCompetitorMention }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a872ad29-e79e-4906-8715-71cdf9caa048",
+      "name": "Send the competitor alert",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Sends a competitor intelligence alert when a competitor is named during a meeting.\n\nConnect the same Gmail credential here.\n\nEmail includes:\n- Which competitor was mentioned\n- Meeting context and participants\n- Key topics from the meeting\n- Recommended next action\n\nThis helps your team prepare a competitive response before the client's next interaction.",
+      "position": [
+        5072,
+        624
+      ],
+      "webhookId": "9e3d774b-7f6f-43ff-817f-a7855c0b3355",
+      "parameters": {
+        "sendTo": "={{ $('Prepare the deliverables').item.json.managerEmail }}",
+        "message": "={{ $('Format the messages').item.json.competitorEmailBody }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Competitor Mentioned — {{ $('Prepare the deliverables').item.json.competitorsList }} — {{ $('Prepare the deliverables').item.json.meetingTitle }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "65b4c6dc-6c55-4b28-972f-8c06dcec1e66",
+      "name": "Done",
+      "type": "n8n-nodes-base.set",
+      "notes": "Final node — marks the meeting as fully processed.\nSummary of what was done:\n- Full transcript fetched from Fireflies API\n- Action items extracted by AI Agent 1\n- ClickUp task created with full action item checklist\n- Meeting logged to Google Sheets\n- Professional summary written by AI Agent 2\n- Summary emailed to host via Gmail\n- Debrief posted to Slack\n- Manager alert sent if sentiment was negative or mixed\n- Competitor alert sent if competitor was mentioned",
+      "position": [
+        5072,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "done-001",
+              "name": "status",
+              "type": "string",
+              "value": "=Meeting intelligence processed: {{ $('Prepare the deliverables').item.json.meetingTitle }} — {{ $('Prepare the deliverables').item.json.meetingDate }}"
+            },
+            {
+              "id": "done-002",
+              "name": "actionItemsCreated",
+              "type": "number",
+              "value": "={{ $('Prepare the deliverables').item.json.actionItemCount }}"
+            },
+            {
+              "id": "done-003",
+              "name": "sentiment",
+              "type": "string",
+              "value": "={{ $('Prepare the deliverables').item.json.overallSentiment }}"
+            },
+            {
+              "id": "done-004",
+              "name": "successScore",
+              "type": "number",
+              "value": "={{ $('Prepare the deliverables').item.json.meetingSuccessScore }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "7ba3f395-9a8d-43a7-938d-82f8285922a1",
+      "name": "Sticky Note - Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1568,
+        "height": 416,
+        "content": "## 1. Pull the transcript\nFireflies calls this webhook when a recording finishes. One config node holds every key and ID, then the full transcript is fetched and tidied for the model."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "16d3809a-3811-4150-9326-2effe56274e4",
+      "name": "Sticky Note - Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2512,
+        16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 888,
+        "height": 604,
+        "content": "## 2. Extract the intelligence\nGPT returns action items with owners and priorities, client sentiment, concerns raised and any competitor mentions, all as structured fields."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "84395b30-57ff-4cc3-93bf-52dc2ab1a602",
+      "name": "Sticky Note - Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3552,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 708,
+        "height": 1144,
+        "content": "## 3. Turn it into deliverables\nA ClickUp task is created with the action item checklist, the meeting is logged to your sheet, and a second agent writes the summary that goes out to people."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "18d01a27-a7b5-46b5-b4ec-f02b6f650872",
+      "name": "Sticky Note - Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4384,
+        80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 972,
+        "height": 984,
+        "content": "## 4. Send it out and flag risks\nThe host gets the summary by email and the team gets a Slack debrief. Negative sentiment emails your manager, and a competitor mention sends its own alert."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "23471655-219f-4652-a5ad-505aecb824bc",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        -368
+      ],
+      "parameters": {
+        "width": 652,
+        "height": 1241,
+        "content": "# Meeting intelligence from Fireflies: tasks, summary, Slack and alerts\n\nWhen Fireflies finishes transcribing a call, this turns it into everything the team actually needs: a ClickUp task holding the action items, a logged row in your sheet, a written summary emailed to the host, a Slack debrief, and separate alerts when the client sounded unhappy or a competitor came up.\n\n### How it works\n1. Fireflies calls the webhook when a recording is ready, and one config node holds every key and ID.\n2. The meeting ID is validated, the full transcript is fetched from the Fireflies API, then tidied down for the model.\n3. GPT extracts structured intelligence: action items with owners and priorities, client sentiment, concerns raised, and any competitor mentions.\n4. Those fields become three things at once: a ClickUp task, a row in your sheet, and the input for a second agent that writes the summary.\n5. The host receives the summary by email and your Slack channel gets a team debrief.\n6. If sentiment was negative or mixed your manager gets an alert. If a competitor was named, a separate alert goes out.\n\n### Setup\n1. Add your OpenAI API key and connect your Google Sheets, Gmail and Slack accounts.\n2. In Fireflies open Developer Settings, copy your API key, and point a Transcription completed webhook here.\n3. In ClickUp create an API token and copy the list ID from any list URL.\n4. Open Set config and replace every placeholder, including your Slack channel ID, manager email and sheet ID.\n5. Create a tab called Meeting Intelligence with headers for date, title, duration, participants, sentiment and action item count.\n\n### Customization\nEdit the extraction prompt to pull out budget mentions, objections or next meeting dates as well."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "60ebd5f4-cb95-4d0e-9f76-8528a8070f10",
+  "nodeGroups": [],
+  "connections": {
+    "Set config": {
+      "main": [
+        [
+          {
+            "node": "Get the meeting ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Meeting finished": {
+      "main": [
+        [
+          {
+            "node": "Set config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the summary": {
+      "main": [
+        [
+          {
+            "node": "Sentiment a concern?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write the summary": {
+      "main": [
+        [
+          {
+            "node": "Format the messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get the meeting ID": {
+      "main": [
+        [
+          {
+            "node": "Fetch the transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format the messages": {
+      "main": [
+        [
+          {
+            "node": "Email the summary",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Post the team debrief",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tidy the transcript": {
+      "main": [
+        [
+          {
+            "node": "Extract the intelligence",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat model - Summary": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Write the summary",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch the transcript": {
+      "main": [
+        [
+          {
+            "node": "Tidy the transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Sentiment a concern?": {
+      "main": [
+        [
+          {
+            "node": "Alert the manager",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Competitor mentioned?": {
+      "main": [
+        [
+          {
+            "node": "Send the competitor alert",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Done",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post the team debrief": {
+      "main": [
+        [
+          {
+            "node": "Competitor mentioned?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract the intelligence": {
+      "main": [
+        [
+          {
+            "node": "Prepare the deliverables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare the deliverables": {
+      "main": [
+        [
+          {
+            "node": "Create the ClickUp task",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Log to the sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Write the summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chat model - Intelligence": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Extract the intelligence",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Output Parser - Intelligence": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Extract the intelligence",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

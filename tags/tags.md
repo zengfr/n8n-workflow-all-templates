@@ -1,4 +1,4 @@
-# tags : 20
+# tags : 21
 
 |id|file|
 |----|----|
@@ -22,3 +22,4 @@
 |13699|[13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13699_Resolve_and_create_KlickTipp_tags_from_names_with_optional_prefixes.json)|
 |15710|[15710_Generate_YouTube_SEO_descriptions__chapters__and_tags_with_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15710_Generate_YouTube_SEO_descriptions__chapters__and_tags_with_WayinVideo_and_GPT-4o-mini.json)|
 |16724|[16724_Manage_KlickTipp_contact_tags_with_GPT-5-mini_via_chat_input.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16724_Manage_KlickTipp_contact_tags_with_GPT-5-mini_via_chat_input.json)|
+|17071|[17071_Normalize_YouTube_video_tags_using_Google_Sheets_vocabulary_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17071_Normalize_YouTube_video_tags_using_Google_Sheets_vocabulary_rules.json)|

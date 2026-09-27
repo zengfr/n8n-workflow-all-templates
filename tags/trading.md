@@ -1,4 +1,4 @@
-# trading : 25
+# trading : 26
 
 |id|file|
 |----|----|
@@ -27,3 +27,4 @@
 |14235|[14235_Execute_forex_trading_signals_from_Telegram_on_MetaTrader_5_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14235_Execute_forex_trading_signals_from_Telegram_on_MetaTrader_5_with_Claude.json)|
 |15679|[15679_Generate_SENSEX_trading_signals_using_Gemini__Yahoo_Finance_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15679_Generate_SENSEX_trading_signals_using_Gemini__Yahoo_Finance_and_Google_Sheets.json)|
 |15844|[15844_Generate_crypto_trading_signals_from_Binance_data_with_GPT-4o_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15844_Generate_crypto_trading_signals_from_Binance_data_with_GPT-4o_and_Telegram.json)|
+|18767|[18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18767_Trade_forex_using_multi-strategy_OANDA_orders_with_Telegram_alerts.json)|

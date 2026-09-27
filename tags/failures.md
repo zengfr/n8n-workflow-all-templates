@@ -1,4 +1,4 @@
-# failures : 6
+# failures : 12
 
 |id|file|
 |----|----|
@@ -8,3 +8,9 @@
 |12803|[12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12803_Track_Azure_API_and_Service_Bus_failures_with_Application_Insights_correlation.json)|
 |14129|[14129_Analyze_GitLab_CI_job_failures_with_GPT-5.3_and_send_reports_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14129_Analyze_GitLab_CI_job_failures_with_GPT-5.3_and_send_reports_to_Slack.json)|
 |15273|[15273_Handle_retail_payment_failures_with_retry_emails__Slack_alerts_and_Supabase_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15273_Handle_retail_payment_failures_with_retry_emails__Slack_alerts_and_Supabase_logging.json)|
+|17342|[17342_Log_Twilio_SMS_delivery_statuses_to_Google_Sheets_and_alert_Slack_on_failures.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17342_Log_Twilio_SMS_delivery_statuses_to_Google_Sheets_and_alert_Slack_on_failures.json)|
+|17451|[17451_Log_workflow_failures_with_Google_Gemini__Google_Sheets__and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17451_Log_workflow_failures_with_Google_Gemini__Google_Sheets__and_Gmail_alerts.json)|
+|17693|[17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json)|
+|18537|[18537_Predict_and_prevent_service_failures_with_Claude__ClickUp__and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18537_Predict_and_prevent_service_failures_with_Claude__ClickUp__and_WhatsApp_alerts.json)|
+|18627|[18627_Triage_failing_workflows_with_Bright_Data__OpenAI_GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18627_Triage_failing_workflows_with_Bright_Data__OpenAI_GPT-5.6_and_Slack.json)|
+|18655|[18655_Run_bounded_dunning_for_Lago_payment_failures_with_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18655_Run_bounded_dunning_for_Lago_payment_failures_with_email_alerts.json)|

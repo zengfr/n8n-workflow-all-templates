@@ -1,4 +1,4 @@
-# it : 47
+# it : 54
 
 |id|file|
 |----|----|
@@ -49,3 +49,10 @@
 |16268|[16268_Provision_new_hire_IT_accounts_with_Google_Workspace__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16268_Provision_new_hire_IT_accounts_with_Google_Workspace__Slack__and_Gmail.json)|
 |16665|[16665_Scrape_Tunisia_IT_job_listings_with_Groq__Firecrawl__Airtable__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16665_Scrape_Tunisia_IT_job_listings_with_Groq__Firecrawl__Airtable__and_Resend.json)|
 |16706|[16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json)|
+|16863|[16863_Manage_IT_asset_requests_and_inventory_with_Airtable_and_a_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16863_Manage_IT_asset_requests_and_inventory_with_Airtable_and_a_webhook.json)|
+|17058|[17058_Create_AI_product_video_ad_Shorts_from_Telegram_photos_with_OpenAI_and_AtlasCloud.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17058_Create_AI_product_video_ad_Shorts_from_Telegram_photos_with_OpenAI_and_AtlasCloud.json)|
+|17278|[17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json)|
+|17614|[17614_Review_Google_Drive_inbox_files_with_Discord_and_log_decisions_in_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17614_Review_Google_Drive_inbox_files_with_Discord_and_log_decisions_in_Sheets.json)|
+|17993|[17993_Generate_text_via_a_validated_webhook_with_Anthropic_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17993_Generate_text_via_a_validated_webhook_with_Anthropic_Claude_and_Slack.json)|
+|18109|[18109_Score_Salesforce_deal_momentum_and_explain_it_with_Gmail__Calendar__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18109_Score_Salesforce_deal_momentum_and_explain_it_with_Gmail__Calendar__Gemini__and_Slack.json)|
+|18121|[18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18121_Write_safe_procedures_from_screen_recordings_with_Google_Gemini.json)|

@@ -1,4 +1,4 @@
-# customers : 48
+# customers : 54
 
 |id|file|
 |----|----|
@@ -50,3 +50,9 @@
 |15876|[15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15876_Notify_customers_of_resolved_Jira_bugs_with_Gmail__HubSpot__Slack_and_Sheets.json)|
 |16272|[16272_Sync_new_Shopify_customers_to_Odoo_and_notify_via_Gmail__SMS__WhatsApp_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16272_Sync_new_Shopify_customers_to_Odoo_and_notify_via_Gmail__SMS__WhatsApp_and_Telegram.json)|
 |16656|[16656_Sync_Etsy_customers_with_Meta_custom_audiences_using_hashed_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16656_Sync_Etsy_customers_with_Meta_custom_audiences_using_hashed_emails.json)|
+|17059|[17059_Send_Google_review_request_and_reminder_emails_via_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17059_Send_Google_review_request_and_reminder_emails_via_Gmail_and_Google_Sheets.json)|
+|17797|[17797_Track_Stripe_cancellations_and_classify_churn_reasons_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17797_Track_Stripe_cancellations_and_classify_churn_reasons_with_Claude_and_Gmail.json)|
+|17991|[17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json)|
+|18276|[18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18276_Save_at-risk_churn_customers_with_OpenAI_DeepSeek__Airtable__Gmail__and_Telegram.json)|
+|18793|[18793_Send_branded_PDF_receipts_for_Stripe_payments_with_PDFMint__Gmail_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18793_Send_branded_PDF_receipts_for_Stripe_payments_with_PDFMint__Gmail_and_Drive.json)|
+|19466|[19466_Find_unhappy_competitor_customers_and_enrich_leads_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19466_Find_unhappy_competitor_customers_and_enrich_leads_with_Apify.json)|

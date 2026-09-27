@@ -1,4 +1,4 @@
-# letter : 9
+# letter : 12
 
 |id|file|
 |----|----|
@@ -11,3 +11,6 @@
 |15255|[15255_Generate_tailored_CV_and_Cover_Letter_from_job_links.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15255_Generate_tailored_CV_and_Cover_Letter_from_job_links.json)|
 |15526|[15526_Tailor_your_CV_and_cover_letter_to_each_job_with_easybits_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15526_Tailor_your_CV_and_cover_letter_to_each_job_with_easybits_and_Gemini.json)|
 |15623|[15623_Match_LinkedIn_jobs_and_generate_cover_letters_with_OpenAI__Apify_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15623_Match_LinkedIn_jobs_and_generate_cover_letters_with_OpenAI__Apify_and_Sheets.json)|
+|19172|[19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json)|
+|19599|[19599_Manage_dead-letter_retries_with_Google_Sheets_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19599_Manage_dead-letter_retries_with_Google_Sheets_and_Slack_alerts.json)|
+|19678|[19678_Send_engagement_letters_and_open_Clio_matters_with_DocuSign_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19678_Send_engagement_letters_and_open_Clio_matters_with_DocuSign_and_Google_Sheets.json)|

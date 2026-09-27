@@ -1,0 +1,441 @@
+{
+  "name": "Draft cited support replies from live public docs using You.com and Gmail",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a1f0c2d4-1111-4a10-9c01-000000000001",
+      "name": "When a Support Question Is Submitted",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -64,
+        672
+      ],
+      "webhookId": "b2e1d3f5-2222-4b20-8c02-000000000002",
+      "parameters": {
+        "options": {
+          "appendAttribution": false,
+          "respondWithOptions": {
+            "values": {
+              "respondWith": "text",
+              "formSubmittedText": "Thanks. You.com is researching public sources for this question now. A cited draft reply will be waiting in Gmail for a support agent to review and send. Nothing is emailed automatically. You can close this page."
+            }
+          }
+        },
+        "formTitle": "Ask a support question",
+        "formFields": {
+          "values": [
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Question",
+              "placeholder": "e.g., Does the Stripe API still support the legacy Charges endpoint, and what changed?",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Context",
+              "placeholder": "Optional: product or tool name, version, and what the customer already tried.",
+              "requiredField": false
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Customer email",
+              "placeholder": "user@example.com",
+              "requiredField": false
+            }
+          ]
+        },
+        "responseMode": "onReceived",
+        "formDescription": "Ask about a public, documented topic: a third-party API, a SaaS tool, a public standard, or a help or regulatory page. You.com researches live public sources and a cited draft reply is prepared in Gmail for a support agent to review and send."
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "c3a2b4d6-3333-4c30-9d03-000000000003",
+      "name": "Prepare Research Request",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        176,
+        672
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "p1",
+              "name": "question",
+              "type": "string",
+              "value": "={{ ($json.Question ?? '').toString().trim() }}"
+            },
+            {
+              "id": "p2",
+              "name": "context",
+              "type": "string",
+              "value": "={{ ($json.Context ?? '').toString().trim() }}"
+            },
+            {
+              "id": "p3",
+              "name": "customerEmail",
+              "type": "string",
+              "value": "={{ ($json['Customer email'] ?? '').toString().trim() }}"
+            },
+            {
+              "id": "p4",
+              "name": "researchEffort",
+              "type": "string",
+              "value": "standard"
+            },
+            {
+              "id": "p5",
+              "name": "agentSlackId",
+              "type": "string",
+              "value": "U+1234567890"
+            },
+            {
+              "id": "p6",
+              "name": "researchInput",
+              "type": "string",
+              "value": "=You are a customer support researcher. Answer the question using only public, authoritative web sources such as official product or API documentation, public standards, vendor status and changelog pages, and regulatory or help-center pages. Give specific, accurate facts and cite the source for every claim. If sources conflict or the answer is uncertain, say so plainly. Do not invent behavior that is not documented.\n\nQuestion:\n{{ ($json.Question ?? '').toString().trim() }}\n\nContext:\n{{ ($json.Context ?? '').toString().trim() || 'None provided.' }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d4b3c5e7-4444-4d40-9e04-000000000004",
+      "name": "Research Public Sources",
+      "type": "@youdotcom-oss/n8n-nodes-youdotcom.youDotCom",
+      "onError": "continueErrorOutput",
+      "position": [
+        560,
+        672
+      ],
+      "parameters": {
+        "input": "={{ $('Prepare Research Request').item.json.researchInput }}",
+        "operation": "research",
+        "researchEffort": "={{ $('Prepare Research Request').item.json.researchEffort }}"
+      },
+      "credentials": {
+        "youDotComApi": {
+          "id": "credential-id",
+          "name": "You.com account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e5c4d6f8-5555-4e50-9f05-000000000005",
+      "name": "Build Cited Email Reply",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        816,
+        656
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// You.com \"research\" returns: { output: { content, content_type, sources: [{url,title,snippets}] } }\n// This node turns that into an HTML email body (Markdown -> HTML), a plain-text fallback,\n// a subject, and the recipient, so Gmail can save it as a draft for a human to review and send.\nconst out = ($json.output ?? {});\nconst answerRaw = (out.content ?? '').toString().trim()\n  || 'You.com returned no answer. Please research this question manually before replying.';\nconst sources = Array.isArray(out.sources) ? out.sources : [];\n\nconst cfg = $('Prepare Research Request').item.json;\nconst question = (cfg.question ?? '').toString().trim();\nconst customerEmail = (cfg.customerEmail ?? '').toString().trim();\n\n// Escape HTML so answer text and titles are safe inside the email body.\nconst esc = (s) => (s ?? '').toString()\n  .replace(/&/g, '&amp;')\n  .replace(/</g, '&lt;')\n  .replace(/>/g, '&gt;');\n\n// Light Markdown -> HTML for one line: bold, inline code, and [[n]]/[n] citation markers\n// become superscript links that point at the matching source in the Sources list.\nconst inlineHtml = (line) => {\n  let h = esc(line);\n  h = h.replace(/\\*\\*(.+?)\\*\\*/g, '<strong>$1</strong>');\n  h = h.replace(/`([^`]+?)`/g, '<code>$1</code>');\n  h = h.replace(/\\[\\[(\\d+)\\]\\]/g, (_m, n) => '<sup><a href=\"#src-' + n + '\">[' + n + ']</a></sup>');\n  h = h.replace(/(^|[^\\[])\\[(\\d+)\\]([^\\]]|$)/g, (_m, a, n, b) => a + '<sup><a href=\"#src-' + n + '\">[' + n + ']</a></sup>' + b);\n  return h;\n};\n\n// Split the answer into paragraphs and simple bullet lists.\nconst blocks = answerRaw.split(/\\n{2,}/);\nlet answerHtml = '';\nfor (const block of blocks) {\n  const lines = block.split('\\n').map((l) => l.trim()).filter(Boolean);\n  if (!lines.length) continue;\n  const isList = lines.every((l) => /^[-*]\\s+/.test(l));\n  if (isList) {\n    answerHtml += '<ul>' + lines.map((l) => '<li>' + inlineHtml(l.replace(/^[-*]\\s+/, '')) + '</li>').join('') + '</ul>';\n  } else {\n    answerHtml += '<p>' + lines.map(inlineHtml).join('<br>') + '</p>';\n  }\n}\n\n// Numbered, linked Sources list. Anchor ids match the citation markers above.\nlet sourcesHtml = '';\nlet sourcesText = '';\nif (sources.length) {\n  sourcesHtml = '<h3>Sources</h3><ol>';\n  sources.forEach((s, i) => {\n    const n = i + 1;\n    const url = (s && s.url ? s.url : '').toString().trim();\n    const title = ((s && s.title ? s.title : '') || url || ('Source ' + n)).toString().trim();\n    sourcesHtml += '<li id=\"src-' + n + '\"><a href=\"' + esc(url) + '\">' + esc(title) + '</a></li>';\n    sourcesText += '[' + n + '] ' + title + ' - ' + url + '\\n';\n  });\n  sourcesHtml += '</ol>';\n} else {\n  sourcesHtml = '<p><em>You.com returned no sources. Verify the answer before sending.</em></p>';\n  sourcesText = 'No sources were returned. Verify the answer before sending.\\n';\n}\n\nconst note = '<p style=\"color:#666;font-size:12px\">Draft prepared from live public web sources by You.com. '\n  + 'A support agent should verify the sources and edit before sending. This draft was not sent automatically.</p>';\n\nconst htmlBody = '<div>' + answerHtml + sourcesHtml + note + '</div>';\nconst textBody = answerRaw + '\\n\\nSources:\\n' + sourcesText\n  + '\\n(Draft prepared from public web sources by You.com. Verify before sending. Not sent automatically.)';\n\nconst subjectQ = question.length > 60 ? (question.slice(0, 57) + '...') : question;\nconst subject = subjectQ ? ('Re: ' + subjectQ) : 'Re: your support question';\n\nreturn {\n  htmlBody,\n  textBody,\n  subject,\n  sendTo: customerEmail,\n  sourceCount: sources.length,\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f6d5e7a9-6666-4f60-8a06-000000000006",
+      "name": "Create Gmail Draft Reply",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1200,
+        656
+      ],
+      "parameters": {
+        "message": "={{ $json.htmlBody }}",
+        "options": {
+          "sendTo": "={{ $json.sendTo }}"
+        },
+        "subject": "={{ $json.subject }}",
+        "resource": "draft",
+        "emailType": "html",
+        "operation": "create"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a7e6f8b0-7777-4a70-8b07-000000000007",
+      "name": "Notify Agent Draft Ready",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        1440,
+        656
+      ],
+      "webhookId": "c8f7a9b1-8888-4b80-8c08-000000000008",
+      "parameters": {
+        "text": "=:inbox_tray: *Cited support draft ready for review* <@{{ $('Prepare Research Request').item.json.agentSlackId }}>\n\n*Question:* {{ $('Prepare Research Request').item.json.question }}\n*Sources cited:* {{ $('Build Cited Email Reply').item.json.sourceCount }}\n\nThe draft is in Gmail. Verify the sources, edit if needed, and send it yourself. This workflow never sends automatically.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "otherOptions": {
+          "link_names": true,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "b8f7a0c2-9999-4c90-8d09-000000000009",
+      "name": "Build Failure Notice",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        640,
+        1104
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "f1",
+              "name": "question",
+              "type": "string",
+              "value": "={{ $('Prepare Research Request').item.json.question }}"
+            },
+            {
+              "id": "f2",
+              "name": "errorMessage",
+              "type": "string",
+              "value": "={{ $json.error?.message ?? 'The You.com research call failed. Check the You.com credential, plan limits, and the execution log.' }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c9a8b1d3-aaaa-4daa-8e0a-00000000000a",
+      "name": "Alert Support Team of Failure",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        880,
+        1104
+      ],
+      "webhookId": "d0b9c2e4-bbbb-4ebb-8f0b-00000000000b",
+      "parameters": {
+        "text": "=:warning: *Support draft could not be prepared* <@{{ $('Prepare Research Request').item.json.agentSlackId }}>\n\n*Question:* {{ $json.question }}\n*Error:* {{ $json.errorMessage }}\n\nPlease research and answer this one manually.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "otherOptions": {
+          "link_names": true,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "credential-id",
+          "name": "Slack account"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "d1c0e3f5-cccc-4fcc-9a0c-00000000000c",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -192
+      ],
+      "parameters": {
+        "width": 992,
+        "height": 592,
+        "content": "## Draft cited support replies from live public docs using You.com and Gmail\n\n### How it works\n\n1. A support agent or customer submits a question about a public, documented topic through the form.\n2. You.com researches live public sources in one call and returns an answer with inline citations and a source list.\n3. A Code node formats the answer and its sources into an HTML email body.\n4. Gmail saves the reply as a draft. It is never sent automatically.\n5. Slack pings a support agent that a cited draft is ready to review and send.\n\n### Setup steps\n\n- [ ] Self-hosted n8n only: install the You.com community node `@youdotcom-oss/n8n-nodes-youdotcom` under Settings, Community Nodes.\n- [ ] Add You.com and Gmail credentials, and a Slack credential if you want the ping.\n- [ ] Open `Prepare Research Request` to set the research effort and the Slack member ID to mention.\n- [ ] In `Notify Agent Draft Ready` pick the Slack channel for your support team.\n\n### Customization\n\nScope the research prompt in `Prepare Research Request` to your own public docs, tune the research effort from lite to exhaustive, or swap the form trigger for a Gmail trigger on a support alias."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2d1f4a6-dddd-4add-9b0d-00000000000d",
+      "name": "Section Intake",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        480
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 384,
+        "content": "## Take in the support question\nA form collects the question, optional context, and an optional customer email, then one Set node holds all the config and builds the research prompt."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f3e2a5b7-eeee-4bee-9c0e-00000000000e",
+      "name": "Section Research",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        464,
+        464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 384,
+        "content": "## Research live public sources\nYou.com research runs one call over live public docs and standards and returns a cited answer. No private knowledge base, no RAG. A Code node turns the answer and its sources into an HTML email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a4f3b6c8-ffff-4cff-9d0f-00000000000f",
+      "name": "Section Draft",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1088,
+        464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 384,
+        "content": "## Draft the reply, a human sends\nGmail saves the cited reply as a draft and never sends it. Slack tells a support agent it is ready to review and send."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b5a4c7d9-0a0a-4d0a-9e10-000000000010",
+      "name": "Section Error",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        528,
+        912
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 592,
+        "height": 384,
+        "content": "## Handle a failed lookup\nIf the You.com call fails, the run builds a short failure notice and alerts the support team instead of failing silently."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c6b5d8ea-1b1b-4e1b-9f11-000000000011",
+      "name": "Warning Self-Hosted And HITL",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1200,
+        912
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 448,
+        "height": 176,
+        "content": "## Self-hosted and human-in-the-loop\nThe You.com node is a community node and needs self-hosted n8n. The Gmail step only creates a draft. No path in this workflow sends an email on its own."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Build Failure Notice": {
+      "main": [
+        [
+          {
+            "node": "Alert Support Team of Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Cited Email Reply": {
+      "main": [
+        [
+          {
+            "node": "Create Gmail Draft Reply",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Research Public Sources": {
+      "main": [
+        [
+          {
+            "node": "Build Cited Email Reply",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Failure Notice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Gmail Draft Reply": {
+      "main": [
+        [
+          {
+            "node": "Notify Agent Draft Ready",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Research Request": {
+      "main": [
+        [
+          {
+            "node": "Research Public Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When a Support Question Is Submitted": {
+      "main": [
+        [
+          {
+            "node": "Prepare Research Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Draft cited support replies from public docs with You.com, Gmail, and Slack",
+    "wechat": "youandme10086",
+    "id": 17335,
+    "update_time": "2026-09-27"
+  }
+}

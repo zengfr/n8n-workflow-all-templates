@@ -1,4 +1,4 @@
-# feed : 33
+# feed : 39
 
 |id|file|
 |----|----|
@@ -35,3 +35,9 @@
 |14704|[14704_Fetch_latest_RSS_articles_and_store_non-duplicates_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14704_Fetch_latest_RSS_articles_and_store_non-duplicates_in_Google_Sheets.json)|
 |15226|[15226_Filter_AI_slop_from_your_LinkedIn_feed__backend_for_StopSlopIn_Chrome_extension.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15226_Filter_AI_slop_from_your_LinkedIn_feed__backend_for_StopSlopIn_Chrome_extension.json)|
 |15750|[15750_Turn_RSS_feed_content_into_AI_avatar_videos_with_HeyGen__Claude__and_PostPulse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15750_Turn_RSS_feed_content_into_AI_avatar_videos_with_HeyGen__Claude__and_PostPulse.json)|
+|17035|[17035_Ping_IndexNow_when_new_blog_posts_are_published_from_your_RSS_feed.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17035_Ping_IndexNow_when_new_blog_posts_are_published_from_your_RSS_feed.json)|
+|17548|[17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json)|
+|17895|[17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json)|
+|17921|[17921_Cross-post_RSS_feed_articles_to_X__LinkedIn_and_Facebook_with_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17921_Cross-post_RSS_feed_articles_to_X__LinkedIn_and_Facebook_with_PostgreSQL.json)|
+|18169|[18169_Summarize_RSS_feeds_with_Claude_and_post_digests_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18169_Summarize_RSS_feeds_with_Claude_and_post_digests_to_Slack.json)|
+|18461|[18461_Send_a_daily_RSS_digest_email_with_GPT-4o-mini_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18461_Send_a_daily_RSS_digest_email_with_GPT-4o-mini_and_SMTP.json)|

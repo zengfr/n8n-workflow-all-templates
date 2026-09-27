@@ -1,4 +1,4 @@
-# gate : 7
+# gate : 20
 
 |id|file|
 |----|----|
@@ -9,3 +9,16 @@
 |13445|[13445_Gate_deployments_on_WAF_scan_results_with_WAFtester.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13445_Gate_deployments_on_WAF_scan_results_with_WAFtester.json)|
 |13863|[13863_Prevent_duplicate_webhook_executions_with_AARI_idempotency_gate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13863_Prevent_duplicate_webhook_executions_with_AARI_idempotency_gate.json)|
 |14087|[14087_Gate_AI_Slack_DevOps_bot_actions_with_OpenAI_and_Permit.io_RBAC.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14087_Gate_AI_Slack_DevOps_bot_actions_with_OpenAI_and_Permit.io_RBAC.json)|
+|17064|[17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json)|
+|17291|[17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json)|
+|17386|[17386_Gate_SaaS_and_AI_tool_approvals_with_RelayShield__Notion__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17386_Gate_SaaS_and_AI_tool_approvals_with_RelayShield__Notion__Slack__and_Gmail.json)|
+|17914|[17914_Gate_human_approvals_with_ClickUp_tasks_and_ClickUp_Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17914_Gate_human_approvals_with_ClickUp_tasks_and_ClickUp_Chat.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18472|[18472_Triage_and_draft_support_replies_using_Anthropic_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18472_Triage_and_draft_support_replies_using_Anthropic_and_Google_Sheets.json)|
+|18509|[18509_Log_Telegram_client_updates_to_Notion_and_Google_Sheets_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18509_Log_Telegram_client_updates_to_Notion_and_Google_Sheets_with_Gemini.json)|
+|18728|[18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json)|
+|18748|[18748_Review_contract_clauses_against_your_playbook_with_Google_Drive_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18748_Review_contract_clauses_against_your_playbook_with_Google_Drive_and_Claude.json)|
+|18805|[18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json)|
+|19347|[19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json)|
+|19579|[19579_Gate_film_and_TV_music_cue_rights_clearance_with_Gmail__OpenAI__and_Google_Drive_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19579_Gate_film_and_TV_music_cue_rights_clearance_with_Gmail__OpenAI__and_Google_Drive_Sheets.json)|
+|19797|[19797_Label_AI-generated_content_for_EU_AI_Act_compliance_with_Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19797_Label_AI-generated_content_for_EU_AI_Act_compliance_with_Slack_and_Postgres.json)|

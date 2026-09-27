@@ -1,4 +1,4 @@
-# photo : 23
+# photo : 30
 
 |id|file|
 |----|----|
@@ -25,3 +25,10 @@
 |14568|[14568_Validate_addresses_and_generate_Street_View_images_with_Google_Maps_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14568_Validate_addresses_and_generate_Street_View_images_with_Google_Maps_and_Drive.json)|
 |14656|[14656_Create_event_recap_Instagram_carousels_from_photo_dumps_using_Upload_to_URL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14656_Create_event_recap_Instagram_carousels_from_photo_dumps_using_Upload_to_URL.json)|
 |16776|[16776_Generate_Telegram_image-to-video_clips_with_AtlasCloud_WAN_2.7_and_post_via_Blotato_to_TikTok__Instagram__Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16776_Generate_Telegram_image-to-video_clips_with_AtlasCloud_WAN_2.7_and_post_via_Blotato_to_TikTok__Instagram__Facebook.json)|
+|16942|[16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json)|
+|17058|[17058_Create_AI_product_video_ad_Shorts_from_Telegram_photos_with_OpenAI_and_AtlasCloud.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17058_Create_AI_product_video_ad_Shorts_from_Telegram_photos_with_OpenAI_and_AtlasCloud.json)|
+|17415|[17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json)|
+|17765|[17765_Answer_WhatsApp_sales_queries_from_text__voice__photos__and_video_with_OpenAI_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17765_Answer_WhatsApp_sales_queries_from_text__voice__photos__and_video_with_OpenAI_and_Gemini.json)|
+|18694|[18694_Create_and_publish_car_campaigns_from_one_photo_with_GPT-5__GPT_Image_2__LTX_2.3_and_Postoria.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18694_Create_and_publish_car_campaigns_from_one_photo_with_GPT-5__GPT_Image_2__LTX_2.3_and_Postoria.json)|
+|18698|[18698_Generate_UGC_ad_reels_from_product_photos_with_DeepSeek_and_kie.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18698_Generate_UGC_ad_reels_from_product_photos_with_DeepSeek_and_kie.ai.json)|
+|19440|[19440_Verify_photo_proof_of_delivery_with_gpt-5.6-terra__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19440_Verify_photo_proof_of_delivery_with_gpt-5.6-terra__Google_Sheets__Gmail_and_Telegram.json)|

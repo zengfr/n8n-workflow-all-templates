@@ -1,4 +1,4 @@
-# attendees : 7
+# attendees : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |10295|[10295_Synchronize_Events___Attendees_Between_KlickTipp_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10295_Synchronize_Events___Attendees_Between_KlickTipp_and_Google_Calendar.json)|
 |11593|[11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11593_Sync_Zoom_Webinar_Attendees_to_Mailchimp_with_Double_Opt-in_and_Email_Filtering.json)|
 |13495|[13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json)|
+|19542|[19542_Reconcile_Google_Calendar_demo_attendees_with_HubSpot__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19542_Reconcile_Google_Calendar_demo_attendees_with_HubSpot__Google_Sheets_and_Slack.json)|

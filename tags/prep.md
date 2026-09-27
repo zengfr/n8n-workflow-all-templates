@@ -1,4 +1,4 @@
-# prep : 12
+# prep : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |13104|[13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13104_Track_job_applications_and_prep_interviews_with_Notion_and_GPT-5-mini.json)|
 |16195|[16195_Send_Calendly_sales_prep_briefs_with_HubSpot__Clearbit__OpenAI__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16195_Send_Calendly_sales_prep_briefs_with_HubSpot__Clearbit__OpenAI__Slack_and_Gmail.json)|
 |16334|[16334_Prepare_daily_AI_meeting_briefs_from_Google_Calendar_with_GPT-4o_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16334_Prepare_daily_AI_meeting_briefs_from_Google_Calendar_with_GPT-4o_and_email.json)|
+|17094|[17094_Send_Calendly_meeting_prep_briefs_with_Gmail__Notion__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17094_Send_Calendly_meeting_prep_briefs_with_Gmail__Notion__OpenAI_and_Sheets.json)|
+|17824|[17824_Send_daily_meeting_prep_briefs_from_Google_Calendar_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17824_Send_daily_meeting_prep_briefs_from_Google_Calendar_with_Gemini_and_Gmail.json)|
+|18357|[18357_Plan_daily_restaurant_prep_lists_with_DeepSeek__Google_Sheets__Telegram_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18357_Plan_daily_restaurant_prep_lists_with_DeepSeek__Google_Sheets__Telegram_and_Gmail.json)|
+|19618|[19618_Prep_meeting_agendas_from_Google_Calendar_with_Gmail__OpenAI__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19618_Prep_meeting_agendas_from_Google_Calendar_with_Gmail__OpenAI__and_Telegram.json)|

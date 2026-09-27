@@ -1,0 +1,389 @@
+{
+  "id": "YDwPyGLLLj7xiK4D",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Scrape Google search rankings into Google Sheets with ScrapeUnblocker",
+    "wechat": "youandme10086",
+    "id": 17540,
+    "update_time": "2026-09-27"
+  },
+  "name": "Template 8: Google Search Results Scraper",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e31673d2-2438-494f-9ae2-dc3a72cd2594",
+      "name": "Get Keywords",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        256,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11CKzkWvVQB1q08j3G1cNdHjzlPfQQ0rONNLGNwNEU1U/edit#gid=0",
+          "cachedResultName": "Keywords"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "11CKzkWvVQB1q08j3G1cNdHjzlPfQQ0rONNLGNwNEU1U",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11CKzkWvVQB1q08j3G1cNdHjzlPfQQ0rONNLGNwNEU1U/edit?usp=drivesdk",
+          "cachedResultName": "Google Search Results"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "10d55d87-4116-45c1-9832-cd756ef053ad",
+      "name": "Start Search Scraper",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        32,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "f9d717df-5c5c-4ab8-b1ff-1ff0d8f1c3de",
+      "name": "Process Keywords",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        480,
+        0
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "34908682-6d0a-4a32-b556-daa254f21c36",
+      "name": "Build Google Search URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        800,
+        16
+      ],
+      "parameters": {
+        "jsCode": "const keyword = $json.Keyword;\n\nconst url =\n`https://www.google.com/search?q=${encodeURIComponent(keyword)}&num=10`;\n\nreturn [{\n  json:{\n    keyword,\n    searchUrl:url\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5c9da2aa-025e-46ea-8373-922710560dc2",
+      "name": "Fetch Google Search Results",
+      "type": "n8n-nodes-scrapeunblocker.scrapeUnblocker",
+      "position": [
+        1040,
+        -16
+      ],
+      "parameters": {
+        "url": "={{ $json.searchUrl }}"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "884bcdb2-631d-45fa-adb9-9cfdcd6930e4",
+      "name": "Extract Search Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "/**\n * n8n Code node — Google SERP parser (ScrapeUnblocker output)\n * ------------------------------------------------------------\n * MODE:      \"Run Once for All Items\"\n * LANGUAGE:  JavaScript\n * DEPS:      none (works in the default n8n sandbox — no cheerio needed)\n *\n * INPUT:     the raw HTTP Request [ScrapeUnblocker] output. Handles the body\n *            arriving as a string, as [\"<html>...\"], or nested in a field\n *            (data / body / html / content / response).\n * OUTPUT:    one item per organic result, ready for Google Sheets \"Append\":\n *            keyword | rank | title | url | metaDescription | publishedDate | date\n *\n * NOTE:      Only classic organic results are returned. Ads, \"People also ask\",\n *            video/image packs, and knowledge panels are intentionally skipped.\n */\n\n// ---------- helpers ----------\nfunction decodeEntities(str) {\n  return str\n    .replace(/&amp;/g, '&')\n    .replace(/&lt;/g, '<')\n    .replace(/&gt;/g, '>')\n    .replace(/&quot;/g, '\"')\n    .replace(/&#0?39;/g, \"'\")\n    .replace(/&#x27;/gi, \"'\")\n    .replace(/&nbsp;/g, ' ')\n    .replace(/&hellip;/g, '\\u2026');\n}\n\nfunction stripTags(html) {\n  return decodeEntities(html.replace(/<[^>]*>/g, ' '))\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\n// Pull the HTML string out of whatever shape the item arrives in.\nfunction getHtml(json) {\n  if (typeof json === 'string') return json;\n  if (Array.isArray(json)) return json.find(v => typeof v === 'string' && v.includes('<')) || '';\n  const keys = ['data', 'body', 'html', 'content', 'result', 'response', 'page'];\n  for (const k of keys) {\n    const v = json && json[k];\n    if (typeof v === 'string' && v.includes('<html')) return v;\n    if (Array.isArray(v)) {\n      const s = v.find(x => typeof x === 'string' && x.includes('<'));\n      if (s) return s;\n    }\n  }\n  for (const v of Object.values(json || {})) {\n    if (typeof v === 'string' && v.includes('<html')) return v;\n  }\n  return '';\n}\n\n// Find the keyword. Order: passthrough field → ?q= from a REAL url field → <title> tag.\n// NOTE: never scan the page HTML for q= — Google's inline scripts contain q= too.\nfunction getKeyword(json, html) {\n  // 1. Explicit passthrough field (cleanest — see setup note).\n  if (json && typeof json.keyword === 'string' && json.keyword.trim()) return json.keyword.trim();\n  // 2. A genuine URL field only — parse its ?q= param.\n  const urlField = json && (json.url || json.query || json.q);\n  if (typeof urlField === 'string' && /^https?:\\/\\//.test(urlField)) {\n    const m = urlField.match(/[?&]q=([^&]+)/);\n    if (m) { try { return decodeURIComponent(m[1].replace(/\\+/g, ' ')).trim(); } catch { return m[1].trim(); } }\n  }\n  // 3. Fallback: the page <title> (\"<kw> - Google Suche/Search\").\n  const t = html.match(/<title>\\s*([\\s\\S]*?)\\s*-\\s*Google\\b/i);\n  if (t) return t[1].replace(/\\s+/g, ' ').trim();\n  return 'unknown';\n}\n\n// ---------- main ----------\nconst out = [];\nconst scrapedIso = new Date().toISOString();\nconst scrapedDate = scrapedIso.slice(0, 10); // YYYY-MM-DD\n\nfor (const item of $input.all()) {\n  const json = item.json;\n  const html = getHtml(json);\n  if (!html) continue;\n\n  const keyword = getKeyword(json, html);\n\n  // Primary: current organic anchor class. Fallback: any http(s) link wrapping an <h3>.\n  let linkRe = /<a class=\"zReHs\"[^>]*href=\"([^\"]+)\"[^>]*>\\s*<h3[^>]*>([\\s\\S]*?)<\\/h3>/g;\n  let matches = [...html.matchAll(linkRe)];\n  if (matches.length === 0) {\n    linkRe = /<a[^>]*href=\"(https?:\\/\\/[^\"]+)\"[^>]*>\\s*<h3[^>]*>([\\s\\S]*?)<\\/h3>/g;\n    matches = [...html.matchAll(linkRe)];\n  }\n\n  matches.forEach((m, i) => {\n    const url = decodeEntities(m[1]);\n    const title = stripTags(m[2]);\n\n    // Snippet: first VwiC3b block between this result and the next.\n    const start = m.index;\n    const end = i + 1 < matches.length ? matches[i + 1].index : html.length;\n    const slice = html.slice(start, end);\n    const snipM = slice.match(/<div[^>]*class=\"[^\"]*VwiC3b[^\"]*\"[^>]*>([\\s\\S]*?)<\\/div>/);\n    let snippet = snipM ? stripTags(snipM[1]) : '';\n\n    // Strip a leading date Google sometimes prefixes (e.g. \"25.12.2019 — ...\").\n    let publishedDate = '';\n    const d = snippet.match(/^(\\d{1,2}\\.\\d{1,2}\\.\\d{4})\\s*[\\u2014\\-]?\\s*/);\n    if (d) { publishedDate = d[1]; snippet = snippet.slice(d[0].length).trim(); }\n\n    out.push({\n      json: {\n        keyword,\n        rank: i + 1,\n        title,\n        url,\n        metaDescription: snippet,\n        publishedDate,      // '' when Google didn't show one\n        date: scrapedDate,  // date scraped, YYYY-MM-DD\n      },\n    });\n  });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fc122013-2c73-420d-a796-82b7bf9809a7",
+      "name": "Format SERP Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Loop over input items and add a new field called 'myNewField' to the JSON of each one\nfor (const item of $input.all()) {\n  item.json.myNewField = 1;\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8ff250f0-f9fc-469c-8406-d951799ffc5d",
+      "name": "Save Search Results",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1728,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $json.date }}",
+            "Rank": "={{ $json.rank }}",
+            "Title": "={{ $json.title }}",
+            "Keyword": "={{ $json.keyword }}",
+            "Meta Description": "={{ $json.metaDescription }}"
+          },
+          "schema": [
+            {
+              "id": "Keyword",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Keyword",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rank",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Rank",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Title",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Meta Description",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Meta Description",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11CKzkWvVQB1q08j3G1cNdHjzlPfQQ0rONNLGNwNEU1U/edit#gid=0",
+          "cachedResultName": "Keywords"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "11CKzkWvVQB1q08j3G1cNdHjzlPfQQ0rONNLGNwNEU1U",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/11CKzkWvVQB1q08j3G1cNdHjzlPfQQ0rONNLGNwNEU1U/edit?usp=drivesdk",
+          "cachedResultName": "Google Search Results"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "44d516d1-defc-46be-a856-1ff92c2954b7",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        -208
+      ],
+      "parameters": {
+        "width": 688,
+        "height": 688,
+        "content": "## Google Search SERP Scraper\n\n### How It Works\n* **Trigger & Source:** Manually triggered to read target keywords from a designated Google Sheet.\n* **Batch Request Construction:** Loops through each keyword sequentially and dynamically constructs Google search query URLs (`num=10`).\n* **HTML Scraping:** Fetches SERP HTML using **ScrapeUnblocker** to bypass anti-bot detection and captchas.\n\n\n### Quick Setup Checklist\n1. **Google Sheets:** Authenticate account and verify spreadsheet ID, sheet name (`Keywords`), and column name (`Keyword`).\n2. **ScrapeUnblocker:** Set up active credentials to enable reliable scraping of Google SERP pages.\n3. **Google Sheets Output:** Ensure target sheet columns match schema (`Keyword`, `Rank`, `Title`, `URL`, `Meta Description`, `Date`).\n\n### Customization\n* **Results Per Page:** Modify `num=10` in `Build Google Search URL` to scrape more organic positions per keyword.\n* **Extraction Rules:** Tweak regex patterns in `Extract Search Results` to handle specific localized Google SERP structure changes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f03402d1-b82f-4caf-9a0f-06c33b745344",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 736,
+        "height": 432,
+        "content": "## 1. Trigger & Keyword Fetch\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2dd2b27e-cade-48da-96fd-9f58a73a7461",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        704,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 736,
+        "height": 432,
+        "content": "## 2. SERP Scraping & HTML Extraction\nConstructs Google search URLs for each batch item, fetches raw SERP HTML via ScrapeUnblocker, and parses top organic search results."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "41b05e0d-befb-494a-adb5-f887ae95b4e9",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1472,
+        -208
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 432,
+        "content": "## 3. Formatting & Data Export\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "fd2a0b28-96c3-43a9-8203-cb45d2d474f3",
+  "nodeGroups": [],
+  "connections": {
+    "Get Keywords": {
+      "main": [
+        [
+          {
+            "node": "Process Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format SERP Data": {
+      "main": [
+        [
+          {
+            "node": "Save Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process Keywords": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Build Google Search URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Search Results": {
+      "main": [
+        [
+          {
+            "node": "Process Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Search Scraper": {
+      "main": [
+        [
+          {
+            "node": "Get Keywords",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Search Results": {
+      "main": [
+        [
+          {
+            "node": "Format SERP Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Google Search URL": {
+      "main": [
+        [
+          {
+            "node": "Fetch Google Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Google Search Results": {
+      "main": [
+        [
+          {
+            "node": "Extract Search Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

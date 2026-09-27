@@ -1,4 +1,4 @@
-# interactive : 25
+# interactive : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |12151|[12151_Log_daily_Interactive_Brokers_trades_to_a_Google_Sheets_journal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12151_Log_daily_Interactive_Brokers_trades_to_a_Google_Sheets_journal.json)|
 |15512|[15512_Generate_interactive_MCQ_quizzes_from_PDF_textbooks_with_Google_Gemini__UploadToURL_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15512_Generate_interactive_MCQ_quizzes_from_PDF_textbooks_with_Google_Gemini__UploadToURL_and_Gmail.json)|
 |15575|[15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json)|
+|16971|[16971_Calculate_profit_margin_and_markup_with_interactive_web_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16971_Calculate_profit_margin_and_markup_with_interactive_web_forms.json)|
+|17753|[17753_Create_interactive_bank_expense_reports_from_statements_with_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17753_Create_interactive_bank_expense_reports_from_statements_with_OpenAI_GPT-4o.json)|

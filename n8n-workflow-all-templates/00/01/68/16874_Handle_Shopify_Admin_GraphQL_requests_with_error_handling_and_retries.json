@@ -1,0 +1,477 @@
+{
+  "id": "RbTZGV78TEOAoyh4",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Handle Shopify Admin GraphQL requests with error handling and retries",
+    "wechat": "youandme10086",
+    "id": 16874,
+    "update_time": "2026-09-27"
+  },
+  "name": "Shopify GraphQL Handler (Sub-Workflow)",
+  "tags": [
+    {
+      "id": "wBDwWiycBUtKEx8T",
+      "name": "shopify",
+      "createdAt": "2026-06-16T12:01:25.538Z",
+      "updatedAt": "2026-06-16T12:01:25.538Z"
+    },
+    {
+      "id": "Vl0f4XUqxv6hiNs2",
+      "name": "graphql",
+      "createdAt": "2026-06-16T12:01:29.552Z",
+      "updatedAt": "2026-06-16T12:01:29.552Z"
+    },
+    {
+      "id": "L0MIXHsN63oUPZFs",
+      "name": "api",
+      "createdAt": "2026-06-16T12:01:32.912Z",
+      "updatedAt": "2026-06-16T12:01:32.912Z"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "2d297dff-7ca9-4283-a923-fcbc5e81226c",
+      "name": "When Executed by Another Workflow",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        128,
+        304
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "26b5ae6e-6a93-4f27-9406-b95e194ed6d4",
+      "name": "Prepare Request",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        352,
+        304
+      ],
+      "parameters": {
+        "jsCode": "// Get input from parent workflow\nconst input = $json;\n\n// Validate required fields\nif (!input.query) {\n  throw new Error('Missing required field: query');\n}\nif (!input.api_endpoint) {\n  throw new Error('Missing required field: api_endpoint');\n}\nif (!input.access_token) {\n  throw new Error('Missing required field: access_token');\n}\n\n// Normalize api_endpoint (remove trailing slash)\nconst apiEndpoint = input.api_endpoint.replace(/\\/$/, '');\n\nreturn {\n  json: {\n    api_endpoint: apiEndpoint,\n    access_token: input.access_token,\n    api_version: input.api_version ?? '2026-01',\n    body: {\n      query: input.query,\n      variables: input.variables ?? {}\n    },\n    // Retry configuration\n    retry_count: input.retry_count ?? 0,\n    max_retries: input.max_retries ?? 5,\n    retry_on_server_error: input.retry_on_server_error ?? true\n  }\n};"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "eb676907-9e88-4676-9cd1-dc19ed444c3f",
+      "name": "Shopify GraphQL",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        576,
+        304
+      ],
+      "parameters": {
+        "url": "={{ $json.api_endpoint }}/admin/api/{{ $json.api_version }}/graphql.json",
+        "method": "POST",
+        "options": {
+          "timeout": 30000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "X-Shopify-Access-Token",
+              "value": "={{ $json.access_token }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "cc7752b1-de8a-4cc0-bf5c-eb45118bc64e",
+      "name": "Check Errors & Throttle",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        800,
+        304
+      ],
+      "parameters": {
+        "jsCode": "/**\n * Comprehensive Shopify GraphQL Error Checker with Throttle Detection\n * \n * Handles:\n * - Network errors (DNS, connection refused, timeout)\n * - HTTP errors (401, 403, 429, 500, etc.)\n * - GraphQL errors\n * - Shopify userErrors (all types)\n * - Search warnings\n * - Rate limiting / throttling\n * - Bulk operation errors\n * - Job errors\n */\n\nconst httpResponse = $json;\nconst prepareInput = $('Prepare Request').item.json;\nconst errors = [];\nlet needsRetry = false;\nlet waitSeconds = 0;\nlet isThrottled = false;\nlet isServerError = false;\nlet isNetworkError = false;\n\n// ============================================\n// 0. NETWORK/HTTP ERROR HANDLING\n// ============================================\n\n// Check if this is a network-level failure (no response at all)\nif (httpResponse.error || httpResponse.code) {\n  // Network error - no HTTP response received\n  isNetworkError = true;\n  isServerError = true; // Treat as server error for retry purposes\n  errors.push({\n    type: 'NETWORK_ERROR',\n    message: httpResponse.message || httpResponse.error?.message || `Network error: ${httpResponse.code || 'Unknown'}`,\n    code: httpResponse.code || null\n  });\n}\n\n// Determine response structure\n// fullResponse: true returns { body, headers, statusCode }\n// On error with continueOnFail, might return error object\nlet statusCode = 200;\nlet response = null;\nlet headers = null;\n\nif (!isNetworkError) {\n  if (httpResponse.statusCode !== undefined) {\n    // fullResponse format\n    statusCode = httpResponse.statusCode;\n    response = httpResponse.body;\n    headers = httpResponse.headers;\n  } else if (httpResponse.data !== undefined) {\n    // GraphQL response directly (shouldn't happen with fullResponse: true)\n    response = httpResponse;\n  } else if (httpResponse.errors !== undefined) {\n    // GraphQL response directly\n    response = httpResponse;\n  } else {\n    // Unknown format - try to use as-is\n    response = httpResponse;\n  }\n}\n\n// Handle HTTP errors\nif (!isNetworkError && statusCode >= 400) {\n  if (statusCode === 429) {\n    isThrottled = true;\n    errors.push({\n      type: 'HTTP_THROTTLED',\n      message: 'HTTP 429 Too Many Requests',\n      statusCode: statusCode\n    });\n    // Check Retry-After header (case-insensitive)\n    const retryAfterKey = headers ? Object.keys(headers).find(k => k.toLowerCase() === 'retry-after') : null;\n    if (retryAfterKey && headers[retryAfterKey]) {\n      const retryAfterValue = parseInt(headers[retryAfterKey], 10);\n      if (!isNaN(retryAfterValue)) {\n        waitSeconds = retryAfterValue;\n      }\n    }\n  } else if (statusCode >= 500) {\n    isServerError = true;\n    errors.push({\n      type: 'HTTP_SERVER_ERROR',\n      message: `HTTP ${statusCode} Server Error`,\n      statusCode: statusCode\n    });\n  } else if (statusCode === 401) {\n    errors.push({\n      type: 'HTTP_AUTH_ERROR',\n      message: 'HTTP 401 Unauthorized - Check your access token',\n      statusCode: statusCode\n    });\n  } else if (statusCode === 403) {\n    errors.push({\n      type: 'HTTP_AUTH_ERROR',\n      message: 'HTTP 403 Forbidden - Insufficient permissions',\n      statusCode: statusCode\n    });\n  } else if (statusCode === 404) {\n    errors.push({\n      type: 'HTTP_NOT_FOUND',\n      message: 'HTTP 404 Not Found - Check API endpoint',\n      statusCode: statusCode\n    });\n  } else {\n    errors.push({\n      type: 'HTTP_ERROR',\n      message: `HTTP ${statusCode} Error`,\n      statusCode: statusCode\n    });\n  }\n}\n\n// ============================================\n// 1. GRAPHQL ERRORS (Top Level)\n// ============================================\nif (response?.errors && Array.isArray(response.errors) && response.errors.length > 0) {\n  for (const error of response.errors) {\n    const errorInfo = {\n      type: 'GRAPHQL_ERROR',\n      message: error.message || 'Unknown GraphQL error',\n      locations: error.locations ?? null,\n      path: error.path ?? null\n    };\n    \n    if (error.extensions?.code) {\n      errorInfo.code = error.extensions.code;\n      \n      switch (error.extensions.code) {\n        case 'THROTTLED':\n          errorInfo.type = 'THROTTLED';\n          isThrottled = true;\n          if (typeof error.extensions.retryAfter === 'number') {\n            waitSeconds = Math.max(waitSeconds, error.extensions.retryAfter);\n          }\n          break;\n        case 'ACCESS_DENIED':\n          errorInfo.type = 'ACCESS_DENIED';\n          break;\n        case 'INTERNAL_SERVER_ERROR':\n          errorInfo.type = 'SERVER_ERROR';\n          isServerError = true;\n          break;\n        case 'NOT_FOUND':\n          errorInfo.type = 'NOT_FOUND';\n          break;\n      }\n    }\n    \n    errors.push(errorInfo);\n  }\n}\n\n// ============================================\n// 2. DATA-LEVEL ERRORS (userErrors patterns)\n// ============================================\nconst data = response?.data ?? {};\n\n// Match any field ending in 'Errors' or 'UserErrors' for future compatibility\nconst isUserErrorField = (key) => {\n  return key === 'userErrors' || \n         key === 'errors' ||\n         key.endsWith('Errors') || \n         key.endsWith('UserErrors');\n};\n\nfunction findUserErrors(obj, path = '') {\n  if (!obj || typeof obj !== 'object') return [];\n  \n  const foundErrors = [];\n  \n  for (const key of Object.keys(obj)) {\n    const value = obj[key];\n    const currentPath = path ? `${path}.${key}` : key;\n    \n    // Check for userErrors-style arrays\n    if (isUserErrorField(key) && Array.isArray(value) && value.length > 0) {\n      for (const userError of value) {\n        if (userError && typeof userError === 'object' && userError.message) {\n          foundErrors.push({\n            type: 'USER_ERROR',\n            category: key,\n            path: currentPath,\n            field: Array.isArray(userError.field) ? userError.field.join('.') : (userError.field ?? null),\n            message: userError.message,\n            code: userError.code ?? null\n          });\n        } else if (typeof userError === 'string') {\n          foundErrors.push({\n            type: 'USER_ERROR',\n            category: key,\n            path: currentPath,\n            field: null,\n            message: userError,\n            code: null\n          });\n        }\n      }\n    }\n    \n    // Recurse into nested objects and arrays\n    if (typeof value === 'object' && value !== null && !isUserErrorField(key)) {\n      if (Array.isArray(value)) {\n        value.forEach((item, index) => {\n          if (item && typeof item === 'object') {\n            foundErrors.push(...findUserErrors(item, `${currentPath}[${index}]`));\n          }\n        });\n      } else {\n        foundErrors.push(...findUserErrors(value, currentPath));\n      }\n    }\n  }\n  \n  return foundErrors;\n}\n\nerrors.push(...findUserErrors(data));\n\n// ============================================\n// 3. SEARCH WARNINGS (extensions.search)\n// ============================================\nconst searchResults = response?.extensions?.search;\nif (Array.isArray(searchResults)) {\n  for (const search of searchResults) {\n    if (Array.isArray(search?.warnings) && search.warnings.length > 0) {\n      for (const warning of search.warnings) {\n        errors.push({\n          type: 'SEARCH_WARNING',\n          field: warning.field ?? null,\n          message: warning.message || 'Unknown search warning',\n          query: search.query ?? null,\n          path: Array.isArray(search.path) ? search.path.join('.') : (search.path ?? null)\n        });\n      }\n    }\n  }\n}\n\n// ============================================\n// 4. COST/THROTTLE CHECK\n// ============================================\nconst cost = response?.extensions?.cost;\nlet rateLimit = null;\n\nif (cost?.throttleStatus) {\n  const throttleStatus = cost.throttleStatus;\n  \n  rateLimit = {\n    currentlyAvailable: throttleStatus.currentlyAvailable,\n    maximumAvailable: throttleStatus.maximumAvailable,\n    restoreRate: throttleStatus.restoreRate,\n    requestCost: cost.requestedQueryCost,\n    actualCost: cost.actualQueryCost\n  };\n  \n  // Check if throttled (no points available)\n  if (typeof throttleStatus.currentlyAvailable === 'number' && \n      throttleStatus.currentlyAvailable <= 0 && \n      !isThrottled) {\n    isThrottled = true;\n    errors.push({\n      type: 'THROTTLED',\n      message: 'API rate limit exceeded - no points available',\n      currentlyAvailable: throttleStatus.currentlyAvailable,\n      maximumAvailable: throttleStatus.maximumAvailable,\n      restoreRate: throttleStatus.restoreRate\n    });\n  }\n  \n  // Calculate wait time if throttled\n  if (isThrottled && waitSeconds === 0 && typeof throttleStatus.restoreRate === 'number' && throttleStatus.restoreRate > 0) {\n    const neededPoints = ((cost.requestedQueryCost ?? 100) * 1.1);\n    const secondsToWait = Math.ceil(neededPoints / throttleStatus.restoreRate);\n    waitSeconds = Math.min(Math.max(secondsToWait, 2), 60);\n  }\n}\n\n// ============================================\n// 5. BULK OPERATION ERRORS\n// ============================================\nconst bulkOpRunQuery = data.bulkOperationRunQuery?.bulkOperation;\nif (bulkOpRunQuery?.status === 'FAILED') {\n  errors.push({\n    type: 'BULK_OPERATION_ERROR',\n    message: bulkOpRunQuery.errorCode || 'Bulk operation failed',\n    partialDataUrl: bulkOpRunQuery.partialDataUrl ?? null\n  });\n}\n\nconst currentBulkOp = data.currentBulkOperation;\nif (currentBulkOp?.status === 'FAILED') {\n  errors.push({\n    type: 'BULK_OPERATION_ERROR',\n    message: currentBulkOp.errorCode || 'Bulk operation failed',\n    partialDataUrl: currentBulkOp.partialDataUrl ?? null\n  });\n}\n\n// ============================================\n// 6. JOB ERRORS\n// ============================================\nfor (const key of Object.keys(data)) {\n  const operation = data[key];\n  if (operation?.job?.status === 'FAILED') {\n    errors.push({\n      type: 'JOB_ERROR',\n      operation: key,\n      message: operation.job.errorMessage || 'Async job failed'\n    });\n  }\n}\n\n// ============================================\n// DETERMINE IF SHOULD RETRY\n// ============================================\nconst retryCount = prepareInput.retry_count ?? 0;\nconst maxRetries = prepareInput.max_retries ?? 5;\nconst retryOnServerError = prepareInput.retry_on_server_error ?? true;\n\nconst canRetry = retryCount < maxRetries;\nconst shouldRetryThrottle = isThrottled && canRetry;\nconst shouldRetryServerError = isServerError && retryOnServerError && canRetry;\nconst shouldRetryNetwork = isNetworkError && canRetry;\n\nif (shouldRetryThrottle || shouldRetryServerError || shouldRetryNetwork) {\n  needsRetry = true;\n  \n  // Calculate wait time with exponential backoff if not already set\n  if (waitSeconds === 0) {\n    // Exponential backoff: 2, 4, 8, 16, 32 seconds (capped at 60)\n    waitSeconds = Math.min(2 * Math.pow(2, retryCount), 60);\n  }\n  \n  // Add jitter to prevent thundering herd (±20%)\n  const jitterFactor = 1 + (0.4 * Math.random() - 0.2); // 0.8 to 1.2\n  waitSeconds = Math.max(1, Math.round(waitSeconds * jitterFactor));\n}\n\n// ============================================\n// BUILD RESPONSE\n// ============================================\n// Determine which errors are non-retryable\nconst retryableTypes = ['THROTTLED', 'HTTP_THROTTLED', 'SERVER_ERROR', 'HTTP_SERVER_ERROR', 'NETWORK_ERROR'];\nconst nonRetryableErrors = needsRetry \n  ? errors.filter(e => !retryableTypes.includes(e.type))\n  : errors;\n\nconst hasNonRetryableErrors = nonRetryableErrors.length > 0;\n\nreturn {\n  json: {\n    success: !hasNonRetryableErrors && !needsRetry,\n    needsRetry: needsRetry,\n    waitSeconds: waitSeconds,\n    retryCount: retryCount,\n    maxRetries: maxRetries,\n    isThrottled: isThrottled,\n    isServerError: isServerError,\n    isNetworkError: isNetworkError,\n    errors: errors,\n    data: response?.data ?? null,\n    rateLimit: rateLimit,\n    statusCode: statusCode,\n    // Pass through request data for retry (excluding sensitive data from error output)\n    _retryData: {\n      api_endpoint: prepareInput.api_endpoint,\n      access_token: prepareInput.access_token,\n      api_version: prepareInput.api_version,\n      query: prepareInput.body.query,\n      variables: prepareInput.body.variables,\n      retry_count: retryCount + 1,\n      max_retries: maxRetries,\n      retry_on_server_error: retryOnServerError\n    }\n  }\n};"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "e4bd7c99-7631-41d0-a820-bdf5b22c5360",
+      "name": "Needs Retry?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1024,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "needs-retry",
+              "operator": {
+                "type": "boolean",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.needsRetry }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "446a7614-2318-4e00-9f7e-8a9ed265e410",
+      "name": "Prepare Retry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1232,
+        192
+      ],
+      "parameters": {
+        "jsCode": "// Prepare for retry - flatten all data needed after wait\nconst input = $json;\nconst retryData = input._retryData;\n\n// Determine retry reason for logging\nlet retryReason = 'unknown';\nif (input.isThrottled) retryReason = 'rate_limited';\nelse if (input.isNetworkError) retryReason = 'network_error';\nelse if (input.isServerError) retryReason = 'server_error';\n\nreturn {\n  json: {\n    // Wait configuration\n    waitSeconds: input.waitSeconds,\n    \n    // Metadata (for debugging)\n    _meta: {\n      retryAttempt: retryData.retry_count,\n      maxRetries: retryData.max_retries,\n      reason: retryReason\n    },\n    \n    // All data needed to reconstruct request after wait\n    // These fields match what Prepare Request expects\n    api_endpoint: retryData.api_endpoint,\n    access_token: retryData.access_token,\n    api_version: retryData.api_version,\n    query: retryData.query,\n    variables: retryData.variables,\n    retry_count: retryData.retry_count,\n    max_retries: retryData.max_retries,\n    retry_on_server_error: retryData.retry_on_server_error\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7b7268d7-e284-4b1b-adfe-066687194bbb",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1456,
+        192
+      ],
+      "webhookId": "24da6db2-814a-48ad-9ea4-3186b46c5341",
+      "parameters": {
+        "amount": "={{ $json.waitSeconds }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5419c1bd-1392-47f5-a51f-4d45c0640004",
+      "name": "Format for Retry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1664,
+        272
+      ],
+      "parameters": {
+        "jsCode": "// After wait, pass data to Prepare Request\n// Wait node preserves $json in latest n8n versions\nconst input = $json;\n\n// Return in format expected by Prepare Request\nreturn {\n  json: {\n    api_endpoint: input.api_endpoint,\n    access_token: input.access_token,\n    api_version: input.api_version,\n    query: input.query,\n    variables: input.variables,\n    retry_count: input.retry_count,\n    max_retries: input.max_retries,\n    retry_on_server_error: input.retry_on_server_error\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f6655948-ac8d-4aa6-91e8-c1e08b7b3036",
+      "name": "Has Errors?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1248,
+        576
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-errors",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.errors.length }}",
+              "rightValue": 0
+            },
+            {
+              "id": "95628357-dea3-462a-877e-9be46d137772",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.errors[0].type }}",
+              "rightValue": "=USER_ERROR"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a5190f7a-a998-4fa5-889e-5d2e6fcc8a7c",
+      "name": "Throw Error",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1456,
+        496
+      ],
+      "parameters": {
+        "jsCode": "// Format error message\nconst input = $json;\n\nconst formatError = (e) => {\n  switch (e.type) {\n    case 'NETWORK_ERROR':\n      return `[Network] ${e.message}`;\n    case 'HTTP_THROTTLED':\n    case 'THROTTLED':\n      return `[Throttled] ${e.message}${e.currentlyAvailable !== undefined ? ` (${e.currentlyAvailable}/${e.maximumAvailable} points)` : ''}`;\n    case 'HTTP_SERVER_ERROR':\n    case 'SERVER_ERROR':\n      return `[Server Error] ${e.message}`;\n    case 'HTTP_AUTH_ERROR':\n      return `[Auth] ${e.message}`;\n    case 'HTTP_NOT_FOUND':\n      return `[Not Found] ${e.message}`;\n    case 'HTTP_ERROR':\n      return `[HTTP] ${e.message}`;\n    case 'GRAPHQL_ERROR':\n      return `[GraphQL] ${e.message}${e.code ? ` (${e.code})` : ''}`;\n    case 'ACCESS_DENIED':\n      return `[Access Denied] ${e.message}`;\n    case 'NOT_FOUND':\n      return `[Not Found] ${e.message}`;\n    case 'USER_ERROR':\n      return `[${e.category}] ${e.field ? e.field + ': ' : ''}${e.message}${e.code ? ` (${e.code})` : ''}`;\n    case 'SEARCH_WARNING':\n      return `[Search] ${e.field ? e.field + ': ' : ''}${e.message}${e.query ? ` (query: \"${e.query}\")` : ''}`;\n    case 'BULK_OPERATION_ERROR':\n      return `[Bulk Operation] ${e.message}`;\n    case 'JOB_ERROR':\n      return `[Job] ${e.operation}: ${e.message}`;\n    default:\n      return `[${e.type}] ${e.message}`;\n  }\n};\n\nconst errorSummary = input.errors.map(formatError).join('\\n');\n\nconst parentWorkflow = $execution.customData.get('parentWorkflowName');\nconst parentWorkflowId = $execution.customData.get('parentWorkflowId');\nconst parentExecutionId = $execution.customData.get('parentExecutionId');\n\nreturn {\n  errorMessage: `Shopify API Error (HTTP ${input.statusCode}):\\n${errorSummary}`,\n  statusCode: input.statusCode,\n  workflow: $workflow.name,\n  workflowId: $workflow.id,\n  executionId: $execution.id,\n  parentWorkflow: parentWorkflow || null,\n  parentWorkflowId: parentWorkflowId || null,\n  parentExecutionId: parentExecutionId || null\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "981d2e15-3ef3-43c4-9175-ceab0da05822",
+      "name": "Success Response",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1456,
+        688
+      ],
+      "parameters": {
+        "jsCode": "// Return successful response\nconst input = $json;\n\nreturn {\n  json: {\n    success: true,\n    data: input.data,\n    rateLimit: input.rateLimit,\n    statusCode: input.statusCode,\n    retriesUsed: input.retryCount\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ff6b17a-650f-40eb-9b2f-2065941de87d",
+      "name": "Stop and Error",
+      "type": "n8n-nodes-base.stopAndError",
+      "position": [
+        1664,
+        496
+      ],
+      "parameters": {
+        "errorType": "errorObject",
+        "errorObject": "={{ $json.toJsonString() }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7dd2cd32-6466-4d47-b9d7-38fa6cf905f6",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -496,
+        64
+      ],
+      "parameters": {
+        "width": 544,
+        "height": 704,
+        "content": "## Shopify GraphQL Handler\nReusable sub-workflow that executes any Shopify GraphQL query or mutation with built-in error handling, rate limit detection, and automatic retry with exponential backoff.\n\n### How it works\n1. Parent workflow calls this via **Execute Workflow** with query, endpoint, and credentials.\n2. **Prepare Request** validates input and structures the API call.\n3. **Shopify GraphQL** sends the request with full response capture.\n4. **Check Errors & Throttle** inspects HTTP status, GraphQL errors, userErrors, throttle cost, bulk ops, and job failures.\n5. If throttled or server error, the workflow **retries automatically** (up to 5x) with exponential backoff and jitter.\n6. On success, returns `data`, `rateLimit`, and `retriesUsed`.\n7. On non-retryable error, stops execution with a formatted error message.\n\n### Setup steps\n- [ ] In your **parent workflow**, add an Execute Workflow node pointing to this workflow.\n- [ ] Pass `query`, `api_endpoint`, and `access_token` as input fields.\n- [ ] Optionally pass `variables`, `api_version`, `max_retries`.\n\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1112eb2b-afbb-4ad9-a7de-1ce1bf599275",
+      "name": "Section: Authentication",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        304,
+        48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 650,
+        "height": 454,
+        "content": "### Preparing the request\nPrepare the request based on input parameters\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4a1fdeed-17cf-4b4a-a693-3ffedcc26944",
+      "name": "Section: Authentication1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 890,
+        "height": 790,
+        "content": "### Retry & failure handling\nIn case of failure of throttle requirements, this part handles it\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {
+    "When Executed by Another Workflow": [
+      {
+        "json": {
+          "query": "mutation CreateMetafieldDefinition($definition: MetafieldDefinitionInput!) {\n  metafieldDefinitionCreate(definition: $definition) {\n    createdDefinition {\n      id\n      key\n      namespace\n      name\n    }\n    userErrors {\n      field\n      message\n    }\n  }\n}",
+          "variables": {
+            "definition": {
+              "key": "fr_prospec_garantie",
+              "name": "Garantie",
+              "type": "single_line_text_field",
+              "namespace": "custom",
+              "ownerType": "PRODUCT"
+            }
+          },
+          "access_token": "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",
+          "api_endpoint": "https://1c1vev-ak.myshopify.com"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      }
+    ]
+  },
+  "settings": {
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "timeSavedMode": "fixed",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "4f3857f8-65fa-475f-9a38-ed0c3e262909",
+  "nodeGroups": [],
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Format for Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Errors?": {
+      "main": [
+        [
+          {
+            "node": "Throw Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Success Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Throw Error": {
+      "main": [
+        [
+          {
+            "node": "Stop and Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs Retry?": {
+      "main": [
+        [
+          {
+            "node": "Prepare Retry",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Has Errors?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Retry": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Request": {
+      "main": [
+        [
+          {
+            "node": "Shopify GraphQL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shopify GraphQL": {
+      "main": [
+        [
+          {
+            "node": "Check Errors & Throttle",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format for Retry": {
+      "main": [
+        [
+          {
+            "node": "Prepare Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Errors & Throttle": {
+      "main": [
+        [
+          {
+            "node": "Needs Retry?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Another Workflow": {
+      "main": [
+        [
+          {
+            "node": "Prepare Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

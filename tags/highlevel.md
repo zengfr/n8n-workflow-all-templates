@@ -1,4 +1,4 @@
-# highlevel : 15
+# highlevel : 20
 
 |id|file|
 |----|----|
@@ -17,3 +17,8 @@
 |15984|[15984_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Redis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15984_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Redis.json)|
 |16173|[16173_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16173_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Apify.json)|
 |16385|[16385_Quote_freight_shipments_via_WhatsApp_with_Google_Gemini__HighLevel__and_Warp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16385_Quote_freight_shipments_via_WhatsApp_with_Google_Gemini__HighLevel__and_Warp.json)|
+|17873|[17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json)|
+|19026|[19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19026_Sync_Cal.com_no-show_appointments_with_HighLevel_CRM__WhatsApp__and_Google_Sheets.json)|
+|19518|[19518_Qualify_property_leads_on_WhatsApp_with_Google_Sheets__Gemini__and_HighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19518_Qualify_property_leads_on_WhatsApp_with_Google_Sheets__Gemini__and_HighLevel.json)|
+|19656|[19656_Sync_dental_leads_from_Apify_Google_Maps_to_HighLevel_CRM_opportunities.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19656_Sync_dental_leads_from_Apify_Google_Maps_to_HighLevel_CRM_opportunities.json)|
+|19724|[19724_Qualify_event_venue_leads_from_Gmail_with_Gemini__HighLevel__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19724_Qualify_event_venue_leads_from_Gmail_with_Gemini__HighLevel__Sheets_and_Slack.json)|

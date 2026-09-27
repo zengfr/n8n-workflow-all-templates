@@ -1,4 +1,4 @@
-# titles : 12
+# titles : 15
 
 |id|file|
 |----|----|
@@ -14,3 +14,6 @@
 |11441|[11441_Auto-Post_YouTube_Shorts_from_Google_Drive_with_OpenRouter_AI_Titles___Descriptions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11441_Auto-Post_YouTube_Shorts_from_Google_Drive_with_OpenRouter_AI_Titles___Descriptions.json)|
 |11830|[11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11830_Auto-upload_Instagram_Videos_to_YouTube_with_GPT-4o_and_Google_Sheets_Tracking.json)|
 |14381|[14381_Generate_AI_document_titles_for_Paperless-ngx_with_GPT-4o_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14381_Generate_AI_document_titles_for_Paperless-ngx_with_GPT-4o_Mini.json)|
+|16972|[16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json)|
+|16976|[16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json)|
+|19685|[19685_Fill_missing_Wix_SEO_titles_and_meta_descriptions_in_Wix_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19685_Fill_missing_Wix_SEO_titles_and_meta_descriptions_in_Wix_with_Gemini.json)|

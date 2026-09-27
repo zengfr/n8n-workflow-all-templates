@@ -1,4 +1,4 @@
-# signals : 28
+# signals : 41
 
 |id|file|
 |----|----|
@@ -30,3 +30,16 @@
 |16226|[16226_Track_customer_support_hiring_signals_with_Coresignal__Elasticsearch__and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16226_Track_customer_support_hiring_signals_with_Coresignal__Elasticsearch__and_HubSpot.json)|
 |16371|[16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16371_Detect_competitor_launch_signals_from_ads_with_OpenAI_and_Google_Sheets.json)|
 |16743|[16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16743_Monitor_target_account_funding__acquisitions__and_exec_moves_with_Datahyena_and_Slack.json)|
+|17069|[17069_Audit_page_schema_and_AI_citation_signals_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17069_Audit_page_schema_and_AI_citation_signals_with_GPT-4o-mini_and_Google_Sheets.json)|
+|17193|[17193_Draft_personalized_LinkedIn_outreach_from_buying_signals_with_Twain_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17193_Draft_personalized_LinkedIn_outreach_from_buying_signals_with_Twain_and_Slack.json)|
+|17449|[17449_Monitor_churn_risk_from_competitor_job_posts_with_JSearch__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17449_Monitor_churn_risk_from_competitor_job_posts_with_JSearch__Google_Sheets__and_Gmail.json)|
+|17781|[17781_Log_weekly_LinkedIn_hiring_signals_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17781_Log_weekly_LinkedIn_hiring_signals_to_Google_Sheets_with_Apify.json)|
+|18126|[18126_Send_weekly_HR_job_and_contact_digests_to_Slack_with_Coresignal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18126_Send_weekly_HR_job_and_contact_digests_to_Slack_with_Coresignal.json)|
+|18398|[18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json)|
+|18497|[18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18497_Route_Reddit_buying_signals_to_Slack_using_Bright_Data_and_GPT-5.6.json)|
+|18815|[18815_Send_daily_XAUUSD_macro_signals_with_TwelveData__GDELT__Groq__OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18815_Send_daily_XAUUSD_macro_signals_with_TwelveData__GDELT__Groq__OpenAI_and_Telegram.json)|
+|18882|[18882_Turn_LinkedIn_job_posts_into_sales_signals_with_Apify__OpenAI__and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18882_Turn_LinkedIn_job_posts_into_sales_signals_with_Apify__OpenAI__and_Notion.json)|
+|18942|[18942_Qualify_HubSpot_Community_RevOps_signals_with_Claude_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18942_Qualify_HubSpot_Community_RevOps_signals_with_Claude_and_Notion.json)|
+|19081|[19081_Qualify_LinkedIn_hiring_signals_and_draft_outreach_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19081_Qualify_LinkedIn_hiring_signals_and_draft_outreach_with_Gemini_and_Google_Sheets.json)|
+|19469|[19469_Track_local_legal-market_signals_with_Socrata__Google_Sheets__and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19469_Track_local_legal-market_signals_with_Socrata__Google_Sheets__and_email.json)|
+|19843|[19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json)|

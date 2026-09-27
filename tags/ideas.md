@@ -1,4 +1,4 @@
-# ideas : 66
+# ideas : 74
 
 |id|file|
 |----|----|
@@ -68,3 +68,11 @@
 |16513|[16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16513_Validate_startup_ideas_with_Google_Gemini__Groq__and_Gmail.json)|
 |16576|[16576_Create_Seedance_2.0_short_videos_from_Telegram_ideas_with_OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16576_Create_Seedance_2.0_short_videos_from_Telegram_ideas_with_OpenAI_and_Blotato.json)|
 |16759|[16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json)|
+|16875|[16875_Send_daily_short-form_video_ideas_to_Discord_from_Google_News_RSS_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16875_Send_daily_short-form_video_ideas_to_Discord_from_Google_News_RSS_with_Claude.json)|
+|16977|[16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json)|
+|17089|[17089_Turn_LinkedIn_post_reactions_into_AI_content_ideas_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17089_Turn_LinkedIn_post_reactions_into_AI_content_ideas_with_OpenAI_and_Google_Sheets.json)|
+|17278|[17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json)|
+|17592|[17592_Generate_and_publish_LinkedIn_posts_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17592_Generate_and_publish_LinkedIn_posts_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|18025|[18025_Analyze_YouTube_comments_and_generate_video_ideas_with_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18025_Analyze_YouTube_comments_and_generate_video_ideas_with_Gemini_and_Telegram.json)|
+|18389|[18389_Generate_YouTube_clip_ideas_and_Google_Docs_reports_with_Apify_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18389_Generate_YouTube_clip_ideas_and_Google_Docs_reports_with_Apify_and_OpenRouter.json)|
+|19672|[19672_Mine_YouTube_competitor_content_ideas_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19672_Mine_YouTube_competitor_content_ideas_with_Google_Gemini_and_Google_Sheets.json)|

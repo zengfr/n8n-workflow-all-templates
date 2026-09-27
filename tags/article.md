@@ -1,4 +1,4 @@
-# article : 26
+# article : 38
 
 |id|file|
 |----|----|
@@ -28,3 +28,15 @@
 |14704|[14704_Fetch_latest_RSS_articles_and_store_non-duplicates_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14704_Fetch_latest_RSS_articles_and_store_non-duplicates_in_Google_Sheets.json)|
 |15458|[15458_Turn_any_article_into_social_content_with_Gemini__Olostep__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15458_Turn_any_article_into_social_content_with_Gemini__Olostep__and_Google_Docs.json)|
 |15799|[15799_Summarize_article_URLs_with_Google_Gemini_AI_from_WordPress_and_blogs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15799_Summarize_article_URLs_with_Google_Gemini_AI_from_WordPress_and_blogs.json)|
+|17330|[17330_Generate_procurement_knowledge_base_articles_with_Groq__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17330_Generate_procurement_knowledge_base_articles_with_Groq__Gmail__and_Google_Sheets.json)|
+|17459|[17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json)|
+|17627|[17627_Create_LinkedIn_carousel_drafts_from_RSS_feeds_with_PostNitro_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17627_Create_LinkedIn_carousel_drafts_from_RSS_feeds_with_PostNitro_AI_and_Gmail.json)|
+|17692|[17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json)|
+|17810|[17810_Create_LinkedIn_carousel_post_drafts_from_RSS_articles_with_PostNitro_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17810_Create_LinkedIn_carousel_post_drafts_from_RSS_articles_with_PostNitro_and_Gmail.json)|
+|17813|[17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17813_Create_multi-angle_LinkedIn_and_Instagram_carousels_from_RSS_with_Gemini_and_PostNitro.json)|
+|17814|[17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17814_Publish_multi-angle_LinkedIn_and_Instagram_carousels_with_Gemini_and_PostNitro.json)|
+|18236|[18236_Generate_Zen_articles_and_images_with_OpenRouter__Google_Sheets__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18236_Generate_Zen_articles_and_images_with_OpenRouter__Google_Sheets__and_Drive.json)|
+|18859|[18859_Generate_daily_SEO_optimized_WordPress_article_drafts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18859_Generate_daily_SEO_optimized_WordPress_article_drafts_with_OpenAI.json)|
+|19047|[19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json)|
+|19266|[19266_Register_GDPR_Article_30_processing_activities_with_Groq_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19266_Register_GDPR_Article_30_processing_activities_with_Groq_and_Discord.json)|
+|19384|[19384_Log_GDPR_Article_22_decisions_and_route_review_requests_with_Groq_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19384_Log_GDPR_Article_22_decisions_and_route_review_requests_with_Groq_and_Discord.json)|

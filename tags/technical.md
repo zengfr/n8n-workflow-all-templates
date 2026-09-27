@@ -1,4 +1,4 @@
-# technical : 29
+# technical : 31
 
 |id|file|
 |----|----|
@@ -31,3 +31,5 @@
 |15844|[15844_Generate_crypto_trading_signals_from_Binance_data_with_GPT-4o_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15844_Generate_crypto_trading_signals_from_Binance_data_with_GPT-4o_and_Telegram.json)|
 |15952|[15952_Draft_and_revise_technical_articles_with_OpenRouter_in_a_content_pipeline.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15952_Draft_and_revise_technical_articles_with_OpenRouter_in_a_content_pipeline.json)|
 |15989|[15989_Generate_and_refine_technical_drafts_with_OpenRouter_writer_and_critic_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15989_Generate_and_refine_technical_drafts_with_OpenRouter_writer_and_critic_agents.json)|
+|17752|[17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json)|
+|19806|[19806_Create_technical_interview_study_guides_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19806_Create_technical_interview_study_guides_with_OpenAI__Google_Sheets__and_Gmail.json)|

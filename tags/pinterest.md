@@ -1,4 +1,4 @@
-# pinterest : 11
+# pinterest : 17
 
 |id|file|
 |----|----|
@@ -13,3 +13,9 @@
 |14072|[14072_Bulk_publish_Pinterest_Pins_from_Google_Sheets_with_PinBridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14072_Bulk_publish_Pinterest_Pins_from_Google_Sheets_with_PinBridge.json)|
 |14156|[14156_Auto-publish_new_WordPress_posts_to_Pinterest_with_PinBridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14156_Auto-publish_new_WordPress_posts_to_Pinterest_with_PinBridge.json)|
 |15678|[15678_Publish_daily_multi-platform_social_posts_from_live_web_research_with_GPT-5.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15678_Publish_daily_multi-platform_social_posts_from_live_web_research_with_GPT-5.5.json)|
+|16920|[16920_Schedule_YouTube_Shorts_to_Pinterest_with_Apify__Gemini__and_an_OpenAI_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16920_Schedule_YouTube_Shorts_to_Pinterest_with_Apify__Gemini__and_an_OpenAI_model.json)|
+|17127|[17127_Generate_weekly_Pinterest_content_opportunity_briefs_with_Apify__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17127_Generate_weekly_Pinterest_content_opportunity_briefs_with_Apify__OpenAI_and_Google_Sheets.json)|
+|17277|[17277_Generate_Pinterest_pin_copy_CSV_from_blog_RSS_with_OpenAI-compatible_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17277_Generate_Pinterest_pin_copy_CSV_from_blog_RSS_with_OpenAI-compatible_chat.json)|
+|18665|[18665_Track_weekly_Pinterest_keyword_trends_with_Apify__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18665_Track_weekly_Pinterest_keyword_trends_with_Apify__Google_Sheets__and_Slack.json)|
+|19413|[19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json)|
+|19747|[19747_Validate_Pinterest_Pin_payloads_locally_with_JSON-only_checks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19747_Validate_Pinterest_Pin_payloads_locally_with_JSON-only_checks.json)|

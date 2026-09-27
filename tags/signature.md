@@ -1,4 +1,4 @@
-# signature : 7
+# signature : 13
 
 |id|file|
 |----|----|
@@ -9,3 +9,9 @@
 |10606|[10606_Sign_PDF_Documents_with_X.509_Certificates_using_PAdES_Standards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10606_Sign_PDF_Documents_with_X.509_Certificates_using_PAdES_Standards.json)|
 |11018|[11018_Generate_Professional_Email_Signatures_in_HTML___PDF_with_Gmail_Delivery.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11018_Generate_Professional_Email_Signatures_in_HTML___PDF_with_Gmail_Delivery.json)|
 |14486|[14486_Secure_AI_agent_webhook_with_HMAC__replay_protection__and_OpenAI_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14486_Secure_AI_agent_webhook_with_HMAC__replay_protection__and_OpenAI_GPT-5.json)|
+|17492|[17492_Notify_new_Zivvy_CRM_leads_in_Slack_with_HMAC_signature_verification.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17492_Notify_new_Zivvy_CRM_leads_in_Slack_with_HMAC_signature_verification.json)|
+|17695|[17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17695_Send_verified_Paddle_sale_alerts_with_signature_checks_to_Slack__Discord_and_Telegram.json)|
+|18209|[18209_Send__chase__and_e-signature_with_Airtable__TurboDocx__Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18209_Send__chase__and_e-signature_with_Airtable__TurboDocx__Drive_and_Slack.json)|
+|18473|[18473_Handle_Certyneo_e-signature_webhooks_and_archive_signed_PDFs_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18473_Handle_Certyneo_e-signature_webhooks_and_archive_signed_PDFs_to_Google_Drive.json)|
+|18658|[18658_Draft_CPQ_quotes_from_Slack_with_TurboQuote_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18658_Draft_CPQ_quotes_from_Slack_with_TurboQuote_and_OpenAI.json)|
+|18765|[18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json)|

@@ -1,4 +1,4 @@
-# indexing : 8
+# indexing : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |14991|[14991_Filter_sitemap_URLs_and_inspect_indexing_status_with_Google_Search_Console.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14991_Filter_sitemap_URLs_and_inspect_indexing_status_with_Google_Search_Console.json)|
 |15158|[15158_Generate_long-form_SEO_GEO_blog_posts_with_Siah__WordPress_CMS_and_Google_Indexing_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15158_Generate_long-form_SEO_GEO_blog_posts_with_Siah__WordPress_CMS_and_Google_Indexing_API.json)|
 |15274|[15274_Index_n8n_workflows_and_enable_semantic_AI_search_with_OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15274_Index_n8n_workflows_and_enable_semantic_AI_search_with_OpenAI_and_Supabase.json)|
+|19639|[19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json)|

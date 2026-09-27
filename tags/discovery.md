@@ -1,4 +1,4 @@
-# discovery : 29
+# discovery : 38
 
 |id|file|
 |----|----|
@@ -31,3 +31,12 @@
 |15411|[15411_Local_Business_Lead_Discovery_and_Enrichment_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15411_Local_Business_Lead_Discovery_and_Enrichment_Agent.json)|
 |15833|[15833_Sync_PostgreSQL_data_to_a_Pinecone_vector_knowledge_base_using_Gemini_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15833_Sync_PostgreSQL_data_to_a_Pinecone_vector_knowledge_base_using_Gemini_embeddings.json)|
 |16211|[16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json)|
+|17770|[17770_Schedule_and_track_discovery_calls_with_Google_Forms__Calendar__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17770_Schedule_and_track_discovery_calls_with_Google_Forms__Calendar__and_Gmail.json)|
+|18116|[18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18116_Discover_and_log_project_URLs_in_bulk_with_Firecrawl_and_Google_Sheets.json)|
+|18393|[18393_Analyze_procurement_spend_with_Google_Sheets__Groq_Llama_3.3__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18393_Analyze_procurement_spend_with_Google_Sheets__Groq_Llama_3.3__Notion__and_Gmail.json)|
+|18396|[18396_Score_and_shortlist_suppliers_with_Google_Sheets__Google_Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18396_Score_and_shortlist_suppliers_with_Google_Sheets__Google_Gemini__and_Gmail.json)|
+|18478|[18478_Send_daily_India_eProcure_tender_alerts_with_OpenAI__Google_Sheets__Telegram__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18478_Send_daily_India_eProcure_tender_alerts_with_OpenAI__Google_Sheets__Telegram__Slack_and_Gmail.json)|
+|19039|[19039_Extract_drug_discovery_intelligence_with_Claude__Voyage_AI__Pinecone__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19039_Extract_drug_discovery_intelligence_with_Claude__Voyage_AI__Pinecone__Airtable_and_Slack.json)|
+|19145|[19145_Discover_and_score_local_B2B_leads_with_Serper_Maps_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19145_Discover_and_score_local_B2B_leads_with_Serper_Maps_and_Google_Sheets.json)|
+|19360|[19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json)|
+|19659|[19659_Find_and_analyze_salvage_car_deals_with_Apify__Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19659_Find_and_analyze_salvage_car_deals_with_Apify__Google_Sheets_and_Gemini.json)|

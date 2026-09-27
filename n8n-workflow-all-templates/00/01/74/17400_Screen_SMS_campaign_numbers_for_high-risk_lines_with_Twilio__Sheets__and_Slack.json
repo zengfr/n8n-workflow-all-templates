@@ -1,0 +1,645 @@
+{
+  "name": "Screen a campaign number list for high-risk lines with Twilio Lookup",
+  "nodes": [
+    {
+      "id": "bdb1a395-ea9f-4025-9067-823f5d031f55",
+      "name": "Start Number Screen",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -96,
+        624
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "ed84c20d-cbbd-40ea-9df9-3c88981fb503",
+      "name": "Get Pending Campaign Numbers",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        128,
+        624
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Pending Campaign"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "REPLACE_WITH_YOUR_SPREADSHEET"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "5ca3a482-eddd-48c1-9dfd-9eb3d00df2b7",
+      "name": "Build Screening Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1984,
+        624
+      ],
+      "parameters": {
+        "jsCode": "const rows = $('Classify Line Risk').all().map(i => i.json);\nconst total = rows.length;\nconst safe = rows.filter(r => r.decision === 'safe').length;\nconst quarantined = total - safe;\n\nconst breakdown = {};\nfor (const r of rows) {\n  if (r.decision !== 'quarantine') continue;\n  const key = r.valid ? r.line_type + ' / ' + r.country_code : 'lookup failed';\n  breakdown[key] = (breakdown[key] || 0) + 1;\n}\n\nconst keys = Object.keys(breakdown);\nconst breakdownText = keys.length ? keys.map(k => k + ': ' + breakdown[k]).join(', ') : 'none';\n\nreturn [{ json: { total: total, safe: safe, quarantined: quarantined, breakdown: breakdownText } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "73c45d8e-3f57-41cf-b9f7-1fee94039481",
+      "name": "Post Screening Summary To Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2240,
+        624
+      ],
+      "parameters": {
+        "text": "=*Campaign number screen complete*\nScreened: {{ $json.total }}\nSafe to send: {{ $json.safe }}\nQuarantined: {{ $json.quarantined }}\nQuarantine breakdown: {{ $json.breakdown }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "REPLACE_WITH_YOUR_SLACK_CHANNEL"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_SLACK_CREDENTIAL"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "df6fe168-7c37-4453-ac8c-72c68f5471cb",
+      "name": "Look Up Line Type With Twilio",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        688,
+        640
+      ],
+      "parameters": {
+        "url": "=https://lookups.twilio.com/v2/PhoneNumbers/{{ $json.phone_number }}",
+        "options": {
+          "timeout": 15000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "Fields",
+              "value": "line_type_intelligence"
+            }
+          ]
+        },
+        "nodeCredentialType": "twilioApi"
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_TWILIO_CREDENTIAL"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "fe7aa170-0fcc-430d-bc9a-35626ce6e4ef",
+      "name": "Classify Line Risk",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        912,
+        640
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const allowedCountries = ['CA', 'US'];\nconst allowedLineTypes = ['mobile'];\n\nconst res = $json;\nconst body = res.body || {};\nconst status = res.statusCode || 0;\nconst source = $('Loop Over Each Number').item.json;\n\nconst lookupOk = status === 200 && body.valid === true;\nconst lti = body.line_type_intelligence || {};\nconst lineType = lti.type || 'unknown';\nconst country = body.country_code || 'unknown';\n\nlet decision = 'safe';\nlet reason = '';\n\nif (!lookupOk) {\n  decision = 'quarantine';\n  reason = 'Lookup failed or number is not valid (HTTP ' + status + ')';\n} else if (!allowedCountries.includes(country)) {\n  decision = 'quarantine';\n  reason = 'Country ' + country + ' is outside the allowed list';\n} else if (!allowedLineTypes.includes(lineType)) {\n  decision = 'quarantine';\n  reason = 'Line type ' + lineType + ' is not allowed for SMS';\n}\n\nreturn {\n  json: {\n    campaign_id: source.campaign_id || '',\n    contact_name: source.contact_name || '',\n    phone_number: source.phone_number || '',\n    e164: body.phone_number || source.phone_number || '',\n    valid: lookupOk,\n    line_type: lineType,\n    country_code: country,\n    carrier_name: lti.carrier_name || '',\n    decision: decision,\n    reason: reason,\n    screened_at: new Date().toISOString()\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b6220731-39fc-4d87-a6ea-097f38285647",
+      "name": "Route Safe or Quarantine",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1152,
+        640
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "Safe",
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.decision }}",
+                    "rightValue": "safe"
+                  }
+                ]
+              },
+              "renameOutput": true
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "renameFallbackOutput": "Quarantine"
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "38a2b529-900a-4984-8750-ad20122b2f68",
+      "name": "Write Row To Safe To Send Tab",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1584,
+        624
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "line_type": "={{ $json.line_type }}",
+            "campaign_id": "={{ $json.campaign_id }}",
+            "screened_at": "={{ $json.screened_at }}",
+            "carrier_name": "={{ $json.carrier_name }}",
+            "contact_name": "={{ $json.contact_name }}",
+            "country_code": "={{ $json.country_code }}",
+            "phone_number": "={{ $json.e164 }}"
+          },
+          "schema": [
+            {
+              "id": "campaign_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "campaign_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "contact_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "phone_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "line_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "line_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country_code",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "country_code",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "carrier_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "carrier_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "screened_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "screened_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Safe To Send"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "REPLACE_WITH_YOUR_SPREADSHEET"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "823905ce-52ea-427e-a9b2-e04da0b0e877",
+      "name": "Loop Over Each Number",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        368,
+        624
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "52a98bc4-4fcb-4994-b32d-436989d01d41",
+      "name": "Write Row To Quarantine Tab",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1584,
+        848
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "reason": "={{ $json.reason }}",
+            "line_type": "={{ $json.line_type }}",
+            "campaign_id": "={{ $json.campaign_id }}",
+            "screened_at": "={{ $json.screened_at }}",
+            "carrier_name": "={{ $json.carrier_name }}",
+            "contact_name": "={{ $json.contact_name }}",
+            "country_code": "={{ $json.country_code }}",
+            "phone_number": "={{ $json.phone_number }}"
+          },
+          "schema": [
+            {
+              "id": "campaign_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "campaign_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "contact_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "contact_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "phone_number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "phone_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "line_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "line_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "country_code",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "country_code",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "carrier_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "carrier_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "screened_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "screened_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Quarantine"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "",
+          "cachedResultName": "REPLACE_WITH_YOUR_SPREADSHEET"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_CREDENTIAL_ID",
+          "name": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "fa0c68dd-4b5a-4f5b-ae99-d65bb37a9d44",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -272
+      ],
+      "parameters": {
+        "width": 992,
+        "height": 640,
+        "content": "## Screen a campaign number list for high-risk lines with Twilio Lookup\n\n### How it works\n\n1. A manual run reads the pending campaign tab from Google Sheets.\n2. `Loop Over Each Number` hands over one number at a time, batch size 1.\n3. `Look Up Line Type With Twilio` calls Twilio Lookup v2 with the Line Type Intelligence field.\n4. `Classify Line Risk` marks a number safe only if it is a valid mobile in an allowed country, otherwise it writes a quarantine reason.\n5. `Route Safe or Quarantine` appends each row to the Safe To Send tab or the Quarantine tab.\n6. When the loop finishes, `Build Screening Summary` counts the results and Slack gets one summary message.\n\n### Setup steps\n\n- [ ] Add an HTTP Basic Auth credential with your Twilio Account SID as the user and your Auth Token as the password.\n- [ ] Enable Line Type Intelligence in the Twilio console under Lookup, or no line type comes back.\n- [ ] Add a Google Sheets credential to the three Sheets nodes and a Slack credential to `Post Screening Summary To Slack`.\n- [ ] Pick your spreadsheet, set the `Pending Campaign`, `Safe To Send`, and `Quarantine` tab names, and set your Slack channel.\n\n### Customization\n\nEdit the two arrays at the top of `Classify Line Risk` to change the allowed countries and line types, swap the manual trigger for a Schedule Trigger, or send the summary by email instead of Slack."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "29f1895c-dbe7-465b-a737-e8a39f576894",
+      "name": "Cost Warning",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        896,
+        -128
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 560,
+        "height": 224,
+        "content": "## Line Type Intelligence is a billable add-on\n\nBasic Lookup validation is free, but Line Type Intelligence costs roughly $0.008 per lookup and has to be enabled in the Twilio console before the workflow returns a line type at all. Screening a large list costs real money, so check current pricing and screen once rather than before every send."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "26902409-4072-4f4e-b6c4-861ff9170fea",
+      "name": "Section Pull List",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        448
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 368,
+        "content": "## Pull the pending campaign list\n\nA manual trigger reads every row from the pending campaign tab, then a loop hands the numbers over one at a time so each one gets its own lookup call."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9636bd4d-9800-40c7-9b51-93f1f01055ac",
+      "name": "Section Lookup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        464
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 752,
+        "height": 368,
+        "content": "## Look up each number and classify it\n\nTwilio Lookup v2 returns a validity flag, a country code, and the line type, and a Code node turns that into a safe or quarantine decision with a written reason."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8db8027c-b485-4976-ae77-5df73d99636c",
+      "name": "Section Route",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        432
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 384,
+        "height": 592,
+        "content": "## Split safe rows from quarantined rows\n\nSafe rows and quarantined rows go to separate tabs, so the sending workflow can read a list that only ever holds numbers that passed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "acd18420-716c-4c9c-857a-042b3893d0b3",
+      "name": "Section Summary",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1888,
+        432
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 560,
+        "height": 400,
+        "content": "## Summarize the run and tell the team\n\nA Code node counts screened, safe, and quarantined numbers and groups the blocks by line type, then Slack gets one message per run rather than one per number."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Classify Line Risk": {
+      "main": [
+        [
+          {
+            "node": "Route Safe or Quarantine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start Number Screen": {
+      "main": [
+        [
+          {
+            "node": "Get Pending Campaign Numbers",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Each Number": {
+      "main": [
+        [
+          {
+            "node": "Build Screening Summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Look Up Line Type With Twilio",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Screening Summary": {
+      "main": [
+        [
+          {
+            "node": "Post Screening Summary To Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Safe or Quarantine": {
+      "main": [
+        [
+          {
+            "node": "Write Row To Safe To Send Tab",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Write Row To Quarantine Tab",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Row To Quarantine Tab": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Each Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Pending Campaign Numbers": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Each Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look Up Line Type With Twilio": {
+      "main": [
+        [
+          {
+            "node": "Classify Line Risk",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write Row To Safe To Send Tab": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Each Number",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Screen SMS campaign numbers for high-risk lines with Twilio, Sheets, and Slack",
+    "wechat": "youandme10086",
+    "id": 17400,
+    "update_time": "2026-09-27"
+  }
+}

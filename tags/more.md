@@ -1,4 +1,4 @@
-# more : 14
+# more : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |12634|[12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12634_Curate_and_post_AI_news_to_X__Bluesky__Threads_and_more_with_GPT-5_mini_and_Cue.json)|
 |13413|[13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13413_Share_new_Shopify_products_to_WordPress__Facebook__Instagram__LinkedIn_and_more_using_OpenAI.json)|
 |14536|[14536_Track_LLM_costs_and_usage_across_OpenAI__Anthropic__Google_and_more.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14536_Track_LLM_costs_and_usage_across_OpenAI__Anthropic__Google_and_more.json)|
+|18754|[18754_Research_and_score_crowdfunding_leads_with_Google_Sheets__DeepSeek__Lemlist__and_more.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18754_Research_and_score_crowdfunding_leads_with_Google_Sheets__DeepSeek__Lemlist__and_more.json)|

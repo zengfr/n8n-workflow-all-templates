@@ -1,4 +1,4 @@
-# ranked : 8
+# ranked : 15
 
 |id|file|
 |----|----|
@@ -10,3 +10,10 @@
 |13555|[13555_Gamify_Keephub_form_response_times_and_email_a_ranked_leaderboard_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13555_Gamify_Keephub_form_response_times_and_email_a_ranked_leaderboard_via_Gmail.json)|
 |15074|[15074_Monitor_TikTok_hashtag_trends_with_Apify_and_send_ranked_reports_via_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15074_Monitor_TikTok_hashtag_trends_with_Apify_and_send_ranked_reports_via_Gmail.json)|
 |15183|[15183_Analyze_YouTube_videos_with_GPT-4o-mini_and_get_relevance-ranked_insights.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15183_Analyze_YouTube_videos_with_GPT-4o-mini_and_get_relevance-ranked_insights.json)|
+|16876|[16876_Send_ranked_freight_quote_PDFs_with_GPT-4o__Google_Sheets__Gmail_and_PDFShift.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16876_Send_ranked_freight_quote_PDFs_with_GPT-4o__Google_Sheets__Gmail_and_PDFShift.json)|
+|17093|[17093_Flag_Meta_ad_creative_fatigue_with_Facebook_Graph_API_and_send_ranked_reports_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17093_Flag_Meta_ad_creative_fatigue_with_Facebook_Graph_API_and_send_ranked_reports_to_Slack.json)|
+|17248|[17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json)|
+|17257|[17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json)|
+|18877|[18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json)|
+|18918|[18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18918_Deduplicate_CSV_leads_and_rank_key_contacts_with_OpenRouter_Claude_Haiku.json)|
+|19249|[19249_Monitor_competitor_pages_and_email_AI-ranked_digests_with_Sheets__Gemini__Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19249_Monitor_competitor_pages_and_email_AI-ranked_digests_with_Sheets__Gemini__Gmail.json)|

@@ -1,0 +1,488 @@
+{
+  "name": "Web Page Summariser",
+  "nodes": [
+    {
+      "id": "6b1f2a01-0000-4000-8000-00000000e701",
+      "name": "When clicking 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -380,
+        200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a02-0000-4000-8000-00000000e702",
+      "name": "⭐ Configure Your Run",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -180,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "6b1f2a21-+1234567890000e721",
+              "name": "max_per_run",
+              "type": "string",
+              "value": "25"
+            },
+            {
+              "id": "6b1f2a23-+1234567890000e723",
+              "name": "openai_model",
+              "type": "string",
+              "value": "gpt-4o-mini"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6b1f2a03-0000-4000-8000-00000000e703",
+      "name": "Read URLs",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        40,
+        200
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "pages"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PASTE_YOUR_GOOGLE_SHEET_URL"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "6b1f2a04-0000-4000-8000-00000000e704",
+      "name": "Select Pending",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        240,
+        200
+      ],
+      "parameters": {
+        "jsCode": "\n// Select Pending — idempotent + robust per-run cap + model allowlist.\nconst APPROVED_MODELS = [\"gpt-4o-mini\", \"gpt-4.1-mini\"];\nconst DEFAULT_MODEL = \"gpt-4o-mini\";\nconst HARD_CAP = 100;\nconst DEFAULT_CAP = 25;\n\nconst cfg = $('⭐ Configure Your Run').first().json;\nlet model = String(cfg.openai_model || '').trim();\nif (!APPROVED_MODELS.includes(model)) model = DEFAULT_MODEL;\n\nlet cap = Number(cfg.max_per_run);\nif (!Number.isFinite(cap) || cap <= 0) cap = DEFAULT_CAP;\ncap = Math.min(Math.floor(cap), HARD_CAP);\n\nconst rows = $input.all();\nconst out = [];\nconst seen = new Set();\nfor (const item of rows) {\n  const j = item.json;\n  const urlRaw = String(j.url || '');               // RAW cell = writeback match key\n  let site = urlRaw.trim();\n  const already = String(j.summary || '').trim();\n  if (!site || already) continue;                   // idempotent: skip done/blank rows\n  if (site && !/^https?:\\/\\//i.test(site)) site = 'https://' + site;\n  const key = site.toLowerCase();\n  if (seen.has(key)) continue;\n  seen.add(key);\n  // regex validation only — the URL constructor is unavailable in the Code-node sandbox\n  const valid = /^https?:\\/\\/[a-z0-9][a-z0-9.-]*\\.[a-z]{2,}(?::\\d+)?([\\/?#]\\S*)?$/i.test(site);\n  out.push({ json: {\n    url: urlRaw,                                     // written back as data (unchanged)\n    page_url: valid ? site : '',\n    row_number: j.row_number,                        // STABLE per-row match key — handles duplicate URLs\n    _model: model,\n  }});\n  if (out.length >= cap) break;\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b1f2a05-0000-4000-8000-00000000e705",
+      "name": "Fetch Page",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        440,
+        200
+      ],
+      "parameters": {
+        "url": "={{ $json.page_url }}",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {}
+          },
+          "response": {
+            "response": {
+              "responseFormat": "text"
+            }
+          }
+        },
+        "sendHeaders": true,
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/121.0.0.0 Safari/537.36"
+            },
+            {
+              "name": "Accept",
+              "value": "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8"
+            },
+            {
+              "name": "Accept-Language",
+              "value": "en-US,en;q=0.9"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6b1f2a06-0000-4000-8000-00000000e706",
+      "name": "Prepare Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        200
+      ],
+      "parameters": {
+        "jsCode": "\n// Prepare Prompt — strip HTML, truncate, build the summarisation request.\nconst SYSTEM_RULES = \"You are a summarisation assistant. From the provided web page text, produce a short, FACTUAL summary of THIS page for someone triaging or researching a list of links. (1) Use ONLY what is in the provided page text \\u2014 NEVER invent facts, numbers, names, awards, prices, funding or dates. If the text does not say it, do not write it. (2) NEVER MERGE SEPARATE FACTS INTO ONE CLAIM. If a superlative appears in one place and a number/duration/badge in another, do NOT attach them to each other \\u2014 assert only what a single statement in the text explicitly joins. Two true facts side by side never license a third claim joining them. If unsure whether the text joins two facts, state only the one you are certain of. (3) Plain spoken English, no marketing fluff, no emojis, no exclamation marks. (4) 'key_points' = the 2-4 most important, specific takeaways actually stated on the page \\u2014 NOT generic restatements of the topic. If the page is too thin for real points, return an empty string. (5) Return STRICT JSON only: {\\\"title\\\":\\\"...\\\",\\\"summary\\\":\\\"...\\\",\\\"key_points\\\":\\\"...\\\",\\\"topic\\\":\\\"...\\\",\\\"confidence\\\":\\\"high|medium|low\\\"}. title = the page's actual title or main subject. summary = 2-3 sentences on what the page is about. key_points = a short comma-separated list of the key takeaways. topic = a 1-3 word category. confidence = 'low' if the page was thin/unreachable (say so honestly rather than guessing).\";\nconst LIMIT = 8000;\n\n// n8n httpRequest REPLACES item json with the response ({data}) on success —\n// url fields must be re-joined from Select Pending by paired index.\nconst inputs = $input.all();\nconst leads = $('Select Pending').all();\nif (inputs.length !== leads.length) throw new Error('fetch/select item count mismatch: ' + inputs.length + ' vs ' + leads.length);\nconst out = [];\nfor (let i = 0; i < inputs.length; i++) {\n  const j = inputs[i].json;\n  let raw = '';\n  if (typeof j.data === 'string') raw = j.data;\n  else if (typeof j.body === 'string') raw = j.body;\n  const failed = !!j.error || !raw;\n\n  // pull the <title> before stripping tags — a useful anchor for the model\n  let pageTitle = '';\n  if (!failed) {\n    const m = raw.match(/<title[^>]*>([\\s\\S]*?)<\\/title>/i);\n    if (m) pageTitle = m[1].replace(/\\s+/g, ' ').trim().slice(0, 200);\n  }\n\n  let text = '';\n  if (!failed) {\n    text = raw\n      .replace(/<script[\\s\\S]*?<\\/script>/gi, ' ')\n      .replace(/<style[\\s\\S]*?<\\/style>/gi, ' ')\n      .replace(/<[^>]+>/g, ' ')\n      .replace(/&[a-z#0-9]+;/gi, ' ')\n      .replace(/\\s+/g, ' ')\n      .trim()\n      .slice(0, LIMIT);\n  }\n  const lead = leads[i].json;\n  const user = [\n    'PAGE URL: ' + JSON.stringify({ url: lead.page_url || lead.url }),\n    pageTitle ? ('PAGE <title>: ' + pageTitle) : '',\n    text ? ('PAGE TEXT:\\n' + text)\n         : 'PAGE TEXT: UNAVAILABLE (page unreachable). Do NOT invent anything. Set every field to an empty string except confidence, and set confidence to \"low\".',\n    'Return the summary as strict JSON only.',\n  ].filter(Boolean).join('\\n\\n');\n\n  out.push({ json: { ...lead, _site_ok: !!text, _fetch_error: !!j.error,\n    _oai_body: {\n      model: lead._model,\n      messages: [\n        { role: 'system', content: SYSTEM_RULES },\n        { role: 'user', content: user },\n      ],\n      response_format: { type: 'json_object' },\n      max_tokens: 400,\n      temperature: 0.2,\n    }\n  }});\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b1f2a07-0000-4000-8000-00000000e707",
+      "name": "Analyze (OpenAI)",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        840,
+        200
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/chat/completions",
+        "method": "POST",
+        "options": {
+          "timeout": 60000
+        },
+        "jsonBody": "={{ JSON.stringify($json._oai_body) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "openAiApi"
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "credential-id",
+          "name": "OpenAI"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "6b1f2a08-0000-4000-8000-00000000e708",
+      "name": "Parse Summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        200
+      ],
+      "parameters": {
+        "jsCode": "\n// Parse Summary — robust parse; unreachable-page honest fallback; RAW-safe strings.\nconst inputs = $input.all();\nconst prepared = $('Prepare Prompt').all();\nif (inputs.length !== prepared.length) throw new Error('openai/prepare item count mismatch: ' + inputs.length + ' vs ' + prepared.length);\nconst out = [];\nfor (let i = 0; i < inputs.length; i++) {\n  const j = inputs[i].json;\n  const lead = prepared[i].json;\n  let title = '', summary = '', keyPoints = '', topic = '', confidence = 'low';\n  const apiFailed = !!j.error || !j.choices;\n\n  if (!apiFailed) {\n    try {\n      const parsed = JSON.parse(j.choices?.[0]?.message?.content || '');\n      title     = String(parsed.title || '').replace(/[\\r\\n]+/g, ' ').trim();\n      summary   = String(parsed.summary || '').replace(/[\\r\\n]+/g, ' ').trim();\n      keyPoints = String(parsed.key_points || '').replace(/[\\r\\n]+/g, ' ').trim();\n      topic     = String(parsed.topic || '').replace(/[\\r\\n]+/g, ' ').trim();\n      confidence= String(parsed.confidence || '').toLowerCase().trim();\n    } catch (e) { /* fallback below */ }\n  }\n  // A row is a real success only if the page was read AND the model returned a summary.\n  const failed = apiFailed || !lead._site_ok || !summary;\n  if (failed) {\n    // Keep the row RETRYABLE: blank summary => a re-run picks it up again after the user\n    // fixes the URL or the site comes back. status='failed' tells them why. Never write a\n    // fake summary that permanently blocks retry.\n    title = ''; summary = ''; keyPoints = ''; topic = ''; confidence = 'low';\n  }\n  if (!['high','medium','low'].includes(confidence)) confidence = 'medium';\n\n  out.push({ json: {\n    row_number: lead.row_number,                     // match key — write to THIS exact row\n    url: lead.url,\n    title: title,\n    summary: summary,\n    key_points: keyPoints,\n    topic: topic,\n    confidence: confidence,\n    status: failed ? 'failed' : 'done',\n    summarised_at: new Date().toISOString().slice(0, 16).replace('T', ' '),\n  }});\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b1f2a09-0000-4000-8000-00000000e709",
+      "name": "Write Summary",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1240,
+        200
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "row_number",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "url",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "url",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summary",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "summary",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "key_points",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "key_points",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "topic",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "topic",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "confidence",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "status",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "status",
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "summarised_at",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "summarised_at",
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "pages"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "PASTE_YOUR_GOOGLE_SHEET_URL"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "6b1f2a51-0000-4000-8000-00000000e751",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1120,
+        20
+      ],
+      "parameters": {
+        "width": 620,
+        "height": 820,
+        "content": "## 📄 Web Page Summariser\n\nTurn a list of links into an honest, one-glance summary of each — competitor pages, articles, docs or saved research — without opening them all.\n\n### How it works\n1. **Read** — pulls your links from the `pages` tab of a Google Sheet.\n2. **Select** — skips rows already summarised, so re-running is safe and never double-charges.\n3. **Fetch** — downloads each page as text (pages that fail are marked, never invented).\n4. **Summarise** — one OpenAI call per page under strict no-invention rules.\n5. **Write back** — updates the same row with title, summary, key points, topic and confidence.\n\n### Setup steps\n- [ ] Copy the companion Google Sheet — open [this link](https://docs.google.com/spreadsheets/d/18ZcLv0Z2fhF8o0HxyRg4Qzs-sm2fmE84x9SXisrnuBw/copy) and click **Make a copy**\n- [ ] Add your **Google Sheets** credential to *Read URLs* and *Write Summary*\n- [ ] Add your **OpenAI** credential to *Analyze (OpenAI)*\n- [ ] Paste **your copy's** Sheet URL into *Read URLs* and *Write Summary*\n- [ ] Put your links in the `url` column, then press **Execute workflow**\n\n### Customization\n- **Volume:** `max_per_run` in *Configure Your Run* — 1–100 pages per run.\n- **Model:** `openai_model` — defaults to `gpt-4o-mini`, about $0.0003 per page.\n- **Output:** edit the summary rules in *Prepare Prompt* to change length, tone or fields.\n\nBuilt by **FirstDropHQ** — firstdrophq.com"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a52-0000-4000-8000-00000000e752",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -440,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 840,
+        "height": 360,
+        "content": "## 1. Read your links\n\nReads the `pages` tab of your Google Sheet and selects only rows that have not been summarised yet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a53-0000-4000-8000-00000000e753",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 360,
+        "content": "## 2. Fetch and summarise\n\nDownloads each page and sends its text to OpenAI once, under rules that forbid inventing facts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a54-0000-4000-8000-00000000e754",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        20
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 360,
+        "content": "## 3. Write back to your Sheet\n\nParses the response and updates the original row with the summary, topic, confidence and status."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b1f2a55-0000-4000-8000-00000000e755",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        700,
+        440
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 600,
+        "height": 260,
+        "content": "## ⚠️ Runs on your own OpenAI key\n\nEvery page is one OpenAI call **billed to your key** — about $0.0003 per page on `gpt-4o-mini`.\n\nGet a key at **platform.openai.com → API keys**, then add it to *Analyze (OpenAI)*.\n\nStart with `max_per_run` at **5** to see the output before running a long list."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Read URLs": {
+      "main": [
+        [
+          {
+            "node": "Select Pending",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Page": {
+      "main": [
+        [
+          {
+            "node": "Prepare Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse Summary": {
+      "main": [
+        [
+          {
+            "node": "Write Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Prompt": {
+      "main": [
+        [
+          {
+            "node": "Analyze (OpenAI)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Select Pending": {
+      "main": [
+        [
+          {
+            "node": "Fetch Page",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze (OpenAI)": {
+      "main": [
+        [
+          {
+            "node": "Parse Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⭐ Configure Your Run": {
+      "main": [
+        [
+          {
+            "node": "Read URLs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "⭐ Configure Your Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Summarize web pages from Google Sheets using OpenAI GPT-4o-mini",
+    "wechat": "youandme10086",
+    "id": 17197,
+    "update_time": "2026-09-27"
+  }
+}

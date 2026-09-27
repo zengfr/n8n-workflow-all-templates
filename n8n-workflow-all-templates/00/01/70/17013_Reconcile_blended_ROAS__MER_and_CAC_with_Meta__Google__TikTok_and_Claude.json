@@ -1,0 +1,489 @@
+{
+  "id": "mvxVBIvdjGEVWgGX",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Reconcile blended ROAS, MER and CAC with Meta, Google, TikTok and Claude",
+    "wechat": "youandme10086",
+    "id": 17013,
+    "update_time": "2026-09-27"
+  },
+  "name": "Reconcile blended ROAS, MER and CAC (Meta, TikTok, Google live)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "69fa3ad9-052e-4e35-b267-a65fb3216c18",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        31664,
+        5056
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "af46f7f5-e04f-453c-9f1b-e8a6b79d2d1b",
+      "name": "Set config: store revenue, new customers, extra platforms",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        31888,
+        5056
+      ],
+      "parameters": {
+        "jsCode": "// Date window + your true store numbers. Meta, TikTok and Google Ads are pulled\n// live below. Add any OTHER platforms manually in EXTRA_PLATFORMS.\nconst end = new Date();\nconst start = new Date(Date.now() - 30 * 864e5);\nconst fmt = (dt) => dt.toISOString().slice(0, 10);\nreturn [{ json: {\n  DATE_PRESET: 'last_30d',        // Meta window\n  START_DATE: fmt(start),         // TikTok + Google window\n  END_DATE: fmt(end),\n  STORE_REVENUE: 120000,          // replace with a Shopify or Stripe node\n  NEW_CUSTOMERS: 320,             // replace with your real new-customer count\n  EXTRA_PLATFORMS: [],            // e.g. { platform: 'Snapchat', spend: 0, reported_revenue: 0 }\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "67458bd7-22ad-4dcb-a1b5-7d69c478ed6a",
+      "name": "Fetch Meta spend & revenue (Meta)",
+      "type": "n8n-nodes-base.facebookGraphApi",
+      "position": [
+        32112,
+        5056
+      ],
+      "parameters": {
+        "edge": "insights",
+        "node": "={{ ($env.META_AD_ACCOUNT_ID || '').trim() }}",
+        "options": {
+          "queryParameters": {
+            "parameter": [
+              {
+                "name": "level",
+                "value": "account"
+              },
+              {
+                "name": "date_preset",
+                "value": "={{ $json.DATE_PRESET }}"
+              },
+              {
+                "name": "fields",
+                "value": "spend,action_values"
+              }
+            ]
+          }
+        },
+        "graphApiVersion": "v21.0"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d65f56a4-a565-410c-8dc2-472bc7bd3195",
+      "name": "Reconcile blended ROAS, MER & platform over-claim gap",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        33552,
+        5056
+      ],
+      "parameters": {
+        "jsCode": "// Compute the efficiency metrics every ecommerce operator actually tracks.\nconst { platforms, store_revenue, new_customers } = $json;\nconst total_spend = +platforms.reduce((n, p) => n + p.spend, 0).toFixed(2);\nconst total_reported = +platforms.reduce((n, p) => n + p.reported_revenue, 0).toFixed(2);\n\nconst blended_roas = total_spend ? +(store_revenue / total_spend).toFixed(2) : null;      // real revenue / all ad spend\nconst mer = blended_roas;                                                                  // marketing efficiency ratio\nconst blended_cac = new_customers ? +(total_spend / new_customers).toFixed(2) : null;      // cost to acquire a customer\nconst over_claim = +(total_reported - store_revenue).toFixed(2);                           // platforms claim more than the store made\nconst over_claim_pct = store_revenue ? Math.round((over_claim / store_revenue) * 100) : null;\n\nconst byPlatform = platforms.map((p) => ({ ...p, reported_roas: p.spend ? +(p.reported_revenue / p.spend).toFixed(2) : null }));\nreturn [{ json: { total_spend, total_reported, store_revenue, blended_roas, mer, blended_cac, new_customers, over_claim, over_claim_pct, byPlatform } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "82904d0c-0510-4f37-b571-47532d4fa792",
+      "name": "Build AI efficiency brief prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        34112,
+        5056
+      ],
+      "parameters": {
+        "jsCode": "// Ask Claude for a short marketing-efficiency brief a founder can act on.\nconst m = $json;\nconst system = 'You are a growth-marketing analyst. Given blended ROAS, MER, blended CAC, and the gap between platform-reported and actual store revenue, write a 2-3 sentence executive read: is marketing efficient, how much are platforms over-claiming, and the single most important action. Terse and specific. Return ONLY JSON.';\nconst user = JSON.stringify(m) + '\\n\\nReturn JSON exactly: {\"verdict\":\"one sentence\",\"overclaim_note\":\"one sentence\",\"action\":\"one sentence\"}';\nconst body = { model: 'claude-haiku-4-5', max_tokens: 700, system, messages: [{ role: 'user', content: user }] };\nreturn [{ json: { body, _ctx: m } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "93007f54-ca68-4236-b75a-332776a7f7c5",
+      "name": "Write marketing-efficiency brief with Claude AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        34384,
+        5056
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ba81261a-df7a-4254-b3a1-5caec437184d",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        30720,
+        4720
+      ],
+      "parameters": {
+        "width": 764,
+        "height": 572,
+        "content": "## Reconcile blended ROAS, MER and CAC across ad platforms\n\n### How it works\n\nThis workflow reconciles the marketing-efficiency numbers that survive iOS attribution loss. It fetches real ad spend and platform-reported revenue from the Meta Marketing API (with Google Ads and TikTok slots to extend), joins your true store revenue and new-customer count, and computes blended ROAS, MER and blended CAC, plus the gap between what the platforms claim and what your store actually made. Claude then writes a short executive read.\n\n\n\n### Setup steps\n\n- Add META_ACCESS_TOKEN, META_AD_ACCOUNT_ID, META_API_VERSION and ANTHROPIC_API_KEY to your n8n environment.\n- In Config, replace STORE_REVENUE and NEW_CUSTOMERS with a Shopify or Stripe node, and the Google and TikTok placeholders with real ad-platform nodes.\n- Run the workflow manually, or attach a Schedule trigger for a daily brief.\n\n\n\n### Customization\n\nAdd more platforms in EXTRA_PLATFORMS. Swap the stdout report for a Slack or email node.\n\nBuilt by  https://nocode.expert done-for-you automation and tracking. "
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95ee39ac-d198-4347-8d05-d108d2727088",
+      "name": "Section: Gather",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        31792,
+        4752
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1388,
+        "height": 528,
+        "content": "## Configure and gather\nLoad settings and fetch real ad spend and platform-reported revenue, joined to your store revenue."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3b053dfd-d0d2-49d9-8867-6e368f4ba300",
+      "name": "Section: Reconcile",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        33360,
+        4768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 464,
+        "height": 496,
+        "content": "## Reconcile metrics\nCompute blended ROAS, MER, CAC and the platform over-claim gap."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ed26c70-c2f6-4ec4-8995-3a39430951f6",
+      "name": "Section: Brief",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        34000,
+        4768
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 580,
+        "height": 528,
+        "content": "## Write the AI brief\nBuild the prompt and have Claude write a short marketing-efficiency read."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9b5d2f3a-f4a9-4a47-8f0f-e22b529d65ce",
+      "name": "Section: Report",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        34752,
+        4736
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 672,
+        "height": 560,
+        "content": "## Report\nPrint the blended ROAS and MER scorecard."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "774ecdde-a90e-4e50-9430-f4adf6d9804d",
+      "name": "Fetch TikTok spend & revenue",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        32336,
+        5056
+      ],
+      "parameters": {
+        "url": "https://business-api.tiktok.com/open_api/v1.3/report/integrated/get/",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "advertiser_id",
+              "value": "={{ $env.TIKTOK_ADVERTISER_ID }}"
+            },
+            {
+              "name": "report_type",
+              "value": "BASIC"
+            },
+            {
+              "name": "data_level",
+              "value": "AUCTION_ADVERTISER"
+            },
+            {
+              "name": "dimensions",
+              "value": "[\"advertiser_id\"]"
+            },
+            {
+              "name": "metrics",
+              "value": "[\"spend\",\"total_complete_payment_rate\"]"
+            },
+            {
+              "name": "start_date",
+              "value": "={{ $('Set config: store revenue, new customers, extra platforms').first().json.START_DATE }}"
+            },
+            {
+              "name": "end_date",
+              "value": "={{ $('Set config: store revenue, new customers, extra platforms').first().json.END_DATE }}"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Access-Token",
+              "value": "={{ $env.TIKTOK_ACCESS_TOKEN }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "2e62cd0b-9ca6-442c-bc20-8ea8a7e2cd9e",
+      "name": "Get Google access token",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        32560,
+        5056
+      ],
+      "parameters": {
+        "url": "https://oauth2.googleapis.com/token",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "form-urlencoded",
+        "bodyParameters": {
+          "parameters": [
+            {
+              "name": "client_id",
+              "value": "={{ $env.GOOGLE_ADS_CLIENT_ID }}"
+            },
+            {
+              "name": "client_secret",
+              "value": "={{ $env.GOOGLE_ADS_CLIENT_SECRET }}"
+            },
+            {
+              "name": "refresh_token",
+              "value": "={{ $env.GOOGLE_ADS_REFRESH_TOKEN }}"
+            },
+            {
+              "name": "grant_type",
+              "value": "refresh_token"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "566c27b1-72b0-429c-8c81-c165a4ac3dea",
+      "name": "Fetch Google Ads spend & revenue",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        32784,
+        5056
+      ],
+      "parameters": {
+        "url": "=https://googleads.googleapis.com/v22/customers/{{ $env.GOOGLE_ADS_CUSTOMER_ID }}/googleAds:search",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ { \"query\": \"SELECT metrics.cost_micros, metrics.conversions_value FROM customer WHERE segments.date DURING LAST_30_DAYS\" } }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('Get Google access token').first().json.access_token }}"
+            },
+            {
+              "name": "developer-token",
+              "value": "={{ $env.GOOGLE_ADS_DEVELOPER_TOKEN }}"
+            },
+            {
+              "name": "login-customer-id",
+              "value": "={{ $env.GOOGLE_ADS_LOGIN_CUSTOMER_ID }}"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "11a8ea9a-ca9d-41f8-b861-b4c0213e95e6",
+      "name": "Assemble platform table",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        32992,
+        5056
+      ],
+      "parameters": {
+        "jsCode": "// Pull spend + reported revenue from all three live platforms into one table.\nconst cfg = $('Set config: store revenue, new customers, extra platforms').first().json;\n// Meta\nconst mRow = (($('Fetch Meta spend & revenue (Meta)').first().json.data)||[{}])[0] || {};\nconst REV = ['onsite_web_app_purchase','omni_purchase','offsite_conversion.fb_pixel_purchase','purchase'];\nconst mSpend = Number(mRow.spend)||0;\nlet mRev=0; for (const t of REV){ const av=(mRow.action_values||[]).find(a=>a.action_type===t); if(av){ mRev=Number(av.value)||0; break; } }\n// TikTok\nconst tt = ((($('Fetch TikTok spend & revenue').first().json.data)||{}).list||[{}])[0] || {};\nconst ttm = tt.metrics||{};\nconst ttSpend = Number(ttm.spend)||0;\nconst ttRev = Number(ttm.total_complete_payment_rate)||0;\n// Google Ads (cost_micros -> currency)\nconst g = ((($('Fetch Google Ads spend & revenue').first().json.results)||[{}])[0]||{}).metrics||{};\nconst gSpend = (Number(g.costMicros)||0)/1e6;\nconst gRev = Number(g.conversionsValue)||0;\nconst platforms = [\n  { platform:'Meta',   spend:+mSpend.toFixed(2),  reported_revenue:+mRev.toFixed(2) },\n  { platform:'TikTok', spend:+ttSpend.toFixed(2), reported_revenue:+ttRev.toFixed(2) },\n  { platform:'Google', spend:+gSpend.toFixed(2),  reported_revenue:+gRev.toFixed(2) },\n  ...(cfg.EXTRA_PLATFORMS||[]),\n];\nreturn [{ json: { platforms, store_revenue: cfg.STORE_REVENUE, new_customers: cfg.NEW_CUSTOMERS } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f7933011-0e99-44d4-958a-97afd00e94ba",
+      "name": "Show blended ROAS / MER scorecard",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        34896,
+        5056
+      ],
+      "parameters": {
+        "jsCode": "// Print the blended ROAS / MER scorecard.\nconst m = $node['Reconcile blended ROAS, MER & platform over-claim gap'].json;\nconst raw = ($json.content && $json.content[0] && $json.content[0].text) || '{}';\nconst s = raw.indexOf('{'), e = raw.lastIndexOf('}');\nlet ai = { verdict: '', overclaim_note: '', action: '' };\ntry { ai = JSON.parse(raw.slice(s, e + 1)); } catch (err) {}\n\nconst out = [];\nout.push('');\nout.push('==========================================================');\nout.push('  BLENDED ROAS & MER RECONCILER  |  nocode.expert');\nout.push('==========================================================');\nout.push('Total ad spend:        $' + m.total_spend.toLocaleString());\nout.push('Actual store revenue:  $' + m.store_revenue.toLocaleString());\nout.push('Blended ROAS / MER:    ' + m.blended_roas + 'x');\nout.push('Blended CAC:           ' + (m.blended_cac !== null ? '$' + m.blended_cac : 'n/a') + '  (' + (m.new_customers || 'n/a') + ' new customers)');\nout.push('');\nout.push('Platforms CLAIM:       $' + m.total_reported.toLocaleString() + '  ->  over-claim $' + m.over_claim.toLocaleString() + ' (' + m.over_claim_pct + '% of real revenue)');\nout.push('');\nout.push('Per platform (spend | reported rev | reported ROAS):');\nfor (const p of m.byPlatform) out.push('  ' + p.platform.padEnd(12) + '$' + String(p.spend).padStart(9) + ' | $' + String(p.reported_revenue).padStart(9) + ' | ' + p.reported_roas + 'x');\nout.push('');\nout.push('Verdict:   ' + (ai.verdict || ''));\nout.push('Over-claim: ' + (ai.overclaim_note || ''));\nout.push('Action:    ' + (ai.action || ''));\nout.push('==========================================================');\nreturn [{ json: { report: out.join('\\n'), ...m } }];"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "b25bb6e0-dfa2-418d-a951-05b6fc052ef1",
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Set config: store revenue, new customers, extra platforms",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Assemble platform table": {
+      "main": [
+        [
+          {
+            "node": "Reconcile blended ROAS, MER & platform over-claim gap",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Google access token": {
+      "main": [
+        [
+          {
+            "node": "Fetch Google Ads spend & revenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch TikTok spend & revenue": {
+      "main": [
+        [
+          {
+            "node": "Get Google access token",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI efficiency brief prompt": {
+      "main": [
+        [
+          {
+            "node": "Write marketing-efficiency brief with Claude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Google Ads spend & revenue": {
+      "main": [
+        [
+          {
+            "node": "Assemble platform table",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Meta spend & revenue (Meta)": {
+      "main": [
+        [
+          {
+            "node": "Fetch TikTok spend & revenue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write marketing-efficiency brief with Claude AI": {
+      "main": [
+        [
+          {
+            "node": "Show blended ROAS / MER scorecard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reconcile blended ROAS, MER & platform over-claim gap": {
+      "main": [
+        [
+          {
+            "node": "Build AI efficiency brief prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config: store revenue, new customers, extra platforms": {
+      "main": [
+        [
+          {
+            "node": "Fetch Meta spend & revenue (Meta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

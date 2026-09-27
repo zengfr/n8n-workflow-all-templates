@@ -1,7 +1,14 @@
-# meteo : 3
+# meteo : 10
 
 |id|file|
 |----|----|
 |2692|[2692_Integrating_AI_with_Open-Meteo_API_for_Enhanced_Weather_Forecasting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/26/2692_Integrating_AI_with_Open-Meteo_API_for_Enhanced_Weather_Forecasting.json)|
 |10681|[10681_Automate_Weather_Reports_with_GPT-4_Mini_and_Open-Meteo_API_to_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10681_Automate_Weather_Reports_with_GPT-4_Mini_and_Open-Meteo_API_to_Gmail_and_Slack.json)|
 |16535|[16535_Monitor_multi-city_courier_weather_risk_with_Open-Meteo__GPT-4o__Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16535_Monitor_multi-city_courier_weather_risk_with_Open-Meteo__GPT-4o__Gemini_and_Slack.json)|
+|17349|[17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json)|
+|18151|[18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18151_Answer_Telegram_data_questions_with_DeepSeek__Open-Meteo__Frankfurter__CoinGecko__and_StudioAPI.json)|
+|18213|[18213_Monitor_solar_generation_and_grid_usage_with_Open-Meteo_data_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18213_Monitor_solar_generation_and_grid_usage_with_Open-Meteo_data_and_Slack_alerts.json)|
+|19066|[19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json)|
+|19492|[19492_Send_outdoor_booking_weather_risk_alerts_with_Airtable__Open-Meteo__Slack_and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19492_Send_outdoor_booking_weather_risk_alerts_with_Airtable__Open-Meteo__Slack_and_WhatsApp.json)|
+|19569|[19569_Dispatch_snow_and_ice_crews_from_forecasts_with_Open-Meteo__GPT-4o_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19569_Dispatch_snow_and_ice_crews_from_forecasts_with_Open-Meteo__GPT-4o_and_Gmail.json)|
+|19714|[19714_Provide_normalized_weather_forecasts_with_WeatherAPI_and_Open-Meteo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19714_Provide_normalized_weather_forecasts_with_WeatherAPI_and_Open-Meteo.json)|

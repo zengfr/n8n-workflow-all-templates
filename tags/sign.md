@@ -1,4 +1,4 @@
-# sign : 6
+# sign : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |8228|[8228_Supabase_Storage_Tutorial__Upload__Fetch__Sign___List_Files.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8228_Supabase_Storage_Tutorial__Upload__Fetch__Sign___List_Files.json)|
 |10606|[10606_Sign_PDF_Documents_with_X.509_Certificates_using_PAdES_Standards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10606_Sign_PDF_Documents_with_X.509_Certificates_using_PAdES_Standards.json)|
 |16672|[16672_Qualify_open_house_leads_and_send_AI_follow-ups_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16672_Qualify_open_house_leads_and_send_AI_follow-ups_with_Google_Sheets_and_Gmail.json)|
+|19678|[19678_Send_engagement_letters_and_open_Clio_matters_with_DocuSign_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19678_Send_engagement_letters_and_open_Clio_matters_with_DocuSign_and_Google_Sheets.json)|

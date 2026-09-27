@@ -1,4 +1,4 @@
-# sending : 12
+# sending : 16
 
 |id|file|
 |----|----|
@@ -14,3 +14,7 @@
 |10734|[10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10734_Validate_Newsletter_Quality_with_GPT-5_Quality_Gate_before_Sending.json)|
 |11902|[11902_Validate___score_leads_with_ZeroBounce_AI_before_sending_Gmail_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/19/11902_Validate___score_leads_with_ZeroBounce_AI_before_sending_Gmail_emails.json)|
 |16249|[16249_Write_and_track_cold_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16249_Write_and_track_cold_emails_with_Google_Gemini_and_Gmail.json)|
+|17291|[17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json)|
+|17371|[17371_Send_daily_AI-personalized_inspirational_quotes_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17371_Send_daily_AI-personalized_inspirational_quotes_with_OpenAI_and_Gmail.json)|
+|18728|[18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json)|
+|19043|[19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19043_Send_validated_lead_emails_from_Google_Sheets_via_Hunter__Gmail_and_Telegram.json)|

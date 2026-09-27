@@ -1,4 +1,4 @@
-# retrieval : 18
+# retrieval : 20
 
 |id|file|
 |----|----|
@@ -20,3 +20,5 @@
 |10294|[10294_Automated_News_Retrieval___Telegram_Broadcasting_with_OpenAI__SerpAPI___LangChain.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10294_Automated_News_Retrieval___Telegram_Broadcasting_with_OpenAI__SerpAPI___LangChain.json)|
 |10837|[10837_Chat_with_GitHub_Issues_using_OpenAI_and_Redis_Vector_Search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10837_Chat_with_GitHub_Issues_using_OpenAI_and_Redis_Vector_Search.json)|
 |10924|[10924_Voice_AI_Chatbot_with_OpenAI__RAG__Qdrant____Guardrails_for_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10924_Voice_AI_Chatbot_with_OpenAI__RAG__Qdrant____Guardrails_for_WordPress.json)|
+|17780|[17780_Answer_document_questions_with_Ollama_and_Qdrant_retrieval_chat_bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17780_Answer_document_questions_with_Ollama_and_Qdrant_retrieval_chat_bot.json)|
+|17877|[17877_Answer_electronics_questions_with_Google_Gemini__SerpAPI__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17877_Answer_electronics_questions_with_Google_Gemini__SerpAPI__and_Supabase.json)|

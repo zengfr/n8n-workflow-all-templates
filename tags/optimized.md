@@ -1,4 +1,4 @@
-# optimized : 28
+# optimized : 30
 
 |id|file|
 |----|----|
@@ -30,3 +30,5 @@
 |11077|[11077_Generate_GEO-optimized_support_replies_from_Gmail_to_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11077_Generate_GEO-optimized_support_replies_from_Gmail_to_Gmail_and_Slack.json)|
 |12042|[12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12042_Generate___publish_SEO-optimized_Shopify_blog_articles_with_Gemini___ChatGPT.json)|
 |16357|[16357_Generate_SEO-optimized_WordPress_blog_posts_with_Perplexity_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16357_Generate_SEO-optimized_WordPress_blog_posts_with_Perplexity_and_Gemini.json)|
+|18770|[18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18770_Create_SEO-optimized_WordPress_posts_from_Google_Sheets_with_OpenAI_GPT-4o_and_DALL_E_3.json)|
+|18859|[18859_Generate_daily_SEO_optimized_WordPress_article_drafts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18859_Generate_daily_SEO_optimized_WordPress_article_drafts_with_OpenAI.json)|

@@ -1,4 +1,4 @@
-# publishing : 76
+# publishing : 79
 
 |id|file|
 |----|----|
@@ -78,3 +78,6 @@
 |15720|[15720_Publish_LinkedIn_posts_from_RSS_using_Ollama__PostgreSQL_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15720_Publish_LinkedIn_posts_from_RSS_using_Ollama__PostgreSQL_and_Telegram_approval.json)|
 |16234|[16234_Score_content_virality_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16234_Score_content_virality_with_OpenAI__Google_Sheets_and_Slack.json)|
 |16662|[16662_Run_a_multi-agent_research_and_publishing_pipeline_with_GPT-4o__Tavily_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16662_Run_a_multi-agent_research_and_publishing_pipeline_with_GPT-4o__Tavily_and_Notion.json)|
+|19154|[19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19154_Create_LinkedIn_posts_and_WordPress_blogs_with_OpenAI_and_Google_Sheets.json)|
+|19218|[19218_Monitor_YouTube_video_publishing_status_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19218_Monitor_YouTube_video_publishing_status_with_Google_Sheets_and_Slack.json)|
+|19416|[19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json)|

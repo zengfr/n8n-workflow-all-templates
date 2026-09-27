@@ -1,4 +1,4 @@
-# autopilot : 15
+# autopilot : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |16358|[16358_Create_daily_faceless_YouTube_Shorts_with_Groq__SamAutomation_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16358_Create_daily_faceless_YouTube_Shorts_with_Groq__SamAutomation_and_Google_Sheets.json)|
 |16577|[16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16577_Enrich_B2B_leads_with_Tavily_search__Groq_Llama_3.3__and_Google_Sheets.json)|
 |16665|[16665_Scrape_Tunisia_IT_job_listings_with_Groq__Firecrawl__Airtable__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16665_Scrape_Tunisia_IT_job_listings_with_Groq__Firecrawl__Airtable__and_Resend.json)|
+|16932|[16932_Triage_Gmail_and_draft_replies_with_Ollama__Telegram_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16932_Triage_Gmail_and_draft_replies_with_Ollama__Telegram_and_Google_Sheets.json)|
+|17267|[17267_Create_social_visuals_from_blog_RSS_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17267_Create_social_visuals_from_blog_RSS_with_Canvora_and_Slack.json)|
+|17278|[17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json)|

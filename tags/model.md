@@ -1,4 +1,4 @@
-# model : 50
+# model : 58
 
 |id|file|
 |----|----|
@@ -52,3 +52,11 @@
 |15165|[15165_Run_on-page_SEO_and_GEO_audit_reports_with_IONOS_AI_Model_Hub_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15165_Run_on-page_SEO_and_GEO_audit_reports_with_IONOS_AI_Model_Hub_and_Gmail.json)|
 |16063|[16063_Generate_and_evaluate_AI_prompts_with_Gemini__OpenRouter__Groq__Cohere_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16063_Generate_and_evaluate_AI_prompts_with_Gemini__OpenRouter__Groq__Cohere_and_Supabase.json)|
 |16530|[16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json)|
+|16920|[16920_Schedule_YouTube_Shorts_to_Pinterest_with_Apify__Gemini__and_an_OpenAI_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16920_Schedule_YouTube_Shorts_to_Pinterest_with_Apify__Gemini__and_an_OpenAI_model.json)|
+|16958|[16958_Create_on-model_Shopify_product_photos_with_Dreem_AI_and_Slack_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16958_Create_on-model_Shopify_product_photos_with_Dreem_AI_and_Slack_approvals.json)|
+|17014|[17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json)|
+|17033|[17033_Generate_studio_and_on-model_product_photos_for_new_Shopify_products_with_Dreem_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17033_Generate_studio_and_on-model_product_photos_for_new_Shopify_products_with_Dreem_AI.json)|
+|17272|[17272_Generate_multi-angle_on-model_Shopify_product_photos_with_Dreem.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17272_Generate_multi-angle_on-model_Shopify_product_photos_with_Dreem.ai.json)|
+|18203|[18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json)|
+|18235|[18235_Assess_operating_models_and_generate_AI_transformation_blueprints_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18235_Assess_operating_models_and_generate_AI_transformation_blueprints_with_OpenAI_and_Google.json)|
+|19649|[19649_Probe_AISIX_model_aliases_and_generate_health_reports_for_SRE_teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19649_Probe_AISIX_model_aliases_and_generate_health_reports_for_SRE_teams.json)|

@@ -1,4 +1,4 @@
-# perplexity : 101
+# perplexity : 108
 
 |id|file|
 |----|----|
@@ -103,3 +103,10 @@
 |16318|[16318_Publish_weekly_Google_Business_Profile_posts_using_Perplexity_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16318_Publish_weekly_Google_Business_Profile_posts_using_Perplexity_and_Supabase.json)|
 |16357|[16357_Generate_SEO-optimized_WordPress_blog_posts_with_Perplexity_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16357_Generate_SEO-optimized_WordPress_blog_posts_with_Perplexity_and_Gemini.json)|
 |16466|[16466_Publish_weekly_SMB_blog_posts_with_Perplexity__Claude__Gemini__Supabase__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16466_Publish_weekly_SMB_blog_posts_with_Perplexity__Claude__Gemini__Supabase__and_Gmail.json)|
+|16977|[16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json)|
+|17060|[17060_Generate_daily_auto-service_AI_videos_and_post_them_with_OpenAI__Perplexity__AtlasCloud__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17060_Generate_daily_auto-service_AI_videos_and_post_them_with_OpenAI__Perplexity__AtlasCloud__and_Blotato.json)|
+|17085|[17085_Monitor_brand_visibility_in_AI_search_with_ChatGPT__Perplexity__Gemini__Claude__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17085_Monitor_brand_visibility_in_AI_search_with_ChatGPT__Perplexity__Gemini__Claude__and_Supabase.json)|
+|17160|[17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json)|
+|17905|[17905_Answer_Telegram_messages_with_GPT-5__Perplexity__Wikipedia__and_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17905_Answer_Telegram_messages_with_GPT-5__Perplexity__Wikipedia__and_memory.json)|
+|18530|[18530_Generate_SEO_WordPress_blog_posts_from_Google_Sheets_with_Perplexity_and_GPT-5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18530_Generate_SEO_WordPress_blog_posts_from_Google_Sheets_with_Perplexity_and_GPT-5.json)|
+|18722|[18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18722_Send_regulatory_update_digest_emails_with_Google_Sheets__Excel__OpenAI_and_Perplexity.json)|

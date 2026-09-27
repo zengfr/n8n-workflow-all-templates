@@ -1,0 +1,210 @@
+{
+  "name": "Find unused Microsoft 365 licenses with Microsoft Graph and email a weekly report",
+  "nodes": [
+    {
+      "id": "0b96b75d-19cd-4dac-be12-a8a244d0ad8b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        -112
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 816,
+        "content": "## Find unused Microsoft 365 licenses with Microsoft Graph and email a weekly report\n\n### How it works\n\nThis workflow runs every Monday at 8:00 to audit Microsoft 365 license usage. It calls Microsoft Graph to retrieve subscribed SKUs and users with their assigned licenses, then analyzes the data to identify unused licenses. Finally, it emails a weekly report with the license findings.\n\n### Setup steps\n\n- Configure Microsoft Graph authentication for the HTTP Request nodes, typically with an Azure app registration that has permission to read subscribed SKUs and users/license details.\n- Verify the Microsoft Graph endpoints and pagination handling in the subscribed SKUs and users request nodes for the size of your tenant.\n- Edit the configuration section in the Analyze Licenses code node, including any SKU mappings, thresholds, or report formatting settings.\n- Connect the Gmail node to the sending account and set the report recipients, subject, and email body fields.\n\n### Customization\n\nAdjust the schedule, license SKU mapping, unused-license criteria, and email recipients to match your organization’s reporting needs."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0e6acc94-13a5-4cca-b480-0133df6c6ad3",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        80,
+        -112
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 320,
+        "content": "## Schedule and collect data\n\nStarts the workflow every Monday morning and retrieves Microsoft 365 subscribed SKU/license inventory plus user license assignments from Microsoft Graph."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9814ea22-c6bd-4920-83ea-ad0ebee2629b",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        752,
+        -112
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 432,
+        "height": 320,
+        "content": "## Analyze and email report\n\nCalculates unused or underused Microsoft 365 licenses from the Graph data, formats the findings, and sends the weekly report by email."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "node-schedule-3",
+      "name": "When Each Monday at 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        120,
+        40
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "node-skus",
+      "name": "Fetch Subscribed SKUs",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        340,
+        40
+      ],
+      "parameters": {
+        "url": "https://graph.microsoft.com/v1.0/subscribedSkus",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "node-users",
+      "name": "Fetch Users and Licenses",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        560,
+        40
+      ],
+      "parameters": {
+        "url": "https://graph.microsoft.com/v1.0/users?$select=id,displayName,userPrincipalName,accountEnabled,assignedLicenses,signInActivity&$top=999",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "node-analyze",
+      "name": "Analyze Unused Licenses",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        800,
+        40
+      ],
+      "parameters": {
+        "jsCode": "// ===== CONFIG — edit these =====\nconst STALE_DAYS = 30;              // \"inactive\" threshold for licensed users\nconst DEFAULT_SEAT_PRICE = 12;      // USD/month fallback when SKU not in the map\nconst SEAT_PRICES = {               // your real per-seat cost per month (partner pricing)\n  'O365_BUSINESS_ESSENTIALS': 6,\n  'O365_BUSINESS_PREMIUM': 22,\n  'SPB': 22,                        // Microsoft 365 Business Premium\n  'SPE_E3': 36,\n  'ENTERPRISEPACK': 23,             // Office 365 E3\n  'EXCHANGESTANDARD': 4,\n};\n// friendly names for common SKUs\nconst SKU_NAMES = {\n  'O365_BUSINESS_ESSENTIALS': 'M365 Business Basic',\n  'O365_BUSINESS_PREMIUM': 'M365 Business Standard',\n  'SPB': 'M365 Business Premium',\n  'SPE_E3': 'Microsoft 365 E3',\n  'ENTERPRISEPACK': 'Office 365 E3',\n  'EXCHANGESTANDARD': 'Exchange Online P1',\n};\n// ===== END CONFIG =====\n\nconst skus = $('Fetch Subscribed SKUs').first().json.value || [];\nconst users = $('Fetch Users and Licenses').first().json.value || [];\n\nconst now = new Date();\nconst skuById = {};\nfor (const s of skus) skuById[s.skuId] = s;\n\nconst prettySku = (part) => SKU_NAMES[part] || part;\nconst priceOf = (part) => SEAT_PRICES[part] ?? DEFAULT_SEAT_PRICE;\n\n// 1) Unassigned paid seats per SKU\nconst unassigned = [];\nlet unassignedWaste = 0;\nfor (const s of skus) {\n  const paid = s.prepaidUnits?.enabled ?? 0;\n  const used = s.consumedUnits ?? 0;\n  const free = paid - used;\n  if (free > 0) {\n    const waste = free * priceOf(s.skuPartNumber);\n    unassignedWaste += waste;\n    unassigned.push({ sku: prettySku(s.skuPartNumber), paid, used, free, waste });\n  }\n}\n\n// 2) Licensed but disabled users; 3) licensed users with stale sign-in\nconst disabledLicensed = [];\nconst staleLicensed = [];\nlet disabledWaste = 0;\nlet staleWaste = 0;\nlet signInDataAvailable = false;\n\nfor (const u of users) {\n  const lic = u.assignedLicenses || [];\n  if (lic.length === 0) continue;\n  const licCost = lic.reduce((sum, l) => {\n    const s = skuById[l.skuId];\n    return sum + priceOf(s ? s.skuPartNumber : '');\n  }, 0);\n  const licNames = lic.map(l => prettySku(skuById[l.skuId]?.skuPartNumber || 'unknown')).join(', ');\n\n  if (u.accountEnabled === false) {\n    disabledWaste += licCost;\n    disabledLicensed.push({ name: u.displayName, upn: u.userPrincipalName, licenses: licNames, cost: licCost });\n    continue; // don't double-count in stale list\n  }\n\n  const lastSignIn = u.signInActivity?.lastSignInDateTime;\n  if (u.signInActivity) signInDataAvailable = true;\n  if (lastSignIn) {\n    const days = Math.floor((now - new Date(lastSignIn)) / 86400000);\n    if (days >= STALE_DAYS) {\n      staleWaste += licCost;\n      staleLicensed.push({ name: u.displayName, upn: u.userPrincipalName, licenses: licNames, days, cost: licCost });\n    }\n  }\n}\n\nstaleLicensed.sort((a, b) => b.days - a.days);\nconst totalWaste = unassignedWaste + disabledWaste + staleWaste;\n\n// ---- build HTML report ----\nconst esc = (x) => String(x ?? '').replace(/&/g, '&amp;').replace(/</g, '&lt;');\nconst table = (headers, rows) => rows.length\n  ? `<table border=\"1\" cellpadding=\"6\" cellspacing=\"0\" style=\"border-collapse:collapse;font-family:Arial;font-size:13px\"><tr>${headers.map(h => `<th style=\\\"background:#f0f0f0;text-align:left\\\">${h}</th>`).join('')}</tr>${rows.join('')}</table>`\n  : '<p style=\"color:green;font-family:Arial\">✔ Nothing found — clean.</p>';\n\nconst html = `\n<div style=\"font-family:Arial;max-width:760px\">\n<h2>Microsoft 365 License Reconciliation — ${now.toISOString().slice(0, 10)}</h2>\n<p style=\"font-size:15px\">Estimated monthly waste: <b style=\"color:${totalWaste > 0 ? '#c0392b' : 'green'}\">$${totalWaste.toFixed(0)}</b> (prices from your config; edit them in the Analyze node)</p>\n<h3>1. Paid seats not assigned to anyone (${unassigned.length} SKUs, ~$${unassignedWaste.toFixed(0)}/mo)</h3>\n${table(['SKU', 'Paid', 'Assigned', 'Unused', '$/mo'], unassigned.map(r => `<tr><td>${esc(r.sku)}</td><td>${r.paid}</td><td>${r.used}</td><td><b>${r.free}</b></td><td>$${r.waste.toFixed(0)}</td></tr>`))}\n<h3>2. Disabled accounts still holding licenses (${disabledLicensed.length} users, ~$${disabledWaste.toFixed(0)}/mo)</h3>\n${table(['User', 'UPN', 'Licenses', '$/mo'], disabledLicensed.map(r => `<tr><td>${esc(r.name)}</td><td>${esc(r.upn)}</td><td>${esc(r.licenses)}</td><td>$${r.cost.toFixed(0)}</td></tr>`))}\n<h3>3. Licensed users inactive ${STALE_DAYS}+ days (${staleLicensed.length} users, ~$${staleWaste.toFixed(0)}/mo)</h3>\n${signInDataAvailable ? '' : '<p style=\"color:#e67e22\">⚠ Sign-in data unavailable (requires Entra ID P1 and AuditLog.Read.All permission).</p>'}\n${table(['User', 'UPN', 'Licenses', 'Days inactive', '$/mo'], staleLicensed.map(r => `<tr><td>${esc(r.name)}</td><td>${esc(r.upn)}</td><td>${esc(r.licenses)}</td><td><b>${r.days}</b></td><td>$${r.cost.toFixed(0)}</td></tr>`))}\n<p style=\"color:#888;font-size:12px\">Generated by n8n · users scanned: ${users.length} · SKUs: ${skus.length}</p>\n</div>`;\n\nreturn [{\n  json: {\n    reportDate: now.toISOString().slice(0, 10),\n    totalWaste: Math.round(totalWaste),\n    unassignedCount: unassigned.reduce((s, r) => s + r.free, 0),\n    disabledCount: disabledLicensed.length,\n    staleCount: staleLicensed.length,\n    subject: `M365 licenses: ~$${totalWaste.toFixed(0)}/mo wasted · ${disabledLicensed.length} disabled w/ licenses · ${staleLicensed.length} inactive`,\n    html,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "node-report",
+      "name": "Send Weekly Email Report",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1040,
+        40
+      ],
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "={{ $json.html }}",
+        "options": {},
+        "subject": "={{ $json.subject }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "sticky-22",
+      "name": "Sticky Note — MSP Version",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -480,
+        752
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 400,
+        "height": 300,
+        "content": "### 🚀 Running an MSP with many client tenants?\n\nThis template covers **one tenant**. I build multi-tenant versions that loop over all your customers, reconcile against **Pax8 / distributor billing exports and your PSA**, flag count mismatches in both directions, and post a per-client summary to email/Slack/Teams — the monthly billing-reconciliation grind, automated.\n\nAsync delivery, no calls — contact links in my creator profile."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Fetch Subscribed SKUs": {
+      "main": [
+        [
+          {
+            "node": "Fetch Users and Licenses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Unused Licenses": {
+      "main": [
+        [
+          {
+            "node": "Send Weekly Email Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Each Monday at 8am": {
+      "main": [
+        [
+          {
+            "node": "Fetch Subscribed SKUs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Users and Licenses": {
+      "main": [
+        [
+          {
+            "node": "Analyze Unused Licenses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Send weekly Microsoft 365 license waste reports via Microsoft Graph and Gmail",
+    "wechat": "youandme10086",
+    "id": 18027,
+    "update_time": "2026-09-27"
+  }
+}

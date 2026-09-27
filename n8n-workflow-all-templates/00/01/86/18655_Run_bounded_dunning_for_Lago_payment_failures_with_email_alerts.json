@@ -1,0 +1,1507 @@
+{
+  "id": "PLuc3tfht0xL0Nac",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Run bounded dunning for Lago payment failures with email alerts",
+    "wechat": "youandme10086",
+    "id": 18655,
+    "update_time": "2026-09-27"
+  },
+  "name": "Run bounded dunning for failed payments with Lago and email alerts",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "648bb987-8a2f-4a2b-bbde-d12384556100",
+      "name": "When Lago Reports a Payment Event",
+      "type": "@blackswampai/n8n-nodes-lago.lagoTrigger",
+      "position": [
+        4048,
+        1712
+      ],
+      "webhookId": "d6784bb9-6344-4fb7-a293-ea0415dedd69",
+      "parameters": {
+        "events": [
+          "invoice.payment_failure",
+          "invoice.payment_status_updated",
+          "payment.requires_action",
+          "payment.succeeded"
+        ],
+        "options": {
+          "deduplicate": true,
+          "endpointName": "n8n bounded dunning"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "31168abc-d291-42f6-b67b-3d3917c61eaf",
+      "name": "Normalize Billing Event",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4304,
+        1712
+      ],
+      "parameters": {
+        "jsCode": "const envelope = $input.first().json;\nconst eventType = String(envelope.webhook_type ?? envelope.type ?? '');\nconst dataObject = envelope.data?.object ?? {};\n\nlet invoice = envelope.invoice ?? dataObject.invoice ?? {};\nlet payment = envelope.payment ?? dataObject.payment ?? {};\n\nif (Object.keys(invoice).length === 0 && (envelope.object_type === 'invoice' || dataObject.payment_status !== undefined || dataObject.invoice_type !== undefined)) {\n  invoice = dataObject;\n}\nif (Object.keys(payment).length === 0 && (envelope.object_type === 'payment' || dataObject.invoice_id !== undefined || dataObject.payable_id !== undefined)) {\n  payment = dataObject;\n}\n\nconst invoiceId = String(\n  invoice.lago_id ??\n  payment.invoice_id ??\n  payment.invoice_lago_id ??\n  payment.invoice?.lago_id ??\n  ((String(payment.payable_type ?? '').toLowerCase() === 'invoice') ? payment.payable_id : '') ??\n  envelope.invoice_id ??\n  ''\n).trim();\n\nconst externalCustomerId = String(\n  invoice.external_customer_id ??\n  invoice.customer?.external_id ??\n  payment.external_customer_id ??\n  payment.customer?.external_id ??\n  dataObject.external_customer_id ??\n  ''\n).trim();\n\nconst paymentStatus = String(invoice.payment_status ?? payment.status ?? dataObject.payment_status ?? '').toLowerCase();\nconst rawEventAt = envelope.webhook_at ?? envelope.created_at ?? dataObject.updated_at ?? dataObject.created_at ?? new Date().toISOString();\nconst parsedEventAt = new Date(rawEventAt);\nconst eventAt = Number.isNaN(parsedEventAt.getTime()) ? new Date().toISOString() : parsedEventAt.toISOString();\n\nlet action = 'ignore';\nif (eventType === 'invoice.payment_failure') action = 'retry';\nelse if (eventType === 'payment.requires_action') action = 'action_required';\nelse if (eventType === 'payment.succeeded') action = 'recovered';\nelse if (eventType === 'invoice.payment_status_updated' && paymentStatus === 'succeeded') action = 'recovered';\n\nif (!invoiceId) action = 'ignore';\n\nreturn [{ json: {\n  action,\n  event_type: eventType,\n  invoice_id: invoiceId,\n  invoice_number: String(invoice.number ?? payment.invoice?.number ?? ''),\n  external_customer_id: externalCustomerId,\n  customer_email: String(invoice.customer?.email ?? payment.customer?.email ?? ''),\n  payment_status: paymentStatus,\n  total_amount_cents: Number(invoice.total_amount_cents ?? payment.amount_cents ?? 0),\n  currency: String(invoice.currency ?? payment.currency ?? ''),\n  action_url: String(payment.url ?? payment.checkout_url ?? dataObject.url ?? ''),\n  event_at: eventAt,\n  ignore_reason: invoiceId ? 'event does not require dunning action' : 'invoice ID was not present in the webhook payload',\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6808b29b-ddee-4fbc-8f81-6343157cee77",
+      "name": "Route Billing Event",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        4528,
+        1680
+      ],
+      "parameters": {
+        "mode": "expression",
+        "output": "={{ ({ retry: 0, action_required: 1, recovered: 2 }[$json.action] ?? 3) }}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "08c579e7-a2f8-4dc2-ba8f-4676464d2a1f",
+      "name": "Get Failed Invoice",
+      "type": "@blackswampai/n8n-nodes-lago.lago",
+      "position": [
+        4832,
+        1392
+      ],
+      "parameters": {
+        "resource": "invoice",
+        "invoiceId": "={{ $json.invoice_id }}",
+        "operation": "get"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "283ea2fa-e539-40f6-a2b9-e585b356dfd4",
+      "name": "Get Billing Customer",
+      "type": "@blackswampai/n8n-nodes-lago.lago",
+      "position": [
+        5088,
+        1392
+      ],
+      "parameters": {
+        "operation": "get",
+        "externalId": "={{ $json.customer?.external_id || $('Normalize Billing Event').first().json.external_customer_id }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "00c6e5c1-92b3-4290-b6a1-934a2fd8a00d",
+      "name": "Load Retry State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        5344,
+        1392
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "invoice_id",
+              "keyValue": "={{ $('Normalize Billing Event').first().json.invoice_id }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tOgnwV3v4LiQ9Tdb",
+          "cachedResultName": "Lago Dunning State"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "01cd15db-11ac-4104-8284-a337cf0f8909",
+      "name": "Decide Whether To Retry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5616,
+        1392
+      ],
+      "parameters": {
+        "jsCode": "const previous = $input.first().json;\nconst event = $('Normalize Billing Event').first().json;\nconst invoice = $('Get Failed Invoice').first().json;\nconst customer = $('Get Billing Customer').first().json;\nconst retryCount = Number(previous.retry_count ?? 0);\nconst maxRetries = 3;\nconst paymentStatus = String(invoice.payment_status ?? event.payment_status ?? '').toLowerCase();\nconst shouldRetry = Boolean(event.invoice_id) && paymentStatus !== 'succeeded' && retryCount < maxRetries;\n\nreturn [{ json: {\n  ...event,\n  invoice_number: String(invoice.number ?? event.invoice_number ?? ''),\n  external_customer_id: String(customer.external_id ?? event.external_customer_id ?? ''),\n  customer_email: String(customer.email ?? event.customer_email ?? ''),\n  payment_status: paymentStatus,\n  total_amount_cents: Number(invoice.total_amount_cents ?? event.total_amount_cents ?? 0),\n  currency: String(invoice.currency ?? event.currency ?? ''),\n  retry_count: retryCount,\n  next_retry_count: retryCount + 1,\n  max_retries: maxRetries,\n  should_retry: shouldRetry,\n  decision_reason: shouldRetry\n    ? 'retry limit allows another collection attempt'\n    : (paymentStatus === 'succeeded' ? 'invoice is already paid' : 'retry limit reached'),\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c02c72f6-b831-40a6-b00e-38e1b21db102",
+      "name": "If Retry Limit Allows",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5872,
+        1392
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.should_retry }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "7326b352-18a0-495f-acad-6f92a623bcc4",
+      "name": "Retry Failed Payment",
+      "type": "@blackswampai/n8n-nodes-lago.lago",
+      "position": [
+        6128,
+        1216
+      ],
+      "parameters": {
+        "resource": "invoice",
+        "invoiceId": "={{ $('Decide Whether To Retry').first().json.invoice_id }}",
+        "operation": "retryPayment"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ca96a61-9476-4a86-9344-58230dbfd965",
+      "name": "Build Retry State",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6400,
+        1216
+      ],
+      "parameters": {
+        "jsCode": "const retriedInvoice = $input.first().json;\nconst decision = $('Decide Whether To Retry').first().json;\nreturn [{ json: {\n  ...decision,\n  payment_status: String(retriedInvoice.payment_status ?? decision.payment_status),\n  retry_count: decision.next_retry_count,\n  state: 'retry_requested',\n  last_action: 'retry_payment',\n  last_event_at: decision.event_at,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ce049ec-2e45-4cb2-8f5f-2785965aa1aa",
+      "name": "Save Retry State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        6656,
+        1216
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "state": "={{ $json.state }}",
+            "event_type": "={{ $json.event_type }}",
+            "invoice_id": "={{ $json.invoice_id }}",
+            "last_action": "={{ $json.last_action }}",
+            "retry_count": "={{ $json.retry_count }}",
+            "last_event_at": "={{ $json.last_event_at }}",
+            "customer_email": "={{ $json.customer_email }}",
+            "invoice_number": "={{ $json.invoice_number }}",
+            "payment_status": "={{ $json.payment_status }}",
+            "total_amount_cents": "={{ $json.total_amount_cents }}",
+            "external_customer_id": "={{ $json.external_customer_id }}"
+          },
+          "schema": [
+            {
+              "id": "invoice_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "external_customer_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "external_customer_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "customer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "payment_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "retry_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "retry_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "state",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_amount_cents",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "total_amount_cents",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_event_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_event_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "invoice_id",
+              "keyValue": "={{ $json.invoice_id }}"
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        },
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tOgnwV3v4LiQ9Tdb",
+          "cachedResultName": "Lago Dunning State"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "f737f30c-6421-4d92-bb05-c9c190f02f1e",
+      "name": "Prepare Retry Alert",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        6928,
+        1216
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "retry-subject",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ '[Lago] Payment retry ' + $json.retry_count + '/3 requested for ' + ($json.invoice_number || $json.invoice_id) }}"
+            },
+            {
+              "id": "retry-message",
+              "name": "message",
+              "type": "string",
+              "value": "={{ 'Lago requested another payment collection attempt.\\n\\nInvoice: ' + ($json.invoice_number || $json.invoice_id) + '\\nCustomer: ' + ($json.customer_email || $json.external_customer_id) + '\\nAmount: ' + $json.total_amount_cents + ' cents\\nRetry: ' + $json.retry_count + ' of 3\\nEvent: ' + $json.event_type }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "257d364d-27b0-4b41-a6cd-d3a090840bf2",
+      "name": "Send Billing Alert",
+      "type": "n8n-nodes-base.emailSend",
+      "position": [
+        7424,
+        1808
+      ],
+      "webhookId": "318fe7a4-0114-4abc-94b9-0978e04bb885",
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "={{ $json.subject }}",
+        "toEmail": "user@example.com",
+        "fromEmail": "user@example.com",
+        "emailFormat": "text"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "d370ca40-3f07-45f4-ab6b-668fd6b1a5ca",
+      "name": "Build Manual Review State",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        6128,
+        1552
+      ],
+      "parameters": {
+        "jsCode": "const decision = $input.first().json;\nreturn [{ json: {\n  ...decision,\n  retry_count: decision.retry_count,\n  state: 'manual_review',\n  last_action: decision.decision_reason,\n  last_event_at: decision.event_at,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "690672fb-300f-49df-bc36-cf611e84fef4",
+      "name": "Save Manual Review State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        6416,
+        1552
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "state": "={{ $json.state }}",
+            "event_type": "={{ $json.event_type }}",
+            "invoice_id": "={{ $json.invoice_id }}",
+            "last_action": "={{ $json.last_action }}",
+            "retry_count": "={{ $json.retry_count }}",
+            "last_event_at": "={{ $json.last_event_at }}",
+            "customer_email": "={{ $json.customer_email }}",
+            "invoice_number": "={{ $json.invoice_number }}",
+            "payment_status": "={{ $json.payment_status }}",
+            "total_amount_cents": "={{ $json.total_amount_cents }}",
+            "external_customer_id": "={{ $json.external_customer_id }}"
+          },
+          "schema": [
+            {
+              "id": "invoice_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "external_customer_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "external_customer_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "customer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "payment_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "retry_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "retry_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "state",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_amount_cents",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "total_amount_cents",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_event_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_event_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "invoice_id",
+              "keyValue": "={{ $json.invoice_id }}"
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        },
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tOgnwV3v4LiQ9Tdb",
+          "cachedResultName": "Lago Dunning State"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "65413eca-8e06-4451-9a2b-cb6a65afc0ac",
+      "name": "Prepare Manual Review Alert",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        6672,
+        1552
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "manual-subject",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ '[Lago] Manual payment review required for ' + ($json.invoice_number || $json.invoice_id) }}"
+            },
+            {
+              "id": "manual-message",
+              "name": "message",
+              "type": "string",
+              "value": "={{ 'Automatic retries have stopped.\\n\\nInvoice: ' + ($json.invoice_number || $json.invoice_id) + '\\nCustomer: ' + ($json.customer_email || $json.external_customer_id) + '\\nAmount: ' + $json.total_amount_cents + ' cents\\nRetries used: ' + $json.retry_count + '\\nReason: ' + $json.last_action }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "ea62f375-e4b5-4171-883c-057c8c1e2126",
+      "name": "Load Customer Action State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        4832,
+        1696
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "invoice_id",
+              "keyValue": "={{ $('Normalize Billing Event').first().json.invoice_id }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tOgnwV3v4LiQ9Tdb",
+          "cachedResultName": "Lago Dunning State"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "84a7cdf2-241c-4ddc-bca8-7a34294f552b",
+      "name": "Build Customer Action State",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5088,
+        1696
+      ],
+      "parameters": {
+        "jsCode": "const previous = $input.first().json;\nconst event = $('Normalize Billing Event').first().json;\nreturn [{ json: {\n  ...event,\n  retry_count: Number(previous.retry_count ?? 0),\n  state: 'customer_action_required',\n  last_action: 'notify_for_payment_action',\n  last_event_at: event.event_at,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1d210953-3623-411f-9b9f-95f189b17581",
+      "name": "Save Customer Action State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        5344,
+        1696
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "state": "={{ $json.state }}",
+            "event_type": "={{ $json.event_type }}",
+            "invoice_id": "={{ $json.invoice_id }}",
+            "last_action": "={{ $json.last_action }}",
+            "retry_count": "={{ $json.retry_count }}",
+            "last_event_at": "={{ $json.last_event_at }}",
+            "customer_email": "={{ $json.customer_email }}",
+            "invoice_number": "={{ $json.invoice_number }}",
+            "payment_status": "={{ $json.payment_status }}",
+            "total_amount_cents": "={{ $json.total_amount_cents }}",
+            "external_customer_id": "={{ $json.external_customer_id }}"
+          },
+          "schema": [
+            {
+              "id": "invoice_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "external_customer_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "external_customer_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "customer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "payment_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "retry_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "retry_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "state",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_amount_cents",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "total_amount_cents",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_event_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_event_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "invoice_id",
+              "keyValue": "={{ $json.invoice_id }}"
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        },
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tOgnwV3v4LiQ9Tdb",
+          "cachedResultName": "Lago Dunning State"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "8715ffde-0b12-4470-b40f-32130070c002",
+      "name": "Prepare Customer Action Alert",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        5616,
+        1696
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "action-subject",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ '[Lago] Customer payment action required for ' + ($json.invoice_number || $json.invoice_id) }}"
+            },
+            {
+              "id": "action-message",
+              "name": "message",
+              "type": "string",
+              "value": "={{ 'The payment provider requires customer authentication. No automatic retry was attempted.\\n\\nInvoice: ' + ($json.invoice_number || $json.invoice_id) + '\\nCustomer: ' + ($json.customer_email || $json.external_customer_id) + '\\nAction URL: ' + ($json.action_url || 'Open the payment provider to continue') }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "b77c000e-1399-410c-adfb-9c6eb0abd789",
+      "name": "Load Recovery State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        4832,
+        1984
+      ],
+      "parameters": {
+        "limit": 1,
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "invoice_id",
+              "keyValue": "={{ $('Normalize Billing Event').first().json.invoice_id }}"
+            }
+          ]
+        },
+        "matchType": "allConditions",
+        "operation": "get",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tOgnwV3v4LiQ9Tdb",
+          "cachedResultName": "Lago Dunning State"
+        }
+      },
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "7253fe1a-3b9e-467b-8248-b346b7f47b7c",
+      "name": "Build Recovered Payment State",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5088,
+        1984
+      ],
+      "parameters": {
+        "jsCode": "const previous = $input.first().json;\nconst event = $('Normalize Billing Event').first().json;\nreturn [{ json: {\n  ...event,\n  payment_status: 'succeeded',\n  retry_count: Number(previous.retry_count ?? 0),\n  state: 'recovered',\n  last_action: 'mark_recovered',\n  last_event_at: event.event_at,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "79fd9722-c723-4f6a-8d8d-b445788ddbe6",
+      "name": "Save Recovered Payment State",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        5344,
+        1984
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "state": "={{ $json.state }}",
+            "event_type": "={{ $json.event_type }}",
+            "invoice_id": "={{ $json.invoice_id }}",
+            "last_action": "={{ $json.last_action }}",
+            "retry_count": "={{ $json.retry_count }}",
+            "last_event_at": "={{ $json.last_event_at }}",
+            "customer_email": "={{ $json.customer_email }}",
+            "invoice_number": "={{ $json.invoice_number }}",
+            "payment_status": "={{ $json.payment_status }}",
+            "total_amount_cents": "={{ $json.total_amount_cents }}",
+            "external_customer_id": "={{ $json.external_customer_id }}"
+          },
+          "schema": [
+            {
+              "id": "invoice_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_number",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "external_customer_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "external_customer_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "customer_email",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "customer_email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "event_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "event_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "payment_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "retry_count",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "retry_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "state",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "state",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "last_action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "total_amount_cents",
+              "type": "number",
+              "display": true,
+              "required": false,
+              "displayName": "total_amount_cents",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "last_event_at",
+              "type": "dateTime",
+              "display": true,
+              "required": false,
+              "displayName": "last_event_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "invoice_id",
+              "keyValue": "={{ $json.invoice_id }}"
+            }
+          ]
+        },
+        "options": {
+          "dryRun": false
+        },
+        "matchType": "allConditions",
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "tOgnwV3v4LiQ9Tdb",
+          "cachedResultName": "Lago Dunning State"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "76ad9a51-a876-488a-9268-a80ccf423e2c",
+      "name": "Prepare Recovery Alert",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        5616,
+        1984
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "recovery-subject",
+              "name": "subject",
+              "type": "string",
+              "value": "={{ '[Lago] Payment recovered for ' + ($json.invoice_number || $json.invoice_id) }}"
+            },
+            {
+              "id": "recovery-message",
+              "name": "message",
+              "type": "string",
+              "value": "={{ 'Payment recovery was confirmed and the dunning record was resolved.\\n\\nInvoice: ' + ($json.invoice_number || $json.invoice_id) + '\\nCustomer: ' + ($json.customer_email || $json.external_customer_id) + '\\nRetries recorded: ' + $json.retry_count }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "dd6ef3f6-34a9-4dc2-89a3-834135ca29eb",
+      "name": "Record Why the Event Was Ignored",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4832,
+        2320
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "ignored",
+              "name": "handled",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "ignore-reason",
+              "name": "result",
+              "type": "string",
+              "value": "={{ $json.ignore_reason }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.5
+    },
+    {
+      "id": "567a6d79-7adb-4671-b302-6dbd37a5bbe5",
+      "name": "Overview and Setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3296,
+        1152
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 832,
+        "content": "## Run bounded dunning for failed payments with Lago and email alerts\n\n### How it works\n\nThis workflow reacts to verified Lago payment events and routes failed payments, customer-action requests, recoveries, and unrelated events. It enriches failed invoices with customer data, retries payment only while a durable three-attempt limit permits, stores every outcome in an n8n Data Table, and sends a configurable billing alert for retries, manual review, customer action, or recovery.\n\n### Setup steps\n\n- Add a **Lago API** credential to the trigger and every Lago action node.\n- Add an **SMTP** credential to **Send Billing Alert**, then replace both example email addresses.\n- Select the **Lago Dunning State** table in every Data Table node. It needs the string fields `invoice_id`, `invoice_number`, `external_customer_id`, `customer_email`, `event_type`, `payment_status`, `state`, and `last_action`; number fields `retry_count` and `total_amount_cents`; and date field `last_event_at`.\n- Test the retry, manual-review, customer-action, recovery, and ignored-event paths before publishing.\n\n### Customization\n\nChange `maxRetries` in **Decide Whether To Retry**, replace email with Slack or PagerDuty, or add human approval for high-value invoices. If Lago Dunning Campaigns already retry these invoices, disable **Retry Failed Payment** and use this workflow only for state tracking and alerts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c1862bab-0300-4714-892f-ffd9b5212c64",
+      "name": "Receive and Route Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3920,
+        1568
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 404,
+        "content": "## Receive and route events\n\nVerifies and deduplicates incoming Lago payment events, normalizes their payloads, and routes each event to the appropriate dunning path."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "994122ba-00d5-41d1-90c4-93190b97bf71",
+      "name": "Bounded Retry Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4768,
+        1280
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1280,
+        "height": 296,
+        "content": "## Enrich and evaluate failure\n\nRetrieves the failed invoice and customer, loads durable retry state, and decides whether another payment attempt is allowed."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42516e3c-1e29-43ae-b160-f9bd8b200f78",
+      "name": "Customer Action Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4768,
+        1600
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1080,
+        "height": 268,
+        "content": "## Request customer action\n\nPreserves the retry count and alerts billing with the authentication URL. This branch never retries payment automatically."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7cc089be-c2bb-442d-9fb8-c0030528e397",
+      "name": "Recovery Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4768,
+        1888
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1080,
+        "height": 268,
+        "content": "## Record payment recovery\n\nResolves the durable dunning record while retaining the number of retries required to collect payment."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ddedcb7-14b0-41cf-ba62-037bc9343995",
+      "name": "Ignored Event Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4768,
+        2192
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 420,
+        "height": 296,
+        "content": "## Explain ignored event\n\nRecords why an unexpected or incomplete Lago event did not trigger a billing action."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "304d1c4d-8869-4015-8787-4a851c253a27",
+      "name": "Billing Alert Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        7264,
+        1648
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 360,
+        "content": "## Send billing alert\n\nConverges retry, manual-review, customer-action, and recovery notifications on one configurable email node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0b7f925c-4b6e-4e7f-9897-67a637dbb145",
+      "name": "Retry Payment Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6080,
+        1104
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1080,
+        "height": 288,
+        "content": "## Retry eligible payment\n\nRequests another collection attempt, records the updated retry state, and prepares the retry notification."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6916673f-3622-4ec8-90d3-cc57756245ba",
+      "name": "Manual Review Section",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6080,
+        1408
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 824,
+        "height": 360,
+        "content": "## Escalate to manual review\n\nRecords that the three-attempt limit or payment state prevents another retry, then prepares an actionable billing alert."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "2c5ecd59-8f1e-4ea6-90e3-0129129004a9",
+  "nodeGroups": [],
+  "connections": {
+    "Load Retry State": {
+      "main": [
+        [
+          {
+            "node": "Decide Whether To Retry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Retry State": {
+      "main": [
+        [
+          {
+            "node": "Prepare Retry Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Retry State": {
+      "main": [
+        [
+          {
+            "node": "Save Retry State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Failed Invoice": {
+      "main": [
+        [
+          {
+            "node": "Get Billing Customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Recovery State": {
+      "main": [
+        [
+          {
+            "node": "Build Recovered Payment State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Retry Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Billing Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Billing Event": {
+      "main": [
+        [
+          {
+            "node": "Get Failed Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Load Customer Action State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Load Recovery State",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Why the Event Was Ignored",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Billing Customer": {
+      "main": [
+        [
+          {
+            "node": "Load Retry State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Failed Payment": {
+      "main": [
+        [
+          {
+            "node": "Build Retry State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If Retry Limit Allows": {
+      "main": [
+        [
+          {
+            "node": "Retry Failed Payment",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Manual Review State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Recovery Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Billing Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decide Whether To Retry": {
+      "main": [
+        [
+          {
+            "node": "If Retry Limit Allows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Billing Event": {
+      "main": [
+        [
+          {
+            "node": "Route Billing Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Manual Review State": {
+      "main": [
+        [
+          {
+            "node": "Prepare Manual Review Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Manual Review State": {
+      "main": [
+        [
+          {
+            "node": "Save Manual Review State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Customer Action State": {
+      "main": [
+        [
+          {
+            "node": "Build Customer Action State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Customer Action State": {
+      "main": [
+        [
+          {
+            "node": "Prepare Customer Action Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Customer Action State": {
+      "main": [
+        [
+          {
+            "node": "Save Customer Action State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Manual Review Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Billing Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Recovered Payment State": {
+      "main": [
+        [
+          {
+            "node": "Prepare Recovery Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Recovered Payment State": {
+      "main": [
+        [
+          {
+            "node": "Save Recovered Payment State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Customer Action Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Billing Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Lago Reports a Payment Event": {
+      "main": [
+        [
+          {
+            "node": "Normalize Billing Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

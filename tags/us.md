@@ -1,4 +1,4 @@
-# us : 8
+# us : 14
 
 |id|file|
 |----|----|
@@ -10,3 +10,9 @@
 |7024|[7024_Automate_Weekly_US_Trademark_Reports_with_USPTO_API_and_Google_Drive_CSV_Export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/70/7024_Automate_Weekly_US_Trademark_Reports_with_USPTO_API_and_Google_Drive_CSV_Export.json)|
 |7701|[7701_Real-Time_Stock_Monitor_with_Smart_Alerts_for_Indian___US_Markets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/77/7701_Real-Time_Stock_Monitor_with_Smart_Alerts_for_Indian___US_Markets.json)|
 |12508|[12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12508_Research_US_legal_regulations_with_CourtListener__LegiScan__OpenRouter_and_web_search.json)|
+|17349|[17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json)|
+|17355|[17355_Verify_US_contractor_licenses_in_lead_lists_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17355_Verify_US_contractor_licenses_in_lead_lists_with_Apify.json)|
+|17594|[17594_Log_US_Congress_stock_trades_for_your_watchlist_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17594_Log_US_Congress_stock_trades_for_your_watchlist_with_Apify_and_Google_Sheets.json)|
+|18311|[18311_Scrape_US_auto_transport_leads_with_SerpAPI__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18311_Scrape_US_auto_transport_leads_with_SerpAPI__OpenAI__and_Google_Sheets.json)|
+|18435|[18435_Validate_single_and_bulk_US_phone_numbers_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18435_Validate_single_and_bulk_US_phone_numbers_with_Searchbug_and_Google_Sheets.json)|
+|19836|[19836_Find_relevant_US_job_listings_by_role_and_location_with_Jobright_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19836_Find_relevant_US_job_listings_by_role_and_location_with_Jobright_forms.json)|

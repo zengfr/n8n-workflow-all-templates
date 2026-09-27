@@ -1,4 +1,4 @@
-# another : 7
+# another : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |4532|[4532_Real-time_Chat_Translation_with_DeepL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/45/4532_Real-time_Chat_Translation_with_DeepL.json)|
 |10766|[10766_Automatic_PDF_Compression_with_iLovePDF_for_Google_Drive_Files.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10766_Automatic_PDF_Compression_with_iLovePDF_for_Google_Drive_Files.json)|
 |15373|[15373_Clone_NocoDB_tables_and_data_to_another_base.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15373_Clone_NocoDB_tables_and_data_to_another_base.json)|
+|19098|[19098_Restore_workflows_from_GitHub_to_another_n8n_instance_via_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19098_Restore_workflows_from_GitHub_to_another_n8n_instance_via_the_n8n_API.json)|

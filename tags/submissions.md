@@ -1,4 +1,4 @@
-# submissions : 39
+# submissions : 47
 
 |id|file|
 |----|----|
@@ -41,3 +41,11 @@
 |15970|[15970_Score_and_route_inbound_web_leads_with_OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15970_Score_and_route_inbound_web_leads_with_OpenAI__Gmail_and_Google_Sheets.json)|
 |16021|[16021_Reply_to_contact_form_leads_via_Gmail_and_Google_Sheets_using_OpenAI_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16021_Reply_to_contact_form_leads_via_Gmail_and_Google_Sheets_using_OpenAI_GPT-4o_mini.json)|
 |16298|[16298_Collect_web_form_leads_and_create_contacts_in_HubSpot_with_SubmitraX.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16298_Collect_web_form_leads_and_create_contacts_in_HubSpot_with_SubmitraX.json)|
+|17113|[17113_Send_quote_PDFs_from_form_submissions_with_Acrewity_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17113_Send_quote_PDFs_from_form_submissions_with_Acrewity_and_Gmail.json)|
+|17584|[17584_Process_Jotform_submissions_with_Parseur_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17584_Process_Jotform_submissions_with_Parseur_and_Airtable.json)|
+|17598|[17598_Verify_subcontractor_licenses_from_form_submissions_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17598_Verify_subcontractor_licenses_from_form_submissions_with_Apify_and_Slack.json)|
+|17899|[17899_Post_DocupletionForms_form_submissions_to_Slack_channels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17899_Post_DocupletionForms_form_submissions_to_Slack_channels.json)|
+|17935|[17935_Score_freelancer_proposal_PDFs_from_form_submissions_with_OpenAI_GPT-4o_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17935_Score_freelancer_proposal_PDFs_from_form_submissions_with_OpenAI_GPT-4o_Mini.json)|
+|17936|[17936_Score_client_toxicity_from_form_submissions_with_GPT-4o_Mini_and_n8n_Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17936_Score_client_toxicity_from_form_submissions_with_GPT-4o_Mini_and_n8n_Forms.json)|
+|18866|[18866_Turn_form_submissions_into_branded_PDF_reports_with_PDFMint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18866_Turn_form_submissions_into_branded_PDF_reports_with_PDFMint.json)|
+|19415|[19415_Create_client_folders_from_n8n_form_submissions_in_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19415_Create_client_folders_from_n8n_form_submissions_in_Google_Drive.json)|

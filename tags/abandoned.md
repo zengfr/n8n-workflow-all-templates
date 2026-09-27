@@ -1,4 +1,4 @@
-# abandoned : 14
+# abandoned : 19
 
 |id|file|
 |----|----|
@@ -16,3 +16,8 @@
 |12461|[12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12461_Recover_abandoned_WooCommerce_carts_with_custom_coupon_emails.json)|
 |13844|[13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13844_Recover_abandoned_event_registrations_with_Gemini_and_email_plus_Slack_alerts.json)|
 |14367|[14367_Recover_abandoned_WooCommerce_carts_using_OpenAI_GPT-4.1-mini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14367_Recover_abandoned_WooCommerce_carts_using_OpenAI_GPT-4.1-mini__Gmail_and_Slack.json)|
+|17053|[17053_Recover_abandoned_Shopify_carts_with_Gmail__WhatsApp__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17053_Recover_abandoned_Shopify_carts_with_Gmail__WhatsApp__and_Slack_alerts.json)|
+|17196|[17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json)|
+|17259|[17259_Follow_up_on_abandoned_carts_with_WhatsApp_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17259_Follow_up_on_abandoned_carts_with_WhatsApp_and_Google_Sheets.json)|
+|18345|[18345_Recover_abandoned_Shopify_checkouts_with_personalized_Zvid_product_video_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18345_Recover_abandoned_Shopify_checkouts_with_personalized_Zvid_product_video_emails.json)|
+|19496|[19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json)|

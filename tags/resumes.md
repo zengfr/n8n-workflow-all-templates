@@ -1,4 +1,4 @@
-# resumes : 23
+# resumes : 33
 
 |id|file|
 |----|----|
@@ -25,3 +25,13 @@
 |14856|[14856_Screen_resumes_with_GPT-4_Turbo_from_Gmail_and_send_shortlisted_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14856_Screen_resumes_with_GPT-4_Turbo_from_Gmail_and_send_shortlisted_to_Slack.json)|
 |16286|[16286_Send_AI_interview_briefs_from_resumes_with_GPT-4o-mini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16286_Send_AI_interview_briefs_from_resumes_with_GPT-4o-mini__Google_Sheets_and_Gmail.json)|
 |16720|[16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16720_Rank_resumes_by_job_description_similarity_using_Gemini_embeddings.json)|
+|17145|[17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json)|
+|17172|[17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json)|
+|17282|[17282_Screen_and_triage_Gmail_resumes_with_Gemini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17282_Screen_and_triage_Gmail_resumes_with_Gemini_and_Supabase.json)|
+|17300|[17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json)|
+|17317|[17317_Review_resumes_against_job_descriptions_with_Google_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17317_Review_resumes_against_job_descriptions_with_Google_Gemini__Gmail__and_Sheets.json)|
+|17583|[17583_Screen_and_score_resumes_from_Gmail_with_Parseur__Groq__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17583_Screen_and_score_resumes_from_Gmail_with_Parseur__Groq__and_Google_Sheets.json)|
+|18032|[18032_Create_tailored_resumes_from_job_postings_with_OpenRouter__Notion__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18032_Create_tailored_resumes_from_job_postings_with_OpenRouter__Notion__and_Google_Drive.json)|
+|18110|[18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json)|
+|18579|[18579_Create_an_AI_recruiter_copilot_for_jobs__resumes__and_chat_with_Mistral_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18579_Create_an_AI_recruiter_copilot_for_jobs__resumes__and_chat_with_Mistral_and_Supabase.json)|
+|19476|[19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json)|

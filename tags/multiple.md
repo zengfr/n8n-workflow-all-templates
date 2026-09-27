@@ -1,4 +1,4 @@
-# multiple : 97
+# multiple : 103
 
 |id|file|
 |----|----|
@@ -99,3 +99,9 @@
 |15293|[15293_Screen_CVs_for_multiple_roles_with_OpenRouter__Google_Sheets__Gmail_and_Calendly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15293_Screen_CVs_for_multiple_roles_with_OpenRouter__Google_Sheets__Gmail_and_Calendly.json)|
 |15548|[15548_Export_Google_PageSpeed_Insights_data_to_CSV_for_multiple_URLs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15548_Export_Google_PageSpeed_Insights_data_to_CSV_for_multiple_URLs.json)|
 |15998|[15998_Collect_and_score_job_listings_from_multiple_boards_with_Apify_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15998_Collect_and_score_job_listings_from_multiple_boards_with_Apify_and_Sheets.json)|
+|16976|[16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json)|
+|17010|[17010_Create_and_approve_AI_social_posts_with_OpenAI__Telegram_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17010_Create_and_approve_AI_social_posts_with_OpenAI__Telegram_and_Blotato.json)|
+|17694|[17694_Localize_text_into_multiple_languages_with_Google_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17694_Localize_text_into_multiple_languages_with_Google_Gemini__Gmail__and_Sheets.json)|
+|18485|[18485_Combine_mismatched_video_clips_into_a_single_MP4_with_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18485_Combine_mismatched_video_clips_into_a_single_MP4_with_FFmpeg.json)|
+|19047|[19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json)|
+|19413|[19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json)|

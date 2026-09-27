@@ -1,0 +1,749 @@
+{
+  "name": "Track Temu product prices with Apify and Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c206651f73aaebec2d653229",
+      "name": "Start manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "239fbbe7b5d1770b2b73d88c",
+      "name": "Product watch settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "56cbf5fc857807a32a2444a3",
+              "name": "productIds",
+              "type": "string",
+              "value": "REPLACE_WITH_TEMU_GOODS_IDS"
+            },
+            {
+              "id": "7f5669051f672f2fb7c8508d",
+              "name": "region",
+              "type": "string",
+              "value": "us"
+            },
+            {
+              "id": "b3605dd95362618d0ff20845",
+              "name": "stateNamespace",
+              "type": "string",
+              "value": "my-temu-watch"
+            },
+            {
+              "id": "68109678f2e0c91b8090230a",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": "REPLACE_WITH_SPREADSHEET_ID"
+            },
+            {
+              "id": "d8f88a1c580d7e2b132074a5",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Temu Watch"
+            },
+            {
+              "id": "8888482c5285754f406a102c",
+              "name": "maxCostPerRunUsd",
+              "type": "number",
+              "value": 0.1
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "0a401afee8f633ac0d1aaac6",
+      "name": "Validate settings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID = 'qnqksdshiMNdwqcrG';\nconst BUILD_ID = 'Hy2htFWnbJcwLiyHl';\nconst BUILD_TAG = 'temu-release-20260906d';\nconst COLUMNS = ['upsertKey','goodsId','title','region','currency','price','previousPrice','changeType','changedFields','availability','productUrl','observedAt','coverageStatus','stateAction','estimatedActorChargeUsd','runUrl'];\n\nfunction preflight(config) {\n  const ids=String(config.productIds??'').split(/[\\s,]+/).filter(Boolean);\n  if(!ids.length||ids.length>5||ids.some(id=>!/^\\d{10,20}$/.test(id))||new Set(ids).size!==ids.length) throw Error('Enter one to five distinct Temu goods IDs.');\n  if(!['us','uk','de','fr','es','it','nl','au','ca','br','mx','jp','pl','se','at','be','pt','cz','ie'].includes(config.region)) throw Error('Choose a supported market.');\n  if(!/^[A-Za-z0-9_-]{20,}$/.test(config.spreadsheetId??'')||/REPLACE/.test(config.spreadsheetId)) throw Error('Set your Google spreadsheet ID before running.');\n  if(!String(config.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(config.stateNamespace??'')) throw Error('Set a Sheet tab and stable monitoring scope.');\n  const cap=Number(config.maxCostPerRunUsd);\n  if(!Number.isFinite(cap)||cap<0.01||cap>0.5) throw Error('Actor charge cap must be between $0.01 and $0.50.');\n  return {...config,ids:ids.sort(),maxCostPerRunUsd:cap,actorInput:{workflow:'track_product_changes',productIds:ids.sort(),searchKeywords:[],region:config.region,stateNamespace:config.stateNamespace,includeUnchanged:true,includeVariants:true,includeSummary:false,outputFormat:'default',maxBuyerChargeUsd:cap}};\n}\n\nfunction classify(response,now=Date.now()) {\n  const run=response.data??response;\n  if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID) throw Error('Actor or immutable build mismatch.');\n  if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status)) throw Error(`Actor ${run.status}: https://console.apify.com/actors/runs/${run.id}. No Sheet write.`);\n  if(!['READY','RUNNING','SUCCEEDED'].includes(run.status)) throw Error('Unexpected Actor state.');\n  if(run.status!=='SUCCEEDED' && (!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000)) throw Error('Actor wait exceeded six minutes. Inspect the existing run; do not automatically start another.');\n  if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId)) throw Error('Successful run is missing output storage.');\n  return {run,ready:run.status==='SUCCEEDED'};\n}\n\nfunction reconcile({config,run,summary,rows}) {\n  if(summary.status!=='COMPLETED'||summary.workflow!=='track_product_changes') throw Error('No valid monitoring output.');\n  if(summary.coverageStatus!=='COMPLETE'||summary.state?.committed!==true) throw Error('Monitoring coverage or state is incomplete; Sheet left unchanged.');\n  const expected=Number(summary.delivered?.paidRows)+Number(summary.delivered?.freeRows);\n  if(!Number.isInteger(expected)||expected<1||expected>100||rows.length!==expected) throw Error('Dataset row count does not match authoritative output.');\n  const counts=summary.buyerCharge?.acceptedEvents,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n  if(!counts||!prices) throw Error('Actor event estimate evidence missing.');\n  let charge=0;\n  for(const [event,count] of Object.entries(counts)) {\n    if(!Number.isInteger(count)||count<0) throw Error('Invalid accepted event count.');\n    if(count){const price=prices[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0) throw Error('Exact effective event price missing.');charge+=count*price;}\n  }\n  // Apify's final response can precede its billing counter update. Estimate\n  // from the Actor's accepted events and this run's prices; never call it an invoice.\n  for(const [event,count] of Object.entries(run.chargedEventCounts??{})) if(!Number.isInteger(count)||count<0||count>Number(counts[event]??0)) throw Error('Unreconciled platform event.');\n  charge=Number(charge.toFixed(12));if(charge>config.maxCostPerRunUsd+1e-9) throw Error('Actor charge exceeded configured cap.');\n  const products=new Map(),changes=new Map();\n  const idOf=row=>{const id=String(row.goodsId??row.productId??String(row.stableId??'').replace(/^temu-product:/,''));if(!config.ids.includes(id)) throw Error('Output has an unexpected goods ID.');return id;};\n  for(const row of rows){\n    if(row.recordType==='product'){const id=idOf(row);if(products.has(id)) throw Error('Duplicate product snapshot.');products.set(id,row);}\n    else if(row.recordType==='change'){const id=idOf(row);if(changes.has(id)||!['NEW','UPDATED','ENDED'].includes(row.changeType))throw Error('Invalid or duplicate change.');changes.set(id,row);}\n    else if(!['coverage','summary'].includes(row.recordType)) throw Error('Unexpected record type.');\n  }\n  // Exact-target monitoring requires one current snapshot or a proven ENDED event per requested ID.\n  // An unconfirmed disappearance leaves the entire Sheet untouched rather than pretending no change.\n  return config.ids.map(id=>{\n    const change=changes.get(id),product=products.get(id)??change?.after;\n    if(!product && change?.changeType!=='ENDED')throw Error('Requested product has no verified snapshot or confirmed end.');\n    const current=product??{},previous=change?.before??{};\n    const baseline=summary.state.action==='BASELINE_CREATED';\n    const type=change?.changeType??(baseline?'BASELINE':'UNCHANGED');\n    const scope=[config.stateNamespace,config.region,...config.ids].join('|');\n    return {upsertKey:`temu|${scope}|${id}`,goodsId:id,title:current.title??previous.title??'',region:config.region,currency:current.currency??'',price:current.price??'',previousPrice:type==='UPDATED'?previous.price??'':'',changeType:type,changedFields:(change?.changedFields??[]).join(', '),availability:type==='ENDED'?'ENDED':current.availability??'',productUrl:current.canonicalUrl??current.sourceUrl??`https://www.temu.com/g-${id}.html`,observedAt:summary.completedAt,coverageStatus:summary.coverageStatus,stateAction:summary.state.action,estimatedActorChargeUsd:charge,runUrl:`https://console.apify.com/actors/runs/${run.id}`};\n  });\n}\n\nreturn [{json:preflight($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7f75b1fb6b025be3a4dab1a1",
+      "name": "Run Temu once",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        880,
+        160
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/qnqksdshiMNdwqcrG/runs",
+        "method": "POST",
+        "options": {
+          "timeout": 70000
+        },
+        "jsonBody": "={{ JSON.stringify($('Validate settings').first().json.actorInput) }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "build",
+              "value": "temu-release-20260906d"
+            },
+            {
+              "name": "timeout",
+              "value": "300"
+            },
+            {
+              "name": "memory",
+              "value": "1024"
+            },
+            {
+              "name": "waitForFinish",
+              "value": "60"
+            },
+            {
+              "name": "maxTotalChargeUsd",
+              "value": "={{ $('Validate settings').first().json.maxCostPerRunUsd }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d7d12fda996e41f76e5f3501",
+      "name": "Check run status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID = 'qnqksdshiMNdwqcrG';\nconst BUILD_ID = 'Hy2htFWnbJcwLiyHl';\nconst BUILD_TAG = 'temu-release-20260906d';\nconst COLUMNS = ['upsertKey','goodsId','title','region','currency','price','previousPrice','changeType','changedFields','availability','productUrl','observedAt','coverageStatus','stateAction','estimatedActorChargeUsd','runUrl'];\n\nfunction preflight(config) {\n  const ids=String(config.productIds??'').split(/[\\s,]+/).filter(Boolean);\n  if(!ids.length||ids.length>5||ids.some(id=>!/^\\d{10,20}$/.test(id))||new Set(ids).size!==ids.length) throw Error('Enter one to five distinct Temu goods IDs.');\n  if(!['us','uk','de','fr','es','it','nl','au','ca','br','mx','jp','pl','se','at','be','pt','cz','ie'].includes(config.region)) throw Error('Choose a supported market.');\n  if(!/^[A-Za-z0-9_-]{20,}$/.test(config.spreadsheetId??'')||/REPLACE/.test(config.spreadsheetId)) throw Error('Set your Google spreadsheet ID before running.');\n  if(!String(config.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(config.stateNamespace??'')) throw Error('Set a Sheet tab and stable monitoring scope.');\n  const cap=Number(config.maxCostPerRunUsd);\n  if(!Number.isFinite(cap)||cap<0.01||cap>0.5) throw Error('Actor charge cap must be between $0.01 and $0.50.');\n  return {...config,ids:ids.sort(),maxCostPerRunUsd:cap,actorInput:{workflow:'track_product_changes',productIds:ids.sort(),searchKeywords:[],region:config.region,stateNamespace:config.stateNamespace,includeUnchanged:true,includeVariants:true,includeSummary:false,outputFormat:'default',maxBuyerChargeUsd:cap}};\n}\n\nfunction classify(response,now=Date.now()) {\n  const run=response.data??response;\n  if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID) throw Error('Actor or immutable build mismatch.');\n  if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status)) throw Error(`Actor ${run.status}: https://console.apify.com/actors/runs/${run.id}. No Sheet write.`);\n  if(!['READY','RUNNING','SUCCEEDED'].includes(run.status)) throw Error('Unexpected Actor state.');\n  if(run.status!=='SUCCEEDED' && (!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000)) throw Error('Actor wait exceeded six minutes. Inspect the existing run; do not automatically start another.');\n  if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId)) throw Error('Successful run is missing output storage.');\n  return {run,ready:run.status==='SUCCEEDED'};\n}\n\nfunction reconcile({config,run,summary,rows}) {\n  if(summary.status!=='COMPLETED'||summary.workflow!=='track_product_changes') throw Error('No valid monitoring output.');\n  if(summary.coverageStatus!=='COMPLETE'||summary.state?.committed!==true) throw Error('Monitoring coverage or state is incomplete; Sheet left unchanged.');\n  const expected=Number(summary.delivered?.paidRows)+Number(summary.delivered?.freeRows);\n  if(!Number.isInteger(expected)||expected<1||expected>100||rows.length!==expected) throw Error('Dataset row count does not match authoritative output.');\n  const counts=summary.buyerCharge?.acceptedEvents,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n  if(!counts||!prices) throw Error('Actor event estimate evidence missing.');\n  let charge=0;\n  for(const [event,count] of Object.entries(counts)) {\n    if(!Number.isInteger(count)||count<0) throw Error('Invalid accepted event count.');\n    if(count){const price=prices[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0) throw Error('Exact effective event price missing.');charge+=count*price;}\n  }\n  // Apify's final response can precede its billing counter update. Estimate\n  // from the Actor's accepted events and this run's prices; never call it an invoice.\n  for(const [event,count] of Object.entries(run.chargedEventCounts??{})) if(!Number.isInteger(count)||count<0||count>Number(counts[event]??0)) throw Error('Unreconciled platform event.');\n  charge=Number(charge.toFixed(12));if(charge>config.maxCostPerRunUsd+1e-9) throw Error('Actor charge exceeded configured cap.');\n  const products=new Map(),changes=new Map();\n  const idOf=row=>{const id=String(row.goodsId??row.productId??String(row.stableId??'').replace(/^temu-product:/,''));if(!config.ids.includes(id)) throw Error('Output has an unexpected goods ID.');return id;};\n  for(const row of rows){\n    if(row.recordType==='product'){const id=idOf(row);if(products.has(id)) throw Error('Duplicate product snapshot.');products.set(id,row);}\n    else if(row.recordType==='change'){const id=idOf(row);if(changes.has(id)||!['NEW','UPDATED','ENDED'].includes(row.changeType))throw Error('Invalid or duplicate change.');changes.set(id,row);}\n    else if(!['coverage','summary'].includes(row.recordType)) throw Error('Unexpected record type.');\n  }\n  // Exact-target monitoring requires one current snapshot or a proven ENDED event per requested ID.\n  // An unconfirmed disappearance leaves the entire Sheet untouched rather than pretending no change.\n  return config.ids.map(id=>{\n    const change=changes.get(id),product=products.get(id)??change?.after;\n    if(!product && change?.changeType!=='ENDED')throw Error('Requested product has no verified snapshot or confirmed end.');\n    const current=product??{},previous=change?.before??{};\n    const baseline=summary.state.action==='BASELINE_CREATED';\n    const type=change?.changeType??(baseline?'BASELINE':'UNCHANGED');\n    const scope=[config.stateNamespace,config.region,...config.ids].join('|');\n    return {upsertKey:`temu|${scope}|${id}`,goodsId:id,title:current.title??previous.title??'',region:config.region,currency:current.currency??'',price:current.price??'',previousPrice:type==='UPDATED'?previous.price??'':'',changeType:type,changedFields:(change?.changedFields??[]).join(', '),availability:type==='ENDED'?'ENDED':current.availability??'',productUrl:current.canonicalUrl??current.sourceUrl??`https://www.temu.com/g-${id}.html`,observedAt:summary.completedAt,coverageStatus:summary.coverageStatus,stateAction:summary.state.action,estimatedActorChargeUsd:charge,runUrl:`https://console.apify.com/actors/runs/${run.id}`};\n  });\n}\n\nreturn [{json:classify($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e88df8d2c1b84d4deb64af43",
+      "name": "Run finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1360,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "8d7f66ce30129c2d61db5492",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "aee28dd33203207293ed4372",
+      "name": "Wait five seconds",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1360,
+        432
+      ],
+      "webhookId": "a0f514981b9f9559b36c6a82",
+      "parameters": {
+        "unit": "seconds",
+        "amount": 5,
+        "resume": "timeInterval"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "0af567d9832ba9facd819f0d",
+      "name": "Read existing run",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        432
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $json.run.id }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "f46041a8f678f0a5c55af8f4",
+      "name": "Read authoritative output",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1776,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/key-value-stores/' + $('Check run status').item.json.run.defaultKeyValueStoreId + '/records/OUTPUT' }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a6159e2f77a3dade659884c8",
+      "name": "Check output bounds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2016,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID = 'qnqksdshiMNdwqcrG';\nconst BUILD_ID = 'Hy2htFWnbJcwLiyHl';\nconst BUILD_TAG = 'temu-release-20260906d';\nconst COLUMNS = ['upsertKey','goodsId','title','region','currency','price','previousPrice','changeType','changedFields','availability','productUrl','observedAt','coverageStatus','stateAction','estimatedActorChargeUsd','runUrl'];\n\nfunction preflight(config) {\n  const ids=String(config.productIds??'').split(/[\\s,]+/).filter(Boolean);\n  if(!ids.length||ids.length>5||ids.some(id=>!/^\\d{10,20}$/.test(id))||new Set(ids).size!==ids.length) throw Error('Enter one to five distinct Temu goods IDs.');\n  if(!['us','uk','de','fr','es','it','nl','au','ca','br','mx','jp','pl','se','at','be','pt','cz','ie'].includes(config.region)) throw Error('Choose a supported market.');\n  if(!/^[A-Za-z0-9_-]{20,}$/.test(config.spreadsheetId??'')||/REPLACE/.test(config.spreadsheetId)) throw Error('Set your Google spreadsheet ID before running.');\n  if(!String(config.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(config.stateNamespace??'')) throw Error('Set a Sheet tab and stable monitoring scope.');\n  const cap=Number(config.maxCostPerRunUsd);\n  if(!Number.isFinite(cap)||cap<0.01||cap>0.5) throw Error('Actor charge cap must be between $0.01 and $0.50.');\n  return {...config,ids:ids.sort(),maxCostPerRunUsd:cap,actorInput:{workflow:'track_product_changes',productIds:ids.sort(),searchKeywords:[],region:config.region,stateNamespace:config.stateNamespace,includeUnchanged:true,includeVariants:true,includeSummary:false,outputFormat:'default',maxBuyerChargeUsd:cap}};\n}\n\nfunction classify(response,now=Date.now()) {\n  const run=response.data??response;\n  if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID) throw Error('Actor or immutable build mismatch.');\n  if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status)) throw Error(`Actor ${run.status}: https://console.apify.com/actors/runs/${run.id}. No Sheet write.`);\n  if(!['READY','RUNNING','SUCCEEDED'].includes(run.status)) throw Error('Unexpected Actor state.');\n  if(run.status!=='SUCCEEDED' && (!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000)) throw Error('Actor wait exceeded six minutes. Inspect the existing run; do not automatically start another.');\n  if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId)) throw Error('Successful run is missing output storage.');\n  return {run,ready:run.status==='SUCCEEDED'};\n}\n\nfunction reconcile({config,run,summary,rows}) {\n  if(summary.status!=='COMPLETED'||summary.workflow!=='track_product_changes') throw Error('No valid monitoring output.');\n  if(summary.coverageStatus!=='COMPLETE'||summary.state?.committed!==true) throw Error('Monitoring coverage or state is incomplete; Sheet left unchanged.');\n  const expected=Number(summary.delivered?.paidRows)+Number(summary.delivered?.freeRows);\n  if(!Number.isInteger(expected)||expected<1||expected>100||rows.length!==expected) throw Error('Dataset row count does not match authoritative output.');\n  const counts=summary.buyerCharge?.acceptedEvents,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n  if(!counts||!prices) throw Error('Actor event estimate evidence missing.');\n  let charge=0;\n  for(const [event,count] of Object.entries(counts)) {\n    if(!Number.isInteger(count)||count<0) throw Error('Invalid accepted event count.');\n    if(count){const price=prices[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0) throw Error('Exact effective event price missing.');charge+=count*price;}\n  }\n  // Apify's final response can precede its billing counter update. Estimate\n  // from the Actor's accepted events and this run's prices; never call it an invoice.\n  for(const [event,count] of Object.entries(run.chargedEventCounts??{})) if(!Number.isInteger(count)||count<0||count>Number(counts[event]??0)) throw Error('Unreconciled platform event.');\n  charge=Number(charge.toFixed(12));if(charge>config.maxCostPerRunUsd+1e-9) throw Error('Actor charge exceeded configured cap.');\n  const products=new Map(),changes=new Map();\n  const idOf=row=>{const id=String(row.goodsId??row.productId??String(row.stableId??'').replace(/^temu-product:/,''));if(!config.ids.includes(id)) throw Error('Output has an unexpected goods ID.');return id;};\n  for(const row of rows){\n    if(row.recordType==='product'){const id=idOf(row);if(products.has(id)) throw Error('Duplicate product snapshot.');products.set(id,row);}\n    else if(row.recordType==='change'){const id=idOf(row);if(changes.has(id)||!['NEW','UPDATED','ENDED'].includes(row.changeType))throw Error('Invalid or duplicate change.');changes.set(id,row);}\n    else if(!['coverage','summary'].includes(row.recordType)) throw Error('Unexpected record type.');\n  }\n  // Exact-target monitoring requires one current snapshot or a proven ENDED event per requested ID.\n  // An unconfirmed disappearance leaves the entire Sheet untouched rather than pretending no change.\n  return config.ids.map(id=>{\n    const change=changes.get(id),product=products.get(id)??change?.after;\n    if(!product && change?.changeType!=='ENDED')throw Error('Requested product has no verified snapshot or confirmed end.');\n    const current=product??{},previous=change?.before??{};\n    const baseline=summary.state.action==='BASELINE_CREATED';\n    const type=change?.changeType??(baseline?'BASELINE':'UNCHANGED');\n    const scope=[config.stateNamespace,config.region,...config.ids].join('|');\n    return {upsertKey:`temu|${scope}|${id}`,goodsId:id,title:current.title??previous.title??'',region:config.region,currency:current.currency??'',price:current.price??'',previousPrice:type==='UPDATED'?previous.price??'':'',changeType:type,changedFields:(change?.changedFields??[]).join(', '),availability:type==='ENDED'?'ENDED':current.availability??'',productUrl:current.canonicalUrl??current.sourceUrl??`https://www.temu.com/g-${id}.html`,observedAt:summary.completedAt,coverageStatus:summary.coverageStatus,stateAction:summary.state.action,estimatedActorChargeUsd:charge,runUrl:`https://console.apify.com/actors/runs/${run.id}`};\n  });\n}\n\nconst summary=$input.first().json; const count=Number(summary.delivered?.paidRows)+Number(summary.delivered?.freeRows); if(summary.status!=='COMPLETED'||!Number.isInteger(count)||count<1||count>100)throw Error('Invalid output or unsupported dataset size; no write.'); return [{json:{summary,run:$('Check run status').item.json.run}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8cc46504be563969b69619af",
+      "name": "Read complete bounded dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2256,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $json.run.defaultDatasetId + '/items' }}",
+        "options": {
+          "timeout": 70000
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "100"
+            },
+            {
+              "name": "clean",
+              "value": "true"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ce8a06f624df3b7c639cf77f",
+      "name": "Build verified Sheet rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2656,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID = 'qnqksdshiMNdwqcrG';\nconst BUILD_ID = 'Hy2htFWnbJcwLiyHl';\nconst BUILD_TAG = 'temu-release-20260906d';\nconst COLUMNS = ['upsertKey','goodsId','title','region','currency','price','previousPrice','changeType','changedFields','availability','productUrl','observedAt','coverageStatus','stateAction','estimatedActorChargeUsd','runUrl'];\n\nfunction preflight(config) {\n  const ids=String(config.productIds??'').split(/[\\s,]+/).filter(Boolean);\n  if(!ids.length||ids.length>5||ids.some(id=>!/^\\d{10,20}$/.test(id))||new Set(ids).size!==ids.length) throw Error('Enter one to five distinct Temu goods IDs.');\n  if(!['us','uk','de','fr','es','it','nl','au','ca','br','mx','jp','pl','se','at','be','pt','cz','ie'].includes(config.region)) throw Error('Choose a supported market.');\n  if(!/^[A-Za-z0-9_-]{20,}$/.test(config.spreadsheetId??'')||/REPLACE/.test(config.spreadsheetId)) throw Error('Set your Google spreadsheet ID before running.');\n  if(!String(config.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(config.stateNamespace??'')) throw Error('Set a Sheet tab and stable monitoring scope.');\n  const cap=Number(config.maxCostPerRunUsd);\n  if(!Number.isFinite(cap)||cap<0.01||cap>0.5) throw Error('Actor charge cap must be between $0.01 and $0.50.');\n  return {...config,ids:ids.sort(),maxCostPerRunUsd:cap,actorInput:{workflow:'track_product_changes',productIds:ids.sort(),searchKeywords:[],region:config.region,stateNamespace:config.stateNamespace,includeUnchanged:true,includeVariants:true,includeSummary:false,outputFormat:'default',maxBuyerChargeUsd:cap}};\n}\n\nfunction classify(response,now=Date.now()) {\n  const run=response.data??response;\n  if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID) throw Error('Actor or immutable build mismatch.');\n  if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status)) throw Error(`Actor ${run.status}: https://console.apify.com/actors/runs/${run.id}. No Sheet write.`);\n  if(!['READY','RUNNING','SUCCEEDED'].includes(run.status)) throw Error('Unexpected Actor state.');\n  if(run.status!=='SUCCEEDED' && (!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000)) throw Error('Actor wait exceeded six minutes. Inspect the existing run; do not automatically start another.');\n  if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId)) throw Error('Successful run is missing output storage.');\n  return {run,ready:run.status==='SUCCEEDED'};\n}\n\nfunction reconcile({config,run,summary,rows}) {\n  if(summary.status!=='COMPLETED'||summary.workflow!=='track_product_changes') throw Error('No valid monitoring output.');\n  if(summary.coverageStatus!=='COMPLETE'||summary.state?.committed!==true) throw Error('Monitoring coverage or state is incomplete; Sheet left unchanged.');\n  const expected=Number(summary.delivered?.paidRows)+Number(summary.delivered?.freeRows);\n  if(!Number.isInteger(expected)||expected<1||expected>100||rows.length!==expected) throw Error('Dataset row count does not match authoritative output.');\n  const counts=summary.buyerCharge?.acceptedEvents,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n  if(!counts||!prices) throw Error('Actor event estimate evidence missing.');\n  let charge=0;\n  for(const [event,count] of Object.entries(counts)) {\n    if(!Number.isInteger(count)||count<0) throw Error('Invalid accepted event count.');\n    if(count){const price=prices[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0) throw Error('Exact effective event price missing.');charge+=count*price;}\n  }\n  // Apify's final response can precede its billing counter update. Estimate\n  // from the Actor's accepted events and this run's prices; never call it an invoice.\n  for(const [event,count] of Object.entries(run.chargedEventCounts??{})) if(!Number.isInteger(count)||count<0||count>Number(counts[event]??0)) throw Error('Unreconciled platform event.');\n  charge=Number(charge.toFixed(12));if(charge>config.maxCostPerRunUsd+1e-9) throw Error('Actor charge exceeded configured cap.');\n  const products=new Map(),changes=new Map();\n  const idOf=row=>{const id=String(row.goodsId??row.productId??String(row.stableId??'').replace(/^temu-product:/,''));if(!config.ids.includes(id)) throw Error('Output has an unexpected goods ID.');return id;};\n  for(const row of rows){\n    if(row.recordType==='product'){const id=idOf(row);if(products.has(id)) throw Error('Duplicate product snapshot.');products.set(id,row);}\n    else if(row.recordType==='change'){const id=idOf(row);if(changes.has(id)||!['NEW','UPDATED','ENDED'].includes(row.changeType))throw Error('Invalid or duplicate change.');changes.set(id,row);}\n    else if(!['coverage','summary'].includes(row.recordType)) throw Error('Unexpected record type.');\n  }\n  // Exact-target monitoring requires one current snapshot or a proven ENDED event per requested ID.\n  // An unconfirmed disappearance leaves the entire Sheet untouched rather than pretending no change.\n  return config.ids.map(id=>{\n    const change=changes.get(id),product=products.get(id)??change?.after;\n    if(!product && change?.changeType!=='ENDED')throw Error('Requested product has no verified snapshot or confirmed end.');\n    const current=product??{},previous=change?.before??{};\n    const baseline=summary.state.action==='BASELINE_CREATED';\n    const type=change?.changeType??(baseline?'BASELINE':'UNCHANGED');\n    const scope=[config.stateNamespace,config.region,...config.ids].join('|');\n    return {upsertKey:`temu|${scope}|${id}`,goodsId:id,title:current.title??previous.title??'',region:config.region,currency:current.currency??'',price:current.price??'',previousPrice:type==='UPDATED'?previous.price??'':'',changeType:type,changedFields:(change?.changedFields??[]).join(', '),availability:type==='ENDED'?'ENDED':current.availability??'',productUrl:current.canonicalUrl??current.sourceUrl??`https://www.temu.com/g-${id}.html`,observedAt:summary.completedAt,coverageStatus:summary.coverageStatus,stateAction:summary.state.action,estimatedActorChargeUsd:charge,runUrl:`https://console.apify.com/actors/runs/${run.id}`};\n  });\n}\n\nconst bound=$('Check output bounds').first().json; const rows=$input.all().flatMap(item=>Array.isArray(item.json)?item.json:[item.json]); return reconcile({config:$('Validate settings').first().json,run:bound.run,summary:bound.summary,rows}).map(json=>({json}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6e8d1fd6d9323a5fc0cfa0fd",
+      "name": "Upsert products in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 2,
+      "position": [
+        2896,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "upsertKey",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "upsertKey",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "goodsId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "goodsId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "title",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "title",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "region",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "region",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "currency",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "currency",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "price",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "previousPrice",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "previousPrice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "changeType",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "changeType",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "changedFields",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "changedFields",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "availability",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "availability",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "productUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "productUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "observedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "observedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "coverageStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "coverageStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "stateAction",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "stateAction",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "estimatedActorChargeUsd",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "estimatedActorChargeUsd",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "runUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "runUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "upsertKey"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Validate settings').first().json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Validate settings').first().json.spreadsheetId }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.6,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "d24a6c0e92760fa04581c7de",
+      "name": "Return delivery receipt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3136,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID = 'qnqksdshiMNdwqcrG';\nconst BUILD_ID = 'Hy2htFWnbJcwLiyHl';\nconst BUILD_TAG = 'temu-release-20260906d';\nconst COLUMNS = ['upsertKey','goodsId','title','region','currency','price','previousPrice','changeType','changedFields','availability','productUrl','observedAt','coverageStatus','stateAction','estimatedActorChargeUsd','runUrl'];\n\nfunction preflight(config) {\n  const ids=String(config.productIds??'').split(/[\\s,]+/).filter(Boolean);\n  if(!ids.length||ids.length>5||ids.some(id=>!/^\\d{10,20}$/.test(id))||new Set(ids).size!==ids.length) throw Error('Enter one to five distinct Temu goods IDs.');\n  if(!['us','uk','de','fr','es','it','nl','au','ca','br','mx','jp','pl','se','at','be','pt','cz','ie'].includes(config.region)) throw Error('Choose a supported market.');\n  if(!/^[A-Za-z0-9_-]{20,}$/.test(config.spreadsheetId??'')||/REPLACE/.test(config.spreadsheetId)) throw Error('Set your Google spreadsheet ID before running.');\n  if(!String(config.sheetName??'').trim()||! /^[A-Za-z0-9._~-]{1,64}$/.test(config.stateNamespace??'')) throw Error('Set a Sheet tab and stable monitoring scope.');\n  const cap=Number(config.maxCostPerRunUsd);\n  if(!Number.isFinite(cap)||cap<0.01||cap>0.5) throw Error('Actor charge cap must be between $0.01 and $0.50.');\n  return {...config,ids:ids.sort(),maxCostPerRunUsd:cap,actorInput:{workflow:'track_product_changes',productIds:ids.sort(),searchKeywords:[],region:config.region,stateNamespace:config.stateNamespace,includeUnchanged:true,includeVariants:true,includeSummary:false,outputFormat:'default',maxBuyerChargeUsd:cap}};\n}\n\nfunction classify(response,now=Date.now()) {\n  const run=response.data??response;\n  if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID) throw Error('Actor or immutable build mismatch.');\n  if(['FAILED','TIMED-OUT','ABORTED'].includes(run.status)) throw Error(`Actor ${run.status}: https://console.apify.com/actors/runs/${run.id}. No Sheet write.`);\n  if(!['READY','RUNNING','SUCCEEDED'].includes(run.status)) throw Error('Unexpected Actor state.');\n  if(run.status!=='SUCCEEDED' && (!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000)) throw Error('Actor wait exceeded six minutes. Inspect the existing run; do not automatically start another.');\n  if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId)) throw Error('Successful run is missing output storage.');\n  return {run,ready:run.status==='SUCCEEDED'};\n}\n\nfunction reconcile({config,run,summary,rows}) {\n  if(summary.status!=='COMPLETED'||summary.workflow!=='track_product_changes') throw Error('No valid monitoring output.');\n  if(summary.coverageStatus!=='COMPLETE'||summary.state?.committed!==true) throw Error('Monitoring coverage or state is incomplete; Sheet left unchanged.');\n  const expected=Number(summary.delivered?.paidRows)+Number(summary.delivered?.freeRows);\n  if(!Number.isInteger(expected)||expected<1||expected>100||rows.length!==expected) throw Error('Dataset row count does not match authoritative output.');\n  const counts=summary.buyerCharge?.acceptedEvents,prices=run.pricingInfo?.pricingPerEvent?.actorChargeEvents;\n  if(!counts||!prices) throw Error('Actor event estimate evidence missing.');\n  let charge=0;\n  for(const [event,count] of Object.entries(counts)) {\n    if(!Number.isInteger(count)||count<0) throw Error('Invalid accepted event count.');\n    if(count){const price=prices[event]?.eventPriceUsd;if(!Number.isFinite(price)||price<0) throw Error('Exact effective event price missing.');charge+=count*price;}\n  }\n  // Apify's final response can precede its billing counter update. Estimate\n  // from the Actor's accepted events and this run's prices; never call it an invoice.\n  for(const [event,count] of Object.entries(run.chargedEventCounts??{})) if(!Number.isInteger(count)||count<0||count>Number(counts[event]??0)) throw Error('Unreconciled platform event.');\n  charge=Number(charge.toFixed(12));if(charge>config.maxCostPerRunUsd+1e-9) throw Error('Actor charge exceeded configured cap.');\n  const products=new Map(),changes=new Map();\n  const idOf=row=>{const id=String(row.goodsId??row.productId??String(row.stableId??'').replace(/^temu-product:/,''));if(!config.ids.includes(id)) throw Error('Output has an unexpected goods ID.');return id;};\n  for(const row of rows){\n    if(row.recordType==='product'){const id=idOf(row);if(products.has(id)) throw Error('Duplicate product snapshot.');products.set(id,row);}\n    else if(row.recordType==='change'){const id=idOf(row);if(changes.has(id)||!['NEW','UPDATED','ENDED'].includes(row.changeType))throw Error('Invalid or duplicate change.');changes.set(id,row);}\n    else if(!['coverage','summary'].includes(row.recordType)) throw Error('Unexpected record type.');\n  }\n  // Exact-target monitoring requires one current snapshot or a proven ENDED event per requested ID.\n  // An unconfirmed disappearance leaves the entire Sheet untouched rather than pretending no change.\n  return config.ids.map(id=>{\n    const change=changes.get(id),product=products.get(id)??change?.after;\n    if(!product && change?.changeType!=='ENDED')throw Error('Requested product has no verified snapshot or confirmed end.');\n    const current=product??{},previous=change?.before??{};\n    const baseline=summary.state.action==='BASELINE_CREATED';\n    const type=change?.changeType??(baseline?'BASELINE':'UNCHANGED');\n    const scope=[config.stateNamespace,config.region,...config.ids].join('|');\n    return {upsertKey:`temu|${scope}|${id}`,goodsId:id,title:current.title??previous.title??'',region:config.region,currency:current.currency??'',price:current.price??'',previousPrice:type==='UPDATED'?previous.price??'':'',changeType:type,changedFields:(change?.changedFields??[]).join(', '),availability:type==='ENDED'?'ENDED':current.availability??'',productUrl:current.canonicalUrl??current.sourceUrl??`https://www.temu.com/g-${id}.html`,observedAt:summary.completedAt,coverageStatus:summary.coverageStatus,stateAction:summary.state.action,estimatedActorChargeUsd:charge,runUrl:`https://console.apify.com/actors/runs/${run.id}`};\n  });\n}\n\nconst rows=$('Build verified Sheet rows').all().map(x=>x.json); return [{json:{status:'SHEETS_WRITTEN',rows:rows.length,coverageStatus:rows[0].coverageStatus,estimatedActorChargeUsd:rows[0].estimatedActorChargeUsd,runUrl:rows[0].runUrl}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ee7eb20fbbc5614275bade05",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        -1056
+      ],
+      "parameters": {
+        "width": 1120,
+        "height": 900,
+        "content": "## Track Temu product prices in Google Sheets\n\nKeep a small watchlist of exact Temu products in your own spreadsheet. This workflow is for people who already know which products they want to follow and want current source-reported prices together with factual changes. It does not recommend deals or predict demand.\n\n### How it works\nA manual trigger validates one to five goods IDs, the market, a stable monitoring scope and a charge cap. The workflow starts the pinned Apify Actor once and waits for that same run. It checks the authoritative output, coverage, row count and estimated Actor event cost before writing anything. The first trustworthy run creates a baseline. Later runs report changes or unchanged snapshots. A stable key updates the same Sheet row for the same product and scope. Incomplete checks stop with an error rather than claiming that a product disappeared. This sheet is a current register, not a permanent history of every change.\n\n### Setup\n1. Create an Apify Header Auth credential: name Authorization, value Bearer followed by your API token. Select it on all four HTTP Request nodes.\n2. Connect a Google Sheets OAuth2 credential on the Sheets node.\n3. Create a Temu Watch tab using the supplied header CSV.\n4. Set your goods IDs, spreadsheet ID and market in Product watch settings. Keep the scope name stable and run sequentially.\n5. Start manually with one product and a small charge cap. Inspect the output and Sheet before repeating. Apify usage is paid; the template does not include credits."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "62205b08fddbd50a588bb6c7",
+      "name": "Configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 680,
+        "content": "## 1. Configure\nSet your product IDs and Sheet destination. Validation stops placeholders and invalid caps before paid work."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6d10fe8d68bffab79989bc4f",
+      "name": "Run",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 2. Run once and wait\nOnly the first HTTP call starts an Actor. Polling reads the existing run; failures stop before any Sheet write."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "397fa8e5ad191d884db014f0",
+      "name": "Verify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 3. Verify output\nRead the authoritative summary and the complete bounded dataset. Reject incomplete coverage or row-count mismatches."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "82475a16c2eb3c5579177978",
+      "name": "Deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 4. Update your register\nOne stable key per product and search scope. Only destination delivery may retry; the paid Actor never retries automatically."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 480
+  },
+  "connections": {
+    "Run Temu once": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run finished?": {
+      "main": [
+        [
+          {
+            "node": "Read authoritative output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait five seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start manually": {
+      "main": [
+        [
+          {
+            "node": "Product watch settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check run status": {
+      "main": [
+        [
+          {
+            "node": "Run finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing run": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate settings": {
+      "main": [
+        [
+          {
+            "node": "Run Temu once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait five seconds": {
+      "main": [
+        [
+          {
+            "node": "Read existing run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check output bounds": {
+      "main": [
+        [
+          {
+            "node": "Read complete bounded dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Product watch settings": {
+      "main": [
+        [
+          {
+            "node": "Validate settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build verified Sheet rows": {
+      "main": [
+        [
+          {
+            "node": "Upsert products in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read authoritative output": {
+      "main": [
+        [
+          {
+            "node": "Check output bounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read complete bounded dataset": {
+      "main": [
+        [
+          {
+            "node": "Build verified Sheet rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert products in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Return delivery receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track Temu product prices with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19279,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,0 +1,1326 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Screen and triage job applications with Ollama, Gmail, and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 17433,
+    "update_time": "2026-09-27"
+  },
+  "nodes": [
+    {
+      "id": "9271f4b1-23d4-4f17-8e6a-af7caad6eb78",
+      "name": "Extract from File",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        -176,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "={{ $('Application Reception').item.binary.Curr_culum }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d2b87f22-73f1-4efa-97bc-4fa84efa2504",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -624,
+        192
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "24fd8850-53a0-407f-8c3b-86d17f00d6d6",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.nivel_ajuste }}",
+              "rightValue": "Alto"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "44c473c7-d494-4934-863e-b4d3d96aff23",
+      "name": "Clear data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -832,
+        192
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================\n// 1. OBTENER LA RESPUESTA DE OLLAMA\n// ============================================================\n\nconst rawContent =\n  $json.content ??\n  $json.message?.content ??\n  $json.response ??\n  $json.output ??\n  '';\n\nif (\n  rawContent === null ||\n  rawContent === undefined ||\n  (\n    typeof rawContent === 'string' &&\n    !rawContent.trim()\n  )\n) {\n  throw new Error(\n    'No se encontró contenido válido en la respuesta de Ollama.'\n  );\n}\n\n\n// ============================================================\n// 2. FUNCIONES PARA RECUPERAR Y REPARAR EL JSON\n// ============================================================\n\n// Extrae el primer objeto o array JSON completo.\n// Permite ignorar textos como:\n// \"Aquí tienes el resultado: { ... }\"\nconst extractFirstJsonStructure = (text) => {\n  const objectPosition = text.indexOf('{');\n  const arrayPosition = text.indexOf('[');\n\n  const possibleStarts = [\n    objectPosition,\n    arrayPosition,\n  ].filter((position) => position >= 0);\n\n  if (possibleStarts.length === 0) {\n    return text.trim();\n  }\n\n  const startPosition = Math.min(...possibleStarts);\n\n  const stack = [];\n  let insideString = false;\n  let escaped = false;\n\n  for (\n    let index = startPosition;\n    index < text.length;\n    index++\n  ) {\n    const character = text[index];\n\n    if (insideString) {\n      if (escaped) {\n        escaped = false;\n        continue;\n      }\n\n      if (character === '\\\\') {\n        escaped = true;\n        continue;\n      }\n\n      if (character === '\"') {\n        insideString = false;\n      }\n\n      continue;\n    }\n\n    if (character === '\"') {\n      insideString = true;\n      continue;\n    }\n\n    if (\n      character === '{' ||\n      character === '['\n    ) {\n      stack.push(character);\n      continue;\n    }\n\n    if (\n      character === '}' ||\n      character === ']'\n    ) {\n      const expectedOpening =\n        character === '}' ? '{' : '[';\n\n      const lastOpening =\n        stack[stack.length - 1];\n\n      if (lastOpening !== expectedOpening) {\n        continue;\n      }\n\n      stack.pop();\n\n      if (stack.length === 0) {\n        return text\n          .slice(startPosition, index + 1)\n          .trim();\n      }\n    }\n  }\n\n  // Si no encuentra un cierre completo,\n  // devuelve desde el primer inicio de JSON.\n  return text.slice(startPosition).trim();\n};\n\n\n// Elimina Markdown, caracteres invisibles y texto externo.\nconst prepareJsonText = (value) => {\n  let text = String(value)\n    // Elimina BOM.\n    .replace(/^\\uFEFF/, '')\n\n    // Elimina caracteres invisibles frecuentes.\n    .replace(/[\\u200B-\\u200D\\u2060]/g, '')\n\n    // Normaliza comillas dobles tipográficas.\n    .replace(/[“”]/g, '\"')\n\n    .trim();\n\n  // Elimina bloques Markdown.\n  text = text\n    .replace(/^```(?:json)?\\s*/i, '')\n    .replace(/\\s*```$/i, '')\n    .trim();\n\n  return extractFirstJsonStructure(text);\n};\n\n\n// Devuelve el último carácter no vacío ya generado.\nconst getPreviousSignificantCharacter = (text) => {\n  for (\n    let index = text.length - 1;\n    index >= 0;\n    index--\n  ) {\n    if (!/\\s/.test(text[index])) {\n      return text[index];\n    }\n  }\n\n  return '';\n};\n\n\n// Corrige errores estructurales frecuentes de los modelos:\n// - \"Elemento\"\n// * \"Elemento\"\n// + \"Elemento\"\n// Comas finales: [\"a\", \"b\",]\n// Saltos de línea sin escapar dentro de textos.\nconst repairJsonStructure = (text) => {\n  let repairedText = '';\n  let insideString = false;\n  let escaped = false;\n\n  for (\n    let index = 0;\n    index < text.length;\n    index++\n  ) {\n    const character = text[index];\n\n    if (insideString) {\n      if (escaped) {\n        repairedText += character;\n        escaped = false;\n        continue;\n      }\n\n      if (character === '\\\\') {\n        repairedText += character;\n        escaped = true;\n        continue;\n      }\n\n      if (character === '\"') {\n        repairedText += character;\n        insideString = false;\n        continue;\n      }\n\n      // Los saltos de línea literales no son válidos\n      // dentro de strings JSON.\n      if (\n        character === '\\n' ||\n        character === '\\r' ||\n        character === '\\t'\n      ) {\n        repairedText += ' ';\n        continue;\n      }\n\n      repairedText += character;\n      continue;\n    }\n\n    if (character === '\"') {\n      repairedText += character;\n      insideString = true;\n      continue;\n    }\n\n    // Corrige listas Markdown introducidas dentro de arrays.\n    if (\n      character === '-' ||\n      character === '*' ||\n      character === '+'\n    ) {\n      const previousCharacter =\n        getPreviousSignificantCharacter(repairedText);\n\n      let nextIndex = index + 1;\n\n      while (\n        nextIndex < text.length &&\n        /\\s/.test(text[nextIndex])\n      ) {\n        nextIndex++;\n      }\n\n      const nextCharacter = text[nextIndex];\n\n      const isStructuralBullet =\n        (\n          previousCharacter === '[' ||\n          previousCharacter === ',' ||\n          previousCharacter === '{'\n        ) &&\n        (\n          nextCharacter === '\"' ||\n          nextCharacter === '{' ||\n          nextCharacter === '['\n        );\n\n      if (isStructuralBullet) {\n        // Omite el símbolo -, * o +.\n        // También avanza hasta el siguiente valor real.\n        index = nextIndex - 1;\n        continue;\n      }\n    }\n\n    // Elimina comas finales antes de } o ].\n    if (character === ',') {\n      let nextIndex = index + 1;\n\n      while (\n        nextIndex < text.length &&\n        /\\s/.test(text[nextIndex])\n      ) {\n        nextIndex++;\n      }\n\n      const nextCharacter = text[nextIndex];\n\n      if (\n        nextCharacter === '}' ||\n        nextCharacter === ']'\n      ) {\n        continue;\n      }\n    }\n\n    repairedText += character;\n  }\n\n  return repairedText.trim();\n};\n\n\n// Convierte literales habituales de Python/JavaScript\n// a valores válidos de JSON.\n// Solo actúa fuera de strings.\nconst repairBareLiterals = (text) => {\n  const replacements = {\n    True: 'true',\n    False: 'false',\n    None: 'null',\n    undefined: 'null',\n    NaN: 'null',\n  };\n\n  let repairedText = '';\n  let insideString = false;\n  let escaped = false;\n\n  for (\n    let index = 0;\n    index < text.length;\n    index++\n  ) {\n    const character = text[index];\n\n    if (insideString) {\n      repairedText += character;\n\n      if (escaped) {\n        escaped = false;\n        continue;\n      }\n\n      if (character === '\\\\') {\n        escaped = true;\n        continue;\n      }\n\n      if (character === '\"') {\n        insideString = false;\n      }\n\n      continue;\n    }\n\n    if (character === '\"') {\n      repairedText += character;\n      insideString = true;\n      continue;\n    }\n\n    if (/[A-Za-z]/.test(character)) {\n      let endIndex = index;\n\n      while (\n        endIndex < text.length &&\n        /[A-Za-z]/.test(text[endIndex])\n      ) {\n        endIndex++;\n      }\n\n      const word = text.slice(index, endIndex);\n\n      repairedText +=\n        replacements[word] ?? word;\n\n      index = endIndex - 1;\n      continue;\n    }\n\n    repairedText += character;\n  }\n\n  return repairedText;\n};\n\n\n// Limita el contenido mostrado en los errores,\n// para evitar respuestas excesivamente grandes.\nconst getErrorPreview = (\n  value,\n  maximumLength = 7000\n) => {\n  const text = String(value);\n\n  if (text.length <= maximumLength) {\n    return text;\n  }\n\n  return `${text.slice(0, maximumLength)}... [contenido recortado]`;\n};\n\n\n// ============================================================\n// 3. INTERPRETAR EL JSON\n// ============================================================\n\nlet analysis;\nlet cleanedContent = '';\nlet repairedContent = '';\n\n// Algunas integraciones pueden devolver el objeto directamente.\nif (\n  typeof rawContent === 'object' &&\n  rawContent !== null &&\n  !Array.isArray(rawContent)\n) {\n  analysis = rawContent;\n} else {\n  cleanedContent = prepareJsonText(rawContent);\n\n  try {\n    // Primer intento: JSON exacto, sin modificarlo.\n    analysis = JSON.parse(cleanedContent);\n  } catch (originalError) {\n    // Segundo intento: reparar errores frecuentes.\n    repairedContent = repairBareLiterals(\n      repairJsonStructure(cleanedContent)\n    );\n\n    try {\n      analysis = JSON.parse(repairedContent);\n    } catch (repairedError) {\n      throw new Error(\n        [\n          'Ollama no devolvió JSON válido.',\n          `Error original: ${originalError.message}.`,\n          `Error después de intentar repararlo: ${repairedError.message}.`,\n          '',\n          'Contenido reparado recibido:',\n          getErrorPreview(repairedContent),\n        ].join(' ')\n      );\n    }\n  }\n}\n\nif (\n  typeof analysis !== 'object' ||\n  analysis === null ||\n  Array.isArray(analysis)\n) {\n  throw new Error(\n    'La respuesta de Ollama debe ser un objeto JSON.'\n  );\n}\n\n\n// ============================================================\n// 4. FUNCIONES DE NORMALIZACIÓN\n// ============================================================\n\n// Limpia un texto:\n// - Elimina saltos de línea.\n// - Elimina tabulaciones.\n// - Reduce espacios repetidos.\n// - Quita espacios iniciales y finales.\nconst cleanString = (value, fallback = '') => {\n  if (\n    value === null ||\n    value === undefined\n  ) {\n    return fallback;\n  }\n\n  return String(value)\n    .replace(/[\\r\\n\\t]+/g, ' ')\n    .replace(/\\s+/g, ' ')\n    .trim();\n};\n\n\n// Normaliza un número dentro de unos límites.\nconst cleanNumber = (\n  value,\n  min = 0,\n  max = 100\n) => {\n  let normalizedValue = value;\n\n  // Permite valores como:\n  // \"35\"\n  // \"35 puntos\"\n  // \"35/40\"\n  // \"35,5\"\n  if (typeof value === 'string') {\n    const numberMatch = value\n      .replace(',', '.')\n      .match(/-?\\d+(?:\\.\\d+)?/);\n\n    normalizedValue =\n      numberMatch?.[0] ?? value;\n  }\n\n  const number = Number(normalizedValue);\n\n  if (!Number.isFinite(number)) {\n    return min;\n  }\n\n  return Math.min(\n    max,\n    Math.max(min, Math.round(number))\n  );\n};\n\n\n// Normaliza valores booleanos.\nconst cleanBoolean = (\n  value,\n  fallback = true\n) => {\n  if (typeof value === 'boolean') {\n    return value;\n  }\n\n  if (typeof value === 'number') {\n    if (value === 1) {\n      return true;\n    }\n\n    if (value === 0) {\n      return false;\n    }\n  }\n\n  if (typeof value === 'string') {\n    const normalizedValue = value\n      .trim()\n      .toLowerCase();\n\n    if (\n      normalizedValue === 'true' ||\n      normalizedValue === 'sí' ||\n      normalizedValue === 'si' ||\n      normalizedValue === '1'\n    ) {\n      return true;\n    }\n\n    if (\n      normalizedValue === 'false' ||\n      normalizedValue === 'no' ||\n      normalizedValue === '0'\n    ) {\n      return false;\n    }\n  }\n\n  return fallback;\n};\n\n\n// Limpia los elementos de un array.\nconst cleanArray = (value) => {\n  if (!Array.isArray(value)) {\n    return [];\n  }\n\n  return value\n    .map((item) => {\n      if (\n        typeof item === 'object' &&\n        item !== null\n      ) {\n        return cleanString(\n          item.nombre ??\n          item.valor ??\n          item.texto ??\n          item.descripcion ??\n          ''\n        );\n      }\n\n      return cleanString(item);\n    })\n    .filter(Boolean);\n};\n\n\n// Convierte un array en frases separadas por puntos.\nconst arrayToText = (value) => {\n  const items = cleanArray(value);\n\n  if (items.length === 0) {\n    return '';\n  }\n\n  const normalizedItems = items.map((item) =>\n    item\n      .replace(/[.;,\\s]+$/g, '')\n      .trim()\n  );\n\n  return `${normalizedItems.join('. ')}.`;\n};\n\n\n// Convierte un array en texto separado por comas.\nconst arrayToCommaText = (value) => {\n  return cleanArray(value).join(', ');\n};\n\n\n// ============================================================\n// 5. NORMALIZAR PUNTUACIONES\n// ============================================================\n\nconst puntuacionTecnica = cleanNumber(\n  analysis.puntuacion_tecnica,\n  0,\n  40\n);\n\nconst puntuacionExperiencia = cleanNumber(\n  analysis.puntuacion_experiencia,\n  0,\n  25\n);\n\nconst puntuacionFormacion = cleanNumber(\n  analysis.puntuacion_formacion,\n  0,\n  15\n);\n\nconst puntuacionProyectos = cleanNumber(\n  analysis.puntuacion_proyectos,\n  0,\n  10\n);\n\nconst puntuacionComplementaria = cleanNumber(\n  analysis.puntuacion_complementaria,\n  0,\n  10\n);\n\n\n// Calcula la puntuación total para evitar\n// inconsistencias producidas por la IA.\nconst puntuacionCalculada =\n  puntuacionTecnica +\n  puntuacionExperiencia +\n  puntuacionFormacion +\n  puntuacionProyectos +\n  puntuacionComplementaria;\n\n\n// ============================================================\n// 6. NORMALIZAR NIVEL DE AJUSTE\n// ============================================================\n\nlet nivelAjuste = cleanString(\n  analysis.nivel_ajuste\n);\n\nconst nivelAjusteNormalizado =\n  nivelAjuste.toLowerCase();\n\nif (nivelAjusteNormalizado === 'alto') {\n  nivelAjuste = 'Alto';\n} else if (nivelAjusteNormalizado === 'medio') {\n  nivelAjuste = 'Medio';\n} else if (nivelAjusteNormalizado === 'bajo') {\n  nivelAjuste = 'Bajo';\n} else if (puntuacionCalculada >= 75) {\n  nivelAjuste = 'Alto';\n} else if (puntuacionCalculada >= 50) {\n  nivelAjuste = 'Medio';\n} else {\n  nivelAjuste = 'Bajo';\n}\n\n\n// ============================================================\n// 7. NORMALIZAR RECOMENDACIÓN\n// ============================================================\n\nlet recomendacion = cleanString(\n  analysis.recomendacion\n);\n\nconst recomendacionNormalizada =\n  recomendacion.toLowerCase();\n\nif (\n  recomendacionNormalizada ===\n  'revisión prioritaria'\n) {\n  recomendacion = 'Revisión prioritaria';\n} else if (\n  recomendacionNormalizada ===\n  'revisión estándar'\n) {\n  recomendacion = 'Revisión estándar';\n} else if (\n  recomendacionNormalizada ===\n  'requiere más información'\n) {\n  recomendacion = 'Requiere más información';\n} else if (puntuacionCalculada >= 75) {\n  recomendacion = 'Revisión prioritaria';\n} else if (puntuacionCalculada >= 50) {\n  recomendacion = 'Revisión estándar';\n} else {\n  recomendacion = 'Requiere más información';\n}\n\n\n// ============================================================\n// 8. NORMALIZAR IDIOMAS\n// ============================================================\n\nconst idiomas = Array.isArray(analysis.idiomas)\n  ? analysis.idiomas\n      .map((idioma) => {\n        // Permite idiomas como objeto:\n        // { \"idioma\": \"Inglés\", \"nivel\": \"A1\" }\n        if (\n          typeof idioma === 'object' &&\n          idioma !== null\n        ) {\n          return {\n            idioma: cleanString(\n              idioma.idioma ??\n              idioma.nombre\n            ),\n            nivel: cleanString(\n              idioma.nivel,\n              'No especificado'\n            ),\n          };\n        }\n\n        // También acepta un string simple.\n        return {\n          idioma: cleanString(idioma),\n          nivel: 'No especificado',\n        };\n      })\n      .filter((idioma) => idioma.idioma)\n  : [];\n\n\n// Idiomas sin saltos de línea.\nconst idiomasTexto = idiomas\n  .map(\n    (item) =>\n      `${item.idioma}: ${item.nivel}`\n  )\n  .join(' | ');\n\n\n// ============================================================\n// 9. OBJETO FINAL PARA GOOGLE SHEETS,\n//    POWER AUTOMATE O SHAREPOINT\n// ============================================================\n\nconst result = {\n  procesado_correctamente: true,\n\n  resumen_profesional: cleanString(\n    analysis.resumen_profesional\n  ),\n\n  puntuacion_total: puntuacionCalculada,\n  puntuacion_tecnica: puntuacionTecnica,\n  puntuacion_experiencia:\n    puntuacionExperiencia,\n  puntuacion_formacion:\n    puntuacionFormacion,\n  puntuacion_proyectos:\n    puntuacionProyectos,\n  puntuacion_complementaria:\n    puntuacionComplementaria,\n\n  nivel_ajuste: nivelAjuste,\n  recomendacion,\n\n  justificacion_recomendacion: cleanString(\n    analysis.justificacion_recomendacion\n  ),\n\n  anos_experiencia_confirmados: cleanNumber(\n    analysis.anos_experiencia_confirmados,\n    0,\n    50\n  ),\n\n  experiencia_relevante: cleanString(\n    analysis.experiencia_relevante\n  ),\n\n  habilidades_confirmadas: arrayToCommaText(\n    analysis.habilidades_confirmadas\n  ),\n\n  herramientas_automatizacion:\n    arrayToCommaText(\n      analysis.herramientas_automatizacion\n    ),\n\n  lenguajes_programacion: arrayToCommaText(\n    analysis.lenguajes_programacion\n  ),\n\n  infraestructura_y_sistemas:\n    arrayToCommaText(\n      analysis.infraestructura_y_sistemas\n    ),\n\n  formacion_relevante: arrayToText(\n    analysis.formacion_relevante\n  ),\n\n  idiomas: idiomasTexto,\n\n  requisitos_cumplidos: arrayToText(\n    analysis.requisitos_cumplidos\n  ),\n\n  requisitos_no_especificados: arrayToText(\n    analysis.requisitos_no_especificados\n  ),\n\n  aspectos_destacados: arrayToText(\n    analysis.aspectos_destacados\n  ),\n\n  aspectos_a_verificar: arrayToText(\n    analysis.aspectos_a_verificar\n  ),\n\n  preguntas_entrevista: arrayToText(\n    analysis.preguntas_entrevista\n  ),\n\n  requiere_revision_humana: cleanBoolean(\n    analysis.requiere_revision_humana,\n    true\n  ),\n\n  // Copia estructurada para usos posteriores.\n  detalle_json: JSON.stringify({\n    habilidades_confirmadas: cleanArray(\n      analysis.habilidades_confirmadas\n    ),\n\n    herramientas_automatizacion: cleanArray(\n      analysis.herramientas_automatizacion\n    ),\n\n    lenguajes_programacion: cleanArray(\n      analysis.lenguajes_programacion\n    ),\n\n    infraestructura_y_sistemas: cleanArray(\n      analysis.infraestructura_y_sistemas\n    ),\n\n    formacion_relevante: cleanArray(\n      analysis.formacion_relevante\n    ),\n\n    idiomas,\n\n    requisitos_cumplidos: cleanArray(\n      analysis.requisitos_cumplidos\n    ),\n\n    requisitos_no_especificados: cleanArray(\n      analysis.requisitos_no_especificados\n    ),\n\n    aspectos_destacados: cleanArray(\n      analysis.aspectos_destacados\n    ),\n\n    aspectos_a_verificar: cleanArray(\n      analysis.aspectos_a_verificar\n    ),\n\n    preguntas_entrevista: cleanArray(\n      analysis.preguntas_entrevista\n    ),\n  }),\n};\n\n\nreturn [\n  {\n    json: result,\n  },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "188225b9-4278-441c-9b62-1c134716ba18",
+      "name": "Error model o tokens",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        160,
+        -208
+      ],
+      "webhookId": "bf3bc442-f930-45ec-8b4e-0ca8aa6df6a0",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "faltan creditos ",
+        "options": {},
+        "subject": "Ollama"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6f4dca49-a2f8-4ff4-a55d-582e218a10a0",
+      "name": "Append row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -400,
+        192
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Email": "={{ $('Application Reception').item.json['Correo electrónico'] }}",
+            "Phone": "={{ $('Application Reception').item.json['Teléfono'] }}",
+            "Estado": "={{ null }}",
+            "idiomas": "={{ $json.idiomas }}",
+            "detalle_json": "={{ $json.detalle_json }}",
+            "nivel_ajuste": "={{ $json.nivel_ajuste }}",
+            "recomendacion": "={{ $json.recomendacion }}",
+            "Nombre competo": "={{ $('Application Reception').item.json.Nombre }} {{ $('Application Reception').item.json.Apellidos }}",
+            "puntuacion_total": "={{ $json.puntuacion_total }}",
+            "puntuacion_tecnica": "={{ $json.puntuacion_tecnica }}",
+            "aspectos_destacados": "={{ $json.aspectos_destacados }}",
+            "formacion_relevante": "={{ $json.formacion_relevante }}",
+            "resumen_profesional": "={{ $json.resumen_profesional }}",
+            "aspectos_a_verificar": "={{ $json.aspectos_a_verificar }}",
+            "preguntas_entrevista": "={{ $json.preguntas_entrevista }}",
+            "puntuacion_formacion": "={{ $json.puntuacion_formacion }}",
+            "puntuacion_proyectos": "={{ $json.puntuacion_proyectos }}",
+            "requisitos_cumplidos": "={{ $json.requisitos_cumplidos }}",
+            "experiencia_relevante": "={{ $json.experiencia_relevante }}",
+            "lenguajes_programacion": "={{ $json.lenguajes_programacion }}",
+            "puntuacion_experiencia": "={{ $json.puntuacion_experiencia }}",
+            "habilidades_confirmadas": "={{ $json.habilidades_confirmadas }}",
+            "procesado_correctamente": "={{ $json.procesado_correctamente }}",
+            "requiere_revision_humana": "={{ $json.requiere_revision_humana }}",
+            "puntuacion_complementaria": "={{ $json.puntuacion_complementaria }}",
+            "infraestructura_y_sistemas": "={{ $json.infraestructura_y_sistemas }}",
+            "herramientas_automatizacion": "={{ $json.herramientas_automatizacion }}",
+            "justificacion_recomendacion": "={{ $json.justificacion_recomendacion }}",
+            "requisitos_no_especificados": "={{ $json.requisitos_no_especificados }}",
+            "anos_experiencia_confirmados": "={{ $json.anos_experiencia_confirmados }}"
+          },
+          "schema": [
+            {
+              "id": "procesado_correctamente",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "procesado_correctamente",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Estado",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre competo",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Nombre competo",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resumen_profesional",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "resumen_profesional",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_total",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "puntuacion_total",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_tecnica",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "puntuacion_tecnica",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_experiencia",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "puntuacion_experiencia",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_formacion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "puntuacion_formacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_proyectos",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "puntuacion_proyectos",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_complementaria",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "puntuacion_complementaria",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nivel_ajuste",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "nivel_ajuste",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recomendacion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "recomendacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "justificacion_recomendacion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "justificacion_recomendacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "anos_experiencia_confirmados",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "anos_experiencia_confirmados",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experiencia_relevante",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "experiencia_relevante",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "habilidades_confirmadas",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "habilidades_confirmadas",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "herramientas_automatizacion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "herramientas_automatizacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lenguajes_programacion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "lenguajes_programacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "infraestructura_y_sistemas",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "infraestructura_y_sistemas",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formacion_relevante",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "formacion_relevante",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "idiomas",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "idiomas",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requisitos_cumplidos",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "requisitos_cumplidos",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requisitos_no_especificados",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "requisitos_no_especificados",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aspectos_destacados",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "aspectos_destacados",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aspectos_a_verificar",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "aspectos_a_verificar",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "preguntas_entrevista",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "preguntas_entrevista",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requiere_revision_humana",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "requiere_revision_humana",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "detalle_json",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "detalle_json",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1610898109,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10ldNybxk6T7yK4HWgsMTHmrwQEntyGWCdGRTxBsCkLA/edit#gid=1610898109",
+          "cachedResultName": "Currículums"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "10ldNybxk6T7yK4HWgsMTHmrwQEntyGWCdGRTxBsCkLA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10ldNybxk6T7yK4HWgsMTHmrwQEntyGWCdGRTxBsCkLA/edit?usp=drivesdk",
+          "cachedResultName": "Currículums"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "e1ed01e9-53ff-4cc3-9203-319beabb0393",
+      "name": "Update row in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        32,
+        192
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Estado": "={{ $json.data.approved }}",
+            "justificacion_recomendacion": "={{ $('Clear data').item.json.justificacion_recomendacion }}"
+          },
+          "schema": [
+            {
+              "id": "procesado_correctamente",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "procesado_correctamente",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Estado",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Estado",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Nombre competo",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "Nombre competo",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "resumen_profesional",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "resumen_profesional",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_total",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "puntuacion_total",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_tecnica",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "puntuacion_tecnica",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_experiencia",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "puntuacion_experiencia",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_formacion",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "puntuacion_formacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_proyectos",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "puntuacion_proyectos",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "puntuacion_complementaria",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "puntuacion_complementaria",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "nivel_ajuste",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "nivel_ajuste",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recomendacion",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "recomendacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "justificacion_recomendacion",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "justificacion_recomendacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "anos_experiencia_confirmados",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "anos_experiencia_confirmados",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "experiencia_relevante",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "experiencia_relevante",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "habilidades_confirmadas",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "habilidades_confirmadas",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "herramientas_automatizacion",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "herramientas_automatizacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "lenguajes_programacion",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "lenguajes_programacion",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "infraestructura_y_sistemas",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "infraestructura_y_sistemas",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "formacion_relevante",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "formacion_relevante",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "idiomas",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "idiomas",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requisitos_cumplidos",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "requisitos_cumplidos",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requisitos_no_especificados",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "requisitos_no_especificados",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aspectos_destacados",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "aspectos_destacados",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "aspectos_a_verificar",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "aspectos_a_verificar",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "preguntas_entrevista",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "preguntas_entrevista",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "requiere_revision_humana",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "requiere_revision_humana",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "detalle_json",
+              "type": "string",
+              "display": true,
+              "removed": true,
+              "required": false,
+              "displayName": "detalle_json",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "justificacion_recomendacion"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1610898109,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10ldNybxk6T7yK4HWgsMTHmrwQEntyGWCdGRTxBsCkLA/edit#gid=1610898109",
+          "cachedResultName": "Currículums"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "10ldNybxk6T7yK4HWgsMTHmrwQEntyGWCdGRTxBsCkLA",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/10ldNybxk6T7yK4HWgsMTHmrwQEntyGWCdGRTxBsCkLA/edit?usp=drivesdk",
+          "cachedResultName": "Currículums"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "credential-id",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "4d1cae0e-e7aa-49fd-9ddf-9d2e046affbf",
+      "name": "Human review",
+      "type": "n8n-nodes-base.gmail",
+      "maxTries": 5,
+      "position": [
+        -176,
+        192
+      ],
+      "webhookId": "032b0125-993a-464f-901d-46f19a4dcae9",
+      "parameters": {
+        "sendTo": "user@example.com",
+        "message": "=Resumen profesional: \n\n{{ $json.resumen_profesional }}\n\nFormación revelante:\n\n{{ $json.formacion_relevante }}\n\nJustificación: \n\n{{ $json.justificacion_recomendacion }}\n\nPuntuación total: {{ $json.puntuacion_total }}\nPuntuación técnica: {{ $json.puntuacion_tecnica }}\nPuntuación formación: {{ $json.puntuacion_formacion }}\nPuntuación experiencia: {{ $json.puntuacion_experiencia }}",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "Candidatura",
+        "operation": "sendAndWait",
+        "approvalOptions": {
+          "values": {
+            "approvalType": "double",
+            "approveLabel": "Aprobar CV",
+            "disapproveLabel": "Rechazar CV"
+          }
+        }
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "a5cc5909-7f15-404a-8c4f-e14eee4cd0a8",
+      "name": "OPTIONS",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -624,
+        -48
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c23b5870-0455-4f1a-8b26-360a6bebe4e7",
+              "name": "mail",
+              "type": "string",
+              "value": "user@example.com"
+            },
+            {
+              "id": "1ef0568e-4466-48ae-9f70-d93f4b78f056",
+              "name": "business info",
+              "type": "string",
+              "value": "=CLCode es una empresa que lleva años en el mund ode la utomatización, buscamos un técnico especializado en eso, que viva cerca, las condiciones son esas: \n\nPuesto: Especialista IA\nOficinas: Vic, Cataluña. \nModalidad: 1 - 2 días de teletrabajo a la semana\nHorario: flexibilidad para la hora de entrada\n\nStack tecnológico:\nAPIs (consumo e integración): REST (GET/POST/PUT/DELETE); Manejo de JSON/XML; Webhooks\nSQL: joins, filtros, agregaciones, subqueries; limpieza y preparación de datasets\nHerramientas de automatización como n8n.\nFunciones: \nCrear automatizaciones para simplificar tareas repetitivas en distintos equipos (operaciones, ventas, finanzas, soporte, etc).\nConectar plataformas y herramientas para que hablen entre sí.\nExplorar casos de uso de IA (como asistentes internos, resúmenes automáticos, clasificación de información, análisis de datos).\nDiseñar flujos de trabajo automáticos usando herramientas como n8n.\nColaborar con diferentes áreas para entender necesidades y transformarlas en soluciones prácticas.\nProbar, mejorar y mantener automatizaciones para que sean confiables y escalables.\nDocumentar ideas, procesos y mejoras (sin burocracia, pero con orden).\nCoordinarse con los diferentes proveedores IT de la compañía\n"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "550c5a7d-42f6-4e66-94f0-e10674303d01",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1392,
+        "height": 384,
+        "content": "\n\n\n\n\n\n\n\n# PART 1"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c6f62d04-baf6-4e77-96d2-ff366d71be80",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1392,
+        "height": 384,
+        "content": "\n\n\n\n\n\n\n\n# PART 2"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "49d66484-963e-4d49-a169-2c8be30640a5",
+      "name": "Candidacy",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        -400,
+        -48
+      ],
+      "webhookId": "13a7ece9-1b2f-4323-b5a0-8d7f9c8ac10b",
+      "parameters": {
+        "sendTo": "={{ $('Application Reception').item.json['Correo electrónico'] }}",
+        "message": "=<div style=\"margin:0; padding:24px; background-color:#f4f6f8; font-family:Arial, Helvetica, sans-serif; color:#242424;\">\n  <div style=\"max-width:620px; margin:0 auto; background-color:#ffffff; border:1px solid #e5e7eb; border-radius:10px; overflow:hidden;\">\n\n    <div style=\"padding:24px 30px; background-color:#1f2937;\">\n      <h1 style=\"margin:0; color:#ffffff; font-size:22px; font-weight:600;\">\n        Candidatura recibida\n      </h1>\n    </div>\n\n    <div style=\"padding:30px;\">\n      <p style=\"margin:0 0 18px; font-size:16px; line-height:1.6;\">\n        Hola <strong>{{ $('Application Reception').item.json['Nombre'] }}</strong>,\n      </p>\n\n      <p style=\"margin:0 0 18px; font-size:15px; line-height:1.7;\">\n        Hemos recibido correctamente tu candidatura para el puesto de\n        <strong>Técnico/a en Automatización de Procesos</strong>.\n      </p>\n\n      <p style=\"margin:0 0 18px; font-size:15px; line-height:1.7;\">\n        Nuestro equipo revisará la información proporcionada y tu currículum.\n        La evaluación automatizada se utilizará únicamente como apoyo, y cualquier\n        decisión relacionada con el proceso será revisada por una persona.\n      </p>\n\n      <div style=\"margin:24px 0; padding:16px 18px; background-color:#f3f4f6; border-left:4px solid #2563eb; border-radius:4px;\">\n        <p style=\"margin:0; font-size:14px; line-height:1.6;\">\n          <strong>Estado de la candidatura:</strong> Pendiente de revisión\n        </p>\n      </div>\n\n      <p style=\"margin:0 0 18px; font-size:15px; line-height:1.7;\">\n        Nos pondremos en contacto contigo mediante el correo electrónico facilitado\n        si necesitamos información adicional o si tu candidatura avanza a la siguiente fase.\n      </p>\n\n      <p style=\"margin:28px 0 0; font-size:15px; line-height:1.7;\">\n        Gracias por tu interés y por el tiempo dedicado a presentar tu candidatura.\n      </p>\n\n      <p style=\"margin:24px 0 0; font-size:15px; line-height:1.6;\">\n        Un saludo,<br>\n        <strong>Equipo de selección de Empresa X</strong>\n      </p>\n    </div>\n\n    <div style=\"padding:18px 30px; background-color:#f9fafb; border-top:1px solid #e5e7eb;\">\n      <p style=\"margin:0; color:#6b7280; font-size:12px; line-height:1.5;\">\n        Este correo confirma únicamente la recepción de la candidatura y no implica\n        la aceptación automática en el proceso de selección.\n      </p>\n    </div>\n\n  </div>\n</div>",
+        "options": {},
+        "subject": "Hemos recibido tu candidatura – Técnico/a en Automatización de Procesos"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "346ee5c0-3f2c-4cbb-9a7c-9889c8b7c731",
+      "name": "Application Reception",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        -832,
+        -48
+      ],
+      "webhookId": "0fb765d5-23cd-4310-a426-3ed6ef1d86dc",
+      "parameters": {
+        "options": {
+          "buttonLabel": "Enviar candidatura",
+          "respondWithOptions": {
+            "values": {
+              "formSubmittedText": "Tu candidatura se ha enviado correctamente. Gracias por participar en el proceso de selección."
+            }
+          }
+        },
+        "formTitle": "Candidatura — Técnico/a en Automatización de Procesos",
+        "formFields": {
+          "values": [
+            {
+              "fieldLabel": "Nombre",
+              "placeholder": "Introduce tu nombre",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Apellidos",
+              "placeholder": "Introduce tus apellidos",
+              "requiredField": true
+            },
+            {
+              "fieldType": "email",
+              "fieldLabel": "Correo electrónico",
+              "placeholder": "user@example.com",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Teléfono",
+              "placeholder": "+1234567890",
+              "requiredField": true
+            },
+            {
+              "fieldLabel": "Localidad",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "¿Dispones de más de 2 años de experiencia en un puesto similar?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Sí"
+                  },
+                  {
+                    "option": "No"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "number",
+              "fieldLabel": "Años de experiencia en automatización",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "¿Dispones de un nivel B1 o B2 de inglés?",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "No dispongo de nivel acreditado"
+                  },
+                  {
+                    "option": "A1"
+                  },
+                  {
+                    "option": "A2"
+                  },
+                  {
+                    "option": "B1"
+                  },
+                  {
+                    "option": "B2"
+                  },
+                  {
+                    "option": "C1"
+                  },
+                  {
+                    "option": "C2"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Herramientas de automatización que conoces",
+              "placeholder": "Por ejemplo: Power Automate, n8n, Power Apps, Python, Zapier...",
+              "requiredField": true
+            },
+            {
+              "fieldType": "textarea",
+              "fieldLabel": "Describe brevemente una automatización que hayas desarrollado",
+              "requiredField": true
+            },
+            {
+              "fieldType": "dropdown",
+              "fieldLabel": "Disponibilidad para incorporarte",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Inmediata"
+                  },
+                  {
+                    "option": "En 15 días"
+                  },
+                  {
+                    "option": "En 1 mes"
+                  },
+                  {
+                    "option": "Más de 1 mes"
+                  }
+                ]
+              },
+              "requiredField": true
+            },
+            {
+              "fieldType": "file",
+              "fieldLabel": "Currículum",
+              "requiredField": true
+            },
+            {
+              "fieldType": "checkbox",
+              "fieldLabel": "Acepto el tratamiento de mis datos para gestionar este proceso de selección",
+              "fieldOptions": {
+                "values": [
+                  {
+                    "option": "Acepto"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "formDescription": "Envía tu candidatura para el puesto de Técnico/a en Automatización de Procesos en Empresa X. Los datos proporcionados se utilizarán únicamente para gestionar el proceso de selección."
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "a53021af-de39-421f-b153-9529c943c1cb",
+      "name": "Analyze CV with Ollama",
+      "type": "@n8n/n8n-nodes-langchain.ollama",
+      "onError": "continueErrorOutput",
+      "position": [
+        32,
+        -48
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "nemotron-3-ultra:cloud",
+          "cachedResultName": "nemotron-3-ultra:cloud"
+        },
+        "options": {
+          "temperature": 0.2
+        },
+        "messages": {
+          "values": [
+            {
+              "role": "assistant",
+              "content": "=Eres un asistente especializado en selección técnica de personal para puestos de automatización de procesos.\n\nTu función es analizar currículums y comparar exclusivamente la experiencia, formación y competencias profesionales del candidato con los requisitos del puesto.\n\n{{ $('OPTIONS').item.json['business info'] }}\n\nREGLAS OBLIGATORIAS:\n1. No evalúes al candidato por su nombre, localidad, edad, fotografía, género, nacionalidad, correo, teléfono ni ninguna característica personal.\n2. No inventes habilidades, años de experiencia, titulaciones ni conocimientos que no aparezcan explícitamente en el currículum.\n3. Distingue claramente entre información confirmada e información no especificada.\n4. La puntuación es orientativa y nunca debe utilizarse como decisión automática de contratación o descarte.\n5. Una habilidad no mencionada debe marcarse como \"No especificado\", no como una carencia confirmada.\n6. Devuelve exclusivamente un objeto JSON válido.\n7. No utilices bloques Markdown, explicaciones ni texto antes o después del JSON.\n8. Utiliza exactamente los nombres de campos indicados.\n\nESTRUCTURA OBLIGATORIA DE SALIDA:\n{\n  \"resumen_profesional\": \"string\",\n  \"puntuacion_total\": 0,\n  \"puntuacion_tecnica\": 0,\n  \"puntuacion_experiencia\": 0,\n  \"puntuacion_formacion\": 0,\n  \"puntuacion_proyectos\": 0,\n  \"puntuacion_complementaria\": 0,\n  \"nivel_ajuste\": \"Alto | Medio | Bajo\",\n  \"experiencia_relevante\": \"string\",\n  \"anos_experiencia_confirmados\": 0,\n  \"habilidades_confirmadas\": [\"string\"],\n  \"herramientas_automatizacion\": [\"string\"],\n  \"lenguajes_programacion\": [\"string\"],\n  \"infraestructura_y_sistemas\": [\"string\"],\n  \"formacion_relevante\": [\"string\"],\n  \"idiomas\": [\n    {\n      \"idioma\": \"string\",\n      \"nivel\": \"string\"\n    }\n  ],\n  \"requisitos_cumplidos\": [\"string\"],\n  \"requisitos_no_especificados\": [\"string\"],\n  \"aspectos_destacados\": [\"string\"],\n  \"aspectos_a_verificar\": [\"string\"],\n  \"preguntas_entrevista\": [\"string\"],\n  \"recomendacion\": \"Revisión prioritaria | Revisión estándar | Requiere más información\",\n  \"justificacion_recomendacion\": \"string\",\n  \"requiere_revision_humana\": true\n}"
+            },
+            {
+              "content": "=Analiza el siguiente currículum para la vacante de Técnico/a en Automatización de Procesos\n\nTEXTO EXTRAÍDO DEL CURRÍCULUM:\n\n{{ $json.text }}\n\nGenera la evaluación respetando estrictamente las reglas y la estructura JSON indicadas en el mensaje del sistema.\n\nOtras preguntas y dudas realizadas al candidato:\n\nNombre del candidato: {{ $('Application Reception').item.json.Nombre }} \nApellidos: {{ $('Application Reception').item.json.Apellidos }}\nTeléfono: {{ $('Application Reception').item.json[\"Teléfono\"] }}\nLocalidad: {{ $('Application Reception').item.json.Localidad }}\nExperiencia en puesto similar: {{ $('Application Reception').item.json[\"¿Dispones de más de 2 años de experiencia en un puesto similar?\"] }}\nAños: {{ $('Application Reception').item.json[\"Años de experiencia en automatización\"] }}\nNivel de inglés: {{ $('Application Reception').item.json[\"¿Dispones de un nivel B1 o B2 de inglés?\"] }}\nHerramientas que conoce: {{ $('Application Reception').item.json[\"Herramientas de automatización que conoces\"] }}\n\nDisponabilidad: {{ $('Application Reception').item.json[\"Disponibilidad para incorporarte\"] }}\n"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "ollamaApi": {
+          "id": "credential-id",
+          "name": "Ollama account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "17ead660-9b7f-48d2-b3fb-93a0374c3f52",
+      "name": "Application automatically rejected",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        -400,
+        368
+      ],
+      "webhookId": "4c0d5e70-0aba-415b-b1f2-4d1799d116ad",
+      "parameters": {
+        "sendTo": "={{ $('Application Reception').item.json['Correo electrónico'] }}",
+        "message": "aa",
+        "options": {},
+        "subject": "Candidatura "
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "credential-id",
+          "name": "Gmail account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ada52174-4200-451e-b551-58b215920c7a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        432,
+        -240
+      ],
+      "parameters": {
+        "width": 752,
+        "height": 784,
+        "content": "# PART 1 — CV RECEPTION AND ANALYSIS\n\nThis section manages the initial application reception and the automatic analysis of the resume.\n\n## Process\n\n1. **Application Reception**\n\n- Receives the candidate's data via a form.\n\n- Collects contact information, experience, skills, and the resume in PDF format.\n\n2. **OPTIONS**\n\n- Defines the company information and the job requirements.\n\n- This data is used as context to evaluate the resume.\n\n3. **Candidacy**\n\n- Sends the candidate an email confirming that their application has been received successfully.\n\n4. **Extract from File**\n\n- Extracts the text contained in the PDF resume.\n\n5. **Analyze CV with Ollama**\n\n- Compares the candidate's experience, education, and skills with the job requirements.\n\n- Returns a structured evaluation in JSON format.\n\n- Generates scores, fit level, recommendation, and areas for review.\n\n6. **Error model or tokens**\n\n- Executes if the model produces an error, is unavailable, or lacks sufficient credits.\n\n- Sends an alert to the process owner.\n\n> The AI ​​evaluation serves only as a support tool. The final decision must be reviewed by a human."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "106394ec-ef80-4f3e-a453-88b63693f083",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1232,
+        -240
+      ],
+      "parameters": {
+        "width": 752,
+        "height": 784,
+        "content": "# PART 2 — CLASSIFICATION AND HUMAN REVIEW\n\nThis section processes the AI's output, classifies the candidate, and records the final decision.\n\n1. **Clear data**\n\n- Cleans and validates the JSON generated by Ollama.\n\n- Corrects common formatting errors.\n\n- Normalizes text, lists, numbers, and Boolean values.\n\n- Recalculates the total score to avoid inconsistencies.\n\n- Prepares the data for Google Sheets.\n\n2. **If**\n\n- Checks the candidate's fit level.\n\n- If the level is **High**, the candidate proceeds to human review.\n\n- If it is not High, it goes to the automatic rejection path.\n\n3. **Append row in sheet**\n\n- Records the candidate's data and the complete analysis in Google Sheets.\n\n- Saves scores, experience, skills, recommendations, and interview questions.\n\n4. **Human review**\n\n- Sends an email to the hiring manager.\n\n- Allows for manual approval or rejection of the application.\n\n5. **Update row in sheet**\n\n- Updates the application status in Google Sheets with the human decision.\n\n6. **Application automatically rejected**\n\n- Sends the corresponding email when the application does not pass the defined filter.\n\n> Google Sheets acts as the central record of the process and stores both the automated analysis and the human decision."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8a1a0ffb-9837-4bef-9eca-d51e14ce44ef",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1472,
+        -240
+      ],
+      "parameters": {
+        "width": 432,
+        "height": 576,
+        "content": "# 👋 WELCOME\n\nHello! I'm **Oriol Seguí**, creator of this automation workflow.\n\nI developed this system to automate the reception, analysis, classification, and review of applications using **n8n, artificial intelligence, Gmail, and Google Sheets**.\n\nIf you find this workflow useful, inspiring, or helpful in creating your own automations, I would greatly appreciate it if you could support me and follow my LinkedIn profile:\n\n👉 [Oriol Seguí's LinkedIn](https://www.linkedin.com/in/oriol-segu%C3%AD-1311a3141/)\n\nOn my profile, you'll also find **more automation workflows, projects, and case studies** related to n8n, artificial intelligence, and tool integration.\n\nThank you for viewing and using this project!"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "008cdf3d-d299-49c1-a292-8c79a5998249",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1472,
+        368
+      ],
+      "parameters": {
+        "width": 432,
+        "height": 176,
+        "content": "# Need implementation support? \n\nContact me at : oriolrotllant3@gmail.com\n\nThis flow is optimized to prevent errors and adapted to scale easily."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Append row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Application automatically rejected",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "OPTIONS": {
+      "main": [
+        [
+          {
+            "node": "Candidacy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Candidacy": {
+      "main": [
+        [
+          {
+            "node": "Extract from File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clear data": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Human review": {
+      "main": [
+        [
+          {
+            "node": "Update row in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract from File": {
+      "main": [
+        [
+          {
+            "node": "Analyze CV with Ollama",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append row in sheet": {
+      "main": [
+        [
+          {
+            "node": "Human review",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Application Reception": {
+      "main": [
+        [
+          {
+            "node": "OPTIONS",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze CV with Ollama": {
+      "main": [
+        [
+          {
+            "node": "Clear data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Error model o tokens",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

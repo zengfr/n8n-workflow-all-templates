@@ -1,0 +1,360 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Receive orders, generate branded invoice PDFs with pdfmill, email via Gmail, and archive to Google Drive",
+    "wechat": "youandme10086",
+    "id": 17604,
+    "update_time": "2026-09-27"
+  },
+  "name": "Order webhook → branded invoice PDF (email + archive) with pdfmill",
+  "tags": [
+    {
+      "name": "pdfmill"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "11111111-1111-4111-8111-111111111111",
+      "name": "When an order comes in",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        0,
+        880
+      ],
+      "webhookId": "2f0a7b3c-9d4e-4a1b-8c2d-3e4f5a6b7c8d",
+      "parameters": {
+        "path": "new-order",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "22222222-2222-4222-8222-222222222222",
+      "name": "Build & total the invoice",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        880
+      ],
+      "parameters": {
+        "jsCode": "// Turn an incoming order/payment payload into pdfmill invoice data, with computed totals.\n// Works with any source — a Stripe/Shopify webhook, a form, or a raw POST. Map your fields here.\nconst body = $json.body ?? $json;\nconst rawItems = Array.isArray(body.items) ? body.items : (Array.isArray(body.line_items) ? body.line_items : []);\nconst isValid = rawItems.length > 0;\n\nconst items = rawItems.map((i) => {\n  const quantity = Number(i.quantity ?? 1);\n  const unitPrice = Number(i.unitPrice ?? i.price ?? i.amount ?? 0);\n  return {\n    description: i.description ?? i.name ?? i.title ?? 'Item',\n    quantity,\n    unitPrice,\n    lineTotal: Math.round(quantity * unitPrice * 100) / 100,\n  };\n});\n\nconst subtotal = Math.round(items.reduce((sum, i) => sum + i.lineTotal, 0) * 100) / 100;\nconst taxRate = Number(body.taxRate ?? 0); // percentage, e.g. 8.5\nconst taxAmount = Math.round(subtotal * taxRate) / 100;\nconst total = Math.round((subtotal + taxAmount) * 100) / 100;\n\nconst today = new Date();\nconst iso = (d) => d.toISOString().slice(0, 10);\nconst due = new Date(today.getTime() + 30 * 24 * 60 * 60 * 1000);\n\nreturn [{\n  json: {\n    isValid,\n    invoiceNumber: body.invoiceNumber ?? ('INV-' + iso(today).replace(/-/g, '') + '-' + String(body.orderId ?? body.id ?? Math.floor(today.getTime() / 1000)).slice(-4)),\n    issuedAt: iso(today),\n    dueAt: iso(due),\n    paymentTerms: 'Net 30',\n    currency: body.currency ?? 'USD',\n    from: body.from ?? { name: 'Your Company LLC', address: '123 Main Street, Your City, ST 00000', email: 'user@example.com' },\n    billTo: {\n      name: body.customer?.name ?? body.customerName ?? body.name ?? 'Customer',\n      address: body.customer?.address ?? body.billingAddress ?? '',\n      email: body.customer?.email ?? body.email ?? '',\n    },\n    items,\n    subtotal,\n    taxRate,\n    taxAmount,\n    total,\n    notes: body.notes ?? 'Payment due within 30 days. Thank you for your business.',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "33333333-3333-4333-8333-333333333333",
+      "name": "Is the order valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        620,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a1a1a1a1-+12345678900000001",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.isValid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "44444444-4444-4444-8444-444444444444",
+      "name": "Generate the invoice PDF",
+      "type": "n8n-nodes-pdfmill.pdfmill",
+      "position": [
+        940,
+        880
+      ],
+      "parameters": {
+        "data": "={{ $json }}",
+        "format": "pdf",
+        "options": {},
+        "template": "invoice",
+        "operation": "template",
+        "binaryPropertyName": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "55555555-5555-4555-8555-555555555555",
+      "name": "Email the invoice to the customer",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1300,
+        880
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Build & total the invoice').item.json.billTo.email }}",
+        "message": "=Hi {{ $('Build & total the invoice').item.json.billTo.name }},\n\nThanks for your order. Your invoice {{ $('Build & total the invoice').item.json.invoiceNumber }} for {{ $('Build & total the invoice').item.json.total }} {{ $('Build & total the invoice').item.json.currency }} (due {{ $('Build & total the invoice').item.json.dueAt }}) is attached as a PDF.\n\nThank you for your business,\n{{ $('Build & total the invoice').item.json.from.name }}",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "=Invoice {{ $('Build & total the invoice').item.json.invoiceNumber }} from {{ $('Build & total the invoice').item.json.from.name }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "66666666-6666-4666-8666-666666666666",
+      "name": "Archive the invoice to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        1600,
+        880
+      ],
+      "parameters": {
+        "name": "=Invoice {{ $('Build & total the invoice').item.json.invoiceNumber }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive",
+          "cachedResultName": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        },
+        "resource": "file",
+        "operation": "upload",
+        "inputDataFieldName": "data"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "77777777-7777-4777-8777-777777777777",
+      "name": "Return success",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1900,
+        880
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ { \"invoiceNumber\": $('Build & total the invoice').item.json.invoiceNumber, \"total\": $('Build & total the invoice').item.json.total, \"currency\": $('Build & total the invoice').item.json.currency, \"status\": \"invoiced\" } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "88888888-8888-4888-8888-888888888888",
+      "name": "Return a 400 error",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        940,
+        1280
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        },
+        "respondWith": "json",
+        "responseBody": "={{ { \"error\": \"Invalid order: an \\\"items\\\" array with at least one line item is required.\" } }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "99999999-9999-4999-8999-999999999999",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        20
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 640,
+        "content": "## 🧾 Order → branded invoice PDF (email + archive)\n\n**Who it's for:** anyone taking orders or payments (Stripe, Shopify, a form, your own app) who needs a branded PDF invoice sent automatically — no design tool, no headless Chrome to host.\n\n**What it does:** receives an order over a webhook, builds a real invoice (computes subtotal, tax and total from the line items), renders a branded PDF with **pdfmill**, emails it to the customer, and archives a copy to Google Drive.\n\n**How it works**\n1. **Webhook** receives the order payload.\n2. **Code** validates it and computes the invoice — number, dates, subtotal, tax, total.\n3. **IF** rejects invalid orders with a 400.\n4. **pdfmill** renders the Invoice template to PDF.\n5. **Gmail** emails it; **Google Drive** archives it.\n6. The workflow responds with the invoice number + total.\n\n**Setup**\n1. Add a **pdfmill** credential to the Generate node (API key at pdfmill.dev → API Keys) and pick the **Invoice** template.\n2. Add **Gmail** and **Google Drive** credentials.\n3. Point your store / payment webhook at this workflow's Production URL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa",
+      "name": "Section: receive & validate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 900,
+        "height": 360,
+        "content": "## 1. Receive & validate the order\nAccepts any order shape over the webhook, then validates the payload and computes the invoice — number, dates, subtotal, tax and total — from the line items."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "bbbbbbbb-bbbb-4bbb-8bbb-bbbbbbbbbbbb",
+      "name": "Section: render the PDF",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 360,
+        "content": "## 2. Render the PDF\nGenerates a branded invoice PDF with pdfmill from the computed data — no headless Chrome to run or host."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cccccccc-cccc-4ccc-8ccc-cccccccccccc",
+      "name": "Section: deliver & respond",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1240,
+        720
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 360,
+        "content": "## 3. Deliver & respond\nEmails the PDF to the customer, archives a copy to Google Drive, and returns the invoice number + total to the caller."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dddddddd-dddd-4ddd-8ddd-dddddddddddd",
+      "name": "Section: invalid → 400",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        1140
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 320,
+        "height": 300,
+        "content": "## Invalid order → 400\nOrders with no line items are rejected with a clear 400 error instead of producing a broken invoice."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "eeeeeeee-eeee-4eee-8eee-eeeeeeeeeeee",
+      "name": "Setup: expected payload",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        1140
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 520,
+        "content": "### Expected payload\nPOST any order shape — map your fields in the Code node. Minimal example:\n```\n{\n  \"customer\": { \"name\": \"Acme Co\", \"email\": \"ap@acme.com\", \"address\": \"...\" },\n  \"currency\": \"USD\",\n  \"taxRate\": 8.5,\n  \"items\": [\n    { \"description\": \"Consulting\", \"quantity\": 10, \"unitPrice\": 150 },\n    { \"description\": \"Setup fee\", \"quantity\": 1, \"unitPrice\": 500 }\n  ]\n}\n```"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Is the order valid?": {
+      "main": [
+        [
+          {
+            "node": "Generate the invoice PDF",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return a 400 error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When an order comes in": {
+      "main": [
+        [
+          {
+            "node": "Build & total the invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate the invoice PDF": {
+      "main": [
+        [
+          {
+            "node": "Email the invoice to the customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build & total the invoice": {
+      "main": [
+        [
+          {
+            "node": "Is the order valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Email the invoice to the customer": {
+      "main": [
+        [
+          {
+            "node": "Archive the invoice to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Archive the invoice to Google Drive": {
+      "main": [
+        [
+          {
+            "node": "Return success",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

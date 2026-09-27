@@ -1,4 +1,4 @@
-# branded : 14
+# branded : 25
 
 |id|file|
 |----|----|
@@ -16,3 +16,14 @@
 |14597|[14597_Post_branded_Instagram_testimonial_cards_from_Airtable_with_Bannerbear_and_uploadtourl.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14597_Post_branded_Instagram_testimonial_cards_from_Airtable_with_Bannerbear_and_uploadtourl.json)|
 |14629|[14629_Create_branded_social_proof_Instagram_posts_from_Airtable_reviews_with_Bannerbear_and_UploadToURL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/46/14629_Create_branded_social_proof_Instagram_posts_from_Airtable_reviews_with_Bannerbear_and_UploadToURL.json)|
 |15438|[15438_Issue_branded_certificate_PDFs_from_Google_Sheets_with_TemplateFox_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15438_Issue_branded_certificate_PDFs_from_Google_Sheets_with_TemplateFox_and_Gmail.json)|
+|16822|[16822_Generate_branded_invoice_PDFs_from_webhook_orders_with_PolyDoc_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16822_Generate_branded_invoice_PDFs_from_webhook_orders_with_PolyDoc_and_email.json)|
+|16961|[16961_Generate_branded_social_captions_and_images_with_OpenAI_and_PostFast.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16961_Generate_branded_social_captions_and_images_with_OpenAI_and_PostFast.json)|
+|17267|[17267_Create_social_visuals_from_blog_RSS_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17267_Create_social_visuals_from_blog_RSS_with_Canvora_and_Slack.json)|
+|17467|[17467_Create_daily_branded_content_visuals_from_Google_Sheets_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17467_Create_daily_branded_content_visuals_from_Google_Sheets_with_Canvora_and_Slack.json)|
+|17604|[17604_Receive_orders__generate_branded_invoice_PDFs_with_pdfmill__email_via_Gmail__and_archive_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17604_Receive_orders__generate_branded_invoice_PDFs_with_pdfmill__email_via_Gmail__and_archive_to_Google_Drive.json)|
+|18533|[18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18533_Generate_branded_prospect_websites_with_Claude__Jina__GitHub_Pages__and_Gmail.json)|
+|18793|[18793_Send_branded_PDF_receipts_for_Stripe_payments_with_PDFMint__Gmail_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18793_Send_branded_PDF_receipts_for_Stripe_payments_with_PDFMint__Gmail_and_Drive.json)|
+|18866|[18866_Turn_form_submissions_into_branded_PDF_reports_with_PDFMint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18866_Turn_form_submissions_into_branded_PDF_reports_with_PDFMint.json)|
+|18960|[18960_Send_branded_overdue_invoice_statements_from_Xero_with_PDFMint_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18960_Send_branded_overdue_invoice_statements_from_Xero_with_PDFMint_and_Gmail.json)|
+|19006|[19006_Create_replay-safe_client_report_Gmail_drafts_with_webhooks_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19006_Create_replay-safe_client_report_Gmail_drafts_with_webhooks_and_Data_Tables.json)|
+|19277|[19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19277_Convert_markdown_into_branded_PDFs_with_a_table_of_contents_using_PDFMint.json)|

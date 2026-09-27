@@ -1,0 +1,309 @@
+{
+  "id": "03a52f79589d762f",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Detect Meta Pixel flatlines with Claude and Gmail alerts",
+    "wechat": "youandme10086",
+    "id": 17607,
+    "update_time": "2026-09-27"
+  },
+  "name": "Detect Meta pixels that stopped firing and diagnose why with Claude AI",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "d05e90e1fd5d9efb",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -576,
+        128
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a3d28768c262e5ca",
+      "name": "Set config: flatline thresholds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -352,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Pixel flatline detector - tune here.\n// Defaults suit a pixel that should fire at least daily; raise for low-traffic pixels.\nreturn [{ json: {\n  FLATLINE_HOURS: 24,  // alert if a pixel has not fired for this many hours\n  WARN_HOURS: 12,      // watch (not yet an alert) if a pixel has been quiet this long\n  IGNORE_NEVER_FIRED: true, // skip pixels that have never fired (usually test/unused)\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "81402fbd5046e272",
+      "name": "Fetch pixels & last-fired time (Meta)",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -128,
+        128
+      ],
+      "parameters": {
+        "url": "=https://graph.facebook.com/{{ $env.META_API_VERSION || 'v21.0' }}/{{ $env.META_AD_ACCOUNT_ID }}/adspixels",
+        "options": {},
+        "sendQuery": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "access_token",
+              "value": "={{ $env.META_ACCESS_TOKEN }}"
+            },
+            {
+              "name": "fields",
+              "value": "id,name,last_fired_time"
+            },
+            {
+              "name": "limit",
+              "value": "200"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d1e35c9f5f8298cd",
+      "name": "Detect flatlined pixels",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Flag pixels that have gone quiet: no events for longer than the flatline threshold.\nconst cfg = $('Set config: flatline thresholds').first().json;\nconst now = Date.now();\nconst rows = ($json.data || []).map((p) => {\n  const last = p.last_fired_time ? new Date(p.last_fired_time).getTime() : null;\n  const hours = last ? +(((now - last) / 3600000)).toFixed(1) : null;\n  let status = 'ok';\n  if (hours == null) status = 'never_fired';\n  else if (hours >= cfg.FLATLINE_HOURS) status = 'flatline';\n  else if (hours >= cfg.WARN_HOURS) status = 'warn';\n  return { id: p.id, name: p.name || p.id, last_fired_time: p.last_fired_time || null, hours_quiet: hours, status };\n});\nconst alerts = rows.filter((r) => r.status === 'flatline' || (r.status === 'never_fired' && !cfg.IGNORE_NEVER_FIRED));\nconst watch = rows.filter((r) => r.status === 'warn');\nrows.sort((a, b) => (b.hours_quiet == null ? 1e9 : b.hours_quiet) - (a.hours_quiet == null ? 1e9 : a.hours_quiet));\nreturn [{ json: {\n  checked: rows.length,\n  flatline_count: alerts.length,\n  watch_count: watch.length,\n  flatline_hours: cfg.FLATLINE_HOURS,\n  pixels: rows,\n  alerts,\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aa85df64716bb486",
+      "name": "Build AI diagnosis prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        560,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Ask Claude to diagnose the most likely cause of each flatlined pixel.\nconst d = $json;\nconst top = (d.alerts || []).slice(0, 20); // cap so the JSON reply never truncates\nconst system = 'You are a Meta measurement engineer. You are given Meta pixels and how long each has been silent (no events received). For each flatlined or never-fired pixel, give the single most likely cause (tag removed by a site deploy, consent/CMP blocking, GTM misfire, test-only pixel, or genuinely low traffic) and one concrete first check. Be terse. Return ONLY valid JSON, no prose, no markdown fences.';\nconst user = 'Flatline threshold: ' + d.flatline_hours + 'h. Checked ' + d.checked + ' pixels, ' + d.flatline_count + ' flatlined.\\n\\nPixels:\\n' + JSON.stringify(top) + '\\n\\nReturn JSON exactly: {\"summary\":\"one sentence\",\"diagnoses\":[{\"pixel\":\"\",\"hours_quiet\":0,\"likely_cause\":\"\",\"first_check\":\"\"}]}';\nconst body = { model: 'claude-haiku-4-5', max_tokens: 3000, system, messages: [{ role: 'user', content: user }] };\nreturn [{ json: { body, _ctx: d } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b3ec6458432f61e7",
+      "name": "Diagnose pixel flatlines with Claude AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        800,
+        128
+      ],
+      "parameters": {
+        "url": "https://api.anthropic.com/v1/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "x-api-key",
+              "value": "={{ $env.ANTHROPIC_API_KEY }}"
+            },
+            {
+              "name": "anthropic-version",
+              "value": "2023-06-01"
+            },
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "85e0eb9011140a4c",
+      "name": "Print pixel flatline report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1232,
+        128
+      ],
+      "parameters": {
+        "jsCode": "// Print a readable pixel flatline report. Swap this node for Slack or email to get paged.\nconst ctx = $('Build AI diagnosis prompt').first().json._ctx || {};\nfunction aiJson(fallback) {\n  const t = ($json.content && $json.content[0] && $json.content[0].text) || '';\n  let s = String(t).trim().replace(/^```(?:json)?/i, '').replace(/```$/, '').trim();\n  try { return JSON.parse(s); } catch (e) {}\n  const m = s.match(/\\{[\\s\\S]*\\}/);\n  if (m) { try { return JSON.parse(m[0]); } catch (e) {} }\n  return fallback;\n}\nconst ai = aiJson({ summary: 'AI response could not be parsed.', diagnoses: [] });\n\nconst lines = [];\nlines.push('META PIXEL FLATLINE REPORT');\nlines.push('Checked: ' + (ctx.checked || 0) + ' | Flatlined: ' + (ctx.flatline_count || 0) + ' | Watch: ' + (ctx.watch_count || 0));\nlines.push('Threshold: no events for ' + (ctx.flatline_hours || 0) + 'h');\nlines.push('');\nlines.push(ai.summary || '');\nlines.push('');\nfor (const g of (ai.diagnoses || [])) {\n  lines.push('- ' + g.pixel + '  (quiet ' + g.hours_quiet + 'h)');\n  if (g.likely_cause) lines.push('    cause: ' + g.likely_cause);\n  if (g.first_check) lines.push('    check: ' + g.first_check);\n}\nreturn [{ json: { report: lines.join('\\n'), pixels: ctx.pixels || [], ai } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ce5e39398f704fd3",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1616,
+        -160
+      ],
+      "parameters": {
+        "width": 900,
+        "height": 632,
+        "content": "## Meta Pixel Flatline Detector\n\nCatches Meta pixels that have silently stopped firing, before you lose days of conversion tracking. Alerts with an AI diagnosis of the likely cause.\n\n### How it works\n- Lists every pixel on your ad account and reads when each last fired, from the Meta Marketing API.\n- Flags any pixel that has not received an event for longer than your flatline threshold, or has never fired.\n- Claude explains the most likely cause (a site deploy removed the tag, consent blocking, a GTM misfire, low traffic) and the first thing to check.\n\n### Setup\n1. Add to your environment: META_ACCESS_TOKEN, META_AD_ACCOUNT_ID, META_API_VERSION, ANTHROPIC_API_KEY.\n2. Run with the manual trigger, or attach a Schedule trigger to check every few hours.\n\n### Customization\nIn the Config node, tune FLATLINE_HOURS and WARN_HOURS to your traffic volume. Swap the report node for a Slack or email node to get paged the moment a pixel goes dark.\n\nBuilt by **nocode.expert** - done-for-you automation & tracking. https://nocode.expert"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca68843678bd6a6a",
+      "name": "Sticky Note - Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -208,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 392,
+        "height": 380,
+        "content": "## 1. Read pixels\nList every pixel and when it last fired."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "572ab27a45d9dde1",
+      "name": "Sticky Note - Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        224,
+        -16
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 824,
+        "height": 380,
+        "content": "## 2. Detect flatlines\nFlag pixels quiet past the threshold, then Claude diagnoses why."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "53cf6ac0bf2854a4",
+      "name": "Sticky Note - Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1152,
+        -32
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 520,
+        "height": 380,
+        "content": "## 3. Report\nPrint the flatline report (swap for Slack/email)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fa6622dc-0715-4ed9-bc9a-8704d16c14d4",
+      "name": "Send a message",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1440,
+        128
+      ],
+      "webhookId": "727fdace-9cbc-4af6-91fc-c9aa2c8ea0f5",
+      "parameters": {
+        "message": "={{ $json.report }}",
+        "options": {}
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "a78170cb-bb55-43f4-a474-c7c091145f33",
+  "nodeGroups": [],
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Set config: flatline thresholds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect flatlined pixels": {
+      "main": [
+        [
+          {
+            "node": "Build AI diagnosis prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build AI diagnosis prompt": {
+      "main": [
+        [
+          {
+            "node": "Diagnose pixel flatlines with Claude AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Print pixel flatline report": {
+      "main": [
+        [
+          {
+            "node": "Send a message",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set config: flatline thresholds": {
+      "main": [
+        [
+          {
+            "node": "Fetch pixels & last-fired time (Meta)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch pixels & last-fired time (Meta)": {
+      "main": [
+        [
+          {
+            "node": "Detect flatlined pixels",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Diagnose pixel flatlines with Claude AI": {
+      "main": [
+        [
+          {
+            "node": "Print pixel flatline report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

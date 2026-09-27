@@ -1,4 +1,4 @@
-# sources : 17
+# sources : 21
 
 |id|file|
 |----|----|
@@ -19,3 +19,7 @@
 |11496|[11496_Automate_Video_Translation_from_Multiple_Sources_with_Rask_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11496_Automate_Video_Translation_from_Multiple_Sources_with_Rask_AI.json)|
 |11899|[11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11899_Consolidate_Stripe__PayPal__Shopify_and_bank_revenue_and_prepare_tax_filings_with_OpenAI.json)|
 |12506|[12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12506_Research_organizations_with_GPT_5__Gemini__CourtListener__LegiScan_and_OSINT_web_sources.json)|
+|16991|[16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json)|
+|19360|[19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19360_Discover_university_programs_and_faculty_sources_with_Firecrawl_and_Google_Sheets.json)|
+|19370|[19370_Triage_YouTube_comments_and_track_video_health_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19370_Triage_YouTube_comments_and_track_video_health_with_Apify_and_Google_Sheets.json)|
+|19736|[19736_Draft_a_weekly_AI_digest_with_SerpAPI__Gemini_Flash__and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19736_Draft_a_weekly_AI_digest_with_SerpAPI__Gemini_Flash__and_WordPress.json)|

@@ -1,4 +1,4 @@
-# interview : 31
+# interview : 35
 
 |id|file|
 |----|----|
@@ -33,3 +33,7 @@
 |14713|[14713_Create_an_interview_clip_library_using_WayinVideo__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14713_Create_an_interview_clip_library_using_WayinVideo__Google_Drive_and_Sheets.json)|
 |16033|[16033_Run_HR_interview_agent_with_TruGen__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16033_Run_HR_interview_agent_with_TruGen__OpenAI__and_Google_Sheets.json)|
 |16286|[16286_Send_AI_interview_briefs_from_resumes_with_GPT-4o-mini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16286_Send_AI_interview_briefs_from_resumes_with_GPT-4o-mini__Google_Sheets_and_Gmail.json)|
+|18212|[18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json)|
+|18434|[18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18434_Screen_and_route_job_candidates_with_Google_Gemini_scorecards.json)|
+|18519|[18519_Score_and_triage_job_candidates_with_OpenAI__Google_Drive__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18519_Score_and_triage_job_candidates_with_OpenAI__Google_Drive__Google_Sheets__and_Gmail.json)|
+|19806|[19806_Create_technical_interview_study_guides_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19806_Create_technical_interview_study_guides_with_OpenAI__Google_Sheets__and_Gmail.json)|

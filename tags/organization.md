@@ -1,4 +1,4 @@
-# organization : 15
+# organization : 17
 
 |id|file|
 |----|----|
@@ -17,3 +17,5 @@
 |11071|[11071_Automate_Gmail_Organization_with_AI-Powered_Email_Classification_and_Smart_Labeling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11071_Automate_Gmail_Organization_with_AI-Powered_Email_Classification_and_Smart_Labeling.json)|
 |11150|[11150_Automate_Image_Portfolio_Organization_with_GPT-4o_Vision__Google_Drive_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/11/11150_Automate_Image_Portfolio_Organization_with_GPT-4o_Vision__Google_Drive_and_Notion.json)|
 |11529|[11529_Organize_School_Emails_with_AI__Google_Calendar_and_Drive_Auto-Triage_System.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11529_Organize_School_Emails_with_AI__Google_Calendar_and_Drive_Auto-Triage_System.json)|
+|17025|[17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json)|
+|19769|[19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json)|

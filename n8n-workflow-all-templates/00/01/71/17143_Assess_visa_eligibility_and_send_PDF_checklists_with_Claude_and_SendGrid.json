@@ -1,0 +1,682 @@
+{
+  "id": "LlwR7ke1PNIvqj7J",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Assess visa eligibility and send PDF checklists with Claude and SendGrid",
+    "wechat": "youandme10086",
+    "id": 17143,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Visa Eligibility Agent - Passport OCR, Rule Check, Checklist & PDF Delivery",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e0ca2024-b816-44c8-a3d4-e12db4d91bdc",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -80
+      ],
+      "parameters": {
+        "width": 1040,
+        "height": 1520,
+        "content": "## AI Visa Eligibility Agent\n\nThis workflow reads an applicant's passport, extracts their nationality and passport details, checks visa rules for their chosen destination and purpose of travel, recommends a visa type, generates a document checklist, turns it into a PDF, and emails it to the applicant — with every request logged for review.\n\nThe visa-rule and eligibility judgment is AI-driven (rules and policy vary by country, purpose, and change over time, so this is not hard-coded), but document extraction validation and checklist assembly are kept deterministic where possible so results are explainable and reproducible.\n\n### Who's it for\n- Travel agencies and visa consultancies wanting a first-pass automated intake and pre-screening layer\n- Immigration advisors who want obviously-simple cases (e.g. visa-free short tourist stays) resolved instantly, so they only spend time on complex cases\n- Anyone replacing manual visa-rule lookup and checklist emails with automation\n\n### How it works\n1. Applicant submits their details, destination, travel purpose, and raw OCR text extracted from their passport bio page via webhook POST\n2. AI reads the passport text, extracts structured data (name, nationality, passport number, expiry), and cross-checks it against what the applicant declared\n3. Applications with unreadable or clearly incomplete passport data get an immediate resubmission request instead of proceeding\n4. AI reviews the extracted nationality, destination, purpose, and stay length, and returns whether a visa is required, the visa category, a recommended visa type, processing time, and any eligibility risks\n5. Code assembles a document checklist from a standard base list plus purpose-specific items (business, study, work, family visit, transit) plus any AI-flagged risks\n6. Code renders the assessment and checklist as HTML, which is converted to a PDF via an external PDF-generation API\n7. Every application is logged to Google Sheets regardless of outcome\n8. The applicant is emailed their assessment with the checklist PDF attached\n9. Webhook responds with the full assessment as JSON\n\n### How to set up\n1. Import this workflow into n8n\n2. Add Anthropic Claude credentials and attach to both Anthropic model nodes\n3. Sign up for an HTML-to-PDF API (e.g. PDFShift, Api2Pdf, DocRaptor) and replace the URL and YOUR_PDF_API_KEY in HTTP Request - Generate Checklist PDF; adjust the response parsing to match your chosen provider's output format\n4. Add SendGrid credentials and replace YOUR_SENDGRID_API_KEY / YOUR_TOKEN_HERE in the email node\n5. Replace loans@yourlender.com style sender address with your own\n6. Switch the Google Sheets HTTP node to the native Google Sheets node with OAuth2, or add OAuth2 credentials directly, and replace YOUR_SHEET_ID\n7. Set up your Google Sheet with a VisaApplications tab (column layout below)\n8. Activate and POST a test application to the webhook URL\n\n### Requirements\n- Anthropic Claude API key (claude-sonnet-4 recommended)\n- An HTML-to-PDF conversion API\n- SendGrid API key for email delivery\n- Google Sheets with OAuth2 credentials (VisaApplications tab)\n- n8n instance with a publicly accessible webhook URL\n\n### How to customize\n- Replace the raw passport-text field with a real OCR step (e.g. fetch an uploaded passport image, then call an OCR API) ahead of Stage 1\n- Add a real-time visa-rules lookup tool (e.g. a visa requirements API or web search tool) to the Stage 2 agent for higher accuracy than the model's built-in knowledge alone\n- Adjust the base and purpose-specific checklist items in JS - Generate Document Checklist to match your consultancy's standard requirements\n- Raise or lower the passport verification threshold in IF - Passport Data Sufficient (default: score >= 4)\n- Add a second AI reviewer call for high-risk destinations as a maker-checker control\n\n### Important note\nThis workflow produces a preparatory assessment and checklist, not an official visa decision. Visa rules change frequently and vary by consulate. Always direct applicants to confirm current requirements with the destination country's official embassy, consulate, or immigration authority before they apply.\n\n### Google Sheets Column Layout\n\nVisaApplications tab - row 1 headers:\nApplication ID | Applicant Name | Applicant Email | Destination Country | Travel Purpose | Nationality | Visa Required | Visa Category | Recommended Visa Type | Confidence | Decided At"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d69bb865-6e38-4b9a-9d0b-3467de2d786e",
+      "name": "Sticky Note - Stage 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1120,
+        496
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1484,
+        "height": 820,
+        "content": "## Stage 1: Intake & Passport OCR Extraction\n\nAccepts visa eligibility requests via webhook POST, including raw extracted text from the applicant's passport bio page. All fields have sensible defaults so the workflow can be tested without a payload.\n\nThe extraction AI (claude-sonnet-4, temperature 0.2 for accuracy) reads the passport text and extracts structured data, cross-checking it against the applicant's self-reported name and nationality, flagging any inconsistencies or unreadable fields.\n\nJS - Parse Passport Extraction Output extracts the AI JSON with a lenient fallback that trusts the applicant's self-reported nationality if parsing fails.\n\nIF - Passport Data Sufficient sends an immediate resubmission request for unreadable or clearly incomplete passport scans, instead of proceeding with bad data."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8d036cd9-fe6a-42dc-acac-7a6928d22f9b",
+      "name": "Sticky Note - Stage 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2640,
+        448
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 716,
+        "height": 820,
+        "content": "## Stage 2: Visa Rule Check & Recommendation\n\nA Wait buffer respects API rate limits before this call.\n\nThe visa-rules AI (claude-sonnet-4, temperature 0.3 for consistent, grounded judgment) reviews the applicant's extracted nationality, destination, purpose, and stay length, then determines whether a visa is required, the visa category, and a recommended visa type.\n\nIt also returns an estimated processing time, any eligibility risks (e.g. insufficient passport validity, purpose mismatch), a plain-language reasoning grounded in the details provided, a pointer to verify with the official embassy/consulate, and a confidence level.\n\nJS - Parse Eligibility Output extracts that JSON with a cautious fallback: if parsing fails, the application defaults to a 'consult embassy' recommendation with low confidence rather than a silent visa-free assumption."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "198a90f5-7f88-4c04-86cd-d2d8a2f9be84",
+      "name": "Sticky Note - Stage 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3408,
+        224
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1796,
+        "height": 900,
+        "content": "## Stage 3: Checklist, PDF & Delivery\n\nJS - Generate Document Checklist combines a standard base checklist with purpose-specific items (Business, Study, Work, Family Visit, Transit) and any AI-flagged eligibility risks.\n\nJS - Build Checklist PDF HTML renders the full assessment and checklist as clean HTML.\n\nHTTP Request - Generate Checklist PDF converts that HTML to a PDF via an external HTML-to-PDF API (replace with your provider of choice).\n\nJS - Format Final Application Record assembles the complete decision object and the summary row for the tracker sheet.\n\nSave Application to Google Sheets Tracker appends that row — every application is logged, regardless of outcome.\n\nSend Applicant Email with Checklist PDF delivers the assessment and attaches the generated checklist PDF.\n\nThe webhook then responds with the full assessment as JSON."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de783414-77a6-485a-84d3-7a4b6ec837ec",
+      "name": "Webhook - Receive Visa Request",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        1184,
+        928
+      ],
+      "webhookId": "f1a2b3c4-c9d0-4123-9ef0-223456789001",
+      "parameters": {
+        "path": "visa-eligibility-inbound",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1e12d6ab-b050-4841-af4f-ea2ab9e04453",
+      "name": "Set - Prepare Application Context",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        1408,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "applicantName",
+              "type": "string",
+              "value": "={{ $json.applicantName || $json.body?.applicantName || 'Riya Shah' }}"
+            },
+            {
+              "name": "applicantEmail",
+              "type": "string",
+              "value": "={{ $json.applicantEmail || $json.body?.applicantEmail || 'applicant@example.com' }}"
+            },
+            {
+              "name": "nationality",
+              "type": "string",
+              "value": "={{ $json.nationality || $json.body?.nationality || 'Indian' }}"
+            },
+            {
+              "name": "destinationCountry",
+              "type": "string",
+              "value": "={{ $json.destinationCountry || $json.body?.destinationCountry || 'Germany' }}"
+            },
+            {
+              "name": "travelPurpose",
+              "type": "string",
+              "value": "={{ $json.travelPurpose || $json.body?.travelPurpose || 'Tourism' }}"
+            },
+            {
+              "name": "intendedArrivalDate",
+              "type": "string",
+              "value": "={{ $json.intendedArrivalDate || $json.body?.intendedArrivalDate || '2026-09-15' }}"
+            },
+            {
+              "name": "intendedStayDays",
+              "type": "number",
+              "value": "={{ $json.intendedStayDays || $json.body?.intendedStayDays || 12 }}"
+            },
+            {
+              "name": "passportOcrText",
+              "type": "string",
+              "value": "={{ $json.passportOcrText || $json.body?.passportOcrText || 'PASSPORT / Republic of India, Surname: SHAH, Given Names: RIYA, Nationality: INDIAN, Date of Birth: 14 MAR 1994, Passport No: N1234567, Date of Issue: 02 JAN 2022, Date of Expiry: 01 JAN 2032' }}"
+            },
+            {
+              "name": "submittedAt",
+              "type": "string",
+              "value": "={{ new Date().toISOString() }}"
+            },
+            {
+              "name": "applicationId",
+              "type": "string",
+              "value": "={{ 'VISA-' + Date.now().toString().slice(-8) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "c638a208-7b05-4352-bc98-3f595b709546",
+      "name": "AI - Extract Passport Data",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1632,
+        928
+      ],
+      "parameters": {
+        "text": "=You are a meticulous passport document verification specialist.\n\nApplicant declared:\nName: {{ $json.applicantName }}\nSelf-Reported Nationality: {{ $json.nationality }}\n\nPassport bio page (raw extracted text):\n{{ $json.passportOcrText }}\n\nYour task:\n1. Extract structured data from the passport text.\n2. Cross-check the extracted name and nationality against what the applicant declared.\n3. Flag if the passport text is missing, illegible, incomplete, or looks inconsistent, and flag if the passport will expire soon (less than 6 months from today).\n\nReturn a JSON object with EXACTLY these fields:\n{\n  \"passportReadable\": true or false,\n  \"extractedFullName\": \"Full name found on the passport\",\n  \"extractedNationality\": \"Nationality found on the passport\",\n  \"extractedPassportNumber\": \"Passport number found on the passport\",\n  \"extractedDOB\": \"Date of birth found on the passport\",\n  \"extractedExpiryDate\": \"Passport expiry date found on the passport\",\n  \"monthsUntilExpiry\": <number, estimated months of validity remaining from today>,\n  \"consistencyIssues\": [\"issue1\", \"issue2\"],\n  \"extractionNotes\": \"Brief summary of the verification outcome\",\n  \"extractionScore\": <number 1-10, 10 = fully readable, consistent, verifiable passport data>\n}\n\nIf no consistency issues are found, return an empty array. Return ONLY the JSON. No markdown, no explanation.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "91b8bfb8-f3f4-4b49-ad7a-5f4928f6b914",
+      "name": "Anthropic - Passport OCR Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        1712,
+        1152
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account - test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "39bae1ff-3470-4b23-a241-593aa993a0ea",
+      "name": "JS - Parse Passport Extraction Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1984,
+        928
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nlet parsed = {};\ntry {\n  const rawText = item.output || item.text || item.response || '{}';\n  const clean = rawText.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(clean);\n} catch(e) {\n  parsed = {\n    passportReadable: true,\n    extractedFullName: item.applicantName,\n    extractedNationality: item.nationality,\n    extractedPassportNumber: 'Unavailable',\n    extractedDOB: 'Unknown',\n    extractedExpiryDate: 'Unknown',\n    monthsUntilExpiry: 12,\n    consistencyIssues: [],\n    extractionNotes: 'Auto-passed: could not parse AI passport extraction output, trusting self-reported nationality',\n    extractionScore: 5\n  };\n}\nreturn { json: { ...item, ...parsed } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "824b2660-af3b-45f0-b4ee-bdf279531ca7",
+      "name": "IF - Passport Data Sufficient",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2208,
+        928
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-extraction-score",
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.extractionScore }}",
+              "rightValue": 4
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "8ce7ad1e-a1d1-4a6c-afce-f246980118ad",
+      "name": "Respond to Webhook - Passport Unclear",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        2432,
+        1024
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": false,\n  \"applicationId\": \"{{ $json.applicationId }}\",\n  \"status\": \"Passport Not Readable\",\n  \"extractionNotes\": \"{{ $json.extractionNotes }}\",\n  \"consistencyIssues\": {{ JSON.stringify($json.consistencyIssues) }},\n  \"message\": \"We could not read your passport details clearly. Please resubmit a clear scan or photo of your passport bio page.\"\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "726e72e0-76a6-4aed-8f23-c7f36914e12c",
+      "name": "Wait - Before Visa Rules AI",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2432,
+        832
+      ],
+      "webhookId": "f1a2b3c4-c9d0-4123-9ef0-223456789002",
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5f883f24-e502-4926-9658-141bf4b39457",
+      "name": "AI - Check Visa Rules & Suggest Visa Type",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        2880,
+        832
+      ],
+      "parameters": {
+        "text": "=You are a visa eligibility research assistant helping a human travel advisor, not issuing a final visa decision.\n\nTraveler nationality (from passport): {{ $json.extractedNationality }}\nDestination country: {{ $json.destinationCountry }}\nPurpose of travel: {{ $json.travelPurpose }}\nIntended arrival date: {{ $json.intendedArrivalDate }}\nIntended length of stay: {{ $json.intendedStayDays }} days\nPassport expiry: {{ $json.extractedExpiryDate }} (~{{ $json.monthsUntilExpiry }} months of validity remaining)\nDocument consistency issues: {{ JSON.stringify($json.consistencyIssues) }}\n\nYour task:\n1. Determine whether travelers of this nationality need a visa to enter the destination country for this purpose and length of stay, based on generally known visa policy (note that policies change, so flag this explicitly).\n2. Identify the applicable visa category (Visa-Free, eVisa, Visa on Arrival, Consular Visa, Transit Visa, or Unknown if you are not confident).\n3. Recommend the specific visa type/name a traveler in this situation would typically apply for.\n4. Flag any eligibility risks, such as insufficient passport validity for the destination's requirements, purpose-visa mismatch, or short-stay limits being exceeded.\n\nReturn a JSON object with EXACTLY these fields:\n{\n  \"visaRequired\": true or false,\n  \"visaCategory\": \"Visa-Free|eVisa|Visa on Arrival|Consular Visa|Transit Visa|Unknown\",\n  \"recommendedVisaType\": \"Name of the specific visa type\",\n  \"maxStayAllowedDays\": <number or null>,\n  \"estimatedProcessingTime\": \"e.g. 3-5 business days\",\n  \"eligibilityRisks\": [\"risk1\", \"risk2\"],\n  \"officialSourceRecommendation\": \"Brief pointer to verify with the destination country's official embassy/consulate or immigration website\",\n  \"reasoning\": \"Two to four sentences grounded in the details above\",\n  \"confidence\": <number 0-100>\n}\n\nIf no eligibility risks are found, return an empty array. Return ONLY the JSON. No markdown, no explanation.",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "de7820e0-8a52-4a81-867d-a6104c058f70",
+      "name": "Anthropic - Visa Rules Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatAnthropic",
+      "position": [
+        2960,
+        1056
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "claude-sonnet-4-20250514"
+        },
+        "options": {
+          "temperature": 0.3
+        }
+      },
+      "credentials": {
+        "anthropicApi": {
+          "id": "credential-id",
+          "name": "Anthropic account - test"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "28202358-6b42-450d-a6ae-4aee48682647",
+      "name": "JS - Parse Eligibility Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3232,
+        832
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nlet parsed = {};\ntry {\n  const rawText = item.output || item.text || item.response || '{}';\n  const clean = rawText.replace(/```json|```/g, '').trim();\n  parsed = JSON.parse(clean);\n} catch(e) {\n  parsed = {\n    visaRequired: true,\n    visaCategory: 'Unknown',\n    recommendedVisaType: 'Consult destination embassy or consulate',\n    maxStayAllowedDays: null,\n    estimatedProcessingTime: 'Unknown',\n    eligibilityRisks: [],\n    officialSourceRecommendation: 'Verify current requirements with the destination country embassy or consulate before applying.',\n    reasoning: 'Auto-flagged: could not parse AI visa rules output, defaulting to a cautious consult-embassy recommendation.',\n    confidence: 30\n  };\n}\nreturn { json: { ...item, ...parsed } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "975a80d2-e95d-429d-bc65-973f961f5bc1",
+      "name": "JS - Generate Document Checklist",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3456,
+        832
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\n\nconst baseChecklist = [\n  'Valid passport with at least 6 months validity remaining beyond the intended stay',\n  '2 recent passport-size photographs meeting destination photo specifications',\n  'Completed visa application form (paper or online, as applicable)',\n  'Proof of onward or return travel (flight itinerary/reservation)',\n  'Proof of accommodation for the full stay (hotel booking or invitation letter)',\n  'Proof of sufficient financial means (bank statements, last 3-6 months)',\n  'Travel/medical insurance covering the destination and travel dates'\n];\n\nconst purposeChecklists = {\n  'Tourism': [],\n  'Business': ['Invitation letter from the host company or business partner', 'Company letter confirming purpose and duration of trip'],\n  'Study': ['Acceptance/enrollment letter from the educational institution', 'Proof of tuition payment or scholarship', 'Proof of financial sponsorship for the duration of study'],\n  'Work': ['Valid work permit or employment authorization', 'Employment contract or offer letter', 'Employer sponsorship letter'],\n  'Family Visit': ['Invitation letter from the host in the destination country', 'Proof of relationship to the host (if applicable)', \"Host's proof of residency/status in the destination country\"],\n  'Transit': ['Onward ticket to final destination', 'Visa for final destination country, if required']\n};\n\nconst purpose = item.travelPurpose || 'Tourism';\nconst purposeItems = purposeChecklists[purpose] || [];\n\nconst riskItems = (item.eligibilityRisks || []).map(r => `Address flagged risk: ${r}`);\n\nconst checklist = [...baseChecklist, ...purposeItems, ...riskItems];\n\nreturn {\n  json: {\n    ...item,\n    documentChecklist: checklist,\n    checklistGeneratedAt: new Date().toISOString()\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ce1bb85-273d-4821-a580-cd440b6dd3ba",
+      "name": "JS - Build Checklist PDF HTML",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3680,
+        832
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\n\nconst checklistHtml = (item.documentChecklist || [])\n  .map(c => `<li>${c}</li>`)\n  .join('');\n\nconst risksHtml = (item.eligibilityRisks || []).length\n  ? `<h3>Eligibility Risks to Address</h3><ul>${item.eligibilityRisks.map(r => `<li>${r}</li>`).join('')}</ul>`\n  : '';\n\nconst html = `\n<html>\n<head><meta charset=\"utf-8\"><style>\nbody { font-family: Arial, sans-serif; padding: 32px; color: #1a1a1a; }\nh1 { font-size: 20px; margin-bottom: 4px; }\nh2 { font-size: 16px; margin-top: 24px; }\np { font-size: 13px; line-height: 1.5; }\nul { font-size: 13px; line-height: 1.6; }\n.meta { color: #555; font-size: 12px; margin-bottom: 16px; }\n.disclaimer { margin-top: 24px; padding: 12px; background: #f5f5f5; font-size: 11px; color: #444; }\n</style></head>\n<body>\n<h1>Visa Eligibility Assessment &amp; Document Checklist</h1>\n<div class=\"meta\">Application ID: ${item.applicationId} &middot; Generated: ${item.checklistGeneratedAt}</div>\n<p><strong>Applicant:</strong> ${item.applicantName}<br/>\n<strong>Nationality:</strong> ${item.extractedNationality}<br/>\n<strong>Destination:</strong> ${item.destinationCountry}<br/>\n<strong>Purpose of Travel:</strong> ${item.travelPurpose}<br/>\n<strong>Intended Stay:</strong> ${item.intendedStayDays} days, arriving ${item.intendedArrivalDate}</p>\n\n<h2>Visa Assessment</h2>\n<p><strong>Visa Required:</strong> ${item.visaRequired ? 'Yes' : 'No'}<br/>\n<strong>Visa Category:</strong> ${item.visaCategory}<br/>\n<strong>Recommended Visa Type:</strong> ${item.recommendedVisaType}<br/>\n<strong>Estimated Processing Time:</strong> ${item.estimatedProcessingTime}<br/>\n<strong>Confidence:</strong> ${item.confidence}%</p>\n<p>${item.reasoning}</p>\n\n${risksHtml}\n\n<h2>Document Checklist</h2>\n<ul>${checklistHtml}</ul>\n\n<div class=\"disclaimer\">This assessment is generated to help you prepare, and is not an official visa decision. Visa policies change frequently. ${item.officialSourceRecommendation}</div>\n</body>\n</html>\n`;\n\nreturn { json: { ...item, checklistHtml: html } };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "582c436c-c607-4a1d-80b1-f1a8adba85a0",
+      "name": "HTTP Request - Generate Checklist PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3904,
+        832
+      ],
+      "parameters": {
+        "url": "https://api.pdfshift.io/v3/convert/pdf",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"source\": {{ JSON.stringify($json.checklistHtml) }},\n  \"landscape\": false,\n  \"sandbox\": false\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d7a89986-faed-4e8d-9955-5ff2d47c5c65",
+      "name": "JS - Format Final Application Record",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4128,
+        832
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const item = $input.item.json;\nconst decidedAt = new Date().toISOString();\n\nreturn {\n  json: {\n    ...item,\n    decidedAt,\n    applicationSummaryRow: [\n      item.applicationId || 'N/A',\n      item.applicantName || '',\n      item.applicantEmail || '',\n      item.destinationCountry || '',\n      item.travelPurpose || '',\n      item.extractedNationality || '',\n      item.visaRequired ? 'Yes' : 'No',\n      item.visaCategory || '',\n      item.recommendedVisaType || '',\n      item.confidence || 0,\n      decidedAt\n    ]\n  }\n};"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "53f950ca-3997-40a5-b74b-23af7be7e87d",
+      "name": "Save Application to Google Sheets Tracker",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4352,
+        832
+      ],
+      "parameters": {
+        "url": "https://sheets.googleapis.com/v4/spreadsheets/YOUR_SHEET_ID/values/VisaApplications!A1:append?valueInputOption=USER_ENTERED",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"values\": [{{ JSON.stringify($json.applicationSummaryRow) }}]\n}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "oAuth2Api"
+      },
+      "credentials": {
+        "oAuth2Api": {
+          "id": "credential-id",
+          "name": "Unnamed credential"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "871597bf-ee16-4c7c-9321-ba6750fe62da",
+      "name": "Send Applicant Email with Checklist PDF",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4784,
+        832
+      ],
+      "parameters": {
+        "url": "https://api.sendgrid.com/v3/mail/send",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"personalizations\": [{\"to\": [{\"email\": \"{{ $json.applicantEmail }}\"}]}],\n  \"from\": {\"email\": \"visas@yourconsultancy.com\", \"name\": \"Visa Eligibility Team\"},\n  \"subject\": \"Your visa eligibility assessment {{ $json.applicationId }}: {{ $json.recommendedVisaType }}\",\n  \"content\": [{\n    \"type\": \"text/plain\",\n    \"value\": \"Hi {{ $json.applicantName }},\\n\\nYour visa eligibility assessment for {{ $json.destinationCountry }} ({{ $json.travelPurpose }}) is attached as a PDF.\\n\\nVisa Required: {{ $json.visaRequired ? 'Yes' : 'No' }}\\nVisa Category: {{ $json.visaCategory }}\\nRecommended Visa Type: {{ $json.recommendedVisaType }}\\nEstimated Processing Time: {{ $json.estimatedProcessingTime }}\\n\\n{{ $json.reasoning }}\\n\\nPlease review the attached checklist and confirm current requirements with the official embassy or consulate before applying.\"\n  }],\n  \"attachments\": [{\n    \"content\": \"{{ $json.pdfBase64 || $binary?.data }}\",\n    \"filename\": \"visa-checklist-{{ $json.applicationId }}.pdf\",\n    \"type\": \"application/pdf\",\n    \"disposition\": \"attachment\"\n  }]\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer YOUR_TOKEN_HERE"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "d410a6b3-6e70-4e2f-99e8-5fb9e9273862",
+      "name": "Respond to Webhook - Visa Assessment Complete",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        5008,
+        832
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={\n  \"success\": true,\n  \"applicationId\": \"{{ $json.applicationId }}\",\n  \"visaRequired\": {{ $json.visaRequired }},\n  \"visaCategory\": \"{{ $json.visaCategory }}\",\n  \"recommendedVisaType\": \"{{ $json.recommendedVisaType }}\",\n  \"estimatedProcessingTime\": \"{{ $json.estimatedProcessingTime }}\",\n  \"confidence\": {{ $json.confidence }},\n  \"reasoning\": \"{{ $json.reasoning }}\",\n  \"documentChecklist\": {{ JSON.stringify($json.documentChecklist) }},\n  \"message\": \"Assessment complete. Checklist PDF emailed to the applicant.\"\n}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "011e26c1-a88e-492b-afdb-e1083efdc2e5",
+      "name": "Wait For Data",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        4560,
+        832
+      ],
+      "webhookId": "8aea72d4-0ddb-4af0-b5c7-3b57b2988b2b",
+      "parameters": {},
+      "typeVersion": 1.1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "versionId": "487bf8f4-c9ee-4d5c-a18f-b45b19208d5f",
+  "connections": {
+    "Wait For Data": {
+      "main": [
+        [
+          {
+            "node": "Send Applicant Email with Checklist PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Extract Passport Data": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse Passport Extraction Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Before Visa Rules AI": {
+      "main": [
+        [
+          {
+            "node": "AI - Check Visa Rules & Suggest Visa Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic - Visa Rules Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Check Visa Rules & Suggest Visa Type",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Passport Data Sufficient": {
+      "main": [
+        [
+          {
+            "node": "Wait - Before Visa Rules AI",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond to Webhook - Passport Unclear",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Build Checklist PDF HTML": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Generate Checklist PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse Eligibility Output": {
+      "main": [
+        [
+          {
+            "node": "JS - Generate Document Checklist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anthropic - Passport OCR Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI - Extract Passport Data",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Receive Visa Request": {
+      "main": [
+        [
+          {
+            "node": "Set - Prepare Application Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Generate Document Checklist": {
+      "main": [
+        [
+          {
+            "node": "JS - Build Checklist PDF HTML",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Prepare Application Context": {
+      "main": [
+        [
+          {
+            "node": "AI - Extract Passport Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Format Final Application Record": {
+      "main": [
+        [
+          {
+            "node": "Save Application to Google Sheets Tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Generate Checklist PDF": {
+      "main": [
+        [
+          {
+            "node": "JS - Format Final Application Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JS - Parse Passport Extraction Output": {
+      "main": [
+        [
+          {
+            "node": "IF - Passport Data Sufficient",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Applicant Email with Checklist PDF": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - Visa Assessment Complete",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI - Check Visa Rules & Suggest Visa Type": {
+      "main": [
+        [
+          {
+            "node": "JS - Parse Eligibility Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Application to Google Sheets Tracker": {
+      "main": [
+        [
+          {
+            "node": "Wait For Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

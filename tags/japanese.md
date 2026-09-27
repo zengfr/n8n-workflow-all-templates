@@ -1,4 +1,4 @@
-# japanese : 12
+# japanese : 20
 
 |id|file|
 |----|----|
@@ -14,3 +14,11 @@
 |14213|[14213_Summarize_Bitcoin_news_in_Japanese_and_post_to_Discord_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14213_Summarize_Bitcoin_news_in_Japanese_and_post_to_Discord_with_Gemini_AI.json)|
 |14980|[14980_Summarize_Japanese_AI_engineering_articles_from_Qiita_and_note_RSS_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14980_Summarize_Japanese_AI_engineering_articles_from_Qiita_and_note_RSS_to_Slack.json)|
 |16139|[16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json)|
+|16921|[16921_Triage_Japanese_freelance_gig_emails_with_Gmail__Gemini__Sheets__Drive__and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16921_Triage_Japanese_freelance_gig_emails_with_Gmail__Gemini__Sheets__Drive__and_Calendar.json)|
+|17229|[17229_Verify_Japanese_invoice_registration_numbers_from_Gmail_using_Gemini__NTA_API__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17229_Verify_Japanese_invoice_registration_numbers_from_Gmail_using_Gemini__NTA_API__Sheets_and_Slack.json)|
+|17230|[17230_Check_Japanese_ad_copy_compliance_with_Google_Gemini__Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17230_Check_Japanese_ad_copy_compliance_with_Google_Gemini__Sheets__Slack_and_Gmail.json)|
+|17242|[17242_Monitor_overtime_risk_against_Japanese_labour_caps_with_Gemini__Sheets__Slack___Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17242_Monitor_overtime_risk_against_Japanese_labour_caps_with_Gemini__Sheets__Slack___Gmail.json)|
+|17243|[17243_Monitor_Japanese_business_partners_for_registry_changes_with_gBizINFO_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17243_Monitor_Japanese_business_partners_for_registry_changes_with_gBizINFO_and_Gemini.json)|
+|17244|[17244_Match_Japanese_jGrants_subsidies_to_your_company_with_Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17244_Match_Japanese_jGrants_subsidies_to_your_company_with_Gemini__Slack_and_Gmail.json)|
+|18290|[18290_Summarize_Japanese_regulatory_news_with_Claude__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18290_Summarize_Japanese_regulatory_news_with_Claude__Slack__and_Google_Sheets.json)|
+|18398|[18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json)|

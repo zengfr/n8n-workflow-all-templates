@@ -1,4 +1,4 @@
-# cvs : 15
+# cvs : 19
 
 |id|file|
 |----|----|
@@ -17,3 +17,7 @@
 |15854|[15854_Score_and_triage_Indeed_CVs_with_Mistral_OCR__Groq__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15854_Score_and_triage_Indeed_CVs_with_Mistral_OCR__Groq__and_Google_Sheets.json)|
 |16030|[16030_Screen_and_score_candidate_CVs_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16030_Screen_and_score_candidate_CVs_with_Google_Gemini_and_Gmail.json)|
 |16098|[16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16098_Summarize_candidate_CVs_in_Slack_with_easybits_Extractor.json)|
+|16831|[16831_Screen_candidate_CVs_with_Google_Gemini__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16831_Screen_candidate_CVs_with_Google_Gemini__Google_Sheets__and_Gmail.json)|
+|17564|[17564_Screen_candidate_CVs_with_Claude_Sonnet__Google_Drive__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17564_Screen_candidate_CVs_with_Claude_Sonnet__Google_Drive__Google_Sheets__and_Gmail.json)|
+|18105|[18105_Match_CVs_to_remote_jobs_with_Groq__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18105_Match_CVs_to_remote_jobs_with_Groq__Google_Sheets__and_Gmail.json)|
+|18805|[18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18805_Screen_CVs_for_hidden_prompt_injections_with_Gemini__Google_Drive__Sheets__and_Telegram.json)|

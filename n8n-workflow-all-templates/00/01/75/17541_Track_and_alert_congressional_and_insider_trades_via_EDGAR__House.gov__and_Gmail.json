@@ -1,0 +1,822 @@
+{
+  "id": "AkHp7DnZxTStKByL",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Track and alert congressional and insider trades via EDGAR, House.gov, and Gmail",
+    "wechat": "youandme10086",
+    "id": 17541,
+    "update_time": "2026-09-27"
+  },
+  "name": "Congress Trade Alert — EDGAR + House.gov (enriched)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e04f77b9-c3e0-4d13-ae67-73bb53ee87b3",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1008,
+        -304
+      ],
+      "parameters": {
+        "width": 848,
+        "height": 896,
+        "content": "## Congress Trade Alert — EDGAR + House.gov (enriched)\n\n### How it works\n\nThis workflow runs every 45 minutes to collect congressional trading disclosures from both House.gov PTR data and SEC EDGAR Form 4 feeds. It parses and combines both sources, filters out duplicates or stale filings, routes each new filing through source-specific enrichment, then records new items in Google Sheets and sends email alerts. If no new filings are found, the workflow stops without writing or notifying.\n\n### Setup steps\n\n- Configure the schedule trigger interval if 45 minutes is not appropriate for your monitoring cadence.\n- Set up access for the ScrapeUnblocker/HTTP retrieval steps used to fetch the House disclosure landing page and EDGAR feed data.\n- Verify the House.gov disclosure ZIP extraction code points to the correct current-year disclosure page and ZIP format.\n- Review the EDGAR enrichment code and ensure any required SEC request headers, user agent, or rate-limit handling are configured.\n- Connect Google Sheets credentials and set the target spreadsheet/range used for deduplication and appending new filings.\n- Connect Gmail credentials and configure the alert recipients, sender, and email content.\n\n### Customization\n\nYou can adjust the recency gate, deduplication keys, alert thresholds, monitored filing types, email formatting, and schedule frequency to match your preferred trade-alert criteria."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "791c98f3-4260-45bd-a2b9-4a9a10499c89",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 304,
+        "height": 400,
+        "content": "## Scheduled workflow start\n\nStarts the monitoring run on a fixed 45-minute cadence and fans out to the House.gov and EDGAR collection branches."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cfe12652-92ee-4b4a-beb6-ab059a62a007",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        288,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1136,
+        "height": 320,
+        "content": "## Fetch House ZIP\n\nRetrieves the House disclosure landing page, extracts the current-year ZIP URL, and downloads the disclosure archive."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "42d4a3b2-5b09-4046-9847-3a36d4021ec0",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 864,
+        "height": 304,
+        "content": "## Fetch EDGAR feed\n\nFetches the SEC EDGAR Form 4 feed and parses the RSS/Atom entries into normalized filing records."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e5fe92ce-1643-4cb9-8609-1d091cb72471",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1664,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1312,
+        "height": 544,
+        "content": "## Enrich filing details\n\nEnriches EDGAR filings from Form 4 ownership XML, downloads and extracts House PTR PDFs, parses House PDF text, and merges the enriched source-specific results."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d4f29872-f847-4d9e-9654-debca83bca4f",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3008,
+        -224
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 640,
+        "height": 544,
+        "content": "## Store and alert\n\nChecks whether any enriched filings remain, appends new results to Google Sheets and sends Gmail alerts, or stops cleanly when there is nothing new."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "786819bb-e89a-44b4-82e1-a5a1d5cc4521",
+      "name": "Download House ZIP File",
+      "type": "n8n-nodes-base.code",
+      "notes": "Downloads the .zip via n8n's built-in HTTP helper (workaround for ScrapeUnblocker 403 on binaries). No HTTP Request node on canvas.",
+      "position": [
+        768,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "// n8n Code node — \"Download House ZIP\"\n// -----------------------------------------------------------------------------\n// Workaround for ScrapeUnblocker's 403 on binary files: fetch the .zip using\n// n8n's BUILT-IN HTTP helper (this.helpers.httpRequest) instead of the HTTP\n// Request node, and hand back real binary for the Compression node.\n//\n// Honest note: this is still an HTTP GET under the hood — a file cannot be\n// downloaded without one — but it lives entirely inside a Code node, so no\n// HTTP Request node appears on the canvas.\n//\n// MODE: Run Once for All Items   |   LANGUAGE: JavaScript\n// Place BETWEEN \"Extract House ZIP URL\" and \"Decompress House ZIP\".\n// -----------------------------------------------------------------------------\n\nconst results = [];\n\nfor (const item of $input.all()) {\n  const zipUrl = item.json.zipUrl;\n  if (!zipUrl) continue;\n\n  // Fetch the archive as raw bytes (arraybuffer -> Buffer).\n  const raw = await this.helpers.httpRequest({\n    method: 'GET',\n    url: zipUrl,\n    encoding: 'arraybuffer',\n    headers: { 'User-Agent': 'Mozilla/5.0 ProfitableMedia congress-tracker' },\n    returnFullResponse: false,\n  });\n\n  const buffer = Buffer.from(raw);\n\n  // Sanity check: a real ZIP starts with the bytes \"PK\".\n  if (!(buffer.length > 3 && buffer[0] === 0x50 && buffer[1] === 0x4b)) {\n    throw new Error(\n      'Downloaded data is not a valid ZIP (no PK header) for ' + zipUrl +\n      '. The server may have returned an error page instead of the file.'\n    );\n  }\n\n  const fileName = (zipUrl.match(/([^/]+\\.zip)/) || [])[1] || 'archive.zip';\n\n  // prepareBinaryData is filesystem-binary-mode safe.\n  const binaryData = await this.helpers.prepareBinaryData(\n    buffer,\n    fileName,\n    'application/zip'\n  );\n\n  results.push({ json: { zipUrl, bytes: buffer.length }, binary: { data: binaryData } });\n}\n\nreturn results;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7e53172e-433b-4bcb-b57d-64af41d332e8",
+      "name": "Download EDGAR Feed",
+      "type": "n8n-nodes-base.code",
+      "notes": "Fetches SEC EDGAR Form 4 Atom feed with a compliant User-Agent (ScrapeUnblocker 403s on SEC). Edit the contact email in the code.",
+      "position": [
+        576,
+        256
+      ],
+      "parameters": {
+        "jsCode": "// n8n Code node — \"Fetch EDGAR Feed\"\n// -----------------------------------------------------------------------------\n// SEC EDGAR returns 403 for any request without a declared User-Agent (their\n// fair-access policy). ScrapeUnblocker can't set a custom UA, which is why it\n// 403s. We fetch here with n8n's built-in HTTP helper and a compliant UA.\n//\n// >>> EDIT the contact email in USER_AGENT to your real address — SEC requires it.\n//\n// MODE: Run Once for All Items   |   Wire: Every 45 Min -> this node -> Parse EDGAR RSS\n// -----------------------------------------------------------------------------\n\nconst FEED_URL =\n  'https://www.sec.gov/cgi-bin/browse-edgar?action=getcurrent&type=4&company=&dateb=&owner=include&count=40&output=atom';\n\nconst USER_AGENT = 'ProfitableMedia congress-tracker user@example.com';\n\nconst body = await this.helpers.httpRequest({\n  method: 'GET',\n  url: FEED_URL,\n  headers: {\n    'User-Agent': USER_AGENT,\n    'Accept': 'application/atom+xml,application/xml,text/xml',\n    'Accept-Encoding': 'gzip, deflate',\n  },\n  json: false,               // return the raw XML string, not parsed JSON\n  returnFullResponse: false,\n});\n\nreturn [{ json: { data: String(body) } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a2892959-5e69-4dd1-ab89-5add0d10ef17",
+      "name": "Route by Data Source",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1936,
+        -64
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "0a42792e-8a22-47d1-af1b-4af4b2096c2c",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.source }}",
+                    "rightValue": "EDGAR"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 2,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "b15f9abd-9cf4-49f2-80d8-b244dcb42e5d",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.source }}",
+                    "rightValue": "House"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {}
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "4b67863b-3f41-43a8-b282-8b2f8e0a4316",
+      "name": "Enhance EDGAR Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2608,
+        -80
+      ],
+      "parameters": {
+        "jsCode": "// Enrich each EDGAR filing with real trade data from its Form 4 ownership XML.\n// amountRange: real $ value for open-market Buy/Sell (shares × price); for grants /\n// option exercises (no price) it falls back to the share quantity so the field is\n// never empty. Identical option-exercise legs (same qty listed twice) are deduped.\n// MODE: Run Once for All Items.  >>> put your real contact email in UA (SEC requirement).\nconst UA='ProfitableMedia congress-tracker user@example.com';\nconst CODE={P:'Buy (open market)',S:'Sell (open market)',A:'Grant/Award',D:'Disposition to issuer',F:'Tax withholding',G:'Gift',M:'Option exercise',X:'Option exercise',C:'Conversion',J:'Other'};\nfunction g(blk,tag){const m=blk.match(new RegExp('<'+tag+'>\\\\s*(?:<value>)?\\\\s*([^<]*?)\\\\s*(?:</value>)?\\\\s*</'+tag+'>'));return m?m[1].trim():'';}\nconst out=[];\nfor(const item of $input.all()){\n  const j={...item.json};\n  try{\n    const base=String(j.filingUrl||'').replace(/[^/]*$/,'');\n    const dir=await this.helpers.httpRequest({method:'GET',url:base+'index.json',headers:{'User-Agent':UA},json:true});\n    const files=((dir.directory&&dir.directory.item)||[]).map(f=>f.name);\n    const xmlName=files.find(n=>/\\.xml$/i.test(n)&&!/^R\\d+\\.xml$/i.test(n)&&!/metalinks/i.test(n));\n    if(xmlName){\n      const xml=String(await this.helpers.httpRequest({method:'GET',url:base+xmlName,headers:{'User-Agent':UA},json:false}));\n      const ticker=(xml.match(/<issuerTradingSymbol>([^<]*)/)||[])[1]||'';\n      let txns=[];\n      for(const b of (xml.match(/<(?:nonDerivative|derivative)Transaction>[\\s\\S]*?<\\/(?:nonDerivative|derivative)Transaction>/g)||[])){\n        const code=g(b,'transactionCode'), shares=parseFloat(g(b,'transactionShares'))||0, price=parseFloat(g(b,'transactionPricePerShare'))||0, date=g(b,'transactionDate');\n        txns.push({ticker,label:CODE[code]||('Code '+code),shares,price,value:+(shares*price).toFixed(2),date});\n      }\n      // dedupe identical legs (option exercise lists the same qty twice)\n      const seen=new Set(),uniq=[];\n      for(const t of txns){const k=t.label+'|'+t.shares+'|'+t.price+'|'+t.date; if(seen.has(k))continue; seen.add(k); uniq.push(t);}\n      if(uniq.length){\n        const dollar=uniq.reduce((s,t)=>s+t.value,0);\n        const sharesTot=uniq.reduce((s,t)=>s+t.shares,0);\n        j.ticker=ticker;\n        j.transactionType=[...new Set(uniq.map(t=>t.label))].join(', ');\n        j.amountRange = dollar>0 ? ('$'+dollar.toLocaleString()) : (sharesTot>0 ? (sharesTot.toLocaleString()+' shares') : '');\n        j.transactionDate=uniq[0].date||j.transactionDate;\n        j.details=uniq.map(t=>t.ticker+' '+t.label+' '+t.shares+' sh'+(t.price?(' @ $'+t.price):'')+(t.value?(' = $'+t.value.toLocaleString()):'')+' ('+t.date+')').join('\\n');\n      }\n    }\n  }catch(e){ j.enrichError=String(e.message||e); }\n  out.push({json:j});\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ebcb52ad-ff78-4d8f-ba29-10ce7d6e5adf",
+      "name": "Download House PDF",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2208,
+        112
+      ],
+      "parameters": {
+        "jsCode": "// Download each House PTR PDF as binary (via n8n HTTP helper) for text extraction.\nconst UA='Mozilla/5.0 ProfitableMedia congress-tracker';\nconst out=[];\nfor(const item of $input.all()){\n  const j={...item.json};\n  try{\n    const raw=await this.helpers.httpRequest({method:'GET',url:j.filingUrl,headers:{'User-Agent':UA},encoding:'arraybuffer',returnFullResponse:false});\n    const bin=await this.helpers.prepareBinaryData(Buffer.from(raw),(j.docId||'ptr')+'.pdf','application/pdf');\n    out.push({json:j,binary:{data:bin}});\n  }catch(e){ j.enrichError=String(e.message||e); out.push({json:j}); }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "49e90b62-ca53-4cf7-85b5-97063eabcee7",
+      "name": "Extract Text from PDF",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        2384,
+        112
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2ff9b32-8622-4a87-bb56-7244f40796dc",
+      "name": "Analyze House PDF Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2608,
+        112
+      ],
+      "parameters": {
+        "jsCode": "// Parse House PTR — SELF-SUFFICIENT.\n// The Extract-from-File node replaces item.json with the PDF output (numpages/info/text/version),\n// wiping the upstream House fields. So we re-derive EVERYTHING from the PDF text itself:\n// filingId, member, state, filingUrl, plus the trade rows. Best-effort; scanned PDFs yield nothing.\n// MODE: Run Once for All Items.\n\nfunction toISO(d){const m=String(d).match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/);return m?`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`:'';}\n\nconst ROW=/\\b([PSE])\\b\\s*\\(?(?:partial|full)?\\)?\\s+(\\d{2}\\/\\d{2}\\/\\d{4})\\s+(\\d{2}\\/\\d{2}\\/\\d{4})\\s+(\\$[\\d,]+(?:\\s*-\\s*\\$[\\d,]+)?(?:\\s*\\+)?)/;\nconst TICK=/\\((?:Ticker:\\s*)?([A-Z][A-Z0-9.\\-]{0,5})\\)/;\nconst BOUND=/:\\s*New\\b|Notification|Filing ID|Amount Cap|\\u0000/;\nconst TYPE={P:'Buy',S:'Sell',E:'Exchange'};\n\nconst out=[];\nfor(const item of $input.all()){\n  const j={...item.json};\n  const text=String(j.pdfText||j.text||'');\n\n  // --- recover header fields from the PDF text ---\n  const fid=(text.match(/Filing ID #(\\d+)/)||[])[1]||'';\n  const name=((text.match(/Name:\\s*(.+)/)||[])[1]||'').trim();\n  const sd=(text.match(/State\\/District:\\s*([A-Z]{2})(\\d+)/)||[]);\n  const signed=(text.match(/Digitally Signed:[^,]*,\\s*(\\d{2}\\/\\d{2}\\/\\d{4})/)||[])[1]||'';\n\n  // --- parse the transaction rows ---\n  const lines=text.split(/\\r?\\n/);\n  const txns=[];\n  for(let i=0;i<lines.length;i++){\n    const m=lines[i].match(ROW); if(!m) continue;\n    let tk=(lines[i].match(TICK)||[])[1]||'';\n    if(!tk){ for(let k=i-1;k>=Math.max(0,i-4);k--){ if(BOUND.test(lines[k])||ROW.test(lines[k])) break; const t=(lines[k].match(TICK)||[])[1]; if(t){tk=t;break;} } }\n    txns.push({ticker:tk,type:TYPE[m[1]]||m[1],date:toISO(m[2]),amount:m[4].replace(/\\s+/g,' ').trim()});\n  }\n\n  const year=(signed.match(/\\/(\\d{4})/)||[])[1] || (txns[0]&&txns[0].date.slice(0,4)) || String(new Date().getFullYear());\n\n  // --- rebuild the full standard schema ---\n  const rec={\n    filingId: fid ? ('HOUSE-'+fid) : '',\n    source: 'House',\n    memberName: name,\n    party: '',\n    state: sd[1]||'',\n    district: sd[2]||'',\n    ticker: [...new Set(txns.map(t=>t.ticker).filter(Boolean))].join(', '),\n    transactionType: [...new Set(txns.map(t=>t.type))].join(', '),\n    amountRange: [...new Set(txns.map(t=>t.amount))].join('; '),\n    transactionDate: txns[0] ? txns[0].date : '',\n    filingDate: toISO(signed),\n    filingUrl: fid ? `https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/${year}/${fid}.pdf` : (j.filingUrl||''),\n    details: txns.map(t=>(t.ticker||'?')+' '+t.type+' '+t.amount+' ('+t.date+')').join('\\n'),\n    docId: fid,\n    alertedAt: j.alertedAt || new Date().toISOString()\n  };\n  // drop scanned/empty PDFs (no filing id parsed)\n  if(!rec.filingId) continue;\n  out.push({json:rec});\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "30996ae8-725b-49d5-b0ba-f6a2dc52edb1",
+      "name": "Merge Enriched Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2832,
+        16
+      ],
+      "parameters": {},
+      "typeVersion": 3,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "78ed3004-f466-42e0-ac5d-32aab891eb72",
+      "name": "Schedule Every 45 Mins",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        64,
+        16
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 45
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3baa9452-3a05-49a1-8a3f-849f6f812cb1",
+      "name": "Extract House ZIP URL",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        544,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "// Extract the current-year House disclosure ZIP URL from the landing-page HTML.\nfunction getContent(json){\n  if(typeof json==='string')return json;\n  if(Array.isArray(json))return json.find(v=>typeof v==='string'&&v.includes('<'))||'';\n  for(const k of ['data','body','html','content','result','response','text']){\n    const v=json&&json[k];\n    if(typeof v==='string'&&v.includes('<'))return v;\n    if(Array.isArray(v)){const s=v.find(x=>typeof x==='string'&&x.includes('<'));if(s)return s;}\n  }\n  for(const v of Object.values(json||{}))if(typeof v==='string'&&v.includes('<'))return v;\n  return '';\n}\nconst BASE='https://disclosures-clerk.house.gov';\nconst out=[];\nfor(const item of $input.all()){\n  const html=getContent(item.json); if(!html) continue;\n  const urls=[...html.matchAll(/href=\"([^\"]+?\\.zip[^\"]*)\"/gi)]\n    .map(m=>m[1].startsWith('http')?m[1]:BASE+(m[1].startsWith('/')?'':'/')+m[1]);\n  const uniq=[...new Set(urls)]; if(!uniq.length) continue;\n  const byYear=uniq.map(u=>({url:u,year:parseInt((u.match(/(\\d{4})FD\\.zip/)||[])[1]||0,10)}))\n                   .filter(x=>x.year).sort((a,b)=>b.year-a.year);\n  const latest=byYear[0];\n  out.push({ json:{ zipUrl: latest?latest.url:uniq[0], year: latest?latest.year:null, allZipUrls: uniq } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5386250f-76f0-477a-8966-162605270519",
+      "name": "Decompress ZIP File",
+      "type": "n8n-nodes-base.compression",
+      "position": [
+        1088,
+        -96
+      ],
+      "parameters": {
+        "outputPrefix": "file"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "fb1b2ff9-68b6-4a63-972f-e1851049dd8a",
+      "name": "Process House Filings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1280,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "// Parse House Periodic Transaction Reports (FilingType \"P\") from the decompressed\n// 20xxFD archive. Reads the binary file emitted by the Compression node using\n// this.helpers.getBinaryDataBuffer — works in BOTH inline and filesystem binary\n// modes. Handles the .xml OR the tab-delimited .txt. Tested parse logic: 274 P filings.\n//\n// MODE: Run Once for All Items   |   Wire: Decompress House ZIP -> this node.\n\nfunction decodeEntities(s){return String(s).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'\"').replace(/&#0?39;/g,\"'\").replace(/&nbsp;/g,' ');}\nfunction getContent(json){ // accept only XML/TSV-looking text (never the zipUrl)\n  const ok=v=>typeof v==='string'&&(v.includes('<')||v.includes('\\t'));\n  if(ok(json))return json;\n  if(Array.isArray(json)){const s=json.find(ok);if(s)return s;}\n  for(const k of ['data','body','content','result','response','xml','text','fileContent']){\n    const v=json&&json[k]; if(ok(v))return v;\n    if(Array.isArray(v)){const s=v.find(ok);if(s)return s;}\n  }\n  for(const v of Object.values(json||{}))if(ok(v))return v;\n  return '';\n}\nfunction toISO(d){const m=String(d).match(/(\\d{1,2})\\/(\\d{1,2})\\/(\\d{4})/);return m?`${m[3]}-${m[1].padStart(2,'0')}-${m[2].padStart(2,'0')}`:String(d||'').trim();}\nfunction rec(f){return { json:{\n  filingId:'HOUSE-'+f.docId, source:'House',\n  memberName:[f.prefix,f.first,f.last,f.suffix].filter(Boolean).join(' ').trim(),\n  party:'', state:(f.stateDst||'').slice(0,2),\n  transactionType:'', amountRange:'', transactionDate:'',\n  filingDate:toISO(f.filingDate),\n  filingUrl:`https://disclosures-clerk.house.gov/public_disc/ptr-pdfs/${f.year||new Date().getFullYear()}/${f.docId}.pdf`,\n  district:(f.stateDst||'').slice(2), docId:f.docId\n}};}\nfunction parseXml(c){const out=[];\n  for(const blk of (c.match(/<Member>([\\s\\S]*?)<\\/Member>/g)||[])){\n    const pick=t=>{const m=blk.match(new RegExp('<'+t+'>([\\\\s\\\\S]*?)<\\\\/'+t+'>'));return m?decodeEntities(m[1]).trim():'';};\n    if(pick('FilingType')!=='P')continue; const docId=pick('DocID'); if(!docId)continue;\n    out.push(rec({prefix:pick('Prefix'),first:pick('First'),last:pick('Last'),suffix:pick('Suffix'),stateDst:pick('StateDst'),year:pick('Year'),filingDate:pick('FilingDate'),docId}));\n  } return out;}\nfunction parseTsv(c){const out=[]; const lines=c.split(/\\r?\\n/).filter(l=>l.trim()); if(!lines.length)return out;\n  const h=lines[0].split('\\t').map(x=>x.trim()); const ix=n=>h.indexOf(n);\n  const I={p:ix('Prefix'),l:ix('Last'),f:ix('First'),s:ix('Suffix'),ft:ix('FilingType'),sd:ix('StateDst'),y:ix('Year'),d:ix('FilingDate'),doc:ix('DocID')};\n  if(I.ft<0||I.doc<0)return out;\n  for(let i=1;i<lines.length;i++){const c2=lines[i].split('\\t'); if((c2[I.ft]||'').trim()!=='P')continue;\n    const docId=(c2[I.doc]||'').trim(); if(!docId)continue;\n    out.push(rec({prefix:(c2[I.p]||'').trim(),first:(c2[I.f]||'').trim(),last:(c2[I.l]||'').trim(),suffix:(c2[I.s]||'').trim(),stateDst:(c2[I.sd]||'').trim(),year:(c2[I.y]||'').trim(),filingDate:(c2[I.d]||'').trim(),docId}));\n  } return out;}\n\nconst out=[];\nconst items=$input.all();\nfor(let i=0;i<items.length;i++){\n  const item=items[i];\n  let content=getContent(item.json);          // path 1: text already in json (Extract-from-File)\n\n  if(!content && item.binary){                 // path 2: decompressed binary (filesystem-safe)\n    const keys=Object.keys(item.binary);\n    const pick=keys.find(k=>/\\.xml$/i.test(item.binary[k].fileName||k))\n            || keys.find(k=>/\\.txt$/i.test(item.binary[k].fileName||k))\n            || keys[0];\n    if(pick){\n      const buf=await this.helpers.getBinaryDataBuffer(i,pick);\n      content=buf.toString('utf8');\n    }\n  }\n  if(!content) continue;\n  out.push(...(/<Member>/.test(content)?parseXml(content):parseTsv(content)));\n}\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7c5b8631-a8cd-42bd-8c70-d72367c0a8d3",
+      "name": "Process EDGAR RSS Feed",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1200,
+        256
+      ],
+      "parameters": {
+        "jsCode": "// Parse the SEC EDGAR Form 4 Atom feed (from the ScrapeUnblocker output) and\n// map straight to the standard schema. Keeps only Form 4s by the Reporting person\n// (the insider who traded); the duplicate Issuer/company row is dropped.\n// Auto-detects the content field. Tested against the live feed.\nfunction decodeEntities(s){return String(s).replace(/&amp;/g,'&').replace(/&lt;/g,'<').replace(/&gt;/g,'>').replace(/&quot;/g,'\"').replace(/&#0?39;/g,\"'\").replace(/&nbsp;/g,' ');}\nfunction getContent(json){\n  if(typeof json==='string')return json;\n  if(Array.isArray(json))return json.find(v=>typeof v==='string'&&v.length>20)||'';\n  for(const k of ['data','body','html','content','result','response','xml','text','fileContent']){\n    const v=json&&json[k];\n    if(typeof v==='string'&&v.length>20)return v;\n    if(Array.isArray(v)){const s=v.find(x=>typeof x==='string'&&x.length>20);if(s)return s;}\n  }\n  for(const v of Object.values(json||{}))if(typeof v==='string'&&v.includes('<'))return v;\n  return '';\n}\n\nconst out=[];\nfor(const item of $input.all()){\n  const xml=getContent(item.json);\n  if(!xml) continue;\n  for(const e of (xml.match(/<entry\\b[\\s\\S]*?<\\/entry>/g)||[])){\n    const pick=re=>{const m=e.match(re);return m?m[1].trim():'';};\n    const rawTitle=decodeEntities(pick(/<title>([\\s\\S]*?)<\\/title>/));\n    const link=pick(/<link\\b[^>]*href=\"([^\"]+)\"/);\n    const updated=pick(/<updated>([\\s\\S]*?)<\\/updated>/);\n    const idRaw=pick(/<id>([\\s\\S]*?)<\\/id>/);\n    const summary=decodeEntities(pick(/<summary[^>]*>([\\s\\S]*?)<\\/summary>/)).replace(/<[^>]*>/g,' ').replace(/\\s+/g,' ').trim();\n    const acc=(idRaw.match(/accession-number=([\\w-]+)/)||[])[1]||(summary.match(/AccNo:\\s*([\\d-]+)/)||[])[1]||'';\n    const filed=(summary.match(/Filed:\\s*([\\d-]{10})/)||[])[1]||'';\n    const tm=rawTitle.match(/^(\\S+)\\s*-\\s*(.+?)\\s*\\((\\d{7,10})\\)\\s*\\((\\w+)\\)\\s*$/);\n    const formType=tm?tm[1]:'', role=tm?tm[4]:'';\n    if(formType!=='4') continue;\n    if(role && role.toLowerCase()!=='reporting') continue;\n    if(!acc) continue;\n    out.push({ json: {\n      filingId: 'EDGAR-'+acc,\n      source: 'EDGAR',\n      memberName: tm?tm[2]:rawTitle,\n      party: '', state: '',\n      transactionType: '', amountRange: '', transactionDate: '',\n      filingDate: (filed||updated).slice(0,10),\n      filingUrl: link||'https://www.sec.gov/cgi-bin/browse-edgar',\n      cik: tm?tm[3]:''\n    }});\n  }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8f107e42-796a-478f-82bc-0a61e5004118",
+      "name": "Merge Source Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1504,
+        16
+      ],
+      "parameters": {},
+      "typeVersion": 3
+    },
+    {
+      "id": "635993aa-133b-480d-b892-242154f5ab08",
+      "name": "Filter Recent Filings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1712,
+        16
+      ],
+      "parameters": {
+        "jsCode": "// Filter New Filings — dedup (vs sheet) + intra-run dedup + recency gate.\n// Only filings filed within MAX_AGE_DAYS are alert-worthy. This prevents:\n//   (1) first-run spam (sheet empty => everything looks \"new\"), and\n//   (2) alerting on months-old filings that live in the House annual dump.\nconst MAX_AGE_DAYS = 20;                 // tune: 1-2 = very fresh only, 7 = looser\nconst now = Date.now();\n\nlet seen = new Set();\ntry {\n  seen = new Set($('Read Seen Filings').all()\n    .map(i => String((i.json['Filing ID'] ?? i.json.filingId ?? '')).trim())\n    .filter(Boolean));\n} catch (err) {}\n\nconst fresh = [];\nconst thisRun = new Set();\nfor (const item of $input.all()) {\n  const j = item.json;\n  const id = String(j.filingId || '').trim();\n  if (!id || seen.has(id) || thisRun.has(id)) continue;\n\n  // recency gate\n  const fd = Date.parse(j.filingDate);\n  if (!isNaN(fd) && (now - fd) > MAX_AGE_DAYS * 86400000) continue;\n\n  thisRun.add(id);\n  j.alertedAt = new Date().toISOString();\n  fresh.push(item);\n}\nreturn fresh;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "42b832a2-5650-415a-8cd0-226e7f3b5183",
+      "name": "Check for New Filings",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3056,
+        16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-1",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.filingId }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e6337a30-3070-417e-8b19-63dc2915c14e",
+      "name": "Add New Filings to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3328,
+        -80
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "State": "={{ $json.state }}",
+            "Source": "={{ $json.source }}",
+            "Ticker": "={{ $json.ticker }}",
+            "Filing ID": "={{ $json.filingId }}",
+            "Alerted At": "={{ $json.alertedAt }}",
+            "Filing URL": "={{ $json.filingUrl }}",
+            "Filing Date": "={{ $json.filingDate }}",
+            "Member Name": "={{ $json.memberName }}",
+            "Amount Range": "={{ $json.amountRange }}",
+            "Transaction Date": "={{ $json.transactionDate }}",
+            "Transaction Type": "={{ $json.transactionType }}"
+          },
+          "schema": [
+            {
+              "id": "Filing ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Filing ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Source",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Source",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Member Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Member Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Party",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Party",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "State",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "State",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Ticker",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Ticker",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Transaction Type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Transaction Type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Amount Range",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Amount Range",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Transaction Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Transaction Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Filing Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Filing Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Filing URL",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Filing URL",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Alerted At",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Alerted At",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s36TbRUv3vEcHFOuUwcIB_cOBtRZL0qJelyzsxCsNKQ/edit#gid=0",
+          "cachedResultName": "Trade Log"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1s36TbRUv3vEcHFOuUwcIB_cOBtRZL0qJelyzsxCsNKQ",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1s36TbRUv3vEcHFOuUwcIB_cOBtRZL0qJelyzsxCsNKQ/edit?usp=drivesdk",
+          "cachedResultName": "Congress Trade Tracker"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "9d1f013a-aafb-4a22-9002-be8ba044f4df",
+      "name": "Stop if No New Filings",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3328,
+        128
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "6707659f-e555-4992-b011-d70b292b1dbe",
+      "name": "Retrieve House Disclosures",
+      "type": "n8n-nodes-scrapeunblocker.scrapeUnblocker",
+      "position": [
+        336,
+        -80
+      ],
+      "parameters": {
+        "url": "https://disclosures-clerk.house.gov/FinancialDisclosure",
+        "proxy_country": "US"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "274684cc-df10-4237-aa32-8af1a3c673f8",
+      "name": "Send Email Alerts",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        3504,
+        -80
+      ],
+      "webhookId": "8d89e744-b1d3-4c96-a61a-9df6acf303a6",
+      "parameters": {
+        "sendTo": "Your email",
+        "message": "==<div style=\"font-family:Arial,sans-serif;font-size:14px;color:#222;max-width:600px\">\n  <h2 style=\"margin:0 0 4px\">🏛️ {{ $json.memberName }}</h2>\n  <p style=\"margin:0 0 12px;color:#666\">{{ $json.source }}{{ $json.state ? \" · \" + $json.state + $json.district : \"\" }}</p>\n  <table style=\"border-collapse:collapse;width:100%\">\n    <tr><td style=\"padding:5px 10px;font-weight:bold;background:#f4f4f4;width:110px\">Type</td><td style=\"padding:5px 10px\">{{ $json.transactionType }}</td></tr>\n    <tr><td style=\"padding:5px 10px;font-weight:bold;background:#f4f4f4\">Ticker</td><td style=\"padding:5px 10px\">{{ $json.ticker }}</td></tr>\n    <tr><td style=\"padding:5px 10px;font-weight:bold;background:#f4f4f4\">Amount</td><td style=\"padding:5px 10px\">{{ $json.amountRange }}</td></tr>\n    <tr><td style=\"padding:5px 10px;font-weight:bold;background:#f4f4f4\">Txn Date</td><td style=\"padding:5px 10px\">{{ $json.transactionDate }}</td></tr>\n    <tr><td style=\"padding:5px 10px;font-weight:bold;background:#f4f4f4\">Filed</td><td style=\"padding:5px 10px\">{{ $json.filingDate }}</td></tr>\n  </table>\n  <pre style=\"background:#f9f9f9;border:1px solid #eee;padding:10px;white-space:pre-wrap;font-size:13px;margin:12px 0\">{{ $json.details }}</pre>\n  <p><a href=\"{{ $json.filingUrl }}\" style=\"color:#0645ad\">View filing →</a></p>\n</div>",
+        "options": {},
+        "subject": "=🏛️ {{ $json.source }} Trade: {{ $json.memberName }} — {{ $json.transactionType }} {{ $json.ticker }}"
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "c01fcb14-f15c-4dd7-9e36-d9d103c4d870",
+  "nodeGroups": [],
+  "connections": {
+    "Merge Source Data": {
+      "main": [
+        [
+          {
+            "node": "Filter Recent Filings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download House PDF": {
+      "main": [
+        [
+          {
+            "node": "Extract Text from PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Enhance EDGAR Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Enriched Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Decompress ZIP File": {
+      "main": [
+        [
+          {
+            "node": "Process House Filings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download EDGAR Feed": {
+      "main": [
+        [
+          {
+            "node": "Process EDGAR RSS Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Enriched Data": {
+      "main": [
+        [
+          {
+            "node": "Check for New Filings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by Data Source": {
+      "main": [
+        [
+          {
+            "node": "Enhance EDGAR Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Download House PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for New Filings": {
+      "main": [
+        [
+          {
+            "node": "Add New Filings to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Stop if No New Filings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract House ZIP URL": {
+      "main": [
+        [
+          {
+            "node": "Download House ZIP File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Text from PDF": {
+      "main": [
+        [
+          {
+            "node": "Analyze House PDF Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter Recent Filings": {
+      "main": [
+        [
+          {
+            "node": "Route by Data Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Process House Filings": {
+      "main": [
+        [
+          {
+            "node": "Merge Source Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze House PDF Data": {
+      "main": [
+        [
+          {
+            "node": "Merge Enriched Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Process EDGAR RSS Feed": {
+      "main": [
+        [
+          {
+            "node": "Merge Source Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Schedule Every 45 Mins": {
+      "main": [
+        [
+          {
+            "node": "Retrieve House Disclosures",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Download EDGAR Feed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download House ZIP File": {
+      "main": [
+        [
+          {
+            "node": "Decompress ZIP File",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Add New Filings to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Send Email Alerts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve House Disclosures": {
+      "main": [
+        [
+          {
+            "node": "Extract House ZIP URL",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

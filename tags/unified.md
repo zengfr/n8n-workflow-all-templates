@@ -1,4 +1,4 @@
-# unified : 6
+# unified : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |11859|[11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/18/11859_Automate_SaaS_Operations_with_GPT-4.1-mini_for_User__Support___Billing_Management.json)|
 |12124|[12124_Automate_unified_marketing_reports_with_Google_Analytics__Google_Ads__Meta_Ads___HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12124_Automate_unified_marketing_reports_with_Google_Analytics__Google_Ads__Meta_Ads___HubSpot.json)|
 |15944|[15944_Provide_Telegram_astrology_readings_with_Supabase__Astrology_API_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15944_Provide_Telegram_astrology_readings_with_Supabase__Astrology_API_and_Gemini.json)|
+|18340|[18340_Deduplicate_security_alerts_into_unified_cases_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18340_Deduplicate_security_alerts_into_unified_cases_with_Claude_and_Slack.json)|

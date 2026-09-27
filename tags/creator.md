@@ -1,4 +1,4 @@
-# creator : 60
+# creator : 71
 
 |id|file|
 |----|----|
@@ -62,3 +62,14 @@
 |16012|[16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16012_Research_Kuaishou_creator_profiles_from_keywords_with_JustOneAPI.json)|
 |16014|[16014_Research_Kuaishou_creator_videos_from_a_keyword_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16014_Research_Kuaishou_creator_videos_from_a_keyword_with_JustOneAPI.json)|
 |16115|[16115_Generate_Veo_3_short-form_videos_from_a_form_using_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16115_Generate_Veo_3_short-form_videos_from_a_form_using_Groq_and_Google_Sheets.json)|
+|17125|[17125_Find_YouTube_creator_emails_with_Apify__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17125_Find_YouTube_creator_emails_with_Apify__OpenAI_and_Google_Sheets.json)|
+|17630|[17630_Handle_healthcare_appointments_on_WhatsApp_with_Gemini_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17630_Handle_healthcare_appointments_on_WhatsApp_with_Gemini_and_Google_Calendar.json)|
+|17718|[17718_Monitor_TikTok_creator_growth_with_Apify__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17718_Monitor_TikTok_creator_growth_with_Apify__Google_Sheets__and_Telegram.json)|
+|17757|[17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17757_Generate_personalized_patient_education_reports_with_Google_Sheets__Gemini__Brave__and_Google_Docs.json)|
+|17840|[17840_Send_a_daily_AI-rewritten_RSS_news_digest_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17840_Send_a_daily_AI-rewritten_RSS_news_digest_with_Google_Gemini_and_Gmail.json)|
+|18142|[18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json)|
+|18894|[18894_Create_Teable_records_from_incoming_webhook_requests_using_a_REST_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18894_Create_Teable_records_from_incoming_webhook_requests_using_a_REST_API.json)|
+|19159|[19159_Build_a_Reels_swipe_file_from_Instagram_with_Apify__Groq__Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19159_Build_a_Reels_swipe_file_from_Instagram_with_Apify__Groq__Sheets_and_Telegram.json)|
+|19202|[19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json)|
+|19213|[19213_Create_and_publish_AI_YouTube_videos_from_Google_Sheets_with_GPT-4o_and_JSON2Video.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19213_Create_and_publish_AI_YouTube_videos_from_Google_Sheets_with_GPT-4o_and_JSON2Video.json)|
+|19633|[19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json)|

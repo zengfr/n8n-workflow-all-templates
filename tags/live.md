@@ -1,4 +1,4 @@
-# live : 24
+# live : 35
 
 |id|file|
 |----|----|
@@ -26,3 +26,14 @@
 |15744|[15744_Fetch_live_commodity_quotes_with_Octagon__OpenAI__GPT-5.4_Mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15744_Fetch_live_commodity_quotes_with_Octagon__OpenAI__GPT-5.4_Mini__and_Google_Sheets.json)|
 |16039|[16039_Route_Chatwoot_customer_chats_to_AI_and_live_agents_with_Groq_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16039_Route_Chatwoot_customer_chats_to_AI_and_live_agents_with_Groq_and_Gemini.json)|
 |16308|[16308_Simulate_investment_scenarios_with_Groq_and_live_Google_News_RSS_feeds.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16308_Simulate_investment_scenarios_with_Groq_and_live_Google_News_RSS_feeds.json)|
+|16909|[16909_Send_crowd_safety_SMS_reroute_alerts_with_OpenAI__Twilio__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16909_Send_crowd_safety_SMS_reroute_alerts_with_OpenAI__Twilio__and_Google_Sheets.json)|
+|17013|[17013_Reconcile_blended_ROAS__MER_and_CAC_with_Meta__Google__TikTok_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17013_Reconcile_blended_ROAS__MER_and_CAC_with_Meta__Google__TikTok_and_Claude.json)|
+|17335|[17335_Draft_cited_support_replies_from_public_docs_with_You.com__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17335_Draft_cited_support_replies_from_public_docs_with_You.com__Gmail__and_Slack.json)|
+|17548|[17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json)|
+|17848|[17848_Monitor_live_event_sentiment_and_send_alerts_with_Fanbase_MCP__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17848_Monitor_live_event_sentiment_and_send_alerts_with_Fanbase_MCP__Gemini__and_Slack.json)|
+|18488|[18488_Tear_down_proven_Meta_ads_with_Bright_Data__GPT-5.6_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18488_Tear_down_proven_Meta_ads_with_Bright_Data__GPT-5.6_and_Gmail.json)|
+|18877|[18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18877_Build_ranked_PR_media_lists_from_Google_News_with_Bright_Data__GPT-5.6_and_Google_Docs.json)|
+|18908|[18908_Qualify_and_approve_live_face-swap_session_requests_with_LiveFaceSwap_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18908_Qualify_and_approve_live_face-swap_session_requests_with_LiveFaceSwap_forms.json)|
+|19288|[19288_Track_role_skill_trends_from_Google_Jobs_with_SerpApi__Claude_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19288_Track_role_skill_trends_from_Google_Jobs_with_SerpApi__Claude_and_Sheets.json)|
+|19794|[19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json)|
+|19808|[19808_Generate_AI_research_reports_from_live_web_search_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19808_Generate_AI_research_reports_from_live_web_search_with_OpenAI_and_Gmail.json)|

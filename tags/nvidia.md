@@ -1,4 +1,4 @@
-# nvidia : 8
+# nvidia : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |13313|[13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13313_Monitor_AI_infrastructure_costs_and_route_budget_alerts_with_Claude__NVIDIA__Slack__and_Gmail.json)|
 |14188|[14188_Extract_text_from_Google_Drive_files_to_Google_Sheets_using_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14188_Extract_text_from_Google_Drive_files_to_Google_Sheets_using_NVIDIA_NIM.json)|
 |16479|[16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16479_Visualize_job-market_skill_gaps_from_Himalayas_jobs_with_NVIDIA_NIM.json)|
+|18203|[18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18203_Route_chat_prompts_to_free_LLMs_with_Agnes_AI__NVIDIA__and_Ollama.json)|

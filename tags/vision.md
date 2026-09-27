@@ -1,4 +1,4 @@
-# vision : 64
+# vision : 75
 
 |id|file|
 |----|----|
@@ -66,3 +66,14 @@
 |16389|[16389_Verify_receipts_and_invoices_with_OpenAI_vision__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16389_Verify_receipts_and_invoices_with_OpenAI_vision__Slack_and_Google_Sheets.json)|
 |16400|[16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16400_Unpublish_NSFW_ImageKit_uploads_with_GPT-4o_Vision_via_OpenRouter.json)|
 |16632|[16632_Detect_visual_regressions_with_Apify__Google_Gemini__Sheets_and_Linear.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16632_Detect_visual_regressions_with_Apify__Google_Gemini__Sheets_and_Linear.json)|
+|16946|[16946_Post_LinkedIn_image_updates_from_Google_Drive_with_Gemini_Vision_captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16946_Post_LinkedIn_image_updates_from_Google_Drive_with_Gemini_Vision_captions.json)|
+|17405|[17405_Post_Facebook_image_captions_from_Google_Drive_using_Gemini_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17405_Post_Facebook_image_captions_from_Google_Drive_using_Gemini_Vision.json)|
+|17435|[17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json)|
+|17588|[17588_Post_Instagram_images_with_captions_from_Google_Drive_using_Gemini_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17588_Post_Instagram_images_with_captions_from_Google_Drive_using_Gemini_Vision.json)|
+|18294|[18294_Approve_invoices_with_Claude_vision__Google_Drive__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18294_Approve_invoices_with_Claude_vision__Google_Drive__and_Google_Sheets.json)|
+|18699|[18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18699_Audit_landing_page_conversion_with_OpenAI_vision__Gmail__and_Google_Sheets.json)|
+|19125|[19125_Split_shared_rental_utility_bills_with_gpt-5.6-terra_Vision__Postgres_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19125_Split_shared_rental_utility_bills_with_gpt-5.6-terra_Vision__Postgres_and_Gmail.json)|
+|19167|[19167_Turn_forwarded_business_document_images_into_structured_records_with_gpt-5.6-terra_Vision__Postgres__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19167_Turn_forwarded_business_document_images_into_structured_records_with_gpt-5.6-terra_Vision__Postgres__and_Gmail.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|
+|19252|[19252_Generate_YouTube_video_clips_with_Reka_Vision__Google_Sheets__Gmail__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19252_Generate_YouTube_video_clips_with_Reka_Vision__Google_Sheets__Gmail__and_Telegram_alerts.json)|
+|19686|[19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json)|

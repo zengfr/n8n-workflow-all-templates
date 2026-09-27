@@ -1,4 +1,4 @@
-# subtitles : 8
+# subtitles : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |13632|[13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13632_Add_subtitles_to_YouTube_videos_and_save_them_to_Google_Drive_with_VideoDB.json)|
 |16139|[16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json)|
 |16735|[16735_Generate_SRT_subtitles_for_Google_Drive_audio_with_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16735_Generate_SRT_subtitles_for_Google_Drive_audio_with_Smallest.ai.json)|
+|16994|[16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json)|
+|17184|[17184_Create_voiceover_MP3s_and_karaoke_subtitles_using_Edge_TTS_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17184_Create_voiceover_MP3s_and_karaoke_subtitles_using_Edge_TTS_and_FFmpeg.json)|
+|18851|[18851_Transcribe_media_URLs_into_SRT_subtitles_with_Inwista.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18851_Transcribe_media_URLs_into_SRT_subtitles_with_Inwista.json)|
+|19788|[19788_Add_burned-in_subtitles_to_Google_Drive_videos_with_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19788_Add_burned-in_subtitles_to_Google_Drive_videos_with_Shotstack.json)|

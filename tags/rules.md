@@ -1,4 +1,4 @@
-# rules : 11
+# rules : 18
 
 |id|file|
 |----|----|
@@ -13,3 +13,10 @@
 |13999|[13999_Validate_JSON_and_CSV_import_data_via_webhook_with_configurable_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13999_Validate_JSON_and_CSV_import_data_via_webhook_with_configurable_rules.json)|
 |15122|[15122_Enforce_sales_rules_of_engagement_with_AgentMail_for_HubSpot_teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15122_Enforce_sales_rules_of_engagement_with_AgentMail_for_HubSpot_teams.json)|
 |16800|[16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json)|
+|16812|[16812_File_Google_Drive_inbox_documents_into_dated_folders_with_a_Google_Sheets_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16812_File_Google_Drive_inbox_documents_into_dated_folders_with_a_Google_Sheets_audit_log.json)|
+|17025|[17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17025_Organize_VNTANA_showroom_assets_by_style_and_color_via_webhook_and_CSV_report.json)|
+|17071|[17071_Normalize_YouTube_video_tags_using_Google_Sheets_vocabulary_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17071_Normalize_YouTube_video_tags_using_Google_Sheets_vocabulary_rules.json)|
+|17549|[17549_Spawn_recurring_Notion_tasks_from_rules_with_Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17549_Spawn_recurring_Notion_tasks_from_rules_with_Data_Tables_and_Slack.json)|
+|17880|[17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17880_Convert_UTC_to_MENA_local_time_with_Hijri_seasons_and_Ramadan_send_rules.json)|
+|18744|[18744_Create_OPNsense_firewall_and_NAT_rules_from_Telegram_with_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18744_Create_OPNsense_firewall_and_NAT_rules_from_Telegram_with_AI.json)|
+|19265|[19265_Score_real_estate_leads_with_Anthropic_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19265_Score_real_estate_leads_with_Anthropic_Claude_and_Google_Sheets.json)|

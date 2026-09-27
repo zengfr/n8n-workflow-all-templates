@@ -1,4 +1,4 @@
-# heygen : 34
+# heygen : 36
 
 |id|file|
 |----|----|
@@ -36,3 +36,5 @@
 |14266|[14266_Generate_AI_UGC_videos_with_HeyGen_and_post_to_Instagram_and_Facebook_daily.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14266_Generate_AI_UGC_videos_with_HeyGen_and_post_to_Instagram_and_Facebook_daily.json)|
 |14804|[14804_Convert_Google_Sheets_scripts_into_HeyGen_AI_videos.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14804_Convert_Google_Sheets_scripts_into_HeyGen_AI_videos.json)|
 |15750|[15750_Turn_RSS_feed_content_into_AI_avatar_videos_with_HeyGen__Claude__and_PostPulse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15750_Turn_RSS_feed_content_into_AI_avatar_videos_with_HeyGen__Claude__and_PostPulse.json)|
+|17160|[17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json)|
+|18634|[18634_Create_news_anchor_avatar_videos_from_Slack_with_OpenAI_and_HeyGen.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18634_Create_news_anchor_avatar_videos_from_Slack_with_OpenAI_and_HeyGen.json)|

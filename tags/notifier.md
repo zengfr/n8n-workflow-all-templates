@@ -1,4 +1,4 @@
-# notifier : 14
+# notifier : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |16359|[16359_Send_daily_birthday_greetings_via_Gmail__WhatsApp__Telegram_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16359_Send_daily_birthday_greetings_via_Gmail__WhatsApp__Telegram_and_Slack.json)|
 |16402|[16402_Route_CI_CD_failure_alerts_with_OpenAI__Slack__Linear__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16402_Route_CI_CD_failure_alerts_with_OpenAI__Slack__Linear__Sheets_and_Gmail.json)|
 |16780|[16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16780_Notify_Slack_about_new_marketplace_templates_with_the_n8n_Templates_API.json)|
+|16998|[16998_Track_RSS_events_with_OpenAI_GPT-4.1-mini__Google_Sheets__and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16998_Track_RSS_events_with_OpenAI_GPT-4.1-mini__Google_Sheets__and_Outlook.json)|

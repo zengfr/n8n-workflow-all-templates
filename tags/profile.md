@@ -1,4 +1,4 @@
-# profile : 70
+# profile : 77
 
 |id|file|
 |----|----|
@@ -72,3 +72,10 @@
 |16225|[16225_Enrich_LinkedIn_leads_in_Google_Sheets_with_PhantomBuster__Hunter_and_Dropcontact.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16225_Enrich_LinkedIn_leads_in_Google_Sheets_with_PhantomBuster__Hunter_and_Dropcontact.json)|
 |16318|[16318_Publish_weekly_Google_Business_Profile_posts_using_Perplexity_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16318_Publish_weekly_Google_Business_Profile_posts_using_Perplexity_and_Supabase.json)|
 |16530|[16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16530_Evaluate_LinkedIn_profiles_with_Apify_and_Groq_Llama_chat_model.json)|
+|16846|[16846_Analyze_LinkedIn_profiles_and_posts_with_Apify_and_OpenAI_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16846_Analyze_LinkedIn_profiles_and_posts_with_Apify_and_OpenAI_GPT-4.json)|
+|16952|[16952_Match_product_manager_jobs_with_Supabase__Anthropic_Claude__Adzuna__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16952_Match_product_manager_jobs_with_Supabase__Anthropic_Claude__Adzuna__and_Resend.json)|
+|17257|[17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17257_Send_a_daily_AI-ranked_job_match_digest_with_Anthropic_and_Gmail_from_6__boards.json)|
+|17951|[17951_Match_Gmail_job_vacancies_to_your_CV_with_OpenAI_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17951_Match_Gmail_job_vacancies_to_your_CV_with_OpenAI_and_Pinecone.json)|
+|18228|[18228_Draft_and_triage_Google_Maps_guest_review_replies_with_SerpApi_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18228_Draft_and_triage_Google_Maps_guest_review_replies_with_SerpApi_and_OpenRouter.json)|
+|18419|[18419_Draft_weekly_Google_Business_Profile_posts_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18419_Draft_weekly_Google_Business_Profile_posts_with_Claude_and_Google_Sheets.json)|
+|18596|[18596_Generate_and_approve_Google_Business_Profile_posts_with_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18596_Generate_and_approve_Google_Business_Profile_posts_with_Gemini_and_Telegram.json)|

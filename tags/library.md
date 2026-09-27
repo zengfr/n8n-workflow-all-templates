@@ -1,4 +1,4 @@
-# library : 11
+# library : 15
 
 |id|file|
 |----|----|
@@ -13,3 +13,7 @@
 |14713|[14713_Create_an_interview_clip_library_using_WayinVideo__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14713_Create_an_interview_clip_library_using_WayinVideo__Google_Drive_and_Sheets.json)|
 |16642|[16642_Generate_an_FAQ_MP3_library_from_form_input_with_OpenAI_TTS__Google_Drive__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16642_Generate_an_FAQ_MP3_library_from_form_input_with_OpenAI_TTS__Google_Drive__Sheets_and_Gmail.json)|
 |16697|[16697_Notify_Slack_about_Figma_library_publishes__comments_and_deletions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16697_Notify_Slack_about_Figma_library_publishes__comments_and_deletions.json)|
+|16956|[16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json)|
+|17387|[17387_Save__search__and_summarize_Telegram_links_with_Google_Sheets_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17387_Save__search__and_summarize_Telegram_links_with_Google_Sheets_and_Supabase.json)|
+|19027|[19027_Transcribe_Facebook_Ad_Library_video_hooks_to_Google_Sheets_using_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19027_Transcribe_Facebook_Ad_Library_video_hooks_to_Google_Sheets_using_Apify.json)|
+|19157|[19157_Transcribe_LinkedIn_Ad_Library_video_ads_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19157_Transcribe_LinkedIn_Ad_Library_video_ads_to_Google_Sheets_with_Apify.json)|

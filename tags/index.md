@@ -1,4 +1,4 @@
-# index : 13
+# index : 18
 
 |id|file|
 |----|----|
@@ -15,3 +15,8 @@
 |15415|[15415_Auto-index_your_website_and_build_a_RAG_chatbot_with_Firecrawl__Qdrant__and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15415_Auto-index_your_website_and_build_a_RAG_chatbot_with_Firecrawl__Qdrant__and_GPT-4o-mini.json)|
 |15456|[15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15456_Index_new_Google_Drive_folder_files_into_Google_Sheets_automatically.json)|
 |16635|[16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json)|
+|17185|[17185_Switch_Gainium_DCA_bot_risk_mode_with_the_fear_and_greed_index_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17185_Switch_Gainium_DCA_bot_risk_mode_with_the_fear_and_greed_index_and_Telegram.json)|
+|17245|[17245_Archive_and_index_legal_PDFs_from_Gmail_with_Gemini__Sheets_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17245_Archive_and_index_legal_PDFs_from_Gmail_with_Gemini__Sheets_and_Google_Drive.json)|
+|17764|[17764_Index_local_documents_for_RAG_using_Ollama_embeddings_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17764_Index_local_documents_for_RAG_using_Ollama_embeddings_and_Qdrant.json)|
+|18540|[18540_Upload_and_index_files_in_Pinecone_with_Google_Drive_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18540_Upload_and_index_files_in_Pinecone_with_Google_Drive_and_OpenAI.json)|
+|19639|[19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19639_Check_consent_before_pgvector_indexing_in_Postgres_with_OpenAI_and_Slack.json)|

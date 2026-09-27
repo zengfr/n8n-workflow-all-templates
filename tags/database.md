@@ -1,4 +1,4 @@
-# database : 115
+# database : 124
 
 |id|file|
 |----|----|
@@ -117,3 +117,12 @@
 |15256|[15256_Send_weekly_SQL_Server_health_reports_via_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15256_Send_weekly_SQL_Server_health_reports_via_email.json)|
 |16800|[16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json)|
 |16801|[16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json)|
+|17207|[17207_Analyze_compliant_documents_with_PromptLock_Guard__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17207_Analyze_compliant_documents_with_PromptLock_Guard__Claude__and_Google_Sheets.json)|
+|17442|[17442_Query_PostgreSQL_from_Slack_using_Google_Sheets_metadata_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17442_Query_PostgreSQL_from_Slack_using_Google_Sheets_metadata_and_Gemini.json)|
+|17483|[17483_Generate_and_deploy_Notion_chat_assistants_with_OpenAI_and_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17483_Generate_and_deploy_Notion_chat_assistants_with_OpenAI_and_n8n_API.json)|
+|17549|[17549_Spawn_recurring_Notion_tasks_from_rules_with_Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17549_Spawn_recurring_Notion_tasks_from_rules_with_Data_Tables_and_Slack.json)|
+|17551|[17551_Check_phone_reassignment_status_with_Searchbug_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17551_Check_phone_reassignment_status_with_Searchbug_and_log_results_to_Google_Sheets.json)|
+|17730|[17730_Answer_document_questions_via_webhook_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17730_Answer_document_questions_via_webhook_with_Anthropic_Claude.json)|
+|17743|[17743_Build_a_LinkedIn_hiring-signal_data_table_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17743_Build_a_LinkedIn_hiring-signal_data_table_with_Apify_and_Slack.json)|
+|18947|[18947_Log_UK_Apify_grant_alerts_to_Notion_and_send_closing-soon_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18947_Log_UK_Apify_grant_alerts_to_Notion_and_send_closing-soon_Slack_notifications.json)|
+|19287|[19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19287_Build_a_Google_Drive_document_similarity_database_with_Ollama_and_Postgres.json)|

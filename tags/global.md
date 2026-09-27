@@ -1,4 +1,4 @@
-# global : 8
+# global : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |13442|[13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13442_Store_variables_between_workflow_runs_using_data_tables_as_a_key-value_store.json)|
 |14270|[14270_Monitor_n8n_workflow_health_daily_with_Watchflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14270_Monitor_n8n_workflow_health_daily_with_Watchflow.json)|
 |15348|[15348_Monitor_global_industrial_risk_from_NewsAPI_to_Google_Sheets_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15348_Monitor_global_industrial_risk_from_NewsAPI_to_Google_Sheets_and_Discord.json)|
+|19688|[19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json)|

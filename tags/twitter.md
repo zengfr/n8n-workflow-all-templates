@@ -1,4 +1,4 @@
-# twitter : 88
+# twitter : 96
 
 |id|file|
 |----|----|
@@ -90,3 +90,11 @@
 |15356|[15356_Turn_video_recordings_into_Twitter__X__threads_with_WayinVideo__GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15356_Turn_video_recordings_into_Twitter__X__threads_with_WayinVideo__GPT-4o-mini_and_Google_Sheets.json)|
 |15618|[15618_Turn_videos_into_Twitter_threads__LinkedIn_posts__and_blogs_with_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15618_Turn_videos_into_Twitter_threads__LinkedIn_posts__and_blogs_with_WayinVideo_and_GPT-4o-mini.json)|
 |16316|[16316_Create_daily_AI_and_blockchain_social_posts_with_SerpAPI__Groq_and_Pollinations.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16316_Create_daily_AI_and_blockchain_social_posts_with_SerpAPI__Groq_and_Pollinations.json)|
+|17506|[17506_Create_LinkedIn_posts_and_Twitter_threads_from_Telegram_with_Groq_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17506_Create_LinkedIn_posts_and_Twitter_threads_from_Telegram_with_Groq_AI.json)|
+|17663|[17663_Create_X_thread_variants_from_new_blog_posts_with_RSS_and_SocialSwarm.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17663_Create_X_thread_variants_from_new_blog_posts_with_RSS_and_SocialSwarm.json)|
+|17800|[17800_Post_RSS_blog_articles_as_X_threads_and_LinkedIn_posts_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17800_Post_RSS_blog_articles_as_X_threads_and_LinkedIn_posts_with_Groq.json)|
+|17901|[17901_Send_a_curated_daily_X_tech_digest_to_Telegram_with_Claude_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17901_Send_a_curated_daily_X_tech_digest_to_Telegram_with_Claude_and_DeepSeek.json)|
+|18548|[18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18548_Track_daily_stock_sentiment_from_Twitter_and_Yahoo_Finance_to_Google_Drive_with_Apify.json)|
+|18564|[18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json)|
+|18845|[18845_Send_daily_competitor_intel_briefs_to_Slack_with_API_Direct_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18845_Send_daily_competitor_intel_briefs_to_Slack_with_API_Direct_and_OpenAI.json)|
+|19263|[19263_Post_witty_daily_tweets_with_Groq__NewsAPI__Google_Trends__and_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19263_Post_witty_daily_tweets_with_Groq__NewsAPI__Google_Trends__and_X.json)|

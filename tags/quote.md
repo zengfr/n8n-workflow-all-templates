@@ -1,4 +1,4 @@
-# quote : 13
+# quote : 25
 
 |id|file|
 |----|----|
@@ -15,3 +15,15 @@
 |15744|[15744_Fetch_live_commodity_quotes_with_Octagon__OpenAI__GPT-5.4_Mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15744_Fetch_live_commodity_quotes_with_Octagon__OpenAI__GPT-5.4_Mini__and_Google_Sheets.json)|
 |16385|[16385_Quote_freight_shipments_via_WhatsApp_with_Google_Gemini__HighLevel__and_Warp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16385_Quote_freight_shipments_via_WhatsApp_with_Google_Gemini__HighLevel__and_Warp.json)|
 |16587|[16587_Post_daily_motivational_quote_images_to_Telegram_with_Gemini_and_HTML_to_Image.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16587_Post_daily_motivational_quote_images_to_Telegram_with_Gemini_and_HTML_to_Image.json)|
+|16876|[16876_Send_ranked_freight_quote_PDFs_with_GPT-4o__Google_Sheets__Gmail_and_PDFShift.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16876_Send_ranked_freight_quote_PDFs_with_GPT-4o__Google_Sheets__Gmail_and_PDFShift.json)|
+|16975|[16975_Send_3-7-14_day_quote_follow-up_emails_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16975_Send_3-7-14_day_quote_follow-up_emails_with_Gmail_and_Google_Sheets.json)|
+|17075|[17075_Route_insurance_quote_leads_with_OpenAI__Airtable__Sheets__Teams__Slack_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17075_Route_insurance_quote_leads_with_OpenAI__Airtable__Sheets__Teams__Slack_and_Twilio.json)|
+|17113|[17113_Send_quote_PDFs_from_form_submissions_with_Acrewity_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17113_Send_quote_PDFs_from_form_submissions_with_Acrewity_and_Gmail.json)|
+|17262|[17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17262_Recommend_Salesforce_quote_pricing_using_Google_Sheets__Groq__and_Slack.json)|
+|17599|[17599_Triage_RFQ_emails_and_draft_quote_replies_with_Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17599_Triage_RFQ_emails_and_draft_quote_replies_with_Gmail_and_OpenAI.json)|
+|17758|[17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17758_Create_YouTube_thumbnails_and_quote_cards_from_Drive_videos_with_OpenAI_and_Canvora.json)|
+|18863|[18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18863_Process_RFQ_quotes_from_Gmail_PDFs_using_Claude__PostgreSQL__and_Slack.json)|
+|18873|[18873_Send_fixed-price_client_quotes_with_approvals_using_Gmail_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18873_Send_fixed-price_client_quotes_with_approvals_using_Gmail_and_data_tables.json)|
+|19174|[19174_Quote_and_dispatch_home-service_jobs_from_forms_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19174_Quote_and_dispatch_home-service_jobs_from_forms_with_OpenAI__Google_Sheets_and_Slack.json)|
+|19632|[19632_Create_daily_quote_videos_from_Google_Sheets_with_Zvid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19632_Create_daily_quote_videos_from_Google_Sheets_with_Zvid.json)|
+|19693|[19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19693_Score_and_email_cleaning_quotes_from_JotForm_with_Gemini_and_Google_Sheets.json)|

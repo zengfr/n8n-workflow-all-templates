@@ -1,4 +1,4 @@
-# calendly : 34
+# calendly : 41
 
 |id|file|
 |----|----|
@@ -36,3 +36,10 @@
 |15536|[15536_Qualify_and_nurture_Typeform_leads_in_GoHighLevel_with_OpenAI__Calendly__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15536_Qualify_and_nurture_Typeform_leads_in_GoHighLevel_with_OpenAI__Calendly__Gmail_and_Slack.json)|
 |15874|[15874_Automate_Calendly_sales_meetings_with_HubSpot__Google__ClickUp_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15874_Automate_Calendly_sales_meetings_with_HubSpot__Google__ClickUp_and_Slack.json)|
 |16195|[16195_Send_Calendly_sales_prep_briefs_with_HubSpot__Clearbit__OpenAI__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16195_Send_Calendly_sales_prep_briefs_with_HubSpot__Clearbit__OpenAI__Slack_and_Gmail.json)|
+|17094|[17094_Send_Calendly_meeting_prep_briefs_with_Gmail__Notion__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17094_Send_Calendly_meeting_prep_briefs_with_Gmail__Notion__OpenAI_and_Sheets.json)|
+|17336|[17336_Send_consult_confirmations_and_reminders_with_Calendly__Twilio__and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17336_Send_consult_confirmations_and_reminders_with_Calendly__Twilio__and_SMTP_email.json)|
+|17565|[17565_Route_website_chat_visitors_to_Calendly_booking__FAQs__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17565_Route_website_chat_visitors_to_Calendly_booking__FAQs__and_Gmail.json)|
+|18526|[18526_Get_pre-call_briefs_for_Calendly_bookings_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18526_Get_pre-call_briefs_for_Calendly_bookings_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|19699|[19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json)|
+|19719|[19719_Sync_Calendly_bookings_with_Google_Calendar__Airtable_CRM__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19719_Sync_Calendly_bookings_with_Google_Calendar__Airtable_CRM__and_Slack.json)|
+|19796|[19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json)|

@@ -1,4 +1,4 @@
-# structure : 16
+# structure : 18
 
 |id|file|
 |----|----|
@@ -18,3 +18,5 @@
 |16017|[16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json)|
 |16043|[16043_Collect_and_structure_Kuaishou_video_comments_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16043_Collect_and_structure_Kuaishou_video_comments_with_JustOneAPI.json)|
 |16699|[16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16699_Alert_on_API_contract_drift_using_Data_Tables_and_Slack.json)|
+|17896|[17896_Capture_and_structure_Telegram_notes_for_Obsidian_with_Groq_and_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17896_Capture_and_structure_Telegram_notes_for_Obsidian_with_Groq_and_GitHub.json)|
+|19423|[19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19423_Review_content_drafts_for_repetition__substance__tone_and_style_using_code.json)|

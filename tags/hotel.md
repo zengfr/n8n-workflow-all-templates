@@ -1,4 +1,4 @@
-# hotel : 15
+# hotel : 21
 
 |id|file|
 |----|----|
@@ -17,3 +17,9 @@
 |13573|[13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13573_Analyze_hotel_reviews_with_OpenAI_GPT-4o-mini_and_Airtable_sentiment_fields.json)|
 |16387|[16387_Answer_hotel_guest_messages_with_GPT-4o_mini__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16387_Answer_hotel_guest_messages_with_GPT-4o_mini__Slack__and_Google_Sheets.json)|
 |16712|[16712_Run_a_hotel_WhatsApp_concierge_using_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16712_Run_a_hotel_WhatsApp_concierge_using_Google_Gemini_and_Google_Sheets.json)|
+|17286|[17286_Manage_hotel_guest_requests_and_post-stay_outreach_with_Telegram__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17286_Manage_hotel_guest_requests_and_post-stay_outreach_with_Telegram__OpenAI__and_Google_Sheets.json)|
+|17435|[17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json)|
+|18045|[18045_Route_low-rated_Tripadvisor_hotel_reviews_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18045_Route_low-rated_Tripadvisor_hotel_reviews_to_Google_Sheets_with_Apify.json)|
+|18740|[18740_Create_dated_Booking.com_hotel_shortlists_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18740_Create_dated_Booking.com_hotel_shortlists_with_Apify_and_Google_Sheets.json)|
+|18774|[18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json)|
+|19000|[19000_Run_a_Telegram_hotel_search_bot_with_OpenAI_and_WinWin_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19000_Run_a_Telegram_hotel_search_bot_with_OpenAI_and_WinWin_MCP.json)|

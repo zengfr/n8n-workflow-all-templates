@@ -1,4 +1,4 @@
-# rows : 9
+# rows : 14
 
 |id|file|
 |----|----|
@@ -11,3 +11,8 @@
 |16100|[16100_Create_deduplicated_LinkedIn_candidate_rows_from_Slack_with_easybits_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16100_Create_deduplicated_LinkedIn_candidate_rows_from_Slack_with_easybits_and_Google_Sheets.json)|
 |16399|[16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json)|
 |16801|[16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16801_Deduplicate_and_archive_Notion_database_rows_daily_with_an_audit_log.json)|
+|17559|[17559_Classify_Apify_scraped_dataset_rows_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17559_Classify_Apify_scraped_dataset_rows_with_OpenAI_and_Google_Sheets.json)|
+|17897|[17897_Create_Facebook_ad_sets_and_ads_from_Google_Sheets_rows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17897_Create_Facebook_ad_sets_and_ads_from_Google_Sheets_rows.json)|
+|17911|[17911_Build_CMS_import_rows_and_collision-safe_redirects_from_a_legacy_CSV_upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17911_Build_CMS_import_rows_and_collision-safe_redirects_from_a_legacy_CSV_upload.json)|
+|19419|[19419_Send_approved_Google_Sheets_rows_as_Scribble_handwritten_cards.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19419_Send_approved_Google_Sheets_rows_as_Scribble_handwritten_cards.json)|
+|19635|[19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19635_Reconcile_Postgres_records_with_an_HTTP_API_and_notify_drift_via_Slack.json)|

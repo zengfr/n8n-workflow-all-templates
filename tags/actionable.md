@@ -1,4 +1,4 @@
-# actionable : 5
+# actionable : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |8119|[8119_Analyze_Weekly_Notes_with_GPT-4_for_Actionable_Tasks___Summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8119_Analyze_Weekly_Notes_with_GPT-4_for_Actionable_Tasks___Summaries.json)|
 |11409|[11409_Convert_Meeting_Recordings_to_Notes___Action_Items_with_AssemblyAI__GPT-4___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11409_Convert_Meeting_Recordings_to_Notes___Action_Items_with_AssemblyAI__GPT-4___Sheets.json)|
 |13766|[13766_Get_actionable_Gmail_alerts_on_Telegram_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13766_Get_actionable_Gmail_alerts_on_Telegram_with_OpenAI.json)|
+|17301|[17301_Summarize_YouTube_videos_into_actionable_notes_with_Supadata__Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17301_Summarize_YouTube_videos_into_actionable_notes_with_Supadata__Claude_and_Gmail.json)|

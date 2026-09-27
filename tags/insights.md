@@ -1,4 +1,4 @@
-# insights : 108
+# insights : 115
 
 |id|file|
 |----|----|
@@ -110,3 +110,10 @@
 |16376|[16376_Send_weekly_project_health_dashboard_with_Google_Sheets__GPT-4o_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16376_Send_weekly_project_health_dashboard_with_Google_Sheets__GPT-4o_mini_and_Gmail.json)|
 |16409|[16409_Scrape_product_prices_and_send_GPT-4o-mini_insights_to_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16409_Scrape_product_prices_and_send_GPT-4o-mini_insights_to_Google_Sheets_and_Gmail.json)|
 |16509|[16509_Extract_meeting_insights_and_ClickUp_tasks_with_ChatGPT__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16509_Extract_meeting_insights_and_ClickUp_tasks_with_ChatGPT__Google_Sheets_and_Gmail.json)|
+|16968|[16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16968_Monitor_new_template_releases_with_OpenAI_and_log_insights_to_Telegram_and_Google_Sheets.json)|
+|17009|[17009_Track_and_analyze_TikTok_videos_with_Apify__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17009_Track_and_analyze_TikTok_videos_with_Apify__OpenAI__and_Google_Sheets.json)|
+|17678|[17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json)|
+|17796|[17796_Send_daily_Core_Web_Vitals_email_reports_with_PageSpeed_Insights_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17796_Send_daily_Core_Web_Vitals_email_reports_with_PageSpeed_Insights_and_Gmail.json)|
+|18961|[18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18961_Summarize_GitHub_trending_repos_with_OpenAI_and_share_via_htmlhoster_and_DingTalk.json)|
+|19294|[19294_Send_date-range_Threads_insights_reports_with_Threads_API_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19294_Send_date-range_Threads_insights_reports_with_Threads_API_and_Telegram.json)|
+|19848|[19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19848_Send_daily_Instagram_insights_email_reports_with_Meta_Graph_API_and_Gmail.json)|

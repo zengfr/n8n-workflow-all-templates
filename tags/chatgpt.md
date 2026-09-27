@@ -1,4 +1,4 @@
-# chatgpt : 58
+# chatgpt : 66
 
 |id|file|
 |----|----|
@@ -60,3 +60,11 @@
 |16622|[16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16622_Send_portfolio_risk_reports_from_Google_Sheets_with_OpenAI_and_Gmail.json)|
 |16643|[16643_Extract_and_validate_invoice_PDFs_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16643_Extract_and_validate_invoice_PDFs_with_OpenAI__Google_Sheets__and_Gmail.json)|
 |16653|[16653_Capture_and_log_email_trade_instructions_with_Gmail__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16653_Capture_and_log_email_trade_instructions_with_Gmail__OpenAI__and_Google_Sheets.json)|
+|16836|[16836_Send_railway_queue_predictions_with_OpenAI_GPT-4o-mini__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16836_Send_railway_queue_predictions_with_OpenAI_GPT-4o-mini__Gmail__and_Google_Sheets.json)|
+|16903|[16903_Track_brand_visibility_in_ChatGPT_results_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16903_Track_brand_visibility_in_ChatGPT_results_with_OpenAI_and_Google_Sheets.json)|
+|16927|[16927_Track_SIP_goals_with_OpenAI_ChatGPT__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16927_Track_SIP_goals_with_OpenAI_ChatGPT__Gmail_and_Google_Sheets.json)|
+|16930|[16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16930_Track_positive_Instagram_comment_sentiment_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|16991|[16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json)|
+|17085|[17085_Monitor_brand_visibility_in_AI_search_with_ChatGPT__Perplexity__Gemini__Claude__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17085_Monitor_brand_visibility_in_AI_search_with_ChatGPT__Perplexity__Gemini__Claude__and_Supabase.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18731|[18731_Fact-check_ChatGPT_product_claims_with_Bright_Data__GPT-5.6__Data_Tables_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18731_Fact-check_ChatGPT_product_claims_with_Bright_Data__GPT-5.6__Data_Tables_and_Gmail.json)|

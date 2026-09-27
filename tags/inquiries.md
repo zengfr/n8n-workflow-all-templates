@@ -1,4 +1,4 @@
-# inquiries : 11
+# inquiries : 18
 
 |id|file|
 |----|----|
@@ -13,3 +13,10 @@
 |13467|[13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13467_Handle_guest_inquiries_for_multiple_rentals_with_Pinecone_Assistant_and_GPT-4.1.json)|
 |15300|[15300_Handle_Tamil_real_estate_voice_inquiries_with_OpenAI__Sarvam_AI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15300_Handle_Tamil_real_estate_voice_inquiries_with_OpenAI__Sarvam_AI_and_Google_Sheets.json)|
 |16601|[16601_Log_clinic_chatbot_inquiries_from_a_website_widget_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16601_Log_clinic_chatbot_inquiries_from_a_website_widget_with_OpenAI_and_Google_Sheets.json)|
+|16911|[16911_Handle_real_estate_SMS_inquiries_with_Twilio__Google_Sheets__Gemini__and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16911_Handle_real_estate_SMS_inquiries_with_Twilio__Google_Sheets__Gemini__and_Calendar.json)|
+|17106|[17106_Handle_WhatsApp_sales_inquiries_with_OpenAI__Pinecone__Google_Calendar__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17106_Handle_WhatsApp_sales_inquiries_with_OpenAI__Pinecone__Google_Calendar__and_Slack.json)|
+|17332|[17332_Triage_and_log_customer_inquiries_from_Gmail_and_web_forms_with_Groq_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17332_Triage_and_log_customer_inquiries_from_Gmail_and_web_forms_with_Groq_and_Airtable.json)|
+|18440|[18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json)|
+|19046|[19046_Score_and_route_Facebook_Marketplace_leads_with_OpenAI__Supabase__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19046_Score_and_route_Facebook_Marketplace_leads_with_OpenAI__Supabase__and_Slack.json)|
+|19433|[19433_Capture_and_follow_up_on_Tally_inquiries_with_Salesforce__Sent__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19433_Capture_and_follow_up_on_Tally_inquiries_with_Salesforce__Sent__and_OpenAI.json)|
+|19683|[19683_Triage_Gmail_support_inquiries_with_Google_Gemini__Calendar__Sheets__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19683_Triage_Gmail_support_inquiries_with_Google_Gemini__Calendar__Sheets__and_Discord.json)|

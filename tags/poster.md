@@ -1,4 +1,4 @@
-# poster : 15
+# poster : 21
 
 |id|file|
 |----|----|
@@ -17,3 +17,9 @@
 |9769|[9769_Auto-Curate___Post_LinkedIn_Company_Page_using_RSS___Gemini_AI___Templated.io.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9769_Auto-Curate___Post_LinkedIn_Company_Page_using_RSS___Gemini_AI___Templated.io.json)|
 |12736|[12736_Create_lyric_posters_from_Spotify_tracks_with_Musixmatch_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12736_Create_lyric_posters_from_Spotify_tracks_with_Musixmatch_and_OpenAI.json)|
 |16318|[16318_Publish_weekly_Google_Business_Profile_posts_using_Perplexity_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16318_Publish_weekly_Google_Business_Profile_posts_using_Perplexity_and_Supabase.json)|
+|16946|[16946_Post_LinkedIn_image_updates_from_Google_Drive_with_Gemini_Vision_captions.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16946_Post_LinkedIn_image_updates_from_Google_Drive_with_Gemini_Vision_captions.json)|
+|17369|[17369_Schedule_motivational_YouTube_Shorts_with_Google_Drive__Gemini__Airtable_and_Cloudinary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17369_Schedule_motivational_YouTube_Shorts_with_Google_Drive__Gemini__Airtable_and_Cloudinary.json)|
+|17405|[17405_Post_Facebook_image_captions_from_Google_Drive_using_Gemini_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17405_Post_Facebook_image_captions_from_Google_Drive_using_Gemini_Vision.json)|
+|17588|[17588_Post_Instagram_images_with_captions_from_Google_Drive_using_Gemini_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17588_Post_Instagram_images_with_captions_from_Google_Drive_using_Gemini_Vision.json)|
+|18418|[18418_Post_LinkedIn_content_from_a_Supabase_knowledge_base_using_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18418_Post_LinkedIn_content_from_a_Supabase_knowledge_base_using_Google_Gemini.json)|
+|18419|[18419_Draft_weekly_Google_Business_Profile_posts_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18419_Draft_weekly_Google_Business_Profile_posts_with_Claude_and_Google_Sheets.json)|

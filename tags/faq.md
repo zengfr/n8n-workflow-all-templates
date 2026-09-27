@@ -1,4 +1,4 @@
-# faq : 25
+# faq : 33
 
 |id|file|
 |----|----|
@@ -27,3 +27,11 @@
 |16017|[16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16017_Structure_gym_FAQ_data_for_AI_chatbot_matching_with_Google_Sheets.json)|
 |16352|[16352_Sync_website_FAQs_to_Pinecone_weekly_with_GPT-4o_and_OpenAI_embeddings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16352_Sync_website_FAQs_to_Pinecone_weekly_with_GPT-4o_and_OpenAI_embeddings.json)|
 |16642|[16642_Generate_an_FAQ_MP3_library_from_form_input_with_OpenAI_TTS__Google_Drive__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16642_Generate_an_FAQ_MP3_library_from_form_input_with_OpenAI_TTS__Google_Drive__Sheets_and_Gmail.json)|
+|16980|[16980_Turn_customer_emails_into_FAQ_drafts_with_Gmail__Gemini__Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16980_Turn_customer_emails_into_FAQ_drafts_with_Gmail__Gemini__Docs_and_Sheets.json)|
+|17124|[17124_Turn_support_emails_into_FAQ_drafts_with_Gmail__OpenAI__Sheets_and_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17124_Turn_support_emails_into_FAQ_drafts_with_Gmail__OpenAI__Sheets_and_Docs.json)|
+|17341|[17341_Answer_WhatsApp_keyword_FAQs_with_Twilio_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17341_Answer_WhatsApp_keyword_FAQs_with_Twilio_and_Google_Sheets.json)|
+|17826|[17826_Answer_FAQ_questions_from_Google_Sheets_with_Gemini_and_log_unanswered_gaps.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17826_Answer_FAQ_questions_from_Google_Sheets_with_Gemini_and_log_unanswered_gaps.json)|
+|17988|[17988_Triage_support_tickets_and_draft_safe_replies_with_OpenAI__Gmail__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17988_Triage_support_tickets_and_draft_safe_replies_with_OpenAI__Gmail__and_Data_Tables.json)|
+|18256|[18256_Answer_Instagram_FAQ_DMs_using_Google_Gemini_and_Qdrant_from_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18256_Answer_Instagram_FAQ_DMs_using_Google_Gemini_and_Qdrant_from_Google_Drive.json)|
+|18320|[18320_Handle_order_tracking_and_FAQ_requests_with_Telegram__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18320_Handle_order_tracking_and_FAQ_requests_with_Telegram__Gemini__and_Google_Sheets.json)|
+|18521|[18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18521_Convert_support_emails_to_FAQs_and_triage_issues_with_Gmail__Gemini__Notion_and_Slack.json)|

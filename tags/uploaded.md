@@ -1,4 +1,4 @@
-# uploaded : 11
+# uploaded : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |15365|[15365_Classify_and_route_uploaded_documents_to_Google_Drive_with_an_AI_agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15365_Classify_and_route_uploaded_documents_to_Google_Drive_with_an_AI_agent.json)|
 |15528|[15528_Create_a_master_CV_Google_Sheet_from_uploaded_CVs_with_easybits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15528_Create_a_master_CV_Google_Sheet_from_uploaded_CVs_with_easybits.json)|
 |15540|[15540_Enrich_and_deduplicate_Slack-uploaded_companies_in_HubSpot_with_Coresignal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15540_Enrich_and_deduplicate_Slack-uploaded_companies_in_HubSpot_with_Coresignal.json)|
+|16986|[16986_Transform_uploaded_documents_into_structured_data_with_Unstructured_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16986_Transform_uploaded_documents_into_structured_data_with_Unstructured_MCP.json)|
+|18572|[18572_Answer_support_chat_questions_from_uploaded_documents_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18572_Answer_support_chat_questions_from_uploaded_documents_with_OpenAI.json)|

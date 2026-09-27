@@ -1,0 +1,306 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Route Stripe webhook alerts to Slack, Discord, and Resend email",
+    "wechat": "youandme10086",
+    "id": 18966,
+    "update_time": "2026-09-27"
+  },
+  "name": "Stripe webhook typed event router (free template)",
+  "tags": [
+    {
+      "id": "8983c7e4-d2b7-500b-a670-caedf4120f98",
+      "name": "ops-pack"
+    },
+    {
+      "id": "444f0d7f-885c-5703-981b-3f5e3e24f89b",
+      "name": "stripe"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "b1f6ed07-4734-5673-affc-e2e6c45a3e36",
+      "name": "Note: what this does",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        40
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 340,
+        "height": 480,
+        "content": "## Stripe typed event router (free template)\n\nSame core as n8n Ops Pack v1.\n\nWebhook → verify HMAC → typed parse → idempotent event.id log → Slack/Discord/email → 200.\n\nCreator Hub free version. Paid pack on itch.io / Payhip adds the GitHub ship-ready workflow, error alerter, example payloads, and README."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a0bd6c4-9deb-53ed-b060-510319d01e22",
+      "name": "Note: honest limits",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -640,
+        560
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 340,
+        "height": 400,
+        "content": "## Honest limits\n\n- Static-data idempotency is **per n8n instance**, not a database. Queue-mode multi-main can double-fire.\n- Last **2000** event ids / **200** log rows.\n- Signature verify **fails** if a proxy rewrites JSON.\n- Alerts only. Does **not** capture, refund, or write to Stripe.\n- Unknown event types still alert at `low` severity.\n- Empty Slack/Discord/Resend env = skipped, not an error.\n- `STRIPE_SKIP_VERIFY=true` is for local curl tests only."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "79633f6b-eeaf-5c94-b721-7bd955062a84",
+      "name": "Stripe Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -220,
+        300
+      ],
+      "webhookId": "n8n-ops-pack-stripe-ops-v1",
+      "parameters": {
+        "path": "stripe-ops",
+        "options": {
+          "rawBody": true
+        },
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "659c203d-0788-5c95-88a1-c27f5ddfc5ba",
+      "name": "Verify Signature + Parse Event",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        40,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// n8n Ops Pack v1 — Stripe signature verify + typed parse\n// Requires n8n 1.40+ Code node. crypto is allowed in standard n8n.\nconst crypto = require('crypto');\n\nconst item = $input.first();\nconst headers = item.json.headers || {};\nconst headerLower = {};\nfor (const [k, v] of Object.entries(headers)) {\n  headerLower[String(k).toLowerCase()] = v;\n}\n\nconst skipVerify = String($env.STRIPE_SKIP_VERIFY || '').toLowerCase() === 'true';\nconst secret = $env.STRIPE_WEBHOOK_SECRET || '';\nconst toleranceSec = Number($env.STRIPE_TOLERANCE_SEC || 300);\n\nfunction looksBase64(s) {\n  if (typeof s !== 'string' || s.length < 8) return false;\n  return /^[A-Za-z0-9+/]+=*$/.test(s.replace(/\\s/g, ''));\n}\n\nfunction getRawBody() {\n  if (item.binary && item.binary.data) {\n    const bin = item.binary.data;\n    if (typeof bin.data === 'string') {\n      const encoding = looksBase64(bin.data) ? 'base64' : 'utf8';\n      return Buffer.from(bin.data, encoding).toString('utf8');\n    }\n  }\n  if (typeof item.json.rawBody === 'string') return item.json.rawBody;\n  if (typeof item.json.body === 'string') return item.json.body;\n  if (item.json.body && typeof item.json.body === 'object') {\n    return JSON.stringify(item.json.body);\n  }\n  // Last resort: whole json minus headers/query/params\n  const clone = { ...item.json };\n  delete clone.headers;\n  delete clone.query;\n  delete clone.params;\n  delete clone.webhookUrl;\n  delete clone.executionMode;\n  return JSON.stringify(clone.body || clone);\n}\n\nfunction unwrapEvent(parsed) {\n  if (parsed && parsed.type && parsed.id && parsed.data) return parsed;\n  if (parsed && parsed.body && parsed.body.type && parsed.body.id) return parsed.body;\n  throw new Error('Body is JSON but not a Stripe Event (missing id/type/data).');\n}\n\nconst rawBody = getRawBody();\nlet event;\ntry {\n  event = unwrapEvent(JSON.parse(rawBody));\n} catch (err) {\n  throw new Error('Invalid Stripe event JSON: ' + err.message);\n}\n\nif (!skipVerify) {\n  if (!secret) {\n    throw new Error(\n      'STRIPE_WEBHOOK_SECRET is empty. Set it on the n8n instance, or set STRIPE_SKIP_VERIFY=true for local tests ONLY.'\n    );\n  }\n  const sigHeader = headerLower['stripe-signature'];\n  if (!sigHeader) {\n    throw new Error('Missing Stripe-Signature header. Stripe always sends this.');\n  }\n  const parts = {};\n  for (const piece of String(sigHeader).split(',')) {\n    const eq = piece.indexOf('=');\n    if (eq === -1) continue;\n    const k = piece.slice(0, eq).trim();\n    const v = piece.slice(eq + 1).trim();\n    if (!parts[k]) parts[k] = [];\n    parts[k].push(v);\n  }\n  const timestamp = parts.t && parts.t[0];\n  const v1s = parts.v1 || [];\n  if (!timestamp || v1s.length === 0) {\n    throw new Error('Malformed Stripe-Signature header (need t= and v1=).');\n  }\n  const tsNum = Number(timestamp);\n  const now = Math.floor(Date.now() / 1000);\n  if (!Number.isFinite(tsNum) || Math.abs(now - tsNum) > toleranceSec) {\n    throw new Error(\n      'Stripe timestamp outside tolerance (' +\n        toleranceSec +\n        's). Possible replay, or n8n clock skew.'\n    );\n  }\n  const signedPayload = timestamp + '.' + rawBody;\n  const expectedHex = crypto.createHmac('sha256', secret).update(signedPayload, 'utf8').digest('hex');\n  const expectedBuf = Buffer.from(expectedHex, 'utf8');\n  let ok = false;\n  for (const v1 of v1s) {\n    const got = Buffer.from(v1, 'utf8');\n    if (got.length === expectedBuf.length && crypto.timingSafeEqual(got, expectedBuf)) {\n      ok = true;\n      break;\n    }\n  }\n  if (!ok) {\n    throw new Error(\n      'Stripe signature mismatch. Usual causes: wrong STRIPE_WEBHOOK_SECRET (test vs live), or the webhook node re-serialized JSON so the raw body no longer matches. Enable \"Raw Body\" on the Webhook node (already on in this pack) and do not put a reverse proxy that rewrites the body.'\n    );\n  }\n}\n\nconst obj = (event.data && event.data.object) || {};\nconst amount =\n  obj.amount_received ??\n  obj.amount_paid ??\n  obj.amount_captured ??\n  obj.amount ??\n  obj.amount_due ??\n  null;\nconst currency = (obj.currency || '').toLowerCase();\nconst customer = obj.customer || obj.customer_email || null;\n\nreturn [\n  {\n    json: {\n      eventId: event.id,\n      type: event.type,\n      created: event.created || null,\n      createdIso: event.created ? new Date(event.created * 1000).toISOString() : null,\n      livemode: Boolean(event.livemode),\n      apiVersion: event.api_version || null,\n      requestId: event.request && event.request.id ? event.request.id : null,\n      account: event.account || null,\n      objectId: obj.id || null,\n      objectType: obj.object || null,\n      amount: amount,\n      amountFormatted:\n        amount != null && currency\n          ? (Number(amount) / 100).toFixed(2) + ' ' + currency.toUpperCase()\n          : amount != null\n            ? String(amount)\n            : null,\n      currency: currency || null,\n      customer: customer,\n      status: obj.status || null,\n      paymentIntent: obj.payment_intent || (obj.object === 'payment_intent' ? obj.id : null),\n      invoice: obj.invoice || (obj.object === 'invoice' ? obj.id : null),\n      subscription: obj.subscription || (obj.object === 'subscription' ? obj.id : null),\n      description: obj.description || obj.billing_reason || obj.reason || null,\n      objectSummary: {\n        id: obj.id || null,\n        object: obj.object || null,\n        status: obj.status || null,\n      },\n      signatureVerified: !skipVerify,\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1b0740f7-271e-5828-987f-803d37a5e8e5",
+      "name": "Idempotency Gate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        300,
+        300
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Idempotent log: remember Stripe event.id on this n8n instance.\n// HONEST LIMIT: getWorkflowStaticData is per-instance (not shared across\n// queue workers / multiple mains). Last N ids only. Not a ledger.\nconst MAX_IDS = Number($env.IDEMPOTENCY_MAX_IDS || 2000);\nconst staticData = $getWorkflowStaticData('global');\nif (!Array.isArray(staticData.processedEventIds)) staticData.processedEventIds = [];\nif (!staticData.processedAt || typeof staticData.processedAt !== 'object') staticData.processedAt = {};\nif (!Array.isArray(staticData.log)) staticData.log = [];\n\nconst incoming = $input.first().json;\nconst eventId = incoming.eventId;\nif (!eventId) {\n  throw new Error('Missing eventId after parse — refusing to process.');\n}\n\nconst duplicate = staticData.processedEventIds.includes(eventId);\nconst nowIso = new Date().toISOString();\nif (!duplicate) {\n  staticData.processedEventIds.push(eventId);\n  staticData.processedAt[eventId] = nowIso;\n  if (staticData.processedEventIds.length > MAX_IDS) {\n    const overflow = staticData.processedEventIds.length - MAX_IDS;\n    const dropped = staticData.processedEventIds.splice(0, overflow);\n    for (const id of dropped) delete staticData.processedAt[id];\n  }\n}\n\nreturn [\n  {\n    json: {\n      ...incoming,\n      duplicate,\n      firstSeenAt: staticData.processedAt[eventId] || nowIso,\n      processedCount: staticData.processedEventIds.length,\n      idempotencyStore: 'workflow-static-data',\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f9f0ef91-1a83-59ab-a1a0-9bd1de547ba3",
+      "name": "IF Duplicate",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        560,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4e7ae9c7-4357-5a16-ab4e-26a90c5c78a5",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.duplicate }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "47b21191-97d7-580b-95b9-3adca77bb136",
+      "name": "Respond Duplicate",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        820,
+        140
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true, duplicate: true, eventId: $json.eventId }) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "6538ea39-8b36-5553-8a1f-24b05b55f527",
+      "name": "Build Typed Alert",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        820,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Map Stripe event.type → severity, title, Slack/Discord/email payloads.\nconst e = $input.first().json;\n\nconst CATALOG = {\n  'payment_intent.succeeded': { severity: 'info', title: 'Payment succeeded' },\n  'payment_intent.payment_failed': { severity: 'error', title: 'Payment failed' },\n  'payment_intent.canceled': { severity: 'warn', title: 'Payment canceled' },\n  'charge.succeeded': { severity: 'info', title: 'Charge succeeded' },\n  'charge.failed': { severity: 'error', title: 'Charge failed' },\n  'charge.refunded': { severity: 'warn', title: 'Charge refunded' },\n  'charge.dispute.created': { severity: 'critical', title: 'Dispute opened' },\n  'charge.dispute.closed': { severity: 'info', title: 'Dispute closed' },\n  'invoice.paid': { severity: 'info', title: 'Invoice paid' },\n  'invoice.payment_failed': { severity: 'error', title: 'Invoice payment failed' },\n  'invoice.finalized': { severity: 'low', title: 'Invoice finalized' },\n  'customer.subscription.created': { severity: 'info', title: 'Subscription created' },\n  'customer.subscription.updated': { severity: 'info', title: 'Subscription updated' },\n  'customer.subscription.deleted': { severity: 'warn', title: 'Subscription canceled' },\n  'customer.subscription.paused': { severity: 'warn', title: 'Subscription paused' },\n  'checkout.session.completed': { severity: 'info', title: 'Checkout completed' },\n  'checkout.session.expired': { severity: 'warn', title: 'Checkout expired' },\n  'radar.early_fraud_warning.created': { severity: 'critical', title: 'Early fraud warning' },\n  'payout.paid': { severity: 'info', title: 'Payout paid' },\n  'payout.failed': { severity: 'error', title: 'Payout failed' },\n};\n\nconst meta = CATALOG[e.type] || { severity: 'low', title: e.type };\nconst mode = e.livemode ? 'LIVE' : 'TEST';\n\nconst lines = [\n  '*' + meta.title + '* (' + mode + ')',\n  'Type: `' + e.type + '`',\n  'Event: `' + e.eventId + '`',\n];\nif (e.amountFormatted) lines.push('Amount: *' + e.amountFormatted + '*');\nif (e.objectId) lines.push('Object: `' + (e.objectType || 'object') + '` `' + e.objectId + '`');\nif (e.status) lines.push('Status: ' + e.status);\nif (e.customer) lines.push('Customer: `' + e.customer + '`');\nif (e.subscription) lines.push('Subscription: `' + e.subscription + '`');\nif (e.invoice) lines.push('Invoice: `' + e.invoice + '`');\nif (e.account) lines.push('Connect account: `' + e.account + '`');\nif (e.description) lines.push('Note: ' + e.description);\nlines.push('When: ' + (e.createdIso || 'unknown'));\nconst text = lines.join('\\n');\n\nconst color =\n  meta.severity === 'critical' || meta.severity === 'error'\n    ? 0xe01e5a\n    : meta.severity === 'warn'\n      ? 0xecb22e\n      : 0x2eb67d;\n\nconst slackUrl = $env.SLACK_WEBHOOK_URL || '';\nconst discordUrl = $env.DISCORD_WEBHOOK_URL || '';\nconst resendKey = $env.RESEND_API_KEY || '';\nconst alertTo = $env.ALERT_TO_EMAIL || '';\nconst alertFrom = $env.ALERT_FROM_EMAIL || '';\n\nreturn [\n  {\n    json: {\n      eventId: e.eventId,\n      type: e.type,\n      livemode: e.livemode,\n      amountFormatted: e.amountFormatted,\n      objectId: e.objectId,\n      duplicate: e.duplicate,\n      processedCount: e.processedCount,\n      firstSeenAt: e.firstSeenAt,\n      signatureVerified: e.signatureVerified,\n      severity: meta.severity,\n      title: meta.title,\n      knownType: Object.prototype.hasOwnProperty.call(CATALOG, e.type),\n      alertText: text,\n      emailSubject: '[Stripe ' + mode + '] ' + meta.title + (e.amountFormatted ? ' · ' + e.amountFormatted : ''),\n      emailHtml:\n        '<p><strong>' +\n        meta.title +\n        '</strong> <code>' +\n        mode +\n        '</code></p><pre style=\"font-family:ui-monospace,monospace;white-space:pre-wrap\">' +\n        text.replace(/[*`]/g, '') +\n        '</pre><p style=\"color:#666;font-size:12px\">n8n Ops Pack v1 — Stripe typed event router. This is an operational alert, not a receipt.</p>',\n      slackBody: {\n        text: '[Stripe ' + mode + '] ' + meta.title,\n        blocks: [\n          {\n            type: 'header',\n            text: { type: 'plain_text', text: (meta.title + ' (' + mode + ')').slice(0, 150), emoji: true },\n          },\n          { type: 'section', text: { type: 'mrkdwn', text: text.slice(0, 2900) } },\n        ],\n      },\n      discordBody: {\n        content: '[Stripe ' + mode + '] **' + meta.title + '**',\n        embeds: [\n          {\n            title: meta.title,\n            description: text.replace(/\\*/g, '').replace(/`/g, '').slice(0, 4000),\n            color: color,\n          },\n        ],\n      },\n      channels: {\n        slack: slackUrl.length > 8,\n        discord: discordUrl.length > 8,\n        email: resendKey.length > 8 && alertTo.indexOf('@') !== -1 && alertFrom.indexOf('@') !== -1,\n      },\n    },\n  },\n];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "06d47df5-882b-56a3-8329-4633895101d1",
+      "name": "Send Slack Discord Email",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1080,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Fire Slack / Discord / Resend. Optional channels are skipped, not failed.\n// Uses this.helpers.httpRequest (n8n 1.40+). Failures are recorded, not thrown,\n// so Stripe still gets 200 and does not retry forever on a bad Slack URL.\nconst helpers = this.helpers;\nconst e = $input.first().json;\nconst notify = { slack: 'skipped', discord: 'skipped', email: 'skipped', errors: [] };\n\nif (e.channels && e.channels.slack && $env.SLACK_WEBHOOK_URL) {\n  try {\n    await helpers.httpRequest({\n      method: 'POST',\n      url: $env.SLACK_WEBHOOK_URL,\n      headers: { 'content-type': 'application/json' },\n      body: e.slackBody,\n      json: true,\n    });\n    notify.slack = 'ok';\n  } catch (err) {\n    notify.slack = 'error';\n    notify.errors.push('slack: ' + err.message);\n  }\n}\n\nif (e.channels && e.channels.discord && $env.DISCORD_WEBHOOK_URL) {\n  try {\n    await helpers.httpRequest({\n      method: 'POST',\n      url: $env.DISCORD_WEBHOOK_URL,\n      headers: { 'content-type': 'application/json' },\n      body: e.discordBody,\n      json: true,\n    });\n    notify.discord = 'ok';\n  } catch (err) {\n    notify.discord = 'error';\n    notify.errors.push('discord: ' + err.message);\n  }\n}\n\nif (e.channels && e.channels.email && $env.RESEND_API_KEY) {\n  try {\n    await helpers.httpRequest({\n      method: 'POST',\n      url: 'https://api.resend.com/emails',\n      headers: {\n        'content-type': 'application/json',\n        authorization: 'Bearer ' + $env.RESEND_API_KEY,\n      },\n      body: {\n        from: $env.ALERT_FROM_EMAIL,\n        to: [$env.ALERT_TO_EMAIL],\n        subject: e.emailSubject,\n        html: e.emailHtml,\n      },\n      json: true,\n    });\n    notify.email = 'ok';\n  } catch (err) {\n    notify.email = 'error';\n    notify.errors.push('email: ' + err.message);\n  }\n}\n\nreturn [{ json: { ...e, notify } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "bbe3da82-33bb-532e-9eeb-f3a5c50b8fb8",
+      "name": "Append Idempotent Log",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1340,
+        420
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Append a compact ops log row into workflow static data (last 200 rows).\nconst staticData = $getWorkflowStaticData('global');\nif (!Array.isArray(staticData.log)) staticData.log = [];\nconst e = $input.first().json;\nconst row = {\n  at: new Date().toISOString(),\n  eventId: e.eventId,\n  type: e.type,\n  severity: e.severity,\n  livemode: e.livemode,\n  amountFormatted: e.amountFormatted || null,\n  objectId: e.objectId || null,\n  notify: e.notify || null,\n};\nstaticData.log.push(row);\nif (staticData.log.length > 200) {\n  staticData.log.splice(0, staticData.log.length - 200);\n}\nreturn [{ json: { ...e, logRow: row, logLength: staticData.log.length } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "88a091d0-2a29-5294-93b0-61c183fbfcd2",
+      "name": "Respond OK",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1600,
+        420
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 200
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ received: true, duplicate: false, eventId: $json.eventId, type: $json.type, severity: $json.severity, notify: $json.notify }) }}"
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "staticData": null,
+  "connections": {
+    "IF Duplicate": {
+      "main": [
+        [
+          {
+            "node": "Respond Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Typed Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Stripe Webhook": {
+      "main": [
+        [
+          {
+            "node": "Verify Signature + Parse Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Idempotency Gate": {
+      "main": [
+        [
+          {
+            "node": "IF Duplicate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Typed Alert": {
+      "main": [
+        [
+          {
+            "node": "Send Slack Discord Email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Append Idempotent Log": {
+      "main": [
+        [
+          {
+            "node": "Respond OK",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send Slack Discord Email": {
+      "main": [
+        [
+          {
+            "node": "Append Idempotent Log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Signature + Parse Event": {
+      "main": [
+        [
+          {
+            "node": "Idempotency Gate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# hub : 34
+# hub : 45
 
 |id|file|
 |----|----|
@@ -36,3 +36,14 @@
 |15232|[15232_Automate_vehicle_insurance_claim_approvals_with_OpenAI__OCR_and_PDF_API_Hub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15232_Automate_vehicle_insurance_claim_approvals_with_OpenAI__OCR_and_PDF_API_Hub.json)|
 |16597|[16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json)|
 |16641|[16641_Trigger_Coolify_deployments_from_new_Docker_Hub_and_GHCR_image_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16641_Trigger_Coolify_deployments_from_new_Docker_Hub_and_GHCR_image_digests.json)|
+|16942|[16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json)|
+|16966|[16966_Extract_invoice_data_into_Google_Sheets_with_LDX_hub_AnalyzeDoc_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16966_Extract_invoice_data_into_Google_Sheets_with_LDX_hub_AnalyzeDoc_Gemini.json)|
+|16999|[16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json)|
+|17039|[17039_Classify_documents_and_extract_invoice_data_with_LDXhub_AnalyzeDoc_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17039_Classify_documents_and_extract_invoice_data_with_LDXhub_AnalyzeDoc_and_Google_Sheets.json)|
+|17210|[17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17210_Route_and_triage_multi-channel_support_tickets_with_OpenAI__HubSpot__Slack_and_Gmail.json)|
+|17739|[17739_Handle_restaurant_bookings_via_Telegram_with_DeepSeek__Airtable__and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17739_Handle_restaurant_bookings_via_Telegram_with_DeepSeek__Airtable__and_Google_Calendar.json)|
+|18399|[18399_Send_daily_Azure_IoT_Hub_fleet_health_reports_with_OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18399_Send_daily_Azure_IoT_Hub_fleet_health_reports_with_OpenAI_and_Gmail.json)|
+|18771|[18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json)|
+|19120|[19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json)|
+|19539|[19539_Qualify_and_score_omnichannel_leads_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19539_Qualify_and_score_omnichannel_leads_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|19633|[19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19633_Review_Zendesk_escalations_with_OpenAI__Qdrant__Slack_and_human_approval.json)|

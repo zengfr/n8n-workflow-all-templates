@@ -1,4 +1,4 @@
-# servicenow : 10
+# servicenow : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |8247|[8247_Automate_Marker.io_Issues_to_ServiceNow_Incidents_with_Full_Technical_Context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8247_Automate_Marker.io_Issues_to_ServiceNow_Incidents_with_Full_Technical_Context.json)|
 |8886|[8886_AI-Powered_ServiceNow_Chat_Triage_with_GPT-4___Incident___Request_Manager.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8886_AI-Powered_ServiceNow_Chat_Triage_with_GPT-4___Incident___Request_Manager.json)|
 |10241|[10241_Automate_ITSM_ticket_classification_and_resolution_using_Gemini__Qdrant_and_ServiceNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10241_Automate_ITSM_ticket_classification_and_resolution_using_Gemini__Qdrant_and_ServiceNow.json)|
+|18828|[18828_Detect_recurring_ServiceNow_incidents_with_Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18828_Detect_recurring_ServiceNow_incidents_with_Google_Gemini_and_Slack.json)|
+|18860|[18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json)|
+|19066|[19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19066_Route_weather-based_delivery_holds_with_Open-Meteo__Gemini__Postgres__and_ServiceNow.json)|

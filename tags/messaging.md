@@ -1,4 +1,4 @@
-# messaging : 25
+# messaging : 26
 
 |id|file|
 |----|----|
@@ -27,3 +27,4 @@
 |16288|[16288_Track_competitor_ad_messaging_shifts_with_Adyntel__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16288_Track_competitor_ad_messaging_shifts_with_Adyntel__OpenAI_and_Google_Sheets.json)|
 |16573|[16573_Generate_gender-aware_email_greetings_with_OpenAI_and_KlickTipp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16573_Generate_gender-aware_email_greetings_with_OpenAI_and_KlickTipp.json)|
 |16722|[16722_Generate_personalized_email_salutations_for_KlickTipp_contacts_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16722_Generate_personalized_email_salutations_for_KlickTipp_contacts_with_OpenAI.json)|
+|18332|[18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json)|

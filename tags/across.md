@@ -1,4 +1,4 @@
-# across : 49
+# across : 62
 
 |id|file|
 |----|----|
@@ -51,3 +51,16 @@
 |15573|[15573_Route_ERP_tasks_across_departments_with_GPT-4__Slack__Gmail_and_human_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15573_Route_ERP_tasks_across_departments_with_GPT-4__Slack__Gmail_and_human_approval.json)|
 |15654|[15654_Track_AI_brand_visibility_across_GPT__Gemini_and_Perplexity_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15654_Track_AI_brand_visibility_across_GPT__Gemini_and_Perplexity_in_Google_Sheets.json)|
 |16545|[16545_Route_RAG_customer_support_across_WhatsApp_and_Outlook_with_Pinecone_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16545_Route_RAG_customer_support_across_WhatsApp_and_Outlook_with_Pinecone_and_OpenRouter.json)|
+|17011|[17011_Monitor_Meta_CAPI_event_match_quality_with_Meta_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17011_Monitor_Meta_CAPI_event_match_quality_with_Meta_Graph_API_and_Claude.json)|
+|18200|[18200_Qualify_and_reply_to_WhatsApp_and_Telegram_leads_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18200_Qualify_and_reply_to_WhatsApp_and_Telegram_leads_with_Claude_and_Google_Sheets.json)|
+|18576|[18576_Create_native_multi-platform_social_video_posts_with_PostWire.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18576_Create_native_multi-platform_social_video_posts_with_PostWire.json)|
+|18809|[18809_Map_local_pack_rankings_across_a_geo_grid_with_Bright_Data__GPT-5.6__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18809_Map_local_pack_rankings_across_a_geo_grid_with_Bright_Data__GPT-5.6__Slack_and_Gmail.json)|
+|18868|[18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json)|
+|18887|[18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18887_Monitor_engineering_health_across_ClickUp__GitHub_and_APM_with_WhatsApp.json)|
+|18929|[18929_Find_and_log_GDPR_request_evidence_with_Groq_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18929_Find_and_log_GDPR_request_evidence_with_Groq_and_Data_Tables.json)|
+|18934|[18934_Rank_and_triage_dependency_risk_with_GitHub__OSV__Slack__npm__PyPI_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18934_Rank_and_triage_dependency_risk_with_GitHub__OSV__Slack__npm__PyPI_and_OpenAI.json)|
+|18977|[18977_Find_broken_links_and_redirect_chains_from_sitemaps_with_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18977_Find_broken_links_and_redirect_chains_from_sitemaps_with_Slack_reports.json)|
+|19125|[19125_Split_shared_rental_utility_bills_with_gpt-5.6-terra_Vision__Postgres_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19125_Split_shared_rental_utility_bills_with_gpt-5.6-terra_Vision__Postgres_and_Gmail.json)|
+|19268|[19268_Scan_personal_data_in_data_tables_with_Groq_and_Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19268_Scan_personal_data_in_data_tables_with_Groq_and_Discord_alerts.json)|
+|19413|[19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19413_Schedule_Pinterest_campaigns_across_multiple_client_accounts_with_PinBridge.json)|
+|19834|[19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19834_Monitor_brand_sentiment_with_Reddit__Hacker_News__Google_News_and_GPT-4o_mini.json)|

@@ -1,0 +1,1253 @@
+{
+  "id": "oZC1iYaEh9Aj7RQ8",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Segment donors and draft personalized outreach with Google Sheets and Ollama",
+    "wechat": "youandme10086",
+    "id": 19509,
+    "update_time": "2026-09-27"
+  },
+  "name": "Donor Segmentation & Personalized Communication",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a853a669-3b84-42c5-a13a-c328eb3ea313",
+      "name": "Merge Draft With Donor Data",
+      "type": "n8n-nodes-base.merge",
+      "notes": "FIX: Basic LLM Chain does not pass through input fields -- it only outputs its own result (text), dropping Email/Name/etc. This node recombines that text output with the original donor row from Build Prompt, matched by item position (both branches process the same 61 items in the same order, so position-based combining is safe here). Input 1 (index 0) = Basic LLM Chain; Input 2 (index 1) = Build Prompt. Combine mode/param names are a best-effort reconstruction -- verify 'Combine by Position' is selected in the node UI after import, since exact parameter keys can vary by n8n version.",
+      "position": [
+        -4096,
+        1328
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "cadcc52a-00a9-4242-80a2-b9909de993c3",
+      "name": "Basic LLM Chain2",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "notes": "ARCHITECTURE.md 2.11 (updated). No batching/retry/rate-limit -- items run one at a time via n8n's normal per-item execution against local Ollama.",
+      "position": [
+        -4240,
+        976
+      ],
+      "parameters": {
+        "text": "={{ $json._llm_prompt }}",
+        "promptType": "define"
+      },
+      "typeVersion": 1.5,
+      "continueOnFail": true
+    },
+    {
+      "id": "d9d8d447-04e6-411a-b244-e5a315473f3a",
+      "name": "Monthly Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -6160,
+        1472
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "months"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "c175e8e6-1626-4a65-86bb-58f4cb4ddc94",
+      "name": "Get row(s) in sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -5936,
+        1024
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1526360973,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aodXVkoHaGzllH8UWAAanJfw92MD6CpQHib2_KtnRrY/edit#gid=1526360973",
+          "cachedResultName": "Donor Data"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1aodXVkoHaGzllH8UWAAanJfw92MD6CpQHib2_KtnRrY"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YxJWwTOjrY2FSIqK",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "e97eedc6-61e7-4cd3-910c-31c2d71c3274",
+      "name": "Validate & Clean",
+      "type": "n8n-nodes-base.code",
+      "notes": "ARCHITECTURE.md 2.3. Continue On Fail = true from here downstream. Duplicate detection is full-row (every field must match), not email-only.",
+      "position": [
+        -5712,
+        1024
+      ],
+      "parameters": {
+        "jsCode": "// Validate & Clean (ARCHITECTURE.md 2.3)\n// Confirms required fields, normalizes types, dedupes by full-row match\n// (every attribute identical, not just Email), tags each row with\n// _validation_status instead of dropping silently.\n\nconst REQUIRED_FIELDS = ['Name', 'Email'];\nconst EMAIL_RE = /^[^@\\s]+@[^@\\s]+\\.[^@\\s]+$/;\n\nfunction parseDate(value) {\n  if (!value) return null;\n  const str = String(value).trim();\n  const formats = [\n    { re: /^(\\d{4})-(\\d{2})-(\\d{2})$/, order: ['y','m','d'] },\n    { re: /^(\\d{2})\\/(\\d{2})\\/(\\d{4})$/, order: ['m','d','y'] },\n    { re: /^(\\d{2})-(\\d{2})-(\\d{4})$/, order: ['m','d','y'] },\n    { re: /^(\\d{4})\\/(\\d{2})\\/(\\d{2})$/, order: ['y','m','d'] },\n  ];\n  for (const fmt of formats) {\n    const m = str.match(fmt.re);\n    if (m) {\n      const parts = {};\n      fmt.order.forEach((key, i) => { parts[key] = parseInt(m[i + 1], 10); });\n      const d = new Date(Date.UTC(parts.y, parts.m - 1, parts.d));\n      if (!isNaN(d.getTime())) return d;\n    }\n  }\n  return null;\n}\n\nfunction parseAmount(value) {\n  if (value === null || value === undefined || value === '') return null;\n  const cleaned = String(value).replace('$', '').replace(/,/g, '').trim();\n  const num = parseFloat(cleaned);\n  return isNaN(num) ? null : num;\n}\n\n// Builds a canonical signature from every attribute on the row so two rows\n// only count as duplicates when ALL fields match exactly — not just Email.\n// Uses normalized Email/amount/date (so formatting differences like\n// \"$50\" vs \"50.00\" or \"1/2/2025\" vs \"2025-01-02\" don't hide a true dup),\n// and trims/stringifies every other field for a stable comparison.\nfunction buildRowSignature(row, normalizedEmail, normalizedAmount, normalizedDate) {\n  const comparable = { ...row };\n  comparable.Email = normalizedEmail;\n  comparable['Donation amount'] = normalizedAmount;\n  comparable['Donation date'] = normalizedDate;\n\n  return Object.keys(comparable)\n    .sort()\n    .map((key) => `${key}=${String(comparable[key] ?? '').trim().toLowerCase()}`)\n    .join('|');\n}\n\nconst seenRowSignatures = new Set();\nconst output = [];\n\nfor (const item of $input.all()) {\n  const row = { ...item.json };\n  const reasons = [];\n\n  for (const field of REQUIRED_FIELDS) {\n    if (!row[field]) reasons.push(`missing_${field.toLowerCase()}`);\n  }\n\n  const emailRaw = String(row.Email || '').trim().toLowerCase();\n  if (emailRaw && !EMAIL_RE.test(emailRaw)) reasons.push('malformed_email');\n\n  const amount = parseAmount(row['Donation amount'] ?? row['DonationAmount']);\n  const date = parseDate(row['Donation date'] ?? row['DonationDate']);\n  if (amount === null) reasons.push('missing_or_invalid_donation_amount');\n  if (date === null) reasons.push('missing_or_invalid_donation_date');\n\n  const signature = buildRowSignature(row, emailRaw, amount, date ? date.toISOString() : null);\n  if (seenRowSignatures.has(signature)) {\n    reasons.push('duplicate_row');\n  } else {\n    seenRowSignatures.add(signature);\n  }\n\n  row.Email = emailRaw;\n  row._donation_amount = amount;\n  row._donation_date = date ? date.toISOString() : null;\n  row._validation_status = reasons.length ? 'invalid' : 'valid';\n  row._validation_reason = reasons.join(',');\n\n  output.push({ json: row });\n}\n\nreturn output;\n"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "3ce434f9-ed87-49ab-b28f-c2bf962342ae",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5968,
+        816
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 624,
+        "height": 512,
+        "content": "## Get, Clean, Validate rows from Google Sheet \n* Confirms required fields, normalizes types, dedupes by full-row match, tags each row with validation_status instead of dropping silently\n\n* Valid rows are sent to RFM Scoring (Recency, Frequency, Monetary)\n\n* Invalid rows are recorded in a new sheet called \"Invalid Rows\" within the document\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2a8bb1b0-bcdb-4d48-a427-dce0a17c95f2",
+      "name": "IF Valid / Invalid Rows",
+      "type": "n8n-nodes-base.if",
+      "notes": "ARCHITECTURE.md 2.4.",
+      "position": [
+        -5488,
+        1024
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{$json._validation_status}}",
+              "rightValue": "valid"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e51371f0-a679-4d15-9561-4af56e6b04a0",
+      "name": "When clicking ‘Execute workflow’",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -6144,
+        1024
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a13b2765-6979-4ceb-b683-f9d80846b467",
+      "name": "Store Invalid Rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -5216,
+        1264
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "row_number": 0
+          },
+          "schema": [
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1379889855,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aodXVkoHaGzllH8UWAAanJfw92MD6CpQHib2_KtnRrY/edit#gid=1379889855",
+          "cachedResultName": "Invalid Rows"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1aodXVkoHaGzllH8UWAAanJfw92MD6CpQHib2_KtnRrY"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YxJWwTOjrY2FSIqK",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "8c69d98d-4926-4804-8127-6751e030d015",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -5264,
+        816
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 608,
+        "height": 368,
+        "content": "## Donor Segmentation  \n\n* Categorize donors with RFM and Behavioral Segmentation"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "cb167a29-ae1b-402b-9b79-e5d720e469b6",
+      "name": "Behavioral Segmentation",
+      "type": "n8n-nodes-base.code",
+      "notes": "ARCHITECTURE.md 2.6.",
+      "position": [
+        -5008,
+        976
+      ],
+      "parameters": {
+        "jsCode": "// Behavioral Segmentation (ARCHITECTURE.md 2.6)\n// Independent secondary signal, cross-tabbed with RFM rather than\n// folded into one score. Degrades gracefully if engagement fields are missing.\n\nconst output = [];\nfor (const item of $input.all()) {\n  const row = { ...item.json };\n\n  const events = row['Events attended'] || row['EventsAttended'] || '';\n  const comms = row['Communications leading up to the donation'] || row['Communications'] || '';\n\n  const eventsCount = events ? String(events).split(';').filter(e => e.trim()).length : 0;\n  const commsCount = comms ? String(comms).split(';').filter(c => c.trim()).length : 0;\n\n  let tag;\n  if (eventsCount === 0 && commsCount === 0) tag = 'insufficient_data';\n  else if (eventsCount > 0 && commsCount === 0) tag = 'event_driven';\n  else if (eventsCount === 0 && commsCount > 0) tag = 'email_only';\n  else tag = 'mixed_channel';\n\n  const frequency = row.rfm_frequency_score || 1;\n  const responsiveness = tag === 'insufficient_data'\n    ? 'unknown'\n    : (commsCount >= frequency ? 'campaign_responsive' : 'steady_giver');\n\n  row.behavioral_tag = tag;\n  row.responsiveness = responsiveness;\n  output.push({ json: row });\n}\n\nreturn output;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "99a07ab5-61c1-45f6-8aaf-5893b1c823de",
+      "name": "RFM Segmentation",
+      "type": "n8n-nodes-base.code",
+      "notes": "ARCHITECTURE.md 2.5. Run Once for All Items.",
+      "position": [
+        -5216,
+        976
+      ],
+      "parameters": {
+        "jsCode": "// // RFM Scoring (ARCHITECTURE.md 2.5)\n// // Computes Recency / Frequency / Monetary per donor and assigns\n// // an RFM segment label via quintile scoring.\n// // NOTE: also tracks every original sheet row_number per donor (regardless\n// // of the RFM lookback window) so the final personalized message can be\n// // written back onto EVERY donation row for that donor later in the flow.\n\n// const items = $input.all();\n// const config = items.length ? (items[0].json.config || {}) : {};\n// const lookbackDays = config.lookback_days || 730;\n// const now = new Date();\n// const cutoff = new Date(now.getTime() - lookbackDays * 24 * 60 * 60 * 1000);\n\n// const byDonor = {};\n// const rowNumbersByEmail = {};\n// const rowTemplate = {};\n\n// for (const item of items) {\n//   const row = item.json;\n//   const email = row.Email;\n//   if (!email) continue;\n//   if (row.row_number !== undefined && row.row_number !== null) {\n//     if (!rowNumbersByEmail[email]) rowNumbersByEmail[email] = [];\n//     rowNumbersByEmail[email].push(\n//       row.row_number)\n//   }\n//   const dateStr = row._donation_date;\n//   if (dateStr) {\n//     const d = new Date(dateStr);\n//     if (d >= cutoff) {\n//       if (!byDonor[email]) byDonor[email] = [];\n//       byDonor[email].push({ amount: row._donation_amount || 0, date: d });\n//     }\n//   }\n//   rowTemplate[email] = row;\n// }\n\n// const raw = {};\n// for (const [email, gifts] of Object.entries(byDonor)) {\n//   if (!gifts.length) continue;\n//   const mostRecent = new Date(Math.max(...gifts.map(g => g.date.getTime())));\n//   const recencyDays = Math.floor((now - mostRecent) / (24 * 60 * 60 * 1000));\n//   const frequency = gifts.length;\n//   const monetary = gifts.reduce((sum, g) => sum + g.amount, 0);\n//   raw[email] = { recencyDays, frequency, monetary };\n// }\n\n// function quintileScore(value, allValues, lowerIsBetter = false) {\n//   if (!allValues.length) return 3;\n//   const sorted = [...allValues].sort((a, b) => a - b);\n//   const rank = sorted.filter(v => v <= value).length / sorted.length;\n//   let score = Math.min(5, Math.max(1, Math.floor(rank * 5) + 1));\n//   return lowerIsBetter ? 6 - score : score;\n// }\n\n// const recencyVals = Object.values(raw).map(v => v.recencyDays);\n// const frequencyVals = Object.values(raw).map(v => v.frequency);\n// const monetaryVals = Object.values(raw).map(v => v.monetary);\n\n// // --- RFM segment lookup — edit this to retune segment definitions ---\n// function labelSegment(r, f, m) {\n//   const combined = r + f + m;\n//   if (r >= 4 && f >= 4 && m >= 4) return 'Champions';\n//   if (f === 1 && r >= 4) return 'New/First-Time';\n//   if (r <= 2 && f >= 3) return 'At-Risk';\n//   if (r <= 2 && f <= 2) return 'Lapsed';\n//   if (combined >= 9) return 'Loyal';\n//   return 'Standard';\n// }\n\n// const output = [];\n// for (const [email, scores] of Object.entries(raw)) {\n//   const rScore = quintileScore(scores.recencyDays, recencyVals, true);\n//   const fScore = quintileScore(scores.frequency, frequencyVals);\n//   const mScore = quintileScore(scores.monetary, monetaryVals);\n//   const row = { ...rowTemplate[email] };\n//   row.rfm_recency_score = rScore;\n//   row.rfm_frequency_score = fScore;\n//   row.rfm_monetary_score = mScore;\n//   row.rfm_segment = labelSegment(rScore, fScore, mScore);\n//   row._row_numbers = rowNumbersByEmail[email] || [];\n//   output.push({ json: row });\n// }\n\n// return output;\n\nconst items = $input.all();\nconst config = items.length ? (items[0].json.config || {}) : {};\nconst lookbackDays = config.lookback_days || 730;\nconst now = new Date();\nconst cutoff = new Date(now.getTime() - lookbackDays * 24 * 60 * 60 * 1000);\n\nconst byDonor = {};\nconst rowNumbersByEmail = {};\nconst rowTemplate = {};\n\nfor (const item of items) {\n  const row = item.json;\n  const email = row.Email;\n  if (!email) continue;\n\n  const dateStr = row._donation_date;\n  const d = dateStr ? new Date(dateStr) : null;\n\n  if (row.row_number !== undefined && row.row_number !== null) {\n    if (!rowNumbersByEmail[email]) rowNumbersByEmail[email] = [];\n    rowNumbersByEmail[email].push({\n      row_number: row.row_number,\n      timestamp: d ? d.getTime() : 0\n    });\n  }\n\n  if (d && d >= cutoff) {\n    if (!byDonor[email]) byDonor[email] = [];\n    byDonor[email].push({ amount: row._donation_amount || 0, date: d });\n  }\n\n  rowTemplate[email] = row;\n}\n\n// Sort row numbers by latest date descending, then map back to pure row numbers\nfor (const email in rowNumbersByEmail) {\n  rowNumbersByEmail[email] = rowNumbersByEmail[email]\n    .sort((a, b) => b.timestamp - a.timestamp)\n    .map(entry => entry.row_number);\n}\n\nconst raw = {};\nfor (const [email, gifts] of Object.entries(byDonor)) {\n  if (!gifts.length) continue;\n  \n  // Find the gift with the most recent date\n  const latestGift = gifts.reduce((latest, current) => \n    current.date > latest.date ? current : latest\n  , gifts[0]);\n\n  const recencyDays = Math.floor((now - latestGift.date) / (24 * 60 * 60 * 1000));\n  const frequency = gifts.length;\n  const monetary = gifts.reduce((sum, g) => sum + g.amount, 0);\n\n  raw[email] = { \n    recencyDays, \n    frequency, \n    monetary,\n    latestDonationDate: latestGift.date,\n    latestDonationAmount: latestGift.amount\n  };\n}\n\n// Custom threshold scoring logic\nfunction getRecencyScore(days) {\n  if (days <= 90) return 5;\n  if (days <= 180) return 4;\n  if (days <= 365) return 3;\n  if (days <= 730) return 2;\n  return 1;\n}\n\nfunction getFrequencyScore(count) {\n  if (count >= 8) return 5;\n  if (count >= 5) return 4;\n  if (count >= 3) return 3;\n  if (count === 2) return 2;\n  return 1;\n}\n\nfunction getMonetaryScore(amount) {\n  if (amount >= 1000) return 5;\n  if (amount >= 500) return 4;\n  if (amount >= 250) return 3;\n  if (amount >= 100) return 2;\n  return 1;\n}\n\n// --- RFM segment lookup ---\nfunction labelSegment(r, f, m) {\n  const combined = r + f + m;\n  if (r >= 4 && f >= 4 && m >= 4) return 'Champions';\n  if (f === 1 && r >= 4) return 'New/First-Time';\n  if (r <= 2 && f >= 3) return 'At-Risk';\n  if (r <= 2 && f <= 2) return 'Lapsed';\n  if (combined >= 9) return 'Loyal';\n  return 'Standard';\n}\n\nconst output = [];\nfor (const [email, scores] of Object.entries(raw)) {\n  const rScore = getRecencyScore(scores.recencyDays);\n  const fScore = getFrequencyScore(scores.frequency);\n  const mScore = getMonetaryScore(scores.monetary);\n\n  const row = { ...rowTemplate[email] };\n  row.rfm_recency_score = rScore;\n  row.rfm_frequency_score = fScore;\n  row.rfm_monetary_score = mScore;\n  row.rfm_segment = labelSegment(rScore, fScore, mScore);\n  \n  // Attach latest donation details\n  row.latest_donation_date = scores.latestDonationDate.toISOString().split('T')[0];\n  row.latest_donation_amount = scores.latestDonationAmount;\n  \n  row._row_numbers = rowNumbersByEmail[email] || [];\n  output.push({ json: row });\n}\n\nreturn output;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "740e0318-76bd-408d-be5b-474a6b3b0e0e",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -4480,
+        976
+      ],
+      "parameters": {
+        "jsCode": "// Build LLM prompt per donor\n// Injects segment, tone, ask type, and relevant donor facts into a template.\n\nconst output = [];\nfor (const item of $input.all()) {\n  const row = { ...item.json };\n  const treatment = row.treatment || {};\n  const firstName = (row.Name || 'there').split(' ')[0];\n  const prompt =\n    `Write a short, warm donor communication.\\n` +\n    `Donor first name: ${firstName}\\n` +\n    `Segment: ${row.rfm_segment} / ${row.behavioral_tag}\\n` +\n    `Tone: ${treatment.tone}\\n` +\n    `Ask type: ${treatment.ask_type}\\n` +\n    `Last donation amount: ${row.latest_donation_amount}\\n` +\n    `Last donation date: ${row.latest_donation_date}\\n` +\n    `Keep it under 150 words. Do not invent facts not given above. ` +\n    `Do not include placeholder tags like curly braces in the output.`;\n\n  row._llm_prompt = prompt;\n  output.push({ json: row });\n}\n\nreturn output;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "5e2bfb1b-6e4c-41e0-a27e-1636875c7e9b",
+      "name": "Llama3.1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOllama",
+      "notes": "Confirmed working: llama3.1:latest, numPredict=300 (uncapped -1 caused streaming errors). Verify exact parameter names against your installed node version.",
+      "position": [
+        -4240,
+        1152
+      ],
+      "parameters": {
+        "model": "llama3.1:latest",
+        "options": {
+          "numCtx": 2048,
+          "numBatch": 512,
+          "numPredict": 300,
+          "temperature": 0.5
+        }
+      },
+      "credentials": {
+        "ollamaApi": {
+          "id": "6edfDA4Znsea61jT",
+          "name": "Ollama account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d793f88d-459d-45fa-97da-0211c464aa7d",
+      "name": "Validate LLM Output",
+      "type": "n8n-nodes-base.code",
+      "notes": "ARCHITECTURE.md 2.12. Reads the `text` field from Basic LLM Chain.",
+      "position": [
+        -3824,
+        992
+      ],
+      "parameters": {
+        "jsCode": "// Validate LLM Output (ARCHITECTURE.md 2.12 / 3.2)\n// Checks for empty/error responses, unfilled template tags, excessive length.\n// Flags items for retry vs. fallback-to-template.\n// NOTE: field changed from .response to .text -- Basic LLM Chain returns\n// its result under `text`, unlike the old raw HTTP Request call to Ollama.\n\nconst MAX_LEN = 1000;\n\nconst output = [];\nfor (const item of $input.all()) {\n  const row = { ...item.json };\n  const errorOccurred = Boolean(item.json.error);\n  const responseText = errorOccurred ? '' : String(row.text || '').trim();\n\n  const isEmpty = responseText.length === 0;\n  const hasPlaceholder = responseText.includes('{{') || responseText.includes('}}');\n  const tooLong = responseText.length > MAX_LEN;\n\n  const needsRetryOrFallback = errorOccurred || isEmpty || hasPlaceholder || tooLong;\n\n  row._llm_draft = responseText;\n  row._llm_failed = needsRetryOrFallback;\n  row._llm_fail_reason = errorOccurred ? 'http_error'\n    : isEmpty ? 'empty_response'\n    : hasPlaceholder ? 'placeholder_artifact'\n    : tooLong ? 'too_long'\n    : '';\n\n  output.push({ json: row });\n}\n\nreturn output;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "12797da0-c57d-4662-9c4a-f715021244c2",
+      "name": "Fallback Template",
+      "type": "n8n-nodes-base.code",
+      "notes": "ARCHITECTURE.md 3.2 (no retry loop). Applies immediately for any item flagged _llm_failed; passes others through unchanged.",
+      "position": [
+        -3600,
+        992
+      ],
+      "parameters": {
+        "jsCode": "// Fallback to plain, non-personalized template (ARCHITECTURE.md 3.2)\n// Used when LLM output fails validation after exhausting retries,\n// or the LLM call/service is unreachable entirely.\n\nconst FALLBACK_TEMPLATES = {\n  'Champions': 'Dear {name}, your continued generosity means the world to our mission. Thank you for being one of our most dedicated supporters.',\n  'Loyal': 'Dear {name}, thank you for your ongoing support. Your consistent generosity helps us plan for the future with confidence.',\n  'At-Risk': \"Dear {name}, we've missed hearing from you. We wanted to share how much of an impact your past support has made.\",\n  'Lapsed': \"Dear {name}, it's been a while! We'd love to reconnect and show you the impact your past generosity has had.\",\n  'New/First-Time': 'Dear {name}, thank you for your first gift to our organization — welcome to our community of supporters.',\n  'Standard': 'Dear {name}, thank you for your support. It truly makes a difference.',\n};\n\nconst output = [];\nfor (const item of $input.all()) {\n  const row = { ...item.json };\n  if (row._llm_failed) {\n    const firstName = (row.Name || 'Friend').split(' ')[0];\n    const segment = row.rfm_segment || 'Standard';\n    const template = FALLBACK_TEMPLATES[segment] || FALLBACK_TEMPLATES['Standard'];\n    row._llm_draft = template.replace('{name}', firstName);\n    row._used_fallback = true;\n  } else {\n    row._used_fallback = false;\n  }\n  output.push({ json: row });\n}\n\nreturn output;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "f396de04-aaec-4852-9ebc-a9325b90652f",
+      "name": "Shape Final Output",
+      "type": "n8n-nodes-base.code",
+      "notes": "Outputs Email + personalized_message (plus tracking fields) for write-back.",
+      "position": [
+        -3376,
+        992
+      ],
+      "parameters": {
+        "jsCode": "// Final shape-up before writing back to the source Google Sheet (ARCHITECTURE.md 2.14, updated)\n// Keeps row_number (needed to match the correct row on write-back) and renames\n// the drafted text to personalized_message to match the new sheet column.\n\nconst output = [];\nfor (const item of $input.all()) {\n  const row = item.json;\n  output.push({ json: {\n    row_number: row.row_number,\n    Name: row.Name,\n    Email: row.Email,\n    rfm_segment: row.rfm_segment,\n    behavioral_tag: row.behavioral_tag,\n    personalized_message: row._llm_draft,\n    used_fallback: row._used_fallback || false,\n    needs_review: Boolean(row._used_fallback) || Boolean(row._llm_fail_reason),\n  }});\n}\n\nreturn output;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "69f3f5ab-e364-46a9-98ab-eec0fbd5ac5b",
+      "name": "Update rows with personalized messages",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -3152,
+        992
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Email": "={{ $json.Email }}",
+            "row_number": 0,
+            "Personalized Message": "={{ $json.personalized_message }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Email",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Email",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Donation amount",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Donation amount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Donation date",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Donation date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Communications leading up to the donation",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Communications leading up to the donation",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Events attended",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Events attended",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Volunteer activity",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Volunteer activity",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Personalized Message",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "Personalized Message",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Email"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1526360973,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1aodXVkoHaGzllH8UWAAanJfw92MD6CpQHib2_KtnRrY/edit#gid=1526360973",
+          "cachedResultName": "Donor Data"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1aodXVkoHaGzllH8UWAAanJfw92MD6CpQHib2_KtnRrY"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "YxJWwTOjrY2FSIqK",
+          "name": "Google Sheets account 2"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "42d9b29f-2ab3-4658-b278-4604258fb19c",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -4528,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 464,
+        "content": "## Construct prompt for AI model to generate personalized messages\n\n* Build LLM prompt per donor by Injecting segment, tone, ask type, and relevant donor facts into a template"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ad76cf48-eb32-4a42-be17-5a8cb533e229",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3872,
+        800
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 928,
+        "height": 416,
+        "content": "## Final Output Preparation\n\nValidate LLM output & Fallback template\n\n* Checks for empty/error responses, unfilled template tags, excessive length\n* Flags items for retry vs. fallback-to-template"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "188edf70-5ad2-4f78-84bd-9efd6565ad14",
+      "name": "Segment to Treatment Mapping",
+      "type": "n8n-nodes-base.code",
+      "notes": "ARCHITECTURE.md 2.8. Edit TREATMENT_TABLE to match org voice.",
+      "position": [
+        -4800,
+        976
+      ],
+      "parameters": {
+        "jsCode": "// Segment -> Treatment Mapping (ARCHITECTURE.md 2.8)\n// Combines rfm_segment + behavioral_tag into a treatment spec.\n// This lookup table is the main thing an org edits to match its own voice.\n\nconst TREATMENT_TABLE = {\n  'Champions|event_driven':     { tone: 'warm, celebratory', ask_type: 'invite to next event / ambassador ask', channel: 'email+event invite', cadence_hint: 'quarterly' },\n  'Champions|email_only':       { tone: 'warm, personal thank-you', ask_type: 'impact story, soft upsell', channel: 'email', cadence_hint: 'quarterly' },\n  'Champions|mixed_channel':    { tone: 'warm, personal', ask_type: 'impact story + event invite', channel: 'email+event invite', cadence_hint: 'quarterly' },\n  'Loyal|email_only':           { tone: 'appreciative', ask_type: 'renewal reminder', channel: 'email', cadence_hint: 'semi-annual' },\n  'At-Risk|campaign_responsive':{ tone: 'concerned, re-engaging', ask_type: 'reactivation appeal tied to a specific campaign', channel: 'email', cadence_hint: 'immediate' },\n  'At-Risk|steady_giver':       { tone: 'gentle check-in', ask_type: 'impact update, no hard ask', channel: 'email', cadence_hint: 'immediate' },\n  'Lapsed|event_driven':        { tone: 'nostalgic, inviting', ask_type: 'invite back to an event', channel: 'email', cadence_hint: 'immediate' },\n  'New/First-Time|mixed_channel': { tone: 'welcoming', ask_type: 'onboarding / thank-you, no ask', channel: 'email', cadence_hint: 'within 1 week' },\n};\n\nconst DEFAULT_TREATMENT = { tone: 'appreciative, neutral', ask_type: 'general impact update', channel: 'email', cadence_hint: 'standard' };\n\nconst output = [];\nfor (const item of $input.all()) {\n  const row = { ...item.json };\n  const key = `${row.rfm_segment}|${row.behavioral_tag}`;\n  row.treatment = TREATMENT_TABLE[key] || DEFAULT_TREATMENT;\n  output.push({ json: row });\n}\n\nreturn output;"
+      },
+      "typeVersion": 2,
+      "continueOnFail": true
+    },
+    {
+      "id": "1239648d-c3d8-4008-bb07-5a084b76556b",
+      "name": "Sticky Note13",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -6688,
+        688
+      ],
+      "parameters": {
+        "width": 448,
+        "height": 784,
+        "content": "## Donor Segmentation & Personalized Communication\n\n### How it works\n1. Ingests a donor dataset from Google Sheet (name, contact info, donation amounts/dates, communication history, event attendance).\n2. Validates the data and flags malformed rows.\n3. Scores RFM — Recency, Frequency, Monetary — to bucket donors into segments (e.g., Champions, Loyal, At-Risk, Lapsed, New/First-Time).\n4. Layers behavioral segmentation on top — engagement patterns like event-driven vs. email-only donors, campaign responsiveness, channel preference.\n5. Maps each segment to a communication strategy — tone, ask type, channel, cadence.\n6. Drafts personalized message for each donor using LLM (Llama3.1).\n7. Outputs drafts to initial donor Google Sheet under a new column called Personalized Message for review. A human approves and sends, the workflow doesn't send on its own.\n\n\n### How to Set up \n* n8n (self-hosted via Docker, or the n8n desktop app)\n* Ollama running a local instruction-tuned model (developed against Llama 3.1 8B; swap in whatever fits your hardware)\n* A real or syhtnethic donor dataset in CSV format matching the schema specified in this GitHub repo (https://github.com/TienNguyen93/donor-retention-workflow)\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {
+    "Basic LLM Chain2": [
+      {
+        "json": {
+          "text": "Dear Linh,\n\nWe wanted to take a moment to express our heartfelt gratitude for your latest gift of $236.62 on May 20th. Your support is making a real difference in the lives of those we serve.\n\nWe're excited to share with you the impact of your generosity. Your contributions are helping us [briefly mention a specific program or initiative that Linh's donations have supported].\n\nAs a valued Champion, we'd like to invite you to join us at our upcoming event on [date]. This will be a wonderful opportunity to connect with our team, hear more about our work, and see firsthand the impact of your support.\n\nWe hope you can join us. If you have any questions or would like to RSVP, please don't hesitate to reach out.\n\nThank you again for your trust in our mission.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 0
+        }
+      },
+      {
+        "json": {
+          "text": "Dear George,\n\nWe appreciate your continued support for our mission. Your donation of $268.27 on July 27, 2026, helps us make a positive impact in the lives of those we serve.\n\nAs we continue our work, we're grateful for donors like you who share our commitment to making a difference. Your contribution is an important part of our efforts, and we're thankful for your trust in us.\n\nIf you'd like to stay up-to-date on our progress, we'd be happy to share more about the impact of your donation and how it's being used. Simply reply to this email or visit our website to learn more.\n\nThank you again for your support.\n\nSincerely,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 1
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Michael,\n\nWe wanted to take a moment to express our heartfelt gratitude for your recent gift of $1419.39 on August 18th. Your support means the world to us and the individuals we serve.\n\nYour investment is making a tangible difference in the lives of those we help. We've seen firsthand the impact of our work, and it's because of donors like you that we can continue to provide essential services.\n\nWe'd love to share more of these stories with you in person. We're hosting an event soon and would be honored if you could join us. It will be a wonderful opportunity to connect and learn more about the impact of your generosity.\n\nPlease let us know if you can attend.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 2
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Fatima,\n\nWe wanted to take a moment to express our heartfelt gratitude for your recent gift of $134.60 on June 19th. Your support means the world to us, and we're honored to have you as part of our Champions community.\n\nWe'd love to share a story of impact with you. One of our recent initiatives has made a significant difference in the lives of [briefly mention the initiative and its impact]. Your generosity is helping to make stories like this possible.\n\nWe're also excited to invite you to an upcoming event where you can learn more about our work and meet some of the people behind the initiatives you're supporting. We'd love for you to join us on [date and time] at [location].\n\nThank you again for your trust in us, Fatima. We're grateful for friends like you.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 3
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Yuki,\n\nWe wanted to take a moment to express our sincere appreciation for your last donation to our organization. Your gift of $447.68 on May 16, 2025, helped us continue our mission and made a meaningful impact.\n\nWe understand that life can get busy, and we appreciate your continued support whenever you're able to give. If you're interested in staying up-to-date on our latest news and achievements, we invite you to follow us on social media or visit our website.\n\nThank you again for your generosity and loyalty. We're grateful for donors like you who help us make a difference.\n\nBest regards, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 4
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Priya,\n\nWe wanted to take a moment to express our heartfelt gratitude for your recent donation of $51.62 on January 2nd, 2026. Your support means the world to us, and we're so thankful to have friends like you who believe in our mission.\n\nAs we continue to work towards our goals, we're reminded of the impact that donors like you make possible. Your loyalty and trust in our organization are truly appreciated, and we're honored to have you by our side.\n\nAs we approach the end of the year, we're reaching out to kindly remind you that your current support is set to expire. We'd be grateful if you could consider renewing your commitment to our cause. Your continued support will help us continue to make a difference.\n\nThank you again for your generosity and loyalty. We look forward to hearing from you soon.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 5
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Sofia,\n\nWe wanted to take a moment to express our heartfelt gratitude for your continued support of our cause. Your most recent gift of $655.35 on July 21st was a testament to your commitment to our mission, and we're so thankful to have you by our side.\n\nYour generosity has a direct impact on the lives of those we serve, and we're excited to share some of these stories with you in the coming weeks. We'll be sending out a special update soon that showcases the difference you're making.\n\nWe'd also like to invite you to our upcoming event on [date and location]. It will be a wonderful opportunity to connect with our team and learn more about the work we're doing. Your presence would mean the world to us.\n\nThank you again for your unwavering support, Sofia. We're honored to have you as a Champion.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 6
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Thomas,\n\nWe appreciate your ongoing support for our cause. Your recent donation of $273.57 on June 23rd has helped us continue our work.\n\nWe'd like to share an update on the impact of your contributions. Your generosity has enabled us to [insert general impact statement, e.g., \"make a difference in the lives of those in need\" or \"support vital programs and services\"].\n\nThank you for trusting us with your support. We're grateful for donors like you who help us move closer to our goals.\n\nSincerely, [Your Organization's Name]"
+        },
+        "pairedItem": {
+          "item": 7
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Priya,\n\nWe wanted to take a moment to express our heartfelt gratitude for your generous donation of $1094.02 on July 26th. Your support means the world to us, and we're so grateful to have you as a member of our Champions community.\n\nWe'd love to share a story with you about the impact of your gift. Your donation is helping us [briefly mention the impact of her donation, e.g. \"provide critical support to those in need\" or \"further our mission to [briefly mention the organization's mission]\"].\n\nWe'd also like to invite you to an upcoming event, where you'll have the opportunity to meet our team and learn more about the work we're doing. The event will take place on [date] at [location]. We hope you can join us!\n\nThank you again for your kindness and support.\n\nBest regards,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 8
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Priya,\n\nWe're grateful for your continued support, as seen in your latest gift of $1023.15 on August 10th. Your contributions make a tangible difference in the lives of those we serve.\n\nAs a valued Champion, we'd like to share with you the story of [insert story of impact, e.g. a specific program or project that has made a difference]. We're proud of the progress we're making together.\n\nWe're also excited to invite you to our upcoming event, where you'll have the opportunity to meet our team and learn more about our work. It will be a wonderful chance to connect and see firsthand the impact of your support.\n\nDate: [insert date]\nTime: [insert time]\nLocation: [insert location]\n\nWe look forward to sharing this experience with you.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 9
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Grace,\n\nWe wanted to take a moment to express our gratitude for your continued support of our mission. Your most recent donation of $306.25 on July 9, 2026, is a testament to your commitment to our cause.\n\nWe're excited to share with you the impact of your generosity. Your contributions, along with those of other loyal donors like yourself, have enabled us to [briefly mention a general program or initiative that has been made possible by donor support].\n\nThank you for your ongoing trust in our organization. We're honored to have you as a part of our community.\n\nSincerely, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 10
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Kevin,\n\nWe wanted to take a moment to express our heartfelt gratitude for your continued support of our mission. Your most recent donation of $361.65 on August 1st was a significant contribution to our efforts, and we're grateful for your investment in our work.\n\nWe're making progress towards our goals, and your support is helping to drive that progress. We're excited about the impact we're having, and we're committed to making a lasting difference in the lives of those we serve.\n\nThank you again for your loyalty and generosity. We're honored to have you as part of our community.\n\nSincerely,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 11
+        }
+      },
+      {
+        "json": {
+          "text": "Hi Priya,\n\nWe wanted to take a moment to express our heartfelt gratitude for your continued support. Your most recent gift of $1330.81 on August 3rd is a testament to your commitment to our shared mission.\n\nWe're making progress towards creating lasting change, and your generosity is playing a vital role. Your support is empowering us to innovate, adapt, and push forward with confidence.\n\nWe'd love to share more about the impact of your giving and invite you to join us for an upcoming event, where you'll have the opportunity to meet our team and hear firsthand about the difference you're making.\n\nStay tuned for more details on the event and thank you again for your unwavering dedication to our cause.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 12
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Nadia,\n\nWe wanted to take a moment to express our sincere gratitude for your ongoing support. Your donation of $232.81 on April 15, 2026, was a valuable contribution to our mission.\n\nWe appreciate donors like you who consistently give their time and resources to help us make a difference. Your loyalty means a great deal to us, and we're grateful to have you as part of our community.\n\nIf you're interested in learning more about the impact of your donation, we'd be happy to share some updates with you. Please let us know if you'd like to hear about the specific projects and initiatives your support has helped fund.\n\nThank you again for your generosity, Nadia.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 13
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Maria,\n\nWe wanted to take a moment to express our gratitude for your ongoing support. Your recent donation of $100.02 on May 11th is a valued contribution to our efforts.\n\nWe're grateful for donors like you who help us make a positive impact in the community. Your trust in our organization is appreciated, and we're committed to using your gift wisely.\n\nIf you'd like to stay informed about our work and the impact of your donation, we'd be happy to share updates with you. Simply let us know if you'd like to receive our newsletter or other communications.\n\nThank you again for your support. We're grateful for your loyalty.\n\nSincerely, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 14
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Emily,\n\nA warm welcome to our community! We're thrilled to have you on board. Your support means the world to us, and we're grateful for your first donation of $138.20 on August 11th.\n\nThank you for joining our mission to [briefly mention the mission or cause]. Your contribution will make a real difference in the lives of [who or what the donation benefits].\n\nWe're excited to have you as part of our journey and look forward to keeping you updated on our progress. If you have any questions or would like to learn more about our work, please don't hesitate to reach out.\n\nOnce again, thank you for your generosity and trust in us. We're honored to have you as a partner in our mission.\n\nBest regards, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 15
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Emily,\n\nWe wanted to take a moment to express our sincere gratitude for your recent donation of $527.65 on August 13, 2025. Your support means a great deal to us, and we're thankful for your continued trust in our organization.\n\nWe're working hard to address the needs of those in our community who are struggling. Your contribution is helping us make a difference in the lives of many. We'd love to share more about the impact of your gift and how it's being used.\n\nIf you'd like to stay up-to-date on our latest news and updates, please let us know. We appreciate your ongoing support and look forward to sharing more about the good work we're doing.\n\nThank you again for your generosity.\n\nBest regards,\n[Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 16
+        }
+      },
+      {
+        "json": {
+          "text": "Dear John,\n\nWe wanted to take a moment to express our sincere gratitude for your recent donation of $141.07 on February 4th. Your support is invaluable to our organization and helps us make a meaningful impact in the lives of those we serve.\n\nWe're excited to share with you the ways in which your contribution is being used to further our mission. From providing essential services to empowering individuals and communities, your generosity is helping to drive real change.\n\nIf you're interested in learning more about the impact of your donation, we'd be happy to keep you updated on our progress. Simply let us know and we'll be in touch.\n\nThank you again for your trust and support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 17
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Daniel,\n\nA warm welcome to our community! We're thrilled you've chosen to support our mission. Your first gift of $291.80 on August 27, 2026, was a generous contribution that we're truly grateful for.\n\nWe're honored to have you on board and appreciate your trust in our work. Your support will help us make a meaningful difference in the lives of those we serve.\n\nThank you for joining us on this journey. We'll keep you updated on our progress and the impact of your gift. If you have any questions or would like to learn more about our mission, please don't hesitate to reach out.\n\nOnce again, thank you for your kindness and support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 18
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Priya,\n\nWe wanted to take a moment to express our gratitude for your continued support. Your recent donation of $242.96 on May 18th is truly appreciated and helps us make a positive impact in the community.\n\nWe're working hard to ensure that our programs and services continue to meet the evolving needs of those we serve. Your loyalty and trust in our organization mean the world to us, and we're committed to being good stewards of your generosity.\n\nIf you'd like to stay updated on the impact of your donation, please let us know and we'll be happy to share with you the latest news and stories from our work.\n\nThank you again for your support, Priya.\n\nBest regards,\n[Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 19
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Ines,\n\nWe wanted to take a moment to express our gratitude for your continued support of our mission. Your recent donation of $1326.38 on July 16th is a valued contribution towards our efforts.\n\nWe are grateful for donors like you who help us make a difference in the lives of those we serve. Your loyalty and trust in our organization mean a great deal to us.\n\nWe are working hard to ensure that your generosity has a lasting impact. We will continue to share updates on the progress we make possible with your support.\n\nThank you again for your trust in our mission.\n\nSincerely,\n[Your Organization's Name]"
+        },
+        "pairedItem": {
+          "item": 20
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Aisha,\n\nWe wanted to take a moment to express our sincere gratitude for your ongoing support. Your most recent gift of $557.18 on October 25th was a valuable contribution to our efforts.\n\nWe appreciate donors like you who make a difference through their generosity. We're working hard to continue making a positive impact, and your support is crucial to our success.\n\nIf you're interested in learning more about the impact of your donations, we'd be happy to share some updates with you. Please let us know if you'd like to hear more about our recent work.\n\nThank you again for your loyalty and support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 21
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Daniel,\n\nWe wanted to take a moment to express our gratitude for your support of our organization. Your most recent donation of $410.41 on April 28, 2025, has helped us continue our mission to make a positive impact.\n\nWe're grateful for donors like you who believe in our work and are willing to invest in our efforts. We're making progress, and we're committed to using your generosity wisely.\n\nWe'd love to share more about the impact of your support and how it's helping us achieve our goals. If you're interested, please let us know and we'll be happy to send you an update.\n\nThank you again for your trust in our organization.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 22
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Elena,\n\nWe wanted to take a moment to express our heartfelt gratitude for your continued support of our mission. Your generous donation of $1002.52 on August 24th is a testament to your commitment to making a difference in the lives of others.\n\nWe're proud to share with you the impact of your gift. [Insert brief impact story here, e.g. \"Thanks to donors like you, we were able to provide [number] people with [service/resource] this year.\"]\n\nAs we celebrate the progress we've made together, we'd like to invite you to join us at an upcoming event. This will be a wonderful opportunity to connect with like-minded individuals and hear more about the work we're doing. The details are as follows: [Insert event date, time, location, and other relevant information].\n\nWe're honored to have you as part of our community and look forward to sharing more about our work with you soon.\n\nWarm regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 23
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Anthony,\n\nWe wanted to take a moment to express our heartfelt gratitude for your ongoing support. Your most recent gift of $266.32 on May 15th was a generous contribution to our mission.\n\nYour investment is making a tangible difference in the lives of those we serve. We've seen firsthand the impact of our work, and we're excited to share some of these stories with you.\n\nWe'd love for you to join us at our upcoming event, where you'll have the opportunity to meet some of the individuals and families we've been able to support. It will be a chance to connect with our team and hear more about the impact of your giving.\n\nWe look forward to seeing you there.\n\nBest regards, [Name]"
+        },
+        "pairedItem": {
+          "item": 24
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Emily,\n\nWe wanted to take a moment to express our gratitude for your support of our cause. Your last donation of $63.17 on September 20, 2024, was a significant contribution to our efforts.\n\nWe understand that life can get busy, and we appreciate the time you took to make a donation. We're always working to make a positive impact, and your support helps us achieve our goals.\n\nIf you're interested in learning more about our current initiatives and how your donation is being used, we'd be happy to share an update with you. Please let us know if you'd like to hear more.\n\nThank you again for your support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 25
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Robert,\n\nWe wanted to take a moment to express our gratitude for your recent donation of $255.98, made on March 30, 2026. Your continued support is truly appreciated and helps us make a meaningful difference in the lives of those we serve.\n\nWe're excited to share with you the impact of your gift, and we'll be sending you a more detailed update soon. In the meantime, know that your generosity is helping us [briefly mention a general program or initiative].\n\nThank you again for your loyalty and trust in our organization. We're honored to have you as part of our community.\n\nBest regards,\n[Your Organization's Name]"
+        },
+        "pairedItem": {
+          "item": 26
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Anthony,\n\nWe wanted to take a moment to express our gratitude for your support of our organization. Your last donation of $129.08 on October 14, 2024, helped us continue our mission.\n\nWe're working hard to make a positive impact in the community, and we're grateful for donors like you who help make it possible. If you're interested in learning more about our current projects and initiatives, we'd be happy to share an update with you.\n\nThank you again for your support. We appreciate your trust in our organization.\n\nBest regards,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 27
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Maria,\n\nWe wanted to take a moment to express our gratitude for your recent donation of $416.61 on June 1st. Your support is invaluable to us and helps make a tangible difference in the lives of those we serve.\n\nWe're proud of the progress we've made in our mission, and we're excited to share some of the key highlights with you in the coming months. From the impact of our programs to the stories of those we've helped, we're eager to keep you informed about the ways your support is making a difference.\n\nThank you again for your generosity, Maria. We're honored to have you as a part of our community.\n\nSincerely, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 28
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Robert,\n\nWe wanted to take a moment to express our heartfelt gratitude for your continued support of our mission. Your generosity, demonstrated by your most recent gift of $909.59 on July 27, 2026, is a testament to your commitment to making a lasting impact.\n\nWe are excited to share with you some of the incredible stories of how your donations have helped our cause. From providing critical services to those in need, to empowering communities to thrive, your support has been instrumental in driving meaningful change.\n\nWe would love to invite you to join us at an upcoming event, where you'll have the opportunity to hear more about the impact of your giving and meet some of the individuals whose lives have been touched by your generosity. We hope you can join us!\n\nSincerely, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 29
+        }
+      },
+      {
+        "json": {
+          "text": "Dear James,\n\nWe want to take a moment to express our heartfelt gratitude for your ongoing support of our mission. Your last donation of $179.27 on April 3, 2026, was a significant contribution to our efforts, and we're so thankful to have you as a part of our community.\n\nAs we continue to work towards our goals, we're reminded of the impact that donors like you have on our work. Your generosity allows us to make a real difference in the lives of those we serve.\n\nWe're writing to remind you that your donation will be due for renewal soon. We'd be honored if you would consider continuing your support at the same level. If you have any questions or need assistance, please don't hesitate to reach out.\n\nThank you again for your kindness and trust in our organization.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 30
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Wei,\n\nWe wanted to take a moment to express our gratitude for your continued support. Your donation of $143.9 on May 26th was a valuable contribution to our efforts.\n\nWe're working hard to make a positive impact, and your generosity helps make that possible. We're grateful for donors like you who share our commitment to this cause.\n\nIf you'd like to stay up-to-date on our progress, we'd be happy to share updates on our work. Simply let us know if you'd like to receive these updates.\n\nThank you again for your support. We appreciate your trust in our organization.\n\nBest regards,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 31
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Yuki,\n\nWe appreciate your past support for our cause, and we're grateful for the $64.44 you donated on October 14, 2024. We understand that your circumstances may have changed, and we want to keep you informed about the impact of your contributions.\n\nWe're working to make a difference, and your support has helped us get closer to our goals. If you're able to give again, we'd be happy to have you back. If not, we appreciate your consideration and hope you'll stay in touch.\n\nEither way, we're glad you're part of our community, and we look forward to keeping you updated on our progress.\n\nBest regards, [Your Organization]"
+        },
+        "pairedItem": {
+          "item": 32
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Carlos,\n\nWe wanted to take a moment to express our gratitude for your continued support. Your gift of $236.94 on April 21st is a valuable contribution to our mission.\n\nWe're making progress towards our goals, and we're grateful for donors like you who help make it possible. We're committed to using your generosity wisely, and we're excited about the impact we're having.\n\nIf you'd like to stay updated on our progress, we'd be happy to share more information with you. Thank you again for your trust in us.\n\nBest regards,\n[Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 33
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Grace,\n\nWe wanted to take a moment to express our sincere gratitude for your ongoing support. Your last gift of $142.23 on December 22, 2025, was a reminder of the impact you're making possible.\n\nWe're working tirelessly to [general impact update]. Your contributions, like yours, are vital to our mission.\n\nThank you for standing with us. Your loyalty and trust mean the world.\n\nBest regards,\n[Your Organization's Name]"
+        },
+        "pairedItem": {
+          "item": 34
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Kevin,\n\nWe wanted to take a moment to express our gratitude for your recent donation of $297.87 on July 28, 2026. Your support helps make a tangible difference in the lives of those we serve.\n\nWe're grateful for donors like you who contribute to our mission. Your involvement allows us to continue providing vital services and programs.\n\nIf you're interested in learning more about the impact of your gift, we'd be happy to share an update on how your donation is making a difference.\n\nThank you again for your trust in our organization.\n\nSincerely, [Name]"
+        },
+        "pairedItem": {
+          "item": 35
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Aisha,\n\nWe wanted to take a moment to express our sincere gratitude for your continued support of our organization. Your donation of $130.84 on July 6th is a testament to your commitment to our mission.\n\nWe're proud of the work we do, and we're grateful for donors like you who help make it possible. We're always striving to make a positive impact in our community, and we're excited to share updates on our progress with you.\n\nIf you're interested in learning more about the impact of your donation, we'd love to share some stories and updates with you. Please let us know if you'd like to receive more information.\n\nThank you again for your support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 36
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Layla,\n\nWe wanted to take a moment to express our heartfelt thanks for your recent donation of $217.43 on August 4, 2026. Your support means the world to us, and we're grateful for your trust in our mission.\n\nWe're working hard to make a positive impact in our community, and we're excited to share some of the progress we've made so far. If you'd like to stay up-to-date on our latest news and updates, we'd be happy to share them with you.\n\nThank you again for your generosity and for being part of our community.\n\nBest regards, [Your Organization's Name]"
+        },
+        "pairedItem": {
+          "item": 37
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Sarah,\n\nWe wanted to take a moment to express our gratitude for your past support of our organization. Your donation of $146.79 on December 10, 2024, was a valuable contribution to our work.\n\nWe understand that circumstances can change, and we hope you're doing well. We'd love to share an update on the impact of your gift and the progress we've made since your last donation.\n\nIf you're interested in learning more about our current initiatives and how your support has helped, please let us know. We'd be happy to keep you informed.\n\nThank you again for your past support. We appreciate your consideration and hope to hear from you soon.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 38
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Thomas,\n\nA warm welcome to our community! We're thrilled that you've joined us in making a difference. We appreciate the support you've shown us with your recent donation of $250.65 on August 28, 2026.\n\nWe're grateful for donors like you who share our commitment to [organization's mission]. Your contribution is helping us [briefly mention a specific impact or goal]. We're excited to have you on board and look forward to sharing more about our work with you.\n\nThank you again for your trust in us. If you have any questions or would like to learn more about our efforts, please don't hesitate to reach out.\n\nBest regards, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 39
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Ivy,\n\nWe wanted to take a moment to express our gratitude for your past support of our organization. Your last donation of $90 on May 1, 2025, was a significant contribution towards our mission.\n\nWe understand that circumstances can change, and we want to assure you that your generosity has made a lasting impact on the lives of those we serve.\n\nIf you're able to continue supporting our work, we'd be grateful to hear from you. Otherwise, we simply want to acknowledge the role you've played in helping us achieve our goals.\n\nThank you again for your past support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 40
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Linh,\n\nWe wanted to take a moment to express our gratitude for your past support of our organization. Your gift of $411.7 on May 29, 2025, helped us continue our mission to make a positive impact in the community.\n\nWe'd love to share with you the latest updates on our work and how your contributions have helped us move closer to our goals. We're proud of the progress we've made, and we're excited about the future.\n\nIf you're interested in staying up-to-date on our latest news and achievements, we invite you to visit our website or follow us on social media. We appreciate your continued interest in our work and look forward to sharing more with you soon.\n\nBest regards,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 41
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Fatima,\n\nWe wanted to take a moment to express our heartfelt gratitude for your continued support. Your donation of $546.14 on November 3, 2025, is a testament to your commitment to our mission.\n\nWe're making progress towards our goals, and your contribution is helping us move closer to making a meaningful difference. We're grateful for donors like you who help us stay on track.\n\nIf you'd like to stay updated on our progress, we'd be happy to share more information with you. Simply let us know if you'd like to receive updates, and we'll make sure to keep you informed.\n\nThank you again for your loyalty and trust in our organization.\n\nSincerely,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 42
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Robert,\n\nWe wanted to take a moment to express our heartfelt gratitude for your ongoing support of our organization. Your most recent gift of $1302.09 on August 14th was a testament to your commitment to our shared mission.\n\nWe're making a tangible difference in the lives of those we serve, and we couldn't do it without champions like you. Your contributions have a direct impact on our ability to provide essential services and create lasting change.\n\nWe'd love for you to join us for an upcoming event, where you can hear firsthand about the impact of your generosity. Details are below:\n\n* Date: [Insert Date]\n* Time: [Insert Time]\n* Location: [Insert Location]\n\nWe hope to see you there. Thank you again for your unwavering support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 43
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Chloe,\n\nWe wanted to take a moment to express our gratitude for your past support of our organization. Your donation of $368.54 on May 2, 2025, helped us continue our mission to [briefly mention the mission or purpose of the organization].\n\nWe appreciate donors like you who believe in the importance of our work and are willing to contribute to its success. If you're interested in learning more about our current initiatives and impact, we'd be happy to share an update with you.\n\nThank you again for your support. We value your trust and confidence in our organization.\n\nSincerely, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 44
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Sofia,\n\nWe wanted to take a moment to express our sincere gratitude for your recent donation of $87.95 on August 12, 2026. Your support is invaluable to our mission and we're thrilled that you're part of our community.\n\nWe're making progress towards creating positive change and we'd love to share some updates with you. If you're interested in learning more about the impact of your donation and how it's helping us achieve our goals, please let us know and we'll be happy to share some information with you.\n\nThank you again for your generosity and for being part of our mission.\n\nBest regards, [Your Organization]"
+        },
+        "pairedItem": {
+          "item": 45
+        }
+      },
+      {
+        "json": {
+          "text": "Dear George,\n\nA warm welcome to our community! We're thrilled that you've chosen to support our mission. Your first donation of $92.03 on August 14, 2026, was a wonderful gesture and we're grateful for your trust in us.\n\nWe're excited to have you on board and look forward to sharing our progress and impact with you. Your support will make a real difference in the lives of those we serve.\n\nThank you again for your generosity and for joining our efforts to create positive change. We're honored to have you as part of our team.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 46
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Kevin,\n\nWe appreciate your past support for our organization, which helped us make a positive impact in our community. Your last donation of $54.98 on October 22, 2024, was valued and contributed to our efforts.\n\nWe'd like to share with you the progress we've made since your last gift. If you're interested in staying updated on our work, please let us know and we'll be happy to keep you informed.\n\nThank you again for your support. We're grateful for donors like you who help us continue our mission.\n\nBest regards, [Name]"
+        },
+        "pairedItem": {
+          "item": 47
+        }
+      },
+      {
+        "json": {
+          "text": "Dear George,\n\nWe wanted to take a moment to express our heartfelt gratitude for your continued support of our mission. Your most recent donation of $922.04 on August 16th was a wonderful reminder of your commitment to making a difference.\n\nWe're thrilled to share with you some incredible stories of impact from our work. Your contributions are helping to [briefly mention the impact]. These stories are a testament to the power of our collective efforts.\n\nWe'd love for you to join us at an upcoming event, where you'll have the opportunity to meet some of the individuals we're serving and hear more about the impact of your generosity. The event details are below.\n\nDate: [Insert Date]\nTime: [Insert Time]\nLocation: [Insert Location]\n\nWe're honored to have you as a Champion of our mission. Your support means the world to us.\n\nBest regards,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 48
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Anthony,\n\nWe wanted to take a moment to express our heartfelt gratitude for your ongoing support. Your donation of $108.67 on April 17th was truly appreciated and will make a significant impact in our mission.\n\nAs we continue to work towards our goals, your loyalty and commitment to our cause are invaluable. We're grateful for donors like you who believe in our work and are willing to help us make a difference.\n\nAs a reminder, your current support is set to continue automatically. If you have any questions or would like to make any changes to your donation, please don't hesitate to reach out.\n\nThank you again for your generosity and loyalty. We're honored to have you as part of our community.\n\nBest regards, [Your Organization]"
+        },
+        "pairedItem": {
+          "item": 49
+        }
+      },
+      {
+        "json": {
+          "text": "Dear David,\n\nWe wanted to take a moment to express our sincere gratitude for your continued support. Your recent donation of $241.96 on May 26th is a testament to your commitment to our mission.\n\nWe're making progress towards creating positive change, and we're grateful for donors like you who are helping us move forward. We're working tirelessly to [insert brief description of ongoing efforts or recent achievements].\n\nIf you're interested in learning more about the impact of your donation or staying up-to-date on our progress, we'd be happy to share updates with you.\n\nThank you again for your loyalty and trust in our organization.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 50
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Thomas,\n\nWe wanted to take a moment to express our gratitude for your past support. Your donation on September 25, 2024, in the amount of $96.76, was greatly appreciated.\n\nWe understand that life can get busy, and it's possible that your circumstances may have changed since your last gift. We'd love to share with you the impact of your contribution, as well as the progress we've made in our efforts.\n\nIf you're able, we'd be happy to keep you updated on our work. If not, we completely understand and appreciate the support you've provided in the past.\n\nThank you again for your consideration.\n\nBest regards, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 51
+        }
+      },
+      {
+        "json": {
+          "text": "Dear David,\n\nWe appreciate your continued support for our organization. It's been a while since your last donation, and we wanted to take a moment to update you on the impact of your gifts.\n\nYour last donation of $112.87 on January 10, 2025, has helped us continue our mission to [briefly mention the organization's mission or purpose]. We're grateful for your investment in our work and the difference it makes in the lives of those we serve.\n\nWe'd love to share more about the progress we've made and how your support is helping us move forward. If you're interested in staying up-to-date on our latest news and updates, please let us know.\n\nThank you again for your support.\n\nBest regards,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 52
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Yuki,\n\nWe want to express our heartfelt gratitude for your ongoing support to our cause. Your latest donation of $176.23 on March 9, 2026, is a testament to your commitment to our mission.\n\nAs we continue to work towards making a positive impact, we're reminded of the importance of loyal supporters like you. Your contributions enable us to provide essential services and make a difference in the lives of those who need it most.\n\nAs we approach the anniversary of your last donation, we're sending a friendly reminder that your support is vital to our continued success. If you have the means, we'd be grateful if you could consider renewing your gift to help us continue our work.\n\nThank you again for your kindness and generosity.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 53
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Marcus,\n\nA warm welcome to our community! We're thrilled that you've joined us in supporting our mission. Your generosity is already making a difference, and we're grateful for your trust in us.\n\nWe wanted to take a moment to express our appreciation for your first gift of $299.16, made on August 21, 2026. Your investment in our work is invaluable, and we're honored to have you as part of our team.\n\nThank you for being part of this journey with us. We're excited to share updates, stories, and the impact of your support. We look forward to staying in touch and keeping you informed about the good work we're doing together.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 54
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Layla,\n\nWe wanted to take a moment to express our gratitude for your ongoing support. Your most recent gift of $297.31, made on June 12, 2025, helps us continue our mission to make a positive impact in the community.\n\nWe're grateful for donors like you who believe in our cause and are willing to invest in our efforts. Your trust in our organization means a lot to us, and we're committed to using your gift wisely.\n\nWe'd love to share more about the impact of your donation and how it's helping to make a difference. If you're interested, please let us know and we'll be happy to send you an update.\n\nThank you again for your support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 55
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Marcus,\n\nWe appreciate your past support for our organization. Your last donation of $105.95, made on December 31, 2024, helped us continue our work.\n\nWe'd like to keep you updated on the impact of your contributions. If you're willing, we'd be grateful to share with you how your donations have been used.\n\nIf you have any questions or would like to receive updates, please let us know. We value your interest in our organization and hope to have the opportunity to serve you again.\n\nThank you for your consideration.\n\nBest regards, [Your Name/Organization]"
+        },
+        "pairedItem": {
+          "item": 56
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Daniel,\n\nWe appreciate your past support for our organization, including your donation of $127.76 on September 16, 2024. We're grateful for donors like you who help us make a difference in the community.\n\nWe'd like to share with you the impact of our work and how your contributions have helped us achieve our goals. If you're interested in learning more, please let us know and we'll be happy to send you an update.\n\nThank you again for your support.\n\nBest regards,\n[Your Name]"
+        },
+        "pairedItem": {
+          "item": 57
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Linh,\n\nWe appreciate your past support for our organization, with your last donation of $94.76 on December 14, 2024. We're grateful for donors like you who help us continue our mission.\n\nWe'd like to share an update on the impact of your support. Your contributions have helped us [briefly describe the general impact of donations].\n\nIf you're able to continue supporting us, we'd be grateful. If not, we understand and appreciate the contributions you've already made.\n\nThank you for considering our request.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 58
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Carlos,\n\nWe appreciate your support in helping us make a difference. Your donation of $233.02 on August 29, 2026, is valued and acknowledged.\n\nWe are working to [briefly mention the organization's mission or goals]. Your contribution is a part of these efforts.\n\nWe will share more about our progress in the future.\n\nThank you for your support.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 59
+        }
+      },
+      {
+        "json": {
+          "text": "Dear Elena,\n\nA warm welcome to our community! We're thrilled to have you on board. We wanted to take a moment to express our gratitude for your generous donation of $292.62, received on August 14th. Your support means the world to us, and we're honored to have you as part of our mission.\n\nAs you explore our work, we hope you'll discover the impact your contribution is making. We're committed to transparency and accountability, and we're always here to answer any questions you may have.\n\nThank you again for your trust in us. We're excited to have you as a partner in our efforts to make a difference.\n\nBest regards, [Your Name]"
+        },
+        "pairedItem": {
+          "item": 60
+        }
+      }
+    ]
+  },
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "ca0f7751-e92d-44ff-92d7-e02a16a33025",
+  "nodeGroups": [],
+  "connections": {
+    "Llama3.1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain2",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Draft With Donor Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Basic LLM Chain2": {
+      "main": [
+        [
+          {
+            "node": "Merge Draft With Donor Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RFM Segmentation": {
+      "main": [
+        [
+          {
+            "node": "Behavioral Segmentation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Clean": {
+      "main": [
+        [
+          {
+            "node": "IF Valid / Invalid Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fallback Template": {
+      "main": [
+        [
+          {
+            "node": "Shape Final Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Shape Final Output": {
+      "main": [
+        [
+          {
+            "node": "Update rows with personalized messages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store Invalid Rows": {
+      "main": [
+        []
+      ]
+    },
+    "Get row(s) in sheet": {
+      "main": [
+        [
+          {
+            "node": "Validate & Clean",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate LLM Output": {
+      "main": [
+        [
+          {
+            "node": "Fallback Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Behavioral Segmentation": {
+      "main": [
+        [
+          {
+            "node": "Segment to Treatment Mapping",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF Valid / Invalid Rows": {
+      "main": [
+        [
+          {
+            "node": "RFM Segmentation",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Store Invalid Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monthly Schedule Trigger": {
+      "main": [
+        []
+      ]
+    },
+    "Merge Draft With Donor Data": {
+      "main": [
+        [
+          {
+            "node": "Validate LLM Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Segment to Treatment Mapping": {
+      "main": [
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking ‘Execute workflow’": {
+      "main": [
+        [
+          {
+            "node": "Get row(s) in sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

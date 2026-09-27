@@ -1,4 +1,4 @@
-# calling : 9
+# calling : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |8987|[8987_Automate_Lead_Calling_with_VAPI__Google_Sheets_Logging__and_Calendar_Bookings.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/89/8987_Automate_Lead_Calling_with_VAPI__Google_Sheets_Logging__and_Calendar_Bookings.json)|
 |14782|[14782_Build_a_local_RAG_chatbot_with_Ollama__Qwen__BGE-M3_and_Postgres_PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14782_Build_a_local_RAG_chatbot_with_Ollama__Qwen__BGE-M3_and_Postgres_PGVector.json)|
 |16048|[16048_Trigger_AI_outbound_calls_from_HubSpot_and_log_call_results_with_Vapi.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16048_Trigger_AI_outbound_calls_from_HubSpot_and_log_call_results_with_Vapi.json)|
+|18185|[18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18185_Run_a_human-approved_shopping_assistant_with_GPT-4.1-mini__product_APIs_and_Slack.json)|

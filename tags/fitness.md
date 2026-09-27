@@ -1,4 +1,4 @@
-# fitness : 6
+# fitness : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |13574|[13574_Log_workouts_and_get_AI_fitness_analysis_with_a_form__Google_Gemini__Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13574_Log_workouts_and_get_AI_fitness_analysis_with_a_form__Google_Gemini__Sheets__Slack__and_Gmail.json)|
 |14858|[14858_Track_nutrition_and_fitness_via_webhook_with_OpenAI__Google_Sheets_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/48/14858_Track_nutrition_and_fitness_via_webhook_with_OpenAI__Google_Sheets_and_Slack_alerts.json)|
 |16610|[16610_Turn_Telegram_into_a_French_fitness_coach_with_Claude__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16610_Turn_Telegram_into_a_French_fitness_coach_with_Claude__OpenAI_and_Google_Sheets.json)|
+|16969|[16969_Coach_fitness_and_nutrition_on_Telegram_with_Claude__Google_Sheets_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16969_Coach_fitness_and_nutrition_on_Telegram_with_Claude__Google_Sheets_and_Calendar.json)|
+|18763|[18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json)|

@@ -1,0 +1,843 @@
+{
+  "id": "eOISZE9AA4JFTKNn",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Qualify and score real estate leads via WhatsApp, Google Gemini, and PostgreSQL",
+    "wechat": "youandme10086",
+    "id": 18033,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Real Estate Lead Qualification Starter",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7dd75419-7bbf-4315-8915-e1676baec99e",
+      "name": "Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -816,
+        -1456
+      ],
+      "webhookId": "3881ccca-184c-45fd-a3e7-de07755bbd77",
+      "parameters": {
+        "path": "ingest-data",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b10b8601-2544-49ac-9e4a-aafb20caf34b",
+      "name": "Validate & Normalise Data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -496,
+        -1456
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "let data = $json;\n\nfunction validateLead(data) {\n  const errors = [];\n\n  // --- Skip validation entirely for non-lead emails ---\n  if (!data.is_lead_email) {\n    return {\n      valid: true,\n      errors,\n      needs_llm_fallback: false,\n      data\n    };\n  }\n\n  // --- Lead ID validation (structural anchor #1) ---\n  const hasValidLeadId = typeof data.lead_id === \"string\" &&\n    /^[a-f0-9]{8}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{4}-[a-f0-9]{12}$/i.test(data.lead_id.trim());\n\n  if (!hasValidLeadId) {\n    errors.push(\"Lead ID is missing or malformed\");\n    data.lead_id = null;\n  }\n\n  // --- Phone validation and normalisation (structural anchor #2) ---\n  let hasValidPhone = false;\n\n  if (!data.phone || (typeof data.phone === \"string\" && data.phone.trim() === \"\")) {\n    errors.push(\"Phone number is required\");\n    data.phone = null;\n  } else {\n    let digits = data.phone.replace(/\\D/g, \"\"); // strips the \"+\" along with any other non-digits\n\n    digits = digits.startsWith(\"91\") && digits.length === 12 ? digits.slice(2) : digits;\n\n    if (digits.length === 10) {\n      digits = \"91\" + digits;\n    }\n\n    if (/^91\\d{10}$/.test(digits)) {\n      hasValidPhone = true;\n      data.phone = \"+\" + digits; // BUG FIX + FORMAT MATCH: normalised digits saved back\n                                  // as \"+91XXXXXXXXXX\", matching your parser's output style\n    } else {\n      errors.push(\"Phone must be in +91XXXXXXXXXX format\");\n      data.phone = null;\n    }\n  }\n\n  // --- Placeholder email handling ---\n  if (data.email) {\n    const email = data.email.trim().toLowerCase();\n\n    const placeholderPatterns = [\n      /@unknown\\.com$/,\n      /@noemail\\.com$/,\n      /^na@na\\.com$/,\n      /^test@test\\.com$/\n    ];\n\n    data.email = placeholderPatterns.some(p => p.test(email)) ? null : email;\n  }\n\n  // --- Empty strings -> null (name, vehicle_model, followup_datetime, sent_to, raw_subject) ---\n  for (const key of Object.keys(data)) {\n    if (typeof data[key] === \"string\" && data[key].trim() === \"\") {\n      data[key] = null;\n    }\n  }\n\n  // --- Fallback trigger ---\n  // Respect whatever parseLeadEmail() already set, OR'd with what we find here.\n  const needsLlmFallback = Boolean(data.needs_llm_fallback) || (!hasValidLeadId && !hasValidPhone);\n  data.needs_llm_fallback = needsLlmFallback;\n\n  return {\n    valid: errors.length === 0,\n    errors,\n    needs_llm_fallback: needsLlmFallback,\n    data\n  };\n}\n\nlet results = validateLead(data);\n\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ff6a3965-67cb-46f3-8bb1-5c7b32053a9f",
+      "name": "Create or Update the Lead here",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -192,
+        -1456
+      ],
+      "parameters": {
+        "query": "INSERT INTO public.lead_real_estate (\n    name, \n    phone, \n    email, \n    source, \n    project, \n    timestamp\n) \nVALUES (\n    '{{ $json.data.name }}', \n    '{{ $json.data.phone }}', \n    '{{ $json.data.email }}', \n    '{{ $json.data.source }}', \n    '{{ $json.data.project }}', \n    '{{ $json.data.timestamp }}'\n)\nON CONFLICT (phone) DO NOTHING;\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "vZj3vmYJp3JIhE9R",
+          "name": "Postgres account (Kirtan Ciphernutz Personal)"
+        }
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "d47fd043-5a6d-43ce-b35b-9deac6964c14",
+      "name": "Send template",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        112,
+        -1456
+      ],
+      "webhookId": "d6368799-b1f2-43de-be3d-c8f063511c02",
+      "parameters": {
+        "template": "hello_world|en_US",
+        "phoneNumberId": "908689399005700",
+        "recipientPhoneNumber": "={{ $('Validate & Normalise Data').item.json.data.phone }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "4WgxuEjoBM2R75WV",
+          "name": "WhatsApp account (Milind's Test Number)"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "50d619ae-9d0a-494e-a945-df9f274646a0",
+      "name": "WhatsApp Trigger",
+      "type": "n8n-nodes-base.whatsAppTrigger",
+      "position": [
+        -2160,
+        -768
+      ],
+      "webhookId": "cef2163e-b3e4-480d-8eb6-843924cec6d5",
+      "parameters": {
+        "options": {},
+        "updates": [
+          "messages"
+        ]
+      },
+      "credentials": {
+        "whatsAppTriggerApi": {
+          "id": "ai3k3kojYI9S50ie",
+          "name": "WhatsApp OAuth account - Ciphernutz"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "188c4b6c-ea63-4dcc-93ba-08b282ff3649",
+      "name": "AI Agent",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -1344,
+        -784
+      ],
+      "parameters": {
+        "text": "={{ $json.messages[0].text.body }}",
+        "options": {
+          "systemMessage": "=# Real Estate Lead Qualifier (WhatsApp)\n\nYou are a professional AI assistant for a real estate company communicating with customers over WhatsApp.\n\nYour primary objectives are to:\n\n1. Understand the customer's property requirements.\n2. Qualify the lead by collecting relevant information.\n3. Answer general real estate enquiries accurately.\n4. Guide the customer towards the appropriate next step, such as speaking with a sales representative, scheduling a site visit, or receiving additional property information.\n\n## LANGUAGE BEHAVIOUR\n\n* Detect whether the customer is communicating in Hindi or English.\n* Reply in the same language.\n* If the customer switches languages, switch naturally.\n* Maintain a polite, professional and conversational tone.\n* Keep messages concise and easy to read.\n* Break long responses into short paragraphs when appropriate.\n* Avoid sending excessively long messages.\n\n## CONVERSATION FLOW\n\n### 1. Greeting\n\nWelcome the customer politely.\n\nExample:\n\n> Hello! Thank you for contacting us. How may I assist you with your property search today?\n\n\n### 2. Requirement Discovery\n\nGradually understand:\n\n* What kind of property they are looking for\n* Preferred city or locality\n* Budget\n* Purpose\n* Timeline\n* Any specific requirements\n\nOnly ask questions that are still unanswered.\n\n### 3. Clarification\n\nIf any information is ambiguous:\n\n* Ask polite follow-up questions.\n* Never assume missing information.\n* Confirm important details when necessary.\n\n### 4. Responding\n\nProvide accurate and helpful information.\n\nYou may:\n\n* Explain general property options.\n* Explain buying processes at a high level.\n* Answer project-related questions if information is available in the provided context.\n\nNever invent:\n\n* Property listings\n* Prices\n* Availability\n* Offers\n* Amenities\n* Possession dates\n* Floor plans\n\nIf information is unavailable, clearly state that a sales representative can provide the latest details.\n\n### 5. Lead Qualification\n\nDetermine:\n\n* Whether the customer is genuinely interested.\n* Their buying stage.\n* Their urgency.\n* Whether they appear to be a decision maker.\n\nContinue collecting information naturally until sufficient details have been gathered.\n\n### 6. Next Step\n\nWhen appropriate, guide the conversation towards one of the following:\n\n* Schedule a site visit\n* Arrange a callback\n* Connect with a sales representative\n* Share additional project information\n* Continue the conversation if the customer still has questions\n\nDo not pressure the customer.\n\n### 7. Closing\n\nEnd politely once the conversation reaches a natural conclusion.\n\nClearly confirm the agreed next step.\n\n## DATA COLLECTION\n\nCapture the following whenever available:\n\n* Name\n* Phone number (provided by the system)\n* Property type\n* Property configuration\n* Preferred location\n* Budget\n* Purchase purpose\n* Timeline\n* Additional requirements\n* Preferred contact method\n* Preferred follow-up time\n* Customer questions or concerns\n\nOnly ask for missing information when it helps qualify the lead.\n\n## CONTEXT HANDLING\n\nIf previous customer information is available:\n\n* Use it naturally.\n* Avoid asking for information that is already known.\n* Confirm previously collected information only when appropriate.\n\nExample:\n\n> I can see you were previously looking for a 3 BHK in Kokapet. Is that still your preference?\n\n\n\n## COMPANY CONTEXT\n\nYou represent a premium real estate developer in Surat.\n\nThe following projects are sample knowledge for customer conversations.\n\n### 1. Skyline One\n\n* Location: Vesu\n* Property Type: Premium 2 & 3 BHK Apartments\n* Price Range:\n\n  * 2 BHK: ₹82–95 Lakhs\n  * 3 BHK: ₹1.05–1.35 Crore\n* Highlights:\n\n  * Modern clubhouse\n  * Swimming pool\n  * Gymnasium\n  * Children's play area\n  * Covered parking\n  * Landscaped gardens\n* Suitable For:\n\n  * Families\n  * Working professionals\n  * First-time home buyers\n\n---\n\n### 2. Emerald Heights\n\n* Location: Citylight\n* Property Type: Luxury 3 & 4 BHK Apartments\n* Price Range:\n\n  * 3 BHK: ₹1.45–1.85 Crore\n  * 4 BHK: ₹2.10–2.75 Crore\n* Highlights:\n\n  * Premium clubhouse\n  * Sky lounge\n  * Indoor games\n  * Fitness centre\n  * Multipurpose hall\n  * 24×7 security\n* Suitable For:\n\n  * Luxury home buyers\n  * Large families\n\n---\n\n### 3. Riverstone Residences\n\n* Location: New Citylight\n* Property Type: Premium 2, 3 & 4 BHK Apartments\n* Price Range:\n\n  * 2 BHK: ₹78–90 Lakhs\n  * 3 BHK: ₹1.10–1.50 Crore\n  * 4 BHK: ₹1.80–2.30 Crore\n* Highlights:\n\n  * Rooftop amenities\n  * Co-working lounge\n  * Jogging track\n  * Landscaped gardens\n  * Children's activity zone\n* Suitable For:\n\n  * Families\n  * Professionals\n  * Investors\n\n---\n\n### 4. Green Crest Villas\n\n* Location: Pal\n* Property Type: 4 & 5 BHK Villas\n* Price Range:\n\n  * ₹2.75–4.20 Crore\n* Highlights:\n\n  * Private garden\n  * Clubhouse\n  * Swimming pool\n  * Premium security\n  * Smart home features\n* Suitable For:\n\n  * Luxury buyers\n  * High-net-worth families\n\n---\n\n### 5. Orchid Enclave\n\n* Location: Adajan\n* Property Type: Affordable Premium 2 & 3 BHK Apartments\n* Price Range:\n\n  * 2 BHK: ₹68–82 Lakhs\n  * 3 BHK: ₹88 Lakhs–1.10 Crore\n* Highlights:\n\n  * Community hall\n  * Gym\n  * Indoor games\n  * Garden\n  * Senior citizen area\n* Suitable For:\n\n  * Young families\n  * First-time buyers\n\n---\n\n## FAQ KNOWLEDGE\n\nYou may answer questions about:\n\n* Project locations\n* Property configurations\n* Approximate price ranges\n* Lifestyle amenities\n* Who the project is suitable for\n* General buying process\n* Site visits\n* Payment process (high level)\n* Home loan availability (general guidance)\n\nIf asked for information outside the knowledge provided (exact floor plans, current inventory, possession dates, offers, discounts, maintenance charges, etc.), explain that a sales consultant can provide the latest details.\n\n## STYLE GUIDELINES\n\n* Be conversational rather than robotic.\n* Keep messages concise.\n* Avoid repetitive questions.\n* Ask one or two questions at a time.\n* Adapt to the customer's pace.\n* Use simple language.\n* Remain polite and professional.\n* Never overwhelm the customer with too much information in a single message.\n\n## CONSTRAINTS\n\nYou must never:\n\n* Invent property information.\n* Invent prices.\n* Invent inventory availability.\n* Promise discounts.\n* Guarantee unit availability.\n* Guarantee possession dates.\n* Provide legal advice.\n* Provide financial advice.\n* Claim to have performed actions outside the conversation.\n* Pretend to check internal systems unless such tools are available.\n\nWhen uncertain, state that a sales representative will provide the latest information.\n\n## ERROR HANDLING\n\nIf the customer's message is unclear:\n\n* Ask for clarification politely.\n\nIf multiple interpretations are possible:\n\n* Confirm before proceeding.\n\nIf the conversation goes off-topic:\n\n* Respond briefly and gently steer the discussion back to the customer's property requirements.\n\nIf the customer is no longer interested:\n\n* Thank them for their time.\n* Offer assistance in the future.\n* End the conversation politely.\n\n\n## LEAD QUALIFICATION PRINCIPLES\n\nYour role is to understand the customer's intent, not to maximise the number of questions asked.\n\nPrioritise collecting information that helps determine:\n\n* Buying intent\n* Budget alignment\n* Location preference\n* Timeline\n* Decision-making authority\n* Readiness for the next sales step\n\nAvoid asking unnecessary questions once sufficient qualification has been achieved.\n\n\n"
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "retryOnFail": true,
+      "typeVersion": 3.1
+    },
+    {
+      "id": "7d6068e2-b5d7-47e6-b776-282ecdaab0ec",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        -1488,
+        -544
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-3.5-flash"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "cFsZ9NiF80CcnLu9",
+          "name": "Gemini API key (For Real estate POC)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4df0e090-10d9-4d73-b4a7-0e5ce8e26707",
+      "name": "Postgres Chat Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryPostgresChat",
+      "position": [
+        -1344,
+        -528
+      ],
+      "parameters": {
+        "sessionKey": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 20
+      },
+      "credentials": {
+        "postgres": {
+          "id": "vZj3vmYJp3JIhE9R",
+          "name": "Postgres account (Kirtan Ciphernutz Personal)"
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "d7bbf1fa-1aac-426f-89ed-b787a5eeb5e3",
+      "name": "Send message",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        -400,
+        -800
+      ],
+      "webhookId": "8aebbab3-7c82-48c5-b44f-dbb8876de800",
+      "parameters": {
+        "textBody": "={{ $('AI Agent').item.json.output.reply }}",
+        "operation": "send",
+        "phoneNumberId": "1303295852857513",
+        "additionalFields": {},
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "r3jN53pB9ujEZd5f",
+          "name": "WhatsApp account - Ciphernutz"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "edabc3e8-85c7-401a-bb2c-3e6e369bb967",
+      "name": "Basic LLM Chain",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1120,
+        -704
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "=You are an AI Lead Scoring Assistant for a real estate sales automation system.\n\nYour task is to analyse customer conversation transcripts and generate a structured lead scoring response.\n\nYou MUST follow the scoring rules strictly and deterministically.\n\n-----------------------------------\nPRIMARY OBJECTIVE\n-----------------------------------\n\nAnalyse the transcript and:\n\n1. Identify lead intent and buying signals\n2. Evaluate urgency and engagement\n3. Calculate category-wise scores\n4. Generate a final lead score\n5. Assign a lead band\n6. Recommend the next best action\n\nYou are NOT allowed to invent customer information that is not present in the transcript.\n\nIf data is missing:\n- use conservative scoring\n- assign 0 where appropriate\n- avoid assumptions\n\n-----------------------------------\nSCORING RULES\n-----------------------------------\n\nMaximum total score = 100\n\n1. Intent Signals (Max 30)\n- Explicit interest shown = +10\n- Asked project-specific questions = +5\n- Asked pricing questions = +5\n- Asked availability questions = +5\n- Requested brochure/details = +5\n\nNegative intent:\n- Not interested = -20\n- Wrong timing = -10\n- Casual browsing only = -5\n\n2. Timeline/Urgency (Max 20)\n- Immediate (0–30 days) = +20\n- 1–3 months = +15\n- 3–6 months = +10\n- 6–12 months = +5\n- No clear timeline = 0\n\n3. Site Visit Intent (Max 20)\n- Site visit requested = +20\n- Asked visit timing = +15\n- Interested in scheduling = +10\n- Open to visit later = +5\n\n4. Budget Qualification (Max 10)\n- Budget clearly shared = +10\n- Budget partially shared = +5\n- Budget not shared = 0\n\nBudget adjustment:\n- Budget fits inventory = +5\n- Severe mismatch = -10\n\n5. Engagement Quality (Max 10)\n- Active conversation = +10\n- Multiple follow-up questions = +5\n- Passive responses only = 0\n- Abrupt disengagement = -5\n\n6. Financial Readiness (Max 5)\n- Loan ready/pre-approved = +5\n- Open to financing = +3\n- Financing unclear = 0\n\n7. Decision-Maker Presence (Max 5)\n- Decision-maker present = +5\n- Family consultation pending = +2\n- Not decision-maker = 0\n\n-----------------------------------\nLEAD BAND RULES\n-----------------------------------\n\n- 80–100 = HOT\n- 50–79 = WARM\n- 0–49 = COLD\n\n-----------------------------------\nRECOMMENDED ACTION RULES\n-----------------------------------\n\n- HOT → Immediate Human Follow-Up\n- HOT + Site Visit Intent → Schedule Site Visit\n- HOT + NRI Lead → Schedule Google Meet\n- WARM → Follow-Up Within 24 Hours\n- COLD → Add to Nurture Sequence\n\n-----------------------------------\nCONFIDENCE RULES\n-----------------------------------\n\nGenerate a confidence score between 0 and 1.\n\nHigher confidence:\n- transcript is detailed\n- signals are explicit\n- customer responses are clear\n\nLower confidence:\n- fragmented transcript\n- ambiguous intent\n- incomplete responses\n\n-----------------------------------\nIMPORTANT RULES\n-----------------------------------\n\n- Do NOT explain your reasoning\n- Do NOT output markdown\n- Do NOT output additional text\n- Do NOT include commentary\n- Do NOT hallucinate missing data\n- Only output valid JSON\n- Scores must always be integers except confidence_score\n- Final lead_score must equal the sum of category scores and adjustments\n- lead_band must match the score range\n\n-----------------------------------\nOUTPUT FORMAT\n-----------------------------------\n\nReturn ONLY this JSON structure:\n\n{\n  \"lead_score\": 0,\n  \"lead_band\": \"COLD\",\n  \"timeline_score\": 0,\n  \"intent_score\": 0,\n  \"visit_score\": 0,\n  \"budget_score\": 0,\n  \"engagement_score\": 0,\n  \"finance_score\": 0,\n  \"decision_maker_score\": 0,\n  \"confidence_score\": 0.0,\n  \"recommended_action\": \"\"\n}\n\n-----------------------------------\nTRANSCRIPT ANALYSIS GUIDELINES\n-----------------------------------\n\nExamples of strong intent:\n- asks pricing\n- asks availability\n- asks possession date\n- asks amenities\n- asks site visit\n- asks booking process\n\nExamples of weak intent:\n- only browsing\n- generic enquiry\n- vague responses\n- no follow-up engagement\n\nIf transcript is empty or insufficient:\n- assign low confidence\n- keep scores minimal\n- classify as COLD unless strong evidence exists"
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "executeOnce": false,
+      "typeVersion": 1.9,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "975de726-da5a-4b2f-9057-552ffbb6c420",
+      "name": "Google Gemini Chat Model1",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1040,
+        -480
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "nnoAOraOaeyzwFwJ",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "621ae7a8-e6db-46db-9c90-d287d63f0b80",
+      "name": "Sticky Note12",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -896,
+        -1616
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1216,
+        "height": 368,
+        "content": "## Lead Ingestion\n\nReceives new lead information through the webhook, validates and normalises the data, and stores the lead in PostgreSQL. Once the lead is stored, a WhatsApp template is sent to start the qualification conversation.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "300ce3a0-f4b1-4dbb-813c-3a1c4d491606",
+      "name": "Structured Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        -1104,
+        -544
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"reply\": \"Thank you for reaching out! Feel free to message us anytime. Have a great day!\", \n  \"end_conversation\": true\n}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1.3
+    },
+    {
+      "id": "f7156228-0b94-4a7b-aede-16a2609403df",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -832,
+        -640
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d7212462-50ca-424e-a1a7-31a7211b4ad8",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.output.end_conversation }}",
+              "rightValue": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0081b8b3-5742-4aa2-acb9-2db7a1c30589",
+      "name": "Handle Message Updates",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1824,
+        -768
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "43f8c9ee-b6a2-45be-9dc3-fecfb3c9a91a",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.messages[0].text.body.length > 0 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "d37e2b5e-0156-40d9-a0a5-0f50016cd764",
+      "name": "Check if the lead has been qualified",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -48,
+        -528
+      ],
+      "parameters": {
+        "query": "SELECT\n  lead_id,\n  is_qualified\nFROM\n  lead_real_estate\nWHERE\n phone = '{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id.substring(2) }}'\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "vZj3vmYJp3JIhE9R",
+          "name": "Postgres account (Kirtan Ciphernutz Personal)"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "0b83bc6f-5b11-49a8-8381-38bad84ee5b9",
+      "name": "Route Lead",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        240,
+        -560
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e0aa5685-7a52-41b0-9974-1770e8b20a0c",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_qualified }}",
+              "rightValue": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "1ed19f77-2f75-493c-916b-352ca90ead64",
+      "name": "JSON Output Parser",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        1296,
+        -480
+      ],
+      "parameters": {
+        "jsonSchemaExample": "{\n  \"lead_score\": 0,\n  \"lead_band\": \"COLD\",\n  \"timeline_score\": 0,\n  \"intent_score\": 0,\n  \"visit_score\": 0,\n  \"budget_score\": 0,\n  \"engagement_score\": 0,\n  \"finance_score\": 0,\n  \"decision_maker_score\": 0,\n  \"confidence_score\": 0.0,\n  \"recommended_action\": \"\"\n}\n"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "01e4261a-8d5b-404d-bca1-f271fa2fe0ac",
+      "name": "Fetch the Transcript",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        672,
+        -704
+      ],
+      "parameters": {
+        "query": "SELECT\n  id,\n  message\nFROM\n  n8n_chat_histories\nWHERE\n  session_id = '{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}';",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "vZj3vmYJp3JIhE9R",
+          "name": "Postgres account (Kirtan Ciphernutz Personal)"
+        }
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "933dc595-e6ff-40eb-b485-9478da652f6c",
+      "name": "Prepare the Transcript",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        912,
+        -704
+      ],
+      "parameters": {
+        "jsCode": "function formatConversation(messages) {\n  if (!Array.isArray(messages) || messages.length === 0) {\n    return \"\";\n  }\n  \n  const transcript = [];\n\n  for (const item of messages) {\n    let item_json = item.json;\n    const message = item_json?.message ?? {};\n    const role = message.type;\n    let content = message.content ?? \"\";\n\n    if (role === \"human\") {\n      transcript.push(`Human: ${content}`);\n    } else if (role === \"ai\") {\n      // AI responses are stored as a JSON string\n      try {\n        const parsed = JSON.parse(content);\n\n        if (parsed?.output?.reply) {\n          content = parsed.output.reply;\n        }\n      } catch (_) {\n        // Ignore parsing errors and use raw content\n      }\n\n      transcript.push(`AI: ${content}`);\n    }\n  }\n  console.log(transcript);\n  return transcript.join(\"\\n\\n\");\n}\n\nlet input = $input.all();\n\nconst messages = {\n  data: input\n}\n\n\nlet message = formatConversation(messages.data);\n\n//console.log(message);\n\nreturn {\n  \"message\":message\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e50849a9-d555-4041-be9e-c7775c3d3117",
+      "name": "Send message after qualification",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        160,
+        -816
+      ],
+      "webhookId": "9d8247ce-ba5d-4c2d-8dc7-b6efde23e41c",
+      "parameters": {
+        "textBody": "={{ $('AI Agent').item.json.output.reply }}",
+        "operation": "send",
+        "phoneNumberId": "1303295852857513",
+        "additionalFields": {},
+        "recipientPhoneNumber": "={{ $('WhatsApp Trigger').item.json.contacts[0].wa_id }}"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "r3jN53pB9ujEZd5f",
+          "name": "WhatsApp account - Ciphernutz"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1849dcd6-7ecf-4ce7-b71a-360550162841",
+      "name": "Store the Score for the Lead in the DB",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        1520,
+        -704
+      ],
+      "parameters": {
+        "query": "INSERT INTO lead_scoring (\n    lead_id, \n    lead_score, \n    lead_band, \n    timeline_score, \n    intent_score, \n    visit_score, \n    budget_score, \n    engagement_score, \n    finance_score, \n    decision_maker_score, \n    confidence_score, \n    recommended_action\n) VALUES (\n    '{{ $('Route Lead').item.json.lead_id }}', -- Must exist in lead_real_estate(lead_id)\n    {{ $json.output.lead_score }}, \n    '{{ $json.output.lead_band }}', \n    {{ $json.output.timeline_score }}, \n    '{{ $json.output.intent_score }}', \n    '{{ $json.output.visit_score }}', \n    '{{ $json.output.budget_score }}', \n    '{{ $json.output.engagement_score }}', \n    '{{ $json.output.finance_score }}', \n    '{{ $json.output.decision_maker_score }}', \n    '{{ $json.output.confidence_score }}', \n    '{{ $json.output.recommended_action }}'\n);\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "vZj3vmYJp3JIhE9R",
+          "name": "Postgres account (Kirtan Ciphernutz Personal)"
+        }
+      },
+      "typeVersion": 2.6
+    },
+    {
+      "id": "59dbb44d-5db5-4942-912b-31c4057559e2",
+      "name": "Send Information to the Sales Team",
+      "type": "n8n-nodes-base.whatsApp",
+      "position": [
+        1776,
+        -704
+      ],
+      "webhookId": "9632535e-ff31-45f1-bc5a-d485fc5200f5",
+      "parameters": {
+        "template": "hello_world|en_US",
+        "phoneNumberId": "1303295852857513",
+        "recipientPhoneNumber": "919586522009"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "r3jN53pB9ujEZd5f",
+          "name": "WhatsApp account - Ciphernutz"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "36ccf31a-6747-4d42-85e8-777d02ed73cc",
+      "name": "Send the typing status to the user",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -832,
+        -816
+      ],
+      "parameters": {
+        "url": "=https://graph.facebook.com/{{ $('WhatsApp Trigger').item.json.metadata.phone_number_id }}/messages",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"messaging_product\": \"whatsapp\",\n  \"status\": \"read\",\n  \"message_id\": \"{{ $('WhatsApp Trigger').item.json.messages[0].id }}\",\n  \"typing_indicator\": {\n    \"type\": \"text\"\n  }\n}\n",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "whatsAppApi"
+      },
+      "credentials": {
+        "whatsAppApi": {
+          "id": "r3jN53pB9ujEZd5f",
+          "name": "WhatsApp account - Ciphernutz"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.3
+    },
+    {
+      "id": "8251d09c-d5ef-43e4-a03f-9767516e2632",
+      "name": "Mark the lead qualified",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        448,
+        -704
+      ],
+      "parameters": {
+        "query": "UPDATE\n  lead_real_estate\nSET\n  is_qualified = true\nWHERE\n phone = '{{ $('WhatsApp Trigger').item.json.contacts[0].wa_id.substring(2) }}';\n",
+        "options": {},
+        "operation": "executeQuery"
+      },
+      "credentials": {
+        "postgres": {
+          "id": "vZj3vmYJp3JIhE9R",
+          "name": "Postgres account (Kirtan Ciphernutz Personal)"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "8dc0582a-6942-4b7f-8e47-83b122a5b610",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2320,
+        -1728
+      ],
+      "parameters": {
+        "color": "#E0D268",
+        "width": 832,
+        "height": 624,
+        "content": "## AI Real Estate Lead Qualification Assistant\n\nThis workflow uses WhatsApp, Google Gemini, PostgreSQL, and webhooks to automate real estate lead qualification.\n\n### How it works\n\n1. Receives and validates lead data from a website, form, CRM, or webhook.\n2. Stores the lead in PostgreSQL and starts a WhatsApp conversation.\n3. Uses Gemini with PostgreSQL chat memory to understand property requirements and qualify the lead.\n4. Once sufficient information is collected, analyses the conversation transcript and scores the lead based on intent, timeline, budget, site-visit interest, engagement, financial readiness, and decision-making authority.\n5. Classifies the lead as HOT, WARM, or COLD and recommends the next action.\n6. Stores the score in PostgreSQL and notifies the configured sales contact.\n\n### Setup\n\n- [ ]  Connect WhatsApp Cloud API credentials and configure the Phone Number IDs.\n- [ ] Add Google Gemini credentials.\n- [ ] Connect PostgreSQL and create the required lead, chat-memory, and scoring tables.\n- [ ] Configure the webhook used to receive lead information.\n- [ ] Update the project information, scoring rules, and sales notification recipient as required.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "697d1aaf-1dd3-43cf-91f3-84e16290d8ea",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2336,
+        -976
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 2160,
+        "height": 656,
+        "content": "## AI Qualification - WhatsApp, Gemini & Memory\n\nReceives customer messages through WhatsApp and uses Google Gemini with PostgreSQL chat memory to understand property requirements, answer project-related questions, and collect relevant qualification details. The conversation history allows the assistant to maintain context and avoid repeatedly asking for information already provided.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "991c8d04-fe29-435c-a2c5-6b3855fcd3a4",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -976
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 2144,
+        "height": 656,
+        "content": "## Lead Scoring & Sales Notification\n\nRetrieves the completed conversation transcript and uses Google Gemini to score the lead based on intent, timeline, budget, site-visit interest, engagement, financial readiness, and decision-making authority. The resulting lead score, qualification band, confidence, and recommended action are stored in PostgreSQL, followed by a notification to the configured sales contact.\n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "46801787-ede0-49ed-8e11-0d5f190e7634",
+  "nodeGroups": [],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Send message",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Check if the lead has been qualified",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook": {
+      "main": [
+        [
+          {
+            "node": "Validate & Normalise Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send the typing status to the user",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route Lead": {
+      "main": [
+        [
+          {
+            "node": "Mark the lead qualified",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Basic LLM Chain": {
+      "main": [
+        [
+          {
+            "node": "Store the Score for the Lead in the DB",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "WhatsApp Trigger": {
+      "main": [
+        [
+          {
+            "node": "Handle Message Updates",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "JSON Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch the Transcript": {
+      "main": [
+        [
+          {
+            "node": "Prepare the Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres Chat Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Message Updates": {
+      "main": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare the Transcript": {
+      "main": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark the lead qualified": {
+      "main": [
+        [
+          {
+            "node": "Fetch the Transcript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Structured Output Parser": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Agent",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model1": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Basic LLM Chain",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate & Normalise Data": {
+      "main": [
+        [
+          {
+            "node": "Create or Update the Lead here",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create or Update the Lead here": {
+      "main": [
+        [
+          {
+            "node": "Send template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check if the lead has been qualified": {
+      "main": [
+        [
+          {
+            "node": "Route Lead",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Send message after qualification",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Store the Score for the Lead in the DB": {
+      "main": [
+        [
+          {
+            "node": "Send Information to the Sales Team",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

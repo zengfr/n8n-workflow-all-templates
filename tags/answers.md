@@ -1,4 +1,4 @@
-# answers : 17
+# answers : 25
 
 |id|file|
 |----|----|
@@ -19,3 +19,11 @@
 |14497|[14497_Combine_answers_from_OpenAI__Anthropic__Gemini_and_Groq_into_one_consensus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14497_Combine_answers_from_OpenAI__Anthropic__Gemini_and_Groq_into_one_consensus.json)|
 |15564|[15564_Provide_academic_OCR_and_RAG_answers_on_Telegram_with_Gemini__GPT-4_mini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15564_Provide_academic_OCR_and_RAG_answers_on_Telegram_with_Gemini__GPT-4_mini_and_Supabase.json)|
 |16416|[16416_Power_Placetel_voice_answers_from_OneDrive_docs_with_OpenAI_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16416_Power_Placetel_voice_answers_from_OneDrive_docs_with_OpenAI_and_Groq.json)|
+|17098|[17098_Draft_security_questionnaire_answers_with_Notion__Google_Docs__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17098_Draft_security_questionnaire_answers_with_Notion__Google_Docs__and_Slack.json)|
+|17721|[17721_Generate_RFP_response_documents_with_OpenAI_Assistants__Google_Docs__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17721_Generate_RFP_response_documents_with_OpenAI_Assistants__Google_Docs__Gmail__and_Slack.json)|
+|17954|[17954_Answer_PDF_questions_with_cited_answers_using_Google_Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17954_Answer_PDF_questions_with_cited_answers_using_Google_Gemini__Gmail_and_Sheets.json)|
+|18728|[18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18728_Gate_AI_answers_against_source_docs_with_Groq_and_n8n_data_tables.json)|
+|19129|[19129_Validate_AI_answers_with_Google_search__OpenAI_GPT-4__Slack_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19129_Validate_AI_answers_with_Google_search__OpenAI_GPT-4__Slack_and_Gmail_alerts.json)|
+|19236|[19236_Track_weekly_AI_brand_visibility_with_DataForSEO__OpenAI__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19236_Track_weekly_AI_brand_visibility_with_DataForSEO__OpenAI__Google_Sheets_and_Gmail.json)|
+|19720|[19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json)|
+|19815|[19815_Track_and_manage_construction_RFIs_with_Gmail__OpenAI__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19815_Track_and_manage_construction_RFIs_with_Gmail__OpenAI__and_Data_Tables.json)|

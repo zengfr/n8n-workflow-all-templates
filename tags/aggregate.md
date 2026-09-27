@@ -1,4 +1,4 @@
-# aggregate : 19
+# aggregate : 22
 
 |id|file|
 |----|----|
@@ -21,3 +21,6 @@
 |14996|[14996_Aggregate_multi-source_job_boards_to_Supabase_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14996_Aggregate_multi-source_job_boards_to_Supabase_and_Google_Sheets.json)|
 |15783|[15783_Aggregate_SAP_news__score_with_OpenAI__and_post_summaries_to_Microsoft_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15783_Aggregate_SAP_news__score_with_OpenAI__and_post_summaries_to_Microsoft_Teams.json)|
 |16338|[16338_Aggregate_shipment_tracking_statuses_with_FedEx__UPS_and_DHL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16338_Aggregate_shipment_tracking_statuses_with_FedEx__UPS_and_DHL.json)|
+|16952|[16952_Match_product_manager_jobs_with_Supabase__Anthropic_Claude__Adzuna__and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16952_Match_product_manager_jobs_with_Supabase__Anthropic_Claude__Adzuna__and_Resend.json)|
+|17133|[17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json)|
+|17349|[17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17349_Score_AQI_health_risks_with_Open-Meteo__AirNow__Gemini__WhatsApp__SMS_and_Slack.json)|

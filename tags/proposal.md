@@ -1,4 +1,4 @@
-# proposal : 32
+# proposal : 38
 
 |id|file|
 |----|----|
@@ -34,3 +34,9 @@
 |16173|[16173_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16173_Score_leads_and_send_WhatsApp_proposals_with_Gemini__HighLevel_and_Apify.json)|
 |16426|[16426_Generate_construction_bid_estimates_with_Azure_OpenAI__Google_Docs_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16426_Generate_construction_bid_estimates_with_Azure_OpenAI__Google_Docs_and_Sheets.json)|
 |16596|[16596_Evaluate_vendor_proposal_PDFs_with_OpenAI__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16596_Evaluate_vendor_proposal_PDFs_with_OpenAI__Gmail__and_Google_Sheets.json)|
+|16804|[16804_Generate_sales_call_proposals_with_GPT-4o__Google_Slides__PandaDoc__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16804_Generate_sales_call_proposals_with_GPT-4o__Google_Slides__PandaDoc__and_Gmail.json)|
+|17309|[17309_Generate_client_proposals_from_form_inputs_with_OpenAI__Google_Slides__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17309_Generate_client_proposals_from_form_inputs_with_OpenAI__Google_Slides__and_Drive.json)|
+|17935|[17935_Score_freelancer_proposal_PDFs_from_form_submissions_with_OpenAI_GPT-4o_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17935_Score_freelancer_proposal_PDFs_from_form_submissions_with_OpenAI_GPT-4o_Mini.json)|
+|18075|[18075_Generate_agile_project_plan_PDFs_from_proposals_with_Claude_and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18075_Generate_agile_project_plan_PDFs_from_proposals_with_Claude_and_SharePoint.json)|
+|18078|[18078_Generate_legal_tech_project_proposals_with_Google_Sheets__GPT-4o__SerpApi_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18078_Generate_legal_tech_project_proposals_with_Google_Sheets__GPT-4o__SerpApi_and_Gmail.json)|
+|19203|[19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19203_Send_tailored_Upwork_job_proposals_with_Gemini__Slack__Gmail__Drive_and_ClickUp.json)|

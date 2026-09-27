@@ -1,4 +1,4 @@
-# applications : 16
+# applications : 27
 
 |id|file|
 |----|----|
@@ -18,3 +18,14 @@
 |14063|[14063_Automate_job_applications_with_Telegram__SerpAPI__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14063_Automate_job_applications_with_Telegram__SerpAPI__and_OpenAI.json)|
 |14138|[14138_Screen_job_applications_from_Google_Forms_with_Google_Gemini_and_email_results.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14138_Screen_job_applications_from_Google_Forms_with_Google_Gemini_and_email_results.json)|
 |15463|[15463_Track_daily_job_applications_from_Gmail_to_Google_Sheets_via_GPT-4o-mini_with_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15463_Track_daily_job_applications_from_Gmail_to_Google_Sheets_via_GPT-4o-mini_with_approval.json)|
+|16888|[16888_Vet_community_membership_applications_with_Google_Gemini__Telegram__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16888_Vet_community_membership_applications_with_Google_Gemini__Telegram__and_Sheets.json)|
+|17215|[17215_Screen_LinkedIn_jobs_and_send_tailored_applications_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17215_Screen_LinkedIn_jobs_and_send_tailored_applications_with_Apify_and_OpenAI.json)|
+|17303|[17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17303_Screen_and_route_AI-scored_job_applications_with_Airtable__Google_Drive_and_OpenRouter.json)|
+|17433|[17433_Screen_and_triage_job_applications_with_Ollama__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17433_Screen_and_triage_job_applications_with_Ollama__Gmail__and_Google_Sheets.json)|
+|17649|[17649_Review_Discord_community_applications_with_Tally__OpenAI_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17649_Review_Discord_community_applications_with_Tally__OpenAI_and_Discord.json)|
+|18231|[18231_Review_and_approve_supplier_applications_with_OpenAI__Google_Sheets__Gmail_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18231_Review_and_approve_supplier_applications_with_OpenAI__Google_Sheets__Gmail_and_Discord.json)|
+|18288|[18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18288_Screen_job_applications_with_OpenAI__Google_Sheets__Google_Drive__and_Gmail.json)|
+|19172|[19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json)|
+|19187|[19187_Qualify__score_and_track_supplier_applications_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19187_Qualify__score_and_track_supplier_applications_with_Google_Sheets_and_Gmail.json)|
+|19253|[19253_Triage_job_applications_from_Gmail_with_gpt-5.6-terra__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19253_Triage_job_applications_from_Gmail_with_gpt-5.6-terra__Google_Sheets__and_Telegram.json)|
+|19400|[19400_Screen_and_triage_job_applications_with_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19400_Screen_and_triage_job_applications_with_Gemini__Google_Sheets__Slack_and_Gmail.json)|

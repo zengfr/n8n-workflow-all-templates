@@ -1,4 +1,4 @@
-# tenant : 6
+# tenant : 13
 
 |id|file|
 |----|----|
@@ -8,3 +8,10 @@
 |12428|[12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12428_Triage_tenant_complaints_with_GPT-4.1__Slack__email_and_Google_Sheets.json)|
 |12688|[12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12688_Track_tenant_document_compliance_with_GPT-4___Drive__Sheets__email_and_Slack.json)|
 |14292|[14292_Triage_and_escalate_tenant_complaints_from_Gmail_or_forms_to_Slack_with_Claude_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14292_Triage_and_escalate_tenant_complaints_from_Gmail_or_forms_to_Slack_with_Claude_AI.json)|
+|17288|[17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json)|
+|17971|[17971_Manage_rent__maintenance_and_tenant_messages_with_OpenAI__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17971_Manage_rent__maintenance_and_tenant_messages_with_OpenAI__Telegram_and_Sheets.json)|
+|18136|[18136_Automate_tenant_rent_collection_with_AI_reminders_and_landlord_escalation_via_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18136_Automate_tenant_rent_collection_with_AI_reminders_and_landlord_escalation_via_Sheets__Gmail_and_Telegram.json)|
+|18489|[18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json)|
+|18617|[18617_Build_a_multi-tenant_RAG_search_engine_with_Qdrant_and_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18617_Build_a_multi-tenant_RAG_search_engine_with_Qdrant_and_OpenAI_GPT-4o.json)|
+|19502|[19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19502_Score_tenant_churn_risk_with_Google_Sheets__Gemini__Gmail_and_Slack.json)|
+|19674|[19674_Track_tenant_reference_requests_with_forms__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19674_Track_tenant_reference_requests_with_forms__Gmail__and_Google_Sheets.json)|

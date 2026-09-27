@@ -1,4 +1,4 @@
-# analyse : 6
+# analyse : 7
 
 |id|file|
 |----|----|
@@ -8,3 +8,4 @@
 |13675|[13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13675_Digest_and_analyse_YouTube_videos_with_Apify_and_Gemini_Pro.json)|
 |14931|[14931_Generate_a_weekly_business_health_report_from_Google_Sheets_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14931_Generate_a_weekly_business_health_report_from_Google_Sheets_with_Claude.json)|
 |16798|[16798_Analyse_tender_PDFs_with_LlamaParse__Gemini__Supabase_and_WhatsApp_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16798_Analyse_tender_PDFs_with_LlamaParse__Gemini__Supabase_and_WhatsApp_chat.json)|
+|18227|[18227_Analyze_Amazon_review_gaps_with_Bright_Data__OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18227_Analyze_Amazon_review_gaps_with_Bright_Data__OpenAI__Google_Sheets__and_Slack.json)|

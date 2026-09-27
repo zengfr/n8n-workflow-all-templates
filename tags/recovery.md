@@ -1,4 +1,4 @@
-# recovery : 22
+# recovery : 30
 
 |id|file|
 |----|----|
@@ -24,3 +24,11 @@
 |16460|[16460_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16460_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets__and_Slack.json)|
 |16533|[16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16533_Re-engage_missed_property_viewings_with_Google_Calendar__Gemini__Gmail__and_WhatsApp.json)|
 |16602|[16602_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16602_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets_and_Slack.json)|
+|17053|[17053_Recover_abandoned_Shopify_carts_with_Gmail__WhatsApp__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17053_Recover_abandoned_Shopify_carts_with_Gmail__WhatsApp__and_Slack_alerts.json)|
+|17196|[17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json)|
+|17418|[17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json)|
+|18221|[18221_Monitor_website_uptime_and_latency_with_Slack_alerts_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18221_Monitor_website_uptime_and_latency_with_Slack_alerts_and_Data_Tables.json)|
+|18889|[18889_Route_airline_disruption_recovery_with_OpenAI__Slack__Twilio__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18889_Route_airline_disruption_recovery_with_OpenAI__Slack__Twilio__and_Google_Sheets.json)|
+|19233|[19233_Score_DR_readiness_and_create_remediation_and_alerts_from_DR_tooling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19233_Score_DR_readiness_and_create_remediation_and_alerts_from_DR_tooling.json)|
+|19295|[19295_Recover_unscheduled_dental_treatment_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19295_Recover_unscheduled_dental_treatment_with_Google_Sheets_and_Gmail.json)|
+|19641|[19641_Generate_and_monitor_Fal_LTX_text-to-video_jobs_with_recovery_manifests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19641_Generate_and_monitor_Fal_LTX_text-to-video_jobs_with_recovery_manifests.json)|

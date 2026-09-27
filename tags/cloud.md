@@ -1,4 +1,4 @@
-# cloud : 32
+# cloud : 39
 
 |id|file|
 |----|----|
@@ -34,3 +34,10 @@
 |14975|[14975_Convert_Supabase_support_FAQs_to_audio_with_Google_Cloud_TTS_and_Webflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14975_Convert_Supabase_support_FAQs_to_audio_with_Google_Cloud_TTS_and_Webflow.json)|
 |16198|[16198_Detect_cloud_cost_spikes_with_Google_Sheets__Slack__Gmail__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16198_Detect_cloud_cost_spikes_with_Google_Sheets__Slack__Gmail__and_Jira.json)|
 |16589|[16589_Send_SAP_Business_One_order_and_invoice_alerts_via_WhatsApp_Cloud_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16589_Send_SAP_Business_One_order_and_invoice_alerts_via_WhatsApp_Cloud_API.json)|
+|16884|[16884_Notify_new_Jumia_orders_with_Telegram_and_WhatsApp_Cloud_API_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16884_Notify_new_Jumia_orders_with_Telegram_and_WhatsApp_Cloud_API_alerts.json)|
+|17222|[17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json)|
+|17396|[17396_Generate_fun_fact_HTML_pages_from_a_webhook_with_Mistral_Cloud.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17396_Generate_fun_fact_HTML_pages_from_a_webhook_with_Mistral_Cloud.json)|
+|17651|[17651_Transcribe_online_audio_files_to_text_with_Online_Speech_to_Text_Cloud_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17651_Transcribe_online_audio_files_to_text_with_Online_Speech_to_Text_Cloud_API.json)|
+|18094|[18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18094_Detect_AWS_cost_spikes_and_open_Terraform_fix_PRs_with_OpenAI_and_Slack.json)|
+|18662|[18662_Handle_voice_food_orders_with_Google_Sheets_and_WhatsApp_Cloud_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18662_Handle_voice_food_orders_with_Google_Sheets_and_WhatsApp_Cloud_API.json)|
+|19684|[19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19684_Format__brand__and_normalize_social_videos_with_Brand-Pipe.json)|

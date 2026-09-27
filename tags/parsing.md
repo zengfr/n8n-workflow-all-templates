@@ -1,4 +1,4 @@
-# parsing : 18
+# parsing : 19
 
 |id|file|
 |----|----|
@@ -20,3 +20,4 @@
 |10993|[10993_Expense_Logging_with_Telegram_to_Google_Sheets_using_AI_Voice___Text_Parsing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/09/10993_Expense_Logging_with_Telegram_to_Google_Sheets_using_AI_Voice___Text_Parsing.json)|
 |13034|[13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13034_Screen_and_score_resumes_from_Gmail_with_PDF_parsing__HubSpot__Slack_and_PostgreSQL.json)|
 |15443|[15443_Extract_sitemap_URLs_to_CSV_using_chat_input__XML_parsing_and_HTTP_upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15443_Extract_sitemap_URLs_to_CSV_using_chat_input__XML_parsing_and_HTTP_upload.json)|
+|17402|[17402_Create_Notion_tasks_from_inbound_SMS_with_Twilio_and_rule-based_date_parsing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17402_Create_Notion_tasks_from_inbound_SMS_with_Twilio_and_rule-based_date_parsing.json)|

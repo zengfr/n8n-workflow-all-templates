@@ -1,4 +1,4 @@
-# revenue : 21
+# revenue : 26
 
 |id|file|
 |----|----|
@@ -23,3 +23,8 @@
 |13341|[13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13341_Route_revenue_transactions_and_assess_AI_outputs_with_Anthropic_Claude_and_OpenAI.json)|
 |13587|[13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13587_Analyze_Amazon_review_friction_and_revenue_impact_with_Bright_Data__OpenRouter_and_Google_Sheets.json)|
 |15297|[15297_Sync_and_score_PLG_leads_between_Segment__Attio__Intercom__Lemlist_and_ActiveCampaign_with_Claude_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15297_Sync_and_score_PLG_leads_between_Segment__Attio__Intercom__Lemlist_and_ActiveCampaign_with_Claude_and_OpenAI.json)|
+|17042|[17042_Detect_revenue_leakage_with_Salesforce__Google_Sheets__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17042_Detect_revenue_leakage_with_Salesforce__Google_Sheets__Gemini__and_Slack.json)|
+|17854|[17854_Track_marketing_revenue_attribution_with_Google_Sheets__Anthropic_Claude__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17854_Track_marketing_revenue_attribution_with_Google_Sheets__Anthropic_Claude__and_Gmail.json)|
+|18168|[18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json)|
+|19290|[19290_Flag_unbilled_time_and_revenue_in_Clio_and_send_email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19290_Flag_unbilled_time_and_revenue_in_Clio_and_send_email_digests.json)|
+|19794|[19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json)|

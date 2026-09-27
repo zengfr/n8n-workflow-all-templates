@@ -1,4 +1,4 @@
-# confirmations : 13
+# confirmations : 19
 
 |id|file|
 |----|----|
@@ -15,3 +15,9 @@
 |16097|[16097_Create_Google_Calendar_events_from_labeled_Gmail_confirmations_with_easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16097_Create_Google_Calendar_events_from_labeled_Gmail_confirmations_with_easybits_Extractor.json)|
 |16574|[16574_Handle_client_intake__routing__and_confirmations_with_Claude__Google_Sheets__Gmail__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16574_Handle_client_intake__routing__and_confirmations_with_Claude__Google_Sheets__Gmail__and_Twilio.json)|
 |16650|[16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16650_Send_portfolio_contact_form_notifications_and_confirmations_with_Gmail.json)|
+|17118|[17118_Send_appointment_confirmations__reminders_and_review_requests_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17118_Send_appointment_confirmations__reminders_and_review_requests_with_Google_Sheets_and_Gmail.json)|
+|17123|[17123_Send_appointment_confirmations__reminders_and_reviews_with_Sheets__Gmail___Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17123_Send_appointment_confirmations__reminders_and_reviews_with_Sheets__Gmail___Twilio.json)|
+|17336|[17336_Send_consult_confirmations_and_reminders_with_Calendly__Twilio__and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17336_Send_consult_confirmations_and_reminders_with_Calendly__Twilio__and_SMTP_email.json)|
+|17577|[17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json)|
+|19437|[19437_Manage_meeting_confirmations_with_Google_Calendar__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19437_Manage_meeting_confirmations_with_Google_Calendar__Gmail__and_Google_Sheets.json)|
+|19438|[19438_Manage_meeting_confirmations__reschedules__and_cancellations_with_Google_Calendar_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19438_Manage_meeting_confirmations__reschedules__and_cancellations_with_Google_Calendar_and_Gmail.json)|

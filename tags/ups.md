@@ -1,4 +1,4 @@
-# ups : 40
+# ups : 47
 
 |id|file|
 |----|----|
@@ -42,3 +42,10 @@
 |16141|[16141_Send_ramped_cold_email_sequences_with_Gmail__Google_Sheets__and_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16141_Send_ramped_cold_email_sequences_with_Gmail__Google_Sheets__and_Anthropic_Claude.json)|
 |16338|[16338_Aggregate_shipment_tracking_statuses_with_FedEx__UPS_and_DHL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16338_Aggregate_shipment_tracking_statuses_with_FedEx__UPS_and_DHL.json)|
 |16672|[16672_Qualify_open_house_leads_and_send_AI_follow-ups_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16672_Qualify_open_house_leads_and_send_AI_follow-ups_with_Google_Sheets_and_Gmail.json)|
+|17082|[17082_Summarize_Zoom_meetings_and_create_follow-ups_with_OpenAI__ClickUp__and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17082_Summarize_Zoom_meetings_and_create_follow-ups_with_OpenAI__ClickUp__and_Outlook.json)|
+|17096|[17096_Qualify_leads_and_send_personalized_audio_follow-ups_with_Gemini_and_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17096_Qualify_leads_and_send_personalized_audio_follow-ups_with_Gemini_and_Smallest.ai.json)|
+|17258|[17258_Qualify_Facebook_lead_ads_and_send_follow-ups_with_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17258_Qualify_Facebook_lead_ads_and_send_follow-ups_with_Gemini__Gmail__and_Sheets.json)|
+|17778|[17778_Draft_follow-up_email_reminders_in_Gmail_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17778_Draft_follow-up_email_reminders_in_Gmail_with_Anthropic_Claude.json)|
+|18797|[18797_Send_invoice_follow-ups__escalations__and_weekly_digests_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18797_Send_invoice_follow-ups__escalations__and_weekly_digests_with_Google_Sheets_and_Gmail.json)|
+|19680|[19680_Manage_lead_follow-ups_with_Google_Sheets__SMTP__and_IMAP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19680_Manage_lead_follow-ups_with_Google_Sheets__SMTP__and_IMAP_email.json)|
+|19796|[19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19796_Score_customer_churn_risk_and_trigger_CS_follow-ups_with_Postgres__Mixpanel__Zendesk__Gmail__Calendly__ClickUp__and_Slack.json)|

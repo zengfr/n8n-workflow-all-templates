@@ -1,4 +1,4 @@
-# kubernetes : 8
+# kubernetes : 12
 
 |id|file|
 |----|----|
@@ -10,3 +10,7 @@
 |7953|[7953_Kubernetes_RCA_and_alerting_using_Gemini__Loki__Prometheus__Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/79/7953_Kubernetes_RCA_and_alerting_using_Gemini__Loki__Prometheus__Slack.json)|
 |9613|[9613_Kubernetes_Deployment___Pod_Monitoring_with_Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9613_Kubernetes_Deployment___Pod_Monitoring_with_Telegram_Alerts.json)|
 |10302|[10302_Automated_Kubernetes_Testing_with_Robot_Framework__ArgoCD___With_KinD_Lifecycle.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10302_Automated_Kubernetes_Testing_with_Robot_Framework__ArgoCD___With_KinD_Lifecycle.json)|
+|18095|[18095_Remediate_Kubernetes_CrashLoopBackOff_incidents_with_OpenAI__Slack__SendGrid_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18095_Remediate_Kubernetes_CrashLoopBackOff_incidents_with_OpenAI__Slack__SendGrid_and_Google_Sheets.json)|
+|19173|[19173_Triage_and_remediate_Kubernetes_incidents_using_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19173_Triage_and_remediate_Kubernetes_incidents_using_Claude_and_Slack.json)|
+|19232|[19232_Review_and_remediate_Kubernetes_manifests_in_GitHub_PRs_with_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19232_Review_and_remediate_Kubernetes_manifests_in_GitHub_PRs_with_GPT-4.1.json)|
+|19354|[19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json)|

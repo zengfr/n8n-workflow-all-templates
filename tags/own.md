@@ -1,4 +1,4 @@
-# own : 21
+# own : 24
 
 |id|file|
 |----|----|
@@ -23,3 +23,6 @@
 |9660|[9660_Host_Your_Own_JWT_Authentication_System_with_Data_Tables_and_Token_Management.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/96/9660_Host_Your_Own_JWT_Authentication_System_with_Data_Tables_and_Token_Management.json)|
 |15225|[15225_AI-powered_system_for_Creating___Executing_your_own_Claude_Skills___with_GitHub.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15225_AI-powered_system_for_Creating___Executing_your_own_Claude_Skills___with_GitHub.json)|
 |15910|[15910_Qualify_and_book_AI_sales_calls_with_GPT-4o-mini_and_LeadConnector_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15910_Qualify_and_book_AI_sales_calls_with_GPT-4o-mini_and_LeadConnector_CRM.json)|
+|18572|[18572_Answer_support_chat_questions_from_uploaded_documents_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18572_Answer_support_chat_questions_from_uploaded_documents_with_OpenAI.json)|
+|18627|[18627_Triage_failing_workflows_with_Bright_Data__OpenAI_GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18627_Triage_failing_workflows_with_Bright_Data__OpenAI_GPT-5.6_and_Slack.json)|
+|18950|[18950_Answer_Gmail_support_emails_from_your_docs_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18950_Answer_Gmail_support_emails_from_your_docs_with_Gemini_and_Slack.json)|

@@ -1,0 +1,325 @@
+{
+  "id": "krbYrrc0HdlOnMLR",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "ETL Pipeline for Oracle",
+    "wechat": "youandme10086",
+    "id": 17424,
+    "update_time": "2026-09-27"
+  },
+  "name": "Multi-Table Incremental ETL Pipeline for Oracle",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c2e22e88-3d99-4ddd-82d4-6c9f918e20a9",
+      "name": "Setup + notes",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -688,
+        48
+      ],
+      "parameters": {
+        "width": 1316,
+        "height": 420,
+        "content": "##  ETL pipeline and Multi-table incremental data sync (Oracle)\n\n### How it works\n\nThis workflow keeps Oracle target tables in sync with their sources. Every 30s it processes one table at a time: it queries rows changed since the last watermark, upserts them into the target via a MERGE, then advances the watermark. See the numbered stickies below for each step.\n\n### Setup steps\n\n- [x] Create an **Oracle Database** credential and attach it to **Extract Changes** (source) and **Load & Merge** (target). Use two credentials if source and target are different databases.\n- [ ] In the **Config** node, set `batchSize` and the `tables` list. Each entry needs: `name`, `targetName`, `watermarkColumn`, `pkColumn`.\n- [ ] Set the workflow **Active** so the schedule fires.\n\n### Customization\n\nAdd or remove tables in the **Config** node's `tables` list. Defaults assume `watermarkColumn = UPDATED_AT` and `pkColumn = ID` - adjust per table if your columns differ, or change the polling interval on the trigger."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2bf68699-0edb-4855-b6a9-a7ac3f0a417c",
+      "name": "Every 30s",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -176,
+        544
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "seconds"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "363ea845-5805-4f46-8196-93f67a58a21d",
+      "name": "Config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        48,
+        544
+      ],
+      "parameters": {
+        "jsCode": "// Table list + page size. The DB connection lives in the node's credential, not here.\n// name = source table, targetName = destination table.\nreturn [{\n  json: {\n    batchSize: 1000,\n    tables: [\n      { name: 'ETL_CUSTOMERS', targetName: 'ETL_TRG_CUSTOMERS', watermarkColumn: 'UPDATED_AT', pkColumn: 'ID' },\n      { name: 'ETL_ORDERS',    targetName: 'ETL_TRG_ORDERS',    watermarkColumn: 'UPDATED_AT', pkColumn: 'ID' }\n    ]\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ea4855b5-1fff-4fca-9dd4-74f2b52b5504",
+      "name": "Fan Out Tables",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        272,
+        544
+      ],
+      "parameters": {
+        "jsCode": "// One item per table, with its saved watermark (and a SQL-formatted copy).\nconst cfg = $input.first().json;\nconst store = $getWorkflowStaticData('global');\nstore.watermarks = store.watermarks || {};\nreturn cfg.tables.map(t => {\n  const last = store.watermarks[t.name] || '1970-01-01T00:00:00.000Z';\n  return { json: {\n    table: t.name,\n    targetTable: t.targetName || t.name,\n    watermarkColumn: t.watermarkColumn,\n    pkColumn: t.pkColumn,\n    lastWatermark: last,\n    lastWatermarkSql: last.slice(0,19).replace('T',' ')\n  }};\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3ff9dac3-7d45-435f-ac2d-8ad5e7e69290",
+      "name": "Extract Changes",
+      "type": "n8n-nodes-base.oracleDatabase",
+      "position": [
+        752,
+        560
+      ],
+      "parameters": {
+        "query": "SELECT * FROM {{ $json.table }} WHERE {{ $json.watermarkColumn }} > TO_TIMESTAMP('{{ $json.lastWatermarkSql }}','YYYY-MM-DD HH24:MI:SS') ORDER BY {{ $json.watermarkColumn }} ASC FETCH FIRST {{ $('Config').first().json.batchSize }} ROWS ONLY",
+        "options": {},
+        "operation": "execute"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4329d15d-1818-42fb-a36a-eb3233548075",
+      "name": "Build Merge",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        960,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// Pure JS (no npm modules). Build the upsert SQL for this table's rows.\nconst rows = $input.all().map(i => i.json);\nconst ctx = $('Loop Over Tables').item.json;\nconst table = ctx.table, target = ctx.targetTable || ctx.table, pk = ctx.pkColumn, wcol = ctx.watermarkColumn;\n\n// Serialize a JS value to an Oracle SQL literal.\nfunction lit(v){\n  if (v === null || v === undefined) return 'NULL';\n  if (typeof v === 'number') return String(v);\n  if (typeof v === 'boolean') return v ? '1' : '0';\n  let s = (v instanceof Date) ? v.toISOString() : String(v);\n  if (/^\\d{4}-\\d{2}-\\d{2}[T ]\\d{2}:\\d{2}:\\d{2}/.test(s)) {\n    const ts = s.slice(0,19).replace('T',' ');\n    return 'TO_TIMESTAMP(\\'' + ts + '\\',\\'YYYY-MM-DD HH24:MI:SS\\')';\n  }\n  return '\\'' + s.replace(/'/g, '\\'\\'') + '\\'';\n}\n\n// Advance the high-water mark from the rows we pulled.\nlet maxW = ctx.lastWatermark;\nfor (const r of rows) {\n  const val = r[wcol];\n  if (val != null && new Date(val) > new Date(maxW)) {\n    maxW = (val instanceof Date) ? val.toISOString() : String(val);\n  }\n}\n\nlet mergeSql;\nif (rows.length === 0) {\n  mergeSql = 'BEGIN NULL; END;';                 // nothing changed: harmless no-op\n} else {\n  const cols = Object.keys(rows[0]);\n  const using = rows.map(r =>\n    'SELECT ' + cols.map(c => lit(r[c]) + ' AS ' + c).join(', ') + ' FROM dual'\n  ).join(' UNION ALL ');\n  const setCols = cols.filter(c => c !== pk).map(c => 'd.' + c + ' = s.' + c).join(', ');\n  const insCols = cols.join(', ');\n  const insVals = cols.map(c => 's.' + c).join(', ');\n  mergeSql =\n    'MERGE INTO ' + target + ' d USING (' + using + ') s ON (d.' + pk + ' = s.' + pk + ') ' +\n    'WHEN MATCHED THEN UPDATE SET ' + setCols + ' ' +\n    'WHEN NOT MATCHED THEN INSERT (' + insCols + ') VALUES (' + insVals + ')';\n}\n\nreturn [{ json: { table, targetTable: target, mergeSql, rowCount: rows.length, maxWatermark: maxW, lastWatermark: ctx.lastWatermark } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "7eaad5cc-a45d-4858-be8f-6ff8d0367b87",
+      "name": "Load & Merge",
+      "type": "n8n-nodes-base.oracleDatabase",
+      "position": [
+        1264,
+        560
+      ],
+      "parameters": {
+        "query": "{{ $json.mergeSql }}",
+        "options": {},
+        "operation": "execute"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9cafd1bd-5e7a-44d8-a2d8-bd5f85eabc64",
+      "name": "Advance Watermark",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1552,
+        560
+      ],
+      "parameters": {
+        "jsCode": "// Persist the watermark for this table only after a successful merge.\nconst bm = $('Build Merge').item.json;\nconst store = $getWorkflowStaticData('global');\nstore.watermarks = store.watermarks || {};\nif (bm.rowCount > 0) store.watermarks[bm.table] = bm.maxWatermark;\nreturn [{ json: { table: bm.table, synced: bm.rowCount, newWatermark: store.watermarks[bm.table] || bm.lastWatermark } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6db6a1ad-7a8e-402e-b362-491002cc04b8",
+      "name": "Cycle Done",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        800,
+        240
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a99d5182-32ed-4f1a-85f3-5dfe11ca151c",
+      "name": "Step 2 — Loop per table",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        400,
+        784
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 318,
+        "height": 190,
+        "content": "## 2. Loop per table\n**Loop Over Tables** processes one table at a time. When all tables are done, the **done** branch goes to **Cycle Done** and the run ends."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b72751aa-8f51-4d14-bfdc-f9300defce82",
+      "name": "Step 3 — Extract & build",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        736,
+        784
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 416,
+        "height": 196,
+        "content": "## 3. Extract & build\n**Extract Changes** queries rows changed since the watermark. **Build Merge** constructs the idempotent `MERGE` SQL for those rows."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2d2c26c8-988d-482c-8533-d209ee072ac9",
+      "name": "Step 4 — Load & advance",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1184,
+        784
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 564,
+        "height": 196,
+        "content": "## 4. Load & advance\n**Load & Merge** upserts the rows into the target via `MERGE`. **Advance Watermark** moves the watermark forward, then loops to the next table."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7d982857-b857-48f6-9ec9-1fa88d7bebfc",
+      "name": "Loop Over Tables",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        512,
+        544
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "83fc66e2-76f9-44e4-bbf7-70bab798dde7",
+      "name": "Step 1 — Schedule & configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -240,
+        784
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 620,
+        "height": 196,
+        "content": "## 1. Schedule & configure\nThe **Every 30s** trigger fires on a schedule. **Config** sets `batchSize` and the `tables` list. **Fan Out Tables** expands that list into one item per table."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "7fc72719-2df2-4d19-81a4-604026cc9c81",
+  "nodeGroups": [],
+  "connections": {
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Fan Out Tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 30s": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Merge": {
+      "main": [
+        [
+          {
+            "node": "Load & Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load & Merge": {
+      "main": [
+        [
+          {
+            "node": "Advance Watermark",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fan Out Tables": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Changes": {
+      "main": [
+        [
+          {
+            "node": "Build Merge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Tables": {
+      "main": [
+        [
+          {
+            "node": "Cycle Done",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Extract Changes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Advance Watermark": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

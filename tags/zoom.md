@@ -1,4 +1,4 @@
-# zoom : 33
+# zoom : 38
 
 |id|file|
 |----|----|
@@ -35,3 +35,8 @@
 |14959|[14959_Track_Zoom_attendance_and_create_AI_summaries_with_Google_Sheets__ClickUp_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14959_Track_Zoom_attendance_and_create_AI_summaries_with_Google_Sheets__ClickUp_and_Telegram.json)|
 |15355|[15355_Summarize_Zoom_meetings_with_GPT-4o__Whisper__Supabase_RAG_and_email_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15355_Summarize_Zoom_meetings_with_GPT-4o__Whisper__Supabase_RAG_and_email_reports.json)|
 |15818|[15818_Summarize_Zoom_meetings_and_create_tasks_with_Claude__ClickUp__Calendar__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15818_Summarize_Zoom_meetings_and_create_tasks_with_Claude__ClickUp__Calendar__Slack__and_Sheets.json)|
+|16817|[16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16817_Summarize_Zoom_meeting_recordings_in_Notion_with_Smallest.ai_and_Gemini.json)|
+|17082|[17082_Summarize_Zoom_meetings_and_create_follow-ups_with_OpenAI__ClickUp__and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17082_Summarize_Zoom_meetings_and_create_follow-ups_with_OpenAI__ClickUp__and_Outlook.json)|
+|17083|[17083_Answer_WooCommerce_order_and_DHL_tracking_questions_with_GPT-4_chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17083_Answer_WooCommerce_order_and_DHL_tracking_questions_with_GPT-4_chat.json)|
+|17222|[17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17222_Upload_Zoom_cloud_recordings_to_YouTube_and_Google_Drive_automatically.json)|
+|17261|[17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json)|

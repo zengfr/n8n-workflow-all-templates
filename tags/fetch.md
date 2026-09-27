@@ -1,4 +1,4 @@
-# fetch : 38
+# fetch : 42
 
 |id|file|
 |----|----|
@@ -40,3 +40,7 @@
 |15880|[15880_Search_Douyin_users_by_keyword_and_fetch_profile_details_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15880_Search_Douyin_users_by_keyword_and_fetch_profile_details_with_JustOneAPI.json)|
 |16310|[16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16310_Fetch_full_Google_Ads_account_audit_data_as_merged_JSON.json)|
 |16399|[16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16399_Fetch_and_parse_Amazon_SP-API_reports_into_structured_TSV_rows.json)|
+|18539|[18539_Fetch_website_content_with_HTTP_request_and_Apify_Web_Fetch.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18539_Fetch_website_content_with_HTTP_request_and_Apify_Web_Fetch.json)|
+|18630|[18630_Fetch_and_cache_web_pages_with_Bright_Data_Web_Unlocker_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18630_Fetch_and_cache_web_pages_with_Bright_Data_Web_Unlocker_and_data_tables.json)|
+|18898|[18898_Fetch_YouTube_channel_banner_and_avatar_images_with_YouTubeThumb.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18898_Fetch_YouTube_channel_banner_and_avatar_images_with_YouTubeThumb.com.json)|
+|18930|[18930_Fetch_BoltPatternHQ_vehicle_directory_data_and_append_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18930_Fetch_BoltPatternHQ_vehicle_directory_data_and_append_to_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# stories : 13
+# stories : 17
 
 |id|file|
 |----|----|
@@ -15,3 +15,7 @@
 |12263|[12263_Generate_illustrated_stories_with_GPT-4__DALL-E_3_and_Firebase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12263_Generate_illustrated_stories_with_GPT-4__DALL-E_3_and_Firebase.json)|
 |13093|[13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13093_Generate_Google_Sheets_test_script_from_Pega_Agile_Studio_user_stories_with_Gemini_AI.json)|
 |14265|[14265_Create_AI_travel_journal_stories_from_WhatsApp_using_Claude_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14265_Create_AI_travel_journal_stories_from_WhatsApp_using_Claude_and_Google_Drive.json)|
+|17803|[17803_Post_scheduled_Instagram_and_Facebook_Stories_from_Google_Sheets_using_Upload_Post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17803_Post_scheduled_Instagram_and_Facebook_Stories_from_Google_Sheets_using_Upload_Post.json)|
+|18481|[18481_Archive_Instagram_stories_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18481_Archive_Instagram_stories_to_Google_Sheets_with_Apify.json)|
+|18566|[18566_Publish_weekly_family_history_stories_with_GPT-4__Pinecone_and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18566_Publish_weekly_family_history_stories_with_GPT-4__Pinecone_and_WordPress.json)|
+|18795|[18795_Generate_and_audit_original_revenge_stories_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18795_Generate_and_audit_original_revenge_stories_with_OpenAI.json)|

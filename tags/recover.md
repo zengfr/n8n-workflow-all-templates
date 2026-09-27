@@ -1,4 +1,4 @@
-# recover : 18
+# recover : 28
 
 |id|file|
 |----|----|
@@ -20,3 +20,13 @@
 |16333|[16333_Recover_failed_Stripe_payments_with_GPT-4o__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16333_Recover_failed_Stripe_payments_with_GPT-4o__Gmail__Sheets__and_Slack.json)|
 |16460|[16460_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16460_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets__and_Slack.json)|
 |16602|[16602_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16602_Recover_overdue_invoices_with_GPT-4o-mini__Gmail__Google_Sheets_and_Slack.json)|
+|17053|[17053_Recover_abandoned_Shopify_carts_with_Gmail__WhatsApp__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17053_Recover_abandoned_Shopify_carts_with_Gmail__WhatsApp__and_Slack_alerts.json)|
+|17196|[17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17196_Recover_Shopify_abandoned_carts_and_send_weekly_reports_via_Gmail_and_Sheets.json)|
+|17418|[17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json)|
+|17471|[17471_Recover_unclaimed_credits_from_Gmail_using_OpenRouter_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17471_Recover_unclaimed_credits_from_Gmail_using_OpenRouter_and_Google_Sheets.json)|
+|17775|[17775_Recover_failed_Stripe_payments_with_Anthropic_Claude_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17775_Recover_failed_Stripe_payments_with_Anthropic_Claude_and_Gmail_alerts.json)|
+|18345|[18345_Recover_abandoned_Shopify_checkouts_with_personalized_Zvid_product_video_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18345_Recover_abandoned_Shopify_checkouts_with_personalized_Zvid_product_video_emails.json)|
+|19004|[19004_Recover_missed_appointments_with_Google_Calendar__Twilio__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19004_Recover_missed_appointments_with_Google_Calendar__Twilio__Gmail_and_Sheets.json)|
+|19295|[19295_Recover_unscheduled_dental_treatment_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19295_Recover_unscheduled_dental_treatment_with_Google_Sheets_and_Gmail.json)|
+|19496|[19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19496_Recover_abandoned_carts_with_localized_pricing_via_ApogeoAPI_and_SMTP_email.json)|
+|19531|[19531_Recover_lost_backlinks_with_DataForSEO__OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19531_Recover_lost_backlinks_with_DataForSEO__OpenAI__Google_Sheets__and_Slack.json)|

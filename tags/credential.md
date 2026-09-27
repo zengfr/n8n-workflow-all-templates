@@ -1,4 +1,4 @@
-# credential : 9
+# credential : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |9154|[9154_Automated_Workflow___Credential_Restoration_System_for_Self-Hosted_Environments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9154_Automated_Workflow___Credential_Restoration_System_for_Self-Hosted_Environments.json)|
 |13331|[13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13331_Assess_credential_risk_and_route_mitigation_actions_with_GPT-4o-mini.json)|
 |14423|[14423_Audit_workflow_credential_usage_to_Google_Sheets_using_Google_Drive_and_SQLite3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14423_Audit_workflow_credential_usage_to_Google_Sheets_using_Google_Drive_and_SQLite3.json)|
+|17052|[17052_Register_credential_overwrites_on_startup_with_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17052_Register_credential_overwrites_on_startup_with_the_n8n_API.json)|

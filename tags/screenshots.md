@@ -1,4 +1,4 @@
-# screenshots : 13
+# screenshots : 17
 
 |id|file|
 |----|----|
@@ -15,3 +15,7 @@
 |13546|[13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13546_Analyze_support_screenshots_with_UploadToURL__GPT-4o_Vision__Zendesk__and_Jira.json)|
 |15200|[15200_Analyze_UX_heuristics_from_UI_screenshots_with_GPT-4_Vision_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15200_Analyze_UX_heuristics_from_UI_screenshots_with_GPT-4_Vision_and_Google_Sheets.json)|
 |16391|[16391_Monitor_website_changes_with_PolyDoc_screenshots_and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16391_Monitor_website_changes_with_PolyDoc_screenshots_and_email_alerts.json)|
+|18205|[18205_Track_SERP_layout_changes_with_Snapshot_Site__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18205_Track_SERP_layout_changes_with_Snapshot_Site__Google_Sheets__and_Slack.json)|
+|18922|[18922_Extract_tasks_from_Google_Drive_screenshots_with_GPT-4o-mini__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18922_Extract_tasks_from_Google_Drive_screenshots_with_GPT-4o-mini__Sheets_and_Slack.json)|
+|19073|[19073_Post_PR_preview_page_screenshots_to_GitHub_pull_requests_with_Snapshot_Site.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19073_Post_PR_preview_page_screenshots_to_GitHub_pull_requests_with_Snapshot_Site.json)|
+|19686|[19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19686_Detect_idle_device_activity_from_Prey_screenshots_with_Claude_Vision.json)|

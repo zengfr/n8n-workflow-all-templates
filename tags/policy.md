@@ -1,4 +1,4 @@
-# policy : 21
+# policy : 31
 
 |id|file|
 |----|----|
@@ -23,3 +23,13 @@
 |15922|[15922_Generate_AI_governance_policy_PDFs_with_OpenAI__SerpAPI__Gotenberg_and_SharePoint.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15922_Generate_AI_governance_policy_PDFs_with_OpenAI__SerpAPI__Gotenberg_and_SharePoint.json)|
 |16706|[16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16706_Answer_HR_and_IT_policy_questions_on_Telegram_with_OpenAI_and_Postgres_PGVector.json)|
 |16708|[16708_Answer_HR_policy_and_benefits_questions_with_BambooHR__OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16708_Answer_HR_policy_and_benefits_questions_with_BambooHR__OpenAI_and_Supabase.json)|
+|18118|[18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18118_Expose_CRM_read_write_tools_to_Claude_and_ChatGPT_via_a_gated_MCP_server.json)|
+|18263|[18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18263_Track_policy_and_meeting_minutes_acknowledgments_with_Gmail_and_Google_Sheets.json)|
+|18875|[18875_Catch_Amazon_MAP_price_breaches_with_Bright_Data__Data_Tables_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18875_Catch_Amazon_MAP_price_breaches_with_Bright_Data__Data_Tables_and_Telegram.json)|
+|18920|[18920_Grade_POPIA_website_compliance_using_homepage_and_privacy_policy_HTML.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18920_Grade_POPIA_website_compliance_using_homepage_and_privacy_policy_HTML.json)|
+|19016|[19016_Audit_AU_website_privacy_compliance_with_HTTP-based_homepage_and_policy_scan.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19016_Audit_AU_website_privacy_compliance_with_HTTP-based_homepage_and_policy_scan.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|
+|19232|[19232_Review_and_remediate_Kubernetes_manifests_in_GitHub_PRs_with_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19232_Review_and_remediate_Kubernetes_manifests_in_GitHub_PRs_with_GPT-4.1.json)|
+|19257|[19257_Assess_AWS_security_posture_changes_with_Claude_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19257_Assess_AWS_security_posture_changes_with_Claude_and_Slack_alerts.json)|
+|19390|[19390_Audit_website_GDPR_privacy_compliance_with_HTTP_checks_and_HTML_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19390_Audit_website_GDPR_privacy_compliance_with_HTTP_checks_and_HTML_reports.json)|
+|19671|[19671_Answer_internal_policy_questions_from_Google_Drive_with_OpenAI_and_Qdrant.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19671_Answer_internal_policy_questions_from_Google_Drive_with_OpenAI_and_Qdrant.json)|

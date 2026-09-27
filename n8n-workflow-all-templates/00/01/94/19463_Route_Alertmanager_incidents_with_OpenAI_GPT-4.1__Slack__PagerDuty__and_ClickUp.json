@@ -1,0 +1,1523 @@
+{
+  "id": "a7ldLty8xYKwUCqw",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Route Alertmanager incidents with OpenAI GPT-4.1, Slack, PagerDuty, and ClickUp",
+    "wechat": "youandme10086",
+    "id": 19463,
+    "update_time": "2026-09-27"
+  },
+  "name": "AI Mobile Observability Alert Router & Incident Agent (Advanced)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "f3247cd0-6f31-481b-b687-68a7b42ac4be",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -12912,
+        -1936
+      ],
+      "parameters": {
+        "width": 1200,
+        "height": 2480,
+        "content": "## AI Mobile Observability Alert Router & Incident Agent — Dedup, Escalation Policy & RCA\n\nCovers the full chain: Mobile App -> Client Monitoring (crashes, ANR, app errors, performance, network errors) + Backend Monitoring (API availability, 4xx/5xx, latency, DB, CPU/RAM) -> Prometheus/Grafana -> Alertmanager -> Slack/Email/n8n. This workflow IS the 'n8n' box: it receives Alertmanager webhooks, deduplicates against already-open incidents, classifies source (client vs backend) and severity, applies an escalation policy (time-based re-notify + severity-based paging), runs an AI RCA agent that pulls client-side and backend-side evidence, and only then tickets + notifies -- with dead-letter handling for anything that fails along the way.\n\n### How it works\n1. Webhook - Alertmanager Alert receives the firing/resolved payload\n2. Set - Normalize Alert extracts alertname, status (firing/resolved), severity, source labels (client/backend), fingerprint, and derives sessionId plus cooldown/flapping/rate-limit thresholds\n3. IF - Resolved Alert short-circuits: a 'resolved' notification just closes the tracked incident record and notifies, skipping investigation entirely\n4. Postgres - Check Open Incident (dedup) looks up whether an incident with this fingerprint is already open, its last-notified time and occurrence count\n5. IF - Rate Limit Exceeded catches alert storms (many alerts from one source in a short window) and short-circuits to a single storm notice instead of running the agent per alert\n6. IF - Duplicate Within Cooldown suppresses re-investigation/re-paging if the same fingerprint fired again inside its escalation cooldown window -- it still increments an occurrence counter, so nothing is silently dropped\n7. Switch - Classify Alert Source routes by label into client-side vs backend-side vs ambiguous, which informs which evidence tools the agent leans on and which channel/rotation gets notified\n8. AI Agent - Incident RCA Investigator (GPT-4.1 + session memory) is given four tools -- Tool - Query Client Telemetry (crash/ANR/perf/network), Tool - Query Backend Metrics (API/DB/CPU-RAM), Tool - Analyze Recent Deployments, Tool - RAG Search Past Incidents -- and decides for itself which to call and in what order/how many times\n9. Set - Parse Agent Output extracts structured RCA JSON with a validity check (guards against malformed LLM JSON)\n10. IF - Agent Output Valid routes invalid output to the Dead-Letter Queue instead of silently breaking downstream nodes\n11. Postgres - Upsert Incident Record writes/updates the incident (fingerprint-keyed) with RCA, occurrence count, and escalation state\n12. Switch - Escalation Policy applies severity + occurrence-based policy: low/medium -> Slack only; high -> Slack + Email; critical, or any alert that has re-fired 3+ times within an hour (a 'flapping' pattern) -> Slack + Email + PagerDuty\n13. ClickUp - Create or Comment on Incident Ticket opens a new ticket on first occurrence, or comments on the existing ticket for repeat occurrences (never spams duplicate tickets)\n14. Error Trigger - Workflow Failed + Dead-Letter Queue: any node error anywhere in this workflow is caught centrally, logged to a dead_letter_events table, and alerts the platform team via Slack so failures in the alerting pipeline itself are never silent\n15. Postgres - Log Workflow Health records every execution's timing/outcome for self-monitoring; Schedule - Health Check Heartbeat runs independently every 5 minutes and pings an external dead-man's-switch so a total outage of this workflow (not just a node error) is also caught\n\n### How to set up\n1. Import this workflow into n8n\n2. Point Alertmanager's webhook receiver at Webhook - Alertmanager Alert's URL; configure Alertmanager to send both firing AND resolved notifications\n3. Add an OpenAI (or compatible) credential on the OpenAI Chat Model, plus a Vector Store credential for the RAG tool over past incident postmortems\n4. Wire the client-telemetry tool to Crashlytics/Sentry/your APM; wire the backend-metrics tool to Prometheus's query API; wire deployments to your CI/CD history endpoint\n5. Add a Postgres credential and create `incidents` (fingerprint-keyed, with occurrence_count and last_notified_at), `dead_letter_events`, and `workflow_health_log` tables\n6. Add Slack, Email (SMTP or provider), and PagerDuty credentials on the escalation nodes\n7. Add a ClickUp credential (API token) on the ticketing nodes and set the target List ID\n8. In n8n's workflow settings, set this workflow itself as its own Error Workflow (or point Error Trigger's parent workflow field at it) so the Error Trigger actually fires on failures\n9. Replace the Healthchecks.io URL placeholder in HTTP - Ping Dead-Man's Switch with your own check UUID\n10. Fire a test alert via `amtool alert add`, then fire the same fingerprint again within the cooldown window to confirm dedup suppression, then fire a 'resolved' payload to confirm auto-close"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "66583ac4-7d12-4623-aad1-c035fd703e4e",
+      "name": "Sticky Note - Intake, Dedup & Classification",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -11376,
+        -1904
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1520,
+        "height": 1232,
+        "content": "## 1. Intake, Resolution Short-Circuit, Dedup & Source Classification\n\n- **Webhook - Alertmanager Alert** -- receives firing/resolved payloads.\n- **Set - Normalize Alert** -- extracts alertname, status, severity, source labels, fingerprint, sessionId, and the configured cooldown/flapping/rate-limit thresholds.\n- **IF - Resolved Alert** -- routes 'resolved' status straight to auto-close, bypassing investigation.\n- **Postgres - Close Resolved Incident** -- marks the incident record resolved.\n- **Slack - Notify Resolution** -- posts the closure to the observability channel.\n- **Postgres - Check Open Incident (dedup)** -- looks up any existing open incident with this fingerprint plus its last-notified timestamp, occurrence count, and recent alert count from the same source (for rate-limiting).\n- **IF - Rate Limit Exceeded** -- if the source has fired more alerts than the configured threshold within the configured window (an alert storm / flapping upstream), short-circuits to a single storm notice instead of running the agent per alert.\n- **IF - Duplicate Within Cooldown** -- suppresses re-investigation/re-paging for repeat fires inside the cooldown window while still incrementing the occurrence counter (never silently dropped, just throttled).\n- **Postgres - Increment Occurrence (suppressed)** -- bumps occurrence_count and last_seen_at without re-running the agent or re-notifying.\n- **Switch - Classify Alert Source** -- routes client-side vs backend-side vs ambiguous based on alert labels, informing which tools the agent leans on and which channel to notify."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dd10b12e-3da4-4a4d-bb07-4ed3cef8f5fb",
+      "name": "Sticky Note - RCA Agent",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -9792,
+        -1568
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1360,
+        "height": 1040,
+        "content": "## 2. Tool-Calling RCA Agent & Output Validation\n\n- **Tool - Query Client Telemetry** -- crashes, ANRs, app errors, performance, network errors from the mobile APM/crash reporter.\n- **Tool - Query Backend Metrics** -- API availability, 4xx/5xx rates, latency, DB, CPU/RAM from Prometheus.\n- **Tool - Analyze Recent Deployments** -- correlate onset with recent mobile app releases or backend deploys.\n- **Tool - RAG Search Past Incidents** -- vector search over closed postmortems for precedent.\n- **OpenAI Chat Model** -- the LLM powering the agent (temperature lowered for consistency). \n- **Window Buffer Memory** -- session-keyed (by fingerprint) memory so repeat fires and manual follow-ups stay in context.\n- **AI Agent - Incident RCA Investigator** -- decides which tools to call, in what order, calls them repeatedly if needed, checks both client and backend evidence when the classification could be wrong or correlated, and returns root cause + confidence + evidence + severity + flapping assessment.\n- **Set - Parse Agent Output** -- safely parses the structured JSON (wrapped in try/catch) and computes a validity flag (non-empty rootCause, confidence present, evidence is an array).\n- **IF - Agent Output Valid** -- malformed/empty output is treated as a pipeline fault, not a silent pass-through -- it's routed to the dead-letter queue instead of corrupting the incident record."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0a4b2fcb-a22a-4cdd-b4a1-147025daec89",
+      "name": "Sticky Note - Escalation & Ticketing",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8384,
+        -1840
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1664,
+        "height": 1040,
+        "content": "## 3. Incident Upsert, Escalation Policy & Ticketing\n\n- **Postgres - Upsert Incident Record** -- inserts new / updates existing incident (fingerprint-keyed) with RCA, occurrence_count, last_notified_at.\n- **Switch - Escalation Policy** -- low/medium -> Slack only; high -> Slack + Email; critical OR flapping (agent-flagged repeat pattern) -> Slack + Email + PagerDuty. Escalation strictly increases with occurrence count even if the label severity doesn't change, so a recurring 'medium' alert eventually still pages someone.\n- **Slack - Notify (tiered)** -- posts to the client-issues or backend-issues channel depending on classification, with RCA summary.\n- **Email - Notify (high+)** -- sends a formatted incident email to the escalation distribution list for high/critical.\n- **PagerDuty - Page On-Call (critical/flapping)** -- pages the on-call rotation directly.\n- **IF - New Incident vs Repeat** -- decides whether to create a fresh ticket or comment on the existing one.\n- **ClickUp - Create Incident Ticket** -- opens a new ticket on first occurrence.\n- **ClickUp - Comment on Existing Ticket** -- appends updated RCA/occurrence info to the existing ticket rather than duplicating it.\n- **Postgres - Log Workflow Health** -- records this execution's outcome for self-monitoring/SLA trend reporting on the pipeline itself."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dc8f2ead-290a-4ac6-98b3-77d9aebba4fb",
+      "name": "Sticky Note - Reliability: Errors, DLQ & Self-Monitoring",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -8704,
+        -480
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1176,
+        "height": 784,
+        "content": "## 4. Enterprise Robustness -- Error Handling, Rate-Limiting, Dead-Letter Queue & Self-Monitoring\n\n- **Error Trigger - Workflow Failed** -- fires on ANY node failure anywhere in this workflow (tool timeout, Postgres down, malformed payload, credential expiry) regardless of which branch failed. Configure this workflow as its own Error Workflow in Settings for this to activate.\n- **Set - Build Dead-Letter Record** -- captures the failing node name, error message, workflow name, and a timestamp.\n- **Postgres - Log Dead Letter Event** -- persists to `dead_letter_events` so nothing is lost even when the main path breaks; supports manual replay later. Retries up to 5 times since this is the last line of defense.\n- **Slack - Alert Platform Team (pipeline failure)** -- notifies the team that owns this workflow specifically (distinct from the client/backend-issue channels above) that the ALERTING PIPELINE itself failed -- this is the highest-priority notification in the whole system, since a silent failure here means real incidents go undetected.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4f03889e-9dba-4365-bc39-cf7a7a42b754",
+      "name": "Webhook - Alertmanager Alert",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        -11344,
+        -1264
+      ],
+      "webhookId": "c1d2e3f4-mobile-obs-alert-0001",
+      "parameters": {
+        "path": "mobile-observability-alert",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f813c83e-3d14-40ee-9d75-8e806c510e2a",
+      "name": "Set - Normalize Alert",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -11120,
+        -1264
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "alertName",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.labels?.alertname || 'UnknownAlert' }}"
+            },
+            {
+              "name": "status",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.status || $json.body.status || 'firing' }}"
+            },
+            {
+              "name": "severity",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.labels?.severity || 'warning' }}"
+            },
+            {
+              "name": "sourceLabel",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.labels?.source || $json.body.alerts?.[0]?.labels?.component || 'unknown' }}"
+            },
+            {
+              "name": "affectedService",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.labels?.service || $json.body.alerts?.[0]?.labels?.app || 'unknown-service' }}"
+            },
+            {
+              "name": "alertDescription",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.annotations?.description || $json.body.alerts?.[0]?.annotations?.summary || '' }}"
+            },
+            {
+              "name": "alertStartsAt",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.startsAt || $now.toISO() }}"
+            },
+            {
+              "name": "alertFingerprint",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.fingerprint || $json.body.groupKey || 'no-fingerprint' }}"
+            },
+            {
+              "name": "sessionId",
+              "type": "string",
+              "value": "={{ $json.body.alerts?.[0]?.fingerprint || $json.body.groupKey || 'no-fingerprint' }}"
+            },
+            {
+              "name": "cooldownMinutes",
+              "type": "number",
+              "value": 15
+            },
+            {
+              "name": "flappingThresholdCount",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "name": "flappingWindowMinutes",
+              "type": "number",
+              "value": 60
+            },
+            {
+              "name": "rateLimitMaxPerWindow",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "name": "rateLimitWindowMinutes",
+              "type": "number",
+              "value": 5
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b3a63288-bd56-47e1-a40d-9374450927b5",
+      "name": "IF - Resolved Alert",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -10896,
+        -1264
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.status }}",
+              "rightValue": "resolved"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "6db195bb-4bde-49f2-b820-d311228065ca",
+      "name": "Postgres - Close Resolved Incident",
+      "type": "n8n-nodes-base.postgres",
+      "maxTries": 3,
+      "position": [
+        -10672,
+        -1360
+      ],
+      "parameters": {
+        "table": "incidents",
+        "schema": "public",
+        "columns": "fingerprint, status, resolved_at",
+        "options": {},
+        "operation": "update"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "continueOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "7d520705-e84c-4e34-8a0b-aa664facf665",
+      "name": "Slack - Notify Resolution",
+      "type": "n8n-nodes-base.slack",
+      "maxTries": 2,
+      "position": [
+        -10448,
+        -1360
+      ],
+      "webhookId": "cbe172bc-e709-4ec3-be98-b1fd2b3c6e25",
+      "parameters": {
+        "text": "=Resolved: {{ $json.alertName }} on {{ $json.affectedService }} -- incident closed.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#mobile-observability"
+        },
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.3,
+      "continueOnFail": true,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "bffe2728-c411-4e3a-9214-24180039f9da",
+      "name": "Postgres - Check Open Incident (dedup)",
+      "type": "n8n-nodes-base.postgres",
+      "maxTries": 3,
+      "position": [
+        -10672,
+        -1168
+      ],
+      "parameters": {
+        "table": "incidents",
+        "where": {
+          "values": [
+            {
+              "value": "={{ $json.alertFingerprint }}",
+              "column": "fingerprint"
+            }
+          ]
+        },
+        "schema": "public",
+        "options": {
+          "queryBatching": "independently"
+        },
+        "operation": "select"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "continueOnFail": true,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "30c8bb58-c218-4e12-9a09-ce30a7ca31c6",
+      "name": "IF - Rate Limit Exceeded",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -10448,
+        -1168
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "number",
+                "operation": "gte"
+              },
+              "leftValue": "={{ $json.recentAlertCountFromSource || 0 }}",
+              "rightValue": "={{ $json.rateLimitMaxPerWindow }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "e66f5c7d-c3af-4004-973c-2af73453c0b7",
+      "name": "Slack - Alert Storm Notice",
+      "type": "n8n-nodes-base.slack",
+      "maxTries": 2,
+      "position": [
+        -10224,
+        -1264
+      ],
+      "webhookId": "97f7777a-66a2-432e-8813-83d7f2dfdf60",
+      "parameters": {
+        "text": "=Alert storm detected from {{ $json.affectedService }} -- {{ $json.recentAlertCountFromSource }} alerts in {{ $json.rateLimitWindowMinutes }} min. Suppressing per-alert investigation/ticketing until it settles; check upstream (Prometheus scrape target, deploy in progress, or genuine widespread outage).",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#devops-incidents"
+        },
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.3,
+      "continueOnFail": true,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "37f8db1b-0079-4894-b6b1-ee7b15c8c435",
+      "name": "IF - Duplicate Within Cooldown",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -10224,
+        -1072
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "dateTime",
+                "operation": "after"
+              },
+              "leftValue": "={{ $json.last_notified_at }}",
+              "rightValue": "={{ $now.minus({ minutes: $json.cooldownMinutes }).toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "0a8e231f-0bfb-4e28-badf-2183ed8982ea",
+      "name": "Postgres - Increment Occurrence (suppressed)",
+      "type": "n8n-nodes-base.postgres",
+      "maxTries": 3,
+      "position": [
+        -10000,
+        -1168
+      ],
+      "parameters": {
+        "table": "incidents",
+        "schema": "public",
+        "columns": "fingerprint, occurrence_count, last_seen_at",
+        "options": {},
+        "operation": "update"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "continueOnFail": true,
+      "waitBetweenTries": 1500
+    },
+    {
+      "id": "68d6b368-05ce-4b5a-b1e7-26028fdfcf26",
+      "name": "Switch - Classify Alert Source",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -10000,
+        -976
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "crash"
+                  },
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "anr"
+                  },
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "client"
+                  },
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "app"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": false,
+                  "typeValidation": "loose"
+                },
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "api"
+                  },
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "backend"
+                  },
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "db"
+                  },
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "contains"
+                    },
+                    "leftValue": "={{ $json.sourceLabel }}",
+                    "rightValue": "cpu"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "6fbbf76e-57f5-438d-aab3-6990b441562e",
+      "name": "Tool - Query Client Telemetry",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        -9512,
+        -744
+      ],
+      "parameters": {
+        "url": "=https://apm.internal.example.com/api/client-telemetry",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {}
+          ]
+        },
+        "toolDescription": "Query mobile client-side telemetry: crashes, ANRs (Application Not Responding), app errors, performance metrics (startup time, frame drops), and network errors from the crash reporter/APM SDK. Use for client-classified incidents."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "72cc8eaf-ab7e-47da-bdb3-9ec27072cc1c",
+      "name": "Tool - Query Backend Metrics",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        -9384,
+        -744
+      ],
+      "parameters": {
+        "url": "=https://prometheus.internal.example.com/api/v1/query_range",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {}
+          ]
+        },
+        "toolDescription": "Query Prometheus for backend metrics: API availability, 4xx/5xx error rates, latency percentiles, database metrics, CPU/RAM saturation. Use for backend-classified incidents."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "1a387fdd-f777-4a7d-8345-0efc8fbbf048",
+      "name": "Tool - Analyze Recent Deployments",
+      "type": "@n8n/n8n-nodes-langchain.toolHttpRequest",
+      "position": [
+        -9256,
+        -744
+      ],
+      "parameters": {
+        "url": "=https://cicd.internal.example.com/api/deployments",
+        "sendQuery": true,
+        "parametersQuery": {
+          "values": [
+            {}
+          ]
+        },
+        "toolDescription": "Query recent mobile app releases or backend deployments: version, timestamp, author, changed components. Use to correlate incident onset with a specific release."
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b2c6fe8b-bf65-4086-9170-b283639dd0b8",
+      "name": "Tool - RAG Search Past Incidents",
+      "type": "@n8n/n8n-nodes-langchain.toolVectorStore",
+      "position": [
+        -9128,
+        -744
+      ],
+      "parameters": {
+        "name": "search_past_incidents",
+        "description": "Semantic search over past incident postmortems for this app/service. Use to check for precedent and known resolutions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c8e774ae-42b6-480f-a9a0-7e2eb6111286",
+      "name": "OpenAI Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "position": [
+        -9768,
+        -744
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4.1"
+        },
+        "options": {
+          "temperature": 0.1
+        },
+        "builtInTools": {}
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "81edfc3f-d4ac-4253-a31f-679ae6838864",
+      "name": "Window Buffer Memory",
+      "type": "@n8n/n8n-nodes-langchain.memoryBufferWindow",
+      "position": [
+        -9640,
+        -744
+      ],
+      "parameters": {
+        "sessionKey": "={{ $json.sessionId }}",
+        "sessionIdType": "customKey",
+        "contextWindowLength": 16
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "acc2df72-8137-4331-ac29-5ee166ce50be",
+      "name": "AI Agent - Incident RCA Investigator",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        -9520,
+        -960
+      ],
+      "parameters": {
+        "text": "=You are a senior SRE investigating a production alert spanning a mobile app's client and backend stack.\n\nAlert: {{ $json.alertName }} (label severity: {{ $json.severity }}, source: {{ $json.sourceLabel }})\nAffected service: {{ $json.affectedService }} | Started: {{ $json.alertStartsAt }}\nDescription: \"{{ $json.alertDescription }}\"\nOccurrence count so far: {{ $json.occurrence_count || 1 }}\n\nYou have four tools: query_client_telemetry (crashes/ANR/app errors/performance/network), query_backend_metrics (API/4xx-5xx/latency/DB/CPU-RAM), analyze_recent_deployments, search_past_incidents. Use whichever combination is relevant -- this alert was classified as client-side, backend-side, or ambiguous, but check both sides if the classification could be wrong or the two are correlated (e.g. backend 5xx spike causing client crashes). Call tools more than once with refined windows if useful. Do not guess telemetry, metrics, or deployment content; only state what the tools returned.\n\nIf earlier turns exist in this conversation (same alert fingerprint, i.e. a repeat/flapping occurrence), treat this as an update to the SAME incident, note whether the evidence is consistent with before, and flag if the pattern looks like flapping vs a persistent unresolved cause.\n\nAssign severity independently from the raw label based on actual evidence, and a confidence score. If evidence is insufficient to determine root cause, say so explicitly rather than guessing -- set confidence to 'low' and rootCause to your best-supported partial hypothesis, never a fabricated specific cause.\n\nReturn ONLY a JSON object (no markdown fences, no commentary) with keys: summary (2-4 sentences), rootCause (string), confidence ('low'|'medium'|'high'), evidence (array of strings), likelyDeployment (string, empty if none), classification ('client'|'backend'|'both'|'unclear'), severity ('low'|'medium'|'high'|'critical'), recommendedActions (array of strings), isFlappingPattern (boolean).",
+        "options": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.6
+    },
+    {
+      "id": "8146d883-ee87-4ada-999b-4aabcf654659",
+      "name": "Set - Parse Agent Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -8768,
+        -960
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "parsedOutput",
+              "type": "object",
+              "value": "={{ (() => { try { return JSON.parse(String($json.output || $json.text || $json.response || '{}').replace(/```json|```/g, '').trim()); } catch(e) { return {}; } })() }}"
+            },
+            {
+              "name": "isOutputValid",
+              "type": "boolean",
+              "value": "={{ !!($json.parsedOutput && $json.parsedOutput.rootCause && $json.parsedOutput.confidence && Array.isArray($json.parsedOutput.evidence)) }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "3527b00e-a931-4bf4-acbb-564ebb663f60",
+      "name": "IF - Agent Output Valid",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -8544,
+        -960
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.isOutputValid === true }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c6c692ca-5530-4fff-a74c-c1f906aa9c40",
+      "name": "Postgres - Upsert Incident Record",
+      "type": "n8n-nodes-base.postgres",
+      "maxTries": 3,
+      "position": [
+        -8320,
+        -1008
+      ],
+      "parameters": {
+        "table": "incidents",
+        "schema": "public",
+        "columns": "fingerprint, alert_name, affected_service, classification, root_cause, confidence, evidence, severity, occurrence_count, status, last_notified_at, last_seen_at, is_flapping, created_at",
+        "options": {},
+        "operation": "upsert"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "continueOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "719b3d1f-740a-4031-bd2f-e2d2a577e1f5",
+      "name": "Switch - Escalation Policy",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        -8096,
+        -1024
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "or",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.parsedOutput.severity }}",
+                    "rightValue": "critical"
+                  },
+                  {
+                    "operator": {
+                      "type": "boolean",
+                      "operation": "true"
+                    },
+                    "leftValue": "={{ $json.parsedOutput.isFlappingPattern === true }}"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.parsedOutput.severity }}",
+                    "rightValue": "high"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra"
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "2d0d9d6d-55d7-4b86-9826-5dff9f514947",
+      "name": "Slack - Notify (tiered)",
+      "type": "n8n-nodes-base.slack",
+      "maxTries": 2,
+      "position": [
+        -7872,
+        -1408
+      ],
+      "webhookId": "725f3145-878c-4693-bc4c-84e5025c98df",
+      "parameters": {
+        "text": "={{ ($json.parsedOutput.severity === 'critical' || $json.parsedOutput.severity === 'high') ? '<!here> ' : '' }}Incident: {{ $json.alertName }} [{{ $json.parsedOutput.severity }} / {{ $json.parsedOutput.classification }}] -- {{ $json.affectedService }} (occurrence #{{ $json.occurrence_count || 1 }})\n\nRoot cause: {{ $json.parsedOutput.rootCause }}\nConfidence: {{ $json.parsedOutput.confidence }}\n{{ $json.parsedOutput.isFlappingPattern ? 'Flapping pattern detected.' : '' }}\n\nRecommended actions:\n{{ $json.parsedOutput.recommendedActions.join('\\n') }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "expression",
+          "value": "={{ $json.parsedOutput.classification === 'backend' ? '#backend-issues' : '#mobile-client-issues' }}"
+        },
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.3,
+      "continueOnFail": true,
+      "waitBetweenTries": 1000
+    },
+    {
+      "id": "ddb4324f-5429-411d-9533-1990fd976580",
+      "name": "PagerDuty - Page On-Call (critical/flapping)",
+      "type": "n8n-nodes-base.pagerDuty",
+      "maxTries": 2,
+      "position": [
+        -7712,
+        -1232
+      ],
+      "parameters": {
+        "email": "",
+        "title": "=[{{ $json.parsedOutput.severity }}] {{ $json.alertName }} -- {{ $json.affectedService }}",
+        "resource": "incident",
+        "operation": "create",
+        "serviceId": "",
+        "authentication": "apiToken",
+        "additionalFields": {
+          "urgency": "high"
+        },
+        "conferenceBridgeUi": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "continueOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "673e5290-cf2a-4abc-ba21-dc6b1e4e74b6",
+      "name": "IF - New Incident vs Repeat",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -7648,
+        -1408
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "operator": {
+                "type": "number",
+                "operation": "lte"
+              },
+              "leftValue": "={{ $json.occurrence_count || 1 }}",
+              "rightValue": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "06c04ac4-8c56-4956-b1b0-16926b300ed1",
+      "name": "ClickUp - Create Incident Ticket",
+      "type": "n8n-nodes-base.clickUp",
+      "maxTries": 3,
+      "position": [
+        -7424,
+        -1552
+      ],
+      "parameters": {
+        "list": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "name": "=[{{ $json.parsedOutput.severity }}] {{ $json.alertName }} -- {{ $json.affectedService }}",
+        "additionalFields": {
+          "tags": "={{ ['incident', $json.affectedService, $json.parsedOutput.severity] }}",
+          "priority": "={{ $json.parsedOutput.severity === 'critical' ? 1 : $json.parsedOutput.severity === 'high' ? 2 : 3 }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "continueOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "98605e35-0305-4774-a8f1-547eefb760b8",
+      "name": "ClickUp - Comment on Existing Ticket",
+      "type": "n8n-nodes-base.clickUp",
+      "maxTries": 3,
+      "position": [
+        -7424,
+        -1360
+      ],
+      "parameters": {
+        "resource": "taskComment"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "continueOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "b22a5e9a-ea47-4249-a803-04ec1a5222d4",
+      "name": "Postgres - Log Workflow Health",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -7200,
+        -1408
+      ],
+      "parameters": {
+        "table": "workflow_health_log",
+        "schema": "public",
+        "columns": "workflow_name, execution_id, status, alert_fingerprint, duration_ms, created_at",
+        "options": {}
+      },
+      "typeVersion": 2.5,
+      "continueOnFail": true
+    },
+    {
+      "id": "f2b8cf39-5d30-4560-97a2-c7358df641ba",
+      "name": "Respond to Webhook - Alert Processed",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        -6976,
+        -1408
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ fingerprint: $json.alertFingerprint, severity: $json.parsedOutput?.severity, status: 'processed' }) }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "004dbf48-bd47-41eb-9099-99e03f6eff98",
+      "name": "Error Trigger - Workflow Failed",
+      "type": "n8n-nodes-base.errorTrigger",
+      "position": [
+        -8576,
+        48
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "f6d4dfde-9186-4678-8081-60f55e1845d2",
+      "name": "Set - Build Dead-Letter Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -8352,
+        64
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "failedNode",
+              "type": "string",
+              "value": "={{ $json.execution?.lastNodeExecuted || 'unknown' }}"
+            },
+            {
+              "name": "errorMessage",
+              "type": "string",
+              "value": "={{ $json.execution?.error?.message || JSON.stringify($json.execution?.error) || 'unknown error' }}"
+            },
+            {
+              "name": "workflowName",
+              "type": "string",
+              "value": "={{ $json.workflow?.name || 'AI Mobile Observability Alert Router & Incident Agent' }}"
+            },
+            {
+              "name": "occurredAt",
+              "type": "string",
+              "value": "={{ $now.toISO() }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e400a61c-a354-47ef-ad6f-0564d3f9a54e",
+      "name": "Postgres - Log Dead Letter Event",
+      "type": "n8n-nodes-base.postgres",
+      "maxTries": 5,
+      "position": [
+        -8096,
+        64
+      ],
+      "parameters": {
+        "table": "dead_letter_events",
+        "schema": "public",
+        "columns": "workflow_name, failed_node, error_message, occurred_at",
+        "options": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "continueOnFail": true,
+      "waitBetweenTries": 3000
+    },
+    {
+      "id": "03e79fe7-f51e-4cf8-bf56-935342ac75ec",
+      "name": "Slack - Alert Platform Team (pipeline failure)",
+      "type": "n8n-nodes-base.slack",
+      "maxTries": 5,
+      "position": [
+        -7840,
+        64
+      ],
+      "webhookId": "ba4abf69-befc-4357-a8c9-d511e1c9958d",
+      "parameters": {
+        "text": "=ALERTING PIPELINE FAILURE in `{{ $json.workflowName }}`\n\nFailed node: {{ $json.failedNode }}\nError: {{ $json.errorMessage }}\nTime: {{ $json.occurredAt }}\n\nThis means real incidents may be going undetected right now. Check n8n execution logs immediately.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#platform-eng-pipeline-health"
+        },
+        "otherOptions": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.3,
+      "continueOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "0d1671c2-00d0-4dcf-a27e-f1be3874e55a",
+      "name": "Schedule - Health Check Heartbeat",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -10848,
+        -80
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "3c5843e1-8aa2-4e02-b6c7-18e7b3b124d8",
+      "name": "Postgres - Write Heartbeat",
+      "type": "n8n-nodes-base.postgres",
+      "position": [
+        -10480,
+        -80
+      ],
+      "parameters": {
+        "table": "workflow_health_log",
+        "schema": "public",
+        "columns": "workflow_name, execution_id, status, created_at",
+        "options": {}
+      },
+      "typeVersion": 2.5,
+      "continueOnFail": true
+    },
+    {
+      "id": "c0afa774-993b-4e72-b95f-4e56d8649884",
+      "name": "Email - Notify (high+)",
+      "type": "n8n-nodes-base.emailSend",
+      "maxTries": 2,
+      "position": [
+        -7824,
+        -1008
+      ],
+      "webhookId": "2794aa5b-d124-4256-9124-1248290deb0d",
+      "parameters": {
+        "options": {},
+        "subject": "=[{{ $json.parsedOutput.severity }}] {{ $json.alertName }} -- {{ $json.affectedService }}",
+        "toEmail": "user@example.com",
+        "fromEmail": "user@example.com"
+      },
+      "retryOnFail": true,
+      "typeVersion": 2.1,
+      "continueOnFail": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "41cf3416-1f0b-4e02-8390-6a8cf3476b89",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -11120,
+        -368
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 1056,
+        "height": 448,
+        "content": "## 5.  Health Check \n\n- **Schedule - Health Check Heartbeat** -- runs independently every 5 minutes, writes a heartbeat row to `workflow_health_log`, and pings an external dead-man's-switch (e.g. Healthchecks.io) that can page if this workflow stops running entirely -- catching failures that never even reach the Error Trigger (e.g. n8n itself is down).\n- **Postgres - Write Heartbeat / HTTP - Ping Dead-Man's Switch** -- the two actions the heartbeat schedule performs each cycle; both continue-on-fail so a monitoring hiccup here never blocks anything else.\n- Every external-call node in this workflow (Postgres, Slack, Email, PagerDuty, ClickUp, HTTP) has `continueOnFail` plus `retryOnFail` configured so a transient outage in one integration doesn't take down the whole run, and so failures still reach the Error Trigger / dead-letter path if retries are exhausted rather than hanging silently."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "d02d6626-6eb8-41b2-84bf-c63d6054a3ed",
+  "nodeGroups": [],
+  "connections": {
+    "OpenAI Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Resolved Alert": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Close Resolved Incident",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Postgres - Check Open Incident (dedup)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Window Buffer Memory": {
+      "ai_memory": [
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "ai_memory",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Normalize Alert": {
+      "main": [
+        [
+          {
+            "node": "IF - Resolved Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Agent Output Valid": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Upsert Incident Record",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Set - Build Dead-Letter Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack - Notify (tiered)": {
+      "main": [
+        [
+          {
+            "node": "IF - New Incident vs Repeat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Rate Limit Exceeded": {
+      "main": [
+        [
+          {
+            "node": "Slack - Alert Storm Notice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "IF - Duplicate Within Cooldown",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Parse Agent Output": {
+      "main": [
+        [
+          {
+            "node": "IF - Agent Output Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Write Heartbeat": {
+      "main": [
+        []
+      ]
+    },
+    "Switch - Escalation Policy": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notify (tiered)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "PagerDuty - Page On-Call (critical/flapping)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email - Notify (high+)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Notify (tiered)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email - Notify (high+)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack - Notify (tiered)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - New Incident vs Repeat": {
+      "main": [
+        [
+          {
+            "node": "ClickUp - Create Incident Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "ClickUp - Comment on Existing Ticket",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Query Backend Metrics": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook - Alertmanager Alert": {
+      "main": [
+        [
+          {
+            "node": "Set - Normalize Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Query Client Telemetry": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Duplicate Within Cooldown": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Increment Occurrence (suppressed)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Switch - Classify Alert Source",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Log Workflow Health": {
+      "main": [
+        [
+          {
+            "node": "Respond to Webhook - Alert Processed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Build Dead-Letter Record": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Log Dead Letter Event",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Classify Alert Source": {
+      "main": [
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Error Trigger - Workflow Failed": {
+      "main": [
+        [
+          {
+            "node": "Set - Build Dead-Letter Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClickUp - Create Incident Ticket": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Log Workflow Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Log Dead Letter Event": {
+      "main": [
+        [
+          {
+            "node": "Slack - Alert Platform Team (pipeline failure)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - RAG Search Past Incidents": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Upsert Incident Record": {
+      "main": [
+        [
+          {
+            "node": "Switch - Escalation Policy",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule - Health Check Heartbeat": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Write Heartbeat",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tool - Analyze Recent Deployments": {
+      "ai_tool": [
+        [
+          {
+            "node": "AI Agent - Incident RCA Investigator",
+            "type": "ai_tool",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Close Resolved Incident": {
+      "main": [
+        [
+          {
+            "node": "Slack - Notify Resolution",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Agent - Incident RCA Investigator": {
+      "main": [
+        [
+          {
+            "node": "Set - Parse Agent Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ClickUp - Comment on Existing Ticket": {
+      "main": [
+        [
+          {
+            "node": "Postgres - Log Workflow Health",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Postgres - Check Open Incident (dedup)": {
+      "main": [
+        [
+          {
+            "node": "IF - Rate Limit Exceeded",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

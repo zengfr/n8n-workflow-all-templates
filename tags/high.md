@@ -1,4 +1,4 @@
-# high : 34
+# high : 44
 
 |id|file|
 |----|----|
@@ -36,3 +36,13 @@
 |15418|[15418_Qualify_and_route_high-intent_leads_with_OpenAI__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15418_Qualify_and_route_high-intent_leads_with_OpenAI__Airtable_and_Slack.json)|
 |16032|[16032_Triage_Gmail_and_send_high-priority_alerts_with_Gemini_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16032_Triage_Gmail_and_send_high-priority_alerts_with_Gemini_and_Telegram.json)|
 |16494|[16494_Find_and_log_high-quality_domain_contacts_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16494_Find_and_log_high-quality_domain_contacts_with_Tomba_and_Google_Sheets.json)|
+|16892|[16892_Extend_videos_with_audio_using_Fal__OpenAI__and_Upload-Post_for_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16892_Extend_videos_with_audio_using_Fal__OpenAI__and_Upload-Post_for_TikTok.json)|
+|17373|[17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17373_Send_Hacker_News_keyword_digests_with_Claude_and_Gmail.json)|
+|17400|[17400_Screen_SMS_campaign_numbers_for_high-risk_lines_with_Twilio__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17400_Screen_SMS_campaign_numbers_for_high-risk_lines_with_Twilio__Sheets__and_Slack.json)|
+|18101|[18101_Find_high-value_expired_domains_with_DomainKits_and_Moz_and_email_a_CSV_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18101_Find_high-value_expired_domains_with_DomainKits_and_Moz_and_email_a_CSV_report.json)|
+|18265|[18265_Find_high-engagement_TikTok_hashtags_and_sounds_with_Bright_Data__OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18265_Find_high-engagement_TikTok_hashtags_and_sounds_with_Bright_Data__OpenAI__Sheets_and_Slack.json)|
+|18444|[18444_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_HubSpot_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18444_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_HubSpot_and_Gmail.json)|
+|18505|[18505_Screen_AI_systems_for_EU_AI_Act_high-risk_tiers_with_Groq_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18505_Screen_AI_systems_for_EU_AI_Act_high-risk_tiers_with_Groq_and_data_tables.json)|
+|18715|[18715_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_Salesforce_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18715_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_Salesforce_and_Gmail.json)|
+|19054|[19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19054_Notify_Slack_about_high-value_HubSpot_deals_from_missed_NUACOM_calls.json)|
+|19370|[19370_Triage_YouTube_comments_and_track_video_health_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19370_Triage_YouTube_comments_and_track_video_health_with_Apify_and_Google_Sheets.json)|

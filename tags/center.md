@@ -1,4 +1,4 @@
-# center : 16
+# center : 21
 
 |id|file|
 |----|----|
@@ -18,3 +18,8 @@
 |9951|[9951_Automate_Workflow_Execution_with_Telegram_Bot_Command_Center.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/99/9951_Automate_Workflow_Execution_with_Telegram_Bot_Command_Center.json)|
 |11072|[11072_Automate_GDPR_Consent_Management_with_Azure_OpenAI_Emails_and_Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/10/11072_Automate_GDPR_Consent_Management_with_Azure_OpenAI_Emails_and_Slack_Alerts.json)|
 |14935|[14935_Sync_Zoho_CRM_contacts_with_Beex_Contact_Center_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14935_Sync_Zoho_CRM_contacts_with_Beex_Contact_Center_in_real_time.json)|
+|17698|[17698_Track_competitor_Google_Ads_Transparency_Center_ads_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17698_Track_competitor_Google_Ads_Transparency_Center_ads_with_Apify_and_Google_Sheets.json)|
+|17859|[17859_Generate_a_Sleeper_preseason_league_command_center_from_a_public_league_form.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17859_Generate_a_Sleeper_preseason_league_command_center_from_a_public_league_form.json)|
+|19153|[19153_Transcribe_TikTok_Creative_Center_top_ads_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19153_Transcribe_TikTok_Creative_Center_top_ads_with_Apify_and_Google_Sheets.json)|
+|19158|[19158_Transcribe_Google_Ads_video_creatives_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19158_Transcribe_Google_Ads_video_creatives_with_Apify_and_Google_Sheets.json)|
+|19462|[19462_Approve_and_log_rack_power_overage_charges_with_Google_Sheets__Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19462_Approve_and_log_rack_power_overage_charges_with_Google_Sheets__Gmail_and_OpenAI.json)|

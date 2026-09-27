@@ -1,4 +1,4 @@
-# opus : 8
+# opus : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |14520|[14520_Generate_GitLab_release_notes_from_Linear_issues_with_Claude_Opus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14520_Generate_GitLab_release_notes_from_Linear_issues_with_Claude_Opus.json)|
 |15260|[15260_Research_web_content_with_Claude_Opus_4.7_and_Bright_Data_to_post_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15260_Research_web_content_with_Claude_Opus_4.7_and_Bright_Data_to_post_Slack_reports.json)|
 |15918|[15918_Review_n8n_workflows_from_Slack_with_Claude_Opus_and_GitHub_skills.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15918_Review_n8n_workflows_from_Slack_with_Claude_Opus_and_GitHub_skills.json)|
+|17644|[17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json)|

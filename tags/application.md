@@ -1,4 +1,4 @@
-# application : 26
+# application : 31
 
 |id|file|
 |----|----|
@@ -28,3 +28,8 @@
 |15389|[15389_Auto-Update_job_application_status_from_Gmail_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15389_Auto-Update_job_application_status_from_Gmail_to_Google_Sheets.json)|
 |15463|[15463_Track_daily_job_applications_from_Gmail_to_Google_Sheets_via_GPT-4o-mini_with_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15463_Track_daily_job_applications_from_Gmail_to_Google_Sheets_via_GPT-4o-mini_with_approval.json)|
 |16375|[16375_Screen_LinkedIn_jobs_and_generate_tailored_resume_and_cover_PDFs_with_Anthropic_and_DocRaptor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16375_Screen_LinkedIn_jobs_and_generate_tailored_resume_and_cover_PDFs_with_Anthropic_and_DocRaptor.json)|
+|17288|[17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json)|
+|17969|[17969_Send_HR_job_application_auto-replies_with_Gmail_and_OpenAI_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17969_Send_HR_job_application_auto-replies_with_Gmail_and_OpenAI_GPT-4o.json)|
+|18105|[18105_Match_CVs_to_remote_jobs_with_Groq__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18105_Match_CVs_to_remote_jobs_with_Groq__Google_Sheets__and_Gmail.json)|
+|19253|[19253_Triage_job_applications_from_Gmail_with_gpt-5.6-terra__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19253_Triage_job_applications_from_Gmail_with_gpt-5.6-terra__Google_Sheets__and_Telegram.json)|
+|19476|[19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19476_Tailor_resumes_to_RemoteOK_jobs_with_OpenAI_and_Google_Workspace.json)|

@@ -1,4 +1,4 @@
-# field : 8
+# field : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |3970|[3970_Secure_API_Endpoint_with_Bearer_Token_Authentication_and_Field_Validation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/39/3970_Secure_API_Endpoint_with_Bearer_Token_Authentication_and_Field_Validation.json)|
 |8231|[8231_Create_Monday.com_Board_Items_from_Jotform_Submissions_with_Field_Mapping.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/82/8231_Create_Monday.com_Board_Items_from_Jotform_Submissions_with_Field_Mapping.json)|
 |16723|[16723_Enrich_KlickTipp_contact_fields_using_OpenAI_GPT-5.5_and_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16723_Enrich_KlickTipp_contact_fields_using_OpenAI_GPT-5.5_and_context.json)|
+|17460|[17460_Repurpose_law_firm_field_notes_into_compliant_marketing_content_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17460_Repurpose_law_firm_field_notes_into_compliant_marketing_content_with_Anthropic_Claude.json)|
+|19202|[19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json)|

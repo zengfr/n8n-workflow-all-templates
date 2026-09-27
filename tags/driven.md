@@ -1,4 +1,4 @@
-# driven : 45
+# driven : 52
 
 |id|file|
 |----|----|
@@ -47,3 +47,10 @@
 |13451|[13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13451_Analyze_legislative_policies_and_route_compliance_actions_with_GPT-4o__Google_Sheets__and_Slack.json)|
 |13528|[13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13528_Create_AI-driven_social_media_posts_and_publish_to_all_major_platforms.json)|
 |15082|[15082_Monitor_semiconductor_board_reliability_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15082_Monitor_semiconductor_board_reliability_with_OpenAI_and_Slack_alerts.json)|
+|17105|[17105_Verify_loan_documents_and_score_eligibility_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17105_Verify_loan_documents_and_score_eligibility_with_Claude_and_Google_Sheets.json)|
+|17948|[17948_Alert_crop_scouts_to_wind-driven_pest_threats_with_GBIF__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17948_Alert_crop_scouts_to_wind-driven_pest_threats_with_GBIF__Gemini__and_Slack.json)|
+|17978|[17978_Create_metaphor-driven_video_ads_with_Google_Veo_3_via_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17978_Create_metaphor-driven_video_ads_with_Google_Veo_3_via_Pollo_API.json)|
+|18396|[18396_Score_and_shortlist_suppliers_with_Google_Sheets__Google_Gemini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18396_Score_and_shortlist_suppliers_with_Google_Sheets__Google_Gemini__and_Gmail.json)|
+|18681|[18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18681_Assess_churn_risk_from_HubSpot_tickets_with_DeepSeek_and_Slack_alerts.json)|
+|19202|[19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json)|
+|19741|[19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json)|

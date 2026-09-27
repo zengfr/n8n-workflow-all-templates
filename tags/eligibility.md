@@ -1,4 +1,4 @@
-# eligibility : 6
+# eligibility : 8
 
 |id|file|
 |----|----|
@@ -8,3 +8,5 @@
 |12268|[12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12268_Screen_DPDP_consent_manager_registrations_with_GPT-4o__Google_Sheets_and_Gmail.json)|
 |13690|[13690_Match_students_to_scholarships_with_Claude_AI__Airtable__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13690_Match_students_to_scholarships_with_Claude_AI__Airtable__and_Google_Sheets.json)|
 |16177|[16177_Generate_tender_eligibility_summaries_and_bid_checklists_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16177_Generate_tender_eligibility_summaries_and_bid_checklists_with_Gemini_and_Google_Sheets.json)|
+|17105|[17105_Verify_loan_documents_and_score_eligibility_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17105_Verify_loan_documents_and_score_eligibility_with_Claude_and_Google_Sheets.json)|
+|17143|[17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17143_Assess_visa_eligibility_and_send_PDF_checklists_with_Claude_and_SendGrid.json)|

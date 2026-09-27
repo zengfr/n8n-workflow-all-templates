@@ -1,4 +1,4 @@
-# files : 89
+# files : 104
 
 |id|file|
 |----|----|
@@ -91,3 +91,18 @@
 |15724|[15724_Back_up_workflow_JSON_files_to_Google_Drive_using_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15724_Back_up_workflow_JSON_files_to_Google_Drive_using_the_n8n_API.json)|
 |16497|[16497_Detect_duplicate_Google_Drive_files_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16497_Detect_duplicate_Google_Drive_files_and_log_results_to_Google_Sheets.json)|
 |16701|[16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json)|
+|16812|[16812_File_Google_Drive_inbox_documents_into_dated_folders_with_a_Google_Sheets_audit_log.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16812_File_Google_Drive_inbox_documents_into_dated_folders_with_a_Google_Sheets_audit_log.json)|
+|16955|[16955_Transcribe_Google_Drive_audio_to_markdown_with_Gladia_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16955_Transcribe_Google_Drive_audio_to_markdown_with_Gladia_and_Google_Sheets.json)|
+|16994|[16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16994_Generate_SRT_and_VTT_subtitles_from_media_URLs_with_Gladia_and_Google_Drive.json)|
+|17189|[17189_Export_Google_Sheets_to_CSV_or_Excel_and_email_files_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17189_Export_Google_Sheets_to_CSV_or_Excel_and_email_files_with_Gmail.json)|
+|17563|[17563_Sync_Supabase_Storage_files_into_a_chat_agent_with_Supabase_vectors_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17563_Sync_Supabase_Storage_files_into_a_chat_agent_with_Supabase_vectors_and_OpenAI.json)|
+|17614|[17614_Review_Google_Drive_inbox_files_with_Discord_and_log_decisions_in_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17614_Review_Google_Drive_inbox_files_with_Discord_and_log_decisions_in_Sheets.json)|
+|17651|[17651_Transcribe_online_audio_files_to_text_with_Online_Speech_to_Text_Cloud_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17651_Transcribe_online_audio_files_to_text_with_Online_Speech_to_Text_Cloud_API.json)|
+|17680|[17680_Bulk_import_local_PDF_and_text_files_into_an_Open_Notebook_notebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17680_Bulk_import_local_PDF_and_text_files_into_an_Open_Notebook_notebook.json)|
+|18487|[18487_Detect_silence_and_speech_segments_in_audio_files_with_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18487_Detect_silence_and_speech_segments_in_audio_files_with_FFmpeg.json)|
+|18540|[18540_Upload_and_index_files_in_Pinecone_with_Google_Drive_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18540_Upload_and_index_files_in_Pinecone_with_Google_Drive_and_OpenAI.json)|
+|18590|[18590_Sync_workflows_to_GitHub_repository_files_using_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18590_Sync_workflows_to_GitHub_repository_files_using_the_n8n_API.json)|
+|18782|[18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18782_Convert_web_pages_from_Google_Sheets_to_Drive_markdown_files_with_Gaffa.json)|
+|19020|[19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19020_Parse_invoice_XML_files_and_update_sales_opportunities_in_GoHighLevel.json)|
+|19313|[19313_Sync_Shopify_inventory_and_prices_with_supplier_CSV_or_Excel_files.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19313_Sync_Shopify_inventory_and_prices_with_supplier_CSV_or_Excel_files.json)|
+|19538|[19538_Burn_in_captions_for_video_URLs_or_files_with_CaptionPipe.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19538_Burn_in_captions_for_video_URLs_or_files_with_CaptionPipe.json)|

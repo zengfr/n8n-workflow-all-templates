@@ -1,4 +1,4 @@
-# apple : 9
+# apple : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |12434|[12434_Create_Telegram_podcast_digests_from_Apple_Podcasts_with_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12434_Create_Telegram_podcast_digests_from_Apple_Podcasts_with_BrowserAct_and_Gemini.json)|
 |12927|[12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12927_Generate_and_post_Apple_App_Store_review_replies_with_Anthropic_Claude.json)|
 |14170|[14170_Summarize_Apple_podcast_episodes_with_ElevenLabs_and_GPT-5-MINI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14170_Summarize_Apple_podcast_episodes_with_ElevenLabs_and_GPT-5-MINI.json)|
+|17548|[17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17548_Publish_a_live_calendar_feed_from_Google_Sheets_to_Google__Apple_and_Outlook.json)|

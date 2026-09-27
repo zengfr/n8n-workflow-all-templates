@@ -1,4 +1,4 @@
-# restore : 11
+# restore : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |12721|[12721_Back_up_and_restore_n8n_workflows_with_GitHub_sync.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12721_Back_up_and_restore_n8n_workflows_with_GitHub_sync.json)|
 |16191|[16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json)|
 |16669|[16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16669_Back_up_and_restore_Docker_workflows_and_credentials_with_Google_Drive_and_SSH.json)|
+|17388|[17388_Restore_n8n_workflows_from_GitHub_JSON_backups_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17388_Restore_n8n_workflows_from_GitHub_JSON_backups_with_Data_Tables.json)|
+|19098|[19098_Restore_workflows_from_GitHub_to_another_n8n_instance_via_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19098_Restore_workflows_from_GitHub_to_another_n8n_instance_via_the_n8n_API.json)|
+|19658|[19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19658_Redact_and_restore_PII_in_OpenAI_prompts_with_Enterprise_PII_Guardrails.json)|

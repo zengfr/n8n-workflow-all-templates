@@ -1,0 +1,905 @@
+{
+  "id": "hE7mRYxdjQieIMIx",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Detect duplicate invoices with Google Sheets, Google Gemini and Slack",
+    "wechat": "youandme10086",
+    "id": 18494,
+    "update_time": "2026-09-27"
+  },
+  "name": "Detect duplicate invoices with Google Sheets, Google Gemini and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "2276f36b-effd-4519-870c-8c604cc4777b",
+      "name": "Duplicate Detection Engine",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1392,
+        688
+      ],
+      "parameters": {
+        "jsCode": "const input = $input.first().json;\n\nconst newInvoices = input.new_invoices || [];\nconst historyInvoices = input.history_invoices || [];\n\n// Validation\nif (newInvoices.length === 0) {\n  return [{\n    json: {\n      status: \"INVALID_DATA\",\n      duplicateFound: false,\n      riskScore: 0,\n      reason: \"No invoice found in New Invoice sheet\"\n    }\n  }];\n}\n\nif (historyInvoices.length === 0) {\n  return [{\n    json: {\n      status: \"FAILED\",\n      duplicateFound: false,\n      riskScore: 0,\n      reason: \"No historical invoices available\"\n    }\n  }];\n}\n\nfunction getLevenshteinDistance(s1, s2) {\n  s1 = s1 || \"\";\n  s2 = s2 || \"\";\n\n  const len1 = s1.length;\n  const len2 = s2.length;\n\n  const matrix = Array(len1 + 1)\n    .fill(null)\n    .map(() => Array(len2 + 1).fill(0));\n\n  for (let i = 0; i <= len1; i++) matrix[i][0] = i;\n  for (let j = 0; j <= len2; j++) matrix[0][j] = j;\n\n  for (let i = 1; i <= len1; i++) {\n    for (let j = 1; j <= len2; j++) {\n      const cost = s1[i - 1] === s2[j - 1] ? 0 : 1;\n\n      matrix[i][j] = Math.min(\n        matrix[i - 1][j] + 1,\n        matrix[i][j - 1] + 1,\n        matrix[i - 1][j - 1] + cost\n      );\n    }\n  }\n\n  return matrix[len1][len2];\n}\n\nfunction getStringSimilarity(s1, s2) {\n  if (s1 === s2) return 1;\n\n  const maxLen = Math.max(s1.length, s2.length);\n\n  if (maxLen === 0) return 1;\n\n  const distance = getLevenshteinDistance(s1, s2);\n\n  return 1 - distance / maxLen;\n}\n\nfunction normalizeSupplier(name) {\n  if (!name) return \"\";\n\n  return name\n    .toLowerCase()\n    .replace(/[.,\\/#!$%\\^&\\*;:{}=\\-_`~()]/g, \"\")\n    .replace(/\\b(corp|corporation|inc|co|ltd|limited|llc|gmbh|plc)\\b/g, \"\")\n    .replace(/\\s+/g, \" \")\n    .trim();\n}\n\nfunction normalizeInvoiceNumber(number) {\n  if (!number) return \"\";\n\n  return number\n    .toString()\n    .replace(/[^A-Za-z0-9]/g, \"\")\n    .toUpperCase();\n}\n\nconst results = [];\n\nfor (const newInvoice of newInvoices) {\n\n  const requiredFields = [\n    \"supplier_name\",\n    \"invoice_number\",\n    \"invoice_date\",\n    \"amount\"\n  ];\n\n  let missingField = null;\n\n  for (const field of requiredFields) {\n    if (!newInvoice[field]) {\n      missingField = field;\n      break;\n    }\n  }\n\n  if (missingField) {\n    results.push({\n      status: \"INVALID_DATA\",\n      invoice_id: newInvoice.invoice_id || null,\n      duplicateFound: false,\n      riskScore: 0,\n      reason: `Missing required invoice field: ${missingField}`\n    });\n\n    continue;\n  }\n\n  if (isNaN(Number(newInvoice.amount))) {\n    results.push({\n      status: \"INVALID_AMOUNT\",\n      invoice_id: newInvoice.invoice_id,\n      duplicateFound: false,\n      riskScore: 0,\n      reason: \"Invoice amount is not numeric\"\n    });\n\n    continue;\n  }\n\n  let bestMatch = null;\n  let bestScore = 0;\n  let bestReasonDetails = [];\n\n  for (const hist of historyInvoices) {\n\n    let currentScore = 0;\n    const matchDetails = [];\n\n    // Invoice Number Score (40)\n    const newInvNumNorm = normalizeInvoiceNumber(\n      newInvoice.invoice_number\n    );\n\n    const histInvNumNorm = normalizeInvoiceNumber(\n      hist.invoice_number\n    );\n\n    const invNumSimilarity = getStringSimilarity(\n      newInvNumNorm,\n      histInvNumNorm\n    );\n\n    if (\n      newInvNumNorm &&\n      newInvNumNorm === histInvNumNorm\n    ) {\n      currentScore += 40;\n      matchDetails.push(\n        \"Exact normalized invoice number match (+40)\"\n      );\n    } else if (invNumSimilarity >= 0.85) {\n      currentScore += 30;\n      matchDetails.push(\n        \"Fuzzy invoice number match (+30)\"\n      );\n    }\n\n    // Supplier Score (30)\n    const newSupplierNorm = normalizeSupplier(\n      newInvoice.supplier_name\n    );\n\n    const histSupplierNorm = normalizeSupplier(\n      hist.supplier_name\n    );\n\n    const supplierSimilarity = getStringSimilarity(\n      newSupplierNorm,\n      histSupplierNorm\n    );\n\n    if (\n      newSupplierNorm &&\n      newSupplierNorm === histSupplierNorm\n    ) {\n      currentScore += 30;\n      matchDetails.push(\n        \"Exact normalized supplier match (+30)\"\n      );\n    } else if (supplierSimilarity >= 0.8) {\n      currentScore += 25;\n      matchDetails.push(\n        \"Fuzzy supplier match (+25)\"\n      );\n    }\n\n    // Amount Score (20)\n    const newAmount = Number(newInvoice.amount);\n    const histAmount = Number(hist.amount);\n\n    if (\n      !isNaN(newAmount) &&\n      !isNaN(histAmount)\n    ) {\n      const difference = Math.abs(\n        newAmount - histAmount\n      );\n\n      const maxAmount = Math.max(\n        newAmount,\n        histAmount\n      );\n\n      const percentDiff =\n        maxAmount > 0\n          ? difference / maxAmount\n          : 0;\n\n      if (difference === 0) {\n        currentScore += 20;\n        matchDetails.push(\n          \"Exact amount match (+20)\"\n        );\n      } else if (percentDiff <= 0.01) {\n        currentScore += 15;\n        matchDetails.push(\n          \"Near amount match (+15)\"\n        );\n      }\n    }\n\n    // Date Score (10)\n    if (\n      newInvoice.invoice_date &&\n      hist.invoice_date\n    ) {\n      const newDate = new Date(\n        newInvoice.invoice_date\n      );\n\n      const histDate = new Date(\n        hist.invoice_date\n      );\n\n      if (\n        !isNaN(newDate.getTime()) &&\n        !isNaN(histDate.getTime())\n      ) {\n        const diffDays =\n          Math.abs(\n            newDate.getTime() -\n            histDate.getTime()\n          ) /\n          (1000 * 60 * 60 * 24);\n\n        if (diffDays === 0) {\n          currentScore += 10;\n          matchDetails.push(\n            \"Exact date match (+10)\"\n          );\n        } else if (diffDays <= 3) {\n          currentScore += 8;\n          matchDetails.push(\n            `Near date match (+8)`\n          );\n        }\n      }\n    }\n\n    if (currentScore > bestScore) {\n      bestScore = currentScore;\n      bestMatch = hist;\n      bestReasonDetails = matchDetails;\n    }\n  }\n\n  results.push({\n    status: \"SUCCESS\",\n    invoice_id: newInvoice.invoice_id,\n    duplicateFound: bestScore >= 75,\n    riskScore: bestScore,\n    matchedInvoice: bestMatch\n      ? bestMatch.invoice_id\n      : null,\n    reason:\n      bestMatch\n        ? `Best match ${bestMatch.invoice_id}. ${bestReasonDetails.join(\", \")}`\n        : \"No significant matches found.\",\n    newInvoice,\n    matchedInvoiceDetails: bestMatch\n  });\n}\n\nreturn results.map(result => ({\n  json: result\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "feddbe1f-17c4-4d51-b9f0-89986ec8658a",
+      "name": "Google Gemini Chat Model",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGoogleGemini",
+      "position": [
+        1472,
+        944
+      ],
+      "parameters": {
+        "options": {},
+        "modelName": "models/gemini-flash-lite-latest"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "YjMToIWaaQ2guKzB",
+          "name": "Gemini (PAID) (AI-ML Team)"
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ccfdd071-3fc2-4ec9-bbd1-a965558efc37",
+      "name": "New Invoice Submission Trigger",
+      "type": "n8n-nodes-base.googleSheetsTrigger",
+      "position": [
+        432,
+        752
+      ],
+      "parameters": {
+        "event": "rowAdded",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit#gid=0",
+          "cachedResultName": "New_Invoices"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit?usp=drivesdk",
+          "cachedResultName": "Duplicate Invoice Detection System"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "444fbb98-9cad-4f2f-9eff-36b536f40008",
+      "name": "Prepare Incoming Invoices",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        768,
+        752
+      ],
+      "parameters": {
+        "options": {
+          "includeBinaries": false
+        },
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "new_invoices"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "979d05f7-4ef7-4352-89cb-c32c3efdef42",
+      "name": "Retrieve Invoice History",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        640,
+        912
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 136409788,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit#gid=136409788",
+          "cachedResultName": "Invoice_History"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit?usp=drivesdk",
+          "cachedResultName": "Duplicate Invoice Detection System"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "c20e6664-68b3-4d5a-9d07-5dcc9a831f1c",
+      "name": "Prepare Historical Records",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        896,
+        912
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "history_invoices"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0bb42e06-662a-407e-bbc7-a2c9bd296133",
+      "name": "Consolidate Invoice Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1088,
+        768
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "c00fd705-0cf0-412b-b953-05cef32b86ca",
+      "name": "AI Duplicate Risk Assessment",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        1616,
+        800
+      ],
+      "parameters": {
+        "text": "=You are a Procurement and Accounts Payable fraud analyst.\n\nAnalyze the following duplicate invoice detection result and determine whether this invoice should be considered:\n\n* Exact Duplicate\n* Near Duplicate\n* Legitimate Invoice\n\nInvoice ID: {{ $json.invoice_id }}\n\nRisk Score: {{ $json.riskScore }}\n\nDuplicate Found: {{ $json.duplicateFound }}\n\nMatched Invoice: {{ $json.matchedInvoice }}\n\nDetection Details:\n{{ $json.reason }}\n\nNew Invoice:\n{{ JSON.stringify($json.newInvoice) }}\n\nMatched Historical Invoice:\n{{ JSON.stringify($json.matchedInvoiceDetails) }}\n\nProvide your response in the following format:\n\nClassification: <Exact Duplicate / Near Duplicate / Legitimate Invoice>\n\nConfidence: <High / Medium / Low>\n\nReasoning:\n<2-3 sentence explanation>\n\nRecommended Action:\n<What the Accounts Payable team should do>\n",
+        "batching": {},
+        "promptType": "define"
+      },
+      "typeVersion": 1.9,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "8b8af567-2964-43d2-8b80-c388b96b74c8",
+      "name": "Extract AI Investigation Results",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2096,
+        848
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\nreturn items.map(item => {\n  const text = item.json.text || '';\n\n  const classification =\n    text.match(/Classification:\\s*(.*?)(?:\\n|$)/i)?.[1]?.trim() || 'Unknown';\n\n  const confidence =\n    text.match(/Confidence:\\s*(.*?)(?:\\n|$)/i)?.[1]?.trim() || 'Unknown';\n\n  const reasoning =\n    text.match(/Reasoning:\\s*([\\s\\S]*?)Recommended Action:/i)?.[1]?.trim() || '';\n\n  const recommendedAction =\n    text.match(/Recommended Action:\\s*([\\s\\S]*)/i)?.[1]?.trim() || '';\n\n  return {\n    json: {\n      classification,\n      confidence,\n      reasoning,\n      recommendedAction\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "cb039ce2-c34c-4be1-af91-de499f07d9fb",
+      "name": "Combine Detection & AI Results",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2288,
+        768
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "88628edd-d509-4e90-b649-f960d43c3d82",
+      "name": "Fraud Risk Decision Gateway",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2688,
+        768
+      ],
+      "parameters": {
+        "options": {
+          "ignoreCase": true
+        },
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": false,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "bde9b5af-da68-48db-ad7d-5d89234b1f85",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.classification }}",
+              "rightValue": "Exact Duplicate"
+            },
+            {
+              "id": "cd385a79-b709-4b1e-a1ba-ba35a72a144e",
+              "operator": {
+                "name": "filter.operator.equals",
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.classification }}",
+              "rightValue": "Near Duplicate"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b045757b-6d80-412a-936a-d58a92f629b4",
+      "name": "Notify Accounts Payable Team",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3328,
+        592
+      ],
+      "webhookId": "d55fffa5-49c8-4c7e-98de-9d4e35fbd795",
+      "parameters": {
+        "text": "=Duplicate Invoice Alert!\n\nInvoice ID: {{$json.invoice_id}}\n\nClassification: {{$json.classification}}\n\nConfidence: {{$json.confidence}}\n\nRisk Score: {{$json.riskScore}}\n\nMatched Invoice: {{$json.matchedInvoice}}\n\nReasoning:\n{{$json.reasoning}}\n\nRecommended Action:\n{{$json.recommendedAction}}\n\nPlease review immediately before payment is released.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0BB6RPKYBT",
+          "cachedResultName": "ap-fraud-alerts"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        },
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "aba3c1d3-47ec-48a7-8421-6c9c76b32a89",
+      "name": "ERP Payment Hold Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        3120,
+        736
+      ],
+      "parameters": {
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={\n  \"invoice_id\": \"{{$json.invoice_id}}\",\n  \"supplier_name\": \"{{ $json.supplier_name }}\",\n  \"amount\": {{ $json.amount }},\n  \"risk_score\": {{ $json.riskScore }},\n  \"reason\": \"{{ $json.reasoning }}\"\n}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "typeVersion": 4.1
+    },
+    {
+      "id": "26a0cba0-ccf4-4465-8dd9-3977bdcb4476",
+      "name": "Record Approved Invoice",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3024,
+        928
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Action": "Approved for normal processing",
+            "Reasoning": "={{ $json.reasoning }}",
+            "Timestamp": "={{ $now }}",
+            "Confidence": "={{ $json.confidence }}",
+            "Invoice ID": "={{ $json.invoice_id }}",
+            "Risk Score": "={{ $json.riskScore }}",
+            "Classification": "={{ $json.classification }}",
+            "Matched Invoice": "={{ $json.matchedInvoice }}"
+          },
+          "schema": [
+            {
+              "id": "Timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Invoice ID",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Invoice ID",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Classification",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Classification",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Confidence",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Confidence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Risk Score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Risk Score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Matched Invoice",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Matched Invoice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Reasoning",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Reasoning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Action",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1239218905,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit#gid=1239218905",
+          "cachedResultName": "Safe Invoices"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit?usp=drivesdk",
+          "cachedResultName": "Duplicate Invoice Detection System"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "b78ec463-a11d-4839-b65a-38124a3f0907",
+      "name": "Combine Investigation Outcome",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3376,
+        912
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "9faaef61-c83a-45e3-bde5-7829d0292438",
+      "name": "Record Fraud Investigation Case",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3568,
+        912
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "reasoning": "={{$json.reasoning}}",
+            "timestamp": "={{$now}}",
+            "blocked_at": "={{$json.blocked_at}}",
+            "confidence": "={{$json.confidence}}",
+            "invoice_id": "={{$json.invoice_id}}",
+            "risk_score": "={{$json.riskScore}}",
+            "classification": "={{$json.classification}}",
+            "payment_status": "={{$json.action}}",
+            "matched_invoice": "={{$json.matchedInvoice}}",
+            "recommended_action": "={{$json.recommendedAction}}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "invoice_id",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "invoice_id",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "classification",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "classification",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "confidence",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "confidence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "risk_score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "risk_score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "matched_invoice",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "matched_invoice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "payment_status",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "payment_status",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "blocked_at",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "blocked_at",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reasoning",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reasoning",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "recommended_action",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "recommended_action",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 696476736,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit#gid=696476736",
+          "cachedResultName": "Fraud Cases"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1EJ64KxURsZoqLfhVsR3LLq306CDnBVVzLvHShtIbZVE/edit?usp=drivesdk",
+          "cachedResultName": "Duplicate Invoice Detection System"
+        }
+      },
+      "typeVersion": 4
+    },
+    {
+      "id": "b6c5321c-350c-49d9-98bf-939289dcdd34",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -608,
+        288
+      ],
+      "parameters": {
+        "width": 880,
+        "height": 816,
+        "content": "# Duplicate Invoice Detection Workflow\n\n## How it works:\nThis workflow continuously monitors newly submitted invoices in Google Sheets and compares them against historical invoice records to identify potential duplicates. A custom duplicate detection engine evaluates invoice numbers, supplier names, amounts, and invoice dates using exact and fuzzy matching techniques to generate a risk score. The results are then reviewed by Google Gemini, which classifies the invoice as an Exact Duplicate, Near Duplicate, or Legitimate Invoice and provides investigation guidance. Based on the classification, suspicious invoices trigger fraud alerts, payment hold requests, and fraud case logging, while legitimate invoices are approved and recorded for normal processing. This helps Accounts Payable teams prevent duplicate payments and improve invoice review efficiency.\n\n## Setup steps:\n1. Connect Google Sheets Trigger credentials\n2. Connect Google Sheets credentials for invoice data storage\n3. Configure Google Gemini API credentials\n4. Connect Slack credentials for fraud alerts\n5. Configure the ERP payment hold API endpoint or replace the placeholder URL with your ERP system's payment hold service\n6. Create and map the New_Invoices, Invoice_History, Safe Invoices, and Fraud Cases sheets\n7. Update Slack channel settings for Accounts Payable notifications\n8. Test duplicate detection with sample invoices\n9. Activate the workflow after validation"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21a85f3f-1bd8-4781-8bb5-034fa45edfa9",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        368,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 576,
+        "content": "## Invoice Intake & Data Preparation\nCaptures newly submitted invoices, retrieves historical invoice records, and combines both datasets into a unified format for duplicate analysis."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d76325fb-c347-429b-9294-92c4c4a02de3",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 608,
+        "height": 576,
+        "content": "## Duplicate Detection & Risk Scoring\nPerforms exact and fuzzy invoice matching, calculates duplicate risk scores, and uses AI to evaluate potential duplicate payment risks."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "671ec3b7-9f01-4ff3-8471-4cf55f9485ec",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2032,
+        528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 832,
+        "height": 576,
+        "content": "## AI Investigation Processing\nExtracts AI findings, combines them with duplicate detection results, prepares a standardized investigation record, and determines whether the invoice requires fraud intervention or normal processing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "71fe00d4-c31d-4464-8cbf-38ddcce2c43c",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2944,
+        400
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 838,
+        "height": 704,
+        "content": "## Resolution & Audit Tracking\nHandles fraud alerts, payment hold requests, investigation logging, and approved invoice recording to maintain complete audit and payment processing records."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "507c179a-818c-4732-8be8-7b0bb3b85826",
+      "name": "Prepare Investigation Record",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2496,
+        768
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "9f742907-99f3-444a-9b12-49115ff769e5",
+              "name": "invoice_id",
+              "type": "string",
+              "value": "={{$json.invoice_id}}"
+            },
+            {
+              "id": "af5bcc25-00e6-49f2-9708-323d41e2855f",
+              "name": "classification",
+              "type": "string",
+              "value": "={{$json.classification}}"
+            },
+            {
+              "id": "9bdac488-6fdd-481f-9339-bde5860ff183",
+              "name": "confidence",
+              "type": "string",
+              "value": "={{$json.confidence}}"
+            },
+            {
+              "id": "2ab15b06-d050-4d01-94da-9a8dc528ef9a",
+              "name": "riskScore",
+              "type": "string",
+              "value": "={{$json.riskScore}}"
+            },
+            {
+              "id": "62b03163-bcb5-4bd6-8306-85d784a9f2d9",
+              "name": "matchedInvoice",
+              "type": "string",
+              "value": "={{$json.matchedInvoice}}"
+            },
+            {
+              "id": "c86349c6-f11a-4666-aaa4-ca7fa26d603a",
+              "name": "reasoning",
+              "type": "string",
+              "value": "={{$json.reasoning}}"
+            },
+            {
+              "id": "02d1200f-a2c0-48b5-82cd-4eb0f3081b33",
+              "name": "recommendedAction",
+              "type": "string",
+              "value": "={{$json.recommendedAction}}"
+            },
+            {
+              "id": "d6887251-5f98-4e87-a66a-141350a00d75",
+              "name": "supplier_name",
+              "type": "string",
+              "value": "={{$json.newInvoice.supplier_name}}"
+            },
+            {
+              "id": "54946926-6a1b-4339-ab46-85b41db552ac",
+              "name": "amount",
+              "type": "string",
+              "value": "={{$json.newInvoice.amount}}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "92392f84-513d-4417-963e-eb2534c75160",
+  "nodeGroups": [],
+  "connections": {
+    "Consolidate Invoice Data": {
+      "main": [
+        [
+          {
+            "node": "Duplicate Detection Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ERP Payment Hold Request": {
+      "main": [
+        [
+          {
+            "node": "Combine Investigation Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Gemini Chat Model": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Duplicate Risk Assessment",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retrieve Invoice History": {
+      "main": [
+        [
+          {
+            "node": "Prepare Historical Records",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Incoming Invoices": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Invoice Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Duplicate Detection Engine": {
+      "main": [
+        [
+          {
+            "node": "AI Duplicate Risk Assessment",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine Detection & AI Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Historical Records": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Invoice Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Fraud Risk Decision Gateway": {
+      "main": [
+        [
+          {
+            "node": "Notify Accounts Payable Team",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "ERP Payment Hold Request",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Combine Investigation Outcome",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Record Approved Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Duplicate Risk Assessment": {
+      "main": [
+        [
+          {
+            "node": "Extract AI Investigation Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare Investigation Record": {
+      "main": [
+        [
+          {
+            "node": "Fraud Risk Decision Gateway",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Investigation Outcome": {
+      "main": [
+        [
+          {
+            "node": "Record Fraud Investigation Case",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Combine Detection & AI Results": {
+      "main": [
+        [
+          {
+            "node": "Prepare Investigation Record",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Invoice Submission Trigger": {
+      "main": [
+        [
+          {
+            "node": "Retrieve Invoice History",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Prepare Incoming Invoices",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract AI Investigation Results": {
+      "main": [
+        [
+          {
+            "node": "Combine Detection & AI Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    }
+  }
+}

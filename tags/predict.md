@@ -1,4 +1,4 @@
-# predict : 24
+# predict : 30
 
 |id|file|
 |----|----|
@@ -26,3 +26,9 @@
 |15198|[15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15198_Predict_churn_risk_and_trigger_retention_actions_with_OpenAI_and_Google_Sheets.json)|
 |16185|[16185_Predict_airport_queue_wait_times_and_email_alerts_with_OpenAI_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16185_Predict_airport_queue_wait_times_and_email_alerts_with_OpenAI_and_SendGrid.json)|
 |16306|[16306_Predict_competitor_ad_launch_cycles_with_Adyntel__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16306_Predict_competitor_ad_launch_cycles_with_Adyntel__OpenAI__and_Google_Sheets.json)|
+|16871|[16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json)|
+|17043|[17043_Predict_Salesforce_deal_escalation_risk_with_Gemini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17043_Predict_Salesforce_deal_escalation_risk_with_Gemini_and_Slack_alerts.json)|
+|17601|[17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17601_Predict_employee_attrition_risk_with_Google_Sheets__OpenAI__Gmail__and_Telegram.json)|
+|18248|[18248_Predict_transformer_overload_risk_and_send_alerts_via_HTTP_APIs__email__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18248_Predict_transformer_overload_risk_and_send_alerts_via_HTTP_APIs__email__and_Slack.json)|
+|18537|[18537_Predict_and_prevent_service_failures_with_Claude__ClickUp__and_WhatsApp_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18537_Predict_and_prevent_service_failures_with_Claude__ClickUp__and_WhatsApp_alerts.json)|
+|18860|[18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18860_Predict_SLA_breach_risk_and_escalate_ServiceNow_incidents_with_Slack_alerts.json)|

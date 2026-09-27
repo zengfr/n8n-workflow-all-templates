@@ -1,4 +1,4 @@
-# face : 12
+# face : 14
 
 |id|file|
 |----|----|
@@ -14,3 +14,5 @@
 |12338|[12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12338_Migrate_large_Hugging_Face_datasets_to_MongoDB_with_a_looping_subworkflow.json)|
 |13809|[13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json)|
 |15571|[15571_Classify_sentiment_of_incoming_text_using_Hugging_Face__Google_Sheets__and_Jira.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15571_Classify_sentiment_of_incoming_text_using_Hugging_Face__Google_Sheets__and_Jira.json)|
+|17445|[17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json)|
+|18908|[18908_Qualify_and_approve_live_face-swap_session_requests_with_LiveFaceSwap_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18908_Qualify_and_approve_live_face-swap_session_requests_with_LiveFaceSwap_forms.json)|

@@ -1,4 +1,4 @@
-# pattern : 8
+# pattern : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |15741|[15741_Monitor_suspicious_transactions_using_Google_Sheets__Groq_AI_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15741_Monitor_suspicious_transactions_using_Google_Sheets__Groq_AI_and_Gmail_alerts.json)|
 |16102|[16102_Generate_and_verify_email_patterns_from_chat_input_with_Reoon_Email_Verifier.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16102_Generate_and_verify_email_patterns_from_chat_input_with_Reoon_Email_Verifier.json)|
 |16362|[16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16362_Log_gold_and_silver_prices_and_email_Groq_insights_with_Google_Sheets.json)|
+|16869|[16869_Send_weekly_Salesforce_sales_behavior_coaching_reports_with_Groq_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16869_Send_weekly_Salesforce_sales_behavior_coaching_reports_with_Groq_and_Gmail.json)|

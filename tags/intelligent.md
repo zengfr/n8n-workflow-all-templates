@@ -1,4 +1,4 @@
-# intelligent : 65
+# intelligent : 71
 
 |id|file|
 |----|----|
@@ -67,3 +67,9 @@
 |15026|[15026_Orchestrate_multi-agent_compliance_monitoring_and_audit_logging_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15026_Orchestrate_multi-agent_compliance_monitoring_and_audit_logging_with_GPT-4o_and_Slack.json)|
 |15377|[15377_Intelligent_Support_Triage___Auto-Response_Engine_with_Jotform__Airtable__Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15377_Intelligent_Support_Triage___Auto-Response_Engine_with_Jotform__Airtable__Gemini.json)|
 |15754|[15754_Turn_Telegram_voice_messages_into_Gmail_emails_and_Google_Calendar_events_with_Whisper_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15754_Turn_Telegram_voice_messages_into_Gmail_emails_and_Google_Calendar_events_with_Whisper_and_Ollama.json)|
+|17077|[17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17077_Extract_and_validate_invoice_data_from_Google_Drive_using_OCR.Space__Gemini__and_Google_Sheets.json)|
+|17293|[17293_Detect_Stripe_payment_anomalies_with_Groq__Supabase__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17293_Detect_Stripe_payment_anomalies_with_Groq__Supabase__Slack__and_Google_Sheets.json)|
+|17470|[17470_Classify_and_draft_Gmail_replies_with_OpenRouter_and_a_Google_Docs_RAG_KB.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17470_Classify_and_draft_Gmail_replies_with_OpenRouter_and_a_Google_Docs_RAG_KB.json)|
+|18492|[18492_Classify_purchase_requisitions_with_Google_Gemini__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18492_Classify_purchase_requisitions_with_Google_Gemini__Gmail__Slack_and_Sheets.json)|
+|18919|[18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18919_Approve_and_audit_expense_claims_with_Google_Gemini_and_Google_Sheets.json)|
+|19769|[19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19769_Organize_Gmail_inbox_labels_with_Jev_TypeSafe_AI__System_One.json)|

@@ -1,4 +1,4 @@
-# context : 30
+# context : 32
 
 |id|file|
 |----|----|
@@ -32,3 +32,5 @@
 |15228|[15228_Draft_AI-powered_Help_Scout_replies_with_HubSpot_and_SMS_customer_360_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15228_Draft_AI-powered_Help_Scout_replies_with_HubSpot_and_SMS_customer_360_context.json)|
 |16107|[16107_Send_pre-meeting_context_briefings_with_Outlook__SharePoint__Entra_ID_and_Teams.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16107_Send_pre-meeting_context_briefings_with_Outlook__SharePoint__Entra_ID_and_Teams.json)|
 |16723|[16723_Enrich_KlickTipp_contact_fields_using_OpenAI_GPT-5.5_and_context.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16723_Enrich_KlickTipp_contact_fields_using_OpenAI_GPT-5.5_and_context.json)|
+|18102|[18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18102_Draft_Gmail_replies_with_Claude_Sonnet_and_log_decisions_in_Google_Sheets.json)|
+|19330|[19330_Enrich_OpenObserve_alerts_with_log_context_and_notify_responders_via_Novu.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19330_Enrich_OpenObserve_alerts_with_log_context_and_notify_responders_via_Novu.json)|

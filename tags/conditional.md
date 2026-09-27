@@ -1,4 +1,4 @@
-# conditional : 5
+# conditional : 6
 
 |id|file|
 |----|----|
@@ -7,3 +7,4 @@
 |9469|[9469_Sync_Adobe_Commerce_Customer_Data_to_KlickTipp_with_Value-Based_Tagging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9469_Sync_Adobe_Commerce_Customer_Data_to_KlickTipp_with_Value-Based_Tagging.json)|
 |9711|[9711_Automate_Stripe_Customer_Data_Transfer_to_KlickTipp_with_Dynamic_Tagging_Logic.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/97/9711_Automate_Stripe_Customer_Data_Transfer_to_KlickTipp_with_Dynamic_Tagging_Logic.json)|
 |12906|[12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12906_Match_WooCommerce_orders_to_new_Zendesk_tickets_and_send_confirmation_emails.json)|
+|19412|[19412_Reconcile_CRM_and_invoicing_owner_fields_with_HTTPS_APIs_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19412_Reconcile_CRM_and_invoicing_owner_fields_with_HTTPS_APIs_and_Data_Tables.json)|

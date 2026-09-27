@@ -1,0 +1,986 @@
+{
+  "name": "Bulk-create product catalog videos from Google Sheets with Zvid",
+  "nodes": [
+    {
+      "id": "zvid-bc-0001",
+      "name": "Test manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        50,
+        240
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "zvid-bc-0002",
+      "name": "Every Monday at 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        310,
+        240
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8,
+              "weeksInterval": 1
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "zvid-bc-0003",
+      "name": "Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        570,
+        240
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\n  \"apiUrl\": \"https://api.zvid.io\",\n  \"brandName\": \"ATELIER AURA\",\n  \"website\": \"atelieraura.example\",\n  \"kicker\": \"JUST DROPPED\",\n  \"featureHeading\": \"WHY YOU'LL LOVE IT\",\n  \"dealKicker\": \"FOR A LIMITED TIME\",\n  \"tagline\": \"Made to be used every day.\",\n  \"ctaFallback\": \"Shop now\",\n  \"accentColor\": \"#B4552D\",\n  \"accentSoft\": \"#E8A075\",\n  \"creamColor\": \"#F6EFE7\",\n  \"inkColor\": \"#2A1E16\",\n  \"font\": \"Archivo\",\n  \"serifFont\": \"Fraunces\",\n  \"currencySymbol\": \"$\",\n  \"musicUrl\": \"https://cdn.pixabay.com/audio/2025/04/21/audio_ed6f0ed574.mp3\",\n  \"musicVolume\": 0.16,\n  \"heroSeconds\": 3.6,\n  \"featureSeconds\": 4.6,\n  \"ctaSeconds\": 4.2,\n  \"transitionSeconds\": 0.55,\n  \"frameRate\": 30,\n  \"resolution\": \"instagram-reel\",\n  \"maxProducts\": 5,\n  \"bulkName\": \"Catalog videos\",\n  \"dryRun\": false,\n  \"pollSeconds\": 10,\n  \"timeoutMinutes\": 20\n}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "zvid-bc-0004",
+      "name": "Get catalog rows",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1050,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "sheet",
+        "operation": "read",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "zvid-bc-0005",
+      "name": "Rows needing videos",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1310,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// Keeps every sheet row whose VideoUrl is still empty, checks the columns\n// the template needs, and caps the batch at maxProducts. Rows with problems\n// are skipped and reported — one bad row must never sink the whole catalog.\nconst cfg = $('Config').first().json;\nconst all = $input.all().map((i) => i.json);\n\n// (No URL global in the n8n Code sandbox — a regex check does the job.)\nconst looksLikeUrl = (u) => /^https?:\\/\\/\\S+$/i.test(String(u || '').trim());\n\n// The finished VideoUrl is written back by matching the Product column (see\n// \"Collect video links\" for why not row_number), so a product name that shows\n// up twice cannot identify its own row. Count names across the WHOLE sheet —\n// an already-rendered row with the same name would be matched just as well.\nconst nameCount = {};\nfor (const r of all) {\n  const k = String(r.Product == null ? '' : r.Product).trim();\n  if (k) nameCount[k] = (nameCount[k] || 0) + 1;\n}\n\nconst rows = [];\nconst skipped = [];\nfor (const r of all) {\n  if (String(r.VideoUrl || '').trim()) continue; // already has a video\n  const rowNumber = r.row_number;\n  const product = String(r.Product || '').trim();\n  const problems = [];\n  if (!product) problems.push('Product is empty');\n  else if (nameCount[product] > 1)\n    problems.push(\n      'Product \"' + product + '\" appears on ' + nameCount[product] +\n        ' rows — it is the key the finished VideoUrl is written back with, so it must be unique'\n    );\n  if (!String(r.Price || '').trim()) problems.push('Price is empty');\n  if (!looksLikeUrl(r.ImageUrl1)) problems.push('ImageUrl1 is not an http(s) URL');\n  if (String(r.ImageUrl2 || '').trim() && !looksLikeUrl(r.ImageUrl2)) problems.push('ImageUrl2 is not an http(s) URL');\n  for (const f of ['Feature1', 'Feature2', 'Feature3']) {\n    if (!String(r[f] || '').trim()) problems.push(f + ' is empty');\n  }\n  if (problems.length) {\n    skipped.push({ rowNumber, product: product || '(no name)', problems });\n    continue;\n  }\n  rows.push({\n    rowNumber,\n    Product: product,\n    Price: r.Price,\n    CompareAtPrice: r.CompareAtPrice,\n    Feature1: r.Feature1,\n    Feature2: r.Feature2,\n    Feature3: r.Feature3,\n    ImageUrl1: r.ImageUrl1,\n    ImageUrl2: r.ImageUrl2,\n    CtaText: r.CtaText,\n  });\n}\n\nconst max = Math.max(1, Number(cfg.maxProducts || 5));\nconst leftForNextRun = Math.max(0, rows.length - max);\nconst kept = rows.slice(0, max);\n\n// Completed rows are expected on recurring runs. Only invalid pending rows fail.\nif (!kept.length && skipped.length) {\n  throw new Error(\n    'No renderable rows: every row without a VideoUrl has problems. First: row ' +\n      skipped[0].rowNumber + ' — ' + skipped[0].problems.join('; ')\n  );\n}\n\nreturn [{ json: { rows: kept, skipped, leftForNextRun, totalRowsRead: all.length } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0006",
+      "name": "Build project JSON",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2310,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// Builds ONE templated Zvid project (brand knobs baked in, row data as\n// {{placeholders}}) plus one { variables, name } item per catalog row —\n// exactly the body POST /api/render/bulk/api-key expects. The bulk endpoint\n// resolves the placeholders per item server-side.\nconst cfg = $('Config').first().json;\nconst picked = $('Rows needing videos').first().json;\n\nconst esc = (s) =>\n  String(s ?? '').replace(\n    /[&<>\"]/g,\n    (c) => ({ '&': '&amp;', '<': '&lt;', '>': '&gt;', '\"': '&quot;' })[c]\n  );\n\n// Money helpers: the sheet may hold \"$68\", \"68\" or \"129.50\". Display keeps the\n// user's own formatting (plus a currency symbol when they gave a bare number);\n// math strips everything but digits and the decimal point.\nconst asMoneyNumber = (s) => {\n  const m = String(s ?? '').replace(/[^0-9.]/g, '');\n  const n = parseFloat(m);\n  return Number.isFinite(n) ? n : null;\n};\nconst formatMoney = (n, symbol) => {\n  const rounded = Math.round(n * 100) / 100;\n  const txt = Number.isInteger(rounded) ? String(rounded) : rounded.toFixed(2);\n  return `${symbol}${txt}`;\n};\nconst displayPrice = (raw, symbol) => {\n  const t = String(raw ?? '').trim();\n  if (!t) return '';\n  return /^[0-9]/.test(t) ? `${symbol}${t}` : t;\n};\n\n// Auto-size long product names so they never overflow their 900px column.\nconst nameSizeFor = (name) => {\n  const len = String(name).length;\n  if (len <= 14) return 96;\n  if (len <= 30) return 80;\n  if (len <= 48) return 64;\n  if (len <= 70) return 52;\n  return 44;\n};\n// One feature size per row (rows sit in one list — mixed sizes look broken).\nconst featureSizeFor = (features) => {\n  const len = Math.max(...features.map((f) => String(f).length));\n  if (len <= 38) return 34;\n  if (len <= 80) return 30;\n  return 26;\n};\n\nconst slugify = (s) =>\n  String(s)\n    .toLowerCase()\n    .replace(/[^a-z0-9]+/g, '-')\n    .replace(/^-+|-+$/g, '')\n    .slice(0, 60) || 'product';\n\n/** Templated project. Brand/config values are baked in as literals; only\n *  per-row data rides on {{placeholders}} resolved by the bulk API per item. */\nfunction buildPayload(cfg) {\n  const accent = cfg.accentColor || '#B4552D';\n  const soft = cfg.accentSoft || '#E8A075';\n  const cream = cfg.creamColor || '#F6EFE7';\n  const ink = cfg.inkColor || '#2A1E16';\n  const font = cfg.font || 'Archivo';\n  const serif = cfg.serifFont || 'Fraunces';\n  const heroS = Number(cfg.heroSeconds ?? 3.6);\n  const featS = Number(cfg.featureSeconds ?? 4.6);\n  const ctaS = Number(cfg.ctaSeconds ?? 4.2);\n  const tS = Number(cfg.transitionSeconds ?? 0.55);\n  const brand = esc(cfg.brandName || 'YOUR BRAND');\n  const website = esc(cfg.website || 'yourstore.example');\n  const kicker = esc(cfg.kicker || 'JUST DROPPED');\n  const featureHeading = esc(cfg.featureHeading || \"WHY YOU'LL LOVE IT\");\n  const dealKicker = esc(cfg.dealKicker || 'FOR A LIMITED TIME');\n  const tagline = esc(cfg.tagline || 'Made for every day.');\n\n  const rgba = (hex, a) => {\n    const h = hex.replace('#', '');\n    const n = parseInt(\n      h.length === 3 ? h.split('').map((c) => c + c).join('') : h,\n      16\n    );\n    return `rgba(${(n >> 16) & 255},${(n >> 8) & 255},${n & 255},${a})`;\n  };\n\n  // ---- scene 1: full-bleed hero -----------------------------------------\n  const heroShadeSvg =\n    `<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'>` +\n    `<defs><linearGradient id='bcShade' x1='0' y1='0' x2='0' y2='1'>` +\n    `<stop offset='0' stop-color='${ink}' stop-opacity='0.5'/>` +\n    `<stop offset='0.4' stop-color='${ink}' stop-opacity='0.05'/>` +\n    `<stop offset='0.58' stop-color='${ink}' stop-opacity='0.45'/>` +\n    `<stop offset='0.78' stop-color='${ink}' stop-opacity='0.85'/>` +\n    `<stop offset='1' stop-color='${ink}' stop-opacity='0.96'/>` +\n    `</linearGradient></defs>` +\n    `<rect width='1080' height='1920' fill='url(#bcShade)'/>` +\n    `<path d='M84 296 L84 116 L264 116' fill='none' stroke='${cream}' stroke-width='9' stroke-opacity='0.9'/>` +\n    `<path d='M996 1624 L996 1804 L816 1804' fill='none' stroke='${soft}' stroke-width='9'/>` +\n    `<path d='M920 240 L920 288 M896 264 L944 264' stroke='${rgba(cream, 0.75)}' stroke-width='6' stroke-linecap='round'/>` +\n    `<circle cx='950' cy='1180' r='9' fill='${soft}'/>` +\n    `</svg>`;\n\n  const hero = {\n    id: 'hero',\n    duration: heroS,\n    backgroundColor: ink,\n    transition: 'smoothup',\n    transitionId: 'features',\n    transitionDuration: tS,\n    visuals: [\n      {\n        type: 'IMAGE',\n        src: '{{img1}}',\n        width: 1080,\n        height: 1920,\n        position: 'center-center',\n        resize: 'cover',\n        zoom: true,\n        track: 0,\n        enterBegin: 0,\n        exitEnd: heroS,\n      },\n      {\n        type: 'SVG',\n        width: 1080,\n        height: 1920,\n        track: 1,\n        enterBegin: 0,\n        exitEnd: heroS,\n        svg: heroShadeSvg,\n      },\n      {\n        type: 'TEXT',\n        x: 540,\n        y: 130,\n        anchor: 'top-center',\n        track: 2,\n        enterBegin: 0.15,\n        enterEnd: 0.55,\n        enterAnimation: 'fade',\n        exitEnd: heroS,\n        style: { fontFamily: font, color: cream },\n        html: `<div style='display:inline-block; border:1.5px solid ${rgba(cream, 0.55)}; border-radius:999px; padding:14px 34px; color:${cream}; font-size:26px; font-weight:800; letter-spacing:8px;'>${brand}</div>`,\n      },\n      {\n        type: 'TEXT',\n        x: 90,\n        y: 1330,\n        width: 900,\n        anchor: 'top-left',\n        track: 3,\n        enterBegin: 0.5,\n        enterEnd: 0.95,\n        enterAnimation: 'smoothup',\n        exitEnd: heroS,\n        style: { fontFamily: font, color: cream },\n        html:\n          `<div style='color:${soft}; font-size:26px; font-weight:800; letter-spacing:6px;'>${kicker}</div>` +\n          `<div style='margin-top:20px; color:${cream}; font-size:{{nameSize}}px; line-height:1.06; font-weight:900; letter-spacing:-2px;'>{{product}}</div>` +\n          `<div style='margin-top:26px; width:130px; height:6px; border-radius:3px; background:${soft};'></div>`,\n      },\n    ],\n  };\n\n  // ---- scene 2: arch product image + numbered features -------------------\n  const featureBgSvg =\n    `<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'>` +\n    `<rect width='1080' height='1920' fill='${cream}'/>` +\n    `<path d='M186 880 L186 524 A354 354 0 0 1 894 524 L894 880' fill='none' stroke='${accent}' stroke-width='3'/>` +\n    `<path d='M120 880 L960 880' stroke='${rgba(ink, 0.22)}' stroke-width='2'/>` +\n    `<circle cx='828' cy='170' r='4' fill='${rgba(accent, 0.35)}'/><circle cx='888' cy='170' r='4' fill='${rgba(accent, 0.35)}'/><circle cx='948' cy='170' r='4' fill='${rgba(accent, 0.35)}'/>` +\n    `<circle cx='828' cy='230' r='4' fill='${rgba(accent, 0.35)}'/><circle cx='888' cy='230' r='4' fill='${rgba(accent, 0.35)}'/><circle cx='948' cy='230' r='4' fill='${rgba(accent, 0.35)}'/>` +\n    `<path d='M96 200 q26 -34 52 0 q26 34 52 0' fill='none' stroke='${accent}' stroke-width='6' stroke-linecap='round'/>` +\n    `<path d='M970 480 L970 524 M948 502 L992 502' stroke='${rgba(accent, 0.6)}' stroke-width='6' stroke-linecap='round'/>` +\n    `<polygon points='120,560 160,560 140,524' fill='${soft}'/>` +\n    `</svg>`;\n\n  const featureRow = (num, varName) =>\n    `<div style='margin-top:26px; border-top:1.5px solid ${rgba(ink, 0.16)}; padding-top:24px;'>` +\n    `<div style='color:${accent}; font-size:24px; font-weight:800; letter-spacing:3px;'>${num}</div>` +\n    `<div style='margin-top:8px; color:${ink}; font-size:{{featureSize}}px; line-height:1.32; font-weight:600;'>{{${varName}}}</div>` +\n    `</div>`;\n\n  const features = {\n    id: 'features',\n    duration: featS,\n    backgroundColor: cream,\n    transition: 'fade',\n    transitionId: 'cta',\n    transitionDuration: 0.5,\n    visuals: [\n      {\n        type: 'SVG',\n        width: 1080,\n        height: 1920,\n        track: 0,\n        enterBegin: 0,\n        exitEnd: featS,\n        svg: featureBgSvg,\n      },\n      {\n        // NOTE: no `resize` here on purpose — mirroring the library's\n        // pro-ecom-hero-promo arch image exactly. Adding resize:\"cover\" to a\n        // boxed top-left image makes the renderer cover the canvas from the\n        // box origin instead of filling the 660x680 box (verified by render).\n        type: 'IMAGE',\n        src: '{{img2}}',\n        x: 210,\n        y: 170,\n        width: 660,\n        height: 680,\n        anchor: 'top-left',\n        zoom: true,\n        radius: { tl: 330, tr: 330, bl: 0, br: 0 },\n        track: 1,\n        enterBegin: 0,\n        enterEnd: 0.55,\n        enterAnimation: 'smoothup',\n        exitEnd: featS,\n      },\n      {\n        type: 'TEXT',\n        x: 830,\n        y: 812,\n        anchor: 'center-center',\n        angle: -8,\n        track: 4,\n        enterBegin: 0.75,\n        enterEnd: 1.1,\n        enterAnimation: 'smoothup',\n        exitEnd: featS,\n        style: { fontFamily: font, color: cream },\n        html: `<div style='display:inline-block; background:${accent}; color:${cream}; border-radius:999px; padding:16px 34px; font-size:38px; font-weight:800;'>{{price}}</div>`,\n      },\n      {\n        type: 'TEXT',\n        x: 110,\n        y: 985,\n        width: 860,\n        anchor: 'top-left',\n        track: 2,\n        enterBegin: 0.45,\n        enterEnd: 0.9,\n        enterAnimation: 'smoothup',\n        exitEnd: featS,\n        style: { fontFamily: font, color: ink },\n        html:\n          `<div style='color:${accent}; font-size:25px; font-weight:800; letter-spacing:5px;'>${featureHeading}</div>` +\n          featureRow('01', 'f1') +\n          featureRow('02', 'f2') +\n          featureRow('03', 'f3'),\n      },\n      {\n        type: 'TEXT',\n        x: 540,\n        y: 1810,\n        anchor: 'top-center',\n        track: 3,\n        enterBegin: 0.3,\n        enterEnd: 0.7,\n        enterAnimation: 'fade',\n        exitEnd: featS,\n        style: { fontFamily: font, color: ink },\n        html: `<div style='color:${rgba(ink, 0.55)}; font-size:24px; font-weight:700; letter-spacing:6px;'>${brand} · ${website.toUpperCase()}</div>`,\n      },\n    ],\n  };\n\n  // ---- scene 3: price + CTA on the accent field --------------------------\n  const ctaBgSvg =\n    `<svg width='1080' height='1920' viewBox='0 0 1080 1920' xmlns='http://www.w3.org/2000/svg'>` +\n    `<rect width='1080' height='1920' fill='${accent}'/>` +\n    `<path d='M84 296 L84 116 L264 116' fill='none' stroke='${cream}' stroke-width='9' stroke-opacity='0.9'/>` +\n    `<path d='M996 1624 L996 1804 L816 1804' fill='none' stroke='${cream}' stroke-width='9' stroke-opacity='0.9'/>` +\n    `<path d='M120 1560 q30 -38 60 0 q30 38 60 0 q30 -38 60 0' fill='none' stroke='${rgba(cream, 0.8)}' stroke-width='7' stroke-linecap='round'/>` +\n    `<path d='M170 340 L170 384 M148 362 L192 362' stroke='${rgba(cream, 0.6)}' stroke-width='6' stroke-linecap='round'/>` +\n    `<circle cx='902' cy='420' r='7' fill='${rgba(cream, 0.55)}'/>` +\n    `<polygon points='930,1500 970,1500 950,1464' fill='${rgba(cream, 0.7)}'/>` +\n    `</svg>`;\n\n  const priceKickerHtml = `<div style='color:${rgba(cream, 0.75)}; font-size:26px; font-weight:800; letter-spacing:6px;'>${dealKicker}</div>`;\n  const bigPrice = (extra) =>\n    `<div style='margin-top:24px;'><span style='color:${cream}; font-size:150px; font-weight:900; letter-spacing:-4px;'>{{price}}</span>${extra}</div>`;\n\n  const cta = {\n    id: 'cta',\n    duration: ctaS,\n    backgroundColor: accent,\n    visuals: [\n      {\n        type: 'SVG',\n        width: 1080,\n        height: 1920,\n        track: 0,\n        enterBegin: 0,\n        exitEnd: ctaS,\n        svg: ctaBgSvg,\n      },\n      {\n        type: 'TEXT',\n        x: 540,\n        y: 130,\n        anchor: 'top-center',\n        track: 1,\n        enterBegin: 0.15,\n        enterEnd: 0.5,\n        enterAnimation: 'fade',\n        exitEnd: ctaS,\n        style: { fontFamily: font, color: cream },\n        html: `<div style='color:${cream}; font-size:28px; font-weight:800; letter-spacing:10px;'>${brand}</div>`,\n      },\n      {\n        type: 'TEXT',\n        x: 90,\n        y: 490,\n        width: 900,\n        anchor: 'top-left',\n        track: 2,\n        enterBegin: 0.25,\n        enterEnd: 0.65,\n        enterAnimation: 'smoothup',\n        exitEnd: ctaS,\n        style: { fontFamily: serif, color: cream },\n        html: `<div style='color:${cream}; font-size:64px; line-height:1.15; font-style:italic; font-weight:500;'>${tagline}</div>`,\n      },\n      {\n        type: 'TEXT',\n        condition: '{{showCompare}}',\n        x: 90,\n        y: 720,\n        width: 900,\n        anchor: 'top-left',\n        track: 3,\n        enterBegin: 0.45,\n        enterEnd: 0.85,\n        enterAnimation: 'smoothup',\n        exitEnd: ctaS,\n        style: { fontFamily: font, color: cream },\n        html:\n          priceKickerHtml +\n          bigPrice(\n            `<span style='margin-left:28px; color:${rgba(cream, 0.65)}; font-size:54px; font-weight:700; text-decoration:line-through;'>{{compareAt}}</span>`\n          ) +\n          `<div style='margin-top:22px; display:inline-block; border:1.5px solid ${rgba(cream, 0.6)}; border-radius:999px; padding:14px 32px; color:${cream}; font-size:28px; font-weight:700;'>{{savingsLine}}</div>`,\n      },\n      {\n        type: 'TEXT',\n        condition: '{{showSingle}}',\n        x: 90,\n        y: 720,\n        width: 900,\n        anchor: 'top-left',\n        track: 3,\n        enterBegin: 0.45,\n        enterEnd: 0.85,\n        enterAnimation: 'smoothup',\n        exitEnd: ctaS,\n        style: { fontFamily: font, color: cream },\n        html: priceKickerHtml + bigPrice(''),\n      },\n      {\n        type: 'TEXT',\n        x: 90,\n        y: 1180,\n        width: 900,\n        anchor: 'top-left',\n        track: 4,\n        enterBegin: 0.65,\n        enterEnd: 1.05,\n        enterAnimation: 'smoothup',\n        exitEnd: ctaS,\n        style: { fontFamily: font, color: cream },\n        html:\n          `<div style='color:${rgba(cream, 0.85)}; font-size:34px; line-height:1.35; font-weight:600;'>{{product}}</div>` +\n          `<div style='margin-top:36px; display:inline-block; background:${cream}; color:${ink}; border-radius:999px; padding:26px 62px; font-size:40px; font-weight:800;'>{{cta}}</div>` +\n          `<div style='margin-top:24px; color:${rgba(cream, 0.7)}; font-size:26px; letter-spacing:2px; font-weight:600;'>${website}</div>`,\n      },\n    ],\n  };\n\n  return {\n    name: 'catalog-product-video',\n    resolution: cfg.resolution || 'instagram-reel',\n    frameRate: Number(cfg.frameRate ?? 30),\n    backgroundColor: ink,\n    outputFormat: 'mp4',\n    // Defaults keep every placeholder resolvable even if a variable is ever\n    // missing; the per-row items below always override all of them.\n    variables: {\n      product: 'Product name',\n      nameSize: 80,\n      price: '$0',\n      compareAt: '',\n      showCompare: false,\n      showSingle: true,\n      savingsLine: '',\n      img1: 'https://images.pexels.com/photos/2616164/pexels-photo-2616164.jpeg?auto=compress&cs=tinysrgb&w=1620',\n      img2: 'https://images.pexels.com/photos/29815561/pexels-photo-29815561.jpeg?auto=compress&cs=tinysrgb&w=1620',\n      cta: 'Shop now',\n      featureSize: 34,\n      f1: 'Feature one',\n      f2: 'Feature two',\n      f3: 'Feature three',\n    },\n    scenes: [hero, features, cta],\n    // NOTE: no `track` on the audio — the production API rejects it\n    // (\"audios[0].track is not allowed\"), even though older library JSONs\n    // carry it. src + volume is everything this design needs.\n    audios: cfg.musicUrl\n      ? [{ src: cfg.musicUrl, volume: Number(cfg.musicVolume ?? 0.16) }]\n      : [],\n  };\n}\n\n/** One bulk item per catalog row. Values that land in HTML are escaped HERE\n *  (product names like \"Fog & Field\" must not break the markup). */\nfunction buildItemVariables(cfg, row) {\n  const symbol = cfg.currencySymbol || '$';\n  const product = String(row.Product || '').trim();\n  const features = [row.Feature1, row.Feature2, row.Feature3].map((f) =>\n    String(f || '').trim()\n  );\n  const price = displayPrice(row.Price, symbol);\n  const compareAt = displayPrice(row.CompareAtPrice, symbol);\n  const priceN = asMoneyNumber(row.Price);\n  const compareN = asMoneyNumber(row.CompareAtPrice);\n  // Only show the strikethrough when it is an actual markdown.\n  const showCompare = Boolean(\n    compareAt && priceN != null && compareN != null && compareN > priceN\n  );\n  const savingsLine = showCompare\n    ? `You save ${formatMoney(compareN - priceN, symbol)}`\n    : '';\n  const img1 = String(row.ImageUrl1 || '').trim();\n  const img2 = String(row.ImageUrl2 || '').trim() || img1;\n  const cta = String(row.CtaText || '').trim() || cfg.ctaFallback || 'Shop now';\n\n  return {\n    product: esc(product),\n    nameSize: nameSizeFor(product),\n    price: esc(price),\n    compareAt: esc(compareAt),\n    showCompare,\n    showSingle: !showCompare,\n    savingsLine: esc(savingsLine),\n    img1,\n    img2,\n    cta: esc(cta),\n    featureSize: featureSizeFor(features),\n    f1: esc(features[0]),\n    f2: esc(features[1]),\n    f3: esc(features[2]),\n  };\n}\n\n/** rows: [{ Product, Price, CompareAtPrice, Feature1..3, ImageUrl1, ImageUrl2,\n *  CtaText, rowNumber }] — already filtered to rows that need a video. */\nfunction buildProject(config, rows) {\n  if (!Array.isArray(rows) || rows.length === 0) {\n    throw new Error('buildProject needs at least one catalog row.');\n  }\n  const payload = buildPayload(config);\n  const items = rows.map((row, i) => ({\n    variables: buildItemVariables(config, row),\n    name: `${slugify(row.Product)}-r${row.rowNumber ?? i + 1}`,\n  }));\n  const meta = {\n    products: rows.map((row, i) => ({\n      index: i,\n      rowNumber: row.rowNumber ?? null,\n      product: String(row.Product || '').trim(),\n      // The write-back key: the sheet's own Product value, untouched.\n      productKey: String(row.Product == null ? '' : row.Product).trim(),\n    })),\n    sceneSeconds: payload.scenes.map((s) => s.duration),\n    // Transitions overlap the scenes they join, so the effective length is\n    // the sum minus the overlaps.\n    approxVideoSeconds:\n      Math.round(\n        (payload.scenes.reduce((a, s) => a + s.duration, 0) -\n          payload.scenes.reduce((a, s) => a + (s.transitionDuration || 0), 0)) *\n          100\n      ) / 100,\n  };\n  return { payload, items, meta };\n}\n\nconst { payload, items, meta } = buildProject(cfg, picked.rows);\nreturn [{\n  json: {\n    payload,\n    items,\n    meta: {\n      ...meta,\n      skipped: picked.skipped,\n      leftForNextRun: picked.leftForNextRun,\n      totalRowsRead: picked.totalRowsRead,\n    },\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0007",
+      "name": "Validate project (free)",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "position": [
+        2570,
+        240
+      ],
+      "parameters": {
+        "source": "json",
+        "resource": "render",
+        "operation": "validate",
+        "projectJson": "={{ JSON.stringify(({ payload: $json.payload, variables: $json.items[0].variables }).payload) }}",
+        "validationVariables": "={{ JSON.stringify(({ payload: $json.payload, variables: $json.items[0].variables }).variables) }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "zvid-bc-0008",
+      "name": "Check validation",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2830,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// The free validate endpoint runs the exact resolve+validate pipeline a bulk\n// item runs (first row's variables against the shared payload), so a failure\n// here is a payload/data bug — surface the field list, not a generic HTTP\n// error. It also returns the per-video credit price, which multiplied by the\n// row count is the whole catalog's exact cost.\nconst res = $input.first().json;\nconst status = res.statusCode ?? (res.valid === true ? 200 : 400);\nconst body = res.body || { ...res, details: res.errors ?? res.details };\n\nif (status !== 200) {\n  const details = Array.isArray(body.details)\n    ? body.details.map((d) => '  - ' + d.field + ': ' + d.message).join('\\n')\n    : JSON.stringify(body).slice(0, 500);\n  throw new Error('Zvid rejected the project (HTTP ' + status + '): ' + (body.message || body.error) + '\\n' + details);\n}\n\nconst build = $('Build project JSON').first().json;\nconst perVideo = Number(body.creditsRequired) || 0;\nreturn [{\n  json: {\n    ...build,\n    creditsPerVideo: perVideo,\n    totalCredits: perVideo * build.items.length,\n    warnings: body.warnings || [],\n    schemaVersion: body.schemaVersion,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0009",
+      "name": "Dry run?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        50,
+        920
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "dry-run--cond",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Config').first().json.dryRun }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "zvid-bc-0010",
+      "name": "Save draft to editor",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        310,
+        920
+      ],
+      "parameters": {
+        "resource": "project",
+        "operation": "create",
+        "projectJson": "={{ JSON.stringify(({ name: ('Catalog preview - ' + ($json.meta.products[0] ? $json.meta.products[0].product : 'first product')).slice(0, 120), payload: $json.resolvedFirst }).payload) }}",
+        "projectName": "={{ ({ name: ('Catalog preview - ' + ($json.meta.products[0] ? $json.meta.products[0].product : 'first product')).slice(0, 120), payload: $json.resolvedFirst }).name }}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-bc-0011",
+      "name": "Dry run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        570,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// Dry run: everything except the paid bulk submission. Read this output,\n// open the editor link, then set dryRun to false in Config to go live.\nconst cfg = $('Config').first().json;\nconst d = $('Check validation').first().json;\n\n// The draft save is best-effort (onError: continue) so a hiccup there never\n// hides the quote.\nlet editorLink = null;\ntry {\n  const project = $('Save draft to editor').first().json.project;\n  if (project && project.id) {\n    editorLink = String(cfg.editorUrl || 'https://editor.zvid.io').replace(/\\/+$/, '') + '/?project=' + project.id;\n  }\n} catch (e) { /* draft step skipped or failed */ }\n\nreturn [{\n  json: {\n    dryRun: true,\n    videosPlanned: d.items.length,\n    productsToRender: d.meta.products.map((p) => 'row ' + p.rowNumber + ': ' + p.product),\n    creditsPerVideo: d.creditsPerVideo,\n    totalCredits: d.totalCredits,\n    approxSecondsPerVideo: d.meta.approxVideoSeconds,\n    rowsSkipped: d.meta.skipped,\n    leftForNextRun: d.meta.leftForNextRun,\n    warnings: d.warnings,\n    editorLink,\n    nextStep: editorLink\n      ? 'Open editorLink to watch the first product video in the Zvid editor. Happy? Set dryRun to false in Config and run again — nothing is charged until then.'\n      : 'Set dryRun to false in Config and run again — nothing is charged until then.',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0012",
+      "name": "Submit bulk render",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "maxTries": 3,
+      "position": [
+        1050,
+        920
+      ],
+      "parameters": {
+        "items": "={{ JSON.stringify(({ name: String($('Config').first().json.bulkName || 'Catalog videos').slice(0, 120), payload: $json.payload, items: $json.items }).items) }}",
+        "source": "json",
+        "resource": "render",
+        "operation": "createBulk",
+        "renderType": "video",
+        "projectJson": "={{ JSON.stringify(({ name: String($('Config').first().json.bulkName || 'Catalog videos').slice(0, 120), payload: $json.payload, items: $json.items }).payload) }}",
+        "additionalFields": {
+          "batchName": "={{ ({ name: String($('Config').first().json.bulkName || 'Catalog videos').slice(0, 120), payload: $json.payload, items: $json.items }).name }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-bc-0013",
+      "name": "Check batch accepted",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1310,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// HTTP 202 means the batch is queued. Individual items can still be rejected\n// at submit time (validation is best-effort per item) — map those back to\n// sheet rows so the summary can name them. Job names stay NULL until a job\n// completes, so results are mapped by jobId → submit index → row, never by\n// name.\nconst res = $input.first().json;\nconst build = $('Check validation').first().json;\n\nif (!res || !res.bulkId) {\n  throw new Error('Bulk submit returned no bulkId: ' + JSON.stringify(res).slice(0, 400));\n}\n\nconst jobIndexById = {};\nfor (const j of res.jobs || []) jobIndexById[j.jobId] = j.index;\n\nconst rejected = (res.errors || []).map((e) => {\n  const p = build.meta.products[e.item] || {};\n  return { rowNumber: p.rowNumber, product: p.product, error: e.error, details: e.details };\n});\n\nreturn [{\n  json: {\n    bulkId: res.bulkId,\n    totalJobs: res.totalJobs,\n    creditsReserved: res.creditsReserved,\n    queueAhead: res.queueAhead,\n    jobIndexById,\n    rejected,\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0014",
+      "name": "Wait",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1570,
+        920
+      ],
+      "webhookId": "c7d2a9e1-4b83-4f6a-9c05-2e8d1f7b3a64",
+      "parameters": {
+        "unit": "seconds",
+        "amount": "={{ $('Config').first().json.pollSeconds }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "zvid-bc-0015",
+      "name": "Get batch status",
+      "type": "@zvid/n8n-nodes-zvid.zvid",
+      "maxTries": 3,
+      "position": [
+        1830,
+        920
+      ],
+      "parameters": {
+        "bulkId": "={{ $('Check batch accepted').first().json.bulkId }}",
+        "resource": "render",
+        "operation": "getBulk"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-bc-0016",
+      "name": "Batch finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1830,
+        1160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "batch-finished--cond",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.bulk.status !== 'processing' }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "zvid-bc-0017",
+      "name": "Still rendering?",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1570,
+        1160
+      ],
+      "parameters": {
+        "jsCode": "// Fails fast when the whole batch failed, and stops the poll loop at\n// timeoutMinutes. A timeout does NOT cancel the renders — they finish on\n// Zvid's side (see https://app.zvid.io); raise timeoutMinutes for bigger\n// catalogs rather than re-running immediately.\nconst cfg = $('Config').first().json;\nconst poll = $input.first().json;\nconst b = poll.bulk || {};\nconst c = b.counts || {};\n\nif (b.status === 'failed') {\n  const firstError = (poll.jobs || []).map((j) => j.errorMessage).filter(Boolean)[0];\n  throw new Error('Every job in bulk ' + b.id + ' failed. First error: ' + (firstError || 'no reason given'));\n}\n\nconst maxPolls = Math.ceil((Number(cfg.timeoutMinutes || 20) * 60) / Number(cfg.pollSeconds || 10));\nif ($runIndex + 1 >= maxPolls) {\n  throw new Error(\n    'Bulk ' + b.id + ' did not finish within ' + cfg.timeoutMinutes + ' minutes (' +\n    (c.completed || 0) + '/' + b.totalJobs + ' done, ' + (c.pending || 0) + ' still rendering). ' +\n    'The remaining renders continue on Zvid\\'s side — check https://app.zvid.io before re-running, or raise timeoutMinutes.'\n  );\n}\n\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0018",
+      "name": "Collect video links",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2310,
+        920
+      ],
+      "parameters": {
+        "jsCode": "// Maps every finished job back to its sheet row and emits one item per\n// completed video, shaped for the Google Sheets update node\n// ({ Product, VideoUrl }). Failed rows keep an empty VideoUrl, so the next\n// run picks them up again automatically.\n//\n// Why the sheet write matches on Product and NOT on row_number: the Sheets\n// node re-fetches its column list every time the node is opened, and that\n// list always carries row_number as `removed`. Configuring the node in the\n// UI therefore drops a row_number match — n8n silently re-points \"column to\n// match on\" at another column, the update then matches nothing, and the run\n// still reports success with an empty sheet. Product is a real header column,\n// so the match survives the refresh. \"Rows needing videos\" guarantees the\n// name is unique before anything is rendered.\nconst poll = $input.first().json;\nconst sub = $('Check batch accepted').first().json;\nconst build = $('Check validation').first().json;\nconst b = poll.bulk || {};\n\nif (b.status === 'failed') {\n  const firstError = (poll.jobs || []).map((j) => j.errorMessage).filter(Boolean)[0];\n  throw new Error('Every job in bulk ' + b.id + ' failed. First error: ' + (firstError || 'no reason given'));\n}\n\nconst updates = [];\nconst failures = [];\nfor (const job of poll.jobs || []) {\n  const index = sub.jobIndexById[job.id];\n  const row = index != null ? build.meta.products[index] : null;\n  if (!row) continue;\n  if (job.status === 'completed' && job.outputUrl) {\n    updates.push({\n      // Exactly as it sits in the sheet — the lookup is a literal compare.\n      Product: row.productKey == null ? row.product : row.productKey,\n      VideoUrl: job.outputUrl,\n      row_number: row.rowNumber,\n      product: row.product,\n      creditsUsed: job.creditsConsumed == null ? null : Number(job.creditsConsumed),\n    });\n  } else {\n    failures.push({ rowNumber: row.rowNumber, product: row.product, status: job.status, error: job.errorMessage || null });\n  }\n}\n\nif (!updates.length) {\n  throw new Error('Bulk ' + b.id + ' finished but produced no video URLs (' + failures.length + ' job(s) failed).');\n}\n\nreturn updates.map((u) => ({ json: u }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0019",
+      "name": "Write links to sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2570,
+        920
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Product": "={{ $json.Product }}",
+            "VideoUrl": "={{ $json.VideoUrl }}"
+          },
+          "schema": [
+            {
+              "id": "Product",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Product",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Price",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Price",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CompareAtPrice",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "CompareAtPrice",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feature1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Feature1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feature2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Feature2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Feature3",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Feature3",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ImageUrl1",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "ImageUrl1",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "ImageUrl2",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "ImageUrl2",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "CtaText",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "CtaText",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "VideoUrl",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "VideoUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": true,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "Product"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "resource": "sheet",
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "zvid-bc-0020",
+      "name": "Run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        50,
+        1840
+      ],
+      "parameters": {
+        "jsCode": "// One line per product plus the money math. Failed rows keep an empty\n// VideoUrl (their credits are refunded automatically), so the next run\n// retries exactly the rows that still need a video.\nconst poll = $('Get batch status').first().json;\nconst sub = $('Check batch accepted').first().json;\nconst build = $('Check validation').first().json;\nconst updates = $('Collect video links').all().map((i) => i.json);\n\n// The sheet write is the one step that can do nothing and still look fine:\n// an update that matches no row returns zero items, silently. \"Write links to\n// sheet\" runs with alwaysOutputData so this node still executes and can say so.\nconst written = $('Write links to sheet').all()\n  .map((i) => i.json)\n  .filter((w) => w && w.VideoUrl);\n\nif (updates.length && !written.length) {\n  throw new Error(\n    'Rendered ' + updates.length + ' video(s) but the sheet write matched no rows, so no VideoUrl was saved. ' +\n    'Open \"Write links to sheet\" and set \"Column to match on\" back to Product — n8n re-points it at another ' +\n    'column whenever the node is reconfigured. The videos themselves are fine: see sheetUpdated below for the URLs.'\n  );\n}\n\nconst doneRows = new Set(updates.map((u) => u.row_number));\nconst failures = build.meta.products\n  .filter((p) => !doneRows.has(p.rowNumber))\n  .map((p) => {\n    const jobId = Object.keys(sub.jobIndexById).find((k) => sub.jobIndexById[k] === p.index);\n    const job = (poll.jobs || []).find((j) => j.id === jobId);\n    const rej = (sub.rejected || []).find((r) => r.rowNumber === p.rowNumber);\n    return {\n      rowNumber: p.rowNumber,\n      product: p.product,\n      reason: rej\n        ? 'rejected at submit: ' + rej.error\n        : job && job.errorMessage\n          ? job.errorMessage\n          : 'render did not complete',\n    };\n  });\n\nconst creditsSpent = (poll.jobs || []).reduce((s, j) => s + (Number(j.creditsConsumed) || 0), 0);\n\nreturn [{\n  json: {\n    bulkId: sub.bulkId,\n    bulkStatus: poll.bulk.status,\n    videosDelivered: updates.length,\n    videosFailed: failures.length,\n    failed: failures,\n    creditsSpent: creditsSpent || sub.creditsReserved,\n    sheetRowsWritten: written.length,\n    sheetUpdated: updates.map((u) => 'row ' + u.row_number + ': ' + u.product + ' → ' + u.VideoUrl),\n    rowsSkippedBeforeSubmit: build.meta.skipped,\n    leftForNextRun: build.meta.leftForNextRun,\n    note: failures.length\n      ? 'Failed rows keep an empty VideoUrl and are picked up again on the next run. Failed renders are refunded automatically.'\n      : 'Catalog complete — every pending row now has a video.',\n  },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "zvid-bc-0026",
+      "name": "▶ Watch video",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        570,
+        1840
+      ],
+      "parameters": {
+        "url": "={{ $json.VideoUrl }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "data"
+            }
+          }
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "zvid-watch-ready",
+      "name": "Video ready to watch?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        310,
+        1840
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "zvid-watch-ready-condition",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ !$json.dryRun && /^https?:\\/\\//i.test(String(($json.VideoUrl) || '')) }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "zvid-bc-pending-gate",
+      "name": "Products need videos?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1570,
+        240
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "zvid-bc-pending-condition",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ Array.isArray($json.rows) && $json.rows.length > 0 }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "zvid-bc-no-pending",
+      "name": "No pending products",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1830,
+        240
+      ],
+      "parameters": {
+        "jsCode": "const queue = $input.first().json;\nreturn [{ json: {\n  status: 'nothing_to_render',\n  message: 'All catalog rows already have a VideoUrl. No new videos were needed.',\n  totalRowsRead: queue.totalRowsRead,\n  videosDelivered: 0,\n  creditsSpent: 0,\n  nextStep: 'Add a product with an empty VideoUrl to create a new video. Clear an existing VideoUrl only when you intend to regenerate that product and spend render credits.',\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "publication-overview-bulk-catalog-videos",
+      "name": "Workflow overview and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -800,
+        0
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 720,
+        "height": 1160,
+        "content": "## Create videos for a product catalog\n\n### How it works\nSelect unfinished product rows, build one shared design, and submit a bulk render. Completed video links are matched back to their product rows. When all rows already have videos, finish successfully without rendering. Review each output before using it in a campaign.\n\n### Setup\n1. Install **`@zvid/n8n-nodes-zvid`** from **Settings → Community nodes** before credentials. A workspace owner/admin may need to install it. On n8n Cloud, the owner can install verified **Zvid** from the Nodes panel.\n2. Create a **Zvid API** credential with [your API key](https://app.zvid.io/api-keys) and Base URL `https://api.zvid.io`. Select it on every Zvid node.\n3. Connect Google Sheets and select the same spreadsheet and tab in Get catalog rows and Write links to sheet.\n4. Set brandName, website, colors and maxProducts in Config. Keep the batch size within your account’s limits.\n5. **dryRun=false** renders and spends Zvid credits. Set it to **true** for an editor draft and quote.\n6. Test manually and review the output before activating automatic runs.\n\n### Customization\nAdjust branding, media and timing in the configuration node. [Zvid installation guide](https://n8n.io/integrations/zvid/)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-bulk-catalog-videos-configure",
+      "name": "1. Choose settings and an entry point",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 1. Choose settings and an entry point\n\nComplete the overview setup first. Use the manual trigger for a test, then check the trigger settings and workflow timezone before activation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-bulk-catalog-videos-queue",
+      "name": "2. Prepare the product queue",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1140,
+        "height": 520,
+        "content": "## 2. Prepare the product queue\n\nHeaders: Product, Price, CompareAtPrice, Feature1, Feature2, Feature3, ImageUrl1, ImageUrl2, CtaText, VideoUrl. Product must be unique; supply Price, ImageUrl1 and all three features. Leave VideoUrl empty for new renders. Completed catalogs exit successfully without spending credits."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-bulk-catalog-videos-validate",
+      "name": "3. Build and validate the design",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 3. Build and validate the design\n\nPrepare the media and video design, then validate the payload and credit quote. Resolve validation errors before submitting a render."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-bulk-catalog-videos-preview",
+      "name": "4. Choose an optional editor preview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 4. Choose an optional editor preview\n\ndryRun=true returns an editor draft and credit quote. The default false branch renders and spends Zvid credits."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-bulk-catalog-videos-render",
+      "name": "5. Render and wait for completion",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1140,
+        "height": 760,
+        "content": "## 5. Render and wait for completion\n\nSubmit the render, then check its status until completion or timeout. Keep each result paired with its source item. Check Zvid before retrying a timed-out job."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "publication-section-bulk-catalog-videos-record",
+      "name": "6. Save the completed result",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2260,
+        680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 620,
+        "height": 520,
+        "content": "## 6. Save the completed result\n\nWrite the completed URL back to its source row. Review the result before adding any further distribution steps."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "zvid-watch-instructions",
+      "name": "7. Review the finished media",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        1600
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 520,
+        "content": "## 7. Review the finished media\n\nOpen Watch video → Binary → data → View. Select each output item for batches; image outputs open as images. Empty links and preview results skip the download."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Wait": {
+      "main": [
+        [
+          {
+            "node": "Get batch status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Config": {
+      "main": [
+        [
+          {
+            "node": "Get catalog rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dry run?": {
+      "main": [
+        [
+          {
+            "node": "Save draft to editor",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Submit bulk render",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Test manually": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Batch finished?": {
+      "main": [
+        [
+          {
+            "node": "Collect video links",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Still rendering?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check validation": {
+      "main": [
+        [
+          {
+            "node": "Dry run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get batch status": {
+      "main": [
+        [
+          {
+            "node": "Batch finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get catalog rows": {
+      "main": [
+        [
+          {
+            "node": "Rows needing videos",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Still rendering?": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build project JSON": {
+      "main": [
+        [
+          {
+            "node": "Validate project (free)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Submit bulk render": {
+      "main": [
+        [
+          {
+            "node": "Check batch accepted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect video links": {
+      "main": [
+        [
+          {
+            "node": "Write links to sheet",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Video ready to watch?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday at 8am": {
+      "main": [
+        [
+          {
+            "node": "Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Rows needing videos": {
+      "main": [
+        [
+          {
+            "node": "Products need videos?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check batch accepted": {
+      "main": [
+        [
+          {
+            "node": "Wait",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save draft to editor": {
+      "main": [
+        [
+          {
+            "node": "Dry run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write links to sheet": {
+      "main": [
+        [
+          {
+            "node": "Run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Products need videos?": {
+      "main": [
+        [
+          {
+            "node": "Build project JSON",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "No pending products",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Video ready to watch?": {
+      "main": [
+        [
+          {
+            "node": "▶ Watch video",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Validate project (free)": {
+      "main": [
+        [
+          {
+            "node": "Check validation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Create bulk product catalog videos from Google Sheets with Zvid",
+    "wechat": "youandme10086",
+    "id": 19764,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,0 +1,735 @@
+{
+  "id": "OhJsiEh8K8qLNiZP",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "name": "Validate invoice tax compliance from Gmail using Groq, Notion, and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 16873,
+    "update_time": "2026-09-27"
+  },
+  "name": "Tax & Regulatory Compliance Validation Workflow (Procurement & Finance Industry)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b7a0818a-936d-440c-a9b6-0bffb7321d24",
+      "name": "AI Extract Invoice",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "position": [
+        9632,
+        2096
+      ],
+      "parameters": {
+        "text": "=Here is a PDF content\n\n{{ $json.text }}",
+        "batching": {},
+        "messages": {
+          "messageValues": [
+            {
+              "message": "You are a high-precision invoice data extraction engine. Extract structured fields. Special Rule: Look for the terms 'SEZ', 'Special Economic Zone', 'LUT', or 'Bond' in the address or footer. If found, set a field 'is_sez' to true, otherwise false. Fields: invoice_number, po_number, grn_number, supplier_name, supplier_email, invoice_date, currency, total_amount, tax_amount, line_items (item, quantity, unit_price, hsn_code), is_sez (boolean)."
+            }
+          ]
+        },
+        "promptType": "define",
+        "hasOutputParser": true
+      },
+      "typeVersion": 1.9
+    },
+    {
+      "id": "87792e41-2da9-4f34-9f9a-4e4bdb9d84dd",
+      "name": "Invoice Field Schema",
+      "type": "@n8n/n8n-nodes-langchain.outputParserStructured",
+      "position": [
+        9792,
+        2336
+      ],
+      "parameters": {
+        "schemaType": "manual",
+        "inputSchema": "{\n  \"type\": \"object\",\n  \"properties\": {\n    \"invoice_number\": { \"type\": \"string\" },\n    \"po_number\": { \"type\": \"string\" },\n    \"grn_number\": { \"type\": \"string\" },\n    \"supplier_name\": { \"type\": \"string\" },\n    \"supplier_email\": { \"type\": \"string\" },\n    \"invoice_date\": { \"type\": \"string\" },\n    \"currency\": { \"type\": \"string\" },\n    \"total_amount\": { \"type\": \"number\" },\n    \"tax_amount\": { \"type\": \"number\" },\n    \"is_sez\": { \n      \"type\": \"boolean\", \n      \"description\": \"True if keywords like SEZ, Special Economic Zone, or LUT are found in the text.\" \n    },\n    \"line_items\": {\n      \"type\": \"array\",\n      \"items\": {\n        \"type\": \"object\",\n        \"properties\": {\n          \"item\": { \"type\": \"string\" },\n          \"quantity\": { \"type\": \"number\" },\n          \"unit_price\": { \"type\": \"number\" },\n          \"hsn_code\": { \"type\": \"string\" }\n        },\n        \"required\": [\"item\", \"quantity\", \"unit_price\", \"hsn_code\"]\n      }\n    }\n  },\n  \"required\": [\"invoice_number\", \"po_number\", \"total_amount\", \"is_sez\"]\n}"
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "7332bce6-4aad-41b7-9b43-1456a36f9935",
+      "name": "LLM",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        9616,
+        2352
+      ],
+      "parameters": {
+        "model": "llama-3.3-70b-versatile",
+        "options": {}
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ebbc2c7-c557-428e-8a98-a14dde4c4f4d",
+      "name": "Compliance Engine",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        12096,
+        2096
+      ],
+      "parameters": {
+        "jsCode": "const items = $input.all();\n\n// 1. Precise Data Mapping\nconst invoice = items.find(i => i.json.line_items)?.json;\nconst poData = items.find(i => i.json.status)?.json; \nconst rules = items.filter(i => i.json.property_transaction_type).map(i => i.json);\n\nlet violations = [];\nlet matchedRule = null;\n\n// --- LAYER 1: PO, BUDGET & CURRENCY CHECK ---\nif (!invoice) {\n    violations.push(\"Critical Error: Invoice data not found in stream.\");\n} else if (!poData) {\n    violations.push(`PO Reference ${invoice?.po_number || 'N/A'} not found in Procurement Sheet.`);\n} else {\n    // A. Currency Normalization\n    const invCurrency = (invoice.currency || \"INR\").toUpperCase(); \n    const poCurrency = (poData.currency === \"₹\" || poData.currency === \"INR\") ? \"INR\" : poData.currency;\n\n    if (invCurrency !== poCurrency) {\n        violations.push(`Currency Mismatch: Invoice is in ${invCurrency}, but PO was authorized in ${poCurrency}.`);\n    }\n\n    // B. Status Check\n    if (poData.status !== \"Approved\") {\n        violations.push(`PO Status is '${poData.status}'. Payment blocked until Approved.`);\n    }\n\n    // C. Budget Check\n    if (invCurrency === poCurrency) {\n        const invTotal = parseFloat(invoice.total_amount || 0);\n        const poTotal = parseFloat(poData.total_amount || 0);\n        // Use a small epsilon (0.01) to avoid floating point math errors\n        if (invTotal > (poTotal + 0.01)) {\n            violations.push(`Price Mismatch: Invoice (${invCurrency} ${invTotal}) exceeds PO limit (${poCurrency} ${poTotal}).`);\n        }\n    }\n}\n\n// --- LAYER 2: TAX COMPLIANCE ---\nif (violations.length === 0 && invoice) {\n    const invoiceHsn = String(invoice.line_items?.[0]?.hsn_code || \"\");\n    const supplierName = (invoice.supplier_name || \"\").toLowerCase();\n    \n    // Robust detection for International Entities\n    const isInternationalVendor = supplierName.includes('gmbh') || \n                                  supplierName.includes('inc') || \n                                  supplierName.includes('limited llc') ||\n                                  supplierName.includes(' gmbh') ||\n                                  (invoice.currency && invoice.currency !== 'INR');\n\n    // SEZ Check (Handles both Boolean and String \"true\")\n    const isSez = invoice.is_sez === true || String(invoice.is_sez).toLowerCase() === 'true';\n\n    // PRIORITY MATCHING\n    if (isSez) {\n        matchedRule = rules.find(r => r.property_transaction_type === \"SEZ\");\n    } else if (isInternationalVendor) {\n        matchedRule = rules.find(r => r.property_transaction_type === \"Import\");\n    } else {\n        matchedRule = rules.find(r => String(r.property_hsn_code) === invoiceHsn) || \n                      rules.find(r => r.property_transaction_type === \"Domestic Goods\");\n    }\n\n    if (!matchedRule) {\n        violations.push(\"No regulatory tax rule found in Notion.\");\n    } else {\n        const actualTax = parseFloat(invoice.tax_amount ?? 0);\n        const expectedGstRaw = parseFloat(matchedRule.property_expected_gst || 0);\n        const isRCM = matchedRule.property_reverse_charge === true;\n\n        if (!isRCM && !isSez) {\n            if (actualTax === 0 && expectedGstRaw > 0) {\n                violations.push(`Tax Error: Rule '${matchedRule.property_name}' requires ${expectedGstRaw * 100}% GST, but 0% was charged.`);\n            }\n        }\n    }\n}\n\n// --- FINAL POLISH ---\nconst isCompliant = violations.length === 0;\nconst finalViolations = isCompliant ? [\"None - All checks passed\"] : violations;\n\nreturn [{\n    json: {\n        compliance_status: isCompliant ? \"PASS\" : \"FAIL\",\n        matched_rule: matchedRule ? matchedRule.property_name : \"N/A\",\n        violations: finalViolations,\n        invoice_number: invoice?.invoice_number || \"N/A\",\n        supplier: invoice?.supplier_name || \"Unknown\",\n        invoice_total: invoice?.total_amount || 0,\n        po_limit: poData?.total_amount || 0,\n        currency_detected: invoice?.currency || \"INR\"\n    }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f21037e1-1dc2-4a3c-a1cd-a868d4213d67",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        8592,
+        1792
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1552,
+        "height": 800,
+        "content": "## Invoice Intake & Extraction Description\nMonitors the finance inbox to capture incoming PDF invoices via email. It extracts raw text and uses AI to transform unstructured data into a precise, validated JSON schema."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a65ed1dd-d2b7-4b70-a393-125c37e8183a",
+      "name": "Monitor Inbox",
+      "type": "n8n-nodes-base.gmailTrigger",
+      "position": [
+        8672,
+        2096
+      ],
+      "parameters": {
+        "filters": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "f7795bcb-668f-4275-867c-2e33cea565ae",
+      "name": "Fetch Email Attachments",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        8960,
+        2096
+      ],
+      "webhookId": "558b4875-1e70-4330-a6df-21a8dd9db5e6",
+      "parameters": {
+        "simple": false,
+        "options": {
+          "downloadAttachments": true
+        },
+        "messageId": "={{ $json.id }}",
+        "operation": "get"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1a992aef-c932-478b-868b-490efa6f660a",
+      "name": "Read PDF Content",
+      "type": "n8n-nodes-base.extractFromFile",
+      "position": [
+        9264,
+        2096
+      ],
+      "parameters": {
+        "options": {},
+        "operation": "pdf",
+        "binaryPropertyName": "attachment_0"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "16425b25-ebec-4840-a7a0-83aedca009b7",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        10480,
+        1680
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1136,
+        "height": 976,
+        "content": "## External Context Retrieval\nSimultaneously queries your Procurement database and Tax Registry. This gathers the specific Purchase Order details and the latest regulatory tax rules required for a three-way match."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "945c3677-fb00-4449-90bc-70d81d5b9b53",
+      "name": "Fetch Tax Rules",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        10800,
+        1840
+      ],
+      "parameters": {
+        "options": {},
+        "resource": "databasePage",
+        "operation": "getAll",
+        "returnAll": true,
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "35031eba-a729-8008-a7d8-d43140009d42",
+          "cachedResultUrl": "https://www.notion.so/35031ebaa7298008a7d8d43140009d42",
+          "cachedResultName": "Invoice Tax Rules"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "805b73c0-0168-47f6-bdf8-bad9bb5aa0d7",
+      "name": "Lookup PO Details",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        10800,
+        2368
+      ],
+      "parameters": {
+        "options": {},
+        "filtersUI": {
+          "values": [
+            {
+              "lookupValue": "={{ $json.output.po_number }}",
+              "lookupColumn": "po_number"
+            }
+          ]
+        },
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 1173660361,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YyVR4h6IfZFJrXRWTVG_Zx3kbx7XQCvJOcoI24UVjZs/edit#gid=1173660361",
+          "cachedResultName": "data"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1YyVR4h6IfZFJrXRWTVG_Zx3kbx7XQCvJOcoI24UVjZs",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1YyVR4h6IfZFJrXRWTVG_Zx3kbx7XQCvJOcoI24UVjZs/edit?usp=drivesdk",
+          "cachedResultName": "PurchaseOrders"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "6356370a-a35f-446b-8b7b-773dcb363869",
+      "name": "Format AI Output",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        10800,
+        2096
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "72c1d0cc-7a3f-4305-a8ea-a3850623de8f",
+              "name": "invoice_number",
+              "type": "string",
+              "value": "={{ $json.output.invoice_number }}"
+            },
+            {
+              "id": "daa51c85-76c7-4aaf-892a-cdde5b699ba2",
+              "name": "po_number",
+              "type": "string",
+              "value": "={{ $json.output.po_number }}"
+            },
+            {
+              "id": "54bcfb8a-579a-4881-9d01-b13100e8f021",
+              "name": "grn_number",
+              "type": "string",
+              "value": "={{ $json.output.grn_number }}"
+            },
+            {
+              "id": "284ce1e6-879b-40b3-9990-7cc546643b3c",
+              "name": "supplier_name",
+              "type": "string",
+              "value": "={{ $json.output.supplier_name }}"
+            },
+            {
+              "id": "a02a4515-9029-4dd1-8536-1afde6493407",
+              "name": "supplier_email",
+              "type": "string",
+              "value": "={{ $json.output.supplier_email }}"
+            },
+            {
+              "id": "35dc5b6a-dce8-4ccc-a878-bb9fae27a679",
+              "name": "invoice_date",
+              "type": "string",
+              "value": "={{ $json.output.invoice_date }}"
+            },
+            {
+              "id": "681f1678-f7c8-42c3-b9e6-609264cff551",
+              "name": "currency",
+              "type": "string",
+              "value": "={{ $json.output.currency }}"
+            },
+            {
+              "id": "b30c4695-f9b3-4c42-8fb0-a84610cc06ae",
+              "name": "total_amount",
+              "type": "number",
+              "value": "={{ $json.output.total_amount }}"
+            },
+            {
+              "id": "75d45399-fad4-4eee-8df3-794940b3ef17",
+              "name": "tax_amount",
+              "type": "number",
+              "value": "={{ $json.output.tax_amount }}"
+            },
+            {
+              "id": "326938cc-484c-4466-b6cf-8d51cac7f239",
+              "name": "line_items",
+              "type": "array",
+              "value": "={{ $json.output.line_items }}"
+            },
+            {
+              "id": "61a830d2-b351-4655-af98-1f0ea97c6511",
+              "name": "is_sez",
+              "type": "boolean",
+              "value": "={{ $json.output.is_sez }}"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "db8afd75-a6c3-4b55-a60a-e722e8d19a0e",
+      "name": "Consolidate Validation Data",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        11360,
+        2096
+      ],
+      "parameters": {
+        "numberInputs": 3
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "52623b47-c5be-4925-a192-08b1cf47d48a",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        11952,
+        1808
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1088,
+        "height": 656,
+        "content": "## The Compliance Gate\nThe core intelligence segment. It compares invoice data against PO limits and tax laws, then logs every transaction into a permanent audit trail for fiscal transparency."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6844cccd-0064-4026-b920-dc62d268f5af",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        13360,
+        1712
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1040,
+        "height": 896,
+        "content": "## Final Disposition & Response\nBased on the engine’s verdict, this segment either authorizes payment and archives the file or blocks the process and notifies the supplier of specific violations."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d46e89a-7a23-455f-a464-f30d24d8a135",
+      "name": "Log Audit Entry",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        12448,
+        2096
+      ],
+      "parameters": {
+        "title": "={{ $json.supplier }}",
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "35031eba-a729-80ee-a8ae-d6198153dd6d",
+          "cachedResultUrl": "https://www.notion.so/35031ebaa72980eea8aed6198153dd6d",
+          "cachedResultName": "Compliance Audit Log"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Invoice Number|title",
+              "title": "={{ $json.invoice_number }}"
+            },
+            {
+              "key": "Status|select",
+              "selectValue": "={{ $json.compliance_status }}"
+            },
+            {
+              "key": "Supplier|rich_text",
+              "textContent": "={{ $json.supplier }}"
+            },
+            {
+              "key": "Total Amount|number",
+              "numberValue": "={{ $json.invoice_total }}"
+            },
+            {
+              "key": "Violations|rich_text",
+              "textContent": "={{ $json.violations.join(', ') }}"
+            },
+            {
+              "key": "Rule Applied|rich_text",
+              "textContent": "={{ $json.matched_rule }}"
+            },
+            {
+              "key": "Processed Date|date",
+              "date": "={{ $now }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c2811bbc-c876-4adf-a5be-616a3bfa8f6a",
+      "name": "Check Compliance Status",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        12768,
+        2096
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "98a75516-67dd-45d2-b640-eba143ec2a43",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Compliance Engine').item.json.compliance_status }}",
+              "rightValue": "PASS"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "e7f197bf-f8c6-4305-9b7a-45f93563fb9f",
+      "name": "Slack: Notify Approval",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        13648,
+        1952
+      ],
+      "webhookId": "9ad6f9be-4cdd-497b-b469-44312cfe0451",
+      "parameters": {
+        "text": "=Invoice Approved & Logged  \nInvoice: {{ $node[\"AI Extract Invoice\"].json.output.invoice_number }} \nVendor: {{ $node[\"AI Extract Invoice\"].json.output.supplier_name }} \nCompliance Check: Passed ({{ $node[\"Compliance Engine\"].json.matched_rule }})",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0AQS47TGQ0",
+          "cachedResultName": "all-dropbox-note-sync"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "494028ce-b3b2-48a2-a86a-fd431ce3525c",
+      "name": "Archive to Google Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        13952,
+        1952
+      ],
+      "parameters": {
+        "name": "={{ $('Fetch Email Attachments').item.binary.attachment_0.fileName}}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1S1EAQgUTBOdnwK4fiI5CqTTjVCWq9eQV",
+          "cachedResultUrl": "https://drive.google.com/drive/folders/1S1EAQgUTBOdnwK4fiI5CqTTjVCWq9eQV",
+          "cachedResultName": "Invoice"
+        },
+        "inputDataFieldName": "={{ $('Fetch Email Attachments').item.binary.attachment_0 }}"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "9d6c5412-a418-4d40-ac26-222245a6d696",
+      "name": "Slack: Alert AP Team (Block)",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        13648,
+        2320
+      ],
+      "webhookId": "fe48cab5-0bc9-469a-98ca-fe01c7530fc7",
+      "parameters": {
+        "text": "= *Invoice Compliance Failure*\n\nInvoice: {{ $json.property_invoice_number }}\nSupplier: {{ $json.property_supplier }}\nAmount: {{ $json.property_total_amount }}\n\nViolations:\n{{ Array.isArray($json.property_violations) ? $json.property_violations.join(', ') : $json.property_violations }}\n\nProcessing has been BLOCKED.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "C0AQS47TGQ0",
+          "cachedResultName": "all-dropbox-note-sync"
+        },
+        "otherOptions": {},
+        "authentication": "oAuth2"
+      },
+      "typeVersion": 2.4
+    },
+    {
+      "id": "ebd92e32-81d7-4b42-b0ab-defad870afab",
+      "name": "Email: Notify Supplier of Rejection",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        13952,
+        2320
+      ],
+      "webhookId": "764d21ee-6647-40ee-87cd-531a295954e6",
+      "parameters": {
+        "sendTo": "={{ $('AI Extract Invoice').item.json.output.supplier_email }}",
+        "message": "=<!DOCTYPE html>\n<html>\n<head>\n    <style>\n        body { font-family: Arial, sans-serif; line-height: 1.6; color: #333333; }\n        .container { width: 90%; max-width: 600px; margin: 20px auto; border: 1px solid #e0e0e0; border-radius: 8px; overflow: hidden; }\n        .header { background-color: #f8f9fa; padding: 20px; border-bottom: 3px solid #dc3545; }\n        .content { padding: 20px; }\n        .violation-box { background-color: #fff5f5; border-left: 4px solid #dc3545; padding: 15px; margin: 20px 0; }\n        .footer { background-color: #f8f9fa; padding: 15px; font-size: 12px; color: #777777; text-align: center; }\n        .button { display: inline-block; padding: 10px 20px; background-color: #007bff; color: #ffffff; text-decoration: none; border-radius: 5px; margin-top: 10px; }\n        .badge { background-color: #dc3545; color: white; padding: 4px 8px; border-radius: 4px; font-weight: bold; font-size: 12px; }\n    </style>\n</head>\n<body>\n    <div class=\"container\">\n        <div class=\"header\">\n            <h2 style=\"margin:0; color: #dc3545;\">Compliance Notification</h2>\n        </div>\n        <div class=\"content\">\n            <p>Dear Supplier,</p>\n            <p>This is an automated notification regarding <strong>Invoice: {{ $node[\"AI Extract Invoice\"].json.output.invoice_number }}</strong>. Our regulatory validation system has identified issues that prevent this invoice from being processed.</p>\n            \n            <div class=\"violation-box\">\n                <span class=\"badge\">REASON FOR REJECTION</span>\n                <p style=\"margin-top: 10px; white-space: pre-wrap;\">{{ $node[\"Compliance Engine\"].json.violations.join('<br>• ') }}</p>\n            </div>\n\n            <p><strong>Required Action:</strong></p>\n            <p>As a result, this invoice has been <strong>Blocked</strong> in our system. Please take the following steps to ensure payment:</p>\n            <ul>\n                <li>Issue a corrected invoice addressing the tax/regulatory discrepancies.</li>\n                <li>Provide supporting documentation (e.g., a valid SEZ certificate or LUT declaration) if applicable.</li>\n                <li>Resubmit the documentation directly to this email thread.</li>\n            </ul>\n        </div>\n        <div class=\"footer\">\n            <p>This is an automated message from the AP Automation Compliance Firewall.<br>\n            &copy; 2026 Your Company Name - Accounts Payable Department</p>\n        </div>\n    </div>\n</body>\n</html>",
+        "options": {},
+        "subject": "=RE: Invoice Compliance Issue - {{ $('AI Extract Invoice').item.json.output.invoice_number }}"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "527c5fcc-a915-4818-90cf-f0ad2d11dac8",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        8576,
+        -256
+      ],
+      "parameters": {
+        "width": 688,
+        "height": 992,
+        "content": "## Workflow Overview: Tax & Regulatory Compliance Validation\n\nThis workflow acts as an automated **Compliance Firewall** for the accounts payable process. It extracts data from PDF invoices received via email, performs a three-way match against procurement records in Google Sheets, and validates tax accuracy against Notion-based regulatory standards. By automating the detection of price creep, currency mismatches, and tax errors, it ensures every payment is audit-ready and fiscally compliant.\n\n## How it works\nThis workflow acts as an automated **Compliance Firewall** for your finance department. It automatically monitors your inbox, uses AI to extract data from PDF invoices, and cross-references that data with your approved Purchase Orders and tax laws.\nIf the invoice matches your budget and tax rules, the system archives it and notifies your team. If it fails, the workflow blocks the payment, logs the error, and instantly emails the supplier a detailed rejection notice so they can fix and resubmit it.\n\n## Setup Steps\n**Monitor Inbox** — Start the workflow when a new invoice email is received.\n**Extract PDF Text** — Convert the binary attachment into a readable text format.\n**AI Data Extractor** — Transform unstructured text into a structured JSON schema using LLMs.\n**Fetch PO from Sheets** — Verify the PO exists and check its approval status and budget limit.\n**Retrieve Notion Tax Rules** — Load live regulatory standards and HSN-specific tax rates.\n**Verify Tax & Budget** — Execute the core logic to detect mismatches in currency, price, or tax.\n**Log Audit Entry** — Store the pass/fail results and matched rules in the Notion Audit Log.\n**Check: Pass or Fail?** — Route the workflow based on the compliance engine's final status.\n**Save Approved Invoice** — Archive compliant files to the authorized Google Drive folder.\n**Email Supplier Rejection** — Automatically notify the vendor of violations if processing is blocked."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "5ee75a5b-cf38-4169-b942-cd33c0acc84f",
+  "nodeGroups": [],
+  "connections": {
+    "LLM": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Extract Invoice",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Monitor Inbox": {
+      "main": [
+        [
+          {
+            "node": "Fetch Email Attachments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Tax Rules": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Validation Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log Audit Entry": {
+      "main": [
+        [
+          {
+            "node": "Check Compliance Status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format AI Output": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Validation Data",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Read PDF Content": {
+      "main": [
+        [
+          {
+            "node": "AI Extract Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compliance Engine": {
+      "main": [
+        [
+          {
+            "node": "Log Audit Entry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Lookup PO Details": {
+      "main": [
+        [
+          {
+            "node": "Consolidate Validation Data",
+            "type": "main",
+            "index": 2
+          }
+        ]
+      ]
+    },
+    "AI Extract Invoice": {
+      "main": [
+        [
+          {
+            "node": "Fetch Tax Rules",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Format AI Output",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Lookup PO Details",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Invoice Field Schema": {
+      "ai_outputParser": [
+        [
+          {
+            "node": "AI Extract Invoice",
+            "type": "ai_outputParser",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Notify Approval": {
+      "main": [
+        [
+          {
+            "node": "Archive to Google Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Compliance Status": {
+      "main": [
+        [
+          {
+            "node": "Slack: Notify Approval",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Alert AP Team (Block)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Email Attachments": {
+      "main": [
+        [
+          {
+            "node": "Read PDF Content",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Consolidate Validation Data": {
+      "main": [
+        [
+          {
+            "node": "Compliance Engine",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Alert AP Team (Block)": {
+      "main": [
+        [
+          {
+            "node": "Email: Notify Supplier of Rejection",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

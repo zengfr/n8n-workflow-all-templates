@@ -1,4 +1,4 @@
-# day : 24
+# day : 28
 
 |id|file|
 |----|----|
@@ -26,3 +26,7 @@
 |15493|[15493_Turn_webinars_into_a_5-day_email_course_using_WayinVideo__GPT-4o-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15493_Turn_webinars_into_a_5-day_email_course_using_WayinVideo__GPT-4o-mini__and_Google_Sheets.json)|
 |16361|[16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16361_Launch_5-day_ecommerce_social_campaigns_with_Posta_and_DeepSeek.json)|
 |16433|[16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16433_Send_end-of-day_ops_summaries_with_Google_Sheets__Gemini__Slack_and_Gmail.json)|
+|16975|[16975_Send_3-7-14_day_quote_follow-up_emails_with_Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16975_Send_3-7-14_day_quote_follow-up_emails_with_Gmail_and_Google_Sheets.json)|
+|17824|[17824_Send_daily_meeting_prep_briefs_from_Google_Calendar_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17824_Send_daily_meeting_prep_briefs_from_Google_Calendar_with_Gemini_and_Gmail.json)|
+|19481|[19481_Log_vocabulary_and_email_a_daily_word_of_the_day_with_Gemini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19481_Log_vocabulary_and_email_a_daily_word_of_the_day_with_Gemini__Google_Sheets_and_Gmail.json)|
+|19843|[19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19843_Send_weekly_Bitcoin_DCA_signals_from_Coinbase_Exchange_to_Telegram.json)|

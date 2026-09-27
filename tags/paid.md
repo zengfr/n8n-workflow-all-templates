@@ -1,4 +1,4 @@
-# paid : 9
+# paid : 15
 
 |id|file|
 |----|----|
@@ -11,3 +11,9 @@
 |16080|[16080_Book_paid_legal_appointments_with_Stripe__Google_Calendar__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16080_Book_paid_legal_appointments_with_Stripe__Google_Calendar__Gmail_and_Telegram.json)|
 |16259|[16259_Run_a_margin-aware_paid_AI_agent_with_Alephant_x402_and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16259_Run_a_margin-aware_paid_AI_agent_with_Alephant_x402_and_Discord.json)|
 |16353|[16353_Sync_paid_Shopify_order_contacts_with_Odoo_and_remove_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16353_Sync_paid_Shopify_order_contacts_with_Odoo_and_remove_duplicates.json)|
+|17291|[17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json)|
+|17991|[17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17991_Sync_paid_Shopify_orders__products__and_customers_with_Odoo.json)|
+|18054|[18054_Send_idempotent_invoices_and_payment_reminders_with_Gmail_and_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18054_Send_idempotent_invoices_and_payment_reminders_with_Gmail_and_n8n_Data_Tables.json)|
+|18953|[18953_Track_mandatory_paid_leave_with_Gemini__Gmail__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18953_Track_mandatory_paid_leave_with_Gemini__Gmail__Google_Sheets_and_Slack.json)|
+|19347|[19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19347_Gate_Telegram_bot_access_with_Stripe__Slack_alerts__and_daily_reconciliation.json)|
+|19709|[19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json)|

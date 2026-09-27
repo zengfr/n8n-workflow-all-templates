@@ -1,0 +1,1355 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Send scheduled SMS and voice outreach from Supabase via Twilio and Retell",
+    "wechat": "youandme10086",
+    "id": 19776,
+    "update_time": "2026-09-27"
+  },
+  "name": "Send scheduled SMS and voice outreach from Supabase via Twilio",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "sched2",
+      "name": "Every 15 minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "man2",
+      "name": "Run it now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        190
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "cfg2",
+      "name": "config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        280,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// STRATTON CANDIDATE ENGINE — CONFIG\n// The same node appears at the head of all three workflows. Edit it in one, paste it\n// into the other two; validate.py checks that they have not drifted apart.\n//\n// Any key left blank means that step is SKIPPED, not that the run fails. That is what\n// lets the whole engine be demonstrated on a screen-share before a single credential,\n// phone number or ATS sandbox exists.\n\n// ---------------------------------------------------------------- Which client is this\n// Everything the engine writes carries this id. One n8n instance runs every client;\n// two clients can never see each other's rows because every query is filtered on it and\n// every table has an RLS policy that says the same thing.\nconst CLIENT_SLUG = 'stratton';\nconst CLIENT_ID   = '';          // the clients.id uuid from Supabase. Blank -> demo mode.\n\n// ---------------------------------------------------------------- Supabase\n// SUPABASE_URL blank -> the engine runs against sample/ data and writes nothing.\nconst SUPABASE_URL          = '';   // https://xxxxxxxx.supabase.co\nconst SUPABASE_SERVICE_KEY  = '';   // service_role key. n8n credential store is better;\n                                    // this is here so the template runs before that exists.\n\n// ---------------------------------------------------------------- The ATS\n// One block, six vendors. Only ATS_VENDOR and the credentials change between clients —\n// the field mapping below is what actually makes a new ATS work.\nconst ATS_VENDOR   = 'bullhorn';    // bullhorn | avionte | ceipal | jobdiva | recruitcrm | salesforce | generic\nconst ATS_BASE_URL = '';            // e.g. https://rest99.bullhornstaffing.com/rest-services/abcde\nconst ATS_TOKEN    = '';            // BhRestToken / bearer. Blank -> ATS steps are skipped.\n\n// How THIS client's ATS names things. This object is the entire onboarding cost of a new\n// ATS: point each of our field names at theirs, dotted paths allowed.\nconst ATS_FIELDS = {\n  job: {\n    id:            'id',\n    title:         'title',\n    description:   'publicDescription',\n    skills:        'skillList',            // comma string or array, both handled\n    city:          'address.city',\n    state:         'address.state',\n    pay_rate:      'payRate',\n    shift:         'customText1',\n    employment:    'employmentType',\n    recruiter:     'owner.name',\n    recruiter_mail:'owner.email'\n  },\n  candidate: {\n    id:         'id',\n    first_name: 'firstName',\n    last_name:  'lastName',\n    email:      'email',\n    phone:      'mobile',\n    phone_alt:  'phone',\n    title:      'occupation',\n    skills:     'skillSet',\n    city:       'address.city',\n    state:      'address.state',\n    status:     'status'\n  }\n};\n\n// Where candidates come from when the ATS is not connected. The search endpoint per\n// vendor differs; the shape after `normalise the candidates` does not.\nconst ATS_CANDIDATE_SEARCH_LIMIT = 200;   // ask the ATS for this many, score them all\nconst ENROLL_TOP_N               = 25;    // enroll only the best this many\n\n// ---------------------------------------------------------------- The AI reader\n// Most job orders are prose. `skillList` is empty far more often than a vendor demo\n// suggests, and matching 20,000 candidates against an empty skill list finds nobody.\n//\n// So when the ATS gives us fewer than MIN_SKILLS_BEFORE_AI real skills, the description is\n// read once and turned into a structured requirement list. It runs ONCE PER JOB ORDER, not\n// per candidate — a few hundred tokens per campaign, not per person.\n//\n// Blank key -> the step is skipped and the keyword rules stand on their own.\nconst AI_API_KEY = '';\nconst AI_MODEL   = 'claude-opus-5';\nconst AI_EFFORT  = 'low';        // low | medium | high — extraction is not a hard problem\nconst MIN_SKILLS_BEFORE_AI = 2;  // at or below this many ATS skills, ask the model\n\n// The model may only return skills. It is never asked who to contact, and never asked to\n// score anybody — those stay in code where they can be audited and re-run.\nconst AI_MAX_SKILLS = 12;\n\n// ---------------------------------------------------------------- Matching\n// A transparent score, on purpose. A staffing manager can read why someone was\n// contacted, which they cannot do with an embedding similarity.\nconst MATCH = {\n  required_skill:   18,   // per required skill the candidate has\n  nice_skill:        6,\n  same_city:        12,\n  same_state:        6,\n  title_overlap:    14,   // words shared between their title and the job title\n  recent_activity:  10,   // ATS status suggests they are actively looking\n  has_mobile:        8    // no mobile means no SMS and no call. Weighted, not fatal.\n};\nconst MIN_MATCH_SCORE = 40;   // below this, stored with a reason and never contacted\n\n// Statuses in the client's ATS that mean \"do not contact this person\". Placed candidates\n// are the one that gets people in trouble.\nconst ATS_EXCLUDE_STATUSES = ['Placed', 'Do Not Contact', 'Blacklisted', 'Inactive',\n  'Deceased', 'Archived'];\n\n// ---------------------------------------------------------------- The outreach ladder\n// Copied onto the campaign at launch, so editing this never changes the behaviour of a\n// campaign already running. delay_hours is measured from the previous attempt.\nconst SEQUENCE = [\n  { step: 1, channel: 'sms',   delay_hours: 0,\n    template: 'Hi {{first_name}}, it is {{recruiter_name}} at {{client_name}}. We have a '\n            + '{{job_title}} role in {{job_city}}{{pay_phrase}}. Interested in hearing more? '\n            + 'Reply YES or STOP to opt out.' },\n  { step: 2, channel: 'sms',   delay_hours: 20,\n    template: 'Hi {{first_name}}, following up on the {{job_title}} position in {{job_city}}. '\n            + 'Still open. Reply YES and I will call you, or STOP to opt out.' },\n  { step: 3, channel: 'voice', delay_hours: 26,\n    agent_note: 'Second contact. They have had two texts and not replied. Keep it under '\n              + '90 seconds and offer to text the details instead.' },\n  { step: 4, channel: 'sms',   delay_hours: 48,\n    template: 'Last note from me on the {{job_title}} role, {{first_name}} — reply YES if '\n            + 'you would like the details, otherwise I will close it out. STOP to opt out.' }\n];\n\n// ---------------------------------------------------------------- When we are allowed\n// TCPA is the reason this block exists. Quiet hours are evaluated in the CANDIDATE's\n// timezone, not the server's and not the recruiter's.\nconst QUIET_HOURS_START = 21;    // no outbound at or after 21:00 local\nconst QUIET_HOURS_END   = 8;     // no outbound before 08:00 local\nconst SEND_ON_WEEKENDS  = false;\nconst DEFAULT_TIMEZONE  = 'America/New_York';\n\nconst RUNNER_BATCH_SIZE = 50;    // enrollments claimed per 15-minute run\nconst DAILY_SEND_CAP    = 500;   // hard ceiling per client per day, enforced in code\nconst LEASE_SECONDS     = 300;   // how long a claimed row stays claimed\n\n// A number we have already touched today is not touched again, whatever the ladder says.\nconst MIN_HOURS_BETWEEN_TOUCHES = 18;\n\n// ---------------------------------------------------------------- Twilio\nconst TWILIO_ACCOUNT_SID  = '';\nconst TWILIO_AUTH_TOKEN   = '';   // also the key the inbound webhook signature is checked with\nconst TWILIO_FROM_NUMBER  = '';   // +1XXXXXXXXXX, or a Messaging Service SID below\nconst TWILIO_MESSAGING_SID= '';   // MGxxxx. Preferred at volume — handles the number pool.\nconst TWILIO_STATUS_CALLBACK = '';// https://n8n.example.com/webhook/stratton-inbound\n\n// Twilio error codes that mean \"this will never work\" — retrying them wastes money and\n// looks like a loop. Everything else is treated as transient and backed off.\nconst PERMANENT_SMS_ERRORS = ['21211', '21610', '21614', '21408', '30003', '30005', '30006'];\n//                            bad num  optout  not mobile geo-perm unreach  unknown  landline\n\n// ---------------------------------------------------------------- Retell AI\nconst RETELL_API_KEY   = '';\nconst RETELL_AGENT_ID  = '';      // the outbound screening agent\nconst RETELL_FROM_NUMBER = '';    // a number bought inside Retell, or a Twilio number imported\nconst RETELL_WEBHOOK_SECRET = ''; // verifies the call_analyzed callback\n\n// ---------------------------------------------------------------- Qualification\n// The structured criteria. The AI agent is asked to fill these in; it is not asked to\n// decide. The decision is this object, evaluated in a Code node, identically every time.\nconst QUALIFY = {\n  must: [\n    { key: 'interested',        equals: true,  label: 'said they are interested' },\n    { key: 'authorized_to_work', equals: true, label: 'authorised to work' },\n    { key: 'can_start_within_days', lte: 21,   label: 'can start within three weeks' }\n  ],\n  score: [\n    { key: 'years_experience',  gte: 2,    points: 25, label: '2+ years experience' },\n    { key: 'has_reliable_transport', equals: true, points: 15, label: 'has transport' },\n    { key: 'shift_match',       equals: true, points: 20, label: 'shift works for them' },\n    { key: 'rate_acceptable',   equals: true, points: 25, label: 'accepts the rate' },\n    { key: 'certifications_valid', equals: true, points: 15, label: 'certifications current' }\n  ],\n  pass_mark: 60,\n  // Anything the AI could not establish is null, and null never passes a `must`. An\n  // unanswered question is a not-qualified, not an assumed yes.\n  review_band: 15   // within this many points of the pass mark -> human review, not a rejection\n};\n\n// Words that stop everything, checked before anything else is done with a message.\nconst OPT_OUT_KEYWORDS = ['stop', 'stopall', 'unsubscribe', 'cancel', 'end', 'quit',\n  'remove me', 'opt out', 'optout', 'do not text', 'dont text', 'take me off'];\nconst POSITIVE_KEYWORDS = ['yes', 'yeah', 'yep', 'y', 'sure', 'interested', 'ok', 'okay',\n  'tell me more', 'more info', 'call me', 'sounds good', 'im in', \"i'm in\"];\nconst NEGATIVE_KEYWORDS = ['no', 'not interested', 'no thanks', 'nope', 'pass',\n  'already have a job', 'found a job', 'not looking'];\n\n// ---------------------------------------------------------------- Scheduling\nconst CALENDAR_PROVIDER   = 'google';   // google | microsoft | none\nconst RECRUITER_CALENDARS = {\n  // recruiter email -> calendar id. Blank object -> the job order's recruiter_email is used\n  // as the calendar id, which is what Google does by default anyway.\n};\nconst INTERVIEW_MINUTES     = 30;\nconst BOOKING_LEAD_HOURS    = 18;    // never book sooner than this\nconst BOOKING_WINDOW_DAYS   = 5;     // look this far ahead for a slot\nconst BOOKING_HOURS         = [9, 10, 11, 13, 14, 15, 16];   // recruiter local hours\n\n// ---------------------------------------------------------------- Telling people\nconst SLACK_WEBHOOK_URL = '';    // blank -> no Slack notification\nconst NOTIFY_RECRUITER_EMAIL = true;\n\n// ---------------------------------------------------------------- The safety switch\n// Ships in the safest position. Nothing reaches a candidate until someone deliberately\n// changes TEST_RUN.\nconst TEST_RUN    = true;   // true -> no SMS, no call, no ATS write, no calendar event\nconst TEST_PHONE  = '';     // blank -> preview only. Set -> messages really send, to here.\nconst DRY_RUN_DB  = false;  // true -> Supabase reads happen, writes do not\n\n// Gives every provider call a deterministic fake response so the three workflows can be\n// watched end to end before any account exists. FORCES preview whatever the two above say,\n// because a fabricated Twilio SID must never be able to reach a real phone.\nconst DEMO_MODE = true;\n\n// Quiet hours are real, and at 01:00 the runner correctly defers every single row — which\n// is the right behaviour and a useless thing to film. This ignores the quiet-hours check\n// so a walkthrough can be recorded at any hour.\n//\n// It is honoured ONLY when DEMO_MODE is on, and DEMO_MODE forces preview, so this switch\n// can never cause a real message at 3am. Turning DEMO_MODE off disarms it automatically.\nconst DEMO_ANY_HOUR = true;\n\n// =============================================================================\nconst MODE = DEMO_MODE ? 'preview'\n           : (TEST_RUN !== true ? 'live' : (TEST_PHONE.trim() !== '' ? 'test' : 'preview'));\n\nconst supabase_enabled = SUPABASE_URL.trim() !== '' && SUPABASE_SERVICE_KEY.trim() !== '';\nconst ats_enabled      = ATS_BASE_URL.trim() !== '' && ATS_TOKEN.trim() !== '';\nconst twilio_enabled   = TWILIO_ACCOUNT_SID.trim() !== '' && TWILIO_AUTH_TOKEN.trim() !== ''\n                      && (TWILIO_FROM_NUMBER.trim() !== '' || TWILIO_MESSAGING_SID.trim() !== '');\nconst retell_enabled   = RETELL_API_KEY.trim() !== '' && RETELL_AGENT_ID.trim() !== '';\n\nreturn [{\n  json: {\n    client_slug: CLIENT_SLUG,\n    client_id:   CLIENT_ID,\n    client_name: CLIENT_SLUG.charAt(0).toUpperCase() + CLIENT_SLUG.slice(1),\n\n    supabase_url: SUPABASE_URL.replace(/\\/+$/, ''),\n    supabase_key: SUPABASE_SERVICE_KEY,\n    supabase_enabled: supabase_enabled,\n    dry_run_db: DRY_RUN_DB === true,\n\n    ats_vendor: ATS_VENDOR,\n    ats_base_url: ATS_BASE_URL.replace(/\\/+$/, ''),\n    ats_token: ATS_TOKEN,\n    ats_fields: ATS_FIELDS,\n    ats_enabled: ats_enabled,\n    ats_exclude_statuses: ATS_EXCLUDE_STATUSES,\n    ats_search_limit: ATS_CANDIDATE_SEARCH_LIMIT,\n\n    ai_key: AI_API_KEY,\n    ai_model: AI_MODEL,\n    ai_effort: AI_EFFORT,\n    ai_max_skills: AI_MAX_SKILLS,\n    min_skills_before_ai: MIN_SKILLS_BEFORE_AI,\n    ai_enabled: AI_API_KEY.trim() !== '',\n\n    match: MATCH,\n    min_match_score: MIN_MATCH_SCORE,\n    enroll_top_n: ENROLL_TOP_N,\n\n    sequence: SEQUENCE,\n    quiet_hours_start: QUIET_HOURS_START,\n    quiet_hours_end: QUIET_HOURS_END,\n    send_on_weekends: SEND_ON_WEEKENDS,\n    default_timezone: DEFAULT_TIMEZONE,\n    runner_batch_size: RUNNER_BATCH_SIZE,\n    daily_send_cap: DAILY_SEND_CAP,\n    lease_seconds: LEASE_SECONDS,\n    min_hours_between_touches: MIN_HOURS_BETWEEN_TOUCHES,\n\n    twilio_sid: TWILIO_ACCOUNT_SID,\n    twilio_token: TWILIO_AUTH_TOKEN,\n    twilio_from: TWILIO_FROM_NUMBER,\n    twilio_messaging_sid: TWILIO_MESSAGING_SID,\n    twilio_status_callback: TWILIO_STATUS_CALLBACK,\n    twilio_enabled: twilio_enabled,\n    permanent_sms_errors: PERMANENT_SMS_ERRORS,\n\n    retell_key: RETELL_API_KEY,\n    retell_agent: RETELL_AGENT_ID,\n    retell_from: RETELL_FROM_NUMBER,\n    retell_secret: RETELL_WEBHOOK_SECRET,\n    retell_enabled: retell_enabled,\n\n    qualify: QUALIFY,\n    opt_out_keywords: OPT_OUT_KEYWORDS,\n    positive_keywords: POSITIVE_KEYWORDS,\n    negative_keywords: NEGATIVE_KEYWORDS,\n\n    calendar_provider: CALENDAR_PROVIDER,\n    calendar_enabled: CALENDAR_PROVIDER !== 'none',\n    recruiter_calendars: RECRUITER_CALENDARS,\n    interview_minutes: INTERVIEW_MINUTES,\n    booking_lead_hours: BOOKING_LEAD_HOURS,\n    booking_window_days: BOOKING_WINDOW_DAYS,\n    booking_hours: BOOKING_HOURS,\n\n    slack_webhook_url: SLACK_WEBHOOK_URL,\n    slack_enabled: SLACK_WEBHOOK_URL.trim() !== '',\n    notify_recruiter_email: NOTIFY_RECRUITER_EMAIL === true,\n\n    mode: MODE,\n    test_phone: TEST_PHONE.trim(),\n    demo_mode: DEMO_MODE === true,\n    // Deliberately ANDed with DEMO_MODE here rather than trusted on its own, so the flag\n    // cannot be left on by accident and quietly disable quiet hours in production.\n    ignore_quiet_hours: DEMO_MODE === true && DEMO_ANY_HOUR === true,\n    forced_preview: DEMO_MODE === true && TEST_RUN !== true,\n    // The single flag every outbound gate reads. Nothing else decides whether to send.\n    send_enabled: MODE !== 'preview',\n    live_send: MODE === 'live',\n    // Only a live run may touch the client's ATS or a recruiter's real calendar.\n    writeback_enabled: MODE === 'live'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "supaon2",
+      "name": "Supabase connected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "supaon2-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.supabase_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "claim",
+      "name": "[cred] Supabase - claim the due queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "SELECT ... FOR UPDATE SKIP LOCKED behind an RPC. Ten runners take ten disjoint batches; two overlapping schedules cannot claim the same enrollment. This is why the runner is safe to run every 15 min.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        840,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/rpc/claim_due_attempts",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ p_client_id: $('config').first().json.client_id, p_limit: $('config').first().json.runner_batch_size, p_lease_seconds: $('config').first().json.lease_seconds }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "stopq",
+      "name": "STOP: using the sample due queue",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        840,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// Supabase is not connected, so there is no queue to read. In demo mode the runner\n// substitutes a handful of due rows shaped exactly like `v_due_attempts` returns them —\n// which is what lets the state machine, the quiet-hours logic and the message rendering all\n// be watched working before a database exists.\n//\n// The four rows are deliberately at four different rungs of the ladder and in three\n// different timezones, because that is what makes the interesting behaviour visible.\nconst cfg = $('config').first().json;\n\nif (!cfg.demo_mode) {\n  return [{\n    json: {\n      _no_due_rows: true,\n      _outcome: 'Supabase not configured',\n      _next_step: 'Fill in SUPABASE_URL and SUPABASE_SERVICE_KEY in the config node. Until '\n        + 'then the runner has no queue to read and sends nothing, which is the correct '\n        + 'behaviour rather than an error.'\n    }\n  }];\n}\n\nconst seq = cfg.sequence;\nconst base = {\n  client_id: '+1234567890+1234567890',\n  campaign_id: '+1234567890+1234567890c1',\n  job_order_id: '+1234567890+1234567890j1',\n  client_slug: cfg.client_slug,\n  quiet_hours_start: cfg.quiet_hours_start,\n  quiet_hours_end: cfg.quiet_hours_end,\n  daily_send_cap: cfg.daily_send_cap,\n  job_title: 'Forklift Operator',\n  job_city: 'Columbus',\n  job_state: 'OH',\n  pay_rate: 22.5,\n  shift: '1st shift, Mon-Fri',\n  recruiter_name: 'Dana Reyes',\n  recruiter_email: 'user@example.com',\n  sequence: seq,\n  qualification: cfg.qualify,\n  status: 'active'\n};\n\nconst ago = (h) => new Date(Date.now() - h * 3600 * 1000).toISOString();\n\nreturn [\n  // Step 0: never contacted. Gets touch 1, an SMS.\n  { json: Object.assign({}, base, {\n      enrollment_id: 'e+1234567890-+1234567890',\n      candidate_id: 'c+1234567890-+1234567890',\n      first_name: 'Marcus', last_name: 'Ellison', phone_e164: '+1234567890',\n      email: 'user@example.com', candidate_timezone: 'America/New_York',\n      step: 0, attempts_made: 0, match_score: 74, next_attempt_at: ago(1) }) },\n\n  // Step 1: had one text, no reply. Gets the follow-up.\n  { json: Object.assign({}, base, {\n      enrollment_id: 'e+1234567890-+1234567890',\n      candidate_id: 'c+1234567890-+1234567890',\n      first_name: 'Danielle', last_name: 'Okafor', phone_e164: '+1234567890',\n      email: 'user@example.com', candidate_timezone: 'America/New_York',\n      step: 1, attempts_made: 1, match_score: 68, next_attempt_at: ago(2) }) },\n\n  // Step 2: two texts, silence. This one escalates to a Retell voice call.\n  { json: Object.assign({}, base, {\n      enrollment_id: 'e+1234567890-+1234567890',\n      candidate_id: 'c+1234567890-+1234567890',\n      first_name: 'Andre', last_name: 'Whitlock', phone_e164: '+1234567890',\n      email: 'user@example.com', candidate_timezone: 'America/New_York',\n      step: 2, attempts_made: 2, match_score: 61, next_attempt_at: ago(3) }) },\n\n  // In Los Angeles. At 08:30 Eastern it is 05:30 for them — deferred, not sent.\n  { json: Object.assign({}, base, {\n      enrollment_id: 'e+1234567890-+1234567890',\n      candidate_id: 'c+1234567890-+1234567890',\n      first_name: 'Renata', last_name: 'Voss', phone_e164: '+1234567890',\n      email: 'user@example.com', candidate_timezone: 'America/Los_Angeles',\n      step: 0, attempts_made: 0, match_score: 55, next_attempt_at: ago(1) }) },\n\n  // Finished the whole ladder and never replied. Becomes `exhausted`, which is an outcome,\n  // not a failure.\n  { json: Object.assign({}, base, {\n      enrollment_id: 'e+1234567890-+1234567890',\n      candidate_id: 'c+1234567890-+1234567890',\n      first_name: 'Owen', last_name: 'Castellanos', phone_e164: '+1234567890',\n      email: 'user@example.com', candidate_timezone: 'America/New_York',\n      step: 4, attempts_made: 4, match_score: 44, next_attempt_at: ago(24) }) }\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "dueq",
+      "name": "one due queue",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "decide",
+      "name": "decide the next touch",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1400,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// The state machine. For every enrollment the database said was due, this decides which\n// rung of the ladder is next, whether it is allowed to happen right now, and what exactly\n// would be sent.\n//\n// Three properties this node is responsible for:\n//\n//   Quiet hours are evaluated in the CANDIDATE's timezone. A 9am campaign in New York is a\n//   6am campaign in Los Angeles, and TCPA does not care which office set the schedule.\n//\n//   Nothing is sent from here. This node produces intent only; the send happens two nodes\n//   later, behind the mode gate. That separation is what lets the whole runner be watched\n//   in preview against real due rows.\n//\n//   The idempotency key is computed BEFORE the send, from facts that do not change on a\n//   retry. If n8n dies between Twilio accepting the message and the attempt row being\n//   written, the next run recomputes the same key, the insert conflicts, and the candidate\n//   is not texted twice.\nconst cfg = $('config').first().json;\nconst now = new Date();\n\nconst rows = $input.all().map((i) => i.json)\n  .filter((r) => r && r.enrollment_id && !r._no_due_rows);\n\n// Anything outside plain ASCII flips a whole SMS to UCS-2. Written as a character-code\n// scan rather than a regex so there is no escape sequence to get mangled in transit.\nfunction hasNonAscii(s) {\n  const str = String(s || '');\n  for (let i = 0; i < str.length; i++) if (str.charCodeAt(i) > 127) return true;\n  return false;\n}\n\n// Local wall-clock hour and weekday in an arbitrary IANA zone, without a date library.\n// Intl is present in both the n8n Code sandbox and plain node, which keeps simulate.js\n// honest about what will actually happen in production.\nfunction localParts(iso, tz) {\n  const d = iso ? new Date(iso) : new Date();\n  try {\n    const f = new Intl.DateTimeFormat('en-US', {\n      timeZone: tz, hour: 'numeric', hour12: false, weekday: 'short'\n    });\n    const parts = f.formatToParts(d);\n    const hour = Number((parts.find((p) => p.type === 'hour') || {}).value);\n    const weekday = (parts.find((p) => p.type === 'weekday') || {}).value;\n    return { hour: Number.isFinite(hour) ? hour % 24 : d.getUTCHours(), weekday: weekday };\n  } catch (e) {\n    // An unknown timezone string must not take the run down. Fall back and flag it.\n    return { hour: d.getUTCHours(), weekday: 'Mon', _tz_error: String(tz) };\n  }\n}\n\nfunction isQuiet(hour) {\n  const s = Number(cfg.quiet_hours_start);\n  const e = Number(cfg.quiet_hours_end);\n  return s > e ? (hour >= s || hour < e)    // 21:00 -> 08:00 wraps midnight\n               : (hour >= s && hour < e);\n}\n\n// The next moment this candidate may legally be contacted.\nfunction nextAllowed(tz) {\n  for (let h = 1; h <= 24 * 8; h++) {\n    const t = new Date(now.getTime() + h * 3600 * 1000);\n    const p = localParts(t.toISOString(), tz);\n    const weekend = p.weekday === 'Sat' || p.weekday === 'Sun';\n    if (!isQuiet(p.hour) && (cfg.send_on_weekends || !weekend)) {\n      // Land on the hour, so a deferred batch does not fire at 08:03:17 like a robot.\n      t.setUTCMinutes(0, 0, 0);\n      return t.toISOString();\n    }\n  }\n  return new Date(now.getTime() + 12 * 3600 * 1000).toISOString();\n}\n\n// Deterministic key. The same enrollment, channel and step give the same key forever.\n// FNV-1a rather than a crypto import, because it only has to be stable and collision-safe\n// across one client's attempts, and this runs in a sandbox with no require().\nfunction keyFor(parts) {\n  const s = parts.join('|');\n  let h1 = 0x811c9dc5;\n  let h2 = 0x01000193;\n  for (let i = 0; i < s.length; i++) {\n    h1 = Math.imul(h1 ^ s.charCodeAt(i), 0x01000193) >>> 0;\n    h2 = Math.imul(h2 ^ s.charCodeAt(i), 0x85ebca6b) >>> 0;\n  }\n  return 'att_' + h1.toString(16) + h2.toString(16);\n}\n\nfunction render(tpl, vars) {\n  return String(tpl || '')\n    .replace(/\\{\\{\\s*(\\w+)\\s*\\}\\}/g, function (m, k) {\n      return (vars[k] === undefined || vars[k] === null) ? '' : String(vars[k]);\n    })\n    .replace(/\\s+/g, ' ')\n    .trim();\n}\n\nconst out = [];\nconst deferred = [];\nlet plannedSends = 0;\nconst cap = Number(cfg.daily_send_cap) || 0;\n\nfor (const r of rows) {\n  const seq = (Array.isArray(r.sequence) && r.sequence.length) ? r.sequence : cfg.sequence;\n  const stepIndex = Number(r.step) || 0;\n\n  // The ladder is finished and there was still silence. Terminal, and not a failure — most\n  // people do not reply to a recruiter, and the row says `exhausted` rather than pretending\n  // something went wrong.\n  if (stepIndex >= seq.length) {\n    deferred.push({\n      enrollment_id: r.enrollment_id,\n      action: 'exhaust',\n      status: 'exhausted',\n      next_attempt_at: null,\n      reason: 'all ' + seq.length + ' touches sent, no reply'\n    });\n    continue;\n  }\n\n  const rung = seq[stepIndex];\n  const tz = r.candidate_timezone || cfg.default_timezone;\n  const p = localParts(null, tz);\n  const weekend = p.weekday === 'Sat' || p.weekday === 'Sun';\n\n  // DEMO_ANY_HOUR. Only ever true when DEMO_MODE is on, and DEMO_MODE forces preview, so\n  // this cannot put a real message on a real phone at 3am — it just makes the walkthrough\n  // filmable outside office hours.\n  const skipQuiet = cfg.ignore_quiet_hours === true;\n\n  if (!skipQuiet && (isQuiet(p.hour) || (!cfg.send_on_weekends && weekend))) {\n    // Rescheduled, never dropped. The row stays in the queue with a new due time.\n    deferred.push({\n      enrollment_id: r.enrollment_id,\n      action: 'defer',\n      next_attempt_at: nextAllowed(tz),\n      reason: isQuiet(p.hour)\n        ? 'quiet hours - ' + p.hour + ':00 in ' + tz\n        : 'weekend - ' + p.weekday + ' in ' + tz\n    });\n    continue;\n  }\n\n  if (cap && plannedSends >= cap) {\n    deferred.push({\n      enrollment_id: r.enrollment_id,\n      action: 'defer',\n      next_attempt_at: nextAllowed(tz),\n      reason: 'daily send cap of ' + cap + ' reached'\n    });\n    continue;\n  }\n\n  const pay = Number(r.pay_rate);\n  const clientName = r.client_slug\n    ? (r.client_slug.charAt(0).toUpperCase() + r.client_slug.slice(1))\n    : cfg.client_name;\n\n  const vars = {\n    first_name: r.first_name || 'there',\n    last_name: r.last_name || '',\n    job_title: r.job_title || 'a role',\n    job_city: r.job_city || r.job_state || 'your area',\n    recruiter_name: r.recruiter_name || 'the recruiting team',\n    client_name: clientName,\n    pay_phrase: (Number.isFinite(pay) && pay > 0) ? (' paying $' + pay.toFixed(2) + '/hr') : ''\n  };\n\n  const channel = rung.channel === 'voice' ? 'voice' : 'sms';\n  const body = channel === 'sms' ? render(rung.template, vars) : '';\n\n  const unicode = hasNonAscii(body);\n  const perSegment = unicode ? 67 : 153;\n  const segments = channel === 'sms' ? (Math.ceil(body.length / perSegment) || 1) : 0;\n\n  const redirected = cfg.mode === 'test' && !!cfg.test_phone;\n\n  out.push({\n    enrollment_id: r.enrollment_id,\n    client_id: r.client_id,\n    campaign_id: r.campaign_id,\n    candidate_id: r.candidate_id,\n    job_order_id: r.job_order_id,\n\n    to: redirected ? cfg.test_phone : r.phone_e164,\n    real_to: r.phone_e164,\n    _redirected: redirected,\n\n    channel: channel,\n    step: rung.step,\n    step_index: stepIndex,\n    body: redirected ? ('[TEST -> ' + r.phone_e164 + '] ' + body) : body,\n    segments: segments,\n    _long_sms: segments > 2,\n    _has_unicode: unicode,\n\n    // Everything the Retell agent is told. It is given facts and a job to do; it is never\n    // given the decision, which is made from its structured answers in workflow 3.\n    agent_note: rung.agent_note || '',\n    retell_vars: {\n      first_name: vars.first_name,\n      job_title: vars.job_title,\n      job_city: vars.job_city,\n      pay_rate: vars.pay_phrase.replace('paying ', '').trim(),\n      shift: r.shift || '',\n      recruiter_name: vars.recruiter_name,\n      company: clientName,\n      note: rung.agent_note || ''\n    },\n\n    // Computed before the send. This is the whole duplicate-contact guarantee.\n    idempotency_key: keyFor([r.enrollment_id, channel, String(rung.step)]),\n\n    candidate_name: ((r.first_name || '') + ' ' + (r.last_name || '')).trim(),\n    job_title: r.job_title,\n    recruiter_email: r.recruiter_email,\n    timezone: tz,\n    local_hour: p.hour,\n    match_score: r.match_score,\n    attempts_made: Number(r.attempts_made) || 0,\n    _tz_error: p._tz_error || ''\n  });\n\n  plannedSends++;\n}\n\nconst deferredByReason = deferred.reduce(function (a, d) {\n  const k = String(d.reason).replace(/\\d+/g, 'N');\n  a[k] = (a[k] || 0) + 1;\n  return a;\n}, {});\n\nif (!out.length) {\n  return [{\n    json: {\n      _has_work: false,\n      due_rows: rows.length,\n      deferred: deferred,\n      deferred_by_reason: deferredByReason\n    }\n  }];\n}\n\nreturn out.map(function (o) {\n  return {\n    json: Object.assign(o, {\n      _has_work: true,\n      _due_rows: rows.length,\n      _deferred: deferred,\n      _deferred_by_reason: deferredByReason,\n      _batch: out.length\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "haswork",
+      "name": "anything to send?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "haswork-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._has_work }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopdue",
+      "name": "STOP: nothing due",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1960,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// Nothing was due this pass. For a runner that fires every fifteen minutes this is the\n// normal outcome for most of the day, so it reports the arithmetic rather than a bare\n// \"0 items\" — an empty queue and a broken query look identical otherwise.\nconst j = $input.first().json;\nconst deferred = j.deferred || [];\n\nreturn [{\n  json: {\n    _outcome: deferred.length ? 'everything due was deferred' : 'nothing due',\n    rows_returned_by_the_queue: j.due_rows || 0,\n    deferred: deferred.length,\n    deferred_by_reason: j.deferred_by_reason || {},\n    examples: deferred.slice(0, 8),\n    // Deferred rows still need writing back, or they stay due and this node reports the\n    // same thing every fifteen minutes forever.\n    _has_deferrals: deferred.length > 0,\n    _next_step: deferred.length\n      ? 'These rows were rescheduled, not dropped. Quiet hours are evaluated in the '\n        + 'candidate timezone, so a queue that defers everything at 07:00 Eastern is '\n        + 'correct behaviour for a west-coast list.'\n      : 'The queue returned no rows. Either no campaign is active, or every enrollment has '\n        + 'a null next_attempt_at (replied, opted out, booked, or exhausted).'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sending",
+      "name": "sending?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1960,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "sending-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.send_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stopprev2",
+      "name": "STOP: preview - nothing sent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2240,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// Preview. The queue was read, the ladder was walked, quiet hours were applied and every\n// message was rendered — and nothing was sent.\n//\n// This is the node to have open on a screen-share. It shows the exact text each candidate\n// would receive, at their local time, with the segment count next to it.\nconst cfg = $('config').first().json;\nconst items = $input.all().map((i) => i.json).filter((i) => i && i._has_work);\nconst first = items[0] || {};\n\nconst sms = items.filter((i) => i.channel === 'sms');\nconst voice = items.filter((i) => i.channel === 'voice');\n\nreturn [{\n  json: {\n    _outcome: 'preview - nothing sent',\n    _why: cfg.demo_mode\n      ? 'DEMO_MODE is on. It forces preview whatever TEST_RUN says, because a fabricated '\n        + 'Twilio response must never be able to reach a real phone.'\n      : 'TEST_RUN is true with no TEST_PHONE set.',\n\n    would_send: items.length,\n    sms_count: sms.length,\n    voice_count: voice.length,\n    segments_total: sms.reduce((n, i) => n + (i.segments || 0), 0),\n    deferred: (first._deferred || []).length,\n    deferred_by_reason: first._deferred_by_reason || {},\n\n    messages: sms.map((i) => ({\n      to: i.real_to,\n      name: i.candidate_name,\n      step: i.step,\n      local_time: i.local_hour + ':00 ' + i.timezone,\n      segments: i.segments,\n      unicode: i._has_unicode,\n      body: i.body\n    })),\n\n    calls: voice.map((i) => ({\n      to: i.real_to,\n      name: i.candidate_name,\n      step: i.step,\n      local_time: i.local_hour + ':00 ' + i.timezone,\n      agent: cfg.retell_agent || '(no agent id set)',\n      brief: i.agent_note,\n      variables_given_to_the_agent: i.retell_vars\n    })),\n\n    deferrals: first._deferred || [],\n\n    warnings: [].concat(\n      sms.filter((i) => i._long_sms).map((i) =>\n        i.candidate_name + ': ' + i.segments + ' segments — you are paying ' + i.segments\n          + 'x for this message'),\n      sms.filter((i) => i._has_unicode).map((i) =>\n        i.candidate_name + ': the template contains a non-ASCII character, which cuts the '\n          + 'segment size from 153 to 67'),\n      items.filter((i) => i._tz_error).map((i) =>\n        i.candidate_name + ': unknown timezone \"' + i._tz_error + '\", quiet hours fell back to UTC')\n    ),\n\n    _next_step: 'Set DEMO_MODE = false, then put your own mobile in TEST_PHONE. Messages '\n      + 'really send, to you, prefixed with the number they would have gone to. '\n      + 'TEST_RUN = false is the separate, deliberate act that goes live.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "chan",
+      "name": "SMS or voice?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2240,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "chan-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.channel === 'sms' }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "twon",
+      "name": "Twilio connected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2520,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "twon-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.twilio_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "twsend",
+      "name": "[cred] Twilio - send the SMS",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "MessagingServiceSid when one is set, From otherwise — never both. StatusCallback points at workflow 3, which is how a delivery failure hours later still reaches the attempt row.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2800,
+        0
+      ],
+      "parameters": {
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $('config').first().json.twilio_sid }}/Messages.json",
+        "body": "={{ (() => { const c = $('config').first().json; const p = [['To', $json.to], ['Body', $json.body]]; if (c.twilio_messaging_sid) p.push(['MessagingServiceSid', c.twilio_messaging_sid]); else p.push(['From', c.twilio_from]); if (c.twilio_status_callback) p.push(['StatusCallback', c.twilio_status_callback]); return p.map(x => encodeURIComponent(x[0]) + '=' + encodeURIComponent(x[1])).join('&'); })() }}",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "sendBody": true,
+        "contentType": "raw",
+        "sendHeaders": true,
+        "rawContentType": "application/x-www-form-urlencoded",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "={{ 'Basic ' + ($('config').first().json.twilio_sid + ':' + $('config').first().json.twilio_token).base64Encode() }}"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "twread",
+      "name": "read the Twilio result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3080,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Pairs each Twilio response back to the intent that produced it, and classifies the\n// outcome into one of three things: sent, retry later, or never again.\n//\n// Pairing is by position within this branch. The Twilio node runs once per item and n8n\n// preserves order inside a branch, so the i-th response belongs to the i-th SMS intent.\n// It is done here rather than after the merge because the merge interleaves the SMS and\n// voice branches and position stops meaning anything.\nconst cfg = $('config').first().json;\nconst permanent = (cfg.permanent_sms_errors || []).map(String);\n\nconst intents = $('decide the next touch').all()\n  .map((i) => i.json)\n  .filter((i) => i && i._has_work && i.channel === 'sms');\n\nconst responses = $input.all().map((i) => i.json);\n\n// Twilio statuses that mean the message is on its way. `delivered` never appears here —\n// it arrives minutes later on the status callback, which workflow 3 handles.\nconst ACCEPTED = ['queued', 'accepted', 'sending', 'sent', 'scheduled'];\n\nreturn responses.map((res, idx) => {\n  const intent = intents[idx] || {};\n\n  // The HTTP node runs with onError: continueRegularOutput, so a 4xx arrives here as data\n  // rather than ending the run. Twilio puts its own code in `code`; n8n wraps transport\n  // failures in `error`.\n  const err = res && (res.error || (res.status >= 400 ? res : null));\n  const twilioCode = res && (res.code || (res.error && res.error.code));\n  const sid = res && (res.sid || res.message_sid);\n  const status = res && res.status;\n\n  const accepted = !!sid && ACCEPTED.indexOf(String(status)) !== -1;\n  const isPermanent = twilioCode && permanent.indexOf(String(twilioCode)) !== -1;\n\n  let outcome;\n  if (accepted) outcome = 'sent';\n  else if (isPermanent) outcome = 'permanent';\n  else if (err || !sid) outcome = 'transient';\n  else outcome = 'sent';\n\n  return {\n    json: Object.assign({}, intent, {\n      provider: 'twilio',\n      provider_sid: sid || null,\n      provider_status: status || null,\n      outcome: outcome,\n      error_code: twilioCode ? String(twilioCode) : null,\n      error_message: err\n        ? String((res.message || (res.error && res.error.message) || 'unknown Twilio error')).slice(0, 500)\n        : null,\n      // 21610 is Twilio's own opt-out list. Somebody replied STOP directly to the carrier\n      // and it never reached our webhook, so this is the only place we learn about it —\n      // and it has to be treated as an opt-out, not as a delivery failure.\n      _carrier_opt_out: String(twilioCode) === '21610',\n      _raw: res\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "twoff",
+      "name": "STOP: Twilio not configured",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2800,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// The run is live, but the provider for this channel has no keys. Used on both the Twilio\n// and the Retell false branches.\n//\n// The touches are marked TRANSIENT, not permanent. A missing key is a configuration\n// problem that someone will fix this afternoon, and marking a hundred candidates\n// `undeliverable` because of it would quietly retire them from a campaign that is about to\n// start working. They back off and come round again instead.\nconst cfg = $('config').first().json;\nconst items = $input.all().map((i) => i.json).filter((i) => i && i.enrollment_id);\n\nif (!items.length) return [{ json: { _outcome: 'nothing on this branch', _empty: true } }];\n\nconst channel = items[0].channel;\nconst which = channel === 'voice' ? 'Retell' : 'Twilio';\nconst missing = channel === 'voice'\n  ? ['RETELL_API_KEY', 'RETELL_AGENT_ID'].filter((k) =>\n      (k === 'RETELL_API_KEY' ? !cfg.retell_key : !cfg.retell_agent))\n  : ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM_NUMBER or TWILIO_MESSAGING_SID']\n      .filter((k) => (k === 'TWILIO_ACCOUNT_SID' ? !cfg.twilio_sid\n        : (k === 'TWILIO_AUTH_TOKEN' ? !cfg.twilio_token\n          : !(cfg.twilio_from || cfg.twilio_messaging_sid))));\n\nreturn items.map((i) => ({\n  json: Object.assign({}, i, {\n    provider: channel === 'voice' ? 'retell' : 'twilio',\n    provider_sid: null,\n    provider_status: null,\n    outcome: 'transient',\n    error_code: 'not_configured',\n    error_message: which + ' is not configured — missing ' + missing.join(', '),\n    _carrier_opt_out: false,\n    _config_problem: true\n  })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "reton",
+      "name": "Retell connected?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2520,
+        190
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "reton-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.retell_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "retsend",
+      "name": "[cred] Retell - start the call",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "`metadata` is the important part. Retell echoes it verbatim on the call_analyzed webhook, which is how workflow 3 links a finished call back to an enrollment without guessing from the phone number.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        2800,
+        380
+      ],
+      "parameters": {
+        "url": "https://api.retellai.com/v2/create-phone-call",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ from_number: $('config').first().json.retell_from, to_number: $json.to, override_agent_id: $('config').first().json.retell_agent, retell_llm_dynamic_variables: $json.retell_vars, metadata: { enrollment_id: $json.enrollment_id, candidate_id: $json.candidate_id, campaign_id: $json.campaign_id, step: $json.step, idempotency_key: $json.idempotency_key } }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.retell_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "retread",
+      "name": "read the Retell result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3080,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Pairs each Retell response back to the voice intent that produced it.\n//\n// A Retell create-call response only means the call was REGISTERED. Whether anyone picked\n// up, what they said and whether they qualify all arrive later on the `call_analyzed`\n// webhook, which workflow 3 handles. Treating a 201 here as \"the candidate was screened\"\n// is the mistake that makes a voice pipeline report numbers nobody can reconcile.\nconst intents = $('decide the next touch').all()\n  .map((i) => i.json)\n  .filter((i) => i && i._has_work && i.channel === 'voice');\n\nconst responses = $input.all().map((i) => i.json);\n\nreturn responses.map((res, idx) => {\n  const intent = intents[idx] || {};\n\n  const callId = res && (res.call_id || res.callId || (res.data && res.data.call_id));\n  const err = res && (res.error || res.message || (res.status >= 400 ? res : null));\n  const status = res && (res.call_status || res.status);\n\n  // Retell rejects a call it cannot place at all — no agent, no from-number, a number it\n  // will not dial. Those are configuration, not a bad moment, and retrying them every\n  // fifteen minutes just burns the log.\n  const text = String((res && (res.message || res.error_message)) || '').toLowerCase();\n  const isPermanent = !callId && (\n    text.includes('agent') || text.includes('not found') || text.includes('invalid')\n    || text.includes('unsupported') || text.includes('forbidden'));\n\n  return {\n    json: Object.assign({}, intent, {\n      provider: 'retell',\n      provider_sid: callId || null,\n      provider_status: status || (callId ? 'registered' : null),\n      outcome: callId ? 'sent' : (isPermanent ? 'permanent' : 'transient'),\n      error_code: callId ? null : String((res && res.code) || 'retell_error'),\n      error_message: callId ? null : String(err || 'no call_id returned').slice(0, 500),\n      _carrier_opt_out: false,\n      // The call is registered and the result is pending. The enrollment does NOT advance\n      // to \"responded\" here; only the webhook can do that.\n      _awaiting_webhook: !!callId,\n      _raw: res\n    })\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "retoff",
+      "name": "STOP: Retell not configured",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2800,
+        570
+      ],
+      "parameters": {
+        "jsCode": "// The run is live, but the provider for this channel has no keys. Used on both the Twilio\n// and the Retell false branches.\n//\n// The touches are marked TRANSIENT, not permanent. A missing key is a configuration\n// problem that someone will fix this afternoon, and marking a hundred candidates\n// `undeliverable` because of it would quietly retire them from a campaign that is about to\n// start working. They back off and come round again instead.\nconst cfg = $('config').first().json;\nconst items = $input.all().map((i) => i.json).filter((i) => i && i.enrollment_id);\n\nif (!items.length) return [{ json: { _outcome: 'nothing on this branch', _empty: true } }];\n\nconst channel = items[0].channel;\nconst which = channel === 'voice' ? 'Retell' : 'Twilio';\nconst missing = channel === 'voice'\n  ? ['RETELL_API_KEY', 'RETELL_AGENT_ID'].filter((k) =>\n      (k === 'RETELL_API_KEY' ? !cfg.retell_key : !cfg.retell_agent))\n  : ['TWILIO_ACCOUNT_SID', 'TWILIO_AUTH_TOKEN', 'TWILIO_FROM_NUMBER or TWILIO_MESSAGING_SID']\n      .filter((k) => (k === 'TWILIO_ACCOUNT_SID' ? !cfg.twilio_sid\n        : (k === 'TWILIO_AUTH_TOKEN' ? !cfg.twilio_token\n          : !(cfg.twilio_from || cfg.twilio_messaging_sid))));\n\nreturn items.map((i) => ({\n  json: Object.assign({}, i, {\n    provider: channel === 'voice' ? 'retell' : 'twilio',\n    provider_sid: null,\n    provider_status: null,\n    outcome: 'transient',\n    error_code: 'not_configured',\n    error_message: which + ' is not configured — missing ' + missing.join(', '),\n    _carrier_opt_out: false,\n    _config_problem: true\n  })\n}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sendm",
+      "name": "one send result",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3360,
+        0
+      ],
+      "parameters": {
+        "numberInputs": 2
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "record",
+      "name": "record the attempt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3640,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Turns send results into two things: an append-only attempt row for every touch, and the\n// enrollment updates that move the state machine forward.\n//\n// The retry policy lives here, in one place, and it is three rules:\n//\n//   sent       -> advance a rung, schedule the next touch at the ladder's delay\n//   transient  -> stay on this rung, come back with exponential backoff and jitter\n//   permanent  -> stop. The number is wrong or the carrier will never deliver, and\n//                 retrying it costs money and manufactures a fake \"attempted 6 times\"\n//\n// Jitter matters more than it looks. Without it, 300 enrollments that all failed on a\n// Twilio blip retry in the same second, hit the same rate limit, and fail together again.\nconst cfg = $('config').first().json;\nconst results = $input.all().map((i) => i.json).filter((r) => r && r.enrollment_id);\n\n// Deferrals were decided upstream and still have to be written, or the row stays due and\n// the runner reconsiders it every fifteen minutes forever.\nconst decided = $('decide the next touch').all().map((i) => i.json);\nconst deferrals = (decided[0] && decided[0]._deferred) || [];\n\nconst seq = cfg.sequence || [];\nconst now = Date.now();\n\n// 5min, 20min, 80min, 5h20, capped at 6h, plus up to 25% jitter.\nfunction backoff(attempt) {\n  const base = 5 * 60 * 1000 * Math.pow(4, Math.max(0, attempt));\n  const capped = Math.min(base, 6 * 3600 * 1000);\n  return new Date(now + capped * (1 + Math.random() * 0.25)).toISOString();\n}\n\nconst attempts = [];\nconst enrollmentUpdates = [];\nconst optOuts = [];\nconst counts = { sent: 0, transient: 0, permanent: 0, carrier_opt_out: 0 };\n\nfor (const r of results) {\n  const retry_count = Number(r.attempts_made) || 0;\n\n  attempts.push({\n    client_id: r.client_id || cfg.client_id || null,\n    enrollment_id: r.enrollment_id,\n    candidate_id: r.candidate_id,\n    channel: r.channel,\n    step: r.step,\n    direction: 'outbound',\n    provider: r.provider,\n    provider_sid: r.provider_sid,\n    status: r.outcome === 'sent'\n      ? (r.channel === 'voice' ? 'queued' : 'sent')\n      : (r.outcome === 'permanent' ? 'failed' : 'failed'),\n    error_code: r.error_code,\n    error_message: r.error_message,\n    body: r.channel === 'sms' ? r.body : (r.agent_note || 'AI voice screening call'),\n    retry_count: retry_count,\n    sent_at: new Date(now).toISOString(),\n    // Computed before the send, in `decide the next touch`. A unique-violation on this\n    // insert is not an error — it means another execution already sent this exact touch.\n    idempotency_key: r.idempotency_key\n  });\n\n  // Twilio's own suppression list answered. Nobody told our webhook, so this is the only\n  // moment we find out, and it has to become a real opt-out rather than a failed send.\n  if (r._carrier_opt_out) {\n    counts.carrier_opt_out++;\n    optOuts.push({\n      client_id: r.client_id || cfg.client_id || null,\n      phone_e164: r.real_to,\n      channel: 'all',\n      reason: 'carrier-level STOP (Twilio 21610)',\n      source: 'twilio_21610'\n    });\n    enrollmentUpdates.push({\n      id: r.enrollment_id, status: 'opted_out',\n      next_attempt_at: null, lease_token: null, lease_expires_at: null,\n      last_attempt_at: new Date(now).toISOString(),\n      _why: 'carrier opt-out'\n    });\n    continue;\n  }\n\n  if (r.outcome === 'sent') {\n    counts.sent++;\n    const nextIndex = (Number(r.step_index) || 0) + 1;\n    const nextRung = seq[nextIndex];\n    enrollmentUpdates.push({\n      id: r.enrollment_id,\n      status: 'active',\n      step: nextIndex,\n      attempts_made: retry_count + 1,\n      last_attempt_at: new Date(now).toISOString(),\n      // No next rung means the ladder is done. A null due time takes the row out of the\n      // queue without needing a separate \"finished\" flag anywhere.\n      next_attempt_at: nextRung\n        ? new Date(now + (Number(nextRung.delay_hours) || 0) * 3600 * 1000).toISOString()\n        : null,\n      lease_token: null,\n      lease_expires_at: null,\n      _why: nextRung ? ('sent step ' + r.step + ', next in ' + nextRung.delay_hours + 'h')\n                     : ('sent step ' + r.step + ', ladder complete')\n    });\n    continue;\n  }\n\n  if (r.outcome === 'permanent') {\n    counts.permanent++;\n    enrollmentUpdates.push({\n      id: r.enrollment_id,\n      status: 'undeliverable',\n      attempts_made: retry_count + 1,\n      last_attempt_at: new Date(now).toISOString(),\n      next_attempt_at: null,\n      lease_token: null,\n      lease_expires_at: null,\n      _why: 'permanent failure ' + r.error_code + ' — will never deliver'\n    });\n    continue;\n  }\n\n  // Transient. Same rung, later. After enough tries it stops being transient.\n  counts.transient++;\n  const MAX_RETRIES = 4;\n  const exhausted = retry_count >= MAX_RETRIES;\n  enrollmentUpdates.push({\n    id: r.enrollment_id,\n    status: exhausted ? 'undeliverable' : 'active',\n    attempts_made: retry_count + 1,\n    last_attempt_at: new Date(now).toISOString(),\n    next_attempt_at: exhausted ? null : backoff(retry_count),\n    lease_token: null,\n    lease_expires_at: null,\n    _why: exhausted\n      ? ('gave up after ' + (retry_count + 1) + ' transient failures (' + r.error_code + ')')\n      : ('transient ' + (r.error_code || 'error') + ', retry ' + (retry_count + 1)\n         + ' of ' + MAX_RETRIES)\n  });\n}\n\n// Quiet hours, weekends and the daily cap. Rescheduled, and the lease released so another\n// runner can pick them up the moment they come due.\nfor (const d of deferrals) {\n  enrollmentUpdates.push({\n    id: d.enrollment_id,\n    status: d.status || undefined,\n    next_attempt_at: d.next_attempt_at,\n    lease_token: null,\n    lease_expires_at: null,\n    _why: d.reason\n  });\n}\n\nreturn [{\n  json: {\n    _write: cfg.supabase_enabled && !cfg.dry_run_db,\n    attempts: attempts,\n    enrollment_updates: enrollmentUpdates.map((u) => {\n      const clean = {};\n      for (const k of Object.keys(u)) {\n        if (k.charAt(0) !== '_' && u[k] !== undefined) clean[k] = u[k];\n      }\n      return clean;\n    }),\n    opt_outs: optOuts,\n    explanations: enrollmentUpdates.map((u) => ({ id: u.id, action: u._why })),\n    counts: counts,\n    deferred: deferrals.length\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "persist2",
+      "name": "persisting?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3920,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "persist2-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._write }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "nopersist2",
+      "name": "STOP: not persisted",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4200,
+        190
+      ],
+      "parameters": {
+        "jsCode": "// No database configured, so the attempts and the state changes this run decided were not\n// written anywhere.\n//\n// In a demo that is exactly right and nothing is lost, because nothing was sent either.\n// In a LIVE run it would be serious: messages would go out and the engine would forget it\n// sent them, so the same person is texted again on the next pass. That cannot actually\n// happen — `sending?` is gated on the same config and a run with no database never reaches\n// a provider — but the warning says so plainly rather than leaving it to be inferred.\nconst cfg = $('config').first().json;\nconst j = $input.first().json || {};\n\nconst attempts = j.attempts || [];\nconst updates = j.enrollment_updates || [];\n\nreturn [{\n  json: {\n    _outcome: 'not persisted — no database configured',\n    _why: cfg.supabase_enabled\n      ? 'DRY_RUN_DB is true: reads happen, writes do not.'\n      : 'SUPABASE_URL and SUPABASE_SERVICE_KEY are blank in the config node.',\n\n    would_have_written: {\n      contact_attempts: attempts.length,\n      enrollment_updates: updates.length,\n      opt_outs: (j.opt_outs || []).length\n    },\n\n    // The whole decision, readable. This is the node to open on a screen-share to show\n    // what the state machine did without a database behind it.\n    attempts: attempts.map((a) => ({\n      channel: a.channel, step: a.step, status: a.status,\n      body: a.body, idempotency_key: a.idempotency_key\n    })),\n    state_changes: j.explanations || [],\n    counts: j.counts || {},\n    deferred: j.deferred || 0,\n\n    _next_step: 'Fill in SUPABASE_URL and SUPABASE_SERVICE_KEY to persist. Until then the '\n      + 'runner is a read-only simulation of itself: it decides correctly and forgets.'\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "wattempts",
+      "name": "[cred] Supabase - write the attempts",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "ignore-duplicates. A conflict here means another execution already sent this exact touch — that is the guarantee working, not an error.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4200,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/contact_attempts?on_conflict=client_id,idempotency_key",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.attempts) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=minimal"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "wenr",
+      "name": "[cred] Supabase - advance the enrollments",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4480,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/enrollments?on_conflict=id",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($('record the attempt').first().json.enrollment_updates) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=merge-duplicates,return=minimal"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "wopt",
+      "name": "[cred] Supabase - record carrier opt-outs",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Twilio 21610 means the carrier has them on ITS stop list and our webhook never saw the STOP. This is the only place we learn about it, so it has to become a real opt-out here.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        4760,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.supabase_url }}/rest/v1/opt_outs?on_conflict=client_id,phone_e164,channel",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($('record the attempt').first().json.opt_outs) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "apikey",
+              "value": "={{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Authorization",
+              "value": "=Bearer {{ $('config').first().json.supabase_key }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            },
+            {
+              "name": "Prefer",
+              "value": "resolution=ignore-duplicates,return=minimal"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "sum2",
+      "name": "build the runner summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5040,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// The runner posts a summary only when there is something worth reading. A workflow that\n// fires every fifteen minutes and reports \"0 sent\" ninety-six times a day trains everyone\n// to ignore it, and then nobody notices the morning it says \"42 permanent failures\".\nconst cfg = $('config').first().json;\nconst j = $input.first().json || {};\n\nconst preview = String(j._outcome || '').indexOf('preview') === 0;\nconst nothing = j._outcome === 'nothing due' || j._outcome === 'everything due was deferred';\n\nconst c = j.counts || {};\nconst sent = Number(c.sent) || 0;\nconst transient = Number(c.transient) || 0;\nconst permanent = Number(c.permanent) || 0;\nconst carrierOptOut = Number(c.carrier_opt_out) || 0;\nconst deferred = Number(j.deferred) || Number(j.deferred_count) || 0;\n\nconst lines = [];\nconst attention = [];\n\nif (preview) {\n  lines.push('*Outreach runner — preview*',\n    (j.would_send || 0) + ' touches ready: ' + (j.sms_count || 0) + ' SMS, '\n      + (j.voice_count || 0) + ' calls. Nothing was sent.');\n  (j.warnings || []).forEach((w) => attention.push(w));\n} else if (nothing) {\n  lines.push('*Outreach runner*', j._outcome + ' — ' + (j.rows_returned_by_the_queue || 0)\n    + ' rows in the queue, ' + (j.deferred || 0) + ' deferred.');\n} else {\n  const modeLabel = cfg.mode === 'live' ? '' : '  [' + String(cfg.mode).toUpperCase() + ']';\n  lines.push('*Outreach runner*' + modeLabel,\n    sent + ' sent · ' + deferred + ' deferred · ' + transient + ' retrying · '\n      + permanent + ' undeliverable');\n\n  if (carrierOptOut) {\n    lines.push('', carrierOptOut + ' carrier-level opt-out'\n      + (carrierOptOut === 1 ? '' : 's') + ' recorded (Twilio 21610).');\n  }\n\n  const notable = (j.explanations || [])\n    .filter((e) => /gave up|permanent|carrier|undeliverable/.test(String(e.action)))\n    .slice(0, 6);\n  if (notable.length) {\n    lines.push('', 'Stopped:');\n    notable.forEach((e) => lines.push('• ' + e.id.slice(0, 8) + ' — ' + e.action));\n  }\n\n  if (permanent > 5) {\n    attention.push(permanent + ' permanent failures in one pass. That is usually a phone '\n      + 'field mapped to a landline column, not a bad batch of numbers.');\n  }\n  if (transient > sent && sent > 0) {\n    attention.push('More transient failures than sends — check the Twilio account balance '\n      + 'and the rate limit before the backoff spreads them over the next six hours.');\n  }\n}\n\nif (attention.length) lines.push('', '*Needs attention*', ...attention.map((a) => '• ' + a));\n\n// Only speak up when there is news, or when something is wrong.\nconst worthPosting = attention.length > 0 || sent > 0 || permanent > 0 || preview;\n\nreturn [{\n  json: {\n    _outcome: j._outcome || 'runner complete',\n    sent: sent,\n    deferred: deferred,\n    retrying: transient,\n    undeliverable: permanent,\n    carrier_opt_outs: carrierOptOut,\n    needs_attention: attention,\n    _post: worthPosting && cfg.slack_enabled,\n    slack_text: lines.join('\\n'),\n    slack_payload: { text: lines.join('\\n') }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "post2",
+      "name": "worth posting?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5320,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "post2-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._post }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "slack2",
+      "name": "Post the runner summary",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        5600,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $('config').first().json.slack_webhook_url }}",
+        "method": "POST",
+        "options": {
+          "timeout": 20000,
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": false
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.slack_payload) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "end2",
+      "name": "End",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        5880,
+        190
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-00",
+      "name": "Template overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -1498
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 640,
+        "height": 1038,
+        "content": "## Send scheduled SMS and voice outreach from Supabase via Twilio and Retell\n\n**Who's it for**\nRecruitment and sales teams running multi-step SMS or voice outreach who need one place that owns\nsending — so quiet hours, the daily cap and opt-outs cannot be bypassed by a branch that did not run.\n\n**How it works**\nEvery fifteen minutes the runner claims a batch of due enrollments from a Supabase view, walks each\none up its ladder, and sends exactly one touch per person. The queue is a database view, not logic\nin here: opted-out numbers, people already worked by another campaign, leased rows and terminal\nenrollments never come back from `v_due_attempts` at all. Each row is sent by SMS through Twilio or\nas a voice call through Retell. Results are classified into sent, transient and permanent, which\ndecides whether the enrollment advances a rung, backs off with jitter, or stops for good. An\nidempotency key computed before the send makes a retry safe by construction.\n\n**How to set up**\n1. Open **`config`** and set the ladder, quiet hours, the daily cap and `PERMANENT_SMS_ERRORS`.\n2. Attach Supabase, Twilio and Retell credentials to the `[cred]` nodes.\n3. Leave **`DEMO_MODE = true`** for the first run — it uses the sample queue and sends nothing.\n\n**Requirements**\nA Supabase project with the `v_due_attempts` view and a `contact_attempts` table with a unique index\non the idempotency key, plus a Twilio account. Retell and the summary webhook are optional.\n\n**How to customize**\nChange the ladder steps and delays in `config`. To add a channel, branch from **`SMS or voice?`**\nand feed the result into **`one send result`** — the recording and retry logic is unchanged."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-01",
+      "name": "1. Claim the due queue",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -396
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1320,
+        "height": 356,
+        "content": "### 1. Claim the due queue\n\nEvery fifteen minutes. Claims a batch of due enrollments from the database,\nwalks each one up the ladder, and sends exactly one touch per person.\n\n**The queue is a database view, not logic in here.** Opted-out numbers, people\nalready being worked by another campaign, leased rows and terminal enrollments\nnever come back from `v_due_attempts` at all — a rule in Postgres cannot be\nskipped by an n8n branch that did not run.\n\n**Quiet hours are the candidate's, not yours.** 09:00 in New York is 06:00 in\nLos Angeles, and TCPA does not care which office set the schedule. Rows outside\nthe window are rescheduled, never dropped."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-02",
+      "name": "2. Never texted twice",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1400,
+        330
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 760,
+        "height": 268,
+        "content": "### 2. The idempotency key — `sha(enrollment | channel | step)` — is computed in\n**decide the next touch**, *before* the send, and the unique index on\n`contact_attempts` rejects a second insert with the same key.\n\nSo if n8n dies between Twilio accepting the message and the row being written,\nthe next run recomputes the same key, the insert conflicts, and nothing is sent.\nA retry is safe by construction rather than by being careful."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-03",
+      "name": "3. Send the touch",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2240,
+        -286
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1320,
+        "height": 246,
+        "content": "### 3. Send exactly one touch\n\n**`SMS or voice?`** routes the row to the channel its ladder step asks for.\n\nEach channel checks its own credential first, so a template with only Twilio connected still runs end to end — the Retell branch stops cleanly at **`STOP: Retell not configured`** instead of failing the run.\n\n**`one send result`** folds both channels back into a single shape, so everything downstream is channel-agnostic."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-04",
+      "name": "4. Retries, in three rules",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3640,
+        140
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 480,
+        "height": 444,
+        "content": "### 4. **sent** → advance a rung, schedule the next touch at the ladder's delay\n\n**transient** (a 502, a rate limit, a timeout) → stay on this rung, come back\nwith exponential backoff *and jitter*. Without jitter, 300 enrollments that\nfailed on one Twilio blip all retry in the same second and fail together again.\n\n**permanent** (21211 bad number, 30003 unreachable, 21610 opted out) → stop.\nRetrying these costs money and manufactures a fake \"attempted 6 times\".\n\nThe list of permanent codes is `PERMANENT_SMS_ERRORS` in **config**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-05",
+      "name": "5. Record and report",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4200,
+        -242
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1600,
+        "height": 202,
+        "content": "### 5. Record, advance and report\n\nThe attempt rows are written first, then **`[cred] Supabase - advance the enrollments`** moves each enrollment to its next rung, and carrier opt-outs are recorded so the queue view will never return that number again.\n\n**`build the runner summary`** posts what was sent, what backed off and what stopped. With no webhook URL in `config` the run simply ends."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "config": {
+      "main": [
+        [
+          {
+            "node": "Supabase connected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sending?": {
+      "main": [
+        [
+          {
+            "node": "SMS or voice?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: preview - nothing sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run it now": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "persisting?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - write the attempts",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: not persisted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "SMS or voice?": {
+      "main": [
+        [
+          {
+            "node": "Twilio connected?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Retell connected?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one due queue": {
+      "main": [
+        [
+          {
+            "node": "decide the next touch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "worth posting?": {
+      "main": [
+        [
+          {
+            "node": "Post the runner summary",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "one send result": {
+      "main": [
+        [
+          {
+            "node": "record the attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 15 minutes": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retell connected?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Retell - start the call",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: Retell not configured",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: nothing due": {
+      "main": [
+        [
+          {
+            "node": "record the attempt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twilio connected?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Twilio - send the SMS",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: Twilio not configured",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "anything to send?": {
+      "main": [
+        [
+          {
+            "node": "sending?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: nothing due",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "record the attempt": {
+      "main": [
+        [
+          {
+            "node": "persisting?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: not persisted": {
+      "main": [
+        [
+          {
+            "node": "build the runner summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Supabase connected?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - claim the due queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: using the sample due queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "decide the next touch": {
+      "main": [
+        [
+          {
+            "node": "anything to send?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "read the Retell result": {
+      "main": [
+        [
+          {
+            "node": "one send result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "read the Twilio result": {
+      "main": [
+        [
+          {
+            "node": "one send result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post the runner summary": {
+      "main": [
+        [
+          {
+            "node": "End",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build the runner summary": {
+      "main": [
+        [
+          {
+            "node": "worth posting?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: Retell not configured": {
+      "main": [
+        [
+          {
+            "node": "one send result",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "STOP: Twilio not configured": {
+      "main": [
+        [
+          {
+            "node": "one send result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: preview - nothing sent": {
+      "main": [
+        [
+          {
+            "node": "build the runner summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Twilio - send the SMS": {
+      "main": [
+        [
+          {
+            "node": "read the Twilio result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Retell - start the call": {
+      "main": [
+        [
+          {
+            "node": "read the Retell result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: using the sample due queue": {
+      "main": [
+        [
+          {
+            "node": "one due queue",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - write the attempts": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - advance the enrollments",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - claim the due queue": {
+      "main": [
+        [
+          {
+            "node": "one due queue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - advance the enrollments": {
+      "main": [
+        [
+          {
+            "node": "[cred] Supabase - record carrier opt-outs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Supabase - record carrier opt-outs": {
+      "main": [
+        [
+          {
+            "node": "build the runner summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

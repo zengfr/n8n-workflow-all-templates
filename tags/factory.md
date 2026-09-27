@@ -1,4 +1,4 @@
-# factory : 24
+# factory : 29
 
 |id|file|
 |----|----|
@@ -26,3 +26,8 @@
 |14316|[14316_Ads_Factory__Generate_Unlimited_Length_UGC_AI_Video_Pipeline.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14316_Ads_Factory__Generate_Unlimited_Length_UGC_AI_Video_Pipeline.json)|
 |15162|[15162_Generate_and_schedule_LinkedIn__X__and_Instagram_posts_with_OpenAI_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15162_Generate_and_schedule_LinkedIn__X__and_Instagram_posts_with_OpenAI_agents.json)|
 |16652|[16652_Create_SEO_blog_posts_from_YouTube_videos_with_Gemini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16652_Create_SEO_blog_posts_from_YouTube_videos_with_Gemini_and_Google_Docs.json)|
+|17064|[17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json)|
+|17566|[17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17566_Render_faceless_vertical_shorts_with_Gemini_or_Claude__Edge_TTS_and_FFmpeg.json)|
+|19241|[19241_Score_UK_property_deals_and_notify_investors_via_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19241_Score_UK_property_deals_and_notify_investors_via_Google_Sheets_and_Telegram.json)|
+|19416|[19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19416_Create_and_publish_UGC_social_videos_from_Telegram_with_OpenAI__VEO3__and_Blotato.json)|
+|19519|[19519_Score_property_deals__alert_investors__and_log_CRM_KPIs_with_Google_Sheets__email__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19519_Score_property_deals__alert_investors__and_log_CRM_KPIs_with_Google_Sheets__email__and_Telegram.json)|

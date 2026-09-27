@@ -1,4 +1,4 @@
-# set : 16
+# set : 23
 
 |id|file|
 |----|----|
@@ -18,3 +18,10 @@
 |12644|[12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12644_Evaluate_AI_workflows_using_Google_Sheets__Gemini__Claude__GPT__and_Perplexity.json)|
 |14381|[14381_Generate_AI_document_titles_for_Paperless-ngx_with_GPT-4o_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14381_Generate_AI_document_titles_for_Paperless-ngx_with_GPT-4o_Mini.json)|
 |15161|[15161_Check_new_app_reviews_and_create_ClickUp_tasks_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15161_Check_new_app_reviews_and_create_ClickUp_tasks_with_DataForSEO.json)|
+|17459|[17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17459_Group_Google_Drive_images_into_numbered_batch_folders_with_a_set_batch_size.json)|
+|17509|[17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17509_Set_dynamic_restaurant_menu_pricing_with_Claude_and_QR_menu_APIs.json)|
+|17527|[17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17527_Create_ad_sets_from_landing_page_URLs_with_Canvora_and_Slack.json)|
+|17745|[17745_Create_Shopify_product_ad_sets_with_Canvora__Google_Drive_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17745_Create_Shopify_product_ad_sets_with_Canvora__Google_Drive_and_Airtable.json)|
+|18411|[18411_Set_up_new_legal_matters_with_Clio__Google_Drive__and_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18411_Set_up_new_legal_matters_with_Clio__Google_Drive__and_email_alerts.json)|
+|18774|[18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18774_Track_hotel_rate_positioning_with_Bright_Data__GPT-5.6__Google_Sheets_and_Slack.json)|
+|18868|[18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18868_Set_default_error_workflows_across_all_workflows_via_the_n8n_API.json)|

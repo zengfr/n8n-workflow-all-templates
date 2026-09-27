@@ -1,0 +1,878 @@
+{
+  "id": "3ayT24eP3BjMD75q",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Analyze procurement spend with Google Sheets, Groq Llama 3.3, Notion, and Gmail",
+    "wechat": "youandme10086",
+    "id": 18393,
+    "update_time": "2026-09-27"
+  },
+  "name": "N-0129 Category Opportunity Discovery & Supplier Intelligence",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "e9b354ac-28fa-4016-8166-1f3e1d4641d5",
+      "name": "Workflow Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -464,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "138c6bc7-bb4d-45a4-87d5-40c5ff3e2197",
+              "name": "lookbackDays",
+              "type": "number",
+              "value": 30
+            },
+            {
+              "id": "23049519-44d2-49b9-987a-d21e17711549",
+              "name": "minSpendForAI",
+              "type": "number",
+              "value": 5000
+            },
+            {
+              "id": "8df1f811-d51f-408b-ac3d-f3806b260e84",
+              "name": "priorityThreshold",
+              "type": "number",
+              "value": 60
+            },
+            {
+              "id": "4db74de3-5682-4e40-9513-e3655b5b5530",
+              "name": "currency",
+              "type": "string",
+              "value": "INR"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "b55e6886-9d51-468f-be39-036514c36c29",
+      "name": "Fragmentation, Overlap & Model Scenarios",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        320,
+        512
+      ],
+      "parameters": {
+        "jsCode": "try {\n  const vendorCategories = {};\n\n  for (const item of items) {\n    const d = item.json;\n    if (d.error) continue;\n    for (const supplier of Object.keys(d.suppliers || {})) {\n      if (!vendorCategories[supplier]) vendorCategories[supplier] = new Set();\n      vendorCategories[supplier].add(d.category);\n    }\n  }\n\n  return items.map((item) => {\n    const data = item.json;\n    if (data.error) return { json: data };\n\n    const totalSpend = data.totalSpend;\n    const supplierNames = Object.keys(data.suppliers || {});\n    const supplierCount = supplierNames.length;\n    const shares = supplierNames.map((s) => data.supplierShares[s] || 0);\n    const hhi = shares.reduce((sum, s) => sum + s * s, 0);\n    const dominance = shares.length > 0 ? Math.max(...shares) : 0;\n    const fragmentation_index = Number(Math.min(1, (1 - hhi) * (supplierCount / 5)).toFixed(2));\n\n    let cross_category_overlap = false;\n    let overlap_vendor = '';\n    for (const s of supplierNames) {\n      const cats = vendorCategories[s];\n      if (cats && cats.size >= 3) {\n        cross_category_overlap = true;\n        overlap_vendor = s;\n        break;\n      }\n    }\n\n    const tailSuppliers = supplierNames.filter((s) => {\n      const share = data.supplierShares[s] || 0;\n      const txns = data.supplierTxns[s] || 0;\n      return share < 0.1 && txns < 3;\n    });\n\n    const sorted = [...supplierNames].sort((a, b) => data.suppliers[b] - data.suppliers[a]);\n    const primarySupplier = sorted[0] || '';\n    const suppliers_to_merge = tailSuppliers.filter((s) => s !== primarySupplier);\n\n    let strategy_type = 'optimized';\n    let target_supplier_count = supplierCount;\n    let consolidation_play = 'Category is well optimized — monitor only';\n\n    if (cross_category_overlap) {\n      strategy_type = 'msa';\n      target_supplier_count = 1;\n      consolidation_play = `Negotiate cross-category MSA with ${overlap_vendor} across ${vendorCategories[overlap_vendor].size} categories`;\n    } else if (supplierCount === 1 && dominance > 0.7) {\n      strategy_type = 'diversify';\n      target_supplier_count = 2;\n      consolidation_play = `Add backup supplier to reduce dependency on ${primarySupplier} (${Math.round(dominance * 100)}% dominance)`;\n    } else if (tailSuppliers.length >= 2 || supplierCount >= 3) {\n      strategy_type = 'consolidation';\n      target_supplier_count = Math.min(2, supplierCount);\n      const mergeNames = suppliers_to_merge.slice(0, Math.max(1, supplierCount - target_supplier_count));\n      if (mergeNames.length > 0) {\n        consolidation_play = `Merge ${mergeNames.length} supplier${mergeNames.length > 1 ? 's' : ''} (${mergeNames.join(', ')}) → retain ${primarySupplier} + ${Math.max(0, target_supplier_count - 1)} backup`;\n      } else {\n        consolidation_play = `Reduce from ${supplierCount} to ${target_supplier_count} suppliers — focus on ${primarySupplier}`;\n      }\n    } else if (supplierCount === 2) {\n      strategy_type = 'consolidation';\n      target_supplier_count = 1;\n      consolidation_play = `Consolidate ${sorted[1]} into ${primarySupplier} for volume leverage`;\n    }\n\n    const tail_spend = tailSuppliers.reduce((sum, s) => sum + data.suppliers[s], 0);\n    let savingsPct = Math.min(12, 2 * Math.max(0, supplierCount - target_supplier_count));\n    let savingsAmount = tail_spend * 0.15 + (totalSpend * savingsPct) / 100;\n    if (cross_category_overlap) savingsPct = Math.min(12, savingsPct + 3);\n    if (dominance > 0.7) {\n      savingsAmount *= 0.5;\n      savingsPct *= 0.5;\n    }\n    savingsAmount = Math.round(savingsAmount);\n    savingsPct = Number(savingsPct.toFixed(2));\n\n    const riskScore = supplierCount >= 4 ? 9 : supplierCount === 3 ? 7 : supplierCount === 2 ? 5 : 2;\n    const optimizationLevel = strategy_type === 'optimized' ? 'Optimized' : savingsPct >= 10 ? 'High Opportunity' : 'Moderate Opportunity';\n\n    return {\n      json: {\n        ...data,\n        hhi: Number(hhi.toFixed(4)),\n        dominance: Number(dominance.toFixed(2)),\n        fragmentation_index,\n        cross_category_overlap,\n        overlap_vendor,\n        tailSuppliers,\n        suppliers_to_merge,\n        primarySupplier,\n        current_supplier_count: supplierCount,\n        target_supplier_count,\n        strategy_type,\n        consolidation_play,\n        estimated_savings_amount: savingsAmount,\n        estimated_savings_pct: savingsPct,\n        estimatedSavings: savingsAmount,\n        savingsPercentage: savingsPct,\n        riskScore,\n        optimizationLevel,\n      },\n    };\n  });\n} catch (error) {\n  return [{ json: { error: true, stage: 'Fragmentation & Scenarios', message: error.message } }];\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d828cb92-7af7-443a-a391-741fdf9e822e",
+      "name": "Compare, Score & Rank",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        528,
+        512
+      ],
+      "parameters": {
+        "jsCode": "const staticData = $getWorkflowStaticData('global');\nif (!staticData.lastRun) staticData.lastRun = {};\n\nconst validItems = items.filter((i) => !i.json.error);\nconst maxSpend = Math.max(...validItems.map((i) => i.json.totalSpend || 0), 1);\n\nreturn items.map((item) => {\n  const d = item.json;\n  if (d.error) return { json: d };\n\n  const prev = staticData.lastRun[d.category];\n  let trend_delta = 'new';\n  if (prev) {\n    const fragDelta = d.fragmentation_index - (prev.fragmentation_index || 0);\n    if (fragDelta > 0.05) trend_delta = 'worsening';\n    else if (fragDelta < -0.05) trend_delta = 'improving';\n    else trend_delta = 'stable';\n  }\n\n  const spendWeight = (d.totalSpend / maxSpend) * 40;\n  const fragWeight = d.fragmentation_index * 30;\n  const savingsWeight = (d.estimated_savings_pct / 12) * 20;\n  const trendBonus = trend_delta === 'worsening' ? 15 : trend_delta === 'new' ? 5 : 0;\n  const priority_score = Math.round(Math.min(100, spendWeight + fragWeight + savingsWeight + trendBonus));\n  const priority_level = priority_score >= 75 ? 'Critical' : priority_score >= 60 ? 'High' : priority_score >= 40 ? 'Medium' : 'Low';\n  const high_priority = priority_score >= 60 || d.estimated_savings_amount >= 5000 || d.fragmentation_index >= 0.6 || trend_delta === 'worsening';\n\n  return {\n    json: {\n      ...d,\n      trend_delta,\n      priority_score,\n      priority_level,\n      high_priority,\n    },\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "482e66b3-17d1-4883-938e-b88699432466",
+      "name": "AI Pass 1: Spend Pattern Analyst",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        832,
+        512
+      ],
+      "parameters": {
+        "text": "=Analyze spend patterns for this procurement category:\n\nCategory: {{ $json.category }}\nTotal Spend: ₹{{ $json.totalSpend }}\nSuppliers: {{ $json.supplierCount }} ({{ JSON.stringify($json.suppliers) }})\nTransaction Count: {{ $json.txnCount }}\nAvg Order Value: ₹{{ $json.avgOrderValue }}\nTail Spend %: {{ $json.tailSpendPct }}%\nFragmentation Index: {{ $json.fragmentation_index }}\nStrategy Type: {{ $json.strategy_type }}\n\nTasks:\n1. Detect duplicate vendor name variations (e.g. \"ABC Ltd\" vs \"ABC Limited\").\n2. Flag maverick/off-contract spend patterns (high txn count + low avg order).\n3. Identify department concentration risks.\n4. Spot seasonal spikes or unusual patterns.\n\nReturn ONLY valid JSON:\n{\n  \"anomalies\": [],\n  \"leakage_flags\": [],\n  \"vendor_duplicates\": [{\"names\": [], \"combined_spend\": 0}],\n  \"spend_pattern_summary\": \"\",\n  \"risk_signals\": []\n}",
+        "options": {
+          "systemMessage": "You are a Spend Pattern Analyst specializing in procurement data forensics. Detect cost leakage, vendor duplicates, and anomalous spend patterns. Return ONLY valid JSON. No markdown. No conversational text."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "cad0d384-c392-40c0-bd6e-4faf595fc3b6",
+      "name": "Groq Llama 3.3 (Analyst)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        848,
+        736
+      ],
+      "parameters": {
+        "model": "openai/gpt-oss-120b",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "groqApi": {
+          "id": "AnindwaoyRCy8KlP",
+          "name": "Groq (Mihir-Gmail)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "62655394-e3bf-427e-baef-f28bb1eb9e2a",
+      "name": "AI Pass 2: Playbook Strategist",
+      "type": "@n8n/n8n-nodes-langchain.agent",
+      "position": [
+        1632,
+        384
+      ],
+      "parameters": {
+        "text": "=Build a consolidation playbook using quantitative scenario + spend pattern analysis:\n\nCategory: {{ $json.category }}\nTotal Spend: ₹{{ $json.totalSpend }}\nConsolidation Play: {{ $json.consolidation_play }}\nTarget Suppliers: {{ $json.current_supplier_count }} → {{ $json.target_supplier_count }}\nEstimated Savings: ₹{{ $json.estimated_savings_amount }} ({{ $json.estimated_savings_pct }}%)\nStrategy Type: {{ $json.strategy_type }}\nPriority Score: {{ $json.priority_score }}\nTrend: {{ $json.trend_delta }}\nSuppliers to Merge: {{ JSON.stringify($json.suppliers_to_merge) }}\nPrimary Supplier: {{ $json.primarySupplier }}\nAI Pass 1 Summary: {{ $json.pass1.spend_pattern_summary }}\n\nTasks:\n1. Refine the consolidation play with specific supplier names and rationale.\n2. Classify Kraljic quadrant (Strategic, Leverage, Bottleneck, Routine).\n3. Create 90-day implementation plan (3 phases in implementation_steps).\n4. List negotiation levers and dependency risks.\n5. Suggest 2 vendor search queries for Indian market if fragmentation is high.\n\nReturn ONLY valid JSON:\n{\n  \"kraljic_quadrant\": \"\",\n  \"consolidation_play\": \"\",\n  \"recommendation\": \"\",\n  \"implementation_steps\": [],\n  \"negotiation_levers\": [],\n  \"risks\": [],\n  \"search_queries\": [],\n  \"issue\": \"\",\n  \"insight\": \"\"\n}",
+        "options": {
+          "systemMessage": "You are a Senior Procurement Strategist and CFO advisor. Transform spend data into actionable consolidation playbooks. Be specific with supplier names and savings impact. Return ONLY valid JSON. No markdown."
+        },
+        "promptType": "define"
+      },
+      "typeVersion": 3.1
+    },
+    {
+      "id": "efa6a7c0-1885-4305-9277-5011579c6ee8",
+      "name": "Groq Llama 3.3 (Strategist)",
+      "type": "@n8n/n8n-nodes-langchain.lmChatGroq",
+      "position": [
+        1664,
+        688
+      ],
+      "parameters": {
+        "model": "openai/gpt-oss-20b",
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "credentials": {
+        "groqApi": {
+          "id": "AnindwaoyRCy8KlP",
+          "name": "Groq (Mihir-Gmail)"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "af9e187f-4628-4b94-ba6f-7d794935d47c",
+      "name": "Aggregate Reports",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        2288,
+        416
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData",
+        "destinationFieldName": "reports"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "95df1165-4845-4112-9d4c-ea2b8f60e9c4",
+      "name": "Fetch Spend Data",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        -240,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14uzduRle8_w9_onOuPdtjwGs0VQ2ZNsUZCx2kqu90Ek/edit#gid=0",
+          "cachedResultName": "Transactions"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "14uzduRle8_w9_onOuPdtjwGs0VQ2ZNsUZCx2kqu90Ek",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14uzduRle8_w9_onOuPdtjwGs0VQ2ZNsUZCx2kqu90Ek/edit?usp=drivesdk",
+          "cachedResultName": "N-0129 n8n workflow"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "6852054b-72d7-4bc4-9ca3-baa9ed51d3d9",
+      "name": "Normalize & Build Matrix",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        112,
+        512
+      ],
+      "parameters": {
+        "jsCode": "try {\n  const lookbackDays = 30;\n  const cutoff = new Date();\n  cutoff.setDate(cutoff.getDate() - lookbackDays);\n  cutoff.setHours(0, 0, 0, 0);\n\n  const grouped = {};\n\n  for (const item of items) {\n    const row = item.json;\n    if (!row.created_at || !row.category || !row.supplier || row.amount === undefined) continue;\n\n    const rowDate = new Date(String(row.created_at).split('T')[0]);\n    if (isNaN(rowDate.getTime()) || rowDate < cutoff) continue;\n\n    const category = String(row.category).trim();\n    const supplier = String(row.supplier).trim();\n    const amount = Number(row.amount);\n    if (isNaN(amount)) continue;\n\n    if (!grouped[category]) {\n      grouped[category] = {\n        totalSpend: 0,\n        suppliers: {},\n        supplierTxns: {},\n        departments: {},\n        txnCount: 0,\n      };\n    }\n\n    grouped[category].totalSpend += amount;\n    grouped[category].txnCount += 1;\n    grouped[category].suppliers[supplier] = (grouped[category].suppliers[supplier] || 0) + amount;\n    grouped[category].supplierTxns[supplier] = (grouped[category].supplierTxns[supplier] || 0) + 1;\n\n    if (row.department) {\n      const dept = String(row.department).trim();\n      grouped[category].departments[dept] = (grouped[category].departments[dept] || 0) + amount;\n    }\n  }\n\n  const results = Object.keys(grouped).map((category) => {\n    const g = grouped[category];\n    const supplierNames = Object.keys(g.suppliers);\n    const supplierCount = supplierNames.length;\n    const supplierShares = {};\n    let tailSpend = 0;\n\n    for (const s of supplierNames) {\n      const share = g.totalSpend > 0 ? g.suppliers[s] / g.totalSpend : 0;\n      supplierShares[s] = Number(share.toFixed(4));\n      const txns = g.supplierTxns[s] || 0;\n      if (share < 0.1 && txns < 3) tailSpend += g.suppliers[s];\n    }\n\n    return {\n      json: {\n        category,\n        totalSpend: Math.round(g.totalSpend),\n        suppliers: g.suppliers,\n        supplierTxns: g.supplierTxns,\n        supplierCount,\n        supplierShares,\n        txnCount: g.txnCount,\n        avgOrderValue: g.txnCount > 0 ? Math.round(g.totalSpend / g.txnCount) : 0,\n        tailSpendPct: g.totalSpend > 0 ? Number(((tailSpend / g.totalSpend) * 100).toFixed(2)) : 0,\n        departments: g.departments,\n      },\n    };\n  });\n\n  if (results.length === 0) {\n    return [{ json: { error: true, stage: 'Validate & Build Matrix', message: 'No valid transactions in 30-day window' } }];\n  }\n\n  return results;\n} catch (error) {\n  return [{ json: { error: true, stage: 'Validate & Build Matrix', message: error.message } }];\n}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "500d9ea0-6795-4f95-a3e0-2e171a06a7db",
+      "name": "Parse AI Output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1184,
+        512
+      ],
+      "parameters": {
+        "jsCode": "const rankedAll = $('Compare, Score & Rank').all();\n\nreturn $input.all().map((item, index) => {\n  const base = rankedAll[index]?.json || {};\n  const rawOutput = item.json.output;\n\n  let pass1 = {};\n  try {\n    pass1 = typeof rawOutput === 'string'\n      ? JSON.parse(rawOutput)\n      : (rawOutput || {});\n  } catch (error) {\n    pass1 = {\n      parse_error: true,\n      error: error.message,\n      raw_output: rawOutput,\n    };\n  }\n\n  return {\n    json: {\n      // Keep all analytics fields from Compare, Score & Rank\n      ...base,\n\n      // Parsed AI Pass 1 object\n      pass1,\n\n      // Flat fields for easier prompt usage\n      pass1_anomalies: pass1.anomalies || [],\n      pass1_leakage_flags: pass1.leakage_flags || [],\n      pass1_vendor_duplicates: pass1.vendor_duplicates || [],\n      pass1_spend_pattern_summary: pass1.spend_pattern_summary || '',\n      pass1_risk_signals: pass1.risk_signals || [],\n      pass1_parse_error: pass1.parse_error || false,\n    },\n  };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4f04c67-6136-479d-81dc-c3273059e920",
+      "name": "Build HTML Email Template",
+      "type": "n8n-nodes-base.html",
+      "position": [
+        2512,
+        416
+      ],
+      "parameters": {
+        "html": "<div style=\"font-family: Arial, sans-serif; background-color: #f4f6f8; padding: 20px;\">\n  <div style=\"max-width: 760px; margin: auto; background: #ffffff; border-radius: 10px; overflow: hidden; box-shadow: 0 4px 12px rgba(0,0,0,0.1);\">\n    <div style=\"background: linear-gradient(90deg, #4f46e5, #3b82f6); color: white; padding: 20px;\">\n      <h2 style=\"margin: 0;\">Supplier Consolidation Intelligence Report</h2>\n      <p style=\"margin: 5px 0 0; font-size: 14px;\">Dual-AI procurement playbook</p>\n    </div>\n    <div style=\"padding: 20px;\">\n      <div style=\"background:#eef2ff; padding:15px; border-radius:8px; margin-bottom:20px;\">\n        <h3 style=\"margin:0 0 10px 0;\">Executive Brief</h3>\n        <p style=\"margin:5px 0;\">Portfolio Health Score: <strong>{{$json.reports[0].portfolio_health_score}}/100</strong></p>\n        <p style=\"margin:5px 0;\">Categories Analyzed: {{$json.reports[0].category_count}}</p>\n        <p style=\"margin:5px 0;\">Total Spend: ₹{{$json.reports[0].portfolio_total_spend}}</p>\n        <p style=\"margin:5px 0;\">Total Addressable Savings: ₹{{$json.reports[0].portfolio_total_savings}}</p>\n        <p style=\"margin:5px 0;\">Worsening Categories: {{$json.reports[0].worsening_count}}</p>\n        <h4 style=\"margin:15px 0 8px 0;\">Top Consolidation Plays</h4>\n        <ul style=\"margin:0; padding-left:20px;\">\n          {{ $json.reports[0].top_plays.map(p => `<li><strong>${p.category}</strong>: ${p.consolidation_play} — ₹${p.estimated_savings_amount} savings (score: ${p.priority_score})</li>`).join('') }}\n        </ul>\n      </div>\n      {{ $json.reports.map(item => `\n      <div style=\"margin-bottom:25px; padding:15px; border:1px solid #eee; border-radius:8px;\">\n        <div style=\"display:flex; justify-content:space-between; align-items:center; margin-bottom:10px;\">\n          <h3 style=\"margin:0;\">${item.category}</h3>\n          <span style=\"background:${item.strategy_type === 'consolidation' ? '#4f46e5' : item.strategy_type === 'msa' ? '#0891b2' : item.strategy_type === 'diversify' ? '#d97706' : '#16a34a'}; color:white; padding:3px 10px; border-radius:12px; font-size:11px; text-transform:uppercase;\">${item.strategy_type}</span>\n        </div>\n        <p style=\"margin:5px 0;\"><strong>Priority:</strong> ${item.priority_level} (${item.priority_score}) | <strong>Trend:</strong> ${item.trend_delta}</p>\n        <div style=\"background:#f0fdf4; padding:10px; border-radius:6px; margin:10px 0;\">\n          <strong>Consolidation Play:</strong>\n          <p style=\"margin:5px 0;\">${item.consolidation_play}</p>\n          <p style=\"margin:5px 0; font-size:13px;\">${item.current_supplier_count} suppliers → ${item.target_supplier_count} target | Savings: ₹${item.estimated_savings_amount} (${item.estimated_savings_pct}%)</p>\n        </div>\n        ${item.spend_pattern_summary ? `<div style=\"background:#fffbeb; padding:10px; border-radius:6px; margin:8px 0;\"><strong>AI Pass 1 — Pattern Analysis:</strong><p style=\"margin:5px 0;\">${item.spend_pattern_summary}</p>${(item.anomalies || []).length ? `<p style=\"margin:5px 0; font-size:13px;\">Anomalies: ${item.anomalies.join('; ')}</p>` : ''}</div>` : ''}\n        <div style=\"background:#eff6ff; padding:10px; border-radius:6px; margin:8px 0;\">\n          <strong>AI Pass 2 — Playbook:</strong>\n          <p style=\"margin:5px 0;\">${item.recommendation || 'N/A'}</p>\n          <p style=\"margin:5px 0;\"><strong>Kraljic:</strong> ${item.kraljic_quadrant || 'N/A'}</p>\n          ${(item.implementation_steps || []).length ? `<ol style=\"margin:5px 0; padding-left:20px; font-size:13px;\">${item.implementation_steps.map(s => `<li>${s}</li>`).join('')}</ol>` : ''}\n        </div>\n        ${(item.search_queries || []).length ? `<div style=\"background:#faf5ff; padding:10px; border-radius:6px;\"><strong>Vendor Search:</strong><ul style=\"margin:5px 0; padding-left:20px;\">${item.search_queries.map(q => `<li><a href=\"https://www.google.com/search?q=${encodeURIComponent(q)}\" style=\"color:#4f46e5;\">${q}</a></li>`).join('')}</ul></div>` : ''}\n      </div>`).join('') }}\n      <div style=\"text-align:center; margin-top: 25px;\">\n        <a href=\"{{$json.reports[0].dashboardLink}}\" target=\"_blank\" style=\"background: linear-gradient(90deg, #4f46e5, #3b82f6); color: white; padding: 14px 24px; border-radius: 8px; text-decoration: none; font-weight: bold;\">View Full Dashboard</a>\n      </div>\n    </div>\n    <div style=\"background: #f1f5f9; text-align: center; padding: 10px; font-size: 12px; color: #64748b;\">Generated by Supplier Consolidation Intelligence Workflow</div>\n  </div>\n</div>"
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "204c81a1-7d2c-43ae-b822-f631cd4a7954",
+      "name": "Send Report",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        2736,
+        416
+      ],
+      "webhookId": "7bb88ca1-07b7-4f68-be71-82d49385873a",
+      "parameters": {
+        "message": "={{$node[\"Build HTML Email Template\"].json[\"html\"]}}",
+        "options": {},
+        "subject": "=Supplier Consolidation Intelligence Report"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "ee428f34-2781-4f04-bf9a-0d005d09ba90",
+      "name": "Executive Rollup",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2048,
+        528
+      ],
+      "parameters": {
+        "jsCode": "function parseAI(raw) {\n  try {\n    if (!raw) return null;\n    if (typeof raw === 'object') return raw;\n    const text = String(raw).trim();\n    const cleaned = text.replace(/^```json\\s*/i, '').replace(/```\\s*$/i, '').trim();\n    return JSON.parse(cleaned);\n  } catch (e) {\n    return null;\n  }\n}\n\nfunction ruleBasedFallback(d) {\n  return {\n    kraljic_quadrant: d.totalSpend > 500000 ? 'Strategic' : d.riskScore >= 7 ? 'Leverage' : 'Routine',\n    consolidation_play: d.consolidation_play,\n    recommendation: d.consolidation_play,\n    implementation_steps: [\n      `Week 1-4: Evaluate ${(d.suppliers_to_merge || []).length} tail suppliers for consolidation`,\n      `Week 5-8: Negotiate volume pricing with ${d.primarySupplier || 'primary supplier'}`,\n      `Week 9-12: Execute ${d.strategy_type} strategy — target ${d.target_supplier_count} supplier(s)`,\n    ],\n    negotiation_levers: ['Volume consolidation discount', 'Extended payment terms'],\n    risks: d.dominance > 0.7 ? ['High supplier dependency'] : ['Change management during transition'],\n    search_queries: [],\n    issue: d.strategy_type === 'optimized' ? 'No major fragmentation detected' : `Fragmented spend across ${d.current_supplier_count} suppliers`,\n    insight: `Estimated ${d.estimated_savings_pct}% savings (₹${d.estimated_savings_amount}) via ${d.strategy_type} strategy`,\n    ai_pass2_used: false,\n  };\n}\n\nconst rankedAll = $('Compare, Score & Rank').all();\nconst pass1All = $('AI Pass 1: Spend Pattern Analyst').all();\n\nlet pass2All = [];\ntry {\n  pass2All = $('AI Pass 2: Playbook Strategist').all();\n} catch (e) {\n  pass2All = [];\n}\n\nconst highCount = rankedAll.filter((r) => r.json.high_priority).length;\nconst inputCount = $input.all().length;\n\n// Wait for Pass 2 if needed\nif (highCount > 0 && pass2All.length < highCount) {\n  return [];\n}\n\n// Prevent false-branch duplicate output\nif (highCount > 0 && pass2All.length >= highCount && inputCount !== pass2All.length) {\n  return [];\n}\n\nconst pass2ByCategory = {};\nfor (let i = 0; i < pass2All.length; i++) {\n  const ranked = rankedAll.filter((r) => r.json.high_priority)[i];\n  if (!ranked) continue;\n  const parsed = parseAI(pass2All[i].json.output);\n  if (parsed) pass2ByCategory[ranked.json.category] = parsed;\n}\n\nconst enriched = rankedAll.map((rankItem, idx) => {\n  const base = rankItem.json;\n  const pass1 = parseAI(pass1All[idx]?.json?.output) || {\n    anomalies: [],\n    leakage_flags: [],\n    vendor_duplicates: [],\n    spend_pattern_summary: '',\n    risk_signals: [],\n  };\n\n  let pass2 = base.high_priority ? pass2ByCategory[base.category] : null;\n  if (!pass2 || !(pass2.implementation_steps || pass2.kraljic_quadrant)) {\n    pass2 = ruleBasedFallback(base);\n  } else {\n    pass2.ai_pass2_used = true;\n  }\n\n  return {\n    json: {\n      ...base,\n      anomalies: pass1.anomalies || [],\n      leakage_flags: pass1.leakage_flags || [],\n      vendor_duplicates: pass1.vendor_duplicates || [],\n      spend_pattern_summary: pass1.spend_pattern_summary || '',\n      risk_signals: pass1.risk_signals || [],\n      kraljic_quadrant: pass2.kraljic_quadrant || 'Unclassified',\n      consolidation_play: pass2.consolidation_play || base.consolidation_play,\n      recommendation: pass2.recommendation || base.consolidation_play,\n      implementation_steps: pass2.implementation_steps || [],\n      negotiation_levers: pass2.negotiation_levers || [],\n      risks: pass2.risks || [],\n      search_queries: pass2.search_queries || [],\n      issue: pass2.issue || '',\n      insight: pass2.insight || pass1.spend_pattern_summary || '',\n      ai_pass2_used: pass2.ai_pass2_used || false,\n    },\n  };\n});\n\nconst valid = enriched.filter((e) => !e.json.error);\nconst totalSavings = valid.reduce((s, e) => s + (e.json.estimated_savings_amount || 0), 0);\nconst totalSpend = valid.reduce((s, e) => s + (e.json.totalSpend || 0), 0);\nconst worseningCount = valid.filter((e) => e.json.trend_delta === 'worsening').length;\nconst avgFrag = valid.length ? valid.reduce((s, e) => s + (e.json.fragmentation_index || 0), 0) / valid.length : 0;\nconst portfolio_health_score = Math.round(Math.max(0, 100 - avgFrag * 60 - worseningCount * 5));\n\nconst top_plays = [...valid]\n  .sort((a, b) => (b.json.priority_score || 0) - (a.json.priority_score || 0))\n  .slice(0, 5)\n  .map((e) => ({\n    category: e.json.category,\n    consolidation_play: e.json.consolidation_play,\n    estimated_savings_amount: e.json.estimated_savings_amount,\n    priority_score: e.json.priority_score,\n  }));\n\nconst portfolio = {\n  portfolio_total_savings: totalSavings,\n  portfolio_total_spend: totalSpend,\n  portfolio_health_score,\n  worsening_count: worseningCount,\n  category_count: valid.length,\n  top_plays,\n  dashboardLink: 'https://datastudio.google.com/reporting/710755a7-d97c-468c-9052-502525f25c9e',\n};\n\nconst staticData = $getWorkflowStaticData('global');\nif (!staticData.lastRun) staticData.lastRun = {};\nfor (const e of valid) {\n  staticData.lastRun[e.json.category] = {\n    fragmentation_index: e.json.fragmentation_index,\n    supplierCount: e.json.supplierCount,\n    totalSpend: e.json.totalSpend,\n    estimated_savings_amount: e.json.estimated_savings_amount,\n    updatedAt: new Date().toISOString(),\n  };\n}\n\nreturn enriched.map((e) => ({ json: { ...e.json, ...portfolio } }));"
+      },
+      "executeOnce": false,
+      "typeVersion": 2
+    },
+    {
+      "id": "ea74d436-be97-4351-8122-8717a5a7bf12",
+      "name": "Log to Notion Tracker",
+      "type": "n8n-nodes-base.notion",
+      "position": [
+        2368,
+        688
+      ],
+      "parameters": {
+        "title": "={{$json.category}}",
+        "simple": false,
+        "options": {},
+        "resource": "databasePage",
+        "databaseId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "6472b714-7ccf-4360-89c4-8e71bb6c364d",
+          "cachedResultUrl": "https://app.notion.com/p/6472b7147ccf436089c48e71bb6c364d",
+          "cachedResultName": "Insights Log"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Category|rich_text",
+              "textContent": "={{$json.category}}"
+            },
+            {
+              "key": "Date|date",
+              "date": "={{ $now }}",
+              "includeTime": false
+            },
+            {
+              "key": "Insight|rich_text",
+              "textContent": "={{ $json.insight }}"
+            },
+            {
+              "key": "Savings|number",
+              "numberValue": "={{$json.estimatedSavings}}"
+            },
+            {
+              "key": "Risk Score|number",
+              "numberValue": "={{ $json.riskScore }}"
+            },
+            {
+              "key": "Recommendation|rich_text",
+              "textContent": "={{ $json.recommendation }}"
+            },
+            {
+              "key": "Total Spend|number",
+              "numberValue": "={{ $json.totalSpend }}"
+            },
+            {
+              "key": "Kraljic Matrix|rich_text",
+              "textContent": "={{ $json.kraljic_quadrant }}"
+            },
+            {
+              "key": "Optimization Level|rich_text",
+              "textContent": "={{ $json.optimizationLevel }}"
+            },
+            {
+              "key": "Search Queries|rich_text",
+              "textContent": "={{ ($json.search_queries || []).join('\\n') }}"
+            },
+            {
+              "key": "Supplier Count|number",
+              "numberValue": "={{ $json.supplierCount }}"
+            },
+            {
+              "key": "Issue|title",
+              "title": "={{ $json.issue }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "59777318-85ab-4545-8971-8eb7f8dab5e1",
+      "name": "Push to GSheets for Dashboard",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2640,
+        688
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "category": "={{ $('Executive Rollup').item.json.category }}",
+            "dominance": "={{ $('Executive Rollup').item.json.dominance }}",
+            "riskScore": "={{ $('Executive Rollup').item.json.riskScore }}",
+            "timestamp": "={{$now}}",
+            "totalSpend": "={{ $('Executive Rollup').item.json.totalSpend }}",
+            "trend_delta": "={{ $('Executive Rollup').item.json.trend_delta }}",
+            "strategy_type": "={{ $('Executive Rollup').item.json.strategy_type }}",
+            "supplierCount": "={{ $('Executive Rollup').item.json.supplierCount }}",
+            "priority_score": "={{ $('Executive Rollup').item.json.priority_score }}",
+            "estimatedSavings": "={{ $('Executive Rollup').item.json.estimated_savings_amount }}",
+            "kraljic_quadrant": "={{ $('Executive Rollup').item.json.kraljic_quadrant }}",
+            "optimizationLevel": "={{ $('Executive Rollup').item.json.optimizationLevel }}",
+            "savingsPercentage": "={{ $('Executive Rollup').item.json.savingsPercentage }}",
+            "consolidation_play": "={{ $('Executive Rollup').item.json.consolidation_play }}",
+            "fragmentation_index": "=",
+            "target_supplier_count": "={{ $('Executive Rollup').item.json.target_supplier_count }}"
+          },
+          "schema": [
+            {
+              "id": "timestamp",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "timestamp",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "totalSpend",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "totalSpend",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "supplierCount",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "supplierCount",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "target_supplier_count",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "target_supplier_count",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "consolidation_play",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "consolidation_play",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "estimatedSavings",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "estimatedSavings",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "savingsPercentage",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "savingsPercentage",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "fragmentation_index",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "fragmentation_index",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "priority_score",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "priority_score",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "strategy_type",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "strategy_type",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "trend_delta",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "trend_delta",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "kraljic_quadrant",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "kraljic_quadrant",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "dominance",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "dominance",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "riskScore",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "riskScore",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "optimizationLevel",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "optimizationLevel",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": 530396369,
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14uzduRle8_w9_onOuPdtjwGs0VQ2ZNsUZCx2kqu90Ek/edit#gid=530396369",
+          "cachedResultName": "Dashboard"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "14uzduRle8_w9_onOuPdtjwGs0VQ2ZNsUZCx2kqu90Ek",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/14uzduRle8_w9_onOuPdtjwGs0VQ2ZNsUZCx2kqu90Ek/edit?usp=drivesdk",
+          "cachedResultName": "N-0129 n8n workflow"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "64fe559e-5a44-4e66-99b2-36e3f385e6af",
+      "name": "High Priority Opportunity?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1408,
+        512
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "942a0596-9b0e-4554-8f05-c4f9aa251462",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.high_priority }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": "={{ false }}"
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c762b21c-2b70-4380-a406-1fad4f099aa5",
+      "name": "Trigger Daily at 9:30am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -688,
+        512
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9,
+              "triggerAtMinute": 30
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "4c656c19-ddc1-45a9-838c-0578c35e3893",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1712,
+        -48
+      ],
+      "parameters": {
+        "width": 864,
+        "height": 944,
+        "content": "# Category Opportunity Discovery & Supplier Intelligence\n\nThis workflow provides an **end-to-end automation pipeline** that continuously analyzes **procurement spend data** to uncover **supplier consolidation opportunities** across categories. It intelligently engineers **fragmentation, overlap, and savings metrics** and leverages a powerful **dual-pass LLM agent** to detect spend anomalies and generate actionable **consolidation playbooks**. By dynamically routing high-priority categories through a second AI pass, it ensures routine categories are handled efficiently while delivering deep strategic insights for **critical consolidation plays**.\n\n\n## How it Works:\n1. Runs on a daily schedule, loading workflow config and fetching transaction data from Google Sheets.\n2. Normalizes raw transactions into a **category × supplier spend matrix** using a 30-day lookback window.\n3. Calculates **HHI, fragmentation index, cross-category overlap**, and models consolidation/diversification/MSA scenarios.\n4. Scores and ranks each category by **priority score**, comparing against previous run trends (worsening/improving/stable).\n5. Sends every category through **AI Pass 1 (Spend Pattern Analyst)** to detect duplicates, leakage, and anomalies.\n6. Routes based on **high_priority** flag:\n   - **High Priority:** Runs **AI Pass 2 (Playbook Strategist)** for Kraljic classification and 90-day implementation plan.\n   - **Standard Priority:** Uses rule-based fallback playbook.\n   - *Both paths roll up into executive portfolio metrics and full audit logging.*\n7. Delivers a rich **HTML email report**, logs insights to **Notion**, and pushes metrics to **Google Sheets Dashboard**.\n\n## Setup Steps:\n* **Google Sheets Configuration:** Connect your account and link the Transactions sheet (source data) and Dashboard sheet (output metrics).\n* **LLM Integration:** Provide your Groq API key to power both the Spend Pattern Analyst and Playbook Strategist agents.\n* **Email Delivery:** Connect your Gmail account to send the consolidated intelligence report.\n* **Notion Logging:** Authenticate Notion and link the Insights Log database for per-category audit trails.\n* **Workflow Config:** Adjust `lookbackDays`, `minSpendForAI`, `priorityThreshold`, and `currency` in the Workflow Config node.\n* **Trigger Scheduling:** Set your desired interval on the schedule trigger (default: daily at 9:30 AM)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f0b662cb-9749-46d2-8952-9d09062cf54a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -784,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 736,
+        "height": 736,
+        "content": "### Data Ingestion & Initialization\n\nThis phase triggers the workflow on a daily schedule and establishes the operational parameters for the analysis run. It sets key thresholds including **lookbackDays**, **minSpendForAI**, **priorityThreshold**, and **currency** via the Workflow Config node. It then queries **Google Sheets** to retrieve raw transaction records from the Transactions tab. Fetching this data upfront ensures every downstream analytics and AI node has a consistent, configured dataset before category processing begins."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2451b857-6b31-4a00-b006-251fa02eb9ae",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        32,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 672,
+        "height": 736,
+        "content": "### Spend Analytics & Category Enrichment\n\nThis section transforms raw transactions into structured **category-level intelligence**. First, a custom JavaScript node filters the **30-day lookback window** and builds a **supplier spend matrix** with shares, tail spend, and department breakdowns. Next, it calculates **HHI, dominance, fragmentation index**, and detects **cross-category vendor overlap** to model consolidation, diversification, or MSA scenarios with estimated savings. Finally, it compares against the previous run's static data to compute **trend deltas** and assigns a weighted **priority score** (Critical / High / Medium / Low) to rank categories for AI processing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aa59f729-783d-4ec2-8f8a-0a9bdce02999",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1136,
+        "height": 736,
+        "content": "### AI Intelligence & Dual-Pass Analysis\n\nEvery category is first processed by a **Groq-powered LangChain Agent** acting as a Spend Pattern Analyst to detect **vendor duplicates, maverick spend, leakage flags, and risk signals**. The raw LLM response is strictly parsed into a structured **JSON object** via the Parse AI Output node. An IF node then routes based on the **high_priority** flag: high-priority categories consume a second LLM pass as a **Playbook Strategist** to generate Kraljic quadrant classification, negotiation levers, and a **90-day implementation plan**, while standard categories skip directly to rule-based fallback enrichment."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e4f82892-2ff3-41b7-89fc-2aa22dffcbca",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 928,
+        "height": 736,
+        "content": "### Executive Reporting & Audit Logging\n\nThis final phase consolidates all enriched category data into a **portfolio-level executive rollup** including health score, total addressable savings, and top consolidation plays. Each category is logged individually to the **Notion Insights Log** with Kraljic quadrant, savings, and recommendations for long-term tracking. Metrics are simultaneously pushed to the **Google Sheets Dashboard** tab for live visualization. A rich **HTML email report** is assembled and delivered via Gmail, providing procurement leadership with a complete dual-AI consolidation intelligence briefing."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "dc9ea30a-ddc1-45af-93bf-ab174cc48995",
+  "nodeGroups": [],
+  "connections": {
+    "Parse AI Output": {
+      "main": [
+        [
+          {
+            "node": "High Priority Opportunity?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Workflow Config": {
+      "main": [
+        [
+          {
+            "node": "Fetch Spend Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Executive Rollup": {
+      "main": [
+        [
+          {
+            "node": "Log to Notion Tracker",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Aggregate Reports",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Spend Data": {
+      "main": [
+        [
+          {
+            "node": "Normalize & Build Matrix",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate Reports": {
+      "main": [
+        [
+          {
+            "node": "Build HTML Email Template",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare, Score & Rank": {
+      "main": [
+        [
+          {
+            "node": "AI Pass 1: Spend Pattern Analyst",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Log to Notion Tracker": {
+      "main": [
+        [
+          {
+            "node": "Push to GSheets for Dashboard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Trigger Daily at 9:30am": {
+      "main": [
+        [
+          {
+            "node": "Workflow Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Llama 3.3 (Analyst)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Pass 1: Spend Pattern Analyst",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize & Build Matrix": {
+      "main": [
+        [
+          {
+            "node": "Fragmentation, Overlap & Model Scenarios",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build HTML Email Template": {
+      "main": [
+        [
+          {
+            "node": "Send Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "High Priority Opportunity?": {
+      "main": [
+        [
+          {
+            "node": "AI Pass 2: Playbook Strategist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Executive Rollup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Groq Llama 3.3 (Strategist)": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "AI Pass 2: Playbook Strategist",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Pass 2: Playbook Strategist": {
+      "main": [
+        [
+          {
+            "node": "Executive Rollup",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AI Pass 1: Spend Pattern Analyst": {
+      "main": [
+        [
+          {
+            "node": "Parse AI Output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fragmentation, Overlap & Model Scenarios": {
+      "main": [
+        [
+          {
+            "node": "Compare, Score & Rank",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

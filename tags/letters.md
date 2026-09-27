@@ -1,4 +1,4 @@
-# letters : 17
+# letters : 23
 
 |id|file|
 |----|----|
@@ -19,3 +19,9 @@
 |16099|[16099_Parse_reference_letters_from_Gmail_with_easybits_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16099_Parse_reference_letters_from_Gmail_with_easybits_and_Google_Sheets.json)|
 |16560|[16560_Score_job_listings_and_generate_tailored_cover_letters_with_Apify__OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16560_Score_job_listings_and_generate_tailored_cover_letters_with_Apify__OpenAI_and_Google_Sheets.json)|
 |16616|[16616_Generate_personalized_franchise_PDF_letters_from_Excel_with_Google_Drive_and_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16616_Generate_personalized_franchise_PDF_letters_from_Excel_with_Google_Drive_and_Docs.json)|
+|17145|[17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17145_Tailor_ATS-ready_resumes_and_cover_letters_with_Gemini__Google_Drive__Notion__and_Gmail.json)|
+|18110|[18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18110_Generate_tailored_resumes_and_cover_letters_with_OpenRouter_and_Google_Docs.json)|
+|18181|[18181_Retry_flaky_HTTP_calls_with_Google_Gemini_and_Google_Sheets_dead_letters.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18181_Retry_flaky_HTTP_calls_with_Google_Gemini_and_Google_Sheets_dead_letters.json)|
+|18361|[18361_Send_donor_thank-you_receipts_and_weekly_digests_with_Google_Sheets__DeepSeek__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18361_Send_donor_thank-you_receipts_and_weekly_digests_with_Google_Sheets__DeepSeek__Gmail_and_Telegram.json)|
+|19172|[19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19172_Score_job_postings_and_draft_tailored_CV_summaries_and_cover_letters_with_OpenAI_and_Google.json)|
+|19678|[19678_Send_engagement_letters_and_open_Clio_matters_with_DocuSign_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19678_Send_engagement_letters_and_open_Clio_matters_with_DocuSign_and_Google_Sheets.json)|

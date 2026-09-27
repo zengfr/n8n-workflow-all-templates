@@ -1,4 +1,4 @@
-# note : 17
+# note : 20
 
 |id|file|
 |----|----|
@@ -19,3 +19,6 @@
 |15505|[15505_Get_Xiaohongshu_note_details_from_a_keyword_with_JustOneAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15505_Get_Xiaohongshu_note_details_from_a_keyword_with_JustOneAPI.json)|
 |15809|[15809_Collect_Xiaohongshu_note_comments_with_JustOneAPI_for_feedback_analysis.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15809_Collect_Xiaohongshu_note_comments_with_JustOneAPI_for_feedback_analysis.json)|
 |16457|[16457_Generate_and_review_patient_SOAP_notes_with_GPT-4o_Mini__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16457_Generate_and_review_patient_SOAP_notes_with_GPT-4o_Mini__Gmail__and_Google_Sheets.json)|
+|16897|[16897_Transcribe_WhatsApp_voice_notes_and_auto-reply_with_OpenAI_Whisper_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16897_Transcribe_WhatsApp_voice_notes_and_auto-reply_with_OpenAI_Whisper_and_GPT-4o.json)|
+|17526|[17526_Summarize_Dropbox_notes_with_Groq_and_sync_to_Notion___Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17526_Summarize_Dropbox_notes_with_Groq_and_sync_to_Notion___Sheets.json)|
+|18254|[18254_Extract_invoice_data_and_send_payment_reminders_with_Google_Drive__Mistral__Groq_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18254_Extract_invoice_data_and_send_payment_reminders_with_Google_Drive__Mistral__Groq_and_Gmail.json)|

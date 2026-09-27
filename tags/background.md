@@ -1,4 +1,4 @@
-# background : 11
+# background : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |9820|[9820_Video_Background_Removal_and_Image_Composition_with_Google_Drive_Integration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9820_Video_Background_Removal_and_Image_Composition_with_Google_Drive_Integration.json)|
 |9821|[9821_Create_Videos_with_AI-Generated_Backgrounds_using_Gemini_and_VideoBGRemover.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/98/9821_Create_Videos_with_AI-Generated_Backgrounds_using_Gemini_and_VideoBGRemover.json)|
 |12684|[12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12684_Async_Video_Polling_Engine_-_Background_Job_Handler_for_AI_Video_Generation.json)|
+|18172|[18172_Run_background_checks_with_Searchbug_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18172_Run_background_checks_with_Searchbug_and_Google_Sheets.json)|
+|19784|[19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19784_Queue_consent-checked_video_background-removal_jobs_with_an_HTTP_API_QA_manifest.json)|

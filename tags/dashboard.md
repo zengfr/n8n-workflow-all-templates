@@ -1,4 +1,4 @@
-# dashboard : 34
+# dashboard : 38
 
 |id|file|
 |----|----|
@@ -36,3 +36,7 @@
 |13665|[13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/36/13665_Monitor__PROD__workflows_in_real_time_with_the_n8n_Public_API_dashboard.json)|
 |14068|[14068_Track_student_attendance_from_CSV__email_parents__and_build_an_HTML_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14068_Track_student_attendance_from_CSV__email_parents__and_build_an_HTML_dashboard.json)|
 |16376|[16376_Send_weekly_project_health_dashboard_with_Google_Sheets__GPT-4o_mini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16376_Send_weekly_project_health_dashboard_with_Google_Sheets__GPT-4o_mini_and_Gmail.json)|
+|17265|[17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json)|
+|18245|[18245_Generate_carbon_emissions_reports_with_OpenAI__Slack_and_an_ESG_dashboard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18245_Generate_carbon_emissions_reports_with_OpenAI__Slack_and_an_ESG_dashboard.json)|
+|18673|[18673_Send_daily_CFO_invoice_health_reports_with_Google_Sheets__Groq__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18673_Send_daily_CFO_invoice_health_reports_with_Google_Sheets__Groq__Gmail_and_Slack.json)|
+|18870|[18870_Track_SERP_and_AI_visibility_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18870_Track_SERP_and_AI_visibility_with_Apify_and_Google_Sheets.json)|

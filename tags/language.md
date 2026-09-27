@@ -1,4 +1,4 @@
-# language : 76
+# language : 86
 
 |id|file|
 |----|----|
@@ -78,3 +78,13 @@
 |13182|[13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13182_Grok_Imagine_Video_Chatbot_____Generate___Modify_Videos_via_Natural_Language.json)|
 |14057|[14057_Query_your_PostgreSQL_data_in_plain_English_with_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14057_Query_your_PostgreSQL_data_in_plain_English_with_GPT-4o-mini.json)|
 |15500|[15500_Route_multilingual_support_requests_with_DeepL__GPT-3.5_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15500_Route_multilingual_support_requests_with_DeepL__GPT-3.5_and_Gmail.json)|
+|17139|[17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json)|
+|17344|[17344_Generate_HTTP_API_requests_from_natural_language_with_GPT-4.1_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17344_Generate_HTTP_API_requests_from_natural_language_with_GPT-4.1_Mini.json)|
+|17413|[17413_Explain_contract_PDFs_and_flag_risky_clauses_with_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17413_Explain_contract_PDFs_and_flag_risky_clauses_with_Gemini_and_Gmail.json)|
+|17457|[17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json)|
+|17458|[17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|17530|[17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json)|
+|17675|[17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|17693|[17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17693_Diagnose_workflow_failures_with_Google_Gemini__Google_Sheets_and_Slack.json)|
+|18168|[18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18168_Query_Sage_X3_sales__stock__and_revenue_with_OpenRouter_Claude_and_MCP.json)|
+|19262|[19262_Watch_web_pages_for_plain-language_conditions_with_Gemini__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19262_Watch_web_pages_for_plain-language_conditions_with_Gemini__Sheets_and_Gmail.json)|

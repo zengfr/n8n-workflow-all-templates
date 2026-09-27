@@ -1,4 +1,4 @@
-# feeds : 50
+# feeds : 63
 
 |id|file|
 |----|----|
@@ -52,3 +52,16 @@
 |16296|[16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json)|
 |16308|[16308_Simulate_investment_scenarios_with_Groq_and_live_Google_News_RSS_feeds.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16308_Simulate_investment_scenarios_with_Groq_and_live_Google_News_RSS_feeds.json)|
 |16381|[16381_Generate_blog_content_ideas_with_Google_Sheets__RSS_feeds_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16381_Generate_blog_content_ideas_with_Google_Sheets__RSS_feeds_and_OpenAI.json)|
+|16924|[16924_Draft_LinkedIn_posts_from_RSS_feeds_with_OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16924_Draft_LinkedIn_posts_from_RSS_feeds_with_OpenAI__Google_Sheets_and_Slack.json)|
+|17217|[17217_Send_daily_AI_news_digests_from_RSS_feeds_with_OpenAI__Telegram_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17217_Send_daily_AI_news_digests_from_RSS_feeds_with_OpenAI__Telegram_and_Gmail.json)|
+|17248|[17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17248_Send_a_daily_AI-ranked_news_brief_with_Anthropic_Claude_and_Gmail.json)|
+|17340|[17340_Send_weekly_developer_release_digest_email_using_RSS_feeds_and_Resend.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17340_Send_weekly_developer_release_digest_email_using_RSS_feeds_and_Resend.json)|
+|17430|[17430_Monitor_RSS_feeds_with_Apify_and_store_new_items_in_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17430_Monitor_RSS_feeds_with_Apify_and_store_new_items_in_data_tables.json)|
+|17495|[17495_Monitor_website_and_RSS_changes_with_Apify__GPT-4o_mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17495_Monitor_website_and_RSS_changes_with_Apify__GPT-4o_mini_and_Slack_alerts.json)|
+|17539|[17539_Draft_weekly_newsletter_digests_from_RSS_feeds_with_OpenAI_and_Kit.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17539_Draft_weekly_newsletter_digests_from_RSS_feeds_with_OpenAI_and_Kit.json)|
+|17627|[17627_Create_LinkedIn_carousel_drafts_from_RSS_feeds_with_PostNitro_AI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17627_Create_LinkedIn_carousel_drafts_from_RSS_feeds_with_PostNitro_AI_and_Gmail.json)|
+|18074|[18074_Sync_ICS_calendar_feeds_with_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18074_Sync_ICS_calendar_feeds_with_Google_Calendar.json)|
+|18169|[18169_Summarize_RSS_feeds_with_Claude_and_post_digests_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18169_Summarize_RSS_feeds_with_Claude_and_post_digests_to_Slack.json)|
+|19470|[19470_Draft_and_track_regulatory_digests_from_RSS_feeds_with_Google_Sheets_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19470_Draft_and_track_regulatory_digests_from_RSS_feeds_with_Google_Sheets_and_email.json)|
+|19676|[19676_Send_weekly_competitor_content_digests_with_RSS__Google_Sheets__OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19676_Send_weekly_competitor_content_digests_with_RSS__Google_Sheets__OpenAI_and_Gmail.json)|
+|19713|[19713_Build_a_rising-topic_reading_shortlist_from_RSS_feeds_to_HTML_and_CSV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19713_Build_a_rising-topic_reading_shortlist_from_RSS_feeds_to_HTML_and_CSV.json)|

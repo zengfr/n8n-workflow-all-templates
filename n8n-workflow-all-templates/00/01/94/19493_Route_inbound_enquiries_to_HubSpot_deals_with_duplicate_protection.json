@@ -1,0 +1,1235 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Route inbound enquiries to HubSpot deals with duplicate protection",
+    "wechat": "youandme10086",
+    "id": 19493,
+    "update_time": "2026-09-27"
+  },
+  "name": "Route inbound leads to HubSpot",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "c6d12ff7-5b08-40e8-b68f-af2fa5be821c",
+      "name": "Start with Demo Lead",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -3800,
+        180
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "a8e84653-be61-4baf-8cfa-6e1d06d10d89",
+      "name": "Load Demo Enquiry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -3520,
+        180
+      ],
+      "parameters": {
+        "jsCode": "return [{\n  source_system: \"website\",\n  source_event_id: \"demo_new_enquiry_001\",\n  contact: {\n    first_name: \"Demo\",\n    last_name: \"Lead\",\n    email: \"user@example.com\",\n    phone: \"+1234567890\",\n    company: \"Example Property Group\"\n  },\n  enquiry: {\n    message: \"Please contact me about a property enquiry.\",\n    service: \"property_enquiry\"\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f8d3a3d2-2fb1-48e7-9e6d-d6d9f008fc3a",
+      "name": "Receive Inbound Lead",
+      "type": "n8n-nodes-base.webhook",
+      "disabled": true,
+      "position": [
+        -3520,
+        420
+      ],
+      "parameters": {
+        "path": "li-01/inbound",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode",
+        "authentication": "headerAuth"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "348ba347-c7e5-4192-8b58-d81ce338cd89",
+      "name": "Normalize Lead Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2960,
+        300
+      ],
+      "parameters": {
+        "jsCode": "// One enquiry per execution. Reject containers/types rather than stringify them.\nconst received_at = new Date().toISOString();\nconst isObject = value => value !== null && typeof value === 'object' && !Array.isArray(value);\nconst raw = Object.prototype.hasOwnProperty.call($json, 'body') ? $json.body : $json;\nconst errors = [];\nif (!isObject(raw)) errors.push('payload must be a JSON object');\nconst input = isObject(raw) ? raw : {};\nfor (const key of ['contact','enquiry']) if (input[key] !== undefined && !isObject(input[key])) errors.push(key + ' must be an object');\nconst clean = (value, field, max = 500) => {\n  if (value === undefined || value === null) return undefined;\n  if (typeof value !== 'string') { errors.push(field + ' must be a string'); return undefined; }\n  const text = value.trim();\n  if (!text || /^(null|undefined|n\\/a)$/i.test(text)) return undefined;\n  if (text.length > max) errors.push(field + ' exceeds ' + max + ' characters');\n  return text;\n};\nconst contact = isObject(input.contact) ? input.contact : {};\nconst enquiry = isObject(input.enquiry) ? input.enquiry : {};\nconst phone = clean(contact.phone,'contact.phone',40);\nconst source_system = clean(input.source_system,'source_system',40)?.toLowerCase();\nconst source_event_id = clean(input.source_event_id,'source_event_id',200);\nconst data = {source_system,source_event_id,received_at,\n  source_received_at:clean(input.received_at,'received_at',40),\n  correlation_id:source_system && source_event_id ? source_system + ':' + source_event_id : undefined,\n  contact:{first_name:clean(contact.first_name,'contact.first_name',100),last_name:clean(contact.last_name,'contact.last_name',100),\n    email:clean(contact.email,'contact.email',254)?.toLowerCase(),\n    phone:phone?.replace(/[\\s().-]/g,'').replace(/^00/,'+'),company:clean(contact.company,'contact.company',200)},\n  enquiry:{message:clean(enquiry.message,'enquiry.message',10000),service:clean(enquiry.service,'enquiry.service',100)?.toLowerCase()},\n  validation_errors:errors};\nreturn [{json:data}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e88123db-c1af-409e-aa8f-5d204021e515",
+      "name": "Validate Inbound Enquiry",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -2700,
+        300
+      ],
+      "parameters": {
+        "jsCode": "const data = $json;\nconst errors = [...data.validation_errors];\nif (!data.source_system || !/^[a-z0-9_-]+$/.test(data.source_system)) errors.push('source_system must contain only letters, digits, underscores or hyphens');\nif (!data.source_event_id || /[\\x00-\\x1f\\x7f]/.test(data.source_event_id)) errors.push('source_event_id is required and must not contain control characters');\nif (data.contact.email && !/^[^\\s@]+@[^\\s@]+\\.[^\\s@]+$/.test(data.contact.email)) errors.push('contact.email is invalid');\nif (data.contact.phone && !/^\\+[1-9]\\d{7,14}$/.test(data.contact.phone)) errors.push('contact.phone must include a country code, e.g. +1234567890');\nif (!data.contact.email && !data.contact.phone) errors.push('contact.email or a usable contact.phone is required');\nif (!data.enquiry.message && !data.enquiry.service) errors.push('enquiry.message or enquiry.service is required');\ndata.validation_errors = errors;\ndata.is_valid = errors.length === 0;\nif (!data.is_valid) Object.assign(data,{result:'rejected',http_status:400,reason:errors.join('; '),retryable:false});\nif (data.is_valid) {\n  try {\n    const config = $('Configure HubSpot').first().json;\n    data.config = {\n      pipeline_id: String(config.hubspot_pipeline_id || '').trim(),\n      stage_id: String(config.hubspot_stage_id || '').trim(),\n      owner_id: String(config.hubspot_owner_id || '').trim(),\n      event_key_property: String(config.hubspot_event_key_property || '').trim()\n    };\n    const missing = Object.entries(data.config).filter(([,value])=>!value || /^YOUR_[A-Z0-9_]+$/.test(value)).map(([key])=>key);\n    if (!/^[a-z][a-z0-9_]*$/.test(data.config.event_key_property)) missing.push('valid event_key_property');\n    if (missing.length) throw new Error('Missing or invalid configuration: ' + missing.join(', '));\n    const dealProperties = [\n      'source_event_id',\n      data.config.event_key_property,\n      'pipeline',\n      'dealstage',\n      'hubspot_owner_id',\n      'lead_received_at',\n      'first_human_response_at',\n      'delivery_status',\n      'lead_response_sla_status'\n    ].filter((value,index,list)=>list.indexOf(value)===index).join(',');\n    const dealLookupBase = 'https://api.hubapi.com/crm/v3/objects/deals/' +\n      encodeURIComponent(data.correlation_id) +\n      '?idProperty=' + encodeURIComponent(data.config.event_key_property);\n    data.duplicate_lookup_body = {\n      filterGroups: [{filters: [{propertyName:data.config.event_key_property,operator:'EQ',value:data.correlation_id}]}],\n      properties: [data.config.event_key_property],\n      limit: 2\n    };\n    data.deal_verification_url = dealLookupBase +\n      '&properties=' + encodeURIComponent(dealProperties) +\n      '&associations=contacts';\n    data.contact_lookup_body = {\n      filterGroups: [{filters: [{propertyName:data.contact.email?'email':'phone',operator:'EQ',value:data.contact.email||data.contact.phone}]}],\n      properties: ['firstname','lastname','email','phone','company'],\n      limit: 2\n    };\n  } catch (error) {\n    data.is_valid = false;\n    Object.assign(data,{result:'configuration_error',http_status:500,reason:'Configure the required non-secret HubSpot settings in Configure HubSpot.',retryable:false});\n  }\n}\nreturn [{json:data}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "38a0e681-9c42-489f-b856-677d6517271f",
+      "name": "Enquiry Valid?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -2440,
+        300
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7da0e32a-064e-4e57-87d3-d5934d396f67",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.is_valid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c42751e8-78b9-4fef-b2d6-f5b9b86990e9",
+      "name": "Search Existing Event",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -2160,
+        180
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/objects/2026-03/deals/search",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.duplicate_lookup_body }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "35bdbc92-344f-4a43-8333-e3ada78a0c76",
+      "name": "Classify Event Search Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1900,
+        180
+      ],
+      "parameters": {
+        "jsCode": "const data = {...$('Validate Inbound Enquiry').first().json};\nconst status = Number($json.statusCode) || 0;\nconst parseJson = body => {\n  if (body === undefined || body === null || body === '') return null;\n  if (typeof body === 'object') return body;\n  if (typeof body !== 'string') return null;\n  try { return JSON.parse(body); } catch { return null; }\n};\nconst failure = (reason, httpStatus = 502) => ({...data,result:'hubspot_failure',step:'Check Existing Event',reason,http_status:httpStatus,delivery_status:'FAILED',retryable:httpStatus===503,upstream_status:status||null});\nif (status !== 200) {\n  return [{json:failure('Event search failed; no records were created.',status === 429 || status >= 500 || !status ? 503 : 502)}];\n}\nconst response = parseJson($json.body ?? $json.data);\nconst total = Number(response?.total);\nconst results = response?.results;\nif (!Number.isInteger(total) || total < 0 || !Array.isArray(results)) {\n  return [{json:failure('HubSpot returned an unreadable Deal search response.')}];\n}\nif (total === 0 && results.length === 0) {\n  data.event_is_new = true;\n  return [{json:data}];\n}\nif (total === 1 && results.length === 1 && results[0]?.id) {\n  Object.assign(data,{event_is_new:false,result:'duplicate_event_no_op',http_status:200,deal_id:results[0].id,retryable:false});\n  return [{json:data}];\n}\nif (total > 1 || results.length > 1) {\n  return [{json:{...data,event_is_new:false,result:'manual_review_required',http_status:409,delivery_status:'UNKNOWN',reason:'Multiple Deals match source_event_key. Resolve the data integrity issue before replaying.',retryable:false}}];\n}\nreturn [{json:failure('Deal search response was internally inconsistent; no records were created.')}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "499c323d-ccac-440e-8cde-c7c04b744106",
+      "name": "New Source Event?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1640,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "65a63f9f-e400-4d34-aedf-7c38dda6e5a0",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.event_is_new === true }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fc895c8a-64a9-4219-89d8-c14883a1bb79",
+      "name": "Search Contact by Identity",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -1360,
+        60
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/objects/2026-03/contacts/search",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.contact_lookup_body }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ff90af86-253c-4399-9e51-2c23961d4d09",
+      "name": "Classify Contact Search Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1100,
+        60
+      ],
+      "parameters": {
+        "jsCode": "const data = {...$('Validate Inbound Enquiry').first().json};\nconst status = Number($json.statusCode) || 0;\nconst parseJson = body => {\n  if (body === undefined || body === null || body === '') return null;\n  if (typeof body === 'object') return body;\n  if (typeof body !== 'string') return null;\n  try { return JSON.parse(body); } catch { return null; }\n};\nconst failure = (reason, httpStatus = 502) => ({...data,result:'hubspot_failure',step:'Find Contact',reason,http_status:httpStatus,delivery_status:'FAILED',retryable:httpStatus===503,upstream_status:status||null});\nif (status === 404) {\n  Object.assign(data,{can_deliver:true,contact_exists:false,contact_id:undefined});\n  return [{json:data}];\n}\nif (status !== 200) return [{json:failure('Contact lookup failed.',status === 429 || status >= 500 || !status ? 503 : 502)}];\nconst response = parseJson($json.body ?? $json.data);\nif (!response) return [{json:failure('HubSpot returned an unreadable Contact lookup response.')}];\nconst matches = Array.isArray(response.results) ? response.results : null;\nif (!matches) return [{json:failure('HubSpot returned an invalid Contact search response.')}];\nif (matches.length > 1 || Number(response.total) > 1) {\n  const identity = data.contact.email ? 'email' : 'normalized phone';\n  return [{json:{...data,result:'manual_review_required',http_status:409,delivery_status:'FAILED',reason:'Multiple Contacts match this '+identity+'. Select the correct Contact manually.',retryable:false}}];\n}\nObject.assign(data,{can_deliver:true,contact_exists:matches.length===1,contact_id:matches[0]?.id});\nreturn [{json:data}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6d684c7f-e539-41a3-879c-d743d8582d62",
+      "name": "Contact Match Unambiguous?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -840,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "bc5bde23-24a0-45dd-9181-09c47beeb9bf",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.can_deliver === true }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "260aa0d9-fff0-434c-bc3c-d6bfe4e8405d",
+      "name": "Contact Exists?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -580,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "558fc05f-c67e-4604-8de8-9ca7b9a78e8d",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.contact_exists === true }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a974f095-bf71-4ef8-a721-b995e04c219a",
+      "name": "Reuse Existing Contact",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -300,
+        -60
+      ],
+      "parameters": {
+        "jsCode": "return [{json:{...$json,contact_created:false}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4eed5cd5-d777-4742-8b81-7de88207a289",
+      "name": "Create HubSpot Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        -300,
+        220
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/contacts",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ ({properties:Object.fromEntries(Object.entries({firstname:$json.contact.first_name,lastname:$json.contact.last_name,email:$json.contact.email,phone:$json.contact.phone,company:$json.contact.company}).filter(([,v])=>v !== undefined))}) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "ae2b7a3c-1696-4a67-9b3c-f56621bd0ef6",
+      "name": "Capture Created Contact",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -40,
+        220
+      ],
+      "parameters": {
+        "jsCode": "const data = {...$('Classify Contact Search Result').first().json};\nconst status = Number($json.statusCode) || 0;\nconst parseJson = body => {\n  if (body === undefined || body === null || body === '') return null;\n  if (typeof body === 'object') return body;\n  if (typeof body !== 'string') return null;\n  try { return JSON.parse(body); } catch { return null; }\n};\nconst response = status >= 200 && status < 300 ? parseJson($json.body ?? $json.data) : null;\nconst confirmed = Boolean(response?.id);\nObject.assign(data,{contact_created:confirmed,contact_id:confirmed?response.id:undefined,contact_create_status:status||null});\nreturn [{json:data}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d289268c-074e-42e7-869b-9278bba48eeb",
+      "name": "Contact Write Confirmed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        220,
+        220
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e6927c3b-faa0-4542-9e81-b5eeeea92b01",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.contact_created === true }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "12e94313-80ed-4e70-bb5c-8f8e59af2d3c",
+      "name": "Recover Contact by Identity",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        480,
+        340
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/objects/2026-03/contacts/search",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ $('Validate Inbound Enquiry').first().json.contact_lookup_body }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "473a8e57-3de9-4be3-baf0-055329f23ecd",
+      "name": "Capture Recovered Contact",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        740,
+        340
+      ],
+      "parameters": {
+        "jsCode": "const data = {...$('Capture Created Contact').first().json};\nconst status = Number($json.statusCode) || 0;\nconst parseJson = body => {\n  if (body === undefined || body === null || body === '') return null;\n  if (typeof body === 'object') return body;\n  if (typeof body !== 'string') return null;\n  try { return JSON.parse(body); } catch { return null; }\n};\nconst failure = (step, reason, httpStatus = 502, uncertain = false) => ({...data,result:'hubspot_failure',step,reason,http_status:httpStatus,delivery_status:uncertain?'UNKNOWN':'FAILED',retryable:uncertain||httpStatus===503,upstream_status:status||null});\nlet matches;\nif (status === 404) matches = [];\nelse if (status === 200) {\n  const response = parseJson($json.body ?? $json.data);\n  if (!response) return [{json:failure('Recover Contact','HubSpot returned an unreadable Contact recovery response.')}];\n  matches = Array.isArray(response.results) ? response.results : null;\n  if (matches && Number(response.total) > 1) {\n    const identity = data.contact.email ? 'email' : 'normalized phone';\n    return [{json:{...data,result:'manual_review_required',http_status:409,delivery_status:'UNKNOWN',reason:'Multiple Contacts match this '+identity+' during recovery. Select the correct Contact manually; do not create another Contact.',retryable:false}}];\n  }\n} else {\n  const definitiveCreateFailure = [400,401,403,422].includes(Number(data.contact_create_status));\n  return [{json:failure('Recover Contact',definitiveCreateFailure?'HubSpot rejected Contact creation; correct the configuration or payload before replaying.':'Contact recovery lookup failed; do not retry the Contact POST blindly.',definitiveCreateFailure?502:503,!definitiveCreateFailure)}];\n}\nif (!matches) return [{json:failure('Recover Contact','HubSpot returned an invalid phone recovery response.')}];\nif (matches.length > 1) {\n  const identity = data.contact.email ? 'email' : 'normalized phone';\n  return [{json:{...data,result:'manual_review_required',http_status:409,delivery_status:'UNKNOWN',reason:'Multiple Contacts match this '+identity+' during recovery. Select the correct Contact manually; do not create another Contact.',retryable:false}}];\n}\nif (matches.length === 1) {\n  Object.assign(data,{contact_id:matches[0].id,contact_created:false,contact_recovered:true});\n  return [{json:data}];\n}\nconst definitiveCreateFailure = [400,401,403,422].includes(Number(data.contact_create_status));\nconst identity = data.contact.email ? 'email' : 'normalized phone';\nreturn [{json:failure('Create Contact',definitiveCreateFailure?'HubSpot rejected Contact creation. Correct the configuration or payload before replaying.':'Contact creation could not be confirmed and no Contact was found by '+identity+'. Check HubSpot before intervention; do not retry the Contact POST blindly.',definitiveCreateFailure?502:503,!definitiveCreateFailure)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "44537d2a-ccd2-4b94-8c0c-a35917c7f5af",
+      "name": "Contact Recovered Safely?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1000,
+        340
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7b1ce9bc-a21c-45b7-b088-fa2b014f31dd",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ Boolean($json.contact_id) }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "30d5f673-38b9-4830-b6fb-5a3f104f288f",
+      "name": "Prepare HubSpot Deal",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1280,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const data = $json;\n\ndata.deal_properties = {\n  dealname:\n    (\n      [data.contact.first_name, data.contact.last_name]\n        .filter(Boolean)\n        .join(' ') ||\n      data.contact.email ||\n      data.contact.phone\n    ) +\n    ' - ' +\n    data.source_system +\n    ' Enquiry',\n\n  pipeline: data.config.pipeline_id,\n  dealstage: data.config.stage_id,\n  hubspot_owner_id: data.config.owner_id,\n\n  description: [\n    data.enquiry.service,\n    data.enquiry.message\n  ].filter(Boolean).join(' — '),\n\n  lead_received_at: data.received_at,\n  lead_response_sla_status: 'AWAITING_RESPONSE',\n  delivery_status: 'DELIVERED',\n\n  // Raw event ID provided by the source system\n  source_event_id: data.source_event_id\n};\n\n// Globally unique idempotency key, e.g. website:12345\ndata.deal_properties[data.config.event_key_property] =\n  data.correlation_id;\n\nreturn [{ json: data }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c9ac4826-be52-4bc1-87a9-20a9659bfa58",
+      "name": "Create HubSpot Deal",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        1540,
+        100
+      ],
+      "parameters": {
+        "url": "https://api.hubapi.com/crm/v3/objects/deals",
+        "method": "POST",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "jsonBody": "={{ ({properties:$json.deal_properties,associations:[{to:{id:$json.contact_id},types:[{associationCategory:'HUBSPOT_DEFINED',associationTypeId:3}]}]}) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "fd6757f8-6abd-4105-bf35-9d8ebcd708f3",
+      "name": "Capture Deal Write Outcome",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1800,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const data = {...$('Prepare HubSpot Deal').first().json};\nconst status = Number($json.statusCode) || 0;\nconst parseJson = body => {\n  if (body === undefined || body === null || body === '') return null;\n  if (typeof body === 'object') return body;\n  if (typeof body !== 'string') return null;\n  try { return JSON.parse(body); } catch { return null; }\n};\nconst response = status >= 200 && status < 300 ? parseJson($json.body ?? $json.data) : null;\nObject.assign(data,{deal_write_status:status||null,deal_write_confirmed:Boolean(response?.id),created_deal_id:response?.id});\nreturn [{json:data}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e5a4a914-1896-4e6e-be5c-e92160d0e055",
+      "name": "Verify Deal by Event Key",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "position": [
+        2060,
+        100
+      ],
+      "parameters": {
+        "url": "={{ $('Validate Inbound Enquiry').first().json.deal_verification_url }}",
+        "options": {
+          "timeout": 15000,
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "text"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "hubspotAppToken"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "38bf8935-b264-40a4-b0d7-21150657752a",
+      "name": "Classify Verified Deal",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2320,
+        100
+      ],
+      "parameters": {
+        "jsCode": "const data = {...$('Capture Deal Write Outcome').first().json};\nconst status = Number($json.statusCode) || 0;\nconst parseJson = body => {\n  if (body === undefined || body === null || body === '') return null;\n  if (typeof body === 'object') return body;\n  if (typeof body !== 'string') return null;\n  try { return JSON.parse(body); } catch { return null; }\n};\nconst failure = (reason, httpStatus = 503, uncertain = true) => ({...data,result:'hubspot_failure',step:'Create Deal',reason,http_status:httpStatus,delivery_status:uncertain?'UNKNOWN':'FAILED',retryable:uncertain||httpStatus===503,upstream_status:status||null});\nif (status === 200) {\n  const deal = parseJson($json.body ?? $json.data);\n  const properties = deal?.properties || {};\n  const contacts = deal?.associations?.contacts?.results || [];\n  const associated = contacts.some(contact=>String(contact.id)===String(data.contact_id));\n  const verified = Boolean(deal?.id) &&\n    properties.source_event_id === data.source_event_id &&\n    properties[data.config.event_key_property] === data.correlation_id &&\n    properties.pipeline === data.config.pipeline_id &&\n    properties.dealstage === data.config.stage_id &&\n    String(properties.hubspot_owner_id) === data.config.owner_id &&\n    properties.delivery_status === 'DELIVERED' &&\n    properties.lead_response_sla_status === 'AWAITING_RESPONSE' &&\n    !properties.first_human_response_at &&\n    Boolean(properties.lead_received_at) &&\n    associated;\n  if (!verified) {\n    return [{json:{...data,result:'manual_review_required',http_status:409,deal_id:deal?.id,delivery_status:'UNKNOWN',reason:'Deal exists but its identity, SLA state, owner, pipeline, stage, receipt time or Contact association did not verify. Inspect it; do not create another Deal.',retryable:false}}];\n  }\n  Object.assign(data,{result:'enquiry_delivered',http_status:200,deal_id:deal.id,lead_received_at:properties.lead_received_at,delivery_status:properties.delivery_status,lead_response_sla_status:properties.lead_response_sla_status,recovered_after_write_error:!data.deal_write_confirmed,retryable:false});\n  return [{json:data}];\n}\nconst definitiveWriteFailure = [400,401,403,422].includes(Number(data.deal_write_status));\nreturn [{json:failure(definitiveWriteFailure?'HubSpot rejected Deal creation. Correct the configuration or payload before replaying.':'Deal delivery could not be confirmed. Replay the SAME source event ID; never generate a new ID for this retry.',definitiveWriteFailure?502:503,!definitiveWriteFailure)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1ba59d4d-cba7-4d76-8277-cb6cea9c969d",
+      "name": "Build Final Result",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2580,
+        420
+      ],
+      "parameters": {
+        "jsCode": "const data = $json;\nconst allowed = ['result','reason','step','source_event_id','correlation_id','contact_id','deal_id','lead_received_at','delivery_status','lead_response_sla_status','retryable','upstream_status','recovered_after_write_error'];\nconst body = Object.fromEntries(allowed.filter(key=>data[key] !== undefined).map(key=>[key,data[key]]));\nif (!body.result) throw new Error('Workflow reached Return Result without an outcome');\nreturn [{json:{...body,http_status:data.http_status || 500,execution_id:String($execution.id)}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c0ab29bd-ecac-4273-8f00-6a5cf43cb16f",
+      "name": "Webhook Triggered?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2840,
+        420
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "ae36a42a-8489-4f0c-9088-febd4dcc9127",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Receive Inbound Lead').isExecuted }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d399787d-dc7b-4364-be5b-3ae886e434e9",
+      "name": "Return Webhook Response",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        3100,
+        300
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": "={{ $json.http_status }}"
+        },
+        "respondWith": "json",
+        "responseBody": "={{ Object.fromEntries(Object.entries($json).filter(([key])=>key !== \"http_status\")) }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "6ec2222d-5e01-4ad2-b6bb-e8f1b1f6ef7c",
+      "name": "Configure HubSpot",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        -3240,
+        420
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a958ed88-e4d7-44f0-b09f-969155f94a0a",
+              "name": "hubspot_pipeline_id",
+              "type": "string",
+              "value": "YOUR_PIPELINE_ID"
+            },
+            {
+              "id": "27850320-3551-47de-ab52-eb1abc0bb2d7",
+              "name": "hubspot_stage_id",
+              "type": "string",
+              "value": "YOUR_DEAL_STAGE_ID"
+            },
+            {
+              "id": "55126abe-3882-4933-9bca-2be693e84b4c",
+              "name": "hubspot_owner_id",
+              "type": "string",
+              "value": "YOUR_OWNER_ID"
+            },
+            {
+              "id": "d3300409-e971-41cb-8767-31cf217ab591",
+              "name": "hubspot_event_key_property",
+              "type": "string",
+              "value": "source_event_key"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000001",
+      "name": "Workflow Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3900,
+        -1160
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1050,
+        "height": 920,
+        "content": "## Route inbound leads to HubSpot with duplicate protection\n\n**Who it's for:** Teams using n8n and HubSpot that need reliable inbound enquiry handling without duplicate CRM records.\n\n**What it does:** Receives and validates an enquiry, protects against event replay, resolves the HubSpot Contact, creates a Deal for every valid new enquiry, associates the records, assigns ownership, and initializes response tracking.\n\n### How it works\n1. Normalize and validate the enquiry\n2. Build a unique source event key\n3. check whether the event was already processed\n4. Find or create the Contact\n5. Create and associate a new Deal\n6. Initialize delivery and SLA properties\n7. Return an explicit success, duplicate, validation, or failure result\n\n**Data model:** Contact = person; Deal = enquiry. An existing Contact with a new event gets a new Deal. Replaying the same source event returns `duplicate_event_no_op`.\n\n### Setup\nComplete **HubSpot Setup Required**, connect your credentials, then use **Start with Demo Lead**. Keep the webhook disabled until all tests pass."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000002",
+      "name": "Input and Validation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3900,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1580,
+        "height": 700,
+        "content": "## 1. Input & validation\n\nStart with the fake demo payload or the disabled webhook. Normalize fields and reject incomplete enquiries before any HubSpot write."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000003",
+      "name": "Duplicate Protection",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2280,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 700,
+        "content": "## 2. Duplicate protection\n\nSearch Deals by the unique source event key. A replay becomes a no-op; an uncertain lookup creates nothing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000004",
+      "name": "Contact Resolution",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1380,
+        -180
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2580,
+        "height": 840,
+        "content": "## 3. Contact resolution\n\nSearch exact email, otherwise phone. Reuse one match, create on zero matches, and safely recover uncertain writes. Contact = person; Deal = enquiry."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000005",
+      "name": "Deal Creation and Recovery",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1220,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1320,
+        "height": 700,
+        "content": "## 4. Deal creation & recovery\n\nCreate and associate one Deal per valid new enquiry. Verify uncertain writes by event key instead of blindly retrying creation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000006",
+      "name": "Final Result",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 700,
+        "content": "## 5. Final result\n\nReturn an explicit delivery, duplicate, validation, HubSpot failure, or manual-review result. Webhook requests receive the same structured outcome."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000007",
+      "name": "HubSpot Setup Required",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2820,
+        -1160
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 1580,
+        "height": 920,
+        "content": "## HubSpot setup required\n\n1. Connect your own HubSpot credential to all six HTTP Request nodes. Keep secrets only in n8n Credentials.\n2. In **Configure HubSpot**, replace `YOUR_PIPELINE_ID`, `YOUR_DEAL_STAGE_ID`, and `YOUR_OWNER_ID`. The default event-key property is `source_event_key`.\n3. Create these Deal properties:\n\n| Property | Type | Required options |\n| --- | --- | --- |\n| `lead_received_at` | Date/time | — |\n| `first_human_response_at` | Date/time | — |\n| `lead_response_sla_status` | Dropdown | `AWAITING_RESPONSE`, `RESPONDED_IN_SLA`, `BREACHED`, `NOT_APPLICABLE` |\n| `delivery_status` | Dropdown | `PENDING`, `DELIVERED`, `FAILED` |\n| `source_event_id` | Single-line text | — |\n| `source_event_key` | Single-line text | Unique idempotency key |\n\nBefore enabling **Receive Inbound Lead**, select a separate Header Auth credential on that node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2000000-0000-4000-8000-000000000008",
+      "name": "Test Before Activation",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1200,
+        -1160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 960,
+        "height": 920,
+        "content": "## Test before activation\n\n1. Connect HubSpot credentials.\n2. Configure owner, pipeline and stage.\n3. Create the required Deal properties.\n4. Run the fake demo enquiry.\n5. Verify the Contact and Deal.\n6. Replay the same event and confirm `duplicate_event_no_op`.\n7. Test an existing Contact with a new event.\n8. Enable the webhook only after validation."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Enquiry Valid?": {
+      "main": [
+        [
+          {
+            "node": "Search Existing Event",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Exists?": {
+      "main": [
+        [
+          {
+            "node": "Reuse Existing Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create HubSpot Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure HubSpot": {
+      "main": [
+        [
+          {
+            "node": "Normalize Lead Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load Demo Enquiry": {
+      "main": [
+        [
+          {
+            "node": "Configure HubSpot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "New Source Event?": {
+      "main": [
+        [
+          {
+            "node": "Search Contact by Identity",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Final Result": {
+      "main": [
+        [
+          {
+            "node": "Webhook Triggered?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Webhook Triggered?": {
+      "main": [
+        [
+          {
+            "node": "Return Webhook Response",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create HubSpot Deal": {
+      "main": [
+        [
+          {
+            "node": "Capture Deal Write Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Capture Deal Write Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare HubSpot Deal": {
+      "main": [
+        [
+          {
+            "node": "Create HubSpot Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Receive Inbound Lead": {
+      "main": [
+        [
+          {
+            "node": "Configure HubSpot",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start with Demo Lead": {
+      "main": [
+        [
+          {
+            "node": "Load Demo Enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Existing Event": {
+      "main": [
+        [
+          {
+            "node": "Classify Event Search Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify Event Search Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Verified Deal": {
+      "main": [
+        [
+          {
+            "node": "Build Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create HubSpot Contact": {
+      "main": [
+        [
+          {
+            "node": "Capture Created Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Capture Created Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Lead Payload": {
+      "main": [
+        [
+          {
+            "node": "Validate Inbound Enquiry",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Reuse Existing Contact": {
+      "main": [
+        [
+          {
+            "node": "Prepare HubSpot Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Created Contact": {
+      "main": [
+        [
+          {
+            "node": "Contact Write Confirmed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Write Confirmed?": {
+      "main": [
+        [
+          {
+            "node": "Prepare HubSpot Deal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Recover Contact by Identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Inbound Enquiry": {
+      "main": [
+        [
+          {
+            "node": "Enquiry Valid?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Verify Deal by Event Key": {
+      "main": [
+        [
+          {
+            "node": "Classify Verified Deal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify Verified Deal",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Recovered Contact": {
+      "main": [
+        [
+          {
+            "node": "Contact Recovered Safely?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Recovered Safely?": {
+      "main": [
+        [
+          {
+            "node": "Prepare HubSpot Deal",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture Deal Write Outcome": {
+      "main": [
+        [
+          {
+            "node": "Verify Deal by Event Key",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Contact Match Unambiguous?": {
+      "main": [
+        [
+          {
+            "node": "Contact Exists?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Final Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Contact by Identity": {
+      "main": [
+        [
+          {
+            "node": "Classify Contact Search Result",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify Contact Search Result",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Recover Contact by Identity": {
+      "main": [
+        [
+          {
+            "node": "Capture Recovered Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Capture Recovered Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Event Search Result": {
+      "main": [
+        [
+          {
+            "node": "New Source Event?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Contact Search Result": {
+      "main": [
+        [
+          {
+            "node": "Contact Match Unambiguous?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

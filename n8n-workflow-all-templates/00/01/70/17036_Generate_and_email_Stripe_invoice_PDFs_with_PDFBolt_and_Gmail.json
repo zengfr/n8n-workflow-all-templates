@@ -1,0 +1,201 @@
+{
+  "name": "Generate and email PDF invoices from Stripe payments with PDFBolt",
+  "tags": [
+    {
+      "name": "pdf"
+    },
+    {
+      "name": "invoice"
+    },
+    {
+      "name": "pdfbolt"
+    },
+    {
+      "name": "stripe"
+    },
+    {
+      "name": "gmail"
+    },
+    {
+      "name": "automation"
+    },
+    {
+      "name": "template"
+    },
+    {
+      "name": "email"
+    }
+  ],
+  "nodes": [
+    {
+      "id": "aa3484d2-b1c4-48a4-b246-0db5fe615340",
+      "name": "Workflow overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -48
+      ],
+      "parameters": {
+        "width": 536,
+        "height": 364,
+        "content": "## Generate and email Stripe invoices with PDFBolt\nThis workflow runs when a Stripe invoice is paid, maps the Stripe invoice data to a PDFBolt template, generates a PDF, and emails it to the customer.\n\n### Setup\nConnect Stripe, add your PDFBolt API key from https://app.pdfbolt.com/api-keys, and connect Gmail. Create your own invoice template or pick a ready-to-use template from the Template Gallery at https://app.pdfbolt.com/templates. Publish the template, copy its Template ID, and paste it into the PDFBolt node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d61682e0-e4a9-4844-9370-9300daa48acb",
+      "name": "Stripe mapping note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        -48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 408,
+        "height": 166,
+        "content": "## Prepare invoice data\nThe Stripe Trigger receives the paid invoice event. The Code node maps the Stripe invoice object into `templateData` for your PDFBolt template."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "70559ad8-e481-4329-9b28-fcece75ab0f8",
+      "name": "PDF email note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        992,
+        -48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 404,
+        "height": 166,
+        "content": "## Generate and send PDF\nPDFBolt uses the Direct endpoint and returns the generated PDF in the binary field `data`. Gmail sends that file as the invoice attachment."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1b30f9e-1def-4f7e-b3d6-c30935faac56",
+      "name": "Stripe invoice paid",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "position": [
+        608,
+        144
+      ],
+      "webhookId": "d817c2fa-3d96-4c93-8b41-d8bc00b98254",
+      "parameters": {
+        "events": [
+          "invoice.payment_succeeded"
+        ]
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f36cc3fe-8503-45db-9443-6e65d052b360",
+      "name": "Prepare invoice data",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        816,
+        144
+      ],
+      "parameters": {
+        "jsCode": "const inv = $input.first().json.data.object;\n\nfunction amount(value) {\n    return (Number(value || 0) / 100).toFixed(2);\n}\n\nfunction formatDate(timestamp) {\n    return timestamp ? new Date(timestamp * 1000).toISOString().slice(0, 10) : null;\n}\n\nconst symbols = {\n    usd: '$',\n    eur: '€',\n    gbp: '£',\n    pln: 'zł',\n    cad: '$',\n    aud: '$',\n};\n\nconst currency = inv.currency || 'usd';\nconst currencySymbol = symbols[currency] || currency.toUpperCase();\n\nconst lineItems = inv.lines.data.map((line) => {\n    const quantity = Number(line.quantity_decimal || line.quantity || 1);\n    const total = Number(line.amount || 0) / 100;\n\n    const unitAmount = line.pricing?.unit_amount_decimal != null\n        ? Number(line.pricing.unit_amount_decimal) / 100\n        : line.price?.unit_amount != null\n            ? Number(line.price.unit_amount) / 100\n            : total / quantity;\n\n    return {\n        description: line.description || 'Item',\n        quantity: String(quantity),\n        unit_price: unitAmount.toFixed(2),\n        total_amount: total.toFixed(2),\n    };\n});\n\nconst taxAmount = Array.isArray(inv.total_taxes)\n    ? inv.total_taxes.reduce((sum, tax) => sum + Number(tax.amount || 0), 0) / 100\n    : Array.isArray(inv.total_tax_amounts)\n        ? inv.total_tax_amounts.reduce((sum, tax) => sum + Number(tax.amount || 0), 0) / 100\n        : Number(inv.tax || 0) / 100;\n\nconst templateData = {\n    invoice_number: inv.number || `INV-${inv.id}`,\n    issue_date: formatDate(inv.created),\n    due_date: formatDate(inv.due_date),\n\n    client_name: inv.customer_name || 'Customer',\n    client_email: inv.customer_email,\n    client_phone: inv.customer_phone,\n    client_address_street: inv.customer_address?.line1,\n    client_address_line2: inv.customer_address?.line2,\n    client_city: inv.customer_address?.city,\n    client_state: inv.customer_address?.state,\n    client_postal_code: inv.customer_address?.postal_code,\n    client_country: inv.customer_address?.country,\n    client_tax_id: inv.customer_tax_ids?.[0]?.value,\n\n    currency_symbol: currencySymbol,\n    line_items: lineItems,\n    subtotal_amount: amount(inv.subtotal),\n    tax_amount: taxAmount > 0 ? taxAmount.toFixed(2) : null,\n    total_amount: amount(inv.total),\n    notes: 'Paid via Stripe.',\n};\n\nif (!templateData.client_email) {\n    throw new Error('Customer email is required to send the invoice.');\n}\n\nreturn [{\n    json: {\n        templateData,\n        customerEmail: templateData.client_email,\n        customerName: templateData.client_name,\n        invoiceNumber: templateData.invoice_number,\n        totalAmount: `${templateData.currency_symbol}${templateData.total_amount}`,\n        filename: `invoice-${templateData.invoice_number}.pdf`,\n    },\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "21e0ad3e-1bf9-40f0-83ea-84e3df8ca1ec",
+      "name": "Generate invoice PDF with PDFBolt",
+      "type": "n8n-nodes-pdfbolt.pdfBolt",
+      "position": [
+        1024,
+        144
+      ],
+      "parameters": {
+        "operation": "convertTemplate",
+        "templateId": "PASTE_YOUR_TEMPLATE_ID_HERE",
+        "endpointType": "direct",
+        "templateData": "={{ $json.templateData }}",
+        "additionalOptions": {
+          "filename": "={{ $json.filename }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3ea8fed-a14a-4de8-ad40-78e8023f7202",
+      "name": "Email invoice to customer",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1200,
+        144
+      ],
+      "webhookId": "401412f9-80bd-4dcf-8cd4-5981ccfaac33",
+      "parameters": {
+        "sendTo": "={{ $('Prepare invoice data').item.json.customerEmail }}",
+        "message": "=Hi {{ $('Prepare invoice data').item.json.customerName }},\n\nPlease find invoice {{ $('Prepare invoice data').item.json.invoiceNumber }} attached.\n\nTotal amount: {{ $('Prepare invoice data').item.json.totalAmount }}.\n\nThank you.",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "={{ 'Invoice ' + $('Prepare invoice data').item.json.invoiceNumber }}",
+        "emailType": "text"
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Stripe invoice paid": {
+      "main": [
+        [
+          {
+            "node": "Prepare invoice data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare invoice data": {
+      "main": [
+        [
+          {
+            "node": "Generate invoice PDF with PDFBolt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate invoice PDF with PDFBolt": {
+      "main": [
+        [
+          {
+            "node": "Email invoice to customer",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Generate and email Stripe invoice PDFs with PDFBolt and Gmail",
+    "wechat": "youandme10086",
+    "id": 17036,
+    "update_time": "2026-09-27"
+  }
+}

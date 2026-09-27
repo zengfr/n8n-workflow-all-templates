@@ -1,4 +1,4 @@
-# entries : 13
+# entries : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |13497|[13497_Sync_Toggl_Track_time_entries_with_Google_Sheets_detail_and_summary_tabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13497_Sync_Toggl_Track_time_entries_with_Google_Sheets_detail_and_summary_tabs.json)|
 |14496|[14496_Record_Odoo_accounting_entries_from_Telegram_using_ChatGPT__GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14496_Record_Odoo_accounting_entries_from_Telegram_using_ChatGPT__GPT-4o-mini.json)|
 |16787|[16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16787_Draft_bookkeeping_entries_from_Trello_cards_with_OpenRouter_and_Xero.json)|
+|17808|[17808_Archive_Discord_audit_logs_to_Google_Sheets_and_send_weekly_Slack_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17808_Archive_Discord_audit_logs_to_Google_Sheets_and_send_weekly_Slack_digests.json)|
+|18569|[18569_Draft_and_approve_Clio_time_entries_from_Google_Calendar_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18569_Draft_and_approve_Clio_time_entries_from_Google_Calendar_with_Claude.json)|
+|19309|[19309_Sync_Salesforce_pricebook_entries_to_GoHighLevel_custom_objects_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19309_Sync_Salesforce_pricebook_entries_to_GoHighLevel_custom_objects_with_Google_Sheets.json)|

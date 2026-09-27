@@ -1,4 +1,4 @@
-# models : 35
+# models : 39
 
 |id|file|
 |----|----|
@@ -37,3 +37,7 @@
 |13809|[13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13809_Run_Hugging_Face_open-source_AI_models_via_webhook_in_n8n.json)|
 |14039|[14039_Route_AI_tasks_between_Anthropic_Claude_models_with_Postgres_policies_and_SLA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14039_Route_AI_tasks_between_Anthropic_Claude_models_with_Postgres_policies_and_SLA.json)|
 |14497|[14497_Combine_answers_from_OpenAI__Anthropic__Gemini_and_Groq_into_one_consensus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14497_Combine_answers_from_OpenAI__Anthropic__Gemini_and_Groq_into_one_consensus.json)|
+|17537|[17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17537_Send_tagged_VNTANA_3D_models_to_Figurement_for_material_editing_and_review.json)|
+|18235|[18235_Assess_operating_models_and_generate_AI_transformation_blueprints_with_OpenAI_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18235_Assess_operating_models_and_generate_AI_transformation_blueprints_with_OpenAI_and_Google.json)|
+|18897|[18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18897_Track_contract_renewals_with_Google_Sheets__Slack__and_Groq_chat_models.json)|
+|19397|[19397_Search_Belgian_secondhand_deals_with_Koopje.ai_and_OpenRouter_models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19397_Search_Belgian_secondhand_deals_with_Koopje.ai_and_OpenRouter_models.json)|

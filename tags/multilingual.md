@@ -1,4 +1,4 @@
-# multilingual : 32
+# multilingual : 34
 
 |id|file|
 |----|----|
@@ -34,3 +34,5 @@
 |15500|[15500_Route_multilingual_support_requests_with_DeepL__GPT-3.5_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15500_Route_multilingual_support_requests_with_DeepL__GPT-3.5_and_Gmail.json)|
 |16387|[16387_Answer_hotel_guest_messages_with_GPT-4o_mini__Slack__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16387_Answer_hotel_guest_messages_with_GPT-4o_mini__Slack__and_Google_Sheets.json)|
 |16427|[16427_Translate_lab_report_PDFs_for_patients_with_Google_Drive__OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16427_Translate_lab_report_PDFs_for_patients_with_Google_Drive__OpenAI_and_Gmail.json)|
+|17423|[17423_Send_multilingual_shipment_confirmation_emails_with_fulfillmenttools_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17423_Send_multilingual_shipment_confirmation_emails_with_fulfillmenttools_and_Gmail.json)|
+|17530|[17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json)|

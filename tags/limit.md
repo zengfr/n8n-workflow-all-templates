@@ -1,4 +1,4 @@
-# limit : 9
+# limit : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |10870|[10870_Transcribe_Long_Audio_Files_Beyond_25MB_Limit_with_FileFlows_and_OpenAI_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/08/10870_Transcribe_Long_Audio_Files_Beyond_25MB_Limit_with_FileFlows_and_OpenAI_Whisper.json)|
 |13094|[13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13094_Send_LinkedIn_connection_requests_to_competitor_post_commenters_via_ConnectSafely.ai.json)|
 |16269|[16269_Monitor_API_rate_limits_and_alert_with_Slack__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16269_Monitor_API_rate_limits_and_alert_with_Slack__Gmail_and_Google_Sheets.json)|
+|18583|[18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json)|

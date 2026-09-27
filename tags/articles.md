@@ -1,4 +1,4 @@
-# articles : 74
+# articles : 87
 
 |id|file|
 |----|----|
@@ -76,3 +76,16 @@
 |16202|[16202_Create_WordPress_articles_in_author_style_with_Gemini__Telegram_and_Pinecone.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16202_Create_WordPress_articles_in_author_style_with_Gemini__Telegram_and_Pinecone.json)|
 |16554|[16554_Draft_and_review_SEO_WordPress_articles_with_multi-agent_LLMs_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16554_Draft_and_review_SEO_WordPress_articles_with_multi-agent_LLMs_and_Slack.json)|
 |16606|[16606_Create_vertical_AI_videos_from_web_articles_with_OpenAI__Seedance_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16606_Create_vertical_AI_videos_from_web_articles_with_OpenAI__Seedance_and_Blotato.json)|
+|17330|[17330_Generate_procurement_knowledge_base_articles_with_Groq__Gmail__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17330_Generate_procurement_knowledge_base_articles_with_Groq__Gmail__and_Google_Sheets.json)|
+|17440|[17440_Generate_LinkedIn_carousels_from_articles_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17440_Generate_LinkedIn_carousels_from_articles_with_OpenAI_GPT-4o-mini.json)|
+|17445|[17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json)|
+|17692|[17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17692_Write_SEO-ready_research-backed_articles_with_Gemini__Wikipedia_and_Gmail.json)|
+|17800|[17800_Post_RSS_blog_articles_as_X_threads_and_LinkedIn_posts_with_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17800_Post_RSS_blog_articles_as_X_threads_and_LinkedIn_posts_with_Groq.json)|
+|17810|[17810_Create_LinkedIn_carousel_post_drafts_from_RSS_articles_with_PostNitro_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17810_Create_LinkedIn_carousel_post_drafts_from_RSS_articles_with_PostNitro_and_Gmail.json)|
+|17921|[17921_Cross-post_RSS_feed_articles_to_X__LinkedIn_and_Facebook_with_PostgreSQL.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17921_Cross-post_RSS_feed_articles_to_X__LinkedIn_and_Facebook_with_PostgreSQL.json)|
+|18142|[18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json)|
+|18236|[18236_Generate_Zen_articles_and_images_with_OpenRouter__Google_Sheets__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18236_Generate_Zen_articles_and_images_with_OpenRouter__Google_Sheets__and_Drive.json)|
+|18982|[18982_Maintain_and_rewrite_knowledge_base_articles_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18982_Maintain_and_rewrite_knowledge_base_articles_with_Claude_and_Slack.json)|
+|19047|[19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19047_Generate_SEO_blog_topics_and_articles_with_Google_Sheets__OpenAI__and_Claude.json)|
+|19486|[19486_Generate_Instagram_GTA_6_news_carousels_with_Gemini__Gotenberg_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19486_Generate_Instagram_GTA_6_news_carousels_with_Gemini__Gotenberg_and_Google_Drive.json)|
+|19617|[19617_Summarize_RSS__email__and_YouTube_content_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19617_Summarize_RSS__email__and_YouTube_content_with_OpenAI_and_Google_Sheets.json)|

@@ -1,4 +1,4 @@
-# mentions : 21
+# mentions : 31
 
 |id|file|
 |----|----|
@@ -23,3 +23,13 @@
 |16086|[16086_Send_weekly_brand_and_competitor_intel_digests_to_Slack_with_Claude_web_search.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16086_Send_weekly_brand_and_competitor_intel_digests_to_Slack_with_Claude_web_search.json)|
 |16120|[16120_Monitor_and_classify_brand_mentions_from_Instagram_and_Google_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16120_Monitor_and_classify_brand_mentions_from_Instagram_and_Google_with_Gemini.json)|
 |16296|[16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16296_Send_scored_media_monitoring_digests_from_RSS_feeds_via_SMTP_email.json)|
+|17292|[17292_Log_Quora_keyword_mentions_to_Google_Sheets_with_SearchApi_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17292_Log_Quora_keyword_mentions_to_Google_Sheets_with_SearchApi_and_OpenAI.json)|
+|17602|[17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17602_Monitor_brand_mentions_and_draft_crisis_responses_with_OpenAI_and_Telegram.json)|
+|17906|[17906_Log_weekly_brand_mentions_from_Google_News_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17906_Log_weekly_brand_mentions_from_Google_News_to_Google_Sheets_with_Apify.json)|
+|17929|[17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17929_Monitor_brand_mentions_and_route_Slack_alerts_with_Groq_and_Google_News.json)|
+|18482|[18482_Triage_social_crisis_mentions_with_Google_Gemini_and_webhook_routing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18482_Triage_social_crisis_mentions_with_Google_Gemini_and_webhook_routing.json)|
+|18564|[18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18564_Track_Twitter_and_Reddit_brand_sentiment_using_API_Direct__Google_Sheets_and_Slack.json)|
+|18968|[18968_Route_X_mentions_to_Notion__Slack_and_Google_Sheets_with_Apify_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18968_Route_X_mentions_to_Notion__Slack_and_Google_Sheets_with_Apify_and_OpenAI.json)|
+|19298|[19298_Monitor_Instagram_hashtag_mentions_with_RecentReborn_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19298_Monitor_Instagram_hashtag_mentions_with_RecentReborn_and_Telegram_alerts.json)|
+|19405|[19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19405_Classify_and_route_Reddit_brand_mentions_with_Scrapio__Claude__Sheets_and_Slack.json)|
+|19529|[19529_Monitor_Reddit_brand_mentions_and_send_lead_alerts_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19529_Monitor_Reddit_brand_mentions_and_send_lead_alerts_with_Apify_and_Slack.json)|

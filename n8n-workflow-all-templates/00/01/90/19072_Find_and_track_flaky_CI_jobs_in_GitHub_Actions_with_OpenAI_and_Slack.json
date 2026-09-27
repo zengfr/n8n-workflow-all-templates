@@ -1,0 +1,824 @@
+{
+  "name": "Find flaky CI jobs from GitHub Actions re-runs with OpenAI and Slack",
+  "nodes": [
+    {
+      "id": "sticky-main",
+      "name": "Sticky Note main",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -748,
+        77
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 560,
+        "height": 1022,
+        "content": "## Find the CI jobs that fail at random\n\nA list of red crosses hides three different problems: a job that fails at random, a job that has been broken since Tuesday, and a run that is only green because somebody re-ran it. This separates them, and it looks in the one place the evidence actually lives - the earlier attempts of a run that eventually passed.\n\n### How it works\n\n**`Pick The Runs Worth Reading`** keeps one workflow on one branch and drops everything that is not a pass or a fail - `cancelled`, `skipped`, `action_required` and a run still in flight all appear here, and counting them as failures makes every busy repository look broken. Where a run was re-run, its **first** attempt is read as well, because the list only ever shows the last one.\n\n**`Read The Jobs In Each Run`** pages until a short page comes back. Asked for 100 jobs, three runs answered `total_count: 218`, `283` and `308` and returned 100 - a matrix build read one page deep is two thirds invisible.\n\n**`Score Every Job`** groups by job name, which is the matrix cell. A name with both passes and failures is flaky. A name with only failures is broken, which is a different conversation. A failure on an attempt that a later attempt passed is a confirmed flake - same commit, both answers.\n\n### Setup\n\n1. **Settings** takes the owner, the repo, the workflow name exactly as it appears in the Actions tab, and the branch.\n\n2. A Header Auth credential: name `Authorization`, value `Bearer ghp_...`. GitHub's own n8n credential cannot be used in an HTTP Request node.\n\n3. A Data Table called `flaky_jobs` with columns `job_key`, `job_name`, `flake_rate`, `failures`, `runs_seen`, `verdict` and `last_seen`.\n\n4. An OpenAI credential and a Slack credential."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec1",
+      "name": "Sticky Note sec1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -108,
+        77
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 836,
+        "content": "## 1. One workflow, one branch\nFlakiness is a property of a job on a branch. Comparing across branches compares different code."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec2",
+      "name": "Sticky Note sec2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        624,
+        277
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 396,
+        "content": "## 2. The runs that count\n`cancelled`, `skipped`, `action_required` and a run still in flight are not failures. Counting them as failures makes every busy repository look broken."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec3",
+      "name": "Sticky Note sec3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1356,
+        253
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 420,
+        "content": "## 3. Every job, every page\nAsked for 100 jobs, three runs answered `total_count: 218`, `283` and `308`. One page deep is two thirds invisible, so this pages until a short one comes back."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec4",
+      "name": "Sticky Note sec4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2088,
+        301
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 888,
+        "height": 372,
+        "content": "## 4. New, or worse than it was\nA job that has been 8% flaky for a month is not news. The table is what makes that judgement possible."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec5",
+      "name": "Sticky Note sec5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3124,
+        301
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 952,
+        "height": 596,
+        "content": "## 5. Say why, from the step names\nThe model only sees the job and step names it is given, and is told to say so when a cause is not visible in them."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec6",
+      "name": "Sticky Note sec6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4208,
+        77
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 836,
+        "content": "## 6. File the proven ones\nA suspicion is a Slack line. A failure on a commit that passed on a later attempt is proof, and gets an issue."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec7",
+      "name": "Sticky Note sec7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4940,
+        277
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 396,
+        "content": "## 7. Remember every rate\nWritten on quiet days too. Next week's \"worse than it was\" needs a number from a week nobody was told about."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-warn",
+      "name": "Sticky Note warn",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1356,
+        733
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 380,
+        "height": 255,
+        "content": "## This costs requests, not money\n\nOne run of a large matrix is three API calls. `runs_to_read` at 12 is about 20 calls; GitHub allows 5,000 an hour on a personal token. Raising it past 40 is where that stops being true."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "t54-s1",
+      "name": "Look For Flakes Each Morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        260
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "days",
+              "triggerAtHour": 8,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "t54-s2",
+      "name": "Or Run It Now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        700
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "t54-cfg",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        288,
+        460
+      ],
+      "parameters": {
+        "mode": "manual",
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c0",
+              "name": "owner",
+              "type": "string",
+              "value": "apache"
+            },
+            {
+              "id": "c1",
+              "name": "repo",
+              "type": "string",
+              "value": "airflow"
+            },
+            {
+              "id": "c2",
+              "name": "workflow_name",
+              "type": "string",
+              "value": "Tests (AMD)"
+            },
+            {
+              "id": "c3",
+              "name": "branch",
+              "type": "string",
+              "value": "main"
+            },
+            {
+              "id": "c4",
+              "name": "runs_to_read",
+              "type": "number",
+              "value": 12
+            },
+            {
+              "id": "c5",
+              "name": "min_observations",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "c6",
+              "name": "stale_after_days",
+              "type": "number",
+              "value": 14
+            },
+            {
+              "id": "c7",
+              "name": "report_when_worse_by",
+              "type": "number",
+              "value": 10
+            },
+            {
+              "id": "c8",
+              "name": "max_issues_per_run",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "c9",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "#ci"
+            }
+          ]
+        },
+        "includeOtherFields": false
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "t54-h1",
+      "name": "Ask For The Recent Runs",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        732,
+        460
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $('Settings').first().json.owner }}/{{ $('Settings').first().json.repo }}/actions/runs?per_page=100&status=completed&branch={{ $('Settings').first().json.branch }}",
+        "method": "GET",
+        "options": {
+          "timeout": 60000,
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "t54-c1",
+      "name": "Pick The Runs Worth Reading",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1020,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// single-item input: the runs endpoint answers one object holding the list.\nconst cfg = $('Settings').first().json;\nconst body = $input.first().json || {};\n\n// neverError is on, so a wrong owner or repo arrives here as a green node with\n// a JSON body instead of an HTTP error. The message field is the only sign.\nif (body.message) {\n  throw new Error(\n    'GitHub answered \"' + body.message + '\" for ' + cfg.owner + '/' + cfg.repo +\n    '. Check the owner, the repo and that the token can read Actions.'\n  );\n}\n\nconst runs = body.workflow_runs || [];\nif (!runs.length) {\n  throw new Error(\n    'No completed runs came back for branch ' + cfg.branch + '. Check the ' +\n    'branch name - a repository that renamed master to main returns an empty ' +\n    'list rather than an error.'\n  );\n}\n\nconst wanted = String(cfg.workflow_name || '').trim().toLowerCase();\nconst mine = runs.filter(r => String(r.name || '').toLowerCase() === wanted);\n\nif (!mine.length) {\n  // Dependabot names a run after the whole dependency update, so the raw list\n  // is 300 characters of npm packages before the workflow you wanted.\n  const seen = Array.from(new Set(runs.map(r => String(r.name || ''))))\n    .map(x => (x.length > 44 ? x.slice(0, 41) + '...' : x))\n    .slice(0, 10);\n  throw new Error(\n    'No runs named \"' + cfg.workflow_name + '\" on ' + cfg.branch + '. The ' +\n    'workflows that did run: ' + seen.join(', ')\n  );\n}\n\n// conclusion is not two-valued. Measured across 400 runs of three repositories:\n// success, failure, cancelled, skipped, action_required and null while still\n// running. A cancelled run is not evidence of anything - home-assistant/core\n// had four of them in its last seven - and counting them as failures makes\n// every busy repository look broken.\nconst PASS = new Set(['success']);\nconst FAIL = new Set(['failure', 'timed_out']);\n\nconst maxRuns = Math.max(3, Number(cfg.runs_to_read) || 12);\nconst usable = mine\n  .filter(r => PASS.has(r.conclusion) || FAIL.has(r.conclusion))\n  .slice(0, maxRuns);\n\nif (!usable.length) {\n  throw new Error(\n    'Every recent run of \"' + cfg.workflow_name + '\" was cancelled or skipped, ' +\n    'so there is nothing to judge. Widen runs_to_read or pick another workflow.'\n  );\n}\n\n// This endpoint sometimes answers from a stale index. Measured on 2026-09-02:\n// three identical requests one second apart reported total_count 36425, 29277\n// and 36425, and one run of this workflow was handed a page whose newest entry\n// was three months old - total_count 5980. Nothing in the response marks it as\n// stale. A flake report built on a window from June, presented as this week, is\n// worse than no report, so the age of the newest run is checked out loud.\nconst staleDays = Math.max(1, Number(cfg.stale_after_days) || 14);\nconst newest = new Date(usable[0].run_started_at || usable[0].created_at);\nconst ageDays = (Date.now() - newest.getTime()) / 86400000;\n\nif (ageDays > staleDays) {\n  throw new Error(\n    'The newest run GitHub returned started ' + Math.round(ageDays) +\n    ' days ago (' + newest.toISOString().slice(0, 10) + '). GitHub serves this ' +\n    'list from a stale index now and again - three identical requests have ' +\n    'returned three different totals. Run it again; if the date does not move, ' +\n    'this workflow really has not run since then.'\n  );\n}\n\nconst out = [];\n\nfor (const r of usable) {\n  const attempts = [r.run_attempt || 1];\n\n  // The list shows the last attempt only. A run that was re-run until it passed\n  // reports success, and the failures underneath it are the strongest flake\n  // evidence there is: the same commit produced both answers. Attempt 1 is\n  // queued for reading whenever there was more than one.\n  if ((r.run_attempt || 1) > 1) attempts.push(1);\n\n  for (const n of attempts) {\n    out.push({\n      json: {\n        run_id: r.id,\n        attempt: n,\n        is_earlier_attempt: n < (r.run_attempt || 1),\n        run_conclusion: r.conclusion,\n        head_sha: String(r.head_sha || '').slice(0, 7),\n        run_url: r.html_url,\n        started: r.run_started_at,\n      },\n    });\n  }\n}\n\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t54-h2",
+      "name": "Read The Jobs In Each Run",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1464,
+        460
+      ],
+      "parameters": {
+        "url": "=https://api.github.com/repos/{{ $('Settings').first().json.owner }}/{{ $('Settings').first().json.repo }}/actions/runs/{{ $json.run_id }}/attempts/{{ $json.attempt }}/jobs?per_page=100",
+        "method": "GET",
+        "options": {
+          "timeout": 60000,
+          "batching": {
+            "batch": {
+              "batchSize": 4,
+              "batchInterval": 1000
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true
+            }
+          },
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "page",
+                    "type": "qs",
+                    "value": "={{ $pageCount + 1 }}"
+                  }
+                ]
+              },
+              "maxRequests": 6,
+              "paginationMode": "updateAParameterInEachRequest",
+              "limitPagesFetched": true,
+              "completeExpression": "={{ $response.body.jobs.length < 100 }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "alwaysOutputData": true,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "t54-c2",
+      "name": "Score Every Job",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1752,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Every page of every attempt arrives here as its own item, and each job in it\n// names its own run and attempt - run_id, run_attempt, workflow_name - so the\n// pages do not have to be matched back to the request that produced them.\nconst cfg = $('Settings').first().json;\nconst minRuns = Math.max(2, Number(cfg.min_observations) || 3);\n\nconst PASS = new Set(['success']);\nconst FAIL = new Set(['failure', 'timed_out']);\n\n// Which attempts were superseded by a later one that passed. A failure inside\n// one of those is a confirmed flake rather than a suspicion, because a later\n// attempt of the same commit went green.\nconst rerunGreen = new Set();\nfor (const r of $('Pick The Runs Worth Reading').all()) {\n  const d = r.json;\n  if (d.is_earlier_attempt && d.run_conclusion === 'success') {\n    rerunGreen.add(String(d.run_id) + '#' + d.attempt);\n  }\n}\n\nlet truncated = 0;\nlet attemptsRead = 0;\nconst jobs = [];\n\nfor (const item of $input.all()) {\n  const body = item.json || {};\n  if (body.message) continue;\n  const page = body.jobs || [];\n  if (!page.length) continue;\n  attemptsRead += 1;\n  for (const j of page) jobs.push(j);\n}\n\nif (!jobs.length) {\n  throw new Error(\n    'None of the runs returned any jobs. A run sitting in action_required has ' +\n    'no jobs at all, and a token without the Actions read scope returns the ' +\n    'same empty shape.'\n  );\n}\n\nconst byName = {};\n\nfor (const j of jobs) {\n  const name = String(j.name || 'unnamed');\n  if (!byName[name]) {\n    byName[name] = {\n      job_name: name,\n      workflow: j.workflow_name || cfg.workflow_name,\n      passes: 0,\n      failures: 0,\n      confirmed: 0,\n      steps: {},\n      last_failure_url: '',\n      shas: new Set(),\n      failed_runs: new Set(),\n    };\n  }\n  const g = byName[name];\n  const key = String(j.run_id) + '#' + (j.run_attempt || 1);\n\n  if (PASS.has(j.conclusion)) {\n    g.passes += 1;\n  } else if (FAIL.has(j.conclusion)) {\n    g.failures += 1;\n    g.failed_runs.add(String(j.run_id));\n    g.last_failure_url = j.html_url || g.last_failure_url;\n    if (rerunGreen.has(key)) g.confirmed += 1;\n    for (const s of j.steps || []) {\n      if (FAIL.has(s.conclusion)) {\n        g.steps[s.name] = (g.steps[s.name] || 0) + 1;\n      }\n    }\n  } else {\n    // skipped, cancelled, neutral, still running. Not an observation.\n    continue;\n  }\n  g.shas.add(String(j.head_sha || '').slice(0, 7));\n}\n\nconst out = [];\n\nfor (const name of Object.keys(byName)) {\n  const g = byName[name];\n  const seen = g.passes + g.failures;\n  if (!g.failures) continue;\n\n  // A job that has only ever failed is broken, not flaky, and telling an\n  // engineer to \"look into the flakiness\" of a job that has failed nine times\n  // out of nine wastes their afternoon. Measured on a real repository: one of\n  // the six mixed jobs was a lint step called \"Check PR title is not\n  // Conventional Commits\", which fails on purpose.\n  //\n  // And a job that failed in exactly one run is one bad day, not randomness.\n  // Measured on apache/airflow: ten job names each failed once in six runs and\n  // read as ten flaky jobs - but all ten failures came from two runs, six cells\n  // of one matrix in one and four in another. That is two incidents. Two\n  // different runs is the smallest evidence of a job answering differently on\n  // different days.\n  let verdict = 'broken';\n  if (g.confirmed) verdict = 'confirmed flake';\n  else if (g.passes && g.failed_runs.size < 2) verdict = 'one bad run';\n  else if (g.passes && seen >= minRuns) verdict = 'flaky';\n  else if (g.passes) verdict = 'too few runs';\n\n  out.push({\n    json: {\n      job_key: (g.workflow + ' / ' + name).slice(0, 200),\n      job_name: name,\n      workflow: g.workflow,\n      verdict,\n      passes: g.passes,\n      failures: g.failures,\n      confirmed: g.confirmed,\n      runs_seen: seen,\n      failed_in_runs: g.failed_runs.size,\n      flake_rate: seen ? Math.round((g.failures / seen) * 100) : 0,\n      distinct_commits: g.shas.size,\n      // A matrix step name carries the whole cell - one of them was 400\n      // characters of provider names - and unwrapped it buries the report.\n      failing_steps: Object.keys(g.steps)\n        .sort((a, b) => g.steps[b] - g.steps[a])\n        .slice(0, 3)\n        .map(x => (x.length > 90 ? x.slice(0, 87).trim() + '...' : x)),\n      example: g.last_failure_url,\n    },\n  });\n}\n\nout.sort((a, b) =>\n  b.json.confirmed - a.json.confirmed ||\n  b.json.flake_rate - a.json.flake_rate ||\n  b.json.failures - a.json.failures\n);\n\nif (!out.length) {\n  // A filtering step that can return nothing ends the branch, and every node\n  // below it silently never runs. One marker item keeps the quiet path alive.\n  return [{\n    json: {\n      job_key: '',\n      verdict: 'all green',\n      attempts_read: attemptsRead,\n      truncated,\n    },\n  }];\n}\n\nout[0].json.attempts_read = attemptsRead;\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t54-d1",
+      "name": "Read What You Reported",
+      "type": "n8n-nodes-base.dataTable",
+      "position": [
+        2196,
+        460
+      ],
+      "parameters": {
+        "filters": {
+          "conditions": []
+        },
+        "options": {},
+        "operation": "get",
+        "returnAll": true,
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "flaky_jobs"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 1.1,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "t54-c3",
+      "name": "Only The New Or Worse",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2484,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// reads the table: $input is the stored history on purpose. The fresh scores\n// come from Score Every Job by name, because a Data Table read replaces the\n// item exactly the way a Set node does.\nconst cfg = $('Settings').first().json;\nconst fresh = $('Score Every Job').all().map(i => i.json).filter(j => j.job_key);\n\nconst history = {};\nfor (const item of $input.all()) {\n  const r = item.json || {};\n  if (r.job_key) history[String(r.job_key)] = r;\n}\n\nconst worsenBy = Math.max(1, Number(cfg.report_when_worse_by) || 10);\nconst report = [];\n\nfor (const f of fresh) {\n  // \"broken\" and \"too few runs\" are real states worth storing, but they are not\n  // what this workflow is for and they do not go to Slack.\n  if (f.verdict !== 'flaky' && f.verdict !== 'confirmed flake') continue;\n\n  const prev = history[f.job_key];\n  if (!prev) {\n    report.push(Object.assign({}, f, { why: 'new' }));\n    continue;\n  }\n  const before = Number(prev.flake_rate) || 0;\n  if (f.flake_rate - before >= worsenBy) {\n    report.push(Object.assign({}, f, {\n      why: 'worse, was ' + before + '%',\n      previous_rate: before,\n    }));\n  }\n}\n\nconst stored = fresh.filter(f => f.verdict !== 'all green');\n\nreturn [{\n  json: {\n    report,\n    report_count: report.length,\n    stored,\n    scanned: fresh.length,\n    broken: fresh.filter(f => f.verdict === 'broken').length,\n    one_off: fresh.filter(f => f.verdict === 'one bad run').length,\n    one_off_runs: Array.from(new Set(\n      fresh.filter(f => f.verdict === 'one bad run').map(f => f.example)\n    )).length,\n    attempts_read: (fresh[0] && fresh[0].attempts_read) || 0,\n    for_model: report.slice(0, 12).map(r => ({\n      job: r.job_name,\n      verdict: r.verdict,\n      failures: r.failures,\n      of: r.runs_seen,\n      steps: r.failing_steps,\n    })),\n  },\n}];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t54-if1",
+      "name": "Anything Random?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2772,
+        460
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond1",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.report_count }}",
+              "rightValue": "={{ 0 }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "t54-ch1",
+      "name": "Group The Failures",
+      "type": "@n8n/n8n-nodes-langchain.chainLlm",
+      "onError": "continueRegularOutput",
+      "position": [
+        3216,
+        460
+      ],
+      "parameters": {
+        "text": "=You are reading the jobs in one CI workflow that failed on some runs and passed on others, on the same branch.\n\nFlaky jobs:\n{{ JSON.stringify($json.for_model, null, 1) }}\n\nGroup them by what is most likely making them intermittent, using the failing step names as the evidence. Common causes are a network fetch in a setup step, a fixed timeout, a shared port or database, and a test that depends on the order it runs in. Say which group to fix first and why.\n\nRules:\n- Only use the job and step names given. Do not invent a cause you cannot see evidence for; if a group's cause is not visible, say so.\n- A step name that describes a rule being enforced, like a lint or a title check, is usually a real failure rather than a flake. Say when you think that is what you are looking at.\n- At most four short paragraphs. No headings, no bullet characters, no restating the list back.",
+        "batching": {},
+        "promptType": "define"
+      },
+      "executeOnce": true,
+      "typeVersion": 1.9
+    },
+    {
+      "id": "t54-m1",
+      "name": "Flake Reader",
+      "type": "@n8n/n8n-nodes-langchain.lmChatOpenAi",
+      "onError": "continueRegularOutput",
+      "position": [
+        3224,
+        700
+      ],
+      "parameters": {
+        "model": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-5.6-terra"
+        },
+        "options": {
+          "temperature": 0.2
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "t54-c4",
+      "name": "Build The Report",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3584,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// single-item input: one summary covering every flaky job.\nconst d = $('Only The New Or Worse').first().json;\nconst note = String($input.first().json.text || '').trim();\nconst lines = [];\nconst cfg = $('Settings').first().json;\n\nlines.push('*Flaky CI* - ' + cfg.owner + '/' + cfg.repo + ' - ' +\n  cfg.workflow_name + ' on ' + cfg.branch);\nlines.push('Read ' + d.attempts_read + ' attempts. ' + d.report_count +\n  ' job' + (d.report_count === 1 ? '' : 's') + ' worth reporting' +\n  (d.broken ? ', plus ' + d.broken + ' failing every time (not flaky)' : '') +\n  '.');\n\n// Said out loud rather than silently dropped: a matrix that goes red together\n// looks like fifty flaky jobs and is one incident.\nif (d.one_off) {\n  lines.push(d.one_off + ' more failed in a single run each and are held back ' +\n    'as one bad day rather than randomness.');\n}\nlines.push('');\n\nfor (const r of d.report) {\n  const mark = r.verdict === 'confirmed flake' ? ':rotating_light:' : ':warning:';\n  lines.push(mark + ' *' + r.job_name + '* - ' + r.failures + ' of ' +\n    r.runs_seen + ' (' + r.flake_rate + '%)' +\n    (r.why === 'new' ? '' : ' - ' + r.why));\n\n  if (r.confirmed) {\n    lines.push('    ' + r.confirmed + ' of those failures was on a commit that ' +\n      'passed on a later attempt, so the code was identical');\n  }\n  if ((r.failing_steps || []).length) {\n    lines.push('    failing step: ' + r.failing_steps.join(', '));\n  }\n  if (r.example) lines.push('    ' + r.example);\n}\n\nif (note) {\n  lines.push('');\n  lines.push(note);\n}\n\nreturn [{ json: { message: lines.join('\\n').slice(0, 3800) } }];\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t54-sl1",
+      "name": "Post The Report",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        3872,
+        460
+      ],
+      "parameters": {
+        "text": "={{ $json.message }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.slack_channel }}"
+        },
+        "operation": "post",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "t54-nop",
+      "name": "Nothing Random Today",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        4316,
+        700
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "t54-c6",
+      "name": "One Issue Per Confirmed Flake",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4316,
+        260
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// One issue per confirmed flake - a job that failed on an attempt and passed on\n// another attempt of the same commit. Suspicion is a Slack line; proof is worth\n// a ticket somebody has to close.\n//\n// Returning nothing here ends this branch, which is exactly right: this is a\n// leaf and nothing downstream needs to run when there is nothing to file. The\n// rule about filters that can return zero items applies to a filter with work\n// below it.\nconst d = $('Only The New Or Worse').first().json;\nconst cfg = $('Settings').first().json;\n\nreturn (d.report || [])\n  .filter(r => r.verdict === 'confirmed flake')\n  .slice(0, Math.max(1, Number(cfg.max_issues_per_run) || 3))\n  .map(r => {\n    const body = [\n      '`' + r.job_name + '` failed ' + r.failures + ' of ' + r.runs_seen +\n        ' times on `' + cfg.branch + '` (' + r.flake_rate + '%).',\n      '',\n      r.confirmed + ' of those failures happened on a commit that passed on a ' +\n        'later attempt of the same run, so the code was identical in both.',\n      '',\n      (r.failing_steps || []).length\n        ? 'Failing step: ' + r.failing_steps.join(', ')\n        : 'No failing step was named in the job.',\n      '',\n      r.example ? 'Example: ' + r.example : '',\n      '',\n      'Filed from the ' + cfg.workflow_name + ' workflow.',\n    ].join(String.fromCharCode(10));\n\n    return {\n      json: {\n        title: 'Flaky job: ' + String(r.job_name).slice(0, 120),\n        body,\n      },\n    };\n  });\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t54-gh1",
+      "name": "Open An Issue",
+      "type": "n8n-nodes-base.github",
+      "position": [
+        4604,
+        260
+      ],
+      "parameters": {
+        "body": "={{ $json.body }}",
+        "owner": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.owner }}"
+        },
+        "title": "={{ $json.title }}",
+        "labels": [
+          {
+            "label": "flaky-test"
+          }
+        ],
+        "resource": "issue",
+        "assignees": [],
+        "operation": "create",
+        "repository": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Settings').first().json.repo }}"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "t54-c5",
+      "name": "One Row Per Job",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5048,
+        460
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// Every job that failed at all, not only the ones that were reported. Next\n// week's \"worse than it was\" needs the rate from a week nobody was told about.\nconst stored = $('Only The New Or Worse').first().json.stored || [];\nconst today = new Date().toISOString().slice(0, 10);\n\nif (!stored.length) {\n  return [{\n    json: {\n      job_key: 'nothing failed on ' + today,\n      job_name: '',\n      flake_rate: 0,\n      failures: 0,\n      runs_seen: 0,\n      verdict: 'all green',\n      last_seen: today,\n    },\n  }];\n}\n\nreturn stored.map(s => ({\n  json: {\n    job_key: String(s.job_key),\n    job_name: String(s.job_name || ''),\n    flake_rate: Number(s.flake_rate) || 0,\n    failures: Number(s.failures) || 0,\n    runs_seen: Number(s.runs_seen) || 0,\n    verdict: String(s.verdict || ''),\n    last_seen: today,\n  },\n}));\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "t54-d2",
+      "name": "Remember What You Reported",
+      "type": "n8n-nodes-base.dataTable",
+      "onError": "continueRegularOutput",
+      "position": [
+        5336,
+        460
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "job_key": "={{ $json.job_key }}",
+            "verdict": "={{ $json.verdict }}",
+            "failures": "={{ $json.failures }}",
+            "job_name": "={{ $json.job_name }}",
+            "last_seen": "={{ $json.last_seen }}",
+            "runs_seen": "={{ $json.runs_seen }}",
+            "flake_rate": "={{ $json.flake_rate }}"
+          },
+          "mappingMode": "defineBelow",
+          "matchingColumns": []
+        },
+        "filters": {
+          "conditions": [
+            {
+              "keyName": "job_key",
+              "keyValue": "={{ $json.job_key }}",
+              "condition": "eq"
+            }
+          ]
+        },
+        "options": {},
+        "operation": "upsert",
+        "dataTableId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "flaky_jobs"
+        }
+      },
+      "typeVersion": 1.1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Ask For The Recent Runs",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Flake Reader": {
+      "ai_languageModel": [
+        [
+          {
+            "node": "Group The Failures",
+            "type": "ai_languageModel",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Or Run It Now": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One Row Per Job": {
+      "main": [
+        [
+          {
+            "node": "Remember What You Reported",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Every Job": {
+      "main": [
+        [
+          {
+            "node": "Read What You Reported",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Anything Random?": {
+      "main": [
+        [
+          {
+            "node": "Group The Failures",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "One Issue Per Confirmed Flake",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nothing Random Today",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build The Report": {
+      "main": [
+        [
+          {
+            "node": "Post The Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group The Failures": {
+      "main": [
+        [
+          {
+            "node": "Build The Report",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Only The New Or Worse": {
+      "main": [
+        [
+          {
+            "node": "Anything Random?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "One Row Per Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read What You Reported": {
+      "main": [
+        [
+          {
+            "node": "Only The New Or Worse",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Ask For The Recent Runs": {
+      "main": [
+        [
+          {
+            "node": "Pick The Runs Worth Reading",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read The Jobs In Each Run": {
+      "main": [
+        [
+          {
+            "node": "Score Every Job",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pick The Runs Worth Reading": {
+      "main": [
+        [
+          {
+            "node": "Read The Jobs In Each Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look For Flakes Each Morning": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "One Issue Per Confirmed Flake": {
+      "main": [
+        [
+          {
+            "node": "Open An Issue",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Find and track flaky CI jobs in GitHub Actions with OpenAI and Slack",
+    "wechat": "youandme10086",
+    "id": 19072,
+    "update_time": "2026-09-27"
+  }
+}

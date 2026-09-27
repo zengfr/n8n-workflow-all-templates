@@ -1,4 +1,4 @@
-# wati : 10
+# wati : 12
 
 |id|file|
 |----|----|
@@ -12,3 +12,5 @@
 |13723|[13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json)|
 |13731|[13731_Send_a_personalized_WhatsApp_morning_brief_with_GPT-4o__Google_and_WATI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13731_Send_a_personalized_WhatsApp_morning_brief_with_GPT-4o__Google_and_WATI.json)|
 |13733|[13733_Manage_WhatsApp_vehicle_service_reminders_and_bookings_with_WATI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13733_Manage_WhatsApp_vehicle_service_reminders_and_bookings_with_WATI_and_Google_Sheets.json)|
+|18752|[18752_Sync_WhatsApp_contacts_and_messages_from_Wati_to_GoHighLevel_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18752_Sync_WhatsApp_contacts_and_messages_from_Wati_to_GoHighLevel_and_Google_Sheets.json)|
+|18753|[18753_Sync_WhatsApp_conversations_to_GoHighLevel_notes_with_Wati_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18753_Sync_WhatsApp_conversations_to_GoHighLevel_notes_with_Wati_and_Google_Sheets.json)|

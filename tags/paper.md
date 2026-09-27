@@ -1,4 +1,4 @@
-# paper : 12
+# paper : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |10314|[10314_Qwen-Max__Journal_Paper_Generation_from_Title_Abstract.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10314_Qwen-Max__Journal_Paper_Generation_from_Title_Abstract.json)|
 |11782|[11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/17/11782_Decodo-Powered_AI_Research_Paper_Extraction___Summarization_with_ChatGPT.json)|
 |13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|
+|18931|[18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18931_Search_scientific_illustration_prompts_with_Paper_Banana_public_API.json)|

@@ -1,4 +1,4 @@
-# class : 4
+# class : 5
 
 |id|file|
 |----|----|
@@ -6,3 +6,4 @@
 |6997|[6997_Class_Scheduling___Reminders_with_Google_Calendar__Email___SMS_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/69/6997_Class_Scheduling___Reminders_with_Google_Calendar__Email___SMS_Notifications.json)|
 |8445|[8445_Migrate_Pinecone_Index_to_Weaviate_Class_with_Airtable_Pagination.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/84/8445_Migrate_Pinecone_Index_to_Weaviate_Class_with_Airtable_Pagination.json)|
 |12637|[12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/26/12637_Publish_Zoom_class_recordings_to_Google_Classroom_automatically.json)|
+|18763|[18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18763_Track_fitness_class_attendance_and_retention_with_Google_Sheets__gpt-5.6-terra__Gmail__and_Discord.json)|

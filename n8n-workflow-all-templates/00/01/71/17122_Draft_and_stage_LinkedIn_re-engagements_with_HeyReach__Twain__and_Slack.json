@@ -1,0 +1,464 @@
+{
+  "id": "729Y2dh9RgPc9LHf",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Draft and stage LinkedIn re-engagements with HeyReach, Twain, and Slack",
+    "wechat": "youandme10086",
+    "id": 17122,
+    "update_time": "2026-09-27"
+  },
+  "name": "Re-engage cold HeyReach leads with Twain",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "b76c298a-2ff0-40e1-9260-de5a1e0e2d27",
+      "name": "Run Manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        208
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "8ea3c6b3-5d4b-4e9e-a0bf-e40baa0dd98b",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        256,
+        288
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "s1",
+              "name": "heyreach_base_url",
+              "type": "string",
+              "value": "https://api.heyreach.io/api/public"
+            },
+            {
+              "id": "s2",
+              "name": "twain_base_url",
+              "type": "string",
+              "value": "https://public.api.twain.ai"
+            },
+            {
+              "id": "s3",
+              "name": "include_tags",
+              "type": "array",
+              "value": "={{ [\"Cold\", \"Not interested\"] }}"
+            },
+            {
+              "id": "s4",
+              "name": "exclude_tags",
+              "type": "array",
+              "value": "={{ [\"Re-engaged\"] }}"
+            },
+            {
+              "id": "s5",
+              "name": "reengagement_campaign_id",
+              "type": "string",
+              "value": "YOUR_TWAIN_CAMPAIGN_ID"
+            },
+            {
+              "id": "s6",
+              "name": "reengaged_tag",
+              "type": "string",
+              "value": "Re-engaged"
+            },
+            {
+              "id": "s7",
+              "name": "reengagement_list_id",
+              "type": "string",
+              "value": "YOUR_HEYREACH_LIST_ID"
+            },
+            {
+              "id": "s8",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "re-engagement"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "e6f9c5f6-3878-4493-8fd6-d4cbcbb5f177",
+      "name": "Weekly",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        368
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "893f2bd5-63c4-4395-893e-176cfbfae695",
+      "name": "HeyReach: Get Conversations",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        464,
+        288
+      ],
+      "parameters": {
+        "url": "={{ $(\"Settings\").first().json.heyreach_base_url }}/inbox/GetConversationsV2",
+        "method": "POST",
+        "options": {
+          "timeout": 30000,
+          "pagination": {
+            "pagination": {
+              "parameters": {
+                "parameters": [
+                  {
+                    "name": "offset",
+                    "type": "body",
+                    "value": "={{ $pageCount * 100 }}"
+                  }
+                ]
+              },
+              "completeExpression": "={{ (Array.isArray($response.body) ? $response.body : ($response.body.items || $response.body.conversations || $response.body.data || [])).length < 100 }}",
+              "paginationCompleteWhen": "other"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ filters: {}, offset: $pageCount * 100, limit: 100 }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "590034ad-c202-4ce4-9aae-7247f5d87c86",
+      "name": "Prepare & Filter Threads",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        688,
+        288
+      ],
+      "parameters": {
+        "jsCode": "const settings = $('Settings').first().json;\nconst norm = (arr) => (Array.isArray(arr) ? arr : (arr ? [arr] : [])).map((t) => String(t).toLowerCase());\nconst includeTags = norm(settings.include_tags);\nconst excludeTags = norm(settings.exclude_tags);\nconst pages = $input.all();\nconst convos = [];\nfor (const p of pages) {\n  const body = p.json;\n  const list = Array.isArray(body) ? body : (body.items || body.conversations || body.data || [body]);\n  for (const c of list) if (c) convos.push(c);\n}\nconst out = [];\nfor (const c of convos) {\n  const cp = c.correspondentProfile || {};\n  const leadTags = norm([...(cp.tags || []), ...(cp.autoTags || [])]);\n  const included = includeTags.length === 0 || includeTags.some((t) => leadTags.includes(t));\n  const excluded = excludeTags.some((t) => leadTags.includes(t));\n  if (!included || excluded) continue;\n  const linkedin_url = cp.profileUrl || c.leadProfileUrl || c.profileUrl || '';\n  if (!linkedin_url) continue;\n  const raw = c.messages || c.conversationMessages || c.chatMessages || [];\n  const conversation_messages = raw.map((m) => ({\n    direction: (m.sender === 'CORRESPONDENT' || m.sender === 'lead' || m.direction === 'incoming' || m.isFromLead === true) ? 'incoming' : 'outgoing',\n    body: m.body || m.text || m.message || '',\n    sent_at: m.createdAt || m.timestamp || null,\n  })).filter((m) => m.body);\n  out.push({ json: { linkedin_url, name: [cp.firstName, cp.lastName].filter(Boolean).join(' ').trim(), conversation_messages } });\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "55b7f982-f5e5-4350-b13d-5fb7908147e1",
+      "name": "Build Re-engagement Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        944,
+        288
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const lead = $json;\nconst settings = $('Settings').first().json;\nconst conversation_messages = Array.isArray(lead.conversation_messages) ? lead.conversation_messages : [];\nreturn { json: {\n  campaign_id: settings.reengagement_campaign_id,\n  contact: { linkedin_profile_url: lead.linkedin_url, conversation_messages },\n  add_contact_to_campaign: true,\n  linkedin_url: lead.linkedin_url,\n  name: lead.name || '',\n} };"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "4e101534-69a4-4a59-9056-0f2c9ec94115",
+      "name": "Twain: Generate & Add",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1136,
+        288
+      ],
+      "parameters": {
+        "url": "={{ $(\"Settings\").first().json.twain_base_url }}/v2/Generate/Sequence",
+        "method": "POST",
+        "options": {
+          "timeout": 120000
+        },
+        "jsonBody": "={{ JSON.stringify({ campaign_id: $json.campaign_id, contact: $json.contact, add_contact_to_campaign: $json.add_contact_to_campaign }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "8833a4c6-50c4-4e0b-ba58-ea6725f1634e",
+      "name": "HeyReach: Add to Re-engagement List",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1360,
+        288
+      ],
+      "parameters": {
+        "url": "={{ $(\"Settings\").first().json.heyreach_base_url }}/list/AddLeadsToListV2",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ JSON.stringify({ listId: Number($(\"Settings\").first().json.reengagement_list_id), Leads: [{ profileUrl: $(\"Build Re-engagement Payload\").item.json.linkedin_url, firstName: ($(\"Build Re-engagement Payload\").item.json.name || \"\").split(\" \")[0] || \"\", lastName: ($(\"Build Re-engagement Payload\").item.json.name || \"\").split(\" \").slice(1).join(\" \") || \"\", customUserFields: [{ name: \"twain_re_engagement_message\", value: ($(\"Twain: Generate & Add\").item.json.messages && $(\"Twain: Generate & Add\").item.json.messages[0] && $(\"Twain: Generate & Add\").item.json.messages[0].message) || \"\" }] }] }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "f69fd6b5-465c-4873-bcd2-5eddd18153f9",
+      "name": "Slack: Re-engagement Drafted",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        1584,
+        288
+      ],
+      "webhookId": "f08fa090-c1e9-4542-8d93-8baa1b9a9d91",
+      "parameters": {
+        "text": "=:envelope_with_arrow: Re-engagement drafted for <{{ $(\"Build Re-engagement Payload\").item.json.linkedin_url }}|lead> — added to the re-engagement list + campaign.\n```{{ ($(\"Twain: Generate & Add\").item.json.messages && $(\"Twain: Generate & Add\").item.json.messages[0] && $(\"Twain: Generate & Add\").item.json.messages[0].message) || \"(no message)\" }}```",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $(\"Settings\").first().json.slack_channel }}"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "unfurl_media": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "CMpvLpe0p1ZR78sQ",
+          "name": "Slack bot token"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "74295180-0fc2-4a2a-aa19-9af4e1a588ae",
+      "name": "HeyReach: Tag Reengaged",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1808,
+        288
+      ],
+      "parameters": {
+        "url": "={{ $(\"Settings\").first().json.heyreach_base_url }}/lead/AddTags",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ JSON.stringify({ leadProfileUrl: $(\"Build Re-engagement Payload\").item.json.linkedin_url, tags: [$(\"Settings\").first().json.reengaged_tag] }) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "a9342a21-c119-4f80-8f5b-6beb2a0a6afd",
+      "name": "Sticky: Try it out",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1072,
+        -80
+      ],
+      "parameters": {
+        "width": 916,
+        "height": 972,
+        "content": "## Try It Out!\n\nThis template re-engages **cold LinkedIn leads** in HeyReach — automatically and with context. It reads each lead's prior conversation, uses **Twain** to draft a re-engagement that continues the thread (not a generic \"just following up\"), stages it in a HeyReach list + campaign, and posts it to Slack for review. **Nothing is sent automatically** — you stay the sender.\n\n### Who's it for\n\nFounder-led / SDR / outbound teams running HeyReach who have a backlog of cold or \"not interested\" threads worth re-opening.\n\n### How it works\n\n- **Fetch** — pulls your HeyReach conversations (paginated).\n- **Filter** — keeps leads whose tags match `include_tags` and drops any with an `exclude_tags` tag. The `Re-engaged` tag is the built-in dedupe, so no one is messaged twice.\n- **Draft per lead** — sends each lead's prior thread to Twain, which writes a re-engagement that continues the conversation using your campaign's agent.\n- **Stage & notify** — adds the lead to a HeyReach list with the message as a custom field, posts the draft to Slack, and tags the lead `Re-engaged`.\n\n### How to set up\n\n- **Add credentials:** Twain (HTTP Header Auth, header `X-Api-Key`), HeyReach (HTTP Header Auth, header `X-API-KEY`), and Slack.\n- **Configure the `Settings` node:** `reengagement_campaign_id`, `reengagement_list_id`, `slack_channel`, and the `include_tags` / `exclude_tags` to target.\n- **Run it:** trigger manually, or let the weekly schedule run it.\n\n### Requirements\n\nA **Twain** account + API key and a re-engagement campaign; a **HeyReach** account + API key with a dedicated list; and **Slack**.\n\n### How to customize\n\n- Change `include_tags` / `exclude_tags` to target different segments.\n- Swap the weekly schedule for a different cadence.\n\nBuilt with Twain — https://www.twain.ai"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "21e8564d-b7be-4005-b1be-7a7b2fe931fa",
+      "name": "Sticky: Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -64
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 920,
+        "height": 592,
+        "content": "### 1 · Fetch & filter cold leads\n\nPulls your HeyReach conversations and keeps only the leads worth re-engaging — matched by `include_tags`, minus anyone already tagged (`exclude_tags`). The `Re-engaged` tag is the built-in dedupe."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c727adce-ddba-46ef-bd1d-31a373414be9",
+      "name": "Sticky: Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1244,
+        "height": 372,
+        "content": "### 2 · Re-engage each lead\n\nFor every remaining lead: Twain drafts a thread-aware re-engagement, it's added to a HeyReach list (message as a custom field) + campaign, posted to Slack for review, and the lead is tagged `Re-engaged`. Each lead is error-isolated, so one bad profile can't stop the batch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "570df98c-45a3-492b-9279-9ef2355019bd",
+      "name": "Sticky: config",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        256,
+        144
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 120,
+        "content": "⚙️ **Config lives here** — set `reengagement_campaign_id`, `reengagement_list_id`, `slack_channel`, and the include / exclude tags."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5d17ca43-f376-4ed2-a1d7-e0a94521931f",
+      "name": "Sticky: no-auto-send",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 540,
+        "height": 118,
+        "content": "🙋 **No auto-send** — drafts are staged in a HeyReach list + posted to Slack. You review and send. A human is on every message."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "65eab1e7-f8ad-4141-a6b9-9f8389882e95",
+  "nodeGroups": [],
+  "connections": {
+    "Weekly": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "HeyReach: Get Conversations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Manually": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Twain: Generate & Add": {
+      "main": [
+        [
+          {
+            "node": "HeyReach: Add to Re-engagement List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare & Filter Threads": {
+      "main": [
+        [
+          {
+            "node": "Build Re-engagement Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Re-engagement Payload": {
+      "main": [
+        [
+          {
+            "node": "Twain: Generate & Add",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HeyReach: Get Conversations": {
+      "main": [
+        [
+          {
+            "node": "Prepare & Filter Threads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Re-engagement Drafted": {
+      "main": [
+        [
+          {
+            "node": "HeyReach: Tag Reengaged",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HeyReach: Add to Re-engagement List": {
+      "main": [
+        [
+          {
+            "node": "Slack: Re-engagement Drafted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,0 +1,479 @@
+{
+  "id": "GCgeglybLrkk76iP",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Log Quora keyword mentions to Google Sheets with SearchApi and OpenAI",
+    "wechat": "youandme10086",
+    "id": 17292,
+    "update_time": "2026-09-27"
+  },
+  "name": "Monitor Quora for Keyword Mentions to Google Sheets with SearchApi",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "manual",
+      "name": "Run Now",
+      "type": "n8n-nodes-base.manualTrigger",
+      "notes": "Run on demand to pull the latest Quora mentions right now. Click Execute Workflow.",
+      "position": [
+        -16,
+        208
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "schedule",
+      "name": "Schedule Daily",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "Activate the workflow to check Quora every day at 08:00. Change or delete this if you only run manually.",
+      "position": [
+        -16,
+        400
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "settings",
+      "name": "Settings",
+      "type": "n8n-nodes-base.set",
+      "notes": "The only node you normally edit. keywords = comma-separated terms or brand names to watch on Quora. location = a Google location string, e.g. United States.",
+      "position": [
+        224,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "a1",
+              "name": "keywords",
+              "type": "string",
+              "value": "web scraping, serp api"
+            },
+            {
+              "id": "a2",
+              "name": "location",
+              "type": "string",
+              "value": "United States"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "build",
+      "name": "Build Search Queries",
+      "type": "n8n-nodes-base.code",
+      "notes": "Expands your keywords into one site:quora.com Google search per keyword per page. Raise PAGES here to scan deeper.",
+      "position": [
+        464,
+        304
+      ],
+      "parameters": {
+        "jsCode": "// Build one Google search per keyword, per page, scoped to Quora with a\n// site: operator. Google returns about 10 organic results per page; we page\n// through for more depth.\nconst cfg = $('Settings').first().json;\nconst PAGES = 2; // pages per keyword. Each page is ~10 results. Raise for more depth.\n\nconst keywords = (cfg.keywords || '')\n  .split(',').map(k => k.trim()).filter(k => k.length);\n\nif (!keywords.length) {\n  throw new Error('No keywords found. Add a comma-separated list in the Settings node, e.g. web scraping, serp api.');\n}\n\nconst out = [];\nfor (const keyword of keywords) {\n  for (let page = 1; page <= PAGES; page++) {\n    out.push({ json: { keyword, location: cfg.location || '', q: 'site:quora.com ' + keyword, page } });\n  }\n}\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "searchapi",
+      "name": "Search Quora on Google",
+      "type": "@searchapi/n8n-nodes-searchapi.searchApi",
+      "notes": "Live Google results scoped to Quora via SearchApi.io, one call per keyword per page. The site:quora.com operator lives in the query (q); depth comes from pagination.page.",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        688,
+        304
+      ],
+      "parameters": {
+        "q": "={{ $json.q }}",
+        "pagination": {
+          "page": "={{ $json.page }}"
+        },
+        "timeFilters": {},
+        "searchOptions": {},
+        "requestOptions": {},
+        "advancedOptions": {},
+        "languageSettings": {},
+        "locationSettings": {
+          "location": "={{ $json.location }}"
+        }
+      },
+      "credentials": {
+        "searchApi": {
+          "id": "5wYraK0FY1pk2SvU",
+          "name": "SearchApi account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "extract",
+      "name": "Extract Quora Posts",
+      "type": "n8n-nodes-base.code",
+      "notes": "Reads organic_results from every page, keeps only quora.com posts, recovers the keyword from the echoed query, and removes duplicate URLs within the run.",
+      "position": [
+        912,
+        304
+      ],
+      "parameters": {
+        "jsCode": "// Flatten organic_results from every page into one row per Quora post.\n// The SearchApi node replaces the item with the API response, so we recover the\n// keyword from search_parameters.q (it echoes our site:quora.com <keyword> query).\n// We keep only quora.com links and dedupe by URL within this run.\nconst items = $input.all();\nconst prefix = 'site:quora.com';\nconst seen = new Set();\nconst posts = [];\n\nfor (const item of items) {\n  const res = item.json || {};\n  const params = res.search_parameters || {};\n  let keyword = params.q || '';\n  if (keyword.toLowerCase().indexOf(prefix) === 0) {\n    keyword = keyword.slice(prefix.length);\n  }\n  keyword = keyword.trim();\n\n  const results = res.organic_results || [];\n  for (const r of results) {\n    const link = r.link || '';\n    // Normalise the URL (drop query string and hash) so the same post dedupes.\n    const url = link.split('#')[0].split('?')[0];\n    const host = (r.domain || url).toLowerCase();\n    if (host.indexOf('quora.com') === -1) continue;\n    if (!url || seen.has(url)) continue;\n    seen.add(url);\n\n    posts.push({ json: {\n      date: new Date().toISOString().slice(0, 10),\n      keyword: keyword,\n      title: r.title || '',\n      snippet: r.snippet || '',\n      link: url\n    } });\n  }\n}\n\nreturn posts;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "getlinks",
+      "name": "Get Existing Links",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Reads the rows already in your sheet so we can skip posts saved on a previous day. On the first run the sheet is empty and every post counts as new. Select the same Sheet and tab as Save to Sheet.",
+      "onError": "continueRegularOutput",
+      "position": [
+        1152,
+        304
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OAmLVJHn7nMuG96KBbMTLAt3vaSQWn6TwIjlISpzSEk/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1OAmLVJHn7nMuG96KBbMTLAt3vaSQWn6TwIjlISpzSEk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OAmLVJHn7nMuG96KBbMTLAt3vaSQWn6TwIjlISpzSEk/edit?usp=drivesdk",
+          "cachedResultName": "n8n004"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oFzcNWoDcRmxXB5Q",
+          "name": "Google Sheets OAuth2 API"
+        }
+      },
+      "executeOnce": true,
+      "typeVersion": 4.5,
+      "alwaysOutputData": true
+    },
+    {
+      "id": "filter",
+      "name": "Filter New Posts",
+      "type": "n8n-nodes-base.code",
+      "notes": "Drops any post whose link is already in the sheet, so each run only adds fresh Quora mentions. If there are no new posts, the run ends here with nothing appended.",
+      "position": [
+        1376,
+        304
+      ],
+      "parameters": {
+        "jsCode": "// Keep only Quora posts we have not saved before. Existing rows come from the\n// sheet (Get Existing Links); we compare on the normalised link so the same\n// post is never appended twice, even across daily runs.\nconst existing = $input.all();\nconst seen = new Set();\nfor (const row of existing) {\n  const j = row.json || {};\n  const link = j.link || j.Link || '';\n  const url = String(link).split('#')[0].split('?')[0];\n  if (url) seen.add(url);\n}\n\nconst posts = $('Extract Quora Posts').all();\nconst fresh = [];\nfor (const p of posts) {\n  const url = (p.json && p.json.link) || '';\n  if (url && !seen.has(url)) fresh.push({ json: p.json });\n}\n\nreturn fresh;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "openai",
+      "name": "Summarize with AI",
+      "type": "@n8n/n8n-nodes-langchain.openAi",
+      "notes": "Writes a one-sentence neutral summary of each new post from its title and snippet, using gpt-4o-mini. Swap the model or prompt to change the tone or length.",
+      "onError": "continueRegularOutput",
+      "position": [
+        1616,
+        304
+      ],
+      "parameters": {
+        "modelId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gpt-4o-mini",
+          "cachedResultName": "gpt-4o-mini"
+        },
+        "options": {},
+        "responses": {
+          "values": [
+            {
+              "content": "=You summarize Quora questions and discussions in one clear, neutral sentence. Reply with a single sentence of at most 25 words describing what the person is asking about or discussing, based on the title and snippet below. No preamble, no quotation marks, just the sentence.\n\nTitle: {{ $json.title }}\nSnippet: {{ $json.snippet }}"
+            }
+          ]
+        },
+        "builtInTools": {}
+      },
+      "credentials": {
+        "openAiApi": {
+          "id": "RJrKmRjSQdR01uDK",
+          "name": "OpenAi account"
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "attach",
+      "name": "Attach Summary",
+      "type": "n8n-nodes-base.code",
+      "notes": "Attaches each AI summary to its post and outputs the final row: date, keyword, title, summary, link.",
+      "position": [
+        1984,
+        304
+      ],
+      "parameters": {
+        "jsCode": "// Pair each AI summary back onto its post (aligned by position with Filter New\n// Posts, since the AI node emits one item per input, in order). The OpenAI\n// Responses node returns the text under output[].content[].text; we read it\n// defensively so other response shapes still work.\nfunction readSummary(data) {\n  if (!data) return '';\n  if (Array.isArray(data.output)) {\n    for (const o of data.output) {\n      const parts = (o && o.content) || [];\n      for (const p of parts) {\n        if (p && typeof p.text === 'string' && p.text.trim()) return p.text;\n      }\n    }\n  }\n  if (typeof data.output_text === 'string') return data.output_text;\n  if (typeof data.content === 'string') return data.content;\n  if (data.message && typeof data.message.content === 'string') return data.message.content;\n  if (typeof data.text === 'string') return data.text;\n  return '';\n}\n\nconst items = $input.all();\nconst posts = $('Filter New Posts').all();\nconst out = [];\n\nfor (let i = 0; i < items.length; i++) {\n  const post = (posts[i] && posts[i].json) ? Object.assign({}, posts[i].json) : {};\n  const summary = readSummary(items[i].json);\n  out.push({ json: {\n    date: post.date || '',\n    keyword: post.keyword || '',\n    title: post.title || '',\n    summary: String(summary).trim(),\n    link: post.link || ''\n  } });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "savesheet",
+      "name": "Save to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "notes": "Appends each new Quora mention as a row. Select your Google Sheet and tab, and give it a header row: date, keyword, title, summary, link.",
+      "position": [
+        2224,
+        304
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OAmLVJHn7nMuG96KBbMTLAt3vaSQWn6TwIjlISpzSEk/edit#gid=0",
+          "cachedResultName": "Sheet1"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1OAmLVJHn7nMuG96KBbMTLAt3vaSQWn6TwIjlISpzSEk",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1OAmLVJHn7nMuG96KBbMTLAt3vaSQWn6TwIjlISpzSEk/edit?usp=drivesdk",
+          "cachedResultName": "n8n004"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "oFzcNWoDcRmxXB5Q",
+          "name": "Google Sheets OAuth2 API"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "sticky_overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -752,
+        -304
+      ],
+      "parameters": {
+        "width": 612,
+        "height": 908,
+        "content": "## Monitor Quora for Keyword Mentions to Google Sheets\n\nWatch Quora for new questions and discussions that mention your keywords or brand, so you can jump in where your product genuinely helps. Runs daily, pulls live Google results scoped to Quora via SearchApi.io, summarizes each new post with AI, and appends it to a Google Sheet.\n\n### How it works\n1. **Run Now** or **Schedule Daily** starts the run.\n2. **Settings** holds the two things you edit: your keywords and your Google location.\n3. **Build Search Queries** turns each keyword into a site:quora.com Google search.\n4. **Search Quora on Google** fetches live results through SearchApi.io.\n5. **Extract Quora Posts** flattens results into one row per post and dedupes.\n6. **Get Existing Links + Filter New Posts** drop posts already in your sheet.\n7. **Summarize with AI** writes a one-sentence summary of each new post.\n8. **Save to Sheet** appends date, keyword, title, summary and link.\n\n### Setup\n- [ ] Install the community node @searchapi/n8n-nodes-searchapi.\n- [ ] Add your SearchApi credential (free key at searchapi.io) on Search Quora on Google.\n- [ ] Add your OpenAI credential on Summarize with AI.\n- [ ] Create a Google Sheet with header row: date, keyword, title, summary, link.\n- [ ] Connect that sheet on both Get Existing Links and Save to Sheet.\n- [ ] Edit Settings: keywords (comma-separated) and location.\n- [ ] Activate the workflow.\n\n### Customization tips\nRaise PAGES in Build Search Queries for more depth. Swap quora.com for reddit.com or another site to monitor a different community."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_configure",
+      "name": "Section - Configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -80,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 680,
+        "content": "## 1. Configure\nRun on demand or daily. Edit your keywords and Google location in Settings. Nothing else needs touching."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_search",
+      "name": "Section - Search Quora",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        416,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 632,
+        "height": 680,
+        "content": "## 2. Search Quora via Google\nEach keyword becomes a site:quora.com Google search through SearchApi. Results from every page are flattened into one row per post and deduped by URL."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_new",
+      "name": "Section - Keep New",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1104,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 412,
+        "height": 680,
+        "content": "## 3. Keep only new posts\nReads the links already in your sheet and drops any post seen before, so each daily run only adds fresh Quora mentions."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky_save",
+      "name": "Section - Summarize & Save",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1568,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 860,
+        "height": 680,
+        "content": "## 4. Summarize and save\nAI writes a one-sentence summary of each new post, then every row (date, keyword, title, summary, link) is appended to your Google Sheet."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "8e149e12-4dff-4e5c-aca5-fbbd2e1c607e",
+  "nodeGroups": [],
+  "connections": {
+    "Run Now": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Settings": {
+      "main": [
+        [
+          {
+            "node": "Build Search Queries",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Attach Summary": {
+      "main": [
+        [
+          {
+            "node": "Save to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Daily": {
+      "main": [
+        [
+          {
+            "node": "Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter New Posts": {
+      "main": [
+        [
+          {
+            "node": "Summarize with AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Summarize with AI": {
+      "main": [
+        [
+          {
+            "node": "Attach Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Existing Links": {
+      "main": [
+        [
+          {
+            "node": "Filter New Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Quora Posts": {
+      "main": [
+        [
+          {
+            "node": "Get Existing Links",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Search Queries": {
+      "main": [
+        [
+          {
+            "node": "Search Quora on Google",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Search Quora on Google": {
+      "main": [
+        [
+          {
+            "node": "Extract Quora Posts",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

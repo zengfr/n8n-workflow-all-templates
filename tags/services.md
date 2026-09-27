@@ -1,4 +1,4 @@
-# services : 18
+# services : 21
 
 |id|file|
 |----|----|
@@ -20,3 +20,6 @@
 |12719|[12719_Route_and_nurture_financial_services_leads_with_OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12719_Route_and_nurture_financial_services_leads_with_OpenAI__Gmail_and_Google_Sheets.json)|
 |12761|[12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12761_Qualify_and_route_consulting_leads_with_GPT_4.1-mini__Slack_and_Google_Sheets.json)|
 |16597|[16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16597_Run_LDXhub_document_jobs_from_one_form_with_StructFlow__RefineLoop__RenderOCR__CastDoc_and_ExtractDoc.json)|
+|17968|[17968_Run_parallel_webhook_services_with_HTTP_Request_fan-out.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17968_Run_parallel_webhook_services_with_HTTP_Request_fan-out.json)|
+|19650|[19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json)|
+|19741|[19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19741_Build_an_event-driven_pub_sub_bus_with_webhooks__HTTP_services__and_Slack.json)|

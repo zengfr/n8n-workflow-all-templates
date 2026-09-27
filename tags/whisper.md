@@ -1,4 +1,4 @@
-# whisper : 43
+# whisper : 51
 
 |id|file|
 |----|----|
@@ -45,3 +45,11 @@
 |15990|[15990_Log_and_triage_inbound_calls_with_Twilio__Whisper__Claude__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15990_Log_and_triage_inbound_calls_with_Twilio__Whisper__Claude__and_Google_Sheets.json)|
 |16105|[16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16105_Generate_short_scripts__TTS_audio__and_SRT_captions_with_OpenAI_GPT-4o_and_Whisper.json)|
 |16528|[16528_Ingest_and_search_Cloudflare_R2_media_with_Gemini__Groq_Whisper__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16528_Ingest_and_search_Cloudflare_R2_media_with_Gemini__Groq_Whisper__and_Supabase.json)|
+|16897|[16897_Transcribe_WhatsApp_voice_notes_and_auto-reply_with_OpenAI_Whisper_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16897_Transcribe_WhatsApp_voice_notes_and_auto-reply_with_OpenAI_Whisper_and_GPT-4o.json)|
+|17140|[17140_Handle_WhatsApp_gym_bookings_and_surveys_with_Claude__Whisper__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17140_Handle_WhatsApp_gym_bookings_and_surveys_with_Claude__Whisper__and_Google_Sheets.json)|
+|17942|[17942_Transcribe_WhatsApp_audio_with_Groq_Whisper_and_save_transcripts_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17942_Transcribe_WhatsApp_audio_with_Groq_Whisper_and_save_transcripts_to_Google_Drive.json)|
+|18186|[18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18186_Transcribe_and_summarize_voice_notes_with_Whisper__GPT-4.1__and_Slack.json)|
+|18212|[18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json)|
+|18421|[18421_Transcribe_media_URLs_to_AI-summarized_Google_Drive_notes_with_Apify_Whisper.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18421_Transcribe_media_URLs_to_AI-summarized_Google_Drive_notes_with_Apify_Whisper.json)|
+|18862|[18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json)|
+|18984|[18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json)|

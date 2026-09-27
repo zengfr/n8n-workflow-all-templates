@@ -1,0 +1,988 @@
+{
+  "name": "Track Allegro listing prices in Google Sheets with Apify",
+  "nodes": [
+    {
+      "id": "allegro-1",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        420
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "allegro-2",
+      "name": "Configure search",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        420
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "searchUrl",
+              "name": "searchUrl",
+              "type": "string",
+              "value": "https://allegro.pl/uzytkownik/X-KOM_PL"
+            },
+            {
+              "id": "maxItemsPerUrl",
+              "name": "maxItemsPerUrl",
+              "type": "number",
+              "value": 20
+            },
+            {
+              "id": "maxChargeUsd",
+              "name": "maxChargeUsd",
+              "type": "number",
+              "value": 0.1
+            },
+            {
+              "id": "spreadsheetId",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "id": "resumeRunId",
+              "name": "resumeRunId",
+              "type": "string",
+              "value": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "allegro-3",
+      "name": "Validate configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        420
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nreturn [{json:config($json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-4",
+      "name": "Read destination",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        780,
+        420
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '?fields=spreadsheetId,sheets(properties)' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-5",
+      "name": "Prepare tabs and lock",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        420
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nreturn [{json:prepareSheet($json.body)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-6",
+      "name": "Acquire destination lock",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. This mutation is deliberately not retried automatically.",
+      "maxTries": 3,
+      "position": [
+        1300,
+        420
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + ':batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-7",
+      "name": "Read existing rows",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1560,
+        420
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '/values:batchGet?valueRenderOption=UNFORMATTED_VALUE&ranges=' + encodeURIComponent(\"'Allegro Current'!A1:O5002\") + '&ranges=' + encodeURIComponent(\"'Allegro Runs'!A1:R5002\") + '&ranges=' + encodeURIComponent(\"'Allegro History'!A1:N5002\") }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-8",
+      "name": "Validate existing tables",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        420
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nconst ranges=$json.body.valueRanges;\nconst existing=validateTable(ranges[0].values,BUSINESS_HEADERS,BUSINESS_TAB);\nconst ledger=validateTable(ranges[1].values,RUN_HEADERS,RUN_TAB);\nconst history=validateTable(ranges[2].values,HISTORY_HEADERS,HISTORY_TAB);\nif(history.length+ $('Validate configuration').first().json.maxItemsPerUrl>MAX_EXISTING && !$('Validate configuration').first().json.resumeRunId)throw new Error('History may be full. Archive to a new spreadsheet before paid work.');\nif(ledger.length>=MAX_EXISTING && !$('Validate configuration').first().json.resumeRunId)throw new Error('Run log is full; archive before starting paid work.');\nreturn [{json:{existing,ledger,history}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-9",
+      "name": "Resume an existing run?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -20,
+        1040
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Resume an existing run?",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Validate configuration').first().json.resumeRunId !== '' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "allegro-10",
+      "name": "Load recovery run",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        260,
+        960
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $('Validate configuration').first().json.resumeRunId }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-11",
+      "name": "Start bounded Allegro run",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. This mutation is deliberately not retried automatically.",
+      "maxTries": 3,
+      "position": [
+        260,
+        1240
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/acts/soc9WktXbQXtS30Ra/runs?timeout=180&build=0.0.18&maxTotalChargeUsd=' + $('Validate configuration').first().json.maxChargeUsd }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ { searchUrls: [$('Validate configuration').first().json.searchUrl], maxItemsPerUrl: $('Validate configuration').first().json.maxItemsPerUrl } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-12",
+      "name": "Capture run",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        1040
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nconst run=$json.body.data;\nif(run.actId!==ACTOR_ID)throw new Error('Recovery ID belongs to another Actor.');\nreturn [{json:run}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-13",
+      "name": "Read original run input",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        780,
+        1040
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/key-value-stores/' + $('Capture run').first().json.defaultKeyValueStoreId + '/records/INPUT' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-14",
+      "name": "Prepare run checkpoint",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1040,
+        1040
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nconst run=$('Capture run').first().json,input=$json.body;\noriginalInput(input);\nconst ctx={run,input,executionId:$execution.id};\nconst ledger=$('Validate existing tables').first().json.ledger;\nconst found=ledger.findIndex(r=>r[0]===run.id), row=found>=0?found+2:ledger.length+2;\nif(row>MAX_EXISTING+1)throw new Error('Run log is full.');\nconst data=[{range:\"'Allegro Runs'!A1:R1\",values:[RUN_HEADERS]}];\nif(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:\"'Allegro Runs'!A\"+row+':R'+row,values:[ledgerRow(ctx,'PROCESSING',{},'Run saved. If interrupted, set resumeRunId to this run ID; clear a stale lock only after checking active executions.') ]});\nreturn [{json:{ctx,body:{valueInputOption:'RAW',data}}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-15",
+      "name": "Save run checkpoint",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1300,
+        1040
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '/values:batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-16",
+      "name": "Wait for Actor status",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1560,
+        1040
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $('Capture run').first().json.id + '?waitForFinish=30' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-17",
+      "name": "Inspect Actor status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        1040
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nconst run=$json.body.data;\nconst finished=checkRun(run);\nif(!finished&&$runIndex>=7)throw new Error('Stopped waiting for run '+run.id+'. Check Apify; n8n cancellation does not abort it. Resume this run, do not start another.');\nreturn [{json:{run,finished}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-18",
+      "name": "Actor succeeded?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2080,
+        1040
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "Actor succeeded?",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.finished }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "allegro-19",
+      "name": "Fetch complete bounded dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Apify API credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        -20,
+        1760
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $('Inspect Actor status').last().json.run.defaultDatasetId + '/items?format=json&limit=1001' }}",
+        "method": "GET",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "apifyApi"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-20",
+      "name": "Plan price observations",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        780,
+        1760
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nconst ctx={...$('Prepare run checkpoint').first().json.ctx,run:$('Inspect Actor status').last().json.run};\nconst {existing,ledger,history}=$('Validate existing tables').first().json;\nconst count=checkDataset({itemCount:$json.body.length});\nreturn [{json:planWrites(ctx,$json.body,existing,ledger,count,history)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-21",
+      "name": "Write prices history and run log",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. Safe reads / idempotent writes retry up to 3 times.",
+      "maxTries": 3,
+      "position": [
+        1040,
+        1760
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + '/values:batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json.body }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-22",
+      "name": "Prepare lock release",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        1760
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nconst replies=$('Acquire destination lock').first().json.body.replies;\nconst lock=replies[0].addSheet.properties;\nif(lock.title!==LOCK_TAB)throw new Error('Unexpected lock response; inspect destination.');\nreturn [{json:{requests:[{deleteSheet:{sheetId:lock.sheetId}}]}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-23",
+      "name": "Release destination lock",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Select your Google Sheets OAuth2 credential. This mutation is deliberately not retried automatically.",
+      "maxTries": 3,
+      "position": [
+        1560,
+        1760
+      ],
+      "parameters": {
+        "url": "={{ 'https://sheets.googleapis.com/v4/spreadsheets/' + $('Validate configuration').first().json.spreadsheetId + ':batchUpdate' }}",
+        "method": "POST",
+        "options": {
+          "timeout": 75000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ $json }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "googleSheetsOAuth2Api"
+      },
+      "notesInFlow": false,
+      "retryOnFail": false,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "allegro-24",
+      "name": "Run summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        1760
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='soc9WktXbQXtS30Ra';\nconst BUSINESS_TAB='Allegro Current',HISTORY_TAB='Allegro History',RUN_TAB='Allegro Runs',LOCK_TAB='_ALLEGRO_WORKFLOW_LOCK';\nconst MAX_EXISTING=5000,MAX_DATASET=1000;\nconst BUSINESS_HEADERS=['offerKey','offerId','title','sourceUrl','price','currency','sellerName','firstSeenAt','lastSeenAt','lastRunId','previousPrice','priceChange','priceChangePercent','observationType','inputUrl'];\nconst HISTORY_HEADERS=['observationKey','runId','offerKey','offerId','title','price','currency','observedAt','previousPrice','priceChange','priceChangePercent','observationType','sourceUrl','inputUrl'];\nconst RUN_HEADERS=['runId','status','inputUrl','maxItemsPerUrl','currency','startedAt','finishedAt','datasetId','rowsRead','rowsRejected','rowsAdded','rowsUpdated','duplicatesSkipped','estimatedResultChargeUsd','maxChargeUsd','buildNumber','executionId','notes'];\nfunction listingUrl(value){\n const s=String(value??'').trim();\n if(!/^https:\\/\\/allegro\\.pl\\/(?:kategoria\\/[^\\s#]+|uzytkownik\\/[^\\s#]+|listing\\?[^\\s#]+)$/.test(s))throw new Error('Use one HTTPS allegro.pl category, seller, or search listing URL; this template supports PLN only.');\n return s;\n}\nfunction config(input){\n const c={...input};c.searchUrl=listingUrl(c.searchUrl);c.spreadsheetId=String(c.spreadsheetId??'').trim();c.resumeRunId=String(c.resumeRunId??'').trim();\n if(!/^[A-Za-z0-9_-]{20,100}$/.test(c.spreadsheetId))throw new Error('Paste the spreadsheet ID (not its URL) in Configure search before starting a paid run.');\n if(c.resumeRunId&&!/^[A-Za-z0-9]{17}$/.test(c.resumeRunId))throw new Error('resumeRunId must be the 17-character Apify run ID.');\n c.maxItemsPerUrl=Number(c.maxItemsPerUrl);c.maxChargeUsd=Number(c.maxChargeUsd);\n if(!Number.isInteger(c.maxItemsPerUrl)||c.maxItemsPerUrl<1||c.maxItemsPerUrl>100)throw new Error('maxItemsPerUrl must be an integer from 1 to 100.');\n if(!Number.isFinite(c.maxChargeUsd)||c.maxChargeUsd<0.01||c.maxChargeUsd>1)throw new Error('maxChargeUsd must be between 0.01 and 1 USD.');\n return c;\n}\nfunction originalInput(input){\n if(!Array.isArray(input?.searchUrls)||input.searchUrls.length!==1)throw new Error('Recovery requires a run with exactly one Polish listing URL.');\n listingUrl(input.searchUrls[0]);\n if(!Number.isInteger(input.maxItemsPerUrl)||input.maxItemsPerUrl<1||input.maxItemsPerUrl>100)throw new Error('Recovery run must specify maxItemsPerUrl between 1 and 100.');\n return input;\n}\nfunction prepareSheet(meta){\n if(!Array.isArray(meta.sheets))throw new Error('Cannot read spreadsheet tabs. Check Google Sheets credentials.');\n const names=meta.sheets.map(s=>s.properties.title);\n if(names.includes(LOCK_TAB))throw new Error('Allegro destination is locked. Check active executions and Allegro Runs. Only when none is active, delete _ALLEGRO_WORKFLOW_LOCK and resume the saved run ID.');\n const requests=[{addSheet:{properties:{title:LOCK_TAB,gridProperties:{rowCount:5,columnCount:2}}}}];\n for(const title of [BUSINESS_TAB,HISTORY_TAB,RUN_TAB])if(!names.includes(title))requests.push({addSheet:{properties:{title,gridProperties:{rowCount:MAX_EXISTING+2,columnCount:20}}}});\n return {requests};\n}\nfunction validateTable(values,headers,label){\n if(!values?.length)return [];\n if(headers.some((h,i)=>values[0]?.[i]!==h))throw new Error(label+' headers do not match the template. Restore managed columns before starting paid work.');\n const rows=values.slice(1);if(rows.length>MAX_EXISTING)throw new Error(label+' exceeds 5000 rows. Archive and start a new spreadsheet.');\n const keys=new Set();for(const r of rows){if(!r[0]||keys.has(String(r[0])))throw new Error(label+' contains missing or duplicate keys. Restore the table before running.');keys.add(String(r[0]));}\n return rows;\n}\nfunction checkRun(run){\n if(run.actId!==ACTOR_ID)throw new Error('Recovery run belongs to another Actor. Use Allegro Listings Scraper.');\n if(['FAILED','ABORTED','TIMED-OUT'].includes(run.status))throw new Error('Apify run '+run.id+' ended '+run.status+'. No price observations written. Inspect its log.');\n if(!['READY','RUNNING','TIMING-OUT','ABORTING','SUCCEEDED'].includes(run.status))throw new Error('Unsupported Actor status: '+run.status);\n return run.status==='SUCCEEDED';\n}\nfunction checkDataset(meta){\n if(!Number.isInteger(meta.itemCount)||meta.itemCount<=0)throw new Error('No Allegro rows returned. Inspect the Actor log: an empty extraction is not evidence that offers disappeared.');\n if(meta.itemCount>MAX_DATASET)throw new Error('Dataset exceeds the 1000-row safety bound; no silent truncation.');return meta.itemCount;\n}\nfunction normalize(item){\n if(!item||typeof item.label!=='string'||!item.label.trim()||typeof item.link!=='string')return null;\n if(typeof item.price!=='number'||!Number.isFinite(item.price)||item.price<=0||item.price>1+1234567890||item.currency!=='PLN')return null;\n // Identity must be an explicit offer ID, never a product UUID or a title.\n const direct=item.link.match(/^https:\\/\\/allegro\\.pl\\/oferta\\/[^?#\\s]+-(\\d{5,20})(?:[?#]|$)/);\n const product=item.link.match(/^https:\\/\\/allegro\\.pl\\/produkt\\/[^?#\\s]+\\?(?:[^#\\s]*&)?offerId=(\\d{5,20})(?:&|#|$)/);\n const offerId=direct?.[1]??product?.[1];if(!offerId)return null;\n const price=Math.round(item.price*100)/100;if(price<=0)return null;\n return {key:'allegro.pl:'+offerId+':PLN',offerId,title:item.label.trim().slice(0,2000),url:item.link,price,currency:'PLN',seller:String(item.sellerName??'').slice(0,500)};\n}\nfunction ledgerRow(ctx,status,counts={},notes=''){\n const {run,input,executionId}=ctx;const e=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.['apify-default-dataset-item'];\n const n=typeof counts.read==='number'?Math.min(counts.read,run.options?.maxItems??counts.read):undefined;\n const estimate=typeof e?.eventPriceUsd==='number'&&n!==undefined?Math.round(e.eventPriceUsd*n*1e8)/1e8:'';\n return [run.id,status,input.searchUrls[0],input.maxItemsPerUrl,'PLN',run.startedAt,run.finishedAt??'',run.defaultDatasetId,counts.read??'',counts.rejected??'',counts.added??'',counts.updated??'',counts.duplicates??'',estimate,run.options?.maxTotalChargeUsd??'',run.buildNumber??'',String(executionId),notes];\n}\nfunction planWrites(ctx,items,existing,ledger,datasetCount,history=[]){\n if(!Array.isArray(items)||items.length!==datasetCount)throw new Error('Dataset retrieval is incomplete. No observations written.');\n originalInput(ctx.input);checkDataset({itemCount:items.length});\n const time=ctx.run.finishedAt;if(!time||!Number.isFinite(Date.parse(time)))throw new Error('Completed run timestamp missing.');\n const oldMap=new Map(existing.map((r,i)=>[r[0],{row:r,index:i+2}]));const histKeys=new Set(history.map(r=>r[0]));\n // Reject out-of-order recovery: otherwise previous-price comparisons could be misleading.\n for(const r of existing){if(!Number.isFinite(Date.parse(r[8])))throw new Error('Invalid lastSeenAt in current table.');if(Date.parse(r[8])>Date.parse(time))throw new Error('This run predates existing observations. Import it into a separate spreadsheet to preserve chronological price history.');}\n const unique=new Map(),conflicts=new Set();const counts={read:items.length,rejected:0,duplicates:0,added:0,updated:0,unchanged:0,historyAdded:0,priceChanges:0,baselines:0};\n for(const item of items){const n=normalize(item);if(!n){counts.rejected++;continue;}if(unique.has(n.key)){counts.duplicates++;if(unique.get(n.key).price!==n.price)conflicts.add(n.key);}else unique.set(n.key,n);}\n for(const key of conflicts){unique.delete(key);counts.rejected++;}\n if(!unique.size)throw new Error('No valid, unambiguous PLN offer prices. Possible schema drift; no price observations written.');\n const data=[{range:`'${BUSINESS_TAB}'!A1:O1`,values:[BUSINESS_HEADERS]},{range:`'${HISTORY_TAB}'!A1:N1`,values:[HISTORY_HEADERS]},{range:`'${RUN_TAB}'!A1:R1`,values:[RUN_HEADERS]}];\n let next=existing.length+2,hnext=history.length+2;\n for(const n of unique.values()){\n  const old=oldMap.get(n.key),r=old?.row;const hk=ctx.run.id+':'+n.key;\n  if(r?.[9]===ctx.run.id){if(!histKeys.has(hk))throw new Error('Current observation has no matching history row. Restore history before replay.');counts.unchanged++;continue;}\n  if(histKeys.has(hk))throw new Error('History already contains this run but current state disagrees. Restore current state before replay.');\n  if(r&&Date.parse(r[8])===Date.parse(time))throw new Error('Two different runs have the same observation timestamp. Review before comparison.');\n  let prev='',delta='',percent='',type='BASELINE';\n  if(r){if(r[5]!==n.currency||typeof r[4]!=='number'||!Number.isFinite(r[4])||r[4]<=0)throw new Error('Invalid previous price or currency in current table; restore it before comparing.');prev=r[4];delta=Math.round((n.price-prev)*100)/100;percent=Math.round(delta/prev*10000)/100;type=delta===0?'UNCHANGED':delta>0?'INCREASE':'DECREASE';}\n  if(type==='BASELINE')counts.baselines++;if(type==='INCREASE'||type==='DECREASE')counts.priceChanges++;\n  const row=old?.index??next++;if(row>MAX_EXISTING+1||hnext>MAX_EXISTING+1)throw new Error('Current/history table is full. Archive and start a new spreadsheet.');\n  data.push({range:`'${BUSINESS_TAB}'!A${row}:O${row}`,values:[[n.key,n.offerId,n.title,n.url,n.price,n.currency,n.seller,r?.[7]||time,time,ctx.run.id,prev,delta,percent,type,ctx.input.searchUrls[0]]]});\n  data.push({range:`'${HISTORY_TAB}'!A${hnext}:N${hnext}`,values:[[hk,ctx.run.id,n.key,n.offerId,n.title,n.price,n.currency,time,prev,delta,percent,type,n.url,ctx.input.searchUrls[0]]]});hnext++;counts.historyAdded++;if(old)counts.updated++;else counts.added++;\n }\n const found=ledger.findIndex(r=>r[0]===ctx.run.id),ri=found>=0?found+2:ledger.length+2;if(ri>MAX_EXISTING+1)throw new Error('Run log is full.');\n const status=counts.rejected?'PARTIAL_ROWS_REJECTED':'IMPORTED';const notes=`${counts.historyAdded} observations; ${counts.baselines} baselines; ${counts.priceChanges} price changes; ${counts.unchanged} replayed. Missing offers are not observed, not sold out. Prices exclude delivery; no product matching or FX conversion.`;\n if(!(found>=0&&['IMPORTED','PARTIAL_ROWS_REJECTED'].includes(ledger[found][1])))data.push({range:`'${RUN_TAB}'!A${ri}:R${ri}`,values:[ledgerRow(ctx,status,counts,notes)]});\n return {body:{valueInputOption:'RAW',data},summary:{status,runId:ctx.run.id,datasetId:ctx.run.defaultDatasetId,...counts,notes}};\n}\n\nreturn [{json:{...$('Plan price observations').first().json.summary,spreadsheetUrl:'https://docs.google.com/spreadsheets/d/'+$('Validate configuration').first().json.spreadsheetId}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "allegro-25",
+      "name": "Start here",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        -720
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 1100,
+        "height": 820,
+        "content": "## Track Allegro prices in Google Sheets\n\n### How it works\nRun manually to build a price history for one Polish Allegro seller, category, or search page with [FalconScrape’s Allegro Listings Scraper](https://apify.com/piotrv1001/allegro-listings-scraper).\n\n1. It validates the settings and locks the spreadsheet so two executions cannot write at once.\n2. It starts one capped Apify run—or resumes a run ID you already paid for—and waits for it to finish.\n3. It validates the offers, matches them by Allegro offer ID, and writes them to Google Sheets.\n\n**Allegro Current** holds the latest PLN price per offer. **Allegro History** adds one observation per run and calculates increases, decreases, or unchanged prices. **Allegro Runs** records the run ID and import status for recovery. A first sighting is a baseline, not a price change. Missing offers keep their last observation and are not assumed to be sold out.\n\n### Setup\n1. Install the official Apify integration. Add an **Apify API** credential to the Apify request nodes and a **Google Sheets OAuth2** credential to the Sheets request nodes.\n2. Create an empty spreadsheet. In **Configure search**, paste its spreadsheet ID and one `allegro.pl` seller, category, or search URL. Leave **resumeRunId** empty for a new run.\n3. For the first test, keep **20 items** and the **$0.10** charge cap, then select **Execute workflow**. The three tabs are created automatically. The template is free, but the Actor and n8n hosting can incur charges even when prices do not change.\n4. If a run stops, read **Allegro Runs** before trying again. Resume the saved run instead of starting another paid scrape. Stopping n8n does not stop the Apify run.\n\n### Customization\nKeep personal columns from P onward in **Allegro Current**. Use one listing per spreadsheet, and archive to a new spreadsheet before the history reaches 5,000 rows.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "allegro-26",
+      "name": "1. Configure and check access",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1020,
+        "height": 460,
+        "content": "## 1. Enter your listing and destination\nOpen **Configure search** and paste one `allegro.pl` listing URL plus the ID of an empty spreadsheet. Keep the first run at 20 items and $0.10. These nodes validate the values and confirm Google Sheets access before any paid scrape starts."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "allegro-27",
+      "name": "2. Prepare the destination",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1420,
+        "height": 460,
+        "content": "## 2. Create and protect the output tabs\nThe workflow creates **Allegro Current**, **Allegro History**, and **Allegro Runs** when needed. A temporary lock prevents overlapping executions from corrupting the history. If a lock or the 5,000-row limit is found, the run stops before paid work."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "allegro-28",
+      "name": "3. Start a new scrape or resume one",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        700
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1020,
+        "height": 720,
+        "content": "## 3. Choose new run or recovery\nLeave **resumeRunId** empty to start one charge-capped Actor run. Enter a saved Apify run ID to recover without paying for the same scrape twice. The workflow verifies that a recovered run belongs to the expected Actor and listing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "allegro-29",
+      "name": "4. Save the run ID and wait",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        980,
+        700
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1420,
+        "height": 720,
+        "content": "## 4. Save recovery details and wait\nBefore polling, the workflow writes the Apify run ID and original input to **Allegro Runs**. It continues only after a successful Actor result. If waiting expires or the Actor fails, inspect that saved run instead of immediately starting another."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "allegro-30",
+      "name": "5. Compare and record each offer",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -60,
+        1500
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1280,
+        "height": 480,
+        "content": "## 5. Validate offers and record prices\nReturned rows must contain an Allegro offer ID, numeric price, and PLN currency. Matching IDs are compared with their previous observations. The workflow updates current prices, appends one deduplicated history row per offer, and records the import outcome."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "allegro-31",
+      "name": "6. Unlock and review the result",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1240,
+        1500
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1160,
+        "height": 480,
+        "content": "## 6. Unlock and review the result\nAfter all writes succeed, the temporary lock is removed. **Run summary** shows baseline, changed, unchanged, rejected, and written counts, plus a direct link to the spreadsheet. If execution stopped earlier, use the saved run ID and recovery steps in the overview."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "timezone": "Europe/Warsaw",
+    "executionOrder": "v1",
+    "executionTimeout": 600,
+    "saveExecutionProgress": true
+  },
+  "connections": {
+    "Capture run": {
+      "main": [
+        [
+          {
+            "node": "Read original run input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Configure search",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Actor succeeded?": {
+      "main": [
+        [
+          {
+            "node": "Fetch complete bounded dataset",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait for Actor status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configure search": {
+      "main": [
+        [
+          {
+            "node": "Validate configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read destination": {
+      "main": [
+        [
+          {
+            "node": "Prepare tabs and lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Load recovery run": {
+      "main": [
+        [
+          {
+            "node": "Capture run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing rows": {
+      "main": [
+        [
+          {
+            "node": "Validate existing tables",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save run checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Wait for Actor status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Inspect Actor status": {
+      "main": [
+        [
+          {
+            "node": "Actor succeeded?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare lock release": {
+      "main": [
+        [
+          {
+            "node": "Release destination lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare tabs and lock": {
+      "main": [
+        [
+          {
+            "node": "Acquire destination lock",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for Actor status": {
+      "main": [
+        [
+          {
+            "node": "Inspect Actor status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare run checkpoint": {
+      "main": [
+        [
+          {
+            "node": "Save run checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate configuration": {
+      "main": [
+        [
+          {
+            "node": "Read destination",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Plan price observations": {
+      "main": [
+        [
+          {
+            "node": "Write prices history and run log",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read original run input": {
+      "main": [
+        [
+          {
+            "node": "Prepare run checkpoint",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resume an existing run?": {
+      "main": [
+        [
+          {
+            "node": "Load recovery run",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Start bounded Allegro run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Acquire destination lock": {
+      "main": [
+        [
+          {
+            "node": "Read existing rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Release destination lock": {
+      "main": [
+        [
+          {
+            "node": "Run summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate existing tables": {
+      "main": [
+        [
+          {
+            "node": "Resume an existing run?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start bounded Allegro run": {
+      "main": [
+        [
+          {
+            "node": "Capture run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch complete bounded dataset": {
+      "main": [
+        [
+          {
+            "node": "Plan price observations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Write prices history and run log": {
+      "main": [
+        [
+          {
+            "node": "Prepare lock release",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Track Allegro listing prices in Google Sheets with Apify",
+    "wechat": "youandme10086",
+    "id": 19551,
+    "update_time": "2026-09-27"
+  }
+}

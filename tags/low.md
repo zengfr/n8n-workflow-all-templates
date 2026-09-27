@@ -1,4 +1,4 @@
-# low : 21
+# low : 29
 
 |id|file|
 |----|----|
@@ -23,3 +23,11 @@
 |16541|[16541_Send_low-stock_inventory_reorder_emails_from_Snowflake_with_Claude_and_Outlook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16541_Send_low-stock_inventory_reorder_emails_from_Snowflake_with_Claude_and_Outlook.json)|
 |16572|[16572_Create_Veo_3.1_Fast_AI_shorts_from_Telegram_with_AtlasCloud__OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16572_Create_Veo_3.1_Fast_AI_shorts_from_Telegram_with_AtlasCloud__OpenAI_and_Blotato.json)|
 |16705|[16705_Send_SAP_Business_One_low_stock_alerts_via_WhatsApp_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16705_Send_SAP_Business_One_low_stock_alerts_via_WhatsApp_and_email.json)|
+|17610|[17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json)|
+|17624|[17624_Route_low-stock_inventory_alerts_from_Google_Sheets_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17624_Route_low-stock_inventory_alerts_from_Google_Sheets_to_Slack.json)|
+|17724|[17724_Send_low-stock_purchase_orders_with_Google_Sheets__Slack__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17724_Send_low-stock_purchase_orders_with_Google_Sheets__Slack__and_OpenAI.json)|
+|17841|[17841_Log_low-rating_cleanliness_complaints_from_Google_Maps_reviews_with_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17841_Log_low-rating_cleanliness_complaints_from_Google_Maps_reviews_with_Airtable.json)|
+|18045|[18045_Route_low-rated_Tripadvisor_hotel_reviews_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18045_Route_low-rated_Tripadvisor_hotel_reviews_to_Google_Sheets_with_Apify.json)|
+|18428|[18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18428_Build_scored_Google_Maps_prospect_lists_with_BasedOnBusiness_and_Google_Sheets.json)|
+|19230|[19230_Schedule_low-risk_deployment_windows_with_GPT-4.1__Slack__and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19230_Schedule_low-risk_deployment_windows_with_GPT-4.1__Slack__and_Google_Calendar.json)|
+|19720|[19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19720_Grade_LLM_answers_and_route_low-confidence_results_with_Judgment_API.json)|

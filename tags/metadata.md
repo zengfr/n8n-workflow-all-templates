@@ -1,4 +1,4 @@
-# metadata : 20
+# metadata : 24
 
 |id|file|
 |----|----|
@@ -22,3 +22,7 @@
 |10619|[10619_Automated_YouTube_Publishing_from_Drive_with_GPT___Gemini_Metadata_Generation.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/06/10619_Automated_YouTube_Publishing_from_Drive_with_GPT___Gemini_Metadata_Generation.json)|
 |13317|[13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13317_Back_up_Instagram_videos_to_Google_Drive_with_JSON_metadata_catalog.json)|
 |14255|[14255_Create_YouTube_SEO_metadata_and_thumbnails_from_Google_Drive_videos_with_Gemini__LemonFox_and_upload-post.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14255_Create_YouTube_SEO_metadata_and_thumbnails_from_Google_Drive_videos_with_Gemini__LemonFox_and_upload-post.json)|
+|16976|[16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json)|
+|17072|[17072_Audit_YouTube_video_metadata_changes_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17072_Audit_YouTube_video_metadata_changes_with_Google_Sheets_and_Slack.json)|
+|17114|[17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17114_Analyze_URLs_and_extract_SEO_metadata_with_forms_and_HTTP_requests.json)|
+|17442|[17442_Query_PostgreSQL_from_Slack_using_Google_Sheets_metadata_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17442_Query_PostgreSQL_from_Slack_using_Google_Sheets_metadata_and_Gemini.json)|

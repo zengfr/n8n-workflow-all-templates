@@ -1,4 +1,4 @@
-# receipts : 18
+# receipts : 30
 
 |id|file|
 |----|----|
@@ -20,3 +20,15 @@
 |15177|[15177_Track_AI_agent_token_costs_and_store_receipts_with_the_n8n_API_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15177_Track_AI_agent_token_costs_and_store_receipts_with_the_n8n_API_and_Data_Tables.json)|
 |16166|[16166_Log_receipts_from_Telegram_to_Google_Sheets_and_query_spending_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16166_Log_receipts_from_Telegram_to_Google_Sheets_and_query_spending_with_Gemini.json)|
 |16389|[16389_Verify_receipts_and_invoices_with_OpenAI_vision__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16389_Verify_receipts_and_invoices_with_OpenAI_vision__Slack_and_Google_Sheets.json)|
+|16879|[16879_Rename_Japan_e-bookkeeping_receipts_and_invoices_with_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16879_Rename_Japan_e-bookkeeping_receipts_and_invoices_with_Gemini_and_Google_Drive.json)|
+|16983|[16983_Log_email_receipt_data_to_Google_Sheets_with_Gmail_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16983_Log_email_receipt_data_to_Google_Sheets_with_Gmail_and_OpenAI.json)|
+|17380|[17380_Extract_receipts_from_Gmail_with_Claude_and_log_expenses_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17380_Extract_receipts_from_Gmail_with_Claude_and_log_expenses_to_Google_Sheets.json)|
+|17435|[17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17435_Verify_hotel_receipts_against_bookings_with_GPT-4o_vision__Slack__and_Sheets.json)|
+|17575|[17575_Send_Stripe_payment_thank-you_receipts_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17575_Send_Stripe_payment_thank-you_receipts_with_Claude_Sonnet_and_Gmail.json)|
+|17706|[17706_Track_and_log_receipt_expenses_in_Google_Sheets_with_Gmail__Drive__and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17706_Track_and_log_receipt_expenses_in_Google_Sheets_with_Gmail__Drive__and_Claude.json)|
+|17974|[17974_Manage_school_fee_receipts_and_GPT-4o_reminders_with_Razorpay_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17974_Manage_school_fee_receipts_and_GPT-4o_reminders_with_Razorpay_and_Google_Sheets.json)|
+|18361|[18361_Send_donor_thank-you_receipts_and_weekly_digests_with_Google_Sheets__DeepSeek__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18361_Send_donor_thank-you_receipts_and_weekly_digests_with_Google_Sheets__DeepSeek__Gmail_and_Telegram.json)|
+|18615|[18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json)|
+|18793|[18793_Send_branded_PDF_receipts_for_Stripe_payments_with_PDFMint__Gmail_and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18793_Send_branded_PDF_receipts_for_Stripe_payments_with_PDFMint__Gmail_and_Drive.json)|
+|19077|[19077_Send_PDF_payment_receipts_with_Stripe__EmitForge__Gmail__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19077_Send_PDF_payment_receipts_with_Stripe__EmitForge__Gmail__Google_Drive_and_Slack.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|

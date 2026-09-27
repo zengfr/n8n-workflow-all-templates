@@ -1,4 +1,4 @@
-# quizzes : 8
+# quizzes : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |15512|[15512_Generate_interactive_MCQ_quizzes_from_PDF_textbooks_with_Google_Gemini__UploadToURL_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15512_Generate_interactive_MCQ_quizzes_from_PDF_textbooks_with_Google_Gemini__UploadToURL_and_Gmail.json)|
 |15999|[15999_Create_chapter-wise_notes_and_MCQ_quizzes_from_YouTube_with_WayinVideo__GPT-4o-mini__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15999_Create_chapter-wise_notes_and_MCQ_quizzes_from_YouTube_with_WayinVideo__GPT-4o-mini__Google_Sheets__and_Gmail.json)|
 |16692|[16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json)|
+|17318|[17318_Create_PDF_flashcards__quizzes__and_study_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17318_Create_PDF_flashcards__quizzes__and_study_plans_with_Gemini_and_Google_Sheets.json)|
+|18301|[18301_Coach_students_and_generate_notes__quizzes__and_roadmaps_with_Mistral_AI_and_YouTube.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18301_Coach_students_and_generate_notes__quizzes__and_roadmaps_with_Mistral_AI_and_YouTube.json)|
+|18791|[18791_Generate_quizzes_and_run_multiplayer_quiz_contests_with_Mistral_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18791_Generate_quizzes_and_run_multiplayer_quiz_contests_with_Mistral_and_Supabase.json)|

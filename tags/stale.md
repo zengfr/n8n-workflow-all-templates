@@ -1,4 +1,4 @@
-# stale : 12
+# stale : 17
 
 |id|file|
 |----|----|
@@ -14,3 +14,8 @@
 |16522|[16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16522_Tag_stale_ClickUp_tasks_and_escalate_overdue_items_with_assignee_comments.json)|
 |16701|[16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json)|
 |16802|[16802_Roll_overdue_Notion_tasks_forward_and_flag_stale_ones_on_a_schedule.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16802_Roll_overdue_Notion_tasks_forward_and_flag_stale_ones_on_a_schedule.json)|
+|16828|[16828_Review_stale_Notion_docs_with_Gmail_alerts__Slack_reports__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16828_Review_stale_Notion_docs_with_Gmail_alerts__Slack_reports__and_OpenAI.json)|
+|17469|[17469_Triage_and_resolve_stale_Jira_tickets_with_OpenAI__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17469_Triage_and_resolve_stale_Jira_tickets_with_OpenAI__Notion__and_Slack.json)|
+|17809|[17809_Audit_Notion_wiki_health_and_send_weekly_digests_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17809_Audit_Notion_wiki_health_and_send_weekly_digests_to_Slack.json)|
+|19195|[19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19195_Sort_website_contact_emails_into_role_vs_personal_with_Apify_and_Google_Sheets.json)|
+|19450|[19450_Triage_stale_property_listings_with_Google_Sheets__Gemini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19450_Triage_stale_property_listings_with_Google_Sheets__Gemini__and_Slack.json)|

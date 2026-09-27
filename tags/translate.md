@@ -1,4 +1,4 @@
-# translate : 45
+# translate : 47
 
 |id|file|
 |----|----|
@@ -47,3 +47,5 @@
 |16122|[16122_Summarize_and_translate_YouTube_videos_with_SupaData_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16122_Summarize_and_translate_YouTube_videos_with_SupaData_and_OpenAI.json)|
 |16139|[16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16139_Translate_Google_Drive_videos_to_Japanese_subtitles_with_AssemblyAI__Gemini_and_Creatomate.json)|
 |16427|[16427_Translate_lab_report_PDFs_for_patients_with_Google_Drive__OpenAI_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16427_Translate_lab_report_PDFs_for_patients_with_Google_Drive__OpenAI_and_Gmail.json)|
+|16976|[16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json)|
+|17139|[17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json)|

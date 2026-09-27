@@ -1,0 +1,602 @@
+{
+  "id": "PaNJCsu4IKbGo584",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Sync SAP sales project fields between Microsoft SQL and Asana",
+    "wechat": "youandme10086",
+    "id": 17206,
+    "update_time": "2026-09-27"
+  },
+  "name": "P1 SAP → Asana | Workflow 2: Sales Orders Task Sync copy",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5b36a407-0196-44da-9888-1d50bcd14750",
+      "name": "Hourly Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -2592,
+        16
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "hours"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "256afd9d-f277-4b75-a579-c81cf4261a0d",
+      "name": "Query Unsynced Projects",
+      "type": "n8n-nodes-base.microsoftSql",
+      "position": [
+        -2368,
+        16
+      ],
+      "parameters": {
+        "query": "SELECT TOP 100\n  ID,\n  ProjectName,\n  ProjectManager,\n  SAPActualMargin,\n  Revenue,\n  OpenRevenue,\n  PcttoInvoice,\n  TotalTateContractCost,\n  FirstOnsiteDate,\n  LastOnsiteDate,\n  SyncedToAsana,\n  SyncAttempts,\n  AsanaProjectID\nFROM Projects_Asana_Staging\nWHERE\n  (SyncedToAsana = 0 OR SyncedToAsana IS NULL OR SyncedToAsana = 4)\n  AND (SyncAttempts IS NULL OR SyncAttempts < 3)\nORDER BY ID ASC",
+        "operation": "executeQuery"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f5f2df95-97c3-4079-ba23-ea521cdc5433",
+      "name": "Any Records to Sync?",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        -2144,
+        16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-rows",
+              "operator": {
+                "type": "string",
+                "operation": "notEquals"
+              },
+              "leftValue": "={{ $json.ID }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "3cd5c989-1b19-4ed2-bec6-ba83fe1485a8",
+      "name": "Mark as Processing",
+      "type": "n8n-nodes-base.microsoftSql",
+      "position": [
+        -1920,
+        16
+      ],
+      "parameters": {
+        "query": "=UPDATE Projects_Asana_Staging\nSET SyncedToAsana = 2,\n    LastSyncDate = GETDATE()\nWHERE ID = {{ $json.ID }}",
+        "operation": "executeQuery"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5e77455c-9406-42bb-b778-021e8f765f26",
+      "name": "Pass Project Context",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1712,
+        16
+      ],
+      "parameters": {
+        "jsCode": "// Carry all project data forward after marking as Processing\nconst project = $('Query Unsynced Projects').item.json;\nreturn [{ json: project }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "48a141cf-3b3f-451a-b1e1-9b64fd45839b",
+      "name": "Get Portfolio Projects from Asana",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -1456,
+        16
+      ],
+      "parameters": {
+        "url": "=https://app.asana.com/api/1.0/portfolios/{{ $vars.ASANA_PORTFOLIO_GID }}/items",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "opt_fields",
+              "value": "gid,name"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $vars.ASANA_PAT }}"
+            },
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "5e1c6d0d-5475-4809-9cf9-2fe5baa6bd94",
+      "name": "Match Project by Name",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -1264,
+        16
+      ],
+      "parameters": {
+        "jsCode": "// Find matching Asana project by ProjectName (exact match — per spec)\nconst projectData = $('Pass Project Context').item.json;\nconst portfolioItems = $input.item.json?.data ?? [];\n\nconst match = portfolioItems.find(\n  p => (p.name || '').trim().toLowerCase() === (projectData.ProjectName || '').trim().toLowerCase()\n);\n\nreturn [{\n  json: {\n    ...projectData,\n    asana_project_gid: match?.gid ?? null,\n    asana_project_found: !!match\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a3fa75cd-5fe5-4673-9378-6e69db15454c",
+      "name": "Project Found in Asana?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        -1040,
+        16
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "project-found",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.asana_project_found }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "85c55b1a-1ff8-4b52-a7c1-b50239599d7e",
+      "name": "Get Project Custom Fields",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -832,
+        -112
+      ],
+      "parameters": {
+        "url": "=https://app.asana.com/api/1.0/projects/{{ $json.asana_project_gid }}",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "opt_fields",
+              "value": "gid,name,custom_fields,custom_fields.gid,custom_fields.name,custom_fields.display_value"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $vars.ASANA_PAT }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "d40595e3-1676-476e-b8bf-afbad48bdc8d",
+      "name": "Build Custom Fields Payload",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -608,
+        -112
+      ],
+      "parameters": {
+        "jsCode": "// Build custom_fields payload for Asana project update\n// Maps SQL columns to Asana custom field GIDs\n// Replace GID placeholders with actual GIDs from your Asana workspace\n\nconst project = $('Match Project by Name').item.json;\nconst asanaProject = $input.item.json?.data ?? {};\n\n// Build a map of field name → GID from the live project\nconst fieldMap = {};\n(asanaProject.custom_fields || []).forEach(f => {\n  fieldMap[f.name] = f.gid;\n});\n\n// Helper: format date to YYYY-MM-DD, return null if blank\nconst fmtDate = (val) => {\n  if (!val) return null;\n  try { return new Date(val).toISOString().split('T')[0]; } catch { return null; }\n};\n\n// Helper: format numeric — return null if blank (spec requires NULL support)\nconst fmtNum = (val) => (val === null || val === undefined || val === '') ? null : parseFloat(val);\n\n// Build custom_fields update object\n// Key = Asana custom field GID, Value = new value\n// Uses fieldMap from live project — falls back to env var GIDs if needed\nconst customFields = {};\n\nconst addField = (fieldName, value) => {\n  const gid = fieldMap[fieldName];\n  if (gid && value !== null) customFields[gid] = value;\n  else if (gid && value === null) customFields[gid] = null; // explicit null clears field\n};\n\naddField('Project Manager', project.ProjectManager ?? null);\naddField('Actual Margin', fmtNum(project.SAPActualMargin));\naddField('Revenue', fmtNum(project.Revenue));\naddField('Open Revenue', fmtNum(project.OpenRevenue));\naddField('Invoiced', fmtNum(project.PcttoInvoice));\naddField('Full Contract Cost', fmtNum(project.TotalTateContractCost));\naddField('First Onsite Date', fmtDate(project.FirstOnsiteDate));\naddField('Last Onsite Date', fmtDate(project.LastOnsiteDate));\n\nreturn [{\n  json: {\n    ...project,\n    asana_project_gid: asanaProject.gid,\n    custom_fields_payload: customFields\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "5cee1e86-2bac-4e28-b021-e84ff1c88947",
+      "name": "Update Asana Project Fields",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        -208,
+        -112
+      ],
+      "parameters": {
+        "url": "=https://app.asana.com/api/1.0/projects/{{ $json.asana_project_gid }}",
+        "method": "PUT",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={\n  \"data\": {\n    \"custom_fields\": {{ JSON.stringify($json.custom_fields_payload) }}\n  }\n}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Authorization",
+              "value": "Bearer {{ $vars.ASANA_PAT }}"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.3
+    },
+    {
+      "id": "73796251-377e-4bd9-afc0-d1161f1bb454",
+      "name": "SQL — Mark Project Completed",
+      "type": "n8n-nodes-base.microsoftSql",
+      "position": [
+        16,
+        -112
+      ],
+      "parameters": {
+        "query": "=UPDATE Projects_Asana_Staging\nSET SyncedToAsana = 3,\n    LastSyncDate = GETDATE(),\n    AsanaProjectID = '{{ $('Build Custom Fields Payload').item.json.asana_project_gid }}',\n    SyncAttempts = 0,\n    LastSyncError = NULL\nWHERE ID = {{ $('Build Custom Fields Payload').item.json.ID }}",
+        "operation": "executeQuery"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ef9ec452-e578-41fe-963d-30af7cd1599a",
+      "name": "SQL — Mark Waiting for Project ID",
+      "type": "n8n-nodes-base.microsoftSql",
+      "position": [
+        -800,
+        240
+      ],
+      "parameters": {
+        "query": "=UPDATE Projects_Asana_Staging\nSET SyncedToAsana = 1,\n    LastSyncDate = GETDATE(),\n    SyncAttempts = 0,\n    LastSyncError = 'Project not found in Asana portfolio. Waiting for manual project creation.'\nWHERE ID = {{ $json.ID }}",
+        "operation": "executeQuery"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2bd558bc-16f6-45ed-bc4f-0e79c11acf07",
+      "name": "Handle Project Update Error",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueErrorOutput",
+      "position": [
+        -208,
+        -272
+      ],
+      "parameters": {
+        "jsCode": "// Catch errors from Asana API call and log them to SQL\nconst project = $('Build Custom Fields Payload').item.json;\nconst error = $input.item.json;\nreturn [{\n  json: {\n    ID: project.ID,\n    error_message: error?.message || JSON.stringify(error).slice(0, 500)\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6b535ea7-dad5-40ea-9172-68f50bf2faaf",
+      "name": "SQL — Mark Project Failed",
+      "type": "n8n-nodes-base.microsoftSql",
+      "position": [
+        16,
+        -272
+      ],
+      "parameters": {
+        "query": "=UPDATE Projects_Asana_Staging\nSET SyncedToAsana = 4,\n    SyncAttempts = ISNULL(SyncAttempts, 0) + 1,\n    LastSyncError = {{ JSON.stringify($json.error_message) }},\n    LastSyncDate = GETDATE()\nWHERE ID = {{ $json.ID }}",
+        "operation": "executeQuery"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1ab5d3d2-4870-4c00-b7b1-07502fca7ed4",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -2656,
+        -192
+      ],
+      "parameters": {
+        "width": 688,
+        "height": 432,
+        "content": "## 1. Trigger and find pending records\n\nStarts the workflow every hour and checks the SQL database for project records that still need to be synced. It ensures the workflow only continues when there are valid unsynced records to process."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fd03ead7-e1e7-4025-9fd2-a8368848f1ee",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1952,
+        -192
+      ],
+      "parameters": {
+        "width": 432,
+        "height": 432,
+        "content": "## 2. Lock records and prepare context\nMarks the selected SQL records as `Processing` to prevent duplicate handling. It also prepares and passes the project context needed for the Asana matching and update steps."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1d4a890a-21a5-4be7-911a-54a30022b886",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1488,
+        -192
+      ],
+      "parameters": {
+        "width": 576,
+        "height": 432,
+        "content": "## 3. Match SQL records with Asana projects\nLoads the current project list from Asana and compares it with the incoming SQL project name. It then decides whether a valid matching project exists in Asana before continuing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0dcefaeb-070b-41b0-a690-ac7854855b9a",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -864,
+        112
+      ],
+      "parameters": {
+        "width": 480,
+        "height": 288,
+        "content": "## 4. Handle records with no project match\nIf no matching Asana project is found, this step updates the SQL record to `Waiting for Project ID`. This keeps the record visible for future retries instead of marking it as failed too early."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ec9f6413-5b5d-499c-817b-4f2e949321a6",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -880,
+        -256
+      ],
+      "parameters": {
+        "width": 544,
+        "height": 320,
+        "content": "## 5. Prepare the Asana custom field update\n\nFetches the custom fields for the matched Asana project and prepares the update structure. It maps SQL values into the correct payload format required by the Asana API."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c1023537-a3b2-448f-8720-189e9d86d9b8",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -304,
+        -432
+      ],
+      "parameters": {
+        "width": 768,
+        "height": 528,
+        "content": "## 6. Update the Asana project and save the final result\n\nThis step sends the prepared custom field payload to Asana and performs the actual project update.After the update attempt, the workflow handles both outcomes. Successful updates are written back to SQL as `Completed`, while failed updates follow the error path and are marked as `Failed`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a6ba4d38-319d-4591-9dc7-febfdb0b438f",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -3424,
+        -560
+      ],
+      "parameters": {
+        "width": 688,
+        "height": 800,
+        "content": "# SAP to Asana: Project and Custom Fields Sync (Part 1)\n\nThis workflow runs every hour to sync unsynced project records from the SQL database to matching projects in Asana.\n\n## What this workflow does\n\n- Checks the SQL database for project records that still need syncing\n- Marks found records as `Processing` to prevent duplicate runs\n- Loads current projects from Asana and matches them by project name\n- Sends unmatched records to a `Waiting for Project ID` state\n- Fetches the matched project's custom fields from Asana\n- Builds the update payload for Asana custom fields\n- Updates the Asana project\n- Writes the final result back to SQL as `Completed` or `Failed`\n\n## Why this workflow is important\n\n- Prevents duplicate processing through database state tracking\n- Keeps SQL and Asana aligned without manual updates\n- Uses clear success and failure paths for better reliability\n- Makes troubleshooting easier by storing every final status in SQL"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "50a4d583-5103-49fd-8851-1d32cbacd2a3",
+  "connections": {
+    "Mark as Processing": {
+      "main": [
+        [
+          {
+            "node": "Pass Project Context",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any Records to Sync?": {
+      "main": [
+        [
+          {
+            "node": "Mark as Processing",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Pass Project Context": {
+      "main": [
+        [
+          {
+            "node": "Get Portfolio Projects from Asana",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Match Project by Name": {
+      "main": [
+        [
+          {
+            "node": "Project Found in Asana?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Hourly Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "Query Unsynced Projects",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Project Found in Asana?": {
+      "main": [
+        [
+          {
+            "node": "Get Project Custom Fields",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "SQL — Mark Waiting for Project ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Query Unsynced Projects": {
+      "main": [
+        [
+          {
+            "node": "Any Records to Sync?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Project Custom Fields": {
+      "main": [
+        [
+          {
+            "node": "Build Custom Fields Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Custom Fields Payload": {
+      "main": [
+        [
+          {
+            "node": "Update Asana Project Fields",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Handle Project Update Error": {
+      "main": [
+        [
+          {
+            "node": "SQL — Mark Project Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Asana Project Fields": {
+      "main": [
+        [
+          {
+            "node": "SQL — Mark Project Completed",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Handle Project Update Error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get Portfolio Projects from Asana": {
+      "main": [
+        [
+          {
+            "node": "Match Project by Name",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

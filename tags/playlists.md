@@ -1,4 +1,4 @@
-# playlists : 8
+# playlists : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |5923|[5923_Create_Playlists_and_Control_Your_Spotify_Player_with_GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/59/5923_Create_Playlists_and_Control_Your_Spotify_Player_with_GPT-4.json)|
 |6021|[6021_Create_Complete_20-Song_YouTube_Playlists_with_Suno_API__Claude___Telegram_Bot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/60/6021_Create_Complete_20-Song_YouTube_Playlists_with_Suno_API__Claude___Telegram_Bot.json)|
 |15534|[15534_Transcribe_YouTube_playlists_with_SerpApi_and_Gmail_into_a_JSON_report.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15534_Transcribe_YouTube_playlists_with_SerpApi_and_Gmail_into_a_JSON_report.json)|
+|17744|[17744_Classify_Plex_music_into_smart_playlists_using_Ollama_and_local_LLMs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17744_Classify_Plex_music_into_smart_playlists_using_Ollama_and_local_LLMs.json)|

@@ -1,0 +1,797 @@
+{
+  "id": "AGwO6HQYeLoQz7ie",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Monitor website uptime and visual drift with Snapshot Site, Google Sheets and Slack",
+    "wechat": "youandme10086",
+    "id": 19070,
+    "update_time": "2026-09-27"
+  },
+  "name": "Website Uptime & Visual Check → Slack State-Change Alerts",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "8a123581-3ad3-4772-8757-17e3b677af78",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        1424
+      ],
+      "parameters": {
+        "width": 520,
+        "height": 1676,
+        "content": "## Website Uptime & Visual Check → Slack State-Change Alerts\n\n### How it works\n\nEvery 10 minutes this workflow reads a watchlist from a Google Sheet (`url`, `label`, `baselineUrl`, `lastState`) and loops over the pages one at a time, running a **two-stage gate** per page.\n\n**Stage 1 (cheap) — is it up?** One Snapshot Site **Analyze** call with `enableQuality: true` and `enableSummary: false`. The quality bundle reports what a real browser saw — `httpStatus`, `isBlank`, `hasCaptcha` — so **Evaluate Availability** returns a verdict of `up` or `down` with a reason. No AI summary is requested: this is a health check, nobody reads a summary of it, and at 144 runs a day the saved latency and cost are the whole point.\n\n**Stage 2 (expensive) — does it still look right?** The **Compare** call runs *only* on a page stage 1 proved is up: stored baseline image as `beforeUrl`, live page as `afterUrl`. Pixel-comparing a page that is down would burn a Compare call to rediscover a 503 that stage 1 already reported.\n\n**Detect State Change** then compares the computed state (`up` / `down` / `visual-drift`) against the row's `lastState` and alerts **only on a transition** — up → down, down → up, up → visual-drift and back. Recoveries are announced too. Every run writes `lastState` and `lastCheckedAt` back to the sheet, on both the changed and the unchanged path, so the next sweep has a fresh reference. If a run cannot determine a state (empty `quality` object, unreadable response) the previous value is **kept**, never overwritten with a guess.\n\n### Setup steps\n\n- Install the `n8n-nodes-snapshot-site` community node (Settings → Community nodes → Install → `n8n-nodes-snapshot-site`) — verified by n8n.\n- Add a Snapshot Site credential, a Google Sheets credential, and a Slack credential.\n- Create a **Watchlist** tab and type this header row literally into row 1, one column per cell: `url`, `label`, `baselineUrl`, `lastState`, `lastCheckedAt`. Cell **A1 must contain the literal text `url`**, not a URL — otherwise Google Sheets' `read` operation treats that URL as the column name, `$json.url` is `undefined` for every row and every call fails with the soft error `URL is required` (confirmed live).\n- Fill one row per page: `url` = the live page, `label` = a short human name for alerts, `baselineUrl` = a hosted screenshot of the page as it should look. Leave `lastState` and `lastCheckedAt` empty — the workflow fills them in. All URLs need the scheme (`https://…`); the API rejects bare domains.\n- Point **Read Uptime Watchlist** and **Update Watchlist State** at your spreadsheet and tab, attach the Snapshot Site credential to both Snapshot Site nodes, and set the channel on **Notify State Change on Slack**.\n- After import, open **Update Watchlist State** and switch its Mapping Column Mode to **\"Map Automatically\"** — Google Sheets column mappings are a resourceMapper parameter and never survive a JSON import, regardless of what the JSON says.\n\n### Customization\n\nTune `VISUAL_DRIFT_PERCENT` in **Evaluate Visual Drift** (10% = layout drift; use `> 0` for pages where a single character matters, ~30 for defacement), or mask dynamic regions with `hide` selectors on `afterOptions` instead of raising the band. Change the cadence on the trigger, add states of your own (a `slow` state, a `captcha` state) by extending the `VALID` list in **Detect State Change**, or fan a second branch off **Check for State Change** that pages on-call only for `down` transitions while drift stays Slack-only."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "61709bc6-22d1-497e-a1d3-c1421c9eba7d",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2672,
+        1536
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 620,
+        "content": "## Schedule and read the watchlist\n\nRuns every 10 minutes and reads every watched page from the Google Sheet (`url`, `label`, `baselineUrl`, `lastState`).\nThe loop processes one page per iteration and every branch returns to it, so one failing URL can never abort the sweep.\nThe Done branch ends on a No Operation node: alerts are per-page state changes, so there is no digest to build."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b3d36842-d392-4cc8-b801-add6b28fbfc6",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3712,
+        1808
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1280,
+        "height": 712,
+        "content": "## Stage 1 (cheap): is the page up?\n\nOne Analyze call per page with `enableQuality: true` and `enableSummary: false` — `httpStatus`, `isBlank` and `hasCaptcha` decide `up` vs `down`. `forceRefresh: true` because a cached analysis would report an earlier sweep's health and defeat the 10-minute cadence.\nHard failures (error output) and soft failures (`{error: true}` on the success output) both become a `down` record with the API's own message and go straight to the state comparison — never aborting, never reaching stage 2.\nIf the `quality` object comes back empty, the state is left blank on purpose: undetermined is not the same as up."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a29354fa-fb60-4976-bf68-8478082761cc",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5072,
+        1696
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2136,
+        "height": 956,
+        "content": "## Stage 2 (expensive) + state-change alerting\n\nCompare runs only for a page stage 1 proved is up — stored baseline as `beforeUrl`, live page as `afterUrl`. Never pixel-compare a page that is down.\n**Detect State Change** alerts only on a transition (up → down, down → up, up → visual-drift, and back). At 144 runs a day, alerting on state instead of on change means 144 identical messages and a muted channel.\nBoth the changed and the unchanged path write `lastState` + `lastCheckedAt` back to the sheet, so the next run always has a fresh reference. An undetermined run keeps the previous value instead of inventing one."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3c4ae894-4471-4728-8df8-3410d5e8f89d",
+      "name": "When Every 10 Minutes",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        2752,
+        1840
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 10
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "d472ed89-02b0-4de8-a0e6-1acea898fbee",
+      "name": "Read Uptime Watchlist",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3024,
+        1840
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Watchlist"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/PLACEHOLDER/edit"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "8384ab1e-6192-467f-84da-dc24281957e8",
+      "name": "Loop Over Watched Pages",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3312,
+        1840
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "fbcefd57-4c0c-48f0-b45c-57eef9e1d057",
+      "name": "All Pages Checked",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        3776,
+        2032
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "443bbb90-0d43-4964-9ef6-21bbb11d1b31",
+      "name": "Analyze Page Availability",
+      "type": "n8n-nodes-snapshot-site.snapshotSite",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        3792,
+        2256
+      ],
+      "parameters": {
+        "url": "={{ $json.url }}",
+        "operation": "analyze",
+        "requestOptions": {},
+        "additionalFields": {
+          "delay": 3,
+          "fullSize": false,
+          "hideCookie": true,
+          "forceRefresh": true,
+          "enableQuality": true,
+          "enableSummary": false
+        }
+      },
+      "credentials": {
+        "snapshotSiteApi": {
+          "id": "YbCswCSJ9NiWALKF",
+          "name": "Snapshot Site account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "180ad727-ea6a-413a-86f4-77a8d067fa21",
+      "name": "Check for API Error",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4080,
+        2048
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.error === true }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2542d927-1783-4b0c-b5d2-bf43a204e347",
+      "name": "Record Page Down",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        4272,
+        2336
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "url",
+              "type": "string",
+              "value": "={{ $('Loop Over Watched Pages').first().json.url }}"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "={{ $('Loop Over Watched Pages').first().json.label || $('Loop Over Watched Pages').first().json.url }}"
+            },
+            {
+              "name": "baselineUrl",
+              "type": "string",
+              "value": "={{ $('Loop Over Watched Pages').first().json.baselineUrl }}"
+            },
+            {
+              "name": "state",
+              "type": "string",
+              "value": "down"
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "value": "=availability check failed: {{ $json.error?.message || $json.message }}"
+            },
+            {
+              "name": "mismatchPercentage",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "name": "diffLink",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "name": "screenshotLink",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "name": "visualCheck",
+              "type": "string",
+              "value": "not-run"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "d333e18e-444f-45e2-8828-8ccb25607629",
+      "name": "Evaluate Availability",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4352,
+        2048
+      ],
+      "parameters": {
+        "jsCode": "// STAGE 1 of the two-stage gate: is this page even up?\n// Reads only verified Analyze quality fields (populated because enableQuality: true):\n// quality.httpStatus, quality.isBlank, quality.hasCaptcha, with metadata.httpStatus as a\n// fallback. enableSummary is off on purpose - a health check has no use for an AI summary,\n// and this node runs 144 times a day per page.\n// batchSize is 1, so .first() is the page currently in the loop.\nconst d = $input.first().json;\nconst row = $('Loop Over Watched Pages').first().json;\nconst q = d.quality || {};\nconst m = d.metadata || {};\n\nconst httpStatus =\n  typeof q.httpStatus === 'number'\n    ? q.httpStatus\n    : typeof m.httpStatus === 'number'\n      ? m.httpStatus\n      : null;\n\n// If the quality bundle came back empty (enableQuality switched off, or an account without\n// Analyze access) we know NOTHING about this page. Reporting 'up' here would be an invention;\n// an empty state makes Detect State Change keep the previous value instead.\nconst determinable =\n  typeof q.httpStatus === 'number' ||\n  typeof q.isBlank === 'boolean' ||\n  typeof m.httpStatus === 'number';\n\nconst reasons = [];\nif (httpStatus !== null && httpStatus >= 400) reasons.push('HTTP ' + httpStatus);\nif (q.isBlank === true) reasons.push('rendered blank (no visible content)');\nif (q.hasCaptcha === true) reasons.push('CAPTCHA / bot wall served to visitors');\n\nlet state = reasons.length ? 'down' : 'up';\nif (!determinable) {\n  state = '';\n  reasons.push('availability undetermined - Analyze returned an empty quality object');\n}\n\nreturn [\n  {\n    json: {\n      url: row.url,\n      label: row.label || row.url,\n      baselineUrl: row.baselineUrl || '',\n      state,\n      reason: reasons.join(' · '),\n      httpStatus,\n      mismatchPercentage: '',\n      diffLink: '',\n      visualCheck: 'not-run',\n      screenshotLink: (d.screenshot && d.screenshot.link) || '',\n    },\n  },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b56e9a51-3e82-40f5-9d4b-1a711a2e280a",
+      "name": "Check Whether Page Is Up",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4736,
+        2112
+      ],
+      "parameters": {
+        "conditions": {
+          "string": [
+            {
+              "value1": "={{ $json.state }}",
+              "value2": "up"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "5cca0149-8a7c-4a2d-9fa1-3f30315231c9",
+      "name": "Compare Page to Baseline",
+      "type": "n8n-nodes-snapshot-site.snapshotSite",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        5104,
+        1872
+      ],
+      "parameters": {
+        "afterUrl": "={{ $('Loop Over Watched Pages').first().json.url }}",
+        "beforeUrl": "={{ $('Loop Over Watched Pages').first().json.baselineUrl }}",
+        "operation": "compare",
+        "afterOptions": {
+          "fullSize": true,
+          "hideCookie": true
+        },
+        "beforeOptions": {},
+        "requestOptions": {}
+      },
+      "credentials": {
+        "snapshotSiteApi": {
+          "id": "YbCswCSJ9NiWALKF",
+          "name": "Snapshot Site account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 1,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "2f073273-85c5-4940-897e-0c7b5ded0633",
+      "name": "Check for Compare API Error",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5392,
+        1856
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.error === true }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fc2e9668-dc38-403e-9108-25cde8ebeaad",
+      "name": "Record Visual Check Failure",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        5632,
+        2304
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "url",
+              "type": "string",
+              "value": "={{ $('Loop Over Watched Pages').first().json.url }}"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "={{ $('Loop Over Watched Pages').first().json.label || $('Loop Over Watched Pages').first().json.url }}"
+            },
+            {
+              "name": "baselineUrl",
+              "type": "string",
+              "value": "={{ $('Loop Over Watched Pages').first().json.baselineUrl }}"
+            },
+            {
+              "name": "state",
+              "type": "string",
+              "value": "up"
+            },
+            {
+              "name": "reason",
+              "type": "string",
+              "value": "=page is up, but the visual check could not run: {{ $json.error?.message || $json.message }}"
+            },
+            {
+              "name": "mismatchPercentage",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "name": "diffLink",
+              "type": "string",
+              "value": ""
+            },
+            {
+              "name": "screenshotLink",
+              "type": "string",
+              "value": "={{ $('Evaluate Availability').first().json.screenshotLink }}"
+            },
+            {
+              "name": "visualCheck",
+              "type": "string",
+              "value": "failed"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "6d1ace00-b695-4731-bdfc-b725626ba1b0",
+      "name": "Evaluate Visual Drift",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5712,
+        1872
+      ],
+      "parameters": {
+        "jsCode": "// STAGE 2, and it only ever runs on a page stage 1 already proved is up. Pixel-comparing a\n// page that is down would spend a Compare call to rediscover the 503 stage 1 reported.\n// summary.mismatchPercentage is a 0-100 PERCENTAGE, not a 0-1 ratio. 10% is a layout-drift\n// band: text edits measure ~0.01%, a broken stylesheet or a collapsed hero measures tens of\n// percent. Lower it to 0 for pages where one character matters (pricing, legal text).\nconst VISUAL_DRIFT_PERCENT = 10;\n\nconst d = $input.first().json;\nconst stage1 = $('Evaluate Availability').first().json;\nconst summary = d.summary || {};\nconst mismatch =\n  typeof summary.mismatchPercentage === 'number' ? summary.mismatchPercentage : null;\n\nconst drifted = mismatch !== null && mismatch >= VISUAL_DRIFT_PERCENT;\n\nconst reasons = [];\nif (drifted) {\n  // Raw value on purpose - rounding renders a real 0.01% change as \"0.0%\".\n  reasons.push(mismatch + '% of pixels differ from the baseline (band ' + VISUAL_DRIFT_PERCENT + '%)');\n  if (summary.sameDimensions === false) reasons.push('page dimensions changed vs the baseline');\n}\n// A missing percentage is inconclusive, not \"fine\". Availability was still established by\n// stage 1, so the page stays 'up' and the visual half of the check is recorded as unread.\nif (mismatch === null) {\n  reasons.push('visual check inconclusive - Compare returned no summary.mismatchPercentage');\n}\n\nreturn [\n  {\n    json: {\n      ...stage1,\n      state: drifted ? 'visual-drift' : 'up',\n      reason: reasons.join(' · '),\n      mismatchPercentage: mismatch === null ? '' : mismatch,\n      diffLink: (d.diff && d.diff.link) || '',\n      visualCheck: mismatch === null ? 'inconclusive' : 'ran',\n    },\n  },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "518eea10-3f9e-488e-ae9b-4c4ab574e814",
+      "name": "Detect State Change",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5936,
+        1984
+      ],
+      "parameters": {
+        "jsCode": "// The solidity core: alert on a STATE TRANSITION, not on every run.\n// This workflow runs 144 times a day. Alerting on state instead of on change would send 144\n// identical \"page is down\" messages a day, the channel gets muted, and the next real outage\n// is missed. Recoveries are announced too - a monitor that only reports failures never tells\n// you it is over.\nconst VALID = ['up', 'down', 'visual-drift'];\nconst ICON = { down: '🔴', 'visual-drift': '🟠', up: '✅' };\n\nconst r = $input.first().json;\nconst row = $('Loop Over Watched Pages').first().json;\n\nconst previousRaw = String(row.lastState === undefined || row.lastState === null ? '' : row.lastState)\n  .trim()\n  .toLowerCase();\nconst previous = VALID.includes(previousRaw) ? previousRaw : '';\nconst current = String(r.state === undefined || r.state === null ? '' : r.state).trim().toLowerCase();\nconst checkedAt = new Date().toISOString();\n\nlet state = current;\nlet changed = false;\nlet transition = '';\nlet undetermined = false;\n\nif (!VALID.includes(current)) {\n  // No state could be determined this run. KEEP the previous value rather than inventing one:\n  // overwriting lastState with a guess is exactly how a monitor loses the ability to detect\n  // the next real transition (and how a \"recovered\" alert gets swallowed).\n  undetermined = true;\n  state = previous;\n  transition = previous ? previous + ' (kept - undetermined this run)' : 'undetermined';\n} else if (!previous) {\n  // First ever check for this row: record the state, and only speak up if it is already bad.\n  // Otherwise the first sweep of a 40-page watchlist posts 40 \"now up\" messages.\n  transition = 'first check → ' + current;\n  changed = current !== 'up';\n} else if (current !== previous) {\n  transition = previous + ' → ' + current;\n  changed = true;\n} else {\n  transition = current + ' (unchanged)';\n}\n\nconst headline =\n  state === 'up' && previous && previous !== 'up'\n    ? 'Recovered'\n    : state === 'down'\n      ? 'Down'\n      : state === 'visual-drift'\n        ? 'Visual drift'\n        : 'Status';\n\n// Slack mrkdwn link; falls back to the raw URL when no label was set in the sheet.\nconst lines = [];\nlines.push((ICON[state] || 'ℹ️') + ' *' + headline + '* - <' + r.url + '|' + (r.label || r.url) + '>');\nlines.push('Transition: `' + transition + '`');\nif (r.reason) lines.push('Reason: ' + r.reason);\nif (r.mismatchPercentage !== '' && r.mismatchPercentage !== null && r.mismatchPercentage !== undefined) {\n  lines.push('Visual difference: ' + r.mismatchPercentage + '%');\n}\nif (r.diffLink) lines.push('<' + r.diffLink + '|view diff image>');\nif (!r.diffLink && r.screenshotLink) lines.push('<' + r.screenshotLink + '|view capture>');\nlines.push('_Checked ' + checkedAt + ' - you get one message per state change, not one per sweep._');\n\nreturn [\n  {\n    json: {\n      ...r,\n      previousState: previous,\n      state,\n      newLastState: state,\n      changed,\n      transition,\n      undetermined,\n      checkedAt,\n      alertText: lines.join('\\n'),\n    },\n  },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "280af569-720b-4697-a711-1251b9f95d0d",
+      "name": "Check for State Change",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        6208,
+        1984
+      ],
+      "parameters": {
+        "conditions": {
+          "boolean": [
+            {
+              "value1": "={{ $json.changed === true }}",
+              "value2": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "344d583e-dcff-4d9b-abec-8e5674793efd",
+      "name": "Notify State Change on Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        6672,
+        1872
+      ],
+      "webhookId": "006a2677-319b-4c77-91e5-8e10be4ad143",
+      "parameters": {
+        "text": "={{ $json.alertText }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "#site-uptime"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "unfurl_media": false
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b3d3e59d-3bd4-433e-b8a2-084798432c7f",
+      "name": "Build Watchlist Row",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        6720,
+        2128
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "url",
+              "type": "string",
+              "value": "={{ $('Detect State Change').first().json.url }}"
+            },
+            {
+              "name": "label",
+              "type": "string",
+              "value": "={{ $('Detect State Change').first().json.label }}"
+            },
+            {
+              "name": "baselineUrl",
+              "type": "string",
+              "value": "={{ $('Detect State Change').first().json.baselineUrl }}"
+            },
+            {
+              "name": "lastState",
+              "type": "string",
+              "value": "={{ $('Detect State Change').first().json.newLastState }}"
+            },
+            {
+              "name": "lastCheckedAt",
+              "type": "string",
+              "value": "={{ $('Detect State Change').first().json.checkedAt }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "fa145709-830a-4f7d-bb40-277a03b3583d",
+      "name": "Update Watchlist State",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        7056,
+        2416
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "url"
+          ]
+        },
+        "options": {},
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Watchlist"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/PLACEHOLDER/edit"
+        }
+      },
+      "typeVersion": 4.5
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "3365d400-1c3e-4bbc-a6aa-5f3d295c68c2",
+  "nodeGroups": [],
+  "connections": {
+    "Record Page Down": {
+      "main": [
+        [
+          {
+            "node": "Detect State Change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Watchlist Row": {
+      "main": [
+        [
+          {
+            "node": "Update Watchlist State",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for API Error": {
+      "main": [
+        [
+          {
+            "node": "Record Page Down",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evaluate Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Detect State Change": {
+      "main": [
+        [
+          {
+            "node": "Check for State Change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Availability": {
+      "main": [
+        [
+          {
+            "node": "Check Whether Page Is Up",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Evaluate Visual Drift": {
+      "main": [
+        [
+          {
+            "node": "Detect State Change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read Uptime Watchlist": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Watched Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Every 10 Minutes": {
+      "main": [
+        [
+          {
+            "node": "Read Uptime Watchlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for State Change": {
+      "main": [
+        [
+          {
+            "node": "Notify State Change on Slack",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Watchlist Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Update Watchlist State": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Watched Pages",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Watched Pages": {
+      "main": [
+        [
+          {
+            "node": "All Pages Checked",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Analyze Page Availability",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check Whether Page Is Up": {
+      "main": [
+        [
+          {
+            "node": "Compare Page to Baseline",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Detect State Change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Compare Page to Baseline": {
+      "main": [
+        [
+          {
+            "node": "Check for Compare API Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Visual Check Failure",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Analyze Page Availability": {
+      "main": [
+        [
+          {
+            "node": "Check for API Error",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Record Page Down",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for Compare API Error": {
+      "main": [
+        [
+          {
+            "node": "Record Visual Check Failure",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Evaluate Visual Drift",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record Visual Check Failure": {
+      "main": [
+        [
+          {
+            "node": "Detect State Change",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Notify State Change on Slack": {
+      "main": [
+        [
+          {
+            "node": "Build Watchlist Row",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

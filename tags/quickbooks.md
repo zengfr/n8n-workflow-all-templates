@@ -1,4 +1,4 @@
-# quickbooks : 39
+# quickbooks : 40
 
 |id|file|
 |----|----|
@@ -41,3 +41,4 @@
 |13092|[13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13092_Convert_emailed_timesheets_into_QuickBooks_invoices_with_OCR__AI__Gmail_and_Sheets.json)|
 |14085|[14085_Process_emailed_PDF_invoices_into_QuickBooks_bills_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14085_Process_emailed_PDF_invoices_into_QuickBooks_bills_with_OpenAI.json)|
 |14272|[14272_Process_email_invoices_with_OCR__GPT-4__Slack__QuickBooks_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14272_Process_email_invoices_with_OCR__GPT-4__Slack__QuickBooks_and_Google_Sheets.json)|
+|18264|[18264_Process_AP_invoices_from_Gmail_and_Drive_with_Gemini__Sheets_and_QuickBooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18264_Process_AP_invoices_from_Gmail_and_Drive_with_Gemini__Sheets_and_QuickBooks.json)|

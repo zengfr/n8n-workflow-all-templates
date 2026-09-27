@@ -1,0 +1,453 @@
+{
+  "name": "Enrich a long list of domains in paced batches with Apify and Google Sheets",
+  "nodes": [
+    {
+      "id": "trig",
+      "name": "Every Monday",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        440
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "src",
+      "name": "Read the domain list",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        260,
+        440
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "loop",
+      "name": "Take them ten at a time",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        540,
+        440
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "a1",
+      "name": "Look up this batch",
+      "type": "@apify/n8n-nodes-apify.apify",
+      "position": [
+        1060,
+        600
+      ],
+      "parameters": {
+        "memory": 1024,
+        "actorId": "dami_studio~contact-details-scraper",
+        "timeout": 300,
+        "resource": "Actors",
+        "operation": "Run actor and get dataset",
+        "customBody": "={{ JSON.stringify({ startUrls: $input.all().map(i => ({ url: i.json.domain })) }) }}",
+        "maxTotalChargeUsd": 1
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "norm",
+      "name": "Keep one row per domain",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        600
+      ],
+      "parameters": {
+        "jsCode": "// The scraper can return several rows for one site (one per page it read), and a row with no\n// contact on it at all. Collapse to one row per domain and keep the first of each field, so\n// the aggregate at the end counts domains rather than pages.\nconst best = {};\nfor (const item of $input.all()) {\n  const j = item.json;\n  const domain = (j.domain || j.url || '').toString().replace(/^https?:\\/\\//, '').split('/')[0];\n  if (!domain) continue;\n  if (!best[domain]) best[domain] = { domain, email: null, phone: null, linkedIn: null, pagesRead: 0 };\n  const b = best[domain];\n  b.pagesRead += 1;\n  if (!b.email && Array.isArray(j.emails) && j.emails.length) b.email = j.emails[0];\n  if (!b.phone && Array.isArray(j.phones) && j.phones.length) b.phone = j.phones[0];\n  if (!b.linkedIn && Array.isArray(j.linkedIns) && j.linkedIns.length) b.linkedIn = j.linkedIns[0];\n}\nreturn Object.keys(best).map((d) => ({ json: best[d] }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "wait",
+      "name": "Breathe between batches",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1580,
+        600
+      ],
+      "parameters": {
+        "unit": "seconds",
+        "amount": 30
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "agg",
+      "name": "Collect every batch",
+      "type": "n8n-nodes-base.aggregate",
+      "position": [
+        1060,
+        280
+      ],
+      "parameters": {
+        "options": {},
+        "aggregate": "aggregateAllItemData"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sum",
+      "name": "Score the coverage",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        280
+      ],
+      "parameters": {
+        "jsCode": "// The reason to aggregate rather than append as you go: hit rate is only meaningful across the\n// WHOLE list. \"412 of 500 domains gave an email\" is a number you can act on; a row-by-row\n// append tells you nothing about the 88 that did not.\nconst rows = ($input.first().json.data || []).filter((r) => r && r.domain);\nconst withEmail = rows.filter((r) => r.email).length;\nconst withPhone = rows.filter((r) => r.phone).length;\nconst pct = (n) => (rows.length ? Math.round((n / rows.length) * 100) : 0);\nconst stamp = new Date().toISOString().slice(0, 10);\nreturn rows.map((r) => ({ json: {\n  ...r,\n  runDate: stamp,\n  listSize: rows.length,\n  emailHitRate: pct(withEmail),\n  phoneHitRate: pct(withPhone),\n} }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sh",
+      "name": "Write the enriched list",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1580,
+        280
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "opt-slack",
+      "name": "Optional: post the hit rate to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        1320,
+        900
+      ],
+      "parameters": {
+        "text": "=Enriched {{ $json.listSize }} domains. Email found on {{ $json.emailHitRate }}%, phone on {{ $json.phoneHitRate }}%.",
+        "select": "channel",
+        "channelId": "#growth",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "opt-gmail",
+      "name": "Optional: email the finished list",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        1580,
+        900
+      ],
+      "parameters": {
+        "sendTo": "you@example.com",
+        "message": "=Email hit rate {{ $json.emailHitRate }}%, phone {{ $json.phoneHitRate }}%.",
+        "options": {
+          "appendAttribution": false
+        },
+        "subject": "=Enrichment done - {{ $json.listSize }} domains"
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "st0",
+      "name": "Sticky Note s0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 1. Weekly\n\nRuns Monday. The whole point is that the list can be long, so this is built to take its time rather than fire everything at once."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st1",
+      "name": "Sticky Note s1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        220,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 2. The list\n\nA sheet with one column called `domain`. Hundreds of rows is fine - that is what the loop is for."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st2",
+      "name": "Sticky Note s2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        480,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 3. Ten at a time\n\nThe Loop Over Items node. Output 2 goes round the loop with the next ten; output 1 fires ONCE at the end with everything collected."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st3",
+      "name": "Sticky Note s3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        740,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 4. Look them up\n\nOne Apify call per batch, not per domain. Ten domains in one run is far cheaper than ten runs of one."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st4",
+      "name": "Sticky Note s4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1000,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 5. One row per domain\n\nThe scraper returns a row per page it read. This collapses them so the totals at the end count domains, not pages."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st5",
+      "name": "Sticky Note s5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1260,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 6. Wait, then loop\n\nThirty seconds between batches. Slower on purpose: it keeps you far away from any rate limit and spreads the spend."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st6",
+      "name": "Sticky Note s6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1520,
+        60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 240,
+        "height": 300,
+        "content": "### 7. Only now, the totals\n\nWhen the loop is done, everything is aggregated and scored together. Hit rate only means something across the whole list."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-opt",
+      "name": "Sticky Note optional",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1280,
+        780
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 560,
+        "height": 210,
+        "content": "## Optional - tell someone it finished\n\nWired to nothing on purpose. **Slack** or **Gmail** if a long run should announce its hit rate when it lands, rather than you checking the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "st-desc",
+      "name": "Sticky Note overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -680,
+        40
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1320,
+        "content": "## Enrich a long list of domains in paced batches and score the hit rate\n\nReads a sheet of domains, looks them up ten at a time with a pause between batches, then writes the whole enriched list back with a coverage figure.\n\n**Who is this for?**\nAnyone holding a list of company domains and no contact details, who has already tried doing it in one pass and hit a rate limit or a surprise bill.\n\n**What problem is this workflow solving?**\nThe naive version fires every domain at once. On a list of 500 that means one enormous run, one rate limit, and no idea what it cost until it is over. Batching makes it something you can leave alone: predictable spend per batch, a pause that keeps you inside any limit, and a run you can stop halfway without losing what it found.\n\n**What this workflow does**\n- Reads a sheet with one `domain` column.\n- Loops over it ten at a time, one Apify call per batch rather than per domain.\n- Crawls each batch for emails, phones and social links.\n- Collapses multiple pages per site into one row.\n- Waits 30 seconds, then takes the next ten.\n- When the list is done, aggregates everything and writes it back with an email and phone hit rate.\n\n**Setup**\n1. Point the first Sheets node at a sheet with a `domain` column.\n2. Connect Apify and Google Sheets credentials.\n3. Run it on twenty rows first and read the output before pointing it at the whole list.\n\n**Requirements**\nApify (a contact-details crawler) and a Google Sheet. No AI key needed.\n\n**How to customize this workflow to your needs**\nBatch size lives on the Loop Over Items node and the pause is one number on the Wait node. Bigger batches finish sooner, a longer wait is gentler; start at ten and thirty seconds and move one at a time. Note the max charge on the Apify node is per BATCH, so a 500-domain list at ten a time can spend up to fifty times that figure.\n\n**Good to know**\nIt reads plain HTML, so an address rendered by JavaScript after load is never seen, and plenty of sites publish no contact details at all. Expect a hit rate well under 100% - that is what the score is for, and a low one usually says more about the list than the crawler."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Every Monday": {
+      "main": [
+        [
+          {
+            "node": "Read the domain list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Look up this batch": {
+      "main": [
+        [
+          {
+            "node": "Keep one row per domain",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score the coverage": {
+      "main": [
+        [
+          {
+            "node": "Write the enriched list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Collect every batch": {
+      "main": [
+        [
+          {
+            "node": "Score the coverage",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read the domain list": {
+      "main": [
+        [
+          {
+            "node": "Take them ten at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Breathe between batches": {
+      "main": [
+        [
+          {
+            "node": "Take them ten at a time",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep one row per domain": {
+      "main": [
+        [
+          {
+            "node": "Breathe between batches",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Take them ten at a time": {
+      "main": [
+        [
+          {
+            "node": "Collect every batch",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Look up this batch",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Enrich domain contact data in paced batches with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19093,
+    "update_time": "2026-09-27"
+  }
+}

@@ -1,4 +1,4 @@
-# close : 7
+# close : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |15073|[15073_Predict_deal_close_dates_and_update_Salesforce_with_Groq_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15073_Predict_deal_close_dates_and_update_Salesforce_with_Groq_and_Google_Sheets.json)|
 |15092|[15092_Automate_new_student_onboarding_from_Close_CRM_to_Airtable__Mighty_Networks__Intercom_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15092_Automate_new_student_onboarding_from_Close_CRM_to_Airtable__Mighty_Networks__Intercom_and_Slack.json)|
 |15786|[15786_Bridge_Gmail_and_iMessage_with_Blooio_and_log_conversations_to_Close.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15786_Bridge_Gmail_and_iMessage_with_Blooio_and_log_conversations_to_Close.json)|
+|19320|[19320_Close_the_support_loop_and_send_CSAT_between_Jira__Gmail__WhatsApp_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19320_Close_the_support_loop_and_send_CSAT_between_Jira__Gmail__WhatsApp_and_HubSpot.json)|

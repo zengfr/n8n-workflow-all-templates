@@ -1,4 +1,4 @@
-# action : 21
+# action : 32
 
 |id|file|
 |----|----|
@@ -23,3 +23,14 @@
 |15995|[15995_Extract_and_self-correct_meeting_action_items_with_OpenRouter_and_webhooks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15995_Extract_and_self-correct_meeting_action_items_with_OpenRouter_and_webhooks.json)|
 |16227|[16227_Extract_meeting_action_items_and_decisions_with_OpenAI__Asana_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16227_Extract_meeting_action_items_and_decisions_with_OpenAI__Asana_and_Sheets.json)|
 |16322|[16322_Track_meeting_action_items_with_Claude__Linear__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16322_Track_meeting_action_items_with_Claude__Linear__Slack_and_Gmail.json)|
+|16999|[16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16999_Extract_meeting_decisions_and_action_items_with_LDX_hub__Gemini__and_Google_Sheets.json)|
+|17028|[17028_Route_meeting_action_items_to_Slack_using_Gmail__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17028_Route_meeting_action_items_to_Slack_using_Gmail__OpenAI__and_Google_Sheets.json)|
+|17214|[17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17214_Govern_enterprise_marketplace_support_actions_with_OSuite_approvals.json)|
+|17316|[17316_Turn_whiteboard_photos_into_meeting_notes_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17316_Turn_whiteboard_photos_into_meeting_notes_with_Gemini_and_Google_Sheets.json)|
+|18202|[18202_Summarize_meeting_transcripts_with_Google_Drive__OpenAI__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18202_Summarize_meeting_transcripts_with_Google_Drive__OpenAI__Gmail__and_Sheets.json)|
+|18705|[18705_Create_Notion_tasks_from_meeting_transcripts_with_OpenAI__Slack__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18705_Create_Notion_tasks_from_meeting_transcripts_with_OpenAI__Slack__and_Sheets.json)|
+|18761|[18761_Manage_safety_inspections_and_corrective_actions_with_DeepSeek__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18761_Manage_safety_inspections_and_corrective_actions_with_DeepSeek__Sheets__Gmail_and_Telegram.json)|
+|18862|[18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18862_Summarize_and_action_meeting_recordings_with_Whisper__Claude__HubSpot__Gmail__and_Slack.json)|
+|18984|[18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18984_Summarize_meetings_and_sync_action_items_with_Whisper__Claude__HubSpot__Gmail_and_Slack.json)|
+|19629|[19629_Create_ClickUp_meeting_action_items_from_transcripts_with_GPT-4o-mini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19629_Create_ClickUp_meeting_action_items_from_transcripts_with_GPT-4o-mini_and_Slack.json)|
+|19825|[19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json)|

@@ -1,4 +1,4 @@
-# dataforseo : 35
+# dataforseo : 39
 
 |id|file|
 |----|----|
@@ -37,3 +37,7 @@
 |15319|[15319_Collect_keyword_clusters_for_URLs_in_Google_Sheets_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15319_Collect_keyword_clusters_for_URLs_in_Google_Sheets_with_DataForSEO.json)|
 |15390|[15390_Generate_Brave_Search_Goggles_with_DataForSEO__Firecrawl__OpenAI_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15390_Generate_Brave_Search_Goggles_with_DataForSEO__Firecrawl__OpenAI_and_Postgres.json)|
 |16297|[16297_Generate_SEO_tour_blog_posts_with_Claude__DataForSEO__Google_Docs__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16297_Generate_SEO_tour_blog_posts_with_Claude__DataForSEO__Google_Docs__and_Slack.json)|
+|19236|[19236_Track_weekly_AI_brand_visibility_with_DataForSEO__OpenAI__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19236_Track_weekly_AI_brand_visibility_with_DataForSEO__OpenAI__Google_Sheets_and_Gmail.json)|
+|19237|[19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19237_Find_link_gap_prospects_from_competitor_backlinks_with_DataForSEO__OpenAI__and_Google_Sheets.json)|
+|19238|[19238_Track_organic_SEO_market_share_with_DataForSEO__OpenAI_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19238_Track_organic_SEO_market_share_with_DataForSEO__OpenAI_and_Google_Docs.json)|
+|19531|[19531_Recover_lost_backlinks_with_DataForSEO__OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19531_Recover_lost_backlinks_with_DataForSEO__OpenAI__Google_Sheets__and_Slack.json)|

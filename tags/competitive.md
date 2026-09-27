@@ -1,4 +1,4 @@
-# competitive : 10
+# competitive : 13
 
 |id|file|
 |----|----|
@@ -12,3 +12,6 @@
 |10205|[10205_Auto-Generate_Competitive_Battlecards_with_AI__Slack___Notion__Klue_Alternative.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10205_Auto-Generate_Competitive_Battlecards_with_AI__Slack___Notion__Klue_Alternative.json)|
 |11658|[11658_Auto-Generate_Competitive_Battle_Cards_from_Websites_with_Zoho_CRM_and_Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11658_Auto-Generate_Competitive_Battle_Cards_from_Websites_with_Zoho_CRM_and_Gemini_AI.json)|
 |15475|[15475_Generate_competitive_product_roadmap_reports_with_Gemini_2.5_Flash__Olostep_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15475_Generate_competitive_product_roadmap_reports_with_Gemini_2.5_Flash__Olostep_and_Google_Drive.json)|
+|18141|[18141_Generate_competitive_deal_strategies_in_Salesforce_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18141_Generate_competitive_deal_strategies_in_Salesforce_with_Google_Sheets_and_Gemini.json)|
+|18227|[18227_Analyze_Amazon_review_gaps_with_Bright_Data__OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18227_Analyze_Amazon_review_gaps_with_Bright_Data__OpenAI__Google_Sheets__and_Slack.json)|
+|18794|[18794_Generate_competitive_analysis_reports_with_Figranium__OpenAI_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18794_Generate_competitive_analysis_reports_with_Figranium__OpenAI_and_Google_Docs.json)|

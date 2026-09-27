@@ -1,0 +1,298 @@
+{
+  "name": "Generate a bounded catalog image batch with PNG assets and per-product audit manifests",
+  "nodes": [
+    {
+      "id": "3eacd846-d145-48c5-a5b8-191f27ee325c",
+      "name": "Start",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "92486b1d-70d7-42b5-b972-b729e456045a",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        260,
+        0
+      ],
+      "parameters": {
+        "mode": "raw",
+        "options": {},
+        "jsonOutput": "{\"mode\": \"demo\", \"allowPaidGeneration\": false, \"size\": \"1024x1024\", \"quality\": \"low\", \"catalog\": [{\"sku\": \"mug-001\", \"product\": \"plain ceramic mug\", \"scene\": \"on a light oak desk in daylight\"}, {\"sku\": \"bag-001\", \"product\": \"unbranded canvas tote bag\", \"scene\": \"on a neutral studio backdrop\"}], \"demoFailureSku\": \"bag-001\"}"
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "90a76ea0-0eb7-4936-8d90-50b52bffab77",
+      "name": "Validate catalog before any charge",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        520,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const c=$input.first().json;if(!['demo','live'].includes(c.mode))throw Error('Choose demo or live');if(c.mode==='live'&&c.allowPaidGeneration!==true)throw Error('Set allowPaidGeneration=true after reviewing OpenAI prices');if(!['1024x1024','1536x1024','1024x1536'].includes(c.size))throw Error('Invalid size');if(!['low','medium','high'].includes(c.quality))throw Error('Invalid quality');if(!Array.isArray(c.catalog)||c.catalog.length<1||c.catalog.length>3)throw Error('Batch must have 1–3 rows');const seen=new Set();for(const r of c.catalog){if(!/^[a-z0-9_-]{1,60}$/i.test(r.sku)||seen.has(r.sku))throw Error('Unique safe SKUs required');seen.add(r.sku);for(const k of ['product','scene'])if(typeof r[k]!=='string'||!r[k].trim()||r[k].length>1000)throw Error('Product and scene must be 1–1000 characters');}return [{json:c}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "17da933d-5546-4a45-a0d1-0fce05af28d3",
+      "name": "Create one request per SKU",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        780,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const c=$input.first().json;return c.catalog.map(r=>({json:{sku:r.sku,mode:c.mode,demoFailureSku:c.demoFailureSku,request:{model:'gpt-image-1',n:1,size:c.size,quality:c.quality,output_format:'png',prompt:`Create a product concept image. Subject: ${r.product.trim()}. Scene: ${r.scene.trim()}. No added text, logos or invented certifications. This is a concept visualization, not a photograph of a verified physical product.`}},pairedItem:{item:0}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1de067aa-e120-435f-9641-0e7df1a16050",
+      "name": "Demo without paid API",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1040,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "f80e9590-da0e-4eb9-812f-033487a02096",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.mode === 'demo' }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "fd5b6bc6-3307-44e8-944e-6e9b74cd9958",
+      "name": "Offline response fixtures",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1300,
+        0
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().map((i,n)=>({json:i.json.sku===i.json.demoFailureSku?{statusCode:429,body:{error:{message:'Demo rate-limit fixture'}}}:{statusCode:200,body:{data:[{b64_json:'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+jRZkAAAAASUVORK5CYII='}]}},pairedItem:{item:n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "03d1d9d0-32c7-4ec8-823a-a5d46633dcfa",
+      "name": "Generate PNG once per SKU",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        1560,
+        0
+      ],
+      "parameters": {
+        "url": "https://api.openai.com/v1/images/generations",
+        "method": "POST",
+        "options": {
+          "timeout": 180000,
+          "batching": {
+            "batch": {
+              "batchSize": 1,
+              "batchInterval": 1500
+            }
+          },
+          "redirect": {
+            "redirect": {
+              "followRedirects": false
+            }
+          },
+          "response": {
+            "response": {
+              "neverError": true,
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify($json.request) }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "4c152010-8e40-484e-b08b-0c3d74fbe69f",
+      "name": "Validate responses and materialize PNG",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1820,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const inputs=$input.all(),requests=$('Create one request per SKU').all(),out=[];for(let n=0;n<inputs.length;n++){const item=inputs[n],r=requests[n].json,b=item.json.body||{},status=Number(item.json.statusCode||0);let state='needs_review',reason='Transport/unknown outcome: inspect provider usage before retrying';const binary={};if(status>=200&&status<300){const s=b.data?.[0]?.b64_json;if(typeof s==='string'&&s.length<=28*1024*1024&&/^[A-Za-z0-9+/]+={0,2}$/.test(s)){const buf=Buffer.from(s,'base64');if(buf.subarray(0,8).toString('hex')==='89504e470d0a1a0a'){binary.image=await this.helpers.prepareBinaryData(buf,r.sku+'.png','image/png');state=r.mode==='demo'?'demo_placeholder':'generated';reason=r.mode==='demo'?'1-pixel fixture, not an AI image':'Review product accuracy before publishing';}else reason='Invalid PNG signature';}else reason='Missing, oversized or malformed image payload';}else if(status>=400&&status<500){state='rejected';reason='HTTP '+status+'; review provider error before retrying';}else if(status>=500){reason='Provider server error; billing outcome may be unknown';}const report={sku:r.sku,state,status,reason,request:r.request,providerRequestId:item.json.headers?.['x-request-id']||null,createdAt:new Date().toISOString()};binary.manifest=await this.helpers.prepareBinaryData(Buffer.from(JSON.stringify(report,null,2)),r.sku+'-manifest.json','application/json');out.push({json:report,binary,pairedItem:{item:n}});}return out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "934af71d-8570-4d28-8f41-0302297f81ad",
+      "name": "Attach batch review summary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2080,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const items=$input.all();const report={total:items.length,generated:items.filter(i=>i.json.state==='generated').length,demo:items.filter(i=>i.json.state==='demo_placeholder').length,needsAttention:items.filter(i=>!['generated','demo_placeholder'].includes(i.json.state)).map(i=>({sku:i.json.sku,state:i.json.state,reason:i.json.reason})),warning:'No automatic retry, upload or publication. Do not rerun successful SKUs. For unknown outcomes inspect OpenAI usage first.'};items[0].binary={...items[0].binary,batch:await this.helpers.prepareBinaryData(Buffer.from(JSON.stringify(report,null,2)),'batch-review.json','application/json')};return items;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b3b5245e-bfd7-4f80-b42e-8af450d875e4",
+      "name": "Overview and setup",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        0,
+        -1000
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 1000,
+        "height": 900,
+        "content": "## Purpose\nTurn a small catalog into downloadable concept PNGs with one audit manifest per SKU and a combined review summary. Designed for a human-reviewed creative pipeline: preserve which prompt produced which image and separate rejected or uncertain requests from completed assets.\n\n## Setup\nThe default demo uses one tiny PNG fixture and one simulated rate-limit response; no AI image is generated and no credentials are needed on this branch. For live execution, configure the HTTP node with n8n Header Auth: Authorization = Bearer YOUR_OPENAI_API_KEY. Keep the key in credentials. Your account needs access to gpt-image-1 and sufficient API credit. In Configuration set live mode and explicitly enable allowPaidGeneration after reviewing current prices. The template is free; OpenAI requests are billable separately. Choose one of the listed output sizes and quality levels.\n\n## Batch and recovery\nAll catalog rows are validated before any request. Each run accepts at most three unique SKUs. Live requests run one at a time with a short interval. Automatic POST retries are off to reduce duplicate spending. Each successful base64 response is validated as PNG, converted into an n8n binary and named by SKU. Rejections, malformed results and uncertain transport outcomes remain in the manifest. Download files from the final node. Before retrying, remove successful SKUs and inspect provider usage for uncertain outcomes; no cross-run deduplication is provided.\n\n## Review before publishing\nThese are concept illustrations, not faithful photographs of supplied physical products: no reference photo is uploaded. Check shape, labels and claims manually. The workflow never publishes or uploads externally. Retain the output before execution history expires.\n\n## Attribution\nCreated by Shisan Hua, who works on [Seedimagine](https://seedimagine.com/). This template calls OpenAI directly, not Seedimagine's API. No product endpoints or authentication are changed."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Start": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Validate catalog before any charge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Demo without paid API": {
+      "main": [
+        [
+          {
+            "node": "Offline response fixtures",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Generate PNG once per SKU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate PNG once per SKU": {
+      "main": [
+        [
+          {
+            "node": "Validate responses and materialize PNG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Offline response fixtures": {
+      "main": [
+        [
+          {
+            "node": "Validate responses and materialize PNG",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create one request per SKU": {
+      "main": [
+        [
+          {
+            "node": "Demo without paid API",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate catalog before any charge": {
+      "main": [
+        [
+          {
+            "node": "Create one request per SKU",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate responses and materialize PNG": {
+      "main": [
+        [
+          {
+            "node": "Attach batch review summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Generate catalog concept PNGs with OpenAI gpt-image-1 and CSV manifests",
+    "wechat": "youandme10086",
+    "id": 19645,
+    "update_time": "2026-09-27"
+  }
+}

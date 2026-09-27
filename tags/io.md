@@ -1,4 +1,4 @@
-# io : 65
+# io : 70
 
 |id|file|
 |----|----|
@@ -67,3 +67,8 @@
 |14406|[14406_Scrape_Apollo.io_leads_with_ScraperCity_and_sync_enriched_contacts_to_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14406_Scrape_Apollo.io_leads_with_ScraperCity_and_sync_enriched_contacts_to_Airtable.json)|
 |14453|[14453_Enrich_domain_URLs_with_Hunter.io_and_export_contacts_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14453_Enrich_domain_URLs_with_Hunter.io_and_export_contacts_to_Google_Sheets.json)|
 |15557|[15557_Qualify_and_route_B2B_leads_with_GPT-4o-mini__Hunter.io__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15557_Qualify_and_route_B2B_leads_with_GPT-4o-mini__Hunter.io__Slack__Gmail_and_Sheets.json)|
+|17154|[17154_Investigate_scam_URLs_with_URLScan.io__Telegram__Gmail__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17154_Investigate_scam_URLs_with_URLScan.io__Telegram__Gmail__and_Data_Tables.json)|
+|18735|[18735_Triage_security_alerts_with_AbuseIPDB__VirusTotal__ipinfo.io__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18735_Triage_security_alerts_with_AbuseIPDB__VirusTotal__ipinfo.io__OpenAI__and_Slack.json)|
+|19127|[19127_Generate_invoice_PDFs_from_forms_with_APITemplate.io__Google_Drive__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19127_Generate_invoice_PDFs_from_forms_with_APITemplate.io__Google_Drive__Gmail_and_Slack.json)|
+|19137|[19137_Append_Webz.io_news_search_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19137_Append_Webz.io_news_search_results_to_Google_Sheets.json)|
+|19688|[19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19688_Cross-check_news_claims_by_chat_with_Webz.io__GPT-4.1-mini__and_Google_Sheets.json)|

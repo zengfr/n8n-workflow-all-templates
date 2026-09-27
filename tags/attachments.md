@@ -1,4 +1,4 @@
-# attachments : 29
+# attachments : 39
 
 |id|file|
 |----|----|
@@ -31,3 +31,13 @@
 |15793|[15793_Archive_Outlook_email_attachments_to_OneDrive_with_SharePoint_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15793_Archive_Outlook_email_attachments_to_OneDrive_with_SharePoint_logging.json)|
 |16129|[16129_Update_VNTANA_product_attributes_from_scheduled_Excel__.xlsx__attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16129_Update_VNTANA_product_attributes_from_scheduled_Excel__.xlsx__attachments.json)|
 |16394|[16394_Extract_tracking_numbers_from_Gmail_PDF_attachments_to_Google_Sheets_with_okraPDF.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16394_Extract_tracking_numbers_from_Gmail_PDF_attachments_to_Google_Sheets_with_okraPDF.json)|
+|16856|[16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16856_Post_approved_Trello_bookkeeping_drafts_to_Xero_with_receipt_attachments.json)|
+|17056|[17056_Upload_email_invoice_attachments_to_Lexware_and_notify_via_Pushover.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17056_Upload_email_invoice_attachments_to_Lexware_and_notify_via_Pushover.json)|
+|17198|[17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json)|
+|17615|[17615_Archive_Discord_attachments_to_Google_Drive_and_log_them_in_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17615_Archive_Discord_attachments_to_Google_Drive_and_log_them_in_Google_Sheets.json)|
+|17860|[17860_Route_Gmail_PDF_attachments_to_Google_Drive_with_Slack_or_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17860_Route_Gmail_PDF_attachments_to_Google_Drive_with_Slack_or_Telegram_alerts.json)|
+|18268|[18268_Extract_invoice_data_from_Gmail_PDF_attachments_to_Google_Sheets_with_GPT-4.1-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18268_Extract_invoice_data_from_Gmail_PDF_attachments_to_Google_Sheets_with_GPT-4.1-mini.json)|
+|18387|[18387_Generate_LEDES_invoices_from_email_attachments_with_OpenAI__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18387_Generate_LEDES_invoices_from_email_attachments_with_OpenAI__Gmail__and_Sheets.json)|
+|18571|[18571_Migrate_SmartSuite_record_attachments_into_Monday.com_file_columns.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18571_Migrate_SmartSuite_record_attachments_into_Monday.com_file_columns.json)|
+|18624|[18624_Extract_invoice_data_from_Gmail_PDFs_to_Google_Drive__Sheets__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18624_Extract_invoice_data_from_Gmail_PDFs_to_Google_Drive__Sheets__and_OpenAI.json)|
+|18939|[18939_Classify_Ivanti_Neurons_ITSM_incidents_with_OpenAI_and_attachments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18939_Classify_Ivanti_Neurons_ITSM_incidents_with_OpenAI_and_attachments.json)|

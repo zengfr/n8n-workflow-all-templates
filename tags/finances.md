@@ -1,4 +1,4 @@
-# finances : 7
+# finances : 8
 
 |id|file|
 |----|----|
@@ -9,3 +9,4 @@
 |10056|[10056_Track_Personal_Finances_in_Google_Sheets_with_AI_Agent_via_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10056_Track_Personal_Finances_in_Google_Sheets_with_AI_Agent_via_Slack.json)|
 |12732|[12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12732_Detect_multi-source_transaction_fraud_and_reconcile_finances_with_OpenAI__Nvidia_NIM__Gmail__Slack_and_Google_Sheets.json)|
 |13160|[13160_Manage_finances__tasks__tweets_and_Gmail_with_GPT_4.1_on_WhatsApp.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13160_Manage_finances__tasks__tweets_and_Gmail_with_GPT_4.1_on_WhatsApp.json)|
+|17361|[17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json)|

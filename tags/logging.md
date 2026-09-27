@@ -1,4 +1,4 @@
-# logging : 55
+# logging : 58
 
 |id|file|
 |----|----|
@@ -57,3 +57,6 @@
 |16659|[16659_Reply_to_Instagram_comments_with_Groq__Telegram_approval__and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16659_Reply_to_Instagram_comments_with_Groq__Telegram_approval__and_Google_Sheets_logging.json)|
 |16764|[16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16764_Deploy_Gainium_DCA_bot_pairs_with_Telegram_approval_and_Google_Sheets_logging.json)|
 |16800|[16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16800_Normalize_and_backfill_Notion_database_properties_with_rules_and_logging.json)|
+|17618|[17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json)|
+|17678|[17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17678_Send_monthly_gold_SIP_performance_insights_with_Google_Sheets__Groq__Slack_and_Gmail.json)|
+|18085|[18085_Score_and_assign_wealth_advisory_leads_with_Google_Sheets__Gmail__and_Google_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18085_Score_and_assign_wealth_advisory_leads_with_Google_Sheets__Gmail__and_Google_Gemini.json)|

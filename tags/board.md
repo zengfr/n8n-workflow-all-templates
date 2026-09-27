@@ -1,4 +1,4 @@
-# board : 15
+# board : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |15082|[15082_Monitor_semiconductor_board_reliability_with_OpenAI_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/50/15082_Monitor_semiconductor_board_reliability_with_OpenAI_and_Slack_alerts.json)|
 |15755|[15755_Triage_GitHub_issues_to_a_Notion_board_with_Qwen_via_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15755_Triage_GitHub_issues_to_a_Notion_board_with_Qwen_via_OpenRouter.json)|
 |16236|[16236_Review_business_ideas_as_a_virtual_board_with_Anthropic_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16236_Review_business_ideas_as_a_virtual_board_with_Anthropic_Claude.json)|
+|16967|[16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16967_Sync_Monday.com_board_groups_and_tasks_to_Airtable_using_a_sub-workflow.json)|
+|17397|[17397_Scrape_LinkedIn_job_listings_with_ScrapeUnblocker_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17397_Scrape_LinkedIn_job_listings_with_ScrapeUnblocker_and_Google_Sheets.json)|
+|18962|[18962_Collect_and_theme_customer_complaints_with_Apify__OpenAI_and_Notion.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18962_Collect_and_theme_customer_complaints_with_Apify__OpenAI_and_Notion.json)|

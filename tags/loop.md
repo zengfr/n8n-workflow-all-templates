@@ -1,4 +1,4 @@
-# loop : 40
+# loop : 45
 
 |id|file|
 |----|----|
@@ -42,3 +42,8 @@
 |15613|[15613_Generate_LinkedIn_posts_with_GPT-4o-mini__Gemini_images__human_approval__and_auto-publish.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15613_Generate_LinkedIn_posts_with_GPT-4o-mini__Gemini_images__human_approval__and_auto-publish.json)|
 |15989|[15989_Generate_and_refine_technical_drafts_with_OpenRouter_writer_and_critic_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15989_Generate_and_refine_technical_drafts_with_OpenRouter_writer_and_critic_agents.json)|
 |16663|[16663_Route_human-in-the-loop_approval_requests_with_Slack_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16663_Route_human-in-the-loop_approval_requests_with_Slack_and_Postgres.json)|
+|17903|[17903_Triage_and_answer_support_emails_with_Gmail__Gemini__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17903_Triage_and_answer_support_emails_with_Gmail__Gemini__and_Google_Sheets.json)|
+|17914|[17914_Gate_human_approvals_with_ClickUp_tasks_and_ClickUp_Chat.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17914_Gate_human_approvals_with_ClickUp_tasks_and_ClickUp_Chat.json)|
+|18475|[18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18475_Write_and_refine_drafts_with_Anthropic_writer_and_critic_agents_and_log_results.json)|
+|18995|[18995_Log_and_thank_legal_referrals_with_webhooks__Google_Sheets__and_email_digests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18995_Log_and_thank_legal_referrals_with_webhooks__Google_Sheets__and_email_digests.json)|
+|19320|[19320_Close_the_support_loop_and_send_CSAT_between_Jira__Gmail__WhatsApp_and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19320_Close_the_support_loop_and_send_CSAT_between_Jira__Gmail__WhatsApp_and_HubSpot.json)|

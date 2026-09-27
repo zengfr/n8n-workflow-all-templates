@@ -1,7 +1,16 @@
-# rental : 3
+# rental : 12
 
 |id|file|
 |----|----|
 |10772|[10772_Automate_Rental_Agreements_with_BoldSign__Google_Sheets___Gemini_AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10772_Automate_Rental_Agreements_with_BoldSign__Google_Sheets___Gemini_AI.json)|
 |15472|[15472_Compare_rental_estimates_from_Zillow__HUD_FMR_and_Rentometer_with_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15472_Compare_rental_estimates_from_Zillow__HUD_FMR_and_Rentometer_with_GPT-4.1.json)|
 |16425|[16425_Source_and_approve_emergency_equipment_rentals_with_Telegram__Gmail_and_Azure_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16425_Source_and_approve_emergency_equipment_rentals_with_Telegram__Gmail_and_Azure_OpenAI.json)|
+|16913|[16913_Send_monthly_real_estate_market_summaries_to_Slack_with_Supabase_and_Rentcast.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16913_Send_monthly_real_estate_market_summaries_to_Slack_with_Supabase_and_Rentcast.json)|
+|16914|[16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16914_Send_monthly_rent_and_sales_market_updates_to_Slack_with_Rentcast_and_Supabase.json)|
+|17288|[17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17288_Screen_rental_applicants_with_Telegram__OpenAI__Gmail_and_Google_Sheets.json)|
+|18332|[18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json)|
+|18363|[18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json)|
+|18489|[18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18489_Qualify_rental_leads_and_send_tenant_emails_with_Google_Gemini_and_Gmail.json)|
+|18552|[18552_Manage_rental_equipment_bookings_and_returns_with_DeepSeek__Google_Sheets__Gmail__and_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18552_Manage_rental_equipment_bookings_and_returns_with_DeepSeek__Google_Sheets__Gmail__and_Discord.json)|
+|19125|[19125_Split_shared_rental_utility_bills_with_gpt-5.6-terra_Vision__Postgres_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19125_Split_shared_rental_utility_bills_with_gpt-5.6-terra_Vision__Postgres_and_Gmail.json)|
+|19758|[19758_Route_AV_rental_kit_readiness_with_Airtable__OpenAI__Google_Sheets__and_Trello.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19758_Route_AV_rental_kit_readiness_with_Airtable__OpenAI__Google_Sheets__and_Trello.json)|

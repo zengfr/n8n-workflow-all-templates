@@ -1,0 +1,830 @@
+{
+  "name": "Shadow AI & Vendor Approval Gate with RelayShield",
+  "tags": [
+    "security",
+    "ai",
+    "vendor-approval",
+    "relayshield"
+  ],
+  "nodes": [
+    {
+      "id": "c4d5e6f7-0000-0000-0000-000000000000",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1000,
+        0
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 560,
+        "height": 1000,
+        "content": "## Shadow AI & Vendor Approval Gate with RelayShield\n\n### How it works\nRuns when a new SaaS vendor or AI-tool request is submitted (form or ITSM ticket) via this workflow's webhook. Branches on `request_type`: a plain SaaS request runs three checks (supply chain risk, public-repo secret exposure, OAuth/token exposure). An AI-tool request runs those plus `mcp-registry-risk` — typosquat domains, known-malicious IOCs, newly-registered MCP server domains. Either path alerts Slack, logs to Notion, and emails the requester an approve/pending-review outcome. Clean results are logged too, so every request is auditable.\n\n### Setup steps\n- Point your intake form or ITSM system at this workflow's webhook, posting `{ request_type: \"saas\"|\"ai_tool\", requester_name, requester_email, department, vendor_name, vendor_domain, server_url }` (`server_url`/`package_name` only for `ai_tool`)\n- Add your RelayShield API credential to the 4 custom RelayShield nodes. The Secret Scan and MCP Registry Risk checks use HTTP Request nodes with a Header Auth credential instead (header `X-RS-API-KEY`, value = your API key) — those two operations aren't in the community node's operation list yet\n- Set `notionVendorGateDbId` and `slackSecurityChannelId` in your n8n variables\n- Connect and authorize the Gmail and Slack credentials\n\n### Why the OAuth check runs against the requester, not the vendor\nIt checks the *requesting employee's* email, not the vendor's — the real question at approval time is whether the person about to grant this tool OAuth access already shows signs of compromised credentials. That's the person whose authority the integration would inherit.\n\n### Customization\nAdd more RelayShield checks (ransomware risk, identity graph) to broaden coverage, or adjust alert routing to match your escalation process."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4d5e6f7-0001-0001-0001-000000000001",
+      "name": "Vendor/AI-Tool Request Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "notes": "Receives an HTTP POST from your intake form or ITSM system for a new vendor/tool request. Expected payload: { \"request_type\": \"saas\" or \"ai_tool\", \"requester_name\": \"Jane Doe\", \"requester_email\": \"jane@company.com\", \"department\": \"Engineering\", \"vendor_name\": \"Acme Corp\", \"vendor_domain\": \"acme.com\", \"server_url\": \"https://mcp.acme.com/sse\" }. server_url (or package_name) only applies to ai_tool requests.",
+      "position": [
+        0,
+        770
+      ],
+      "webhookId": "relayshield-vendor-gate-001",
+      "parameters": {
+        "path": "vendor-tool-request",
+        "options": {},
+        "httpMethod": "POST",
+        "responseData": "firstEntryJson",
+        "responseMode": "onReceived"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4d5e6f7-0002-0002-0002-000000000002",
+      "name": "Is AI-Tool Request?",
+      "type": "n8n-nodes-base.if",
+      "notes": "Branches on request_type. AI-tool requests (true output) get the additional mcp-registry-risk check; plain SaaS vendor requests (false output) get the original three checks.",
+      "position": [
+        280,
+        770
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "branch-cond-001",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.request_type }}",
+              "rightValue": "ai_tool"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4d5e6f7-0003-0003-0003-000000000003",
+      "name": "RelayShield - Supply Chain Risk (SaaS)",
+      "type": "n8n-nodes-relayshield.relayShield",
+      "notes": "Checks the vendor domain for breach and infostealer exposure — returns a per-domain risk score (CRITICAL/HIGH/MEDIUM/LOW).",
+      "position": [
+        560,
+        1060
+      ],
+      "parameters": {
+        "operation": "supplyChain",
+        "vendorEmails": "",
+        "vendorDomains": "={{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_domain }}"
+      },
+      "credentials": {
+        "relayShieldApi": {
+          "id": "1",
+          "name": "RelayShield API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4d5e6f7-0004-0004-0004-000000000004",
+      "name": "RelayShield - Secret Scan (SaaS)",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Checks public GitHub/GitLab repos for secrets exposed alongside the vendor domain. Not yet in the n8n-nodes-relayshield package's operation list — called directly via HTTP Request with an X-RS-API-KEY header credential.",
+      "position": [
+        560,
+        1300
+      ],
+      "parameters": {
+        "url": "https://api.relayshield.net/v1/metered/secret-scan",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ vendor_domains: [ $('Vendor/AI-Tool Request Webhook').item.json.vendor_domain ] }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "5",
+          "name": "RelayShield API Key (Header Auth)"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c4d5e6f7-0005-0005-0005-000000000005",
+      "name": "RelayShield - OAuth Watchlist (SaaS)",
+      "type": "n8n-nodes-relayshield.relayShield",
+      "notes": "Checks the requesting employee's email for OAuth/token exposure — this is the person who would grant the new tool access, not the vendor.",
+      "position": [
+        560,
+        1540
+      ],
+      "parameters": {
+        "email": "={{ $('Vendor/AI-Tool Request Webhook').item.json.requester_email }}",
+        "operation": "oauthWatchlist"
+      },
+      "credentials": {
+        "relayShieldApi": {
+          "id": "1",
+          "name": "RelayShield API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4d5e6f7-0006-0006-0006-000000000006",
+      "name": "Any SaaS Risk Found?",
+      "type": "n8n-nodes-base.if",
+      "notes": "Flags the request if the vendor domain shows critical/high supply-chain risk, has exposed secrets in public repos, or the requester's own account shows OAuth/token exposure.",
+      "position": [
+        840,
+        1300
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "saas-cond-001",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('RelayShield - Supply Chain Risk (SaaS)').item.json.data.highest_risk }}",
+              "rightValue": "CRITICAL"
+            },
+            {
+              "id": "saas-cond-002",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('RelayShield - Supply Chain Risk (SaaS)').item.json.data.highest_risk }}",
+              "rightValue": "HIGH"
+            },
+            {
+              "id": "saas-cond-003",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('RelayShield - Secret Scan (SaaS)').item.json.data.found }}",
+              "rightValue": true
+            },
+            {
+              "id": "saas-cond-004",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('RelayShield - OAuth Watchlist (SaaS)').item.json.data.matched }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4d5e6f7-0007-0007-0007-000000000007",
+      "name": "RelayShield - Supply Chain Risk (AI Tool)",
+      "type": "n8n-nodes-relayshield.relayShield",
+      "notes": "Checks the AI tool publisher's domain for breach and infostealer exposure, same as the SaaS path. Leave vendor_domain blank on the request if the publisher domain isn't known — the check will report no findings rather than fail.",
+      "position": [
+        560,
+        0
+      ],
+      "parameters": {
+        "operation": "supplyChain",
+        "vendorEmails": "",
+        "vendorDomains": "={{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_domain }}"
+      },
+      "credentials": {
+        "relayShieldApi": {
+          "id": "1",
+          "name": "RelayShield API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4d5e6f7-0008-0008-0008-000000000008",
+      "name": "RelayShield - Secret Scan (AI Tool)",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "Same secret-exposure check as the SaaS path, run against the AI tool publisher's domain.",
+      "position": [
+        560,
+        240
+      ],
+      "parameters": {
+        "url": "https://api.relayshield.net/v1/metered/secret-scan",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ vendor_domains: [ $('Vendor/AI-Tool Request Webhook').item.json.vendor_domain ] }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "5",
+          "name": "RelayShield API Key (Header Auth)"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c4d5e6f7-0009-0009-0009-000000000009",
+      "name": "RelayShield - OAuth Watchlist (AI Tool)",
+      "type": "n8n-nodes-relayshield.relayShield",
+      "notes": "Same requester-exposure check as the SaaS path — relevant here too, since connecting an AI tool/MCP server typically also involves the requester granting it some form of access.",
+      "position": [
+        560,
+        480
+      ],
+      "parameters": {
+        "email": "={{ $('Vendor/AI-Tool Request Webhook').item.json.requester_email }}",
+        "operation": "oauthWatchlist"
+      },
+      "credentials": {
+        "relayShieldApi": {
+          "id": "1",
+          "name": "RelayShield API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c4d5e6f7-0010-0010-0010-000000000010",
+      "name": "RelayShield - MCP Registry Risk (AI Tool)",
+      "type": "n8n-nodes-base.httpRequest",
+      "notes": "The AI-tool-specific check: flags known-malicious IOC matches, typosquat domains, and newly-registered domains hosting the MCP server. This is the one check that genuinely differs from the SaaS path, not just a relabeled duplicate — it's why AI-tool requests aren't just routed through the SaaS checks alone.",
+      "position": [
+        560,
+        720
+      ],
+      "parameters": {
+        "url": "https://api.relayshield.net/v1/metered/mcp-registry-risk",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ server_url: $('Vendor/AI-Tool Request Webhook').item.json.server_url, package_name: $('Vendor/AI-Tool Request Webhook').item.json.package_name }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "5",
+          "name": "RelayShield API Key (Header Auth)"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c4d5e6f7-0011-0011-0011-000000000011",
+      "name": "Any AI-Tool Risk Found?",
+      "type": "n8n-nodes-base.if",
+      "notes": "Same as the SaaS decision, plus a CRITICAL/HIGH mcp-registry-risk verdict — the added AI-tool-specific signal.",
+      "position": [
+        840,
+        360
+      ],
+      "parameters": {
+        "conditions": {
+          "options": {
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "or",
+          "conditions": [
+            {
+              "id": "ai-cond-001",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('RelayShield - Supply Chain Risk (AI Tool)').item.json.data.highest_risk }}",
+              "rightValue": "CRITICAL"
+            },
+            {
+              "id": "ai-cond-002",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('RelayShield - Supply Chain Risk (AI Tool)').item.json.data.highest_risk }}",
+              "rightValue": "HIGH"
+            },
+            {
+              "id": "ai-cond-003",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('RelayShield - Secret Scan (AI Tool)').item.json.data.found }}",
+              "rightValue": true
+            },
+            {
+              "id": "ai-cond-004",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $('RelayShield - OAuth Watchlist (AI Tool)').item.json.data.matched }}",
+              "rightValue": true
+            },
+            {
+              "id": "ai-cond-005",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('RelayShield - MCP Registry Risk (AI Tool)').item.json.data.verdict }}",
+              "rightValue": "CRITICAL"
+            },
+            {
+              "id": "ai-cond-006",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('RelayShield - MCP Registry Risk (AI Tool)').item.json.data.verdict }}",
+              "rightValue": "HIGH"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c4d5e6f7-0012-0012-0012-000000000012",
+      "name": "Log Flagged Request to Notion",
+      "type": "n8n-nodes-base.notion",
+      "notes": "Fed by both the SaaS and AI-tool risk-decision nodes. Creates a page in your vendor-gate risk log Notion database. Set notionVendorGateDbId in your n8n variables.",
+      "position": [
+        1120,
+        360
+      ],
+      "parameters": {
+        "title": "={{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }} — Flagged for Review",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.notionVendorGateDbId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Requester|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.requester_email }}"
+            },
+            {
+              "key": "Department|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.department }}"
+            },
+            {
+              "key": "Request Type|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.request_type }}"
+            },
+            {
+              "key": "Vendor|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }}"
+            },
+            {
+              "key": "Status|rich_text",
+              "richText": false,
+              "textContent": "Pending Review"
+            }
+          ]
+        },
+        "authentication": "apiKey"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion API"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c4d5e6f7-0013-0013-0013-000000000013",
+      "name": "Alert Security Team in Slack",
+      "type": "n8n-nodes-base.slack",
+      "notes": "Fed by both risk-decision nodes. Posts a structured alert to your security/IT Slack channel. Set slackSecurityChannelId in your n8n variables.",
+      "position": [
+        1120,
+        600
+      ],
+      "parameters": {
+        "select": "channel",
+        "blocksUi": {
+          "blocksValues": [
+            {
+              "type": "header",
+              "textUi": {
+                "text": "🚨 Vendor/Tool Request Flagged — {{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }}"
+              }
+            },
+            {
+              "type": "section",
+              "textUi": {
+                "text": "*Requester:* {{ $('Vendor/AI-Tool Request Webhook').item.json.requester_email }}\n*Department:* {{ $('Vendor/AI-Tool Request Webhook').item.json.department }}\n*Request type:* {{ $('Vendor/AI-Tool Request Webhook').item.json.request_type }}\n*Vendor domain:* {{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_domain }}\n\n*RelayShield findings:* one or more checks returned a CRITICAL/HIGH result — see the Notion log for the full detail.\n\n*Recommended actions:*\n• Review the flagged finding before approving\n• If approved anyway, note the accepted risk in the vendor-gate log\n• If this is an AI tool/MCP server request, treat a CRITICAL mcp-registry-risk verdict as a hard stop, not just a caution"
+              }
+            }
+          ]
+        },
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.slackSecurityChannelId }}"
+        },
+        "messageType": "block"
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "4",
+          "name": "Slack API"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c4d5e6f7-0014-0014-0014-000000000014",
+      "name": "Email Requester — Pending Review",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Fed by both risk-decision nodes. Lets the requester know their request needs review, without disclosing specific findings.",
+      "position": [
+        1120,
+        840
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Vendor/AI-Tool Request Webhook').item.json.requester_email }}",
+        "message": "=<p>Hi {{ $('Vendor/AI-Tool Request Webhook').item.json.requester_name }},</p>\n<p>Your request to use <strong>{{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }}</strong> has been flagged for security review before approval.</p>\n<p>Your security team has been notified and will follow up. This is a standard part of the vendor/AI-tool approval process — it doesn't necessarily mean the request will be denied.</p>\n<hr>\n<p style=\"color:#666;font-size:12px;\">Powered by RelayShield — relayshield.net</p>",
+        "options": {},
+        "subject": "Your request for {{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }} is pending security review",
+        "emailType": "html"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c4d5e6f7-0015-0015-0015-000000000015",
+      "name": "Log Clean Result to Notion",
+      "type": "n8n-nodes-base.notion",
+      "notes": "Fed by both risk-decision nodes' false output. Logs a clean result so every request is auditable, even when no risk is found.",
+      "position": [
+        1120,
+        1080
+      ],
+      "parameters": {
+        "title": "={{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }} — Approved (No Risk Found)",
+        "resource": "databasePage",
+        "operation": "create",
+        "databaseId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $vars.notionVendorGateDbId }}"
+        },
+        "propertiesUi": {
+          "propertyValues": [
+            {
+              "key": "Requester|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.requester_email }}"
+            },
+            {
+              "key": "Department|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.department }}"
+            },
+            {
+              "key": "Request Type|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.request_type }}"
+            },
+            {
+              "key": "Vendor|rich_text",
+              "richText": false,
+              "textContent": "={{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }}"
+            },
+            {
+              "key": "Status|rich_text",
+              "richText": false,
+              "textContent": "Approved — No Action Required"
+            }
+          ]
+        },
+        "authentication": "apiKey"
+      },
+      "credentials": {
+        "notionApi": {
+          "id": "3",
+          "name": "Notion API"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "c4d5e6f7-0016-0016-0016-000000000016",
+      "name": "Email Requester — Approved",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Fed by both risk-decision nodes' false output.",
+      "position": [
+        1120,
+        1320
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Vendor/AI-Tool Request Webhook').item.json.requester_email }}",
+        "message": "=<p>Hi {{ $('Vendor/AI-Tool Request Webhook').item.json.requester_name }},</p>\n<p>Your request to use <strong>{{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }}</strong> passed all automated security checks and is approved.</p>\n<hr>\n<p style=\"color:#666;font-size:12px;\">Powered by RelayShield — relayshield.net</p>",
+        "options": {},
+        "subject": "Your request for {{ $('Vendor/AI-Tool Request Webhook').item.json.vendor_name }} is approved",
+        "emailType": "html"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "2",
+          "name": "Gmail OAuth2"
+        }
+      },
+      "typeVersion": 2.1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "callerPolicy": "workflowsFromSameOwner",
+    "errorWorkflow": "",
+    "executionOrder": "v1",
+    "saveManualExecutions": true
+  },
+  "updatedAt": "2026-07-22T00:00:00.000Z",
+  "versionId": "v1",
+  "staticData": null,
+  "connections": {
+    "Is AI-Tool Request?": {
+      "main": [
+        [
+          {
+            "node": "RelayShield - Supply Chain Risk (AI Tool)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RelayShield - Secret Scan (AI Tool)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RelayShield - OAuth Watchlist (AI Tool)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RelayShield - MCP Registry Risk (AI Tool)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "RelayShield - Supply Chain Risk (SaaS)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RelayShield - Secret Scan (SaaS)",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "RelayShield - OAuth Watchlist (SaaS)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any SaaS Risk Found?": {
+      "main": [
+        [
+          {
+            "node": "Log Flagged Request to Notion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert Security Team in Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Requester — Pending Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Clean Result to Notion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Requester — Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Any AI-Tool Risk Found?": {
+      "main": [
+        [
+          {
+            "node": "Log Flagged Request to Notion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Alert Security Team in Slack",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Requester — Pending Review",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log Clean Result to Notion",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Email Requester — Approved",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Vendor/AI-Tool Request Webhook": {
+      "main": [
+        [
+          {
+            "node": "Is AI-Tool Request?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RelayShield - Secret Scan (SaaS)": {
+      "main": [
+        [
+          {
+            "node": "Any SaaS Risk Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RelayShield - Secret Scan (AI Tool)": {
+      "main": [
+        [
+          {
+            "node": "Any AI-Tool Risk Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RelayShield - OAuth Watchlist (SaaS)": {
+      "main": [
+        [
+          {
+            "node": "Any SaaS Risk Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RelayShield - Supply Chain Risk (SaaS)": {
+      "main": [
+        [
+          {
+            "node": "Any SaaS Risk Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RelayShield - OAuth Watchlist (AI Tool)": {
+      "main": [
+        [
+          {
+            "node": "Any AI-Tool Risk Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RelayShield - MCP Registry Risk (AI Tool)": {
+      "main": [
+        [
+          {
+            "node": "Any AI-Tool Risk Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "RelayShield - Supply Chain Risk (AI Tool)": {
+      "main": [
+        [
+          {
+            "node": "Any AI-Tool Risk Found?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "triggerCount": 0,
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Gate SaaS and AI tool approvals with RelayShield, Notion, Slack, and Gmail",
+    "wechat": "youandme10086",
+    "id": 17386,
+    "update_time": "2026-09-27"
+  }
+}

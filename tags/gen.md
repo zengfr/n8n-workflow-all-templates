@@ -1,4 +1,4 @@
-# gen : 17
+# gen : 18
 
 |id|file|
 |----|----|
@@ -19,3 +19,4 @@
 |15154|[15154_Generate_and_qualify_B2B_leads_from_Telegram_with_Google_Maps__Serper__GPT_4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15154_Generate_and_qualify_B2B_leads_from_Telegram_with_Google_Maps__Serper__GPT_4o__and_Gmail.json)|
 |15917|[15917_Send_smart_lock_PINs_for_Apaleo_reservations_with_Seam__Gmail__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15917_Send_smart_lock_PINs_for_Apaleo_reservations_with_Seam__Gmail__and_Twilio.json)|
 |16280|[16280_Generate_verified_local_leads_from_Google_Maps_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16280_Generate_verified_local_leads_from_Google_Maps_with_Apify_and_Google_Sheets.json)|
+|19354|[19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19354_Create_Kubernetes_resources_from_Slack_with_Anthropic_Claude_and_safety_guardrails.json)|

@@ -1,4 +1,4 @@
-# load : 7
+# load : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |3421|[3421_Load_and_Aggregate_Files_from_a_Google_Drive_Folder_into_a_Key-Value_Dictionary.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/34/3421_Load_and_Aggregate_Files_from_a_Google_Drive_Folder_into_a_Key-Value_Dictionary.json)|
 |8720|[8720_Build_RAG-Powered_Support_Agent_for_Jira_Issues_Using_Pinecone_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8720_Build_RAG-Powered_Support_Agent_for_Jira_Issues_Using_Pinecone_and_OpenAI.json)|
 |10048|[10048_Distribute_Workflow_Execution_with_Round-Robin_Logic_using_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10048_Distribute_Workflow_Execution_with_Round-Robin_Logic_using_Data_Tables.json)|
+|18143|[18143_Balance_VIP_outreach_with_Salesforce__Slack_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18143_Balance_VIP_outreach_with_Salesforce__Slack_and_Groq.json)|
+|18246|[18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18246_Optimize_EV_charging_load_control_and_alerts_with_HTTP_API_and_email.json)|

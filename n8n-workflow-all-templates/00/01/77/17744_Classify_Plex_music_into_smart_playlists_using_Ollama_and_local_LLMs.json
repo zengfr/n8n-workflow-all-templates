@@ -1,0 +1,1192 @@
+{
+  "id": "HEnjmgkX71bUu76g",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Classify Plex music into smart playlists using Ollama and local LLMs",
+    "wechat": "youandme10086",
+    "id": 17744,
+    "update_time": "2026-09-27"
+  },
+  "name": "PlexPlayListerV1-4-n8n",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "5acf1ef4-5505-4932-ac43-cb75d0c8698c",
+      "name": "Schedule Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        992,
+        2128
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtHour": 22,
+              "triggerAtMinute": 45
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "1c6d2404-b3c9-4ad9-abea-6529873acbbe",
+      "name": "Code in JavaScript",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1728,
+        2128
+      ],
+      "parameters": {
+        "jsCode": "const sections = $('HTTP Request').first().json.MediaContainer.Directory;\nconst musicSection = sections.find(s => s.type === 'artist');\nconst machineIdentifier = $('HTTP Request Identity').first().json.MediaContainer.machineIdentifier;\n\nconst store = $getWorkflowStaticData('global');\nstore.machineIdentifier = machineIdentifier;\n\nreturn [{ json: { sectionId: musicSection.key } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fa2f9dcd-2b36-4870-9db8-c6e6e57bd07b",
+      "name": "Set Offset",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2176,
+        2128
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "1427b2cb-031c-4647-8f52-1f96a6a9cd70",
+              "name": "offset",
+              "type": "number",
+              "value": 0
+            },
+            {
+              "id": "c040b42c-27b6-48f6-98df-e44a4601f243",
+              "name": "sectionId",
+              "type": "string",
+              "value": "={{ $json.sectionId }}"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "2f22de3c-cc05-41c4-ba61-5b5e852d1cb1",
+      "name": "Code Accumulate",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2624,
+        2064
+      ],
+      "parameters": {
+        "jsCode": "const container = $input.first().json.MediaContainer;\nconst totalSize  = parseInt(container.totalSize);\nconst tracks     = container.Metadata || [];\nconst currentOffset = parseInt(container.offset) || 0;\n\nconst store = $getWorkflowStaticData('global');\nif (!store.tracks) store.tracks = [];\nif (!store.sectionId) store.sectionId = $('Set Offset').first().json.sectionId; // read from the node that actually has it\n\nconst normalized = tracks.map(t => ({\n  ratingKey : t.ratingKey,\n  title     : t.title || 'Unknown Title',\n  artist    : t.grandparentTitle || t.originalTitle || 'Unknown Artist',\n  album     : t.parentTitle || 'Unknown Album',\n  genre     : Array.isArray(t.Genre) ? t.Genre.map(g => g.tag).join(', ') : (t.Genre?.tag || ''),\n  mood      : Array.isArray(t.Mood) ? t.Mood.map(m => m.tag).join(', ') : '',\n  year      : t.parentYear || t.year || null,\n  duration  : t.duration || null,\n}));\n\nstore.tracks.push(...normalized);\n\nconst nextOffset = currentOffset + 300;\nconst hasMore    = nextOffset < totalSize;\n\nreturn [{ json: {\n  sectionId      : store.sectionId,\n  offset         : nextOffset,\n  hasMore,\n  totalSize,\n  totalCollected : store.tracks.length,\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a499e309-5f2f-4d7e-84f3-f70ec9f3a2d1",
+      "name": "If hasMore?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2848,
+        2128
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "625edc38-6509-433e-9574-55ef376413cc",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.hasMore }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0844f44c-5938-4b0b-b176-8974c6786793",
+      "name": "Loop Over Items",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3344,
+        2336
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        },
+        "batchSize": 13
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "57fa6091-e724-4001-83af-a7ddc6f7057f",
+      "name": "Build Prompt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3536,
+        2352
+      ],
+      "parameters": {
+        "jsCode": "// ── v1.4.1 Build Prompt node ────────────────────────────────────────────\nconst batch = $('Loop Over Items').all().map(item => item.json).slice(0, 20);\n\n// ── Hard, deterministic genre rules (evaluated in JS, not left to the LLM) ──\n// These catch the \"Metal/Prog Rock in Chill & Unwind\" and \"Classical belongs\n// on its own\" failure modes by computing a hint BEFORE the prompt is built,\n// instead of hoping the model applies the rule consistently across 20 tracks.\n\nconst HIGH_ENERGY_GENRES = /metal|hardcore|punk|prog(ressive)?\\s*rock|thrash|speed\\s*metal|drum\\s*(&|and|n)\\s*bass|dnb|dubstep|grindcore|hard\\s*rock|industrial/i;\n\nconst CLASSICAL_GENRES = /classical|orchestra|orchestral|symphony|baroque|opera|chamber\\s*music|concerto|philharmonic/i;\n\nconst SPOKEN_WORD_HINT = /podcast|audiobook|spoken\\s*word|comedy|talk\\s*radio|lecture|sermon/i;\n// v1.4.1: removed the bare \"part\\s*\\d+\" match -- it was catching legitimate\n// multi-part songs (e.g. \"Since I Left You, Pt. 2\", \"Shine On..., Pts. 1-5\")\n// and misrouting them into Podcasts & Audiobooks. Kept only the stronger,\n// less ambiguous spoken-word signals.\nconst SPOKEN_WORD_TITLE_HINT = /\\b(episode\\s*\\d+|chapter\\s*\\d+|interview\\s*with|ep\\.?\\s*\\d+)\\b/i;\n\nfunction computeHint(track) {\n  const genre = (track.genre || '').toString();\n  const title = (track.title || '').toString();\n\n  if (SPOKEN_WORD_HINT.test(genre) || SPOKEN_WORD_TITLE_HINT.test(title)) {\n    return 'LIKELY_SPOKEN_WORD';\n  }\n  if (CLASSICAL_GENRES.test(genre)) {\n    return 'CLASSICAL';\n  }\n  if (HIGH_ENERGY_GENRES.test(genre)) {\n    return 'HIGH_ENERGY — NEVER Deep Focus, Classical Focus, or Chill & Unwind';\n  }\n  return null;\n}\n\nconst trackList = batch.map((t, i) => {\n  const hint = computeHint(t);\n  const hintStr = hint ? ` | Hint: ${hint}` : '';\n  return `${i + 1}. id:${t.ratingKey} | \"${t.title}\" by ${t.artist} | Genre: ${t.genre || 'unknown'} | Year: ${t.year || 'unknown'}${hintStr}`;\n}).join('\\n');\n\nconst expectedIds = batch.map(t => t.ratingKey).join(', ');\n\nconst prompt = `You are a music classifier. Classify each track below into exactly one playlist.\n\nVALID CATEGORIES (use ONLY these exact strings):\n- Deep Focus\n- Classical Focus\n- Morning Energy\n- Late Night Drive\n- Workout Power\n- Chill & Unwind\n- Nostalgia Trip\n- Party Mode\n- Discover Gems\n- Podcasts & Audiobooks\n- SKIP_NON_MUSIC\n\nCRITICAL DEFINITIONS & RULES (apply in this order):\n\n0. GENRE HINTS ARE HARD CONSTRAINTS, NOT SUGGESTIONS.\n   If a track has \"Hint: HIGH_ENERGY\" — it is FORBIDDEN to assign it to\n   Deep Focus, Classical Focus, or Chill & Unwind, no matter what the title\n   or artist suggests. Route it instead to Workout Power, Party Mode,\n   Late Night Drive, or Discover Gems, whichever fits best.\n\n1. \"Classical Focus\": Use this ONLY when Hint says \"CLASSICAL\", or the\n   Genre field explicitly contains a classical-adjacent term (orchestral,\n   symphony, opera, chamber music, baroque, concerto). Do NOT use this\n   category based on \"vibe\" alone — a quiet, piano-led, or instrumental\n   track is NOT classical just because it sounds mellow. Jazz standards\n   (e.g. \"Take Five\"), singer-songwriter piano ballads (e.g. \"Your Song\"),\n   and acoustic pop belong in Chill & Unwind or Deep Focus instead, even\n   with no genre data. If in doubt and there is no CLASSICAL hint or\n   explicit classical genre, do NOT choose Classical Focus.\n\n2. \"Deep Focus\": Calm, low-energy, non-classical music suited for\n   concentration (ambient, instrumental, downtempo, lo-fi, soft\n   electronic). Never assign High-Energy-hinted tracks here.\n\n3. \"Chill & Unwind\": Relaxed, mellow, low-tempo music for winding down.\n   Never assign High-Energy-hinted tracks here.\n\n4. \"Podcasts & Audiobooks\": Use this for any spoken-word audio — podcasts,\n   audiobooks, interviews, lectures, comedy routines, news broadcasts.\n   If Hint says \"LIKELY_SPOKEN_WORD\", strongly prefer this category over\n   SKIP_NON_MUSIC — spoken word content should get its own playlist, not\n   be discarded.\n\n5. \"SKIP_NON_MUSIC\": Use this ONLY for audio that is neither music nor\n   identifiable spoken-word content — e.g. sound effects, jingles,\n   silence, corrupted/garbage metadata with no usable signal at all.\n\n6. \"Discover Gems\": Actual music tracks that are eclectic, indie, obscure,\n   or genuinely don't fit any specific mood category above. Must be music.\n\n7. For all other categories (Morning Energy, Late Night Drive, Workout\n   Power, Nostalgia Trip, Party Mode), classify by mood/energy/era as\n   normal, respecting the High-Energy hint where relevant (e.g.\n   High-Energy tracks are good candidates for Workout Power or Party Mode).\n\n8. If genre is missing/unknown and there is no Hint, infer from title and\n   artist naming conventions as a last resort. If nothing is inferable,\n   prefer \"Discover Gems\" over guessing a mood you can't support.\n\n9. Bracketed or parenthetical suffixes like [Radio Edit], [Live],\n   [Original Mix], [Extended Mix], [Bonus Track], [Deluxe Edition],\n   (Remastered), (Acoustic Version) are formatting/release-metadata tags,\n   not content signals. Ignore them entirely when judging genre, mood, or\n   whether something is spoken word — they do not indicate a podcast,\n   interview, or broadcast.\n\nTRACKS:\n${trackList}\n\nYou MUST output an entry for every one of these ${batch.length} track IDs, with no exceptions: ${expectedIds}\nDo not stop until all ${batch.length} tracks have an entry.\n\nOUTPUT RULES:\n- Return ONLY a JSON array\n- Each element must be: {\"id\":\"<the id number>\",\"playlist\":\"<category name>\"}\n- Do NOT group by playlist\n- Do NOT return track titles\n- One object per track\n- No explanation, no markdown\n\nEXAMPLE OUTPUT:\n[{\"id\":\"1193\",\"playlist\":\"Chill & Unwind\"},{\"id\":\"1194\",\"playlist\":\"Classical Focus\"}]\n\nYOUR OUTPUT:`;\n\nreturn [{\n  json: {\n    skip: false,\n    ollamaBody: {\n      //model: \"qwen2.5:7b\",\n      //model: \"mistral:7b\",\n      model: \"gemma2:9b\",\n      //model: \"llama3.2:1b\",\n      prompt,\n      stream: false,\n      keep_alive: \"30m\",\n      options: { temperature: 0.1, num_predict: 900, num_ctx: 2048 }\n    }\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2e62eb9c-8b80-4716-aaf9-ba29e16474c6",
+      "name": "[ Clear Store ]2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1952,
+        2128
+      ],
+      "parameters": {
+        "jsCode": "const store = $getWorkflowStaticData('global');\n// Increased STALE_MS to 30 hours to safely accommodate Gemma 2 9B's ~24h run time\nconst STALE_MS = 30 * 60 * 60 * 1000;\nconst lockAge = store.runStartedAt ? Date.now() - store.runStartedAt : Infinity;\n\nif (store.runInProgress && lockAge < STALE_MS) {\n  throw new Error(`Another PlexPlayLister run is already in progress (started ${Math.round(lockAge/60000)} min ago) — aborting to avoid clobbering shared state.`);\n}\n\nstore.runInProgress = true;\nstore.runStartedAt = Date.now();\nstore.tracks = [];\nstore.classificationMap = {};\nstore.emptyParseBatches = 0;\nstore.doneReasons = {};\nstore.errorBatches = 0;\nstore.createdPlaylists = [];   // <-- missing reset, causes stale playlist keys to leak across runs\n\nconst sectionId = $input.first().json.sectionId;\nreturn [{ json: { cleared: true, sectionId } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b63c944f-eb20-47ec-afe6-2c720fcb6260",
+      "name": "Group by Playlist",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3456,
+        1888
+      ],
+      "parameters": {
+        "jsCode": "const store = $getWorkflowStaticData('global');\nconst allTracks = store.tracks || [];\nconst classificationMap = store.classificationMap || {};\nconst FALLBACK = 'Discover Gems';\n\nif (allTracks.length === 0) {\n  throw new Error('store.tracks is empty when Group by Playlist ran.');\n}\n\nlet trueGaps = 0; // tracks with NO classificationMap entry at all\nconst playlistGroups = {};\n\nfor (const track of allTracks) {\n  const key = String(track.ratingKey);\n  const hasEntry = Object.prototype.hasOwnProperty.call(classificationMap, key);\n  if (!hasEntry) trueGaps++;\n  const playlist = classificationMap[key] || FALLBACK;\n  // NEW: Drop the track entirely if the LLM flagged it as non-music!\n  if (playlist === 'SKIP_NON_MUSIC') continue;\n  if (!playlistGroups[playlist]) playlistGroups[playlist] = new Set();\n  playlistGroups[playlist].add(track.ratingKey);\n}\n\nconst result = Object.entries(playlistGroups)\n  .map(([name, keySet]) => ({\n    json: { playlist: name, count: keySet.size, ratingKeys: Array.from(keySet) }\n  }))\n  .sort((a, b) => b.json.count - a.json.count);\n\nresult.push({ json: { playlist: '__DIAGNOSTIC__', trueGaps, totalTracks: allTracks.length, gapPercent: Math.round((trueGaps / allTracks.length) * 100) } });\n\nresult.push({ json: {\n  playlist: '__DIAGNOSTIC__',\n  trueGaps,\n  totalTracks: allTracks.length,\n  gapPercent: Math.round((trueGaps / allTracks.length) * 100),\n  errorBatches: store.errorBatches || 0,\n  emptyParseBatches: store.emptyParseBatches || 0,\n  totalBatches: 1239\n}});\n\nreturn result;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "873c8fb6-8f38-425e-b724-7b19d832a120",
+      "name": "If",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3696,
+        2512
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "a993e1a1-aa4b-4194-98f6-fe324d7b2e3c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.skip }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "63dd43a4-05ae-4575-9f6d-bbc07496e90d",
+      "name": "HTTP Fetch Plex Lib Data",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2400,
+        2128
+      ],
+      "parameters": {
+        "url": "=http://MY_HOST_OR_IP:32400/library/sections/{{ $json.sectionId }}/all",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "type",
+              "value": "10"
+            },
+            {
+              "name": "X-Plex-Container-Start",
+              "value": "={{ $json.offset }}"
+            },
+            {
+              "name": "X-Plex-Container-Size",
+              "value": "300"
+            },
+            {
+              "name": "includeGuids",
+              "value": "0"
+            },
+            {
+              "name": "X-Plex-Token",
+              "value": "Y4va75DCXFtfjAqenQMr"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Accept",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "notesInFlow": true,
+      "typeVersion": 4.4,
+      "alwaysOutputData": false
+    },
+    {
+      "id": "8d03a2ce-f6a1-469b-bd24-0ac2c81cd7ad",
+      "name": "Return Track List",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3072,
+        2128
+      ],
+      "parameters": {
+        "jsCode": "const store = $getWorkflowStaticData('global');\nconst tracks = store.tracks || [];\nif (tracks.length === 0) {\n  throw new Error('No tracks in store. Check pagination loop.');\n}\n\n// Shuffle before batching. Plex returns tracks grouped by album/artist,\n// so sequential batches of 13 were often entirely one album -- causing\n// the LLM to anchor on the first track's classification and repeat it\n// down the whole batch. A shuffled order breaks that pattern.\nfunction shuffle(arr) {\n  for (let i = arr.length - 1; i > 0; i--) {\n    const j = Math.floor(Math.random() * (i + 1));\n    [arr[i], arr[j]] = [arr[j], arr[i]];\n  }\n  return arr;\n}\n\nreturn shuffle(tracks).map(t => ({ json: t }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b9f8defc-fb04-462e-a542-4766a6037a1c",
+      "name": "Classify Tracks Using AI",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 5,
+      "position": [
+        4048,
+        2384
+      ],
+      "parameters": {
+        "url": "http://MY_OLLAMA_HOST_OR_IP:11434/api/generate",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify($json.ollamaBody) }}",
+        "sendBody": true,
+        "specifyBody": "json"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "419219d1-b500-49f5-85d1-1aba5551cf91",
+      "name": "Present Classified List",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4288,
+        2544
+      ],
+      "parameters": {
+        "jsCode": "if ($input.first().json.skip === true) {\n  return [{ json: { accepted: 0, rejected: 0, skipped: true } }];\n}\n\nconst response = $input.first().json.response || '';\nconst cleaned = response\n  .replace(/```json/gi, '')\n  .replace(/```/g, '')\n  .trim();\n\nlet classifications = [];\nlet recovered = false;\n\ntry {\n  const parsed = JSON.parse(cleaned);\n  if (Array.isArray(parsed)) {\n    classifications = parsed;\n  } else if (typeof parsed === 'object' && parsed !== null) {\n    classifications = Object.values(parsed)\n      .map(v => (typeof v === 'object' ? v : null))\n      .filter(Boolean);\n  }\n} catch (e) {\n  recovered = true;\n  const pairRegex = /\"id\"\\s*:\\s*\"?(\\d+)\"?[^}]*?\"playlist\"\\s*:\\s*\"([^\"]+)\"/g;\n  let match;\n  while ((match = pairRegex.exec(cleaned)) !== null) {\n    classifications.push({ id: match[1], playlist: match[2] });\n  }\n}\n\n// v1.4: added \"Classical Focus\" and \"Podcasts & Audiobooks\" to match the\n// updated Build Prompt categories. This list MUST stay in sync with the\n// VALID CATEGORIES block in the Build Prompt node, or new categories will\n// silently get rejected and dumped into Discover Gems with no error.\nconst VALID = new Set([\n  \"Deep Focus\", \"Classical Focus\", \"Morning Energy\", \"Late Night Drive\",\n  \"Workout Power\", \"Chill & Unwind\", \"Nostalgia Trip\", \"Discover Gems\",\n  \"Party Mode\", \"Podcasts & Audiobooks\", \"SKIP_NON_MUSIC\"\n]);\n\nconst store = $getWorkflowStaticData('global');   // ← declared ONCE, here\nif (!store.classificationMap) store.classificationMap = {};\n\nif (classifications.length === 0) {\n  store.emptyParseBatches = (store.emptyParseBatches || 0) + 1;\n}\n\nlet accepted = 0, rejected = 0;\nfor (const item of classifications) {\n  const id = String(item.id || '');\n  const playlist = item.playlist || '';\n  if (id && VALID.has(playlist)) {\n    store.classificationMap[id] = playlist;\n    accepted++;\n  } else if (id) {\n    store.classificationMap[id] = 'Discover Gems';\n    rejected++;\n  }\n}\n\nconst total = Object.keys(store.classificationMap).length;\nreturn [{ json: { accepted, rejected, totalClassified: total, recovered } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c49d783a-9b7d-4cb9-abdd-07408957d183",
+      "name": "Code in JavaScript1",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4288,
+        2752
+      ],
+      "parameters": {
+        "jsCode": "const store = $getWorkflowStaticData('global');\nstore.errorBatches = (store.errorBatches || 0) + 1;\nreturn [{ json: { accepted: 0, rejected: 0, error: true } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ec8e4961-8723-438e-a3cb-a6401b38ab4b",
+      "name": "Code in JavaScript2",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3680,
+        1888
+      ],
+      "parameters": {
+        "jsCode": "const store = $getWorkflowStaticData('global');\nstore.runInProgress = false;\nreturn $input.all();"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ff99a269-89da-4188-9787-6af38f62c8d2",
+      "name": "Code in JavaScript3",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3904,
+        1888
+      ],
+      "parameters": {
+        "jsCode": "return $input.all().filter(item => item.json.playlist !== '__DIAGNOSTIC__');"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "df53addb-cb33-4ee7-b93e-1bb42f65e199",
+      "name": "Loop Over Items1",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        4208,
+        1888
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "87c1e7e8-f2d2-47a3-b57e-124199b86f35",
+      "name": "HTTP Request1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        4592,
+        1888
+      ],
+      "parameters": {
+        "url": "http://MY_HOST_OR_IP:32400/playlists?type=15",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpMultipleHeadersAuth"
+      },
+      "credentials": {
+        "httpMultipleHeadersAuth": {
+          "id": "kJ9Q6SBEUZMJ8uBs",
+          "name": "Multiple Headers Auth account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "235e9bcb-64ea-4ba6-8a7c-3cc8f7eaa1c7",
+      "name": "Find Match",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4784,
+        1888
+      ],
+      "parameters": {
+        "jsCode": "const targetTitle = $('Loop Over Items1').first().json.playlist;\nconst container = $input.first().json.MediaContainer;\nconst existing = (container.Metadata || []).find(p => p.title === targetTitle);\n\nreturn [{ json: {\n  playlist: targetTitle,\n  ratingKeys: $('Loop Over Items1').first().json.ratingKeys,\n  existingPlaylistKey: existing ? existing.ratingKey : null,\n  machineIdentifier: $getWorkflowStaticData('global').machineIdentifier\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "20026256-68a1-4693-8293-7f72f4200cc7",
+      "name": "Create Playlist",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5456,
+        1888
+      ],
+      "parameters": {
+        "jsCode": "// Replace the code in 'Create Playlist' with:\nconst matchNode = $('Find Match').first().json;\n\nconst ratingKeys = matchNode.ratingKeys || [];\nconst first50 = ratingKeys.slice(0, 50);\nconst remaining = ratingKeys.slice(50);\nconst uri = `server://${matchNode.machineIdentifier}/com.plexapp.plugins.library/library/metadata/${first50.join(',')}`;\n\nreturn [{ json: {\n  playlist: matchNode.playlist,\n  createUri: uri,\n  remaining,\n  machineIdentifier: matchNode.machineIdentifier\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "894de2d4-e609-4ce6-98d9-f3e4dfc6b212",
+      "name": "HTTP Request3",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5616,
+        1888
+      ],
+      "parameters": {
+        "url": "=http://MY_HOST_OR_IP:32400/playlists?type=audio&title={{ encodeURIComponent($json.playlist) }}&smart=0&uri={{ encodeURIComponent($json.createUri) }}",
+        "method": "POST",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpMultipleHeadersAuth"
+      },
+      "credentials": {
+        "httpMultipleHeadersAuth": {
+          "id": "kJ9Q6SBEUZMJ8uBs",
+          "name": "Multiple Headers Auth account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "7c559d7b-5d32-4212-a214-e488c0548d6f",
+      "name": "IfExists",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5008,
+        1888
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c94d05d4-5661-4e85-bc58-7dc779186d33",
+              "operator": {
+                "type": "string",
+                "operation": "notEmpty",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.existingPlaylistKey }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "0dfe9e96-219a-4c10-bcef-6ca3e4a81ad2",
+      "name": "If1",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        6016,
+        1968
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "d51fc114-d200-4a12-ab29-b492c467b4c3",
+              "operator": {
+                "type": "number",
+                "operation": "gt"
+              },
+              "leftValue": "={{ $json.remaining.length }}",
+              "rightValue": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "11a6315b-358b-4d28-bddd-99bd9bbcb4ae",
+      "name": "Capture ratingKey",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        5792,
+        1888
+      ],
+      "parameters": {
+        "jsCode": "const data = $('Create Playlist').first().json;\nconst container = $input.first().json?.MediaContainer;\nconst metadata = container?.Metadata?.[0] || container?.Directory?.[0];\n\nif (!metadata?.ratingKey) {\n  throw new Error(`Failed to extract ratingKey for created playlist \"${data.playlist}\"`);\n}\n\n// Store the created playlist info in global memory so the final chunker can use it\nconst store = $getWorkflowStaticData('global');\nif (!store.createdPlaylists) store.createdPlaylists = [];\n\nstore.createdPlaylists.push({\n  playlist: data.playlist,\n  newPlaylistKey: metadata.ratingKey,\n  remaining: data.remaining,\n  machineIdentifier: data.machineIdentifier\n});\n\nreturn [{ json: {\n  playlist: data.playlist,\n  newPlaylistKey: metadata.ratingKey,\n  remaining: data.remaining,\n  machineIdentifier: data.machineIdentifier\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8a4d47ca-3814-4d84-9159-09d28549cb83",
+      "name": "Loop Over Items2",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        5152,
+        2544
+      ],
+      "parameters": {
+        "options": {},
+        "batchSize": 50
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b1a08188-dabd-4162-9aef-425f8edd55c0",
+      "name": "HTTP Request4",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5504,
+        2608
+      ],
+      "parameters": {
+        "url": "=http://MY_HOST_OR_IP:32400/playlists/{{ $json.newPlaylistKey }}/items?uri={{ encodeURIComponent('server://' + $json.machineIdentifier + '/com.plexapp.plugins.library/library/metadata/' + $json.chunk.join(',')) }}",
+        "method": "PUT",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpMultipleHeadersAuth"
+      },
+      "credentials": {
+        "httpMultipleHeadersAuth": {
+          "id": "kJ9Q6SBEUZMJ8uBs",
+          "name": "Multiple Headers Auth account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "b6dd6ca2-6e5f-4722-b3d3-34970f1baba8",
+      "name": "Chunk Remaining",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4992,
+        2464
+      ],
+      "parameters": {
+        "jsCode": "const store = $getWorkflowStaticData('global');\nconst allPlaylists = store.createdPlaylists || [];\nconst allAppendJobs = [];\n\nfor (const data of allPlaylists) {\n  // Only process if there are tracks remaining after the initial 50\n  if (data.remaining && data.remaining.length > 0) {\n    for (let i = 0; i < data.remaining.length; i += 50) {\n      const chunk = data.remaining.slice(i, i + 50);\n      \n      allAppendJobs.push({\n        json: {\n          playlist: data.playlist,\n          newPlaylistKey: data.newPlaylistKey,\n          machineIdentifier: data.machineIdentifier,\n          chunk: chunk\n        }\n      });\n    }\n  }\n}\n\n// Returns a flat list of every single append HTTP request needed across all 8 playlists!\nreturn allAppendJobs;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1577bc53-cfca-401b-9486-ab4a7603e67b",
+      "name": "HTTP Request2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        5232,
+        1824
+      ],
+      "parameters": {
+        "url": "=http://MY_HOST_OR_IP:32400/playlists/{{ $json.existingPlaylistKey }}",
+        "method": "DELETE",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpMultipleHeadersAuth"
+      },
+      "credentials": {
+        "httpMultipleHeadersAuth": {
+          "id": "kJ9Q6SBEUZMJ8uBs",
+          "name": "Multiple Headers Auth account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "d39c461f-4b66-47cf-870b-a3c0361346f3",
+      "name": "HTTP Request Identity",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1504,
+        2128
+      ],
+      "parameters": {
+        "url": "http://MY_HOST_OR_IP:32400/identity",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpMultipleHeadersAuth"
+      },
+      "credentials": {
+        "httpMultipleHeadersAuth": {
+          "id": "kJ9Q6SBEUZMJ8uBs",
+          "name": "Multiple Headers Auth account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "814d71ea-d633-465f-833e-f77eb41e102b",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -256,
+        1776
+      ],
+      "parameters": {
+        "width": 1104,
+        "height": 768,
+        "content": "## PlexPlaylister Version 1.4\n\n## HOW IT WORKS\n\nCreating Playlists can become quite a hassle as your Plex library grows. This workflow helps with automatically creating new Playlists and listen to music again that you have not heard in times.\n\n## HOW TO SETUP\n\nThis flow has been developed for people that have their own instances of OLLAMA, n8n on a home NAS / media server. \n\n1. From the n8n Overview Page, go to Credentials \n- Setup global credentials to be used to authenticate for Plex \n   - Header 1\n   - Name : X-Plex-Token; Value \"MY_PLEX_TOKEN\" see (https://support.plex.tv/articles/204059436-finding-an-authentication-token-x-plex-token/)\";\n   - Allowed HTTP Request Domains : All\n- Setup OLLAMA Base URL  : test whether connectivity with OLLAMA is possible from the n8n instance\n   - Optionally an OLLAMA cloud instance can be used but in that case the global credentials need to be added to authenticate for OLLAMA\n\n2. In the PlaxPlaylister flow : \nFollow the STEPS adjusting the flow \n- Section 1 Change the Schedule Trigger : set the timing of when the flow should kick off. Take into account that a full run could take 24 hours.\n- Section 2,3,6&7 Change ALL the HTTP Request nodes : change \"MY_HOST_OR_IP\" to your local IP of the Plex server \n- Section 4 Change the HTTP Request \"Classify Tracks Using AI\" node \"MY_OLLAMA_HOST_OR_IP\" to your local IP of the OLLAMA server\n\n\n## CUSTOMIZATION\n\n* While this template provides an out-of-the-box architecture for exhaustive, 100% coverage music classification using local LLMs (like gemma2:9b or mistral:7b), your final playlist accuracy depends heavily on two factors: ID3 Metadata Quality and Personalized Prompt Tuning.\n\nIf you 'd rather look at a video instruction I have embedded a video tutorial at the end of the workflow."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2393ab42-cbf4-46aa-880c-600dcecd97b3",
+      "name": "HTTP Request",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1280,
+        2128
+      ],
+      "parameters": {
+        "url": "http://MY_HOST_OR_IP:32400/library/sections",
+        "options": {},
+        "authentication": "predefinedCredentialType",
+        "nodeCredentialType": "httpMultipleHeadersAuth"
+      },
+      "credentials": {
+        "httpMultipleHeadersAuth": {
+          "id": "kJ9Q6SBEUZMJ8uBs",
+          "name": "Multiple Headers Auth account"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "e23808fb-4a6a-428c-8772-27089258032e",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        1776
+      ],
+      "parameters": {
+        "color": "#ECE4DE",
+        "width": 352,
+        "height": 752,
+        "content": "## 1. Set time/schedule your run \n\nThis will allow scheduling the batch run  depending on how often you music collection is changing.\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "946cb3e4-8d4f-4483-afd7-de3c401c7f38",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1248,
+        1776
+      ],
+      "parameters": {
+        "color": "#ECE4DE",
+        "width": 1056,
+        "height": 752,
+        "content": "## 2 Collect Plex Library ID\nGet the Library ID and prep for the further steps"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6b3da24a-ff90-4484-9695-03de6b81346c",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2336,
+        1776
+      ],
+      "parameters": {
+        "color": "#ECE4DE",
+        "width": 896,
+        "height": 752,
+        "content": "## 3  Collect Music Library Info \nFetch the track data untill all tracks have been collected"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "91d65930-dc81-4cc7-b796-56e7df7d31d1",
+      "name": "Sticky Note4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3264,
+        2192
+      ],
+      "parameters": {
+        "color": "#ECE4DE",
+        "width": 1184,
+        "height": 784,
+        "content": "## 4 Classify Tracks into predefined Playlists \nIn chuncks of data tracks will be offered to your local LLM for classification until all Playlist have been defined."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d4233b17-cf96-43c6-bec2-aa7a753565e3",
+      "name": "Sticky Note5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3264,
+        1712
+      ],
+      "parameters": {
+        "color": "#ECE4DE",
+        "width": 1184,
+        "height": 464,
+        "content": "## 5 Collect the complete Playlists + Track lists\nSee the results of the Playlist creation and track coverage as output from STEP4."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4fc3d0a7-28c5-4fbb-9c70-63de3b250bbc",
+      "name": "Sticky Note6",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4480,
+        1712
+      ],
+      "parameters": {
+        "color": "#ECE4DE",
+        "width": 1696,
+        "height": 464,
+        "content": "## 6 Create the Playlists in Plex\nBased on the output of STEP5 check the Plex Library and create the Playlist."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "12079ab4-2077-4be2-bbc7-1d123a98f277",
+      "name": "Sticky Note14",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4480,
+        2192
+      ],
+      "parameters": {
+        "color": "#ECE4DE",
+        "width": 1696,
+        "height": 784,
+        "content": "## 7 Populate the Playlists in Plex\nBased on the output of STEP5 and STEP6 populate the Plex Playlist with the tracks classified."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4ddd1d5b-f7ce-4c47-9e1c-45c537aed31e",
+      "name": "Sticky Note7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3920,
+        2288
+      ],
+      "parameters": {
+        "color": "#F80103",
+        "width": 352,
+        "height": 256,
+        "content": "Change the \"MY_OLLAMA_HOST_OR_IP\" HTTP Request in this node to your local IP of the OLLAMA server\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "4d067b55-2a6b-49cd-9fba-9d342e20d2c7",
+      "name": "Sticky Note8",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        6224,
+        1712
+      ],
+      "parameters": {
+        "width": 1136,
+        "height": 928,
+        "content": "## Forum Pages & Video Tutorial \n\n**Forum Pages** \n\n[Click here to find the forum thread in case if you have questions](https://community.n8n.io/t/plex-playlister-flow/308916/)\n\n**YouTube Video Tutorial**\n\n@[youtube](nGK4sXtgUBA)\n \n"
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "7650ae11-e894-468c-8490-bd9748742f0f",
+  "nodeGroups": [],
+  "connections": {
+    "If": {
+      "main": [
+        [
+          {
+            "node": "Present Classified List",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Classify Tracks Using AI",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IfExists": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request2",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Create Playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find Match": {
+      "main": [
+        [
+          {
+            "node": "IfExists",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Offset": {
+      "main": [
+        [
+          {
+            "node": "HTTP Fetch Plex Lib Data",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "If hasMore?": {
+      "main": [
+        [
+          {
+            "node": "HTTP Fetch Plex Lib Data",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Return Track List",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Prompt": {
+      "main": [
+        [
+          {
+            "node": "If",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request Identity",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request1": {
+      "main": [
+        [
+          {
+            "node": "Find Match",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request2": {
+      "main": [
+        [
+          {
+            "node": "Create Playlist",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request3": {
+      "main": [
+        [
+          {
+            "node": "Capture ratingKey",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request4": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chunk Remaining": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code Accumulate": {
+      "main": [
+        [
+          {
+            "node": "If hasMore?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Create Playlist": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items": {
+      "main": [
+        [
+          {
+            "node": "Group by Playlist",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Build Prompt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items1": {
+      "main": [
+        [
+          {
+            "node": "Chunk Remaining",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop Over Items2": {
+      "main": [
+        [],
+        [
+          {
+            "node": "HTTP Request4",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Schedule Trigger": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[ Clear Store ]2": {
+      "main": [
+        [
+          {
+            "node": "Set Offset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Capture ratingKey": {
+      "main": [
+        [
+          {
+            "node": "If1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Group by Playlist": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Return Track List": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript": {
+      "main": [
+        [
+          {
+            "node": "[ Clear Store ]2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript1": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript2": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code in JavaScript3": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request Identity": {
+      "main": [
+        [
+          {
+            "node": "Code in JavaScript",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Present Classified List": {
+      "main": [
+        [
+          {
+            "node": "Loop Over Items",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Classify Tracks Using AI": {
+      "main": [
+        [
+          {
+            "node": "Present Classified List",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code in JavaScript1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Fetch Plex Lib Data": {
+      "main": [
+        [
+          {
+            "node": "Code Accumulate",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

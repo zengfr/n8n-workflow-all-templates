@@ -1,4 +1,4 @@
-# imap : 10
+# imap : 15
 
 |id|file|
 |----|----|
@@ -12,3 +12,8 @@
 |9439|[9439_Automated_Invoice_Processing___Filing_with_IMAP__AI__Google_Drive___DateV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9439_Automated_Invoice_Processing___Filing_with_IMAP__AI__Google_Drive___DateV.json)|
 |10084|[10084_Monitor_Emails___Send_AI-Generated_Auto-Replies_with_Ollama___Telegram_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10084_Monitor_Emails___Send_AI-Generated_Auto-Replies_with_Ollama___Telegram_Alerts.json)|
 |12846|[12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/28/12846_Report_spam_and_phishing_URLs_from_IMAP_mailboxes_to_Spamhaus.json)|
+|16821|[16821_Triage_and_reply_to_email_threads_with_GPT-5.2__IMAP__Gmail__and_ESP_suppression.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16821_Triage_and_reply_to_email_threads_with_GPT-5.2__IMAP__Gmail__and_ESP_suppression.json)|
+|17710|[17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json)|
+|17864|[17864_Validate_incoming_XRechnung_invoices_from_IMAP_and_archive_them_with_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17864_Validate_incoming_XRechnung_invoices_from_IMAP_and_archive_them_with_Data_Tables.json)|
+|19680|[19680_Manage_lead_follow-ups_with_Google_Sheets__SMTP__and_IMAP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19680_Manage_lead_follow-ups_with_Google_Sheets__SMTP__and_IMAP_email.json)|
+|19734|[19734_Triage_inbound_email_with_IMAP__custom_AI_HTTP_APIs_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19734_Triage_inbound_email_with_IMAP__custom_AI_HTTP_APIs_and_SMTP.json)|

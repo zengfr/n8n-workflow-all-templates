@@ -1,4 +1,4 @@
-# sound : 7
+# sound : 11
 
 |id|file|
 |----|----|
@@ -9,3 +9,7 @@
 |15829|[15829_Recommend_TikTok_sound_and_caption_packs_for_AI_product_videos_with_Wouldliker.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15829_Recommend_TikTok_sound_and_caption_packs_for_AI_product_videos_with_Wouldliker.json)|
 |15830|[15830_Attach_a_fixed_Wouldliker_TikTok_sound_to_any_downstream_content_workflow.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15830_Attach_a_fixed_Wouldliker_TikTok_sound_to_any_downstream_content_workflow.json)|
 |16114|[16114_Generate_new_video_audio_and_merge_the_final_result_with_Fal.run_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16114_Generate_new_video_audio_and_merge_the_final_result_with_Fal.run_and_Google_Drive.json)|
+|16881|[16881_Generate_sound_effects_from_chat_with_Groq__ElevenLabs_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16881_Generate_sound_effects_from_chat_with_Groq__ElevenLabs_and_Google_Drive.json)|
+|16954|[16954_Generate_sound_effect_variation_packs_with_ElevenLabs_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16954_Generate_sound_effect_variation_packs_with_ElevenLabs_and_Google_Drive.json)|
+|16956|[16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16956_Build_a_sound_effect_library_with_Google_Sheets__ElevenLabs__Google_Drive_and_Slack.json)|
+|17597|[17597_Generate_chat-based_sound_effects_with_OpenAI_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17597_Generate_chat-based_sound_effects_with_OpenAI_and_ElevenLabs.json)|

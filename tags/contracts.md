@@ -1,4 +1,4 @@
-# contracts : 8
+# contracts : 11
 
 |id|file|
 |----|----|
@@ -10,3 +10,6 @@
 |15230|[15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15230_Classify_contracts_and_track_renewals_with_easybits__Google_Drive_and_Sheets.json)|
 |16379|[16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16379_Generate_bulk_certificates_and_contracts_with_Carbone__Excel_and_OneDrive.json)|
 |16754|[16754_Process_signed_DocuSign_contracts_with_Supabase__Claude__Stripe__Outlook_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16754_Process_signed_DocuSign_contracts_with_Supabase__Claude__Stripe__Outlook_and_Gmail.json)|
+|18250|[18250_Review_contracts_and_generate_legal_PDF_reports_with_Google_Drive__OpenAI__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18250_Review_contracts_and_generate_legal_PDF_reports_with_Google_Drive__OpenAI__and_Slack.json)|
+|18473|[18473_Handle_Certyneo_e-signature_webhooks_and_archive_signed_PDFs_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18473_Handle_Certyneo_e-signature_webhooks_and_archive_signed_PDFs_to_Google_Drive.json)|
+|18765|[18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18765_Send_TurboDocx_e-signature_contracts_from_Excel_with_Slack_approval_and_SharePoint_filing.json)|

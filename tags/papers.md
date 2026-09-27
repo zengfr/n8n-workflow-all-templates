@@ -1,4 +1,4 @@
-# papers : 12
+# papers : 15
 
 |id|file|
 |----|----|
@@ -14,3 +14,6 @@
 |12938|[12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12938_Answer_research_questions_using_OpenAI_GPT-4.1_and_arXiv_papers.json)|
 |13376|[13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13376_Repurpose_white_papers_into_LinkedIn_PDFs_and_blog_posts_with_BrowserAct_and_GPT-4o.json)|
 |13713|[13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13713_Generate_AI_research_papers_with_Claude__arXiv__Google_Scholar_and_DOCX_export.json)|
+|17933|[17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17933_Create_seminar_teaching_packs_from_research_PDFs_with_Qwen__Gotenberg_and_Gmail.json)|
+|18079|[18079_Scrape_Google_Scholar_research_papers_with_Groq__SerpApi__CrossRef_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18079_Scrape_Google_Scholar_research_papers_with_Groq__SerpApi__CrossRef_and_Sheets.json)|
+|18779|[18779_Score_and_summarize_new_arXiv_AI_papers_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18779_Score_and_summarize_new_arXiv_AI_papers_with_Claude_and_Gmail.json)|

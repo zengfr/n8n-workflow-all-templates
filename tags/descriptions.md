@@ -1,4 +1,4 @@
-# descriptions : 27
+# descriptions : 37
 
 |id|file|
 |----|----|
@@ -29,3 +29,13 @@
 |14065|[14065_Generate_job_descriptions_from_briefing_notes_with_OpenAI_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14065_Generate_job_descriptions_from_briefing_notes_with_OpenAI_and_Google_Docs.json)|
 |14295|[14295_Screen_CVs_against_job_descriptions_with_Gmail__easybits__Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/42/14295_Screen_CVs_against_job_descriptions_with_Gmail__easybits__Airtable_and_Slack.json)|
 |15710|[15710_Generate_YouTube_SEO_descriptions__chapters__and_tags_with_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15710_Generate_YouTube_SEO_descriptions__chapters__and_tags_with_WayinVideo_and_GPT-4o-mini.json)|
+|16901|[16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16901_Generate_product_image_descriptions_from_form_uploads_with_Easybits_Extractor.json)|
+|16976|[16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16976_Translate_YouTube_video_metadata_into_multiple_languages_with_OpenAI.json)|
+|17300|[17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17300_Tailor_Markdown_resumes_to_job_descriptions_with_Claude__PDFShift_and_Gmail.json)|
+|17317|[17317_Review_resumes_against_job_descriptions_with_Google_Gemini__Gmail__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17317_Review_resumes_against_job_descriptions_with_Google_Gemini__Gmail__and_Sheets.json)|
+|17457|[17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17457_Check_job_descriptions_for_bias_with_forms_and_OpenAI_GPT-4.1.json)|
+|17458|[17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17458_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|17518|[17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17518_Generate_batch_product_descriptions_in_Google_Sheets_with_Gemini_and_Slack.json)|
+|17675|[17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17675_Check_job_descriptions_for_bias_and_inclusive_language_with_OpenAI.json)|
+|18308|[18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18308_Generate_unique_product_description_pools_with_OpenAI_and_a_Spintax_node.json)|
+|19685|[19685_Fill_missing_Wix_SEO_titles_and_meta_descriptions_in_Wix_with_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19685_Fill_missing_Wix_SEO_titles_and_meta_descriptions_in_Wix_with_Gemini.json)|

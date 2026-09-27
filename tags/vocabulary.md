@@ -1,4 +1,4 @@
-# vocabulary : 7
+# vocabulary : 9
 
 |id|file|
 |----|----|
@@ -9,3 +9,5 @@
 |16058|[16058_Send_daily_AI_vocabulary_lessons_with_GPT-4o-mini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16058_Send_daily_AI_vocabulary_lessons_with_GPT-4o-mini__Google_Sheets_and_Gmail.json)|
 |16179|[16179_Enrich_German_vocabulary_in_Google_Sheets_with_OpenThesaurus_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16179_Enrich_German_vocabulary_in_Google_Sheets_with_OpenThesaurus_and_OpenAI.json)|
 |16692|[16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16692_Generate_English_Polish_vocabulary_quizzes_with_Google_Sheets_and_Groq.json)|
+|17071|[17071_Normalize_YouTube_video_tags_using_Google_Sheets_vocabulary_rules.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17071_Normalize_YouTube_video_tags_using_Google_Sheets_vocabulary_rules.json)|
+|19481|[19481_Log_vocabulary_and_email_a_daily_word_of_the_day_with_Gemini__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19481_Log_vocabulary_and_email_a_daily_word_of_the_day_with_Gemini__Google_Sheets_and_Gmail.json)|

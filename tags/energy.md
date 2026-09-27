@@ -1,4 +1,4 @@
-# energy : 9
+# energy : 10
 
 |id|file|
 |----|----|
@@ -11,3 +11,4 @@
 |13915|[13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13915_Monitor_grid_telemetry_and_automate_compliance_alerts_with_GPT-4o_and_Slack.json)|
 |14438|[14438_Govern_energy_portfolios_with_GPT-4o__Perplexity__Slack__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14438_Govern_energy_portfolios_with_GPT-4o__Perplexity__Slack__Gmail_and_Sheets.json)|
 |16343|[16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16343_Orchestrate_multi-agent_energy_optimization_with_OpenAI_GPT_and_Claude.json)|
+|18213|[18213_Monitor_solar_generation_and_grid_usage_with_Open-Meteo_data_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18213_Monitor_solar_generation_and_grid_usage_with_Open-Meteo_data_and_Slack_alerts.json)|

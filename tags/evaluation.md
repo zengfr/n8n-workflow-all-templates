@@ -1,4 +1,4 @@
-# evaluation : 33
+# evaluation : 37
 
 |id|file|
 |----|----|
@@ -35,3 +35,7 @@
 |16063|[16063_Generate_and_evaluate_AI_prompts_with_Gemini__OpenRouter__Groq__Cohere_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16063_Generate_and_evaluate_AI_prompts_with_Gemini__OpenRouter__Groq__Cohere_and_Supabase.json)|
 |16570|[16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16570_Evaluate_AI_prompts_with_OpenRouter_LLM-as-judge_and_Notion_reports.json)|
 |16707|[16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16707_Score_and_advance_job_applicants_with_Airtable__Google_Workspace_and_GPT-4o.json)|
+|17626|[17626_Evaluate_KYB_risk_scores_from_Google_Sheets_with_Ambriel_and_save_reports_to_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17626_Evaluate_KYB_risk_scores_from_Google_Sheets_with_Ambriel_and_save_reports_to_Google_Drive.json)|
+|18177|[18177_Score_and_triage_job_applicants_with_Airtable__Google_Drive_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18177_Score_and_triage_job_applicants_with_Airtable__Google_Drive_and_OpenAI.json)|
+|18322|[18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json)|
+|19711|[19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19711_Evaluate_and_rank_supplier_bids_with_MySQL__Groq_LLM__Notion__and_Gmail.json)|

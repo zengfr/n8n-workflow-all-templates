@@ -1,4 +1,4 @@
-# dental : 7
+# dental : 16
 
 |id|file|
 |----|----|
@@ -9,3 +9,12 @@
 |9473|[9473_AI-Powered_Dental_Appointment_System_with_Telegram__Google_Calendar_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/94/9473_AI-Powered_Dental_Appointment_System_with_Telegram__Google_Calendar_and_Sheets.json)|
 |11463|[11463_Dental_Clinic_Appointment___Admin_System_with_Supabase__Phone_Integration___AI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11463_Dental_Clinic_Appointment___Admin_System_with_Supabase__Phone_Integration___AI.json)|
 |16756|[16756_Draft_personalized_cold_emails_from_Google_Sheets_with_Apify_and_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16756_Draft_personalized_cold_emails_from_Google_Sheets_with_Apify_and_GPT-4o_mini.json)|
+|17419|[17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17419_Manage_dental_patients_via_Telegram_with_OpenAI__Google_Sheets__and_Slack.json)|
+|17490|[17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17490_Handle_dental_booking_calls_with_Vapi__Airtable__and_gotoHuman.json)|
+|17603|[17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17603_Manage_dental_patient_chat__bookings__and_reminders_with_Telegram__OpenAI_and_Sheets.json)|
+|19295|[19295_Recover_unscheduled_dental_treatment_with_Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19295_Recover_unscheduled_dental_treatment_with_Google_Sheets_and_Gmail.json)|
+|19428|[19428_Qualify_and_route_dental_leads_with_GPT-4__GoHighLevel__Twilio__and_Meta_Ads.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19428_Qualify_and_route_dental_leads_with_GPT-4__GoHighLevel__Twilio__and_Meta_Ads.json)|
+|19429|[19429_Nurture_dental_leads_and_manage_appointments_with_Google_Sheets__Gmail__Twilio__and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19429_Nurture_dental_leads_and_manage_appointments_with_Google_Sheets__Gmail__Twilio__and_Google_Calendar.json)|
+|19460|[19460_Draft_dental_denial_appeal_packets_from_Gmail_EOBs_with_OpenAI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19460_Draft_dental_denial_appeal_packets_from_Gmail_EOBs_with_OpenAI_and_Google_Drive.json)|
+|19622|[19622_Send_dental_clinic_audit_outreach_with_DeepSeek__SerpAPI__Hunter_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19622_Send_dental_clinic_audit_outreach_with_DeepSeek__SerpAPI__Hunter_and_Gmail.json)|
+|19656|[19656_Sync_dental_leads_from_Apify_Google_Maps_to_HighLevel_CRM_opportunities.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19656_Sync_dental_leads_from_Apify_Google_Maps_to_HighLevel_CRM_opportunities.json)|

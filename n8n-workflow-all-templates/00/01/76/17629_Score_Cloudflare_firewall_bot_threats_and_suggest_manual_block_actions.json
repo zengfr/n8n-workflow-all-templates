@@ -1,0 +1,521 @@
+{
+  "name": "Cloudflare Bot Threat Scorer — Community Edition",
+  "nodes": [
+    {
+      "id": "c02f14b5-fc02-47f3-8647-c9b282d39753",
+      "name": "Every 3 hours",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        -300,
+        460
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "minutes",
+              "minutesInterval": 15
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "03c144e6-6158-4e87-98b6-9ce82d36d1a5",
+      "name": "Run manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        -300,
+        640
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "eec47cb8-3308-410c-a062-bd20be9535fc",
+      "name": "Configuration",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        0,
+        540
+      ],
+      "parameters": {
+        "jsCode": "// ===== CONFIGURATION — the ONLY place to edit ======================\n// This workflow is a SCORER. It reads Cloudflare security events and\n// produces risk scores plus remediation RECOMMENDATIONS. It never writes\n// to Cloudflare and cannot block anything. (Automated, TTL-managed\n// blocking lives in \"Cloudflare Bot Defense Autopilot Pro\".)\nreturn [{ json: {\n  // Zones to assess. Leave [] to auto-discover every zone the token can read.\n  zoneTags: [],\n\n  // Look-back window in hours. Keep <= your Cloudflare plan's event retention\n  // (Free/Pro retain roughly the last 24h of firewall events).\n  windowHours: 3,\n\n  // Max events pulled per zone per run. Cloudflare hard-caps this at 10000 and\n  // adaptively SAMPLES high-volume zones, so treat counts as representative,\n  // not exhaustive. See the \"Data limits\" note on the canvas.\n  eventLimitPerZone: 2000,\n\n  // Score thresholds (see the CONFIG block in \"Score offenders\" for weights).\n  reviewThreshold: 40,   // >= : recommend human review\n  blockThreshold: 70,    // >= : recommend a block (you apply it, or upgrade to Pro)\n}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "6e187281-e120-4a9e-afcf-354b66e772eb",
+      "name": "Discover zones",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        300,
+        540
+      ],
+      "parameters": {
+        "url": "https://api.cloudflare.com/client/v4/zones?per_page=50",
+        "method": "GET",
+        "options": {},
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1d7e09d8-57fa-4f17-88d4-94dd22da93b9",
+      "name": "Resolve zone list",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        600,
+        540
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Configuration').first().json;\nconst resp = $input.first().json;              // single API response item\nconst listed = (resp.result || []).map(z => ({ tag: z.id, name: z.name }));\nconst chosen = (cfg.zoneTags && cfg.zoneTags.length)\n  ? listed.filter(z => cfg.zoneTags.includes(z.tag))\n  : listed;\nif (!chosen.length) throw new Error('No zones resolved — check the token Zone Read permission.');\n// Emit ONE ITEM PER ZONE so the next node runs once per zone.\nreturn chosen.map(z => ({ json: { zoneTag: z.tag, zoneName: z.name } }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "315b0ed8-965f-4ca9-a3dd-5b2bdd15293e",
+      "name": "Build events query",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        900,
+        540
+      ],
+      "parameters": {
+        "jsCode": "const cfg = $('Configuration').first().json;\nconst since = new Date(Date.now() - cfg.windowHours*3600*1000).toISOString();\nconst until = new Date().toISOString();\nconst query = [\n  'query($zone:String!,$since:Time!,$until:Time!,$limit:Int!){',\n  'viewer{zones(filter:{zoneTag:$zone}){',\n  'firewallEventsAdaptive(filter:{datetime_geq:$since,datetime_leq:$until},limit:$limit,orderBy:[datetime_DESC]){',\n  'datetime action clientIP clientAsn clientASNDescription clientCountryName ',\n  'clientRequestPath clientRequestHTTPMethodName userAgent source ruleId edgeResponseStatus',\n  '}}}}'\n].join('');\nreturn $input.all().map(item => {\n  const z = item.json;\n  return { json: {\n    zoneTag: z.zoneTag, zoneName: z.zoneName,\n    gqlBody: JSON.stringify({ query, variables: {\n      zone: z.zoneTag, since, until, limit: cfg.eventLimitPerZone } }),\n  }};\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "063c5e4c-ef6e-4ea6-b4a6-1e191eaadeff",
+      "name": "Fetch firewall events",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1200,
+        540
+      ],
+      "parameters": {
+        "url": "https://api.cloudflare.com/client/v4/graphql",
+        "body": "={{ $json.gqlBody }}",
+        "method": "POST",
+        "options": {},
+        "sendBody": true,
+        "contentType": "raw",
+        "sendHeaders": true,
+        "authentication": "genericCredentialType",
+        "rawContentType": "application/json",
+        "genericAuthType": "httpHeaderAuth",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "e0dcdd55-a741-4c7f-8539-e74848deb6d0",
+      "name": "Aggregate by IP",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1500,
+        540
+      ],
+      "parameters": {
+        "jsCode": "const zoneMeta = $('Build events query').all().map(i => i.json); // [{zoneTag,zoneName}] aligned 1:1 with responses\nconst responses = $input.all();                                 // one per zone\nconst PROBE = ['.env','.git','wp-admin','wp-login','xmlrpc','phpmyadmin','.php',\n  '/.aws','/.ssh','id_rsa','config.json','backup','/vendor/','/actuator','/solr',\n  '/struts','eval-stdin','..%'+'2f','../','/etc/pa'+'sswd','shell','cgi-bin'];\nconst isProbe = (p) => { const s=(p||'').toLowerCase(); return PROBE.some(x=>s.includes(x)); };\n\nconst byKey = new Map();\nresponses.forEach((resItem, idx) => {\n  const gql = resItem.json;\n  if (gql.errors) throw new Error('Cloudflare GraphQL error: ' + JSON.stringify(gql.errors));\n  const zones = ((gql.data || {}).viewer || {}).zones || [];\n  const events = (zones[0] || {}).firewallEventsAdaptive || [];\n  const meta = zoneMeta[idx] || {};\n  for (const e of events) {\n    const ip = e.clientIP; if (!ip) continue;\n    const key = (meta.zoneTag || '') + '|' + ip;\n    let a = byKey.get(key);\n    if (!a) { a = { ip, asn: e.clientAsn, asOrg: e.clientASNDescription,\n      country: e.clientCountryName, hits:0, probes:0, notFound:0, paths:new Set(),\n      userAgent: e.userAgent, challenges:0, challengeFails:0,\n      zoneTag: meta.zoneTag, zoneName: meta.zoneName }; byKey.set(key, a); }\n    a.hits++;\n    if (isProbe(e.clientRequestPath)) a.probes++;\n    if (Number(e.edgeResponseStatus) === 404) a.notFound++;\n    a.paths.add(e.clientRequestPath);\n    const act = (e.action||'').toLowerCase();\n    if (act.includes('challenge')) a.challenges++;\n    if (a.challenges > 1) a.challengeFails = a.challenges - 1;\n  }\n});\nconst out = [...byKey.values()].map(a => ({ json: { ...a, distinctPaths: a.paths.size, paths: undefined } }));\nreturn out.length ? out : [{ json: { _empty: true } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "b5118d6d-32be-4d41-8305-955acbfed568",
+      "name": "Score offenders",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1800,
+        540
+      ],
+      "parameters": {
+        "jsCode": "// ============================================================================\n// Cloudflare Bot Defense Autopilot — Deterministic Offender Scoring Engine\n// ----------------------------------------------------------------------------\n// No AI. Every point is explainable. Tune weights/thresholds in CONFIG only.\n// Input : array of per-offender aggregates {ip, asn, asOrg, country, hits,\n//         probes, notFound, distinctPaths, userAgent, challenges, challengeFails}\n// Output: same rows + {score, band, signals[], decision}\n// ============================================================================\n\nconst CONFIG = {\n  // --- score bands -> decision ---\n  blockThreshold: 70,    // >= : auto-action (managed challenge / block)\n  reviewThreshold: 40,   // >= : send to human review queue\n  // < reviewThreshold  : ignore (logged only)\n\n  // --- signal weights (max contribution each) ---\n  weights: {\n    probeRatio: 30,        // share of requests hitting known-attack paths\n    probeVolume: 15,       // absolute count of probe requests\n    notFoundRatio: 15,     // share of 404s (content discovery / brute paths)\n    datacenterAsn: 15,     // traffic from hosting/datacenter networks\n    hostileAsn: 20,        // ASN on the curated high-abuse list\n    fakeBrowserUa: 15,     // UA claims a browser but behaves like a bot\n    emptyOrToolUa: 12,     // missing UA or known scanning tool\n    challengeFailRatio: 20,// failed Cloudflare challenges (near-certain bot)\n    pathEntropy: 8,        // many distinct paths, few repeats = crawling/fuzzing\n    velocity: 10,          // request rate over the window\n  },\n\n  // Datacenter / hosting ASNs — legitimate crawlers also live here, so this\n  // is a WEAK signal on its own; it only convicts when paired with probes.\n  datacenterAsns: new Set([\n    16509, 14618,          // Amazon\n    8075,                  // Microsoft / Azure\n    15169,                 // Google Cloud\n    24940,                 // Hetzner\n    16276, 35540,          // OVH\n    14061,                 // DigitalOcean\n    20473,                 // Vultr / Choopa\n    63949,                 // Akamai/Linode\n    51167,                 // Contabo\n    45102, 37963,          // Alibaba\n    132203,                // Tencent\n  ]),\n\n  // Curated repeat-abuse ASNs. Ships as a starting set; users extend it.\n  hostileAsns: new Set([\n    48090,                 // TECHOFF SRV (observed credential-stuffing)\n    400529,                // Infraly\n    152586,\n  ]),\n\n  // Absolute allowlist by ASN ONLY — your own infrastructure and networks you\n  // never want scored. User-Agent is NOT used for allowlisting: a UA string is\n  // attacker-controlled and trivially spoofed (anyone can send \"Googlebot\"), so\n  // allowlisting by UA would be a bypass. Verify real search-engine crawlers by\n  // reverse DNS out of band and add their ASNs here if you want them exempted.\n  allowlistAsns: new Set([\n    13335,                 // Cloudflare\n    // add your own hosting/office/VPN ASNs here\n  ]),\n\n  // Attack-path fragments (lowercased match). Extend per your stack.\n  probePathPatterns: [\n    '.env', '.git', 'wp-admin', 'wp-login', 'xmlrpc', 'phpmyadmin',\n    '.php', '/.aws', '/.ssh', 'id_rsa', 'config.json', 'backup',\n    '/vendor/', '/actuator', '/solr', '/struts', 'eval-stdin',\n    '..%'+'2f', '../', '/etc/pa'+'sswd', 'shell', 'cgi-bin',\n  ],\n\n  // UA strings that are bots regardless of what else they claim.\n  toolUaSubstrings: [\n    'curl', 'wget', 'python-requests', 'go-http-client', 'libwww',\n    'nikto', 'sqlmap', 'nmap', 'masscan', 'zgrab', 'httpx', 'nuclei',\n    'scrapy', 'headlesschrome', 'phantomjs',\n  ],\n\n  windowHours: 3,          // collection window; drives velocity math\n};\n\nfunction pct(part, whole) { return whole > 0 ? part / whole : 0; }\n\nfunction classifyUa(ua) {\n  const s = (ua || '').toLowerCase().trim();\n  if (!s) return 'empty';\n  for (const t of CONFIG.toolUaSubstrings) if (s.includes(t)) return 'tool';\n  const claimsBrowser = /mozilla|chrome|safari|firefox|edg\\//.test(s);\n  // Browser UA with no Accept-Language-ish richness is a common spoof tell;\n  // here we approximate: a browser UA on a pure-probe session is fake.\n  return claimsBrowser ? 'browser' : 'other';\n}\n\nfunction scoreOffender(o) {\n  const signals = [];\n  const add = (points, label) => { if (points > 0) signals.push({ points: Math.round(points), label }); };\n\n  const hits = Math.max(o.hits || 0, 1);\n  const probes = o.probes || 0;\n  const notFound = o.notFound || 0;\n  const paths = o.distinctPaths || 0;\n  const challenges = o.challenges || 0;\n  const challengeFails = o.challengeFails || 0;\n  const asn = Number(o.asn) || 0;\n  const uaClass = classifyUa(o.userAgent);\n\n  // ---- absolute allowlist by ASN only: short-circuit ----\n  if (CONFIG.allowlistAsns.has(asn)) {\n    return { ...o, score: 0, band: 'allow', recommendation: 'allow',\n      signals: [{ points: 0, label: `AS${asn} on ASN allowlist — never scored` }] };\n  }\n\n  const W = CONFIG.weights;\n\n  // ---- probe behaviour (primary) ----\n  const probeRatio = pct(probes, hits);\n  add(probeRatio * W.probeRatio, `${Math.round(probeRatio * 100)}% of requests hit attack paths`);\n  if (probes >= 20) add(W.probeVolume, `${probes} probe requests (high volume)`);\n  else if (probes > 0) add(W.probeVolume * (probes / 20), `${probes} probe requests`);\n\n  // ---- 404 discovery ----\n  const nfRatio = pct(notFound, hits);\n  if (nfRatio > 0.5) add(nfRatio * W.notFoundRatio, `${Math.round(nfRatio * 100)}% 404s (path discovery)`);\n\n  // ---- network reputation ----\n  if (CONFIG.hostileAsns.has(asn)) add(W.hostileAsn, `AS${asn} on curated high-abuse list`);\n  const isDc = CONFIG.datacenterAsns.has(asn);\n  if (isDc) add(W.datacenterAsn, `AS${asn} is a datacenter/hosting network`);\n\n  // ---- UA forensics ----\n  if (uaClass === 'empty') add(W.emptyOrToolUa, 'Missing User-Agent');\n  else if (uaClass === 'tool') add(W.emptyOrToolUa, 'User-Agent is a known scanning tool');\n  else if (uaClass === 'browser' && probeRatio > 0.5) {\n    // browser UA but the session is mostly attack traffic = spoofed\n    add(W.fakeBrowserUa, 'Browser User-Agent on a probe-dominated session (spoofed)');\n  }\n\n  // ---- challenge failures (very strong) ----\n  const cfRatio = pct(challengeFails, challenges);\n  if (challengeFails > 0) add(cfRatio * W.challengeFailRatio + Math.min(challengeFails, 5),\n    `${challengeFails} failed challenges`);\n\n  // ---- path entropy (crawling / fuzzing) ----\n  const entropy = pct(paths, hits);\n  if (paths >= 30 && entropy > 0.8) add(W.pathEntropy, `${paths} distinct paths, low repetition (crawling/fuzzing)`);\n\n  // ---- velocity ----\n  const perHour = hits / CONFIG.windowHours;\n  if (perHour >= 60) add(W.velocity, `${Math.round(perHour)} req/hour (elevated rate)`);\n  else if (perHour >= 20) add(W.velocity * 0.5, `${Math.round(perHour)} req/hour`);\n\n  const score = Math.min(100, Math.round(signals.reduce((s, x) => s + x.points, 0)));\n  // This is a SCORER: it recommends, it never acts. The bands map to\n  // recommended handling, not automated remediation.\n  let band, recommendation;\n  if (score >= CONFIG.blockThreshold) { band = 'high'; recommendation = 'recommend_block'; }\n  else if (score >= CONFIG.reviewThreshold) { band = 'medium'; recommendation = 'recommend_review'; }\n  else { band = 'low'; recommendation = 'monitor'; }\n\n  return { ...o, score, band, recommendation, signals };\n}// ---- n8n harness: score every aggregated offender (runOnceForAllItems) ----\nconst cfg = $('Configuration').first().json;\nCONFIG.windowHours = cfg.windowHours || CONFIG.windowHours;\nCONFIG.reviewThreshold = cfg.reviewThreshold ?? CONFIG.reviewThreshold;\nCONFIG.blockThreshold = cfg.blockThreshold ?? CONFIG.blockThreshold;\nconst rows = $input.all().map(i => i.json).filter(r => !r._empty);\nif (!rows.length) return [{ json: { _empty: true } }];\nreturn rows.map(r => ({ json: scoreOffender(r) }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e15f9125-2ad9-41d8-ad98-cd6a772900d2",
+      "name": "Route by recommendation",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        2100,
+        540
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "outputKey": "recommend_block",
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.recommendation }}",
+                    "rightValue": "recommend_block"
+                  }
+                ]
+              }
+            },
+            {
+              "outputKey": "recommend_review",
+              "conditions": {
+                "options": {
+                  "caseSensitive": true,
+                  "typeValidation": "loose"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.recommendation }}",
+                    "rightValue": "recommend_review"
+                  }
+                ]
+              }
+            }
+          ],
+          "fallbackOutput": "extra"
+        },
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "47d04e9c-c8e3-4f11-9776-7eea593d6559",
+      "name": "Build block recommendations",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2400,
+        380
+      ],
+      "parameters": {
+        "jsCode": "// Produce a copy-paste remediation recommendation for each high-risk offender.\n// THIS NODE MAKES NO API CALL. It outputs what you *could* apply by hand, plus\n// the exact Cloudflare IP List payload, so the choice to block stays with you.\nconst rows = $input.all().map(i => i.json).sort((a,b)=>b.score-a.score);\nif (!rows.length || rows[0]._empty) return [{ json: { note: 'No high-risk offenders this run.' } }];\nreturn rows.map(o => ({ json: {\n  ip: o.ip, zone: o.zoneName, asn: o.asn, asOrg: o.asOrg, country: o.country,\n  score: o.score, recommendation: 'BLOCK or Managed-Challenge',\n  why: (o.signals||[]).map(s => s.label),\n  // Ready-to-apply payload if you maintain a Cloudflare IP List manually:\n  suggestedListItem: { ip: o.ip, comment: `bot-threat-scorer score=${o.score} zone=${o.zoneName}` },\n}}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a62d0c4a-6869-4dff-b8b7-7c5c31f80383",
+      "name": "Format review queue",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2400,
+        560
+      ],
+      "parameters": {
+        "jsCode": "const rows = $input.all().map(i=>i.json).filter(r=>!r._empty).sort((a,b)=>b.score-a.score);\nif (!rows.length) return [{ json: { text: 'No offenders in the review band this run.' } }];\nconst lines = rows.slice(0,15).map(o =>\n  `• ${o.ip} (AS${o.asn} ${o.asOrg||''}, ${o.zoneName||''}) — score ${o.score}\\n   ${(o.signals||[]).slice(0,3).map(s=>s.label).join('; ')}`);\nreturn [{ json: { channel: 'review', text:\n  `Bot Threat Scorer — ${rows.length} offender(s) to review:\\n` + lines.join('\\n') } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a73c3d80-9823-4c6c-821b-6046aa894e35",
+      "name": "Log low-risk (monitor)",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2400,
+        740
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "67a7364c-01f4-4d9f-b1ae-992b4db79851",
+      "name": "SET UP: send recommendations",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2700,
+        380
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "e2223116-e6cd-447c-9fca-e8f23953f1bc",
+      "name": "SET UP: notify review channel",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2700,
+        560
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "7d177735-9407-4b79-9630-40c7ba10762e",
+      "name": "note-ca34ee45",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        -593
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 900,
+        "height": 553,
+        "content": "## 🔍 Cloudflare Bot Threat Scorer — Community Edition\n**Dry-run detection and remediation recommendations.**\n\nThis workflow reads Cloudflare security events, scores hostile traffic with a transparent deterministic engine (no AI), and tells you what to block — with the evidence. **It never writes to Cloudflare and cannot block anything.** Applying blocks stays a human decision.\n\nAutomatic, TTL-managed remediation is a separate product: *Cloudflare Bot Defense Autopilot Pro*.\n\n**Setup (once):**\n1. Create an **HTTP Header Auth** credential — name `Authorization`, value `Bearer <Cloudflare API token>`. Token scopes: **Zone → Analytics : Read** and **Zone → Zone : Read**. No write scope is needed — this edition never mutates.\n2. Fill the **Configuration** node (the only place to edit).\n3. Wire the two `SET UP:` nodes to Slack / email / a sheet.\n\nBuilt by **Cyberneticsplus** — your ally in cyber security."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "be4528d0-a2c3-4512-8960-1938c4e8ef66",
+      "name": "note-d3456a80",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -340,
+        179
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 400,
+        "height": 261,
+        "content": "### 1. One config, two triggers\nBoth the schedule and the manual trigger feed the single **Configuration** node — there is exactly one place to change settings."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "de219cba-0b5d-4f13-a987-234b3a68d7e7",
+      "name": "note-c6e03464",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        300,
+        0
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 780,
+        "height": 440,
+        "content": "### 2. Collect (validated query)\nDiscovers zones, then pulls `firewallEventsAdaptive` per zone. Every field in the query is validated against Cloudflare's live GraphQL schema.\n\n⚠️ **Data limits — read this:**\n• Only events Cloudflare's **security layer already acted on/logged** appear here — not all traffic. With no WAF/rate rules, expect few events.\n• Cloudflare **adaptively samples** busy zones: counts are representative, not exhaustive.\n• `limit` is capped at **10000** per query; this template pulls `eventLimitPerZone` (default 2000).\n• Free/Pro plans retain roughly **24h** of events — keep `windowHours` within that."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "204f3d19-64a8-4c59-a6f4-47af6e881b1e",
+      "name": "note-a62aaccd",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1440,
+        65
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 540,
+        "height": 375,
+        "content": "### 3. Score (transparent, no AI)\nWeighted signals: probe-path ratio, probe volume, 404 discovery, datacenter vs curated hostile ASN, UA forensics (as *suspicion* only), challenge-fail ratio, path entropy, velocity.\n\n**No User-Agent allowlisting** — a UA is attacker-controlled and spoofable, so it can never grant a pass. The only allowlist is by **ASN** (your own networks). All weights/thresholds live in the CONFIG block at the top of this node."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2895b5d7-be2d-4557-a58d-a421325528c6",
+      "name": "note-56f8f955",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2000,
+        81
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 330,
+        "height": 359,
+        "content": "### 4. Recommend — never act\n`recommend_block` → a copy-paste remediation (evidence + ready-to-apply IP-List payload). **No Cloudflare API call is made anywhere in this workflow.**\n`recommend_review` → human queue.\n`monitor` → logged."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9e363894-89cc-4454-bf9a-0097267a32d5",
+      "name": "note-48132f21",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2400,
+        69
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 470,
+        "height": 261,
+        "content": "### 5. Wire your outputs\nThe two **`SET UP:`** nodes are NoOp placeholders on purpose, so the template imports with only a Cloudflare read token. Replace each with a Slack / Email / Google Sheets / SIEM node."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Run manually": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Configuration": {
+      "main": [
+        [
+          {
+            "node": "Discover zones",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every 3 hours": {
+      "main": [
+        [
+          {
+            "node": "Configuration",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Discover zones": {
+      "main": [
+        [
+          {
+            "node": "Resolve zone list",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Aggregate by IP": {
+      "main": [
+        [
+          {
+            "node": "Score offenders",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score offenders": {
+      "main": [
+        [
+          {
+            "node": "Route by recommendation",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolve zone list": {
+      "main": [
+        [
+          {
+            "node": "Build events query",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build events query": {
+      "main": [
+        [
+          {
+            "node": "Fetch firewall events",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Format review queue": {
+      "main": [
+        [
+          {
+            "node": "SET UP: notify review channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch firewall events": {
+      "main": [
+        [
+          {
+            "node": "Aggregate by IP",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Route by recommendation": {
+      "main": [
+        [
+          {
+            "node": "Build block recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Format review queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Log low-risk (monitor)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build block recommendations": {
+      "main": [
+        [
+          {
+            "node": "SET UP: send recommendations",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Score Cloudflare firewall bot threats and suggest manual block actions",
+    "wechat": "youandme10086",
+    "id": 17629,
+    "update_time": "2026-09-27"
+  }
+}

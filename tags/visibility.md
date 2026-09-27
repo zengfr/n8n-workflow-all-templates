@@ -1,4 +1,4 @@
-# visibility : 12
+# visibility : 20
 
 |id|file|
 |----|----|
@@ -14,3 +14,11 @@
 |16668|[16668_Monitor_AI_search_visibility_with_Talordata_SERP__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16668_Monitor_AI_search_visibility_with_Talordata_SERP__OpenAI__and_Google_Sheets.json)|
 |16741|[16741_Monitor_AI_brand_visibility_and_GEO_gaps_with_OpenAI__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16741_Monitor_AI_brand_visibility_and_GEO_gaps_with_OpenAI__Gmail_and_Slack.json)|
 |16742|[16742_Monitor_AI_search_citations_and_competitors_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16742_Monitor_AI_search_citations_and_competitors_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|16903|[16903_Track_brand_visibility_in_ChatGPT_results_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16903_Track_brand_visibility_in_ChatGPT_results_with_OpenAI_and_Google_Sheets.json)|
+|17085|[17085_Monitor_brand_visibility_in_AI_search_with_ChatGPT__Perplexity__Gemini__Claude__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17085_Monitor_brand_visibility_in_AI_search_with_ChatGPT__Perplexity__Gemini__Claude__and_Supabase.json)|
+|17478|[17478_Track_daily_LLM_brand_visibility_with_Gemini__Groq__OpenRouter__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17478_Track_daily_LLM_brand_visibility_with_Gemini__Groq__OpenRouter__Sheets_and_Slack.json)|
+|17635|[17635_Send_weekly_AI_crawler_visibility_reports_with_Cloudflare__Claude__and_Telegram_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17635_Send_weekly_AI_crawler_visibility_reports_with_Cloudflare__Claude__and_Telegram_email.json)|
+|17667|[17667_Analyze_SEO_visibility_and_opportunities_with_TalorData__GPT-4o__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17667_Analyze_SEO_visibility_and_opportunities_with_TalorData__GPT-4o__Google_Sheets__and_Gmail.json)|
+|18577|[18577_Monitor_Google_AI_Overview_visibility_and_SEO_alerts_with_Pangolinfo.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18577_Monitor_Google_AI_Overview_visibility_and_SEO_alerts_with_Pangolinfo.json)|
+|18870|[18870_Track_SERP_and_AI_visibility_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18870_Track_SERP_and_AI_visibility_with_Apify_and_Google_Sheets.json)|
+|19236|[19236_Track_weekly_AI_brand_visibility_with_DataForSEO__OpenAI__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19236_Track_weekly_AI_brand_visibility_with_DataForSEO__OpenAI__Google_Sheets_and_Gmail.json)|

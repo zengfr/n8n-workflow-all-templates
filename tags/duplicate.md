@@ -1,4 +1,4 @@
-# duplicate : 28
+# duplicate : 40
 
 |id|file|
 |----|----|
@@ -30,3 +30,15 @@
 |16540|[16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16540_Detect_semantic_duplicate_website_pages_with_Google_Drive__Postgres_and_Ollama.json)|
 |16690|[16690_Track_and_de-duplicate_email_leads_in_Google_Sheets_from_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16690_Track_and_de-duplicate_email_leads_in_Google_Sheets_from_Gmail.json)|
 |16748|[16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16748_Triage_and_deduplicate_GitHub_issues_with_Claude_Sonnet_4.5.json)|
+|16835|[16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16835_Detect_semantic_duplicate_website_pages_with_Google_Drive__Ollama_and_Postgres.json)|
+|17092|[17092_Clean_duplicate_and_dead_YouTube_playlist_videos_with_Slack_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17092_Clean_duplicate_and_dead_YouTube_playlist_videos_with_Slack_reports.json)|
+|17195|[17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17195_Audit_Meta_pixel_deduplication_risks_with_Graph_API_and_Claude.json)|
+|17618|[17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17618_Capture_website_form_leads_with_deduped_logging_in_Google_Sheets_and_Telegram.json)|
+|17639|[17639_Enrich_and_deduplicate_BROSH_CRM_leads_with_OpenAI_and_BROSH_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17639_Enrich_and_deduplicate_BROSH_CRM_leads_with_OpenAI_and_BROSH_MCP.json)|
+|18138|[18138_Flag_duplicate_Clio_contacts_and_email_paralegals_daily_with_dismissal_links.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18138_Flag_duplicate_Clio_contacts_and_email_paralegals_daily_with_dismissal_links.json)|
+|18494|[18494_Detect_duplicate_invoices_with_Google_Sheets__Google_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18494_Detect_duplicate_invoices_with_Google_Sheets__Google_Gemini_and_Slack.json)|
+|18958|[18958_Prevent_duplicate_webhook_processing_with_Data_Tables_idempotency_guard.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18958_Prevent_duplicate_webhook_processing_with_Data_Tables_idempotency_guard.json)|
+|19103|[19103_Collect_duplicate-safe_client_intake_with_forms_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19103_Collect_duplicate-safe_client_intake_with_forms_and_Google_Sheets.json)|
+|19224|[19224_Approve_supplier_invoices_from_Gmail_with_GPT-4o-mini__Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19224_Approve_supplier_invoices_from_Gmail_with_GPT-4o-mini__Google_Sheets_and_Telegram.json)|
+|19493|[19493_Route_inbound_enquiries_to_HubSpot_deals_with_duplicate_protection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19493_Route_inbound_enquiries_to_HubSpot_deals_with_duplicate_protection.json)|
+|19825|[19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19825_Send_internal_due-action_alerts_from_Airtable_via_Gmail_without_duplicates.json)|

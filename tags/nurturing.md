@@ -1,4 +1,4 @@
-# nurturing : 13
+# nurturing : 14
 
 |id|file|
 |----|----|
@@ -15,3 +15,4 @@
 |11337|[11337_Automated_Lead_Nurturing_with_Gemini_AI__Telegram__and_Gmail_Reply_Detection.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/13/11337_Automated_Lead_Nurturing_with_Gemini_AI__Telegram__and_Gmail_Reply_Detection.json)|
 |13723|[13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/37/13723_Automate_WhatsApp_lead_follow-ups_and_nurturing_with_WATI__Airtable_and_OpenAI.json)|
 |15616|[15616_Nurture_leads_via_email__WhatsApp__OpenAI__and_Google_Sheets_CRM.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15616_Nurture_leads_via_email__WhatsApp__OpenAI__and_Google_Sheets_CRM.json)|
+|19429|[19429_Nurture_dental_leads_and_manage_appointments_with_Google_Sheets__Gmail__Twilio__and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19429_Nurture_dental_leads_and_manage_appointments_with_Google_Sheets__Gmail__Twilio__and_Google_Calendar.json)|

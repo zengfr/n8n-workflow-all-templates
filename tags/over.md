@@ -1,4 +1,4 @@
-# over : 11
+# over : 20
 
 |id|file|
 |----|----|
@@ -13,3 +13,12 @@
 |13840|[13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13840_Analyze_WooCommerce_category_sales_over_time_with_Airtable_and_Slack.json)|
 |16040|[16040_Build_hybrid_RAG_search_over_PDFs_with_Qdrant_and_Ollama.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16040_Build_hybrid_RAG_search_over_PDFs_with_Qdrant_and_Ollama.json)|
 |16136|[16136_Answer_voice_queries_from_a_webhook_over_Google_Drive_docs_using_GPT-4o-mini_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16136_Answer_voice_queries_from_a_webhook_over_Google_Drive_docs_using_GPT-4o-mini_and_Supabase.json)|
+|16819|[16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16819_Serve_text-to-speech_MP3_over_a_webhook_with_Smallest.ai.json)|
+|17322|[17322_Route_WhatsApp_home-service_requests_by_urgency_with_Groq__Supabase__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17322_Route_WhatsApp_home-service_requests_by_urgency_with_Groq__Supabase__and_Sheets.json)|
+|17736|[17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17736_Expose_a_full_Google_Search_Console_SEO_toolkit_over_MCP.json)|
+|17909|[17909_Track_weekly_Bing_keyword_rankings_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17909_Track_weekly_Bing_keyword_rankings_with_Apify_and_Google_Sheets.json)|
+|18003|[18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18003_Expose_workflow_management_tools_over_an_MCP_server_using_the_n8n_Public_API.json)|
+|18279|[18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18279_Expose_Bright_Data_web_search_tools_to_Claude__Cursor__and_other_MCP_clients.json)|
+|18583|[18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json)|
+|18788|[18788_Validate_email_deliverability_via_webhook_using_Google_and_Cloudflare_DNS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18788_Validate_email_deliverability_via_webhook_using_Google_and_Cloudflare_DNS.json)|
+|18924|[18924_Back_up_Linux_server_directories_to_Google_Drive_with_Borg_over_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18924_Back_up_Linux_server_directories_to_Google_Drive_with_Borg_over_SSH.json)|

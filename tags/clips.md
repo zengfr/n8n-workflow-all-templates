@@ -1,4 +1,4 @@
-# clips : 30
+# clips : 38
 
 |id|file|
 |----|----|
@@ -32,3 +32,11 @@
 |15181|[15181_Turn_podcast_videos_into_TikTok_shorts_using_WayinVideo_and_PostPulse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15181_Turn_podcast_videos_into_TikTok_shorts_using_WayinVideo_and_PostPulse.json)|
 |15440|[15440_Turn_YouTube_videos_into_weekly_short_clips_with_captions_using_WayinVideo_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15440_Turn_YouTube_videos_into_weekly_short_clips_with_captions_using_WayinVideo_and_GPT-4o-mini.json)|
 |16776|[16776_Generate_Telegram_image-to-video_clips_with_AtlasCloud_WAN_2.7_and_post_via_Blotato_to_TikTok__Instagram__Facebook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16776_Generate_Telegram_image-to-video_clips_with_AtlasCloud_WAN_2.7_and_post_via_Blotato_to_TikTok__Instagram__Facebook.json)|
+|16938|[16938_Create_Seedance_2_image-to-video_clips_for_TikTok_and_YouTube_with_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16938_Create_Seedance_2_image-to-video_clips_for_TikTok_and_YouTube_with_OpenAI.json)|
+|17173|[17173_Generate_image-to-video_clips_with_audio_using_Grok_Imagine_Video_1.5_via_Pollo_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17173_Generate_image-to-video_clips_with_audio_using_Grok_Imagine_Video_1.5_via_Pollo_API.json)|
+|17261|[17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json)|
+|17644|[17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json)|
+|18341|[18341_Create_captioned_vertical_video_clips_from_Google_Drive_using_CNAPS_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18341_Create_captioned_vertical_video_clips_from_Google_Drive_using_CNAPS_and_Google_Sheets.json)|
+|18485|[18485_Combine_mismatched_video_clips_into_a_single_MP4_with_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18485_Combine_mismatched_video_clips_into_a_single_MP4_with_FFmpeg.json)|
+|19252|[19252_Generate_YouTube_video_clips_with_Reka_Vision__Google_Sheets__Gmail__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19252_Generate_YouTube_video_clips_with_Reka_Vision__Google_Sheets__Gmail__and_Telegram_alerts.json)|
+|19709|[19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19709_Create_and_publish_short_video_clips_with_Reap__OpenAI__Instagram__YouTube__TikTok.json)|

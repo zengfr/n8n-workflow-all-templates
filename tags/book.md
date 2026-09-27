@@ -1,4 +1,4 @@
-# book : 30
+# book : 41
 
 |id|file|
 |----|----|
@@ -32,3 +32,14 @@
 |16204|[16204_Monitor_and_book_visa_appointments_with_GPT-4.1-mini__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16204_Monitor_and_book_visa_appointments_with_GPT-4.1-mini__Telegram_and_Sheets.json)|
 |16482|[16482_Book__reschedule_and_confirm_WhatsApp_appointments_with_Claude_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16482_Book__reschedule_and_confirm_WhatsApp_appointments_with_Claude_and_Sheets.json)|
 |16680|[16680_Book_and_confirm_clinic_appointments_with_WhatsApp__Google_Calendar__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16680_Book_and_confirm_clinic_appointments_with_WhatsApp__Google_Calendar__and_Gmail.json)|
+|16820|[16820_Book_calendar_appointments_with_availability_checks_in_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16820_Book_calendar_appointments_with_availability_checks_in_Google_Calendar.json)|
+|17234|[17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17234_Book_and_check_phone_appointments_with_Vapi_or_Retell_and_Google_Calendar.json)|
+|17873|[17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json)|
+|18092|[18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18092_Offer_and_confirm_technician_visit_slots_with_Google_Calendar__Gmail__Sheets__and_Telegram.json)|
+|18285|[18285_Book_and_remind_appointments_via_Telegram_with_Google_Gemini_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18285_Book_and_remind_appointments_via_Telegram_with_Google_Gemini_and_Google_Calendar.json)|
+|18310|[18310_Book_and_manage_law_office_appointments_via_Telegram__OpenAI_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18310_Book_and_manage_law_office_appointments_via_Telegram__OpenAI_and_Google_Calendar.json)|
+|18350|[18350_Book_website_appointments_into_Google_Calendar_with_webhook_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18350_Book_website_appointments_into_Google_Calendar_with_webhook_and_Telegram_alerts.json)|
+|19147|[19147_Qualify_property_enquiries_with_OpenAI_and_book_viewings_via_Google_Calendar__WhatsApp__and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19147_Qualify_property_enquiries_with_OpenAI_and_book_viewings_via_Google_Calendar__WhatsApp__and_HubSpot.json)|
+|19324|[19324_Book_and_manage_WhatsApp_appointments_with_OpenAI_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19324_Book_and_manage_WhatsApp_appointments_with_OpenAI_and_Google_Calendar.json)|
+|19777|[19777_Qualify_inbound_candidate_replies_and_book_interviews_with_Retell_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19777_Qualify_inbound_candidate_replies_and_book_interviews_with_Retell_and_Google_Calendar.json)|
+|19813|[19813_Book_phone_appointments_with_ElevenLabs__Exotel__and_Cal.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19813_Book_phone_appointments_with_ElevenLabs__Exotel__and_Cal.com.json)|

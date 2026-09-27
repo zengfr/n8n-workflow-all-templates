@@ -1,4 +1,4 @@
-# scan : 17
+# scan : 22
 
 |id|file|
 |----|----|
@@ -19,3 +19,8 @@
 |15701|[15701_Scan_business_cards_with_Gemini_AI_and_log_contacts_to_Google_Sheets_and_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15701_Scan_business_cards_with_Gemini_AI_and_log_contacts_to_Google_Sheets_and_Calendar.json)|
 |15708|[15708_Scan_business_cards_from_Telegram_to_Google_Contacts_with_Mistral_OCR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15708_Scan_business_cards_from_Telegram_to_Google_Contacts_with_Mistral_OCR.json)|
 |15758|[15758_Scan_receipt_images_from_Google_Drive_with_Gemini_and_log_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15758_Scan_receipt_images_from_Google_Drive_with_Gemini_and_log_to_Google_Sheets.json)|
+|16942|[16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16942_Extract_business_card_contacts_with_LDX_hub_Gemini_AnalyzeDoc_and_Google_Sheets.json)|
+|17710|[17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17710_Send_legal_AI_news_digests_from_IMAP_email_with_OpenAI__Tavily__and_Gmail.json)|
+|18398|[18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18398_Scan_Japanese_tech_news_for_market-entry_signals_and_notify_Slack.json)|
+|19016|[19016_Audit_AU_website_privacy_compliance_with_HTTP-based_homepage_and_policy_scan.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19016_Audit_AU_website_privacy_compliance_with_HTTP-based_homepage_and_policy_scan.json)|
+|19268|[19268_Scan_personal_data_in_data_tables_with_Groq_and_Discord_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19268_Scan_personal_data_in_data_tables_with_Groq_and_Discord_alerts.json)|

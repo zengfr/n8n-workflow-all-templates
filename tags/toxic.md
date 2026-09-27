@@ -1,4 +1,4 @@
-# toxic : 4
+# toxic : 6
 
 |id|file|
 |----|----|
@@ -6,3 +6,5 @@
 |10319|[10319_Auto-Moderate_Instagram_Comments_with_Perspective_API___Slack_Alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/03/10319_Auto-Moderate_Instagram_Comments_with_Perspective_API___Slack_Alerts.json)|
 |13538|[13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13538_Detect_toxic_backlinks_and_build_a_disavow_file_with_DataForSEO__Google_Drive__and_Gmail.json)|
 |13539|[13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13539_Monitor_toxic_backlinks_and_email_weekly_Google_Sheets_reports_with_DataForSEO.json)|
+|17517|[17517_Moderate_toxic_text__redact_PII__and_audit_with_a_Gemini_HTTP_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17517_Moderate_toxic_text__redact_PII__and_audit_with_a_Gemini_HTTP_API.json)|
+|17936|[17936_Score_client_toxicity_from_form_submissions_with_GPT-4o_Mini_and_n8n_Forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17936_Score_client_toxicity_from_form_submissions_with_GPT-4o_Mini_and_n8n_Forms.json)|

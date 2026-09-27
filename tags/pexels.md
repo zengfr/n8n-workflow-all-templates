@@ -1,4 +1,4 @@
-# pexels : 8
+# pexels : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |12123|[12123_Generate_blog_posts_and_social_media_content_with_GPT-4.1_and_Pexels_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/21/12123_Generate_blog_posts_and_social_media_content_with_GPT-4.1_and_Pexels_images.json)|
 |16201|[16201_Create_daily_AI_news_YouTube_Shorts_with_Groq__VoiceRSS__Pexels_and_Shotstack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16201_Create_daily_AI_news_YouTube_Shorts_with_Groq__VoiceRSS__Pexels_and_Shotstack.json)|
 |16419|[16419_Generate_YouTube_shorts_from_prompts_with_OpenAI__ElevenLabs_and_Pexels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16419_Generate_YouTube_shorts_from_prompts_with_OpenAI__ElevenLabs_and_Pexels.json)|
+|17315|[17315_Create_WordPress_drafts_with_Claude_Haiku_and_Pexels_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17315_Create_WordPress_drafts_with_Claude_Haiku_and_Pexels_images.json)|
+|18142|[18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18142_Create_LinkedIn_posts_from_articles_with_OpenAI__Pexels_and_Google_Sheets.json)|

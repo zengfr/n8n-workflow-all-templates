@@ -1,4 +1,4 @@
-# confirmation : 18
+# confirmation : 23
 
 |id|file|
 |----|----|
@@ -20,3 +20,8 @@
 |16247|[16247_Confirm_restaurant_orders_by_phone_with_Supabase__Claude_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16247_Confirm_restaurant_orders_by_phone_with_Supabase__Claude_and_Twilio.json)|
 |16574|[16574_Handle_client_intake__routing__and_confirmations_with_Claude__Google_Sheets__Gmail__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16574_Handle_client_intake__routing__and_confirmations_with_Claude__Google_Sheets__Gmail__and_Twilio.json)|
 |16605|[16605_Triage_telehealth_appointments_with_GPT-4o-mini__Telegram__Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16605_Triage_telehealth_appointments_with_GPT-4o-mini__Telegram__Google_Calendar.json)|
+|17412|[17412_Build_a_trip_itinerary_from_Gmail_booking_emails_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17412_Build_a_trip_itinerary_from_Gmail_booking_emails_with_Gemini_and_Google_Sheets.json)|
+|17418|[17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17418_Confirm_COD_orders_and_recover_carts_with_Telegram__Google_Sheets__OpenAI_and_Slack.json)|
+|17423|[17423_Send_multilingual_shipment_confirmation_emails_with_fulfillmenttools_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17423_Send_multilingual_shipment_confirmation_emails_with_fulfillmenttools_and_Gmail.json)|
+|17577|[17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17577_Send_Shopify_AI_order_confirmations_with_Claude_Sonnet_and_Gmail.json)|
+|19699|[19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19699_Schedule_and_confirm_property_viewings_with_Calendly__Gemini__Gmail_and_Sheets.json)|

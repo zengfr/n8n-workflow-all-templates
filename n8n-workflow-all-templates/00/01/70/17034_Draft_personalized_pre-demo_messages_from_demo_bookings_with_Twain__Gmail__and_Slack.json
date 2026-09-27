@@ -1,0 +1,1177 @@
+{
+  "id": "q2TD9pOTDC7xvvXc",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Draft personalized pre-demo messages from demo bookings with Twain, Gmail, and Slack",
+    "wechat": "youandme10086",
+    "id": 17034,
+    "update_time": "2026-09-27"
+  },
+  "name": "Draft personalized pre-demo messages from demo bookings with Twain",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "cb631b80-e444-40c3-b46c-3826de3376cb",
+      "name": "Generic Booking (Webhook)",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        240,
+        192
+      ],
+      "webhookId": "4c6f34bd-996b-4d30-80dd-d86425e2dff7",
+      "parameters": {
+        "path": "demo-booked",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2aeb90b4-fe40-49b4-b35d-74873c292a95",
+      "name": "Dedupe Bookings",
+      "type": "n8n-nodes-base.removeDuplicates",
+      "position": [
+        1760,
+        528
+      ],
+      "parameters": {
+        "options": {
+          "scope": "node",
+          "historySize": 100000
+        },
+        "operation": "removeItemsSeenInPreviousExecutions",
+        "dedupeValue": "={{ $json.uid }}"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0603e3d8-a972-4b8a-ad5b-b62728154424",
+      "name": "Has usable contact?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3664,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "usable-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ Boolean($json.has_work_email) || Boolean($json.has_linkedin_url) }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "3e043ff3-7e06-40c7-bebc-a32686895d2a",
+      "name": "Slack: Skipped (cannot research)",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        4048,
+        752
+      ],
+      "webhookId": "750a801d-f30c-4b87-b178-ffef0f67fabf",
+      "parameters": {
+        "text": "=:no_entry_sign:  *Twain — Demo-booking Research & Pre-demo Touch — skipped*\n*{{ $('Normalize Booking').item.json.displayName || $('Normalize Booking').item.json.email || 'Unknown invitee' }}*\n{{ $('Normalize Booking').item.json.email || 'No email provided' }}\nNo work email, and the LinkedIn lookup didn't return a profile URL for this lead — so there's nothing to research. Enable a LinkedIn Lookup provider (or add a work email / LinkedIn URL upstream) to catch leads like this.\n<https://www.twain.ai/w|Open Twain workspace>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Demo Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "CMpvLpe0p1ZR78sQ",
+          "name": "Slack bot token"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "0aa5c900-bff5-409d-adb5-9d280c2a9d11",
+      "name": "Twain Generate Contact",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        4048,
+        528
+      ],
+      "parameters": {
+        "url": "https://public.api.twain.ai/v2/Generate/Contact",
+        "method": "POST",
+        "options": {
+          "timeout": 180000
+        },
+        "jsonBody": "={{ {\n  campaign_id: $('Normalize Booking').item.json.campaign_id,\n  contact: {\n    ...($('Normalize Booking').item.json.has_work_email ? { work_email: $('Normalize Booking').item.json.email } : {}),\n    ...($json.has_linkedin_url ? { linkedin_profile_url: $json.linkedin_url } : {}),\n  },\n  generate_sequence: true,\n  generate_research: true,\n  add_contact_to_campaign: true,\n} }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "5nVWKGckolJwyUWz",
+          "name": "Twain API key"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "484e965e-59bf-47f4-92e0-d2773067d258",
+      "name": "Build Pre-demo Brief",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        4432,
+        528
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const api = $json;\nconst norm = $(\"Normalize Booking\").item.json;\nconst cfg = $('Demo Settings').first().json;\nconst messages = Array.isArray(api.messages) ? api.messages : [];\n\n// --- Parse configurable step->channel split (1-based indices) ---\nconst parseSteps = (s) =>\n  String(s ?? \"\")\n    .split(\",\")\n    .map((x) => parseInt(String(x).trim(), 10))\n    .filter((n) => Number.isInteger(n) && n >= 1);\nlet emailSteps = parseSteps(cfg.email_steps);\nconst linkedinSteps = parseSteps(cfg.linkedin_steps);\n// Fall back to step 1 for email if none configured.\nif (emailSteps.length === 0) emailSteps = [1];\n\nconst stepMsg = (i1) => messages[i1 - 1] || {}; // i1 is 1-based\n\nconst research = api.research || {};\nconst person = research.person || {};\nconst company = research.company || {};\nconst ex = research.expanded_research || {};\nconst warnings = api.warnings || {};\nconst categories = Array.isArray(warnings.categories) ? warnings.categories : [];\nconst esc = (s) =>\n  String(s ?? \"\")\n    .replace(/&/g, \"&amp;\")\n    .replace(/</g, \"&lt;\")\n    .replace(/>/g, \"&gt;\");\nconst toHtml = (s) => (s ? esc(s).split(\"\\n\").join(\"<br>\") : \"\");\nconst md = (sec) => (sec && typeof sec.markdown === \"string\" ? sec.markdown.trim() : \"\");\n\n// --- Email step(s): Gmail draft uses the FIRST email step ---\nconst primaryEmailIdx = emailSteps[0]; // 1-based\nconst primary = stepMsg(primaryEmailIdx);\nconst subject = String(\n  primary.subject_line ||\n    api.subject_line ||\n    \"Prep for our demo, \" + (person.name || norm.displayName || \"there\"),\n);\nconst firstBody = String(primary.message || \"\");\nconst bodyHtml = toHtml(firstBody);\n\n// Preview of ALL email steps (for Slack), escape-safe single string.\nconst email_preview =\n  emailSteps\n    .map((i1) => {\n      const m = stepMsg(i1);\n      const subj = m.subject_line ? \"Subject: \" + m.subject_line + \"\\n\" : \"\";\n      return subj + (m.message || \"\");\n    })\n    .filter(Boolean)\n    .join(\"\\n\\n--------\\n\\n\") || \"No email steps.\";\n\n// --- LinkedIn step(s) ---\nconst linkedin_messages = linkedinSteps.map((i1) => ({\n  step: i1,\n  message: String(stepMsg(i1).message || \"\"),\n}));\nconst has_linkedin_steps = linkedin_messages.length > 0;\nconst linkedin_preview =\n  linkedin_messages.map((m) => m.message).join(\"\\n\\n--------\\n\\n\") ||\n  \"No LinkedIn steps.\";\n\n// --- Full sequence preview (all steps) ---\nconst sequencePreview = messages\n  .map((m, i) => {\n    const subj = m.subject_line ? \"Subject: \" + m.subject_line + \"\\n\" : \"\";\n    return subj + (m.message || \"\");\n  })\n  .join(\"\\n\\n--------\\n\\n\");\n\n// --- AE brief (structured research) ---\nconst why_now = md(ex.why_now);\nconst talking_points = md(ex.talking_points);\nconst discovery_questions = md(ex.discovery_questions);\nconst briefParts = [];\nif (why_now) briefParts.push(\":zap:  *Why now*\\n\" + why_now);\nif (talking_points) briefParts.push(\":speaking_head_in_silhouette:  *Talking points*\\n\" + talking_points);\nif (discovery_questions) briefParts.push(\":question:  *Discovery questions*\\n\" + discovery_questions);\nconst ae_brief = briefParts.join(\"\\n\\n\");\n\n// --- Meeting meta ---\nlet mt = \"\";\ntry {\n  mt = norm.meeting_time ? new Date(norm.meeting_time).toUTCString() : \"\";\n} catch (e) {\n  mt = String(norm.meeting_time || \"\");\n}\nconst metaParts = [];\nif (mt) metaParts.push(\":clock3:  \" + mt);\nif (norm.deal_id || \"\") metaParts.push(\":handshake:  Deal `\" + norm.deal_id + \"`\");\nconst meta_line = metaParts.join(\"\\n\");\n\nconst resolvedLi = (research.person && research.person.linkedin_profile_url) || \"\";\nconst linkedin_url = resolvedLi || norm.linkedin_url || \"\";\nconst linkedin_line = linkedin_url ? \":link:  <\" + linkedin_url + \"|LinkedIn profile>\" : \"\";\n// Prebuilt escape-safe warnings line (single token for Slack cards; empty when no warnings).\nconst warning_line =\n  warnings && warnings.has_warnings\n    ? \":warning:  *Warnings:* \" +\n      ((categories || []).join(\", \") || \"flagged\") +\n      (warnings.summary ? \"  —  \" + warnings.summary : \"\")\n    : \"\";\n\nreturn {\n  to_email: norm.email || \"\",\n  has_work_email: norm.has_work_email === true,\n  // Primary email step (drives the Gmail draft + email Slack card)\n  subject: subject,\n  body_html: bodyHtml,\n  body_text: firstBody,\n  email_preview: email_preview,\n  email_steps: emailSteps,\n  // LinkedIn steps (drive HeyReach + LinkedIn Slack card)\n  linkedin_messages: linkedin_messages,\n  linkedin_preview: linkedin_preview,\n  has_linkedin_steps: has_linkedin_steps,\n  linkedin_steps: linkedinSteps,\n  heyreach_campaign_id: cfg.heyreach_campaign_id || \"\",\n  // Shared\n  sequence_preview: sequencePreview || \"No messages returned.\",\n  step_count: messages.length,\n  person_name: person.name || norm.displayName || norm.email || \"Unknown\",\n  person_title: person.title || \"\",\n  company_name: company.name || \"\",\n  ae_brief: ae_brief || \"No structured research returned yet — open the lead in Twain for full context.\",\n  source: norm.source || \"\",\n  deal_id: norm.deal_id || \"\",\n  meta_line: meta_line,\n  linkedin_url: linkedin_url,\n  linkedin_line: linkedin_line,\n  meeting_time: norm.meeting_time || \"\",\n  meeting_time_display: mt,\n  link: api.link || \"\",\n  warnings_line: categories.length ? categories.join(\", \") : \"\",\n  warnings_summary: warnings.summary || \"\",\n  warning_line: warning_line,\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "390f2e94-8cd9-4ff3-b93f-cbf03333c01c",
+      "name": "Has Work Email?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        4800,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "hwe-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.has_work_email }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "709019b0-e019-4e6a-a004-43202761d2d1",
+      "name": "Gmail: Create Pre-demo Draft",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueErrorOutput",
+      "position": [
+        5184,
+        416
+      ],
+      "webhookId": "46f22075-53f5-4123-8b83-f674d49033a0",
+      "parameters": {
+        "message": "={{ $('Build Pre-demo Brief').item.json.body_html }}",
+        "options": {
+          "sendTo": "={{ $('Build Pre-demo Brief').item.json.to_email }}"
+        },
+        "subject": "={{ $('Build Pre-demo Brief').item.json.subject }}",
+        "resource": "draft",
+        "emailType": "html"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "xGcfQY3fK8hVFl83",
+          "name": "Mc@usetwain.com"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "47a73edc-8d01-4388-8a99-b8198ecf22cd",
+      "name": "Slack: Pre-demo brief + draft ready",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        5568,
+        416
+      ],
+      "webhookId": "33fa319b-4874-4eee-a3b9-dbba5518b671",
+      "parameters": {
+        "text": "=*Demo booked — pre-demo brief ready*\n*{{ $('Build Pre-demo Brief').item.json.person_name }}*{{ [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).length ? '  ·  ' + [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).join(' @ ') : '' }}\n{{ $('Build Pre-demo Brief').item.json.to_email }}\n{{ $('Build Pre-demo Brief').item.json.linkedin_line }}\n{{ $('Build Pre-demo Brief').item.json.meta_line }}\n{{ $('Build Pre-demo Brief').item.json.warning_line }}\n{{ $('Build Pre-demo Brief').item.json.ae_brief }}\n*_{{ $('Build Pre-demo Brief').item.json.subject }}_*\n```\n{{ ($('Build Pre-demo Brief').item.json.body_text || '').slice(0, 700) }}{{ ($('Build Pre-demo Brief').item.json.body_text || '').length > 700 ? '…' : '' }}\n```\nSaved as a Gmail draft — open *Drafts* to review and send.\n<{{ $('Build Pre-demo Brief').item.json.link }}|Open lead in Twain>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Demo Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "CMpvLpe0p1ZR78sQ",
+          "name": "Slack bot token"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "79d73607-1106-4b31-9add-4044575473ca",
+      "name": "Slack: Brief ready, no draft",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        5568,
+        640
+      ],
+      "webhookId": "79e9318f-0f86-4be8-935a-fe4d03620708",
+      "parameters": {
+        "text": "=*Pre-demo brief ready — no Gmail draft created*\n*{{ $('Build Pre-demo Brief').item.json.person_name }}*{{ [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).length ? '  ·  ' + [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).join(' @ ') : '' }}\n{{ $('Build Pre-demo Brief').item.json.to_email }}\n{{ $('Build Pre-demo Brief').item.json.linkedin_line }}\n{{ $('Build Pre-demo Brief').item.json.meta_line }}\n{{ $('Build Pre-demo Brief').item.json.warning_line }}\n{{ $('Build Pre-demo Brief').item.json.ae_brief }}\nGmail isn't connected (or the draft step failed), so nothing was saved to Drafts. Connect Gmail to auto-draft, or copy the message below to send manually.\n*_{{ $('Build Pre-demo Brief').item.json.subject }}_*\n```\n{{ ($('Build Pre-demo Brief').item.json.body_text || '').slice(0, 900) }}{{ ($('Build Pre-demo Brief').item.json.body_text || '').length > 900 ? '…' : '' }}\n```\n<{{ $('Build Pre-demo Brief').item.json.link }}|Open lead in Twain>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Demo Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "CMpvLpe0p1ZR78sQ",
+          "name": "Slack bot token"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "1c11b8e7-ec7a-4481-adc4-9dffcfe8945e",
+      "name": "Slack: Brief ready (LinkedIn only)",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        5184,
+        640
+      ],
+      "webhookId": "f22ce276-4031-4c2c-a561-85261abaf02c",
+      "parameters": {
+        "text": "=*Demo booked — pre-demo brief ready (LinkedIn only)*\n*{{ $('Build Pre-demo Brief').item.json.person_name }}*{{ [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).length ? '  ·  ' + [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).join(' @ ') : '' }}\n{{ $('Build Pre-demo Brief').item.json.linkedin_line }}\n{{ $('Build Pre-demo Brief').item.json.meta_line }}\n{{ $('Build Pre-demo Brief').item.json.warning_line }}\n{{ $('Build Pre-demo Brief').item.json.ae_brief }}\nNo work email on file — send this via LinkedIn ahead of the demo.\n*_Sequence · {{ $('Build Pre-demo Brief').item.json.step_count }} step{{ $('Build Pre-demo Brief').item.json.step_count == 1 ? '' : 's' }}_*\n```\n{{ ($('Build Pre-demo Brief').item.json.sequence_preview || '').slice(0, 1400) }}{{ ($('Build Pre-demo Brief').item.json.sequence_preview || '').length > 1400 ? '…' : '' }}\n```\n<{{ $('Build Pre-demo Brief').item.json.link }}|Open lead in Twain>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Demo Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "CMpvLpe0p1ZR78sQ",
+          "name": "Slack bot token"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "da26fe7e-e8bc-4cf6-ad0e-7774145b6492",
+      "name": "Slack: Twain error",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        4432,
+        752
+      ],
+      "webhookId": "e5d6bcb0-655b-4404-9f39-80c6f392f832",
+      "parameters": {
+        "text": "=:rotating_light:  *Twain Contact generation failed*\n*{{ $('Normalize Booking').item.json.displayName || $('Normalize Booking').item.json.email || 'Unknown invitee' }}*\n{{ $('Normalize Booking').item.json.email || 'No email provided' }}\n*Error:*\n{{ String($json.error?.message ?? $json.message ?? 'Unknown error').replace(/^\\s*\\d{3}\\s*-\\s*/, '').trim() }}\n<https://www.twain.ai/w|Open Twain workspace>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Demo Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "CMpvLpe0p1ZR78sQ",
+          "name": "Slack bot token"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "44c4f85c-b691-47d7-94ff-8c9830da1076",
+      "name": "Sticky: Twain onboarding",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        -640
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 576,
+        "height": 672,
+        "content": "## Twain onboarding (first time)\n1. Create an account & workspace at **https://www.twain.ai**\n2. Build a **pre-demo / demo-booking campaign** — its Agent ICP + `research_rules` decide the AE brief depth + pre-demo copy.\n3. Paste your demo **campaign_id** into the **`Demo Settings`** node — replace `REPLACE_WITH_DEMO_CAMPAIGN_ID`.\n4. Get an **API key** from workspace settings for the Header Auth credential.\n\nGenerate/Contact (research + sequence) costs 1–2 credits per booking.\n\n📖 **Full walkthrough:** https://www.twain.ai/blog/n8n-demo-booking-prep"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e92693d2-9527-4bcb-a3ba-1a60a958b0d7",
+      "name": "Normalize Booking",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1008,
+        528
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "const src = $json.body ?? $json ?? {};\nconst PERSONAL = [\"gmail.com\",\"googlemail.com\",\"outlook.com\",\"hotmail.com\",\"live.com\",\"msn.com\",\"yahoo.com\",\"ymail.com\",\"icloud.com\",\"me.com\",\"mac.com\",\"proton.me\",\"protonmail.com\",\"aol.com\",\"gmx.com\",\"gmx.net\",\"zoho.com\",\"pm.me\",\"mail.com\",\"yandex.com\"];\nconst DEMO_TERMS = [\"demo\"];\nconst str = (v) => (v === undefined || v === null) ? \"\" : String(v);\nconst firstNonEmpty = (...vals) => { for (const v of vals) { const s = str(v).trim(); if (s) return s; } return \"\"; };\n\n// --- Detect provider (order matters: most specific first) ---\nlet source = \"generic\";\nif (src.payload && (src.payload.scheduled_event || src.payload.uri || src.event === \"invitee.created\" || src.payload.email)) source = \"calendly\";\nelse if (src.guest || src.slot || (src.event && src.event.start) || src.crm) source = \"chili_piper\";\nelse if (src.properties || src.dealId !== undefined || src.engagementId !== undefined || src.objectId !== undefined) source = \"hubspot_meetings\";\nelse if (src.kind === \"calendar#event\" || (src.start && Array.isArray(src.attendees)) || src.iCalUID) source = \"google_calendar\";\n\n// --- Calendly LinkedIn from Q&A (best effort) ---\nconst qaLinkedin = () => {\n  const qa = src.payload && Array.isArray(src.payload.questions_and_answers) ? src.payload.questions_and_answers : [];\n  for (const item of qa) {\n    const q = str(item && (item.question || item.q)).toLowerCase();\n    if (q.includes(\"linkedin\")) return str(item && (item.answer || item.a)).trim();\n  }\n  return \"\";\n};\n\n// --- Google Calendar: pick the prospect attendee (not the host/organizer) ---\nconst gcalAttendee = () => {\n  const att = Array.isArray(src.attendees) ? src.attendees : [];\n  const prospect = att.find((a) => a && a.self !== true && a.organizer !== true && a.responseStatus !== \"declined\");\n  return prospect || att[0] || null;\n};\nconst gcalLinkedin = () => {\n  const liRe = /https?:\\/\\/([\\w-]+\\.)*linkedin\\.com\\/(in|pub|company)\\/[^\\s\"'<>)\\]]+/i;\n  const liScrape = (String(src.description||\"\") + \" \" + String(src.location||\"\")).match(liRe);\n  return liScrape ? liScrape[0] : \"\";\n};\n\n// --- Per-source extraction with generic-flat fallback (all off `src`) ---\nconst p = src.payload || {};\nconst props = src.properties || {};\nconst gAtt = source === \"google_calendar\" ? gcalAttendee() : null;\n\nconst email = firstNonEmpty(\n  p.email,\n  src.guest && src.guest.email, src.fields && src.fields.email,\n  props.email,\n  gAtt && gAtt.email, source === \"google_calendar\" ? (src.creator && src.creator.email) : \"\",\n  src.email\n).toLowerCase();\n\nconst name = firstNonEmpty(\n  p.name,\n  src.guest && src.guest.name, src.fields && src.fields.name,\n  src.firstName && src.lastName ? (src.firstName + \" \" + src.lastName) : \"\",\n  props.firstname && props.lastname ? (props.firstname + \" \" + props.lastname) : \"\",\n  props.firstname,\n  gAtt && gAtt.displayName,\n  src.name, src.displayName, src.invitee_name\n);\n\nconst meeting_time = firstNonEmpty(\n  p.scheduled_event && p.scheduled_event.start_time,\n  src.event && src.event.start, src.slot && src.slot.start, src.startTime,\n  props.hs_meeting_start_time,\n  src.start && (src.start.dateTime || src.start.date),\n  src.meeting_time, src.start_time\n);\n\nconst meeting_title = firstNonEmpty(\n  p.scheduled_event && p.scheduled_event.name,\n  source === \"google_calendar\" ? src.summary : \"\",\n  src.event && src.event.name, src.meetingType, src.fields && src.fields.meetingType, src.slot && src.slot.name,\n  props.hs_meeting_title, props.meeting_name, src.subject,\n  src.meeting_type, src.title, src.event_type, src.eventType\n);\n\nconst linkedin_url = firstNonEmpty(\n  source === \"calendly\" ? qaLinkedin() : \"\",\n  source === \"google_calendar\" ? gcalLinkedin() : \"\",\n  p.linkedin, p.linkedin_url, p.linkedin_profile_url,\n  src.guest && src.guest.linkedin,\n  src.linkedin, src.linkedin_url, src.linkedin_profile_url,\n  props.linkedin, props.linkedin_url\n);\n\nconst deal_id = firstNonEmpty(\n  src.crm && src.crm.dealId,\n  src.dealId, props.deal_id, src.associatedDealId,\n  p.deal_id,\n  src.deal_id\n);\n\nconst stable_id = firstNonEmpty(\n  p.scheduled_event && p.scheduled_event.uri, p.uri,\n  src.bookingId, src.eventId, src.event && src.event.id,\n  src.engagementId, src.objectId, props.hs_object_id,\n  source === \"google_calendar\" ? (src.id || src.iCalUID) : \"\",\n  src.id, src.uid, src.booking_id, src.event_id\n);\n\nconst uid = stable_id || (email + \"|\" + meeting_time);\nconst email_domain = (email.split(\"@\")[1] || \"\").toLowerCase();\nconst is_personal_email = PERSONAL.includes(email_domain);\nconst has_work_email = Boolean(email) && !is_personal_email;\nconst has_linkedin_url = Boolean(linkedin_url);\n\nconst t = meeting_title.toLowerCase();\nconst is_demo = !meeting_title ? true : DEMO_TERMS.some((term) => t.includes(term));\n\nreturn {\n  source: source,\n  uid: uid,\n  email: email,\n  displayName: name,\n  meeting_time: meeting_time,\n  meeting_title: meeting_title,\n  is_demo: is_demo,\n  campaign_id: ($('Demo Settings').first().json.campaign_id || \"REPLACE_WITH_DEMO_CAMPAIGN_ID\"),\n  linkedin_url: linkedin_url,\n  deal_id: deal_id,\n  email_domain: email_domain,\n  is_personal_email: is_personal_email,\n  has_linkedin_url: has_linkedin_url,\n  has_work_email: has_work_email\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "001af38b-93ed-490e-916d-44ecb3d1aa1c",
+      "name": "Calendly Trigger",
+      "type": "n8n-nodes-base.calendlyTrigger",
+      "disabled": true,
+      "position": [
+        240,
+        352
+      ],
+      "webhookId": "44d4e621-c84d-4853-b982-748e73147887",
+      "parameters": {
+        "events": [
+          "invitee.created"
+        ]
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e5404f3d-2b7b-4361-bdf8-f88787437cc9",
+      "name": "Chili Piper Booking",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        240,
+        528
+      ],
+      "webhookId": "1d25b233-21e0-474e-b2a7-54674b439807",
+      "parameters": {
+        "path": "booking/chili-piper",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "7d7528d4-e0bb-45fa-a395-fc72b16b7a70",
+      "name": "HubSpot Meeting Booked",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        240,
+        704
+      ],
+      "webhookId": "95e64ddf-f46a-42fd-af66-3f67112c1b4a",
+      "parameters": {
+        "path": "booking/hubspot",
+        "options": {},
+        "httpMethod": "POST"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "fb1db403-9f17-4af5-bb22-13ade33675df",
+      "name": "Google Calendar Trigger",
+      "type": "n8n-nodes-base.googleCalendarTrigger",
+      "position": [
+        240,
+        864
+      ],
+      "parameters": {
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "eventCreated"
+      },
+      "credentials": {
+        "googleCalendarOAuth2Api": {
+          "id": "Njtf4nvsql4jxtmn",
+          "name": "Google Calendar OAuth2 API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ca1dc18f-8ac9-4092-a7ad-2a61707f4814",
+      "name": "Demo meetings only",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1392,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "demo-filter-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.is_demo }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "5a458db9-4979-46a8-838a-67af46c49291",
+      "name": "Demo Settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        624,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "campaign_id",
+              "name": "campaign_id",
+              "type": "string",
+              "value": "REPLACE_WITH_DEMO_CAMPAIGN_ID"
+            },
+            {
+              "id": "email_steps",
+              "name": "email_steps",
+              "type": "string",
+              "value": "1"
+            },
+            {
+              "id": "linkedin_steps",
+              "name": "linkedin_steps",
+              "type": "string",
+              "value": "2"
+            },
+            {
+              "id": "heyreach_campaign_id",
+              "name": "heyreach_campaign_id",
+              "type": "string",
+              "value": "REPLACE_WITH_HEYREACH_CAMPAIGN_ID"
+            },
+            {
+              "id": "slack_channel",
+              "name": "slack_channel",
+              "type": "string",
+              "value": "demo-bookings"
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "ab8b1915-f4b0-4114-b420-0c5387caa5a5",
+      "name": "Needs LinkedIn Lookup?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2144,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "needs-li-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ !$('Normalize Booking').item.json.has_linkedin_url && Boolean($('Normalize Booking').item.json.email) }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "9ebc71d0-8bb7-40c9-8f6a-1a117dbd391a",
+      "name": "LinkedIn Lookup — Findymail",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        2528,
+        304
+      ],
+      "parameters": {
+        "url": "https://app.findymail.com/api/search/reverse-email",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ { email: $('Normalize Booking').item.json.email, with_profile: true } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpBearerAuth"
+      },
+      "credentials": {
+        "httpBearerAuth": {
+          "id": "i3LsSB8hlwDzxB3k",
+          "name": "findymail bearer"
+        },
+        "httpHeaderAuth": {
+          "id": "POC5EJfUdjWpVibF",
+          "name": "findymail key"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "f32682b7-1eb5-4cc2-bf95-2b6e214ca758",
+      "name": "Apply Resolved LinkedIn",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2912,
+        528
+      ],
+      "parameters": {
+        "mode": "runOnceForEachItem",
+        "jsCode": "// Resolve LinkedIn URL from the provider response.\n// Adjust the field below to match YOUR provider's response shape.\nconst resp = $json || {};\nconst linkedin_url = resp.linkedin_url ?? resp.linkedin_profile_url ?? resp.url ?? resp.contact?.linkedin_url ?? resp.profile?.linkedin_url ?? resp.person?.linkedin_url ?? resp.data?.linkedin_url ?? resp.response?.linkedin_url ?? \"\";\n\n// Carry forward all normalized fields, overriding only the LinkedIn ones.\nconst n = $('Normalize Booking').item.json;\nreturn {\n  ...n,\n  linkedin_url: linkedin_url,\n  has_linkedin_url: Boolean(linkedin_url)\n};\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "d8a84847-73a3-420e-8933-7c814f19540b",
+      "name": "Resolved Contact",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        3280,
+        528
+      ],
+      "parameters": {},
+      "typeVersion": 3.2
+    },
+    {
+      "id": "f2f37ca3-abee-41ab-b01b-06189b668bb4",
+      "name": "Has LinkedIn steps?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        5952,
+        528
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 3,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-li-steps-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Build Pre-demo Brief').item.json.has_linkedin_steps }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.3
+    },
+    {
+      "id": "c85bea94-b794-4e23-85c2-8d08ce8c729b",
+      "name": "HeyReach: Add to Campaign",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        6320,
+        528
+      ],
+      "parameters": {
+        "url": "https://api.heyreach.io/api/public/campaign/AddLeadsToCampaignV2",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ {\n  campaignId: Number($('Build Pre-demo Brief').item.json.heyreach_campaign_id) || $('Build Pre-demo Brief').item.json.heyreach_campaign_id,\n  accountLeadPairs: [{\n    lead: {\n      profileUrl: $('Build Pre-demo Brief').item.json.linkedin_url,\n      firstName: ($('Build Pre-demo Brief').item.json.person_name || \"\").trim().split(\" \")[0] || \"\",\n      lastName: ($('Build Pre-demo Brief').item.json.person_name || \"\").trim().split(\" \").slice(1).join(\" \") || \"\",\n      companyName: $('Build Pre-demo Brief').item.json.company_name || \"\",\n      emailAddress: $('Build Pre-demo Brief').item.json.to_email || \"\",\n      customUserFields: [{ name: \"twain_message\", value: $('Build Pre-demo Brief').item.json.linkedin_preview || \"\" }]\n    }\n  }]\n} }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "credentials": {
+        "httpHeaderAuth": {
+          "id": "8ZOsD9KfY1zMvwPn",
+          "name": "heyreach api key"
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "c559eed6-e935-438f-affa-89804a6b6d5c",
+      "name": "Slack: LinkedIn steps queued (HeyReach)",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        6704,
+        528
+      ],
+      "webhookId": "fa5dd45c-fdd9-4add-8f5f-13b61fd5a894",
+      "parameters": {
+        "text": "=*LinkedIn step(s) queued — HeyReach*\n*{{ $('Build Pre-demo Brief').item.json.person_name }}*{{ [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).length ? '  ·  ' + [$('Build Pre-demo Brief').item.json.person_title, $('Build Pre-demo Brief').item.json.company_name].filter(Boolean).join(' @ ') : '' }}\n{{ $('Build Pre-demo Brief').item.json.linkedin_line }}\n*_LinkedIn message_*\n```\n{{ ($('Build Pre-demo Brief').item.json.linkedin_preview || '').slice(0, 1400) }}{{ ($('Build Pre-demo Brief').item.json.linkedin_preview || '').length > 1400 ? '…' : '' }}\n```\n{{ $('HeyReach: Add to Campaign').isExecuted ? ':white_check_mark:  Pushed to HeyReach campaign `' + ($('Build Pre-demo Brief').item.json.heyreach_campaign_id || '') + '`.' : ':wrench:  *Configure HeyReach to enable* — add the `X-API-KEY` credential + `heyreach_campaign_id`, then enable `HeyReach: Add to Campaign`. Until then, send these manually.' }}\n<{{ $('Build Pre-demo Brief').item.json.link }}|Open lead in Twain>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Demo Settings').first().json.slack_channel }}"
+        },
+        "otherOptions": {
+          "thread_ts": {
+            "replyValues": {
+              "thread_ts": "={{ $('Slack: Pre-demo brief + draft ready').isExecuted ? $('Slack: Pre-demo brief + draft ready').item.json.message_timestamp : ($('Slack: Brief ready, no draft').isExecuted ? $('Slack: Brief ready, no draft').item.json.message_timestamp : $('Slack: Brief ready (LinkedIn only)').item.json.message_timestamp) }}"
+            }
+          },
+          "unfurl_links": false,
+          "unfurl_media": false,
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "CMpvLpe0p1ZR78sQ",
+          "name": "Slack bot token"
+        }
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "a63b7bfd-5df4-4082-ab21-102d233e8a2a",
+      "name": "LinkedIn Lookup — Apollo",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "disabled": true,
+      "position": [
+        2528,
+        80
+      ],
+      "parameters": {
+        "url": "https://api.apollo.io/api/v1/people/match",
+        "method": "POST",
+        "options": {
+          "timeout": 30000
+        },
+        "jsonBody": "={{ { email: $('Normalize Booking').item.json.email } }}",
+        "sendBody": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "b1a9bc6b-bffd-4bca-ac35-a983d00aca38",
+      "name": "LinkedIn Lookup — People Data Labs",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "disabled": true,
+      "position": [
+        2528,
+        -144
+      ],
+      "parameters": {
+        "url": "=https://api.peopledatalabs.com/v5/person/enrich?email={{ encodeURIComponent($('Normalize Booking').item.json.email) }}",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "757d37b3-bdd0-4991-b373-ff2fdc6eb986",
+      "name": "LinkedIn Lookup — Proxycurl",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "disabled": true,
+      "position": [
+        2528,
+        -368
+      ],
+      "parameters": {
+        "url": "=https://nubela.co/proxycurl/api/linkedin/profile/resolve/email?email={{ encodeURIComponent($('Normalize Booking').item.json.email) }}",
+        "options": {
+          "timeout": 30000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "4de80483-ea94-48af-9e33-8c1c4b94682d",
+      "name": "Sticky: Try it out",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -768,
+        -640
+      ],
+      "parameters": {
+        "width": 920,
+        "height": 1650,
+        "content": "## Try It Out!\n\n**The moment someone books a demo, this workflow automatically writes a high-quality, personalized pre-demo message for them** — a warm, relevant touch to send *before* the call, instead of a generic 'looking forward to it.'\n\nIt researches the prospect with **Twain**, drafts that message as a **Gmail draft and/or LinkedIn steps**, and also hands your AE a pre-demo **brief** (why-now, talking points, discovery questions). Everything is posted to Slack for review — **nothing is sent automatically; you approve every message.**\n\n### Who's it for\n\nAE, SDR, and founder-led sales teams who want every booked demo to instantly produce a personalized pre-demo message and prep — with zero manual work.\n\n### How it works\n\n- **A demo gets booked** — from any source (generic webhook, Chili Piper, HubSpot, Google Calendar; Calendly optional). One `Normalize Booking` node maps them all to a common shape.\n- **Filter & dedupe** — keeps demo meetings only and drops duplicate bookings.\n- **Research + write the message** — Twain researches the prospect and generates a **high-quality, personalized pre-demo message** using your campaign's agent (resolving a LinkedIn URL first if needed).\n- **Draft, brief & review** — saves the email as a Gmail draft and/or queues LinkedIn steps (HeyReach), builds the AE pre-demo brief, and posts everything to Slack for approval.\n\n### How to set up\n\n- **Configure the `Demo Settings` node:** `campaign_id`, `heyreach_campaign_id`, `slack_channel`, and which sequence steps go to email vs LinkedIn (`email_steps` / `linkedin_steps`).\n- **Add credentials:** Twain (HTTP Header Auth, header `X-Api-Key`), Gmail, and Slack — plus, if used, a booking-source trigger (Calendly / Google Calendar OAuth), a LinkedIn-lookup provider, and HeyReach.\n- **Pick your booking source:** enable the trigger that matches your tool; the others are documented alternatives.\n\n### Requirements\n\nA **Twain** account + API key with a pre-demo campaign; **Gmail** and **Slack**. Optional: a booking-tool trigger, a LinkedIn-lookup provider, and **HeyReach** for LinkedIn steps.\n\n### How to customize\n\n- Edit `DEMO_TERMS` in `Normalize Booking` to change what counts as a demo.\n- Split each generated step to email vs LinkedIn with `email_steps` / `linkedin_steps`.\n\nThe neutral notes on the canvas cover booking-source mapping, credentials, the human-in-the-loop design, and the channel split.\n\nBuilt with Twain — https://www.twain.ai"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "391b90f1-f78b-4fea-857b-9a50d8ad1e7b",
+      "name": "Sticky: Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        176,
+        48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1880,
+        "height": 996,
+        "content": "### 1 · Booking intake\n\nA booking from any source (webhook / Chili Piper / HubSpot / Google Calendar / Calendly) is normalized to a common shape, filtered to demos only, and de-duplicated."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b4dadd81-feac-4cda-9a35-a15b5afe9764",
+      "name": "Sticky: Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2080,
+        -528
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1780,
+        "height": 1572,
+        "content": "### 2 · Resolve the contact\n\nIf the booking has no LinkedIn URL, optionally resolve one from the email (enable one provider), then confirm there's a usable contact to research."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "624f0027-4405-42ad-8f34-cb4ed92c31a4",
+      "name": "Sticky: Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        3888,
+        128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1140,
+        "height": 916,
+        "content": "### 3 · Research & write the message\n\nTwain researches the prospect and generates the personalized pre-demo message plus the AE brief (why-now, talking points, discovery questions)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a26f9665-44db-4ce5-86c2-10195cb4f075",
+      "name": "Sticky: Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        5072,
+        128
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1960,
+        "height": 916,
+        "content": "### 4 · Deliver & route\n\nEmail steps → Gmail draft; LinkedIn steps → HeyReach. Every result is posted to Slack for approval — nothing auto-sends."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": true,
+    "executionOrder": "v1"
+  },
+  "versionId": "f45d83a8-6116-4d18-b097-0ea1b68a0429",
+  "nodeGroups": [],
+  "connections": {
+    "Demo Settings": {
+      "main": [
+        [
+          {
+            "node": "Normalize Booking",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Dedupe Bookings": {
+      "main": [
+        [
+          {
+            "node": "Needs LinkedIn Lookup?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Work Email?": {
+      "main": [
+        [
+          {
+            "node": "Gmail: Create Pre-demo Draft",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Brief ready (LinkedIn only)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Calendly Trigger": {
+      "main": [
+        [
+          {
+            "node": "Demo Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Resolved Contact": {
+      "main": [
+        [
+          {
+            "node": "Has usable contact?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Normalize Booking": {
+      "main": [
+        [
+          {
+            "node": "Demo meetings only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Demo meetings only": {
+      "main": [
+        [
+          {
+            "node": "Dedupe Bookings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Chili Piper Booking": {
+      "main": [
+        [
+          {
+            "node": "Demo Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has LinkedIn steps?": {
+      "main": [
+        [
+          {
+            "node": "HeyReach: Add to Campaign",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has usable contact?": {
+      "main": [
+        [
+          {
+            "node": "Twain Generate Contact",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Skipped (cannot research)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Pre-demo Brief": {
+      "main": [
+        [
+          {
+            "node": "Has Work Email?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HubSpot Meeting Booked": {
+      "main": [
+        [
+          {
+            "node": "Demo Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Needs LinkedIn Lookup?": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn Lookup — Findymail",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Resolved Contact",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Twain Generate Contact": {
+      "main": [
+        [
+          {
+            "node": "Build Pre-demo Brief",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Twain error",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Apply Resolved LinkedIn": {
+      "main": [
+        [
+          {
+            "node": "Resolved Contact",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Google Calendar Trigger": {
+      "main": [
+        [
+          {
+            "node": "Demo Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generic Booking (Webhook)": {
+      "main": [
+        [
+          {
+            "node": "Demo Settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HeyReach: Add to Campaign": {
+      "main": [
+        [
+          {
+            "node": "Slack: LinkedIn steps queued (HeyReach)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Gmail: Create Pre-demo Draft": {
+      "main": [
+        [
+          {
+            "node": "Slack: Pre-demo brief + draft ready",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Slack: Brief ready, no draft",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Brief ready, no draft": {
+      "main": [
+        [
+          {
+            "node": "Has LinkedIn steps?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn Lookup — Findymail": {
+      "main": [
+        [
+          {
+            "node": "Apply Resolved LinkedIn",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Brief ready (LinkedIn only)": {
+      "main": [
+        [
+          {
+            "node": "Has LinkedIn steps?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Slack: Pre-demo brief + draft ready": {
+      "main": [
+        [
+          {
+            "node": "Has LinkedIn steps?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

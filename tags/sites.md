@@ -1,4 +1,4 @@
-# sites : 8
+# sites : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |13186|[13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13186_Detect_offboarded_client_links_on_PBN_sites_with_Google_Sheets_and_HTTP.json)|
 |13436|[13436_Crawl_documentation_sites_and_build_an_AI_knowledge_base_with_Olostep.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13436_Crawl_documentation_sites_and_build_an_AI_knowledge_base_with_Olostep.json)|
 |14916|[14916_Collect_and_publish_customer_testimonials_with_Claude__email__CRM_and_review_sites.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14916_Collect_and_publish_customer_testimonials_with_Claude__email__CRM_and_review_sites.json)|
+|18080|[18080_Generate_and_publish_GMB_one-page_sites_with_Claude_and_Hostinger.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18080_Generate_and_publish_GMB_one-page_sites_with_Claude_and_Hostinger.json)|

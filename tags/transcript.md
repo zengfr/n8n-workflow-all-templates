@@ -1,4 +1,4 @@
-# transcript : 28
+# transcript : 31
 
 |id|file|
 |----|----|
@@ -30,3 +30,6 @@
 |15934|[15934_Create_project_execution_briefs_from_meeting_transcripts_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15934_Create_project_execution_briefs_from_meeting_transcripts_with_Claude.json)|
 |16509|[16509_Extract_meeting_insights_and_ClickUp_tasks_with_ChatGPT__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16509_Extract_meeting_insights_and_ClickUp_tasks_with_ChatGPT__Google_Sheets_and_Gmail.json)|
 |16598|[16598_Extract_post-call_glossary_terms_from_transcripts_with_Anthropic_Claude_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16598_Extract_post-call_glossary_terms_from_transcripts_with_Anthropic_Claude_and_Telegram.json)|
+|17028|[17028_Route_meeting_action_items_to_Slack_using_Gmail__OpenAI__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17028_Route_meeting_action_items_to_Slack_using_Gmail__OpenAI__and_Google_Sheets.json)|
+|17139|[17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17139_Translate_audio_transcripts_with_Gladia__Google_Drive__and_Google_Sheets.json)|
+|18389|[18389_Generate_YouTube_clip_ideas_and_Google_Docs_reports_with_Apify_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18389_Generate_YouTube_clip_ideas_and_Google_Docs_reports_with_Apify_and_OpenRouter.json)|

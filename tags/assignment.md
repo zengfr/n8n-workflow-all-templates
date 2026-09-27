@@ -1,4 +1,4 @@
-# assignment : 19
+# assignment : 24
 
 |id|file|
 |----|----|
@@ -21,3 +21,8 @@
 |12739|[12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/27/12739_Create_consulting_client_onboarding_tasks_with_GPT-4__Google_Sheets_and_Slack.json)|
 |15660|[15660_Create_smenso_tasks_from_Gmail_with_automatic_project_assignment.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15660_Create_smenso_tasks_from_Gmail_with_automatic_project_assignment.json)|
 |16121|[16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16121_Assign_unassigned_Jira_issues_with_Airtable_and_OpenRouter_Grok.json)|
+|16908|[16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16908_Handle_theater_ticket_bookings_with_Anthropic__Google_Sheets__SendGrid__and_Twilio.json)|
+|17379|[17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17379_Screen_candidates_and_send_take-home_assignments_with_Google_Sheets__Gmail__Anthropic__and_OpenAI.json)|
+|18322|[18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18322_Grade_assignments_and_email_feedback_with_OpenAI__Google_Drive__Sheets__Gmail_and_Telegram.json)|
+|18567|[18567_Score_and_route_new_form_leads_with_OpenAI__Slack__Notion_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18567_Score_and_route_new_form_leads_with_OpenAI__Slack__Notion_and_Google_Sheets.json)|
+|18986|[18986_Plan_study_sessions_from_syllabus_PDFs_with_Gemini__Google_Calendar__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18986_Plan_study_sessions_from_syllabus_PDFs_with_Gemini__Google_Calendar__and_Sheets.json)|

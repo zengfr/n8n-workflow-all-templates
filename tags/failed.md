@@ -1,4 +1,4 @@
-# failed : 15
+# failed : 18
 
 |id|file|
 |----|----|
@@ -17,3 +17,6 @@
 |16083|[16083_Recover_failed_Stripe_payments_with_OpenAI__Gmail__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16083_Recover_failed_Stripe_payments_with_OpenAI__Gmail__Sheets_and_Slack.json)|
 |16333|[16333_Recover_failed_Stripe_payments_with_GPT-4o__Gmail__Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16333_Recover_failed_Stripe_payments_with_GPT-4o__Gmail__Sheets__and_Slack.json)|
 |16744|[16744_Triage_and_retry_failed_workflow_executions_with_Anthropic__Jira_and_OpenTelemetry.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16744_Triage_and_retry_failed_workflow_executions_with_Anthropic__Jira_and_OpenTelemetry.json)|
+|17775|[17775_Recover_failed_Stripe_payments_with_Anthropic_Claude_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17775_Recover_failed_Stripe_payments_with_Anthropic_Claude_and_Gmail_alerts.json)|
+|17784|[17784_Diagnose_failed_n8n_workflows_with_Claude_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17784_Diagnose_failed_n8n_workflows_with_Claude_and_Gmail_alerts.json)|
+|18655|[18655_Run_bounded_dunning_for_Lago_payment_failures_with_email_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18655_Run_bounded_dunning_for_Lago_payment_failures_with_email_alerts.json)|

@@ -1,4 +1,4 @@
-# machine : 20
+# machine : 23
 
 |id|file|
 |----|----|
@@ -22,3 +22,6 @@
 |10000|[10000_Auto-Create_TikTok_Videos_with_VEED.io_AI_Avatars__ElevenLabs___GPT-4.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/00/10000_Auto-Create_TikTok_Videos_with_VEED.io_AI_Avatars__ElevenLabs___GPT-4.json)|
 |15194|[15194_Automate_Restaurant_Reviews_and_Marketing_System____with_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15194_Automate_Restaurant_Reviews_and_Marketing_System____with_Telegram.json)|
 |16060|[16060_Repurpose_YouTube_videos_into_multichannel_content_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16060_Repurpose_YouTube_videos_into_multichannel_content_with_Gemini_and_Google_Sheets.json)|
+|17488|[17488_Send_personalized_cold_email_sequences_with_Google_Sheets__Gmail__Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17488_Send_personalized_cold_email_sequences_with_Google_Sheets__Gmail__Gemini_and_Slack.json)|
+|17946|[17946_Send_AI-powered_inbound_LinkedIn_replies_with_La_Growth_Machine_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17946_Send_AI-powered_inbound_LinkedIn_replies_with_La_Growth_Machine_and_OpenAI.json)|
+|18901|[18901_Generate_and_approve_SEO_content_with_OpenAI__Airtable__Slack__and_WordPress.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18901_Generate_and_approve_SEO_content_with_OpenAI__Airtable__Slack__and_WordPress.json)|

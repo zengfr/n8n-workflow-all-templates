@@ -1,4 +1,4 @@
-# ftp : 10
+# ftp : 11
 
 |id|file|
 |----|----|
@@ -12,3 +12,4 @@
 |8703|[8703_Automatically_Transfer_FTP_Files_to_Google_Drive_with_Batch_Processing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/87/8703_Automatically_Transfer_FTP_Files_to_Google_Drive_with_Batch_Processing.json)|
 |9151|[9151_Complete_Backup_Solution_for_n8n_Workflows___Credentials__Local_FTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9151_Complete_Backup_Solution_for_n8n_Workflows___Credentials__Local_FTP.json)|
 |9156|[9156_Restore_Workflows_and_Credentials_from_Remote_FTP_Backup_Storage.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/91/9156_Restore_Workflows_and_Credentials_from_Remote_FTP_Backup_Storage.json)|
+|19120|[19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19120_Sync_warehouse_stock_from_SFTP_to_GoHighLevel_and_iPaper_with_alerts.json)|

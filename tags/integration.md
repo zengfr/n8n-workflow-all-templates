@@ -1,4 +1,4 @@
-# integration : 163
+# integration : 166
 
 |id|file|
 |----|----|
@@ -165,3 +165,6 @@
 |14125|[14125_Audit_connected_integrations_and_email_pricing___limits_report_with_n8n_API__Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14125_Audit_connected_integrations_and_email_pricing___limits_report_with_n8n_API__Claude_and_Gmail.json)|
 |15976|[15976_Normalize_and_validate_customer_data_with_Google_Sheets_highlights.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15976_Normalize_and_validate_customer_data_with_Google_Sheets_highlights.json)|
 |16224|[16224_Coordinate_autonomous_UAV_missions_with_multi-agent_AI_and_Microsoft_Dynamics.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16224_Coordinate_autonomous_UAV_missions_with_multi-agent_AI_and_Microsoft_Dynamics.json)|
+|17176|[17176_Audit_inventory_prices_between_a_website_scraper_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17176_Audit_inventory_prices_between_a_website_scraper_and_Google_Sheets.json)|
+|17873|[17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17873_Book_appointments_and_manage_sales_opportunities_via_webhooks_in_HighLevel.json)|
+|19337|[19337_Sync_a_GitHub_integration_catalog_from_GitHub_to_StudioCMS_pages.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19337_Sync_a_GitHub_integration_catalog_from_GitHub_to_StudioCMS_pages.json)|

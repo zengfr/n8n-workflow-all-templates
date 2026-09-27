@@ -1,4 +1,4 @@
-# drops : 6
+# drops : 12
 
 |id|file|
 |----|----|
@@ -8,3 +8,9 @@
 |11401|[11401_Auto-Audit_SEO_Traffic_Drops_with_AI___Google_Search_Console_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11401_Auto-Audit_SEO_Traffic_Drops_with_AI___Google_Search_Console_to_Slack.json)|
 |12091|[12091_Monitor_ad_performance_drops_with_Meta___Google_Ads___multi-channel_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/20/12091_Monitor_ad_performance_drops_with_Meta___Google_Ads___multi-channel_alerts.json)|
 |14595|[14595_Post_new_product_drops_to_Instagram_using_uploadtourl_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/45/14595_Post_new_product_drops_to_Instagram_using_uploadtourl_and_Airtable.json)|
+|18052|[18052_Track_Walmart_price_drops_and_marketplace_offers_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18052_Track_Walmart_price_drops_and_marketplace_offers_with_Apify_and_Google_Sheets.json)|
+|18406|[18406_Send_a_daily_Sleeper_NFL_trending_adds_and_drops_digest_to_Discord.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18406_Send_a_daily_Sleeper_NFL_trending_adds_and_drops_digest_to_Discord.json)|
+|18725|[18725_Alert_team_health_drops_with_TeamRetro__OpenAI_GPT-5_Mini__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18725_Alert_team_health_drops_with_TeamRetro__OpenAI_GPT-5_Mini__and_Slack.json)|
+|18849|[18849_Track_Amazon_price_drops_from_Google_Sheets_with_Apify_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18849_Track_Amazon_price_drops_from_Google_Sheets_with_Apify_and_Telegram.json)|
+|18852|[18852_Track_Wayfair_product_price_drops_with_Apify__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18852_Track_Wayfair_product_price_drops_with_Apify__Google_Sheets__and_Gmail.json)|
+|19650|[19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19650_Analyze_weekly_KPI_drops_with_Google_Sheets__Gmail__and_GPT-4o-mini.json)|

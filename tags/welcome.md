@@ -1,4 +1,4 @@
-# welcome : 18
+# welcome : 21
 
 |id|file|
 |----|----|
@@ -20,3 +20,6 @@
 |10745|[10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10745_Typeform_Lead_Qualification_with_Vero__Gmail__Google_Sheets___Slack_Notifications.json)|
 |13861|[13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13861_Send_personalized_SaaS_welcome_emails_with_Stripe__Pinecone__GPT-4o__and_Gmail.json)|
 |15969|[15969_Send_AI_patient_follow-ups_and_rebooking_emails_with_Claude__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15969_Send_AI_patient_follow-ups_and_rebooking_emails_with_Claude__Gmail__Slack_and_Sheets.json)|
+|17102|[17102_Draft_personalized_welcome_emails_for_new_signups_with_Twain__Gmail__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17102_Draft_personalized_welcome_emails_for_new_signups_with_Twain__Gmail__and_Slack.json)|
+|17835|[17835_Send_automatic_welcome_emails_to_new_Kit_subscribers_with_Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17835_Send_automatic_welcome_emails_to_new_Kit_subscribers_with_Gmail_and_Slack.json)|
+|19206|[19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19206_Moderate_WhatsApp_groups__block_link_spam__and_auto-welcome_members_with_Wafly.json)|

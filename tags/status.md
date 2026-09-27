@@ -1,4 +1,4 @@
-# status : 43
+# status : 53
 
 |id|file|
 |----|----|
@@ -45,3 +45,13 @@
 |16294|[16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16294_Handle_order_status_webhooks_with_Microsoft_SQL_Server_and_email.json)|
 |16315|[16315_Route_chatbot_requests_to_humans_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16315_Route_chatbot_requests_to_humans_with_OpenAI_and_Google_Sheets.json)|
 |16555|[16555_Notify_and_manage_podcast_edit_status_with_WizCut_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16555_Notify_and_manage_podcast_edit_status_with_WizCut_and_Slack.json)|
+|17271|[17271_Post_a_daily_Asana_project_status_digest_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17271_Post_a_daily_Asana_project_status_digest_to_Slack.json)|
+|17551|[17551_Check_phone_reassignment_status_with_Searchbug_and_log_results_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17551_Check_phone_reassignment_status_with_Searchbug_and_log_results_to_Google_Sheets.json)|
+|17793|[17793_Notify_clients_of_delayed_trade_settlements_with_Google_Sheets__Gemini__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17793_Notify_clients_of_delayed_trade_settlements_with_Google_Sheets__Gemini__Slack_and_Gmail.json)|
+|18768|[18768_Send_client_matter_status_updates_from_Clio_via_webhooks_and_SMTP_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18768_Send_client_matter_status_updates_from_Clio_via_webhooks_and_SMTP_email.json)|
+|18823|[18823_Track_secure_order_status_and_email_alerts_with_webhooks__Gmail__and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18823_Track_secure_order_status_and_email_alerts_with_webhooks__Gmail__and_Data_Tables.json)|
+|19017|[19017_Validate_Belgian_VAT_numbers_and_Peppol_status_with_VIES_and_the_Peppol_API.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19017_Validate_Belgian_VAT_numbers_and_Peppol_status_with_VIES_and_the_Peppol_API.json)|
+|19083|[19083_Track_purchase_order_delivery_status_and_amount_variances_with_GoHighLevel.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19083_Track_purchase_order_delivery_status_and_amount_variances_with_GoHighLevel.json)|
+|19218|[19218_Monitor_YouTube_video_publishing_status_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19218_Monitor_YouTube_video_publishing_status_with_Google_Sheets_and_Slack.json)|
+|19375|[19375_Send_client_matter_status_updates_from_Clio_via_Twilio_SMS_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19375_Send_client_matter_status_updates_from_Clio_via_Twilio_SMS_and_email.json)|
+|19783|[19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19783_Queue_rights-verified_video_watermark_removal_jobs_with_HTTP_API_polling.json)|

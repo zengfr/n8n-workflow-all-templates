@@ -1,4 +1,4 @@
-# rates : 11
+# rates : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |12246|[12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/22/12246_Monitor_hotel_competitor_rates_and_answer_WhatsApp_Q_A_using_OpenAI_GPT-4.1.json)|
 |12539|[12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/25/12539_Fetch_reliable_FX_exchange_rates_with_Frankfurter_and_open.er-api.json)|
 |16341|[16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16341_Monitor_Binance_futures_funding_rates_and_alert_Telegram_hourly.json)|
+|17401|[17401_Summarize_daily_Twilio_SMS_delivery_rates_to_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17401_Summarize_daily_Twilio_SMS_delivery_rates_to_Google_Sheets_and_Slack.json)|
+|19794|[19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19794_Reconcile_daily_Stripe_revenue_with_ApogeoAPI__Google_Sheets__and_Slack.json)|

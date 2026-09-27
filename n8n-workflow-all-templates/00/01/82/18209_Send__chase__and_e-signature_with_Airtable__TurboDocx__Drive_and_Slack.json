@@ -1,0 +1,1264 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Send, chase, and e-signature with Airtable, TurboDocx, Drive and Slack",
+    "wechat": "youandme10086",
+    "id": 18209,
+    "update_time": "2026-09-27"
+  },
+  "nodes": [
+    {
+      "id": "e655ee84-200e-4003-91a0-dbd73339533a",
+      "name": "Sticky Note 0",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        1008
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 900,
+        "height": 1244,
+        "content": "# Send agreements from Airtable for signature and file them in Drive\n\nWatches a Google Drive folder, reads the matching contract rows from Airtable, generates a\npersonalised agreement per row with TurboDocx, sends each one for e-signature, chases anyone\nwho has not signed after 3 days, and — once signed — files the executed PDF and its audit\ntrail back into Drive, updates Airtable, posts to Slack and emails accounting.\n\n**Every customer-visible step posts to Slack**, so the channel is a live feed of the\ncontract pipeline.\n\n## The three lanes\n\n| Lane | Trigger | What it does |\n|---|---|---|\n| **A - Dispatch** | A file lands in the watched Drive folder | Generate and send every Airtable row marked `Ready to send` |\n| **B - Chase** | Schedule, daily | Remind anyone unsigned for 3+ days, once |\n| **C - Settle** | TurboDocx webhook | Archive, record, announce, bill |\n\nLanes B and C run on their own triggers. You do not wire them to lane A.\n\nOne credential does all of it: TurboDocx generates the document, sends it for signature,\nchases it and returns the signed copy with its audit trail. A signature-only tool cannot\nvary the document body per row. The free tier covers 5 signatures a month, so you can run\nthis end to end before paying for anything - https://www.turbodocx.com\n\n## Setup\n\n1. **TurboDocx** - create an API key (Settings > API Keys) and add the TurboDocx credential.\n   Docs: https://docs.turbodocx.com\n2. **Template** - upload a .docx to TurboDocx containing your merge variables *and* your\n   signature anchors, then put its ID in `YOUR_TURBODOCX_TEMPLATE_ID`. Read the\n   *Anchors vs merge variables* note before you author it - this is the step people get wrong.\n3. **Airtable** - create a table with the columns listed in the Airtable note, then fill in\n   `YOUR_AIRTABLE_BASE_ID` and `YOUR_AIRTABLE_TABLE_ID`.\n4. **Google Drive** - set the watched folder and the archive folder IDs.\n5. **Slack** - set `YOUR_SLACK_CHANNEL_ID` on all seven Slack nodes.\n6. **Gmail** - set the accounting distribution address on the final node.\n7. Activate the workflow. Lane C's webhook registers itself with TurboDocx on activation."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "ae06239b-197e-4e8e-8c6e-5ae25561dda1",
+      "name": "Sticky Note 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        2272
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 900,
+        "height": 640,
+        "content": "## Anchors vs merge variables - read this before authoring your template\n\nBoth are single-brace tokens. They differ **only in the value you pass at generation time.**\n\n**Merge variables** - `{clientName}`, `{company}`, `{amount}`, `{startDate}`.\nPass the real value. TurboDocx substitutes it.\n\n**Signature anchors** - `{client_sig}`, `{client_date}`.\nPass **the token as its own value**: variable `client_sig` gets the literal text\n`{client_sig}`. The tag is substituted with itself, so it survives into the generated\ndocument, and TurboSign then finds it by text search when it places the signature field.\nLook at the *Generate agreement* node - the last two variables do exactly this.\n\n**Never leave a brace token without a value.** It renders as the literal word `undefined`\nin your contract.\n\nUse `\"placement\": \"replace\"` on each field. It is the only placement that covers the\nanchor text - the others leave the raw token visible in the signed PDF.\n\nAnchor matching is case-insensitive, so `{Sig}` and `{sig}` are the same anchor. Every\noccurrence of an anchor gets its own field, so keep them unique."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "583faf2a-66ec-4530-a3ac-703d5819815b",
+      "name": "Sticky Note 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1328,
+        2928
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 900,
+        "height": 760,
+        "content": "## Airtable table\n\n| Column | Type |\n|---|---|\n| `Client Name` | Single line text |\n| `Company` | Single line text |\n| `Email` | Email |\n| `Amount` | Number |\n| `Start Date` | Date |\n| `Status` | Single select: `Ready to send`, `Generated`, `Sent for signature`, `Reminded`, `Signed`, `Declined`, `Failed` |\n| `Deliverable ID` | Single line text |\n| `Document ID` | Single line text |\n| `Sent At` | Date and time |\n| `Reminded At` | Date and time |\n| `Signed At` | Date and time |\n| `Signed Doc URL` | URL |\n\n`Document ID` is the join key. Lane C receives a `document_id` from the webhook and looks\nthe row back up by it, so nothing downstream needs to remember which run sent what."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9a55ac35-b44e-472e-a29a-ad53d5a7728f",
+      "name": "Sticky Note 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        1008
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1180,
+        "height": 300,
+        "content": "## Lane A - Dispatch\n\nA file landing in the watched Drive folder is the go signal. The workflow then reads every\nAirtable row marked `Ready to send` and processes them one at a time.\n\nGeneration and sending both use `onError: continueErrorOutput`, so one bad row (a missing\nemail, a deleted template) marks itself `Failed` and shouts in Slack instead of killing the\nwhole batch."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7dbcb025-76ec-46c2-8341-da12989bed05",
+      "name": "Watch contracts folder in Drive",
+      "type": "n8n-nodes-base.googleDriveTrigger",
+      "position": [
+        2416,
+        1328
+      ],
+      "parameters": {
+        "event": "fileCreated",
+        "options": {},
+        "pollTimes": {
+          "item": [
+            {
+              "mode": "everyMinute"
+            }
+          ]
+        },
+        "triggerOn": "specificFolder",
+        "folderToWatch": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DRIVE_TRIGGER_FOLDER_ID"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a0c346fd-33df-4123-ad1c-606d005dd296",
+      "name": "Post batch started to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        2656,
+        1328
+      ],
+      "webhookId": "d131caa5-0445-48bc-b90f-852b78f580fa",
+      "parameters": {
+        "text": "=:inbox_tray: *Contract batch started*\nTriggered by `{{ $json.name }}` landing in Drive. Reading Airtable for contracts ready to send.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "7818e796-8a9f-4dae-a188-66c136f78c37",
+      "name": "Get contracts ready to send from Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        2896,
+        1328
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "options": {},
+        "operation": "search",
+        "filterByFormula": "={Status}=\"Ready to send\""
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "e6521aa6-34ba-4133-b94a-1fe8c7dab896",
+      "name": "Loop over each contract",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3136,
+        1328
+      ],
+      "parameters": {
+        "options": {
+          "reset": false
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "c5700752-8977-499f-ae14-1f19573c1256",
+      "name": "Generate agreement with TurboDocx",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocx",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        3408,
+        1456
+      ],
+      "parameters": {
+        "name": "=Agreement - {{ $json[\"Client Name\"] }}",
+        "resource": "deliverable",
+        "operation": "generate",
+        "variables": "={{ JSON.stringify([\n  { placeholder: '{clientName}', text: $json['Client Name'], mimeType: 'text' },\n  { placeholder: '{company}',    text: $json['Company'],     mimeType: 'text' },\n  { placeholder: '{amount}',     text: String($json['Amount']), mimeType: 'text' },\n  { placeholder: '{startDate}',  text: $json['Start Date'],  mimeType: 'text' },\n  { placeholder: '{client_sig}',  text: '{client_sig}',  mimeType: 'text' },\n  { placeholder: '{client_date}', text: '{client_date}', mimeType: 'text' }\n]) }}",
+        "templateId": "YOUR_TURBODOCX_TEMPLATE_ID",
+        "additionalFields": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "332bb70e-a625-42c2-85de-c7173ba2e8dc",
+      "name": "Mark generated in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        3648,
+        1456
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Loop over each contract').item.json.id }}",
+            "Status": "Generated",
+            "Deliverable ID": "={{ $('Generate agreement with TurboDocx').item.json.id }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {},
+        "operation": "update"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "efeb909a-8163-4113-bb1a-555e48d5f062",
+      "name": "Post document generated to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3888,
+        1456
+      ],
+      "webhookId": "8e2b082d-82f9-4e58-92c0-fa12a8b68b26",
+      "parameters": {
+        "text": "=:page_facing_up: *Agreement generated*\n*{{ $('Loop over each contract').item.json['Client Name'] }}* ({{ $('Loop over each contract').item.json['Company'] }}) - ${{ $('Loop over each contract').item.json['Amount'] }}",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4684d812-79d6-4acb-9880-9248d2c0a6f0",
+      "name": "Download the agreement as PDF",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocx",
+      "maxTries": 3,
+      "position": [
+        4128,
+        1216
+      ],
+      "parameters": {
+        "resource": "deliverable",
+        "operation": "downloadPdf",
+        "deliverableId": "={{ $('Generate agreement with TurboDocx').item.json.id }}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "deab89cd-1f66-49d5-afc1-f34d82e0cc27",
+      "name": "Send agreement for signature",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocx",
+      "onError": "continueErrorOutput",
+      "maxTries": 3,
+      "position": [
+        4128,
+        1456
+      ],
+      "parameters": {
+        "fields": "=[{\"recipientEmail\":\"{{ $('Loop over each contract').item.json['Email'] }}\",\"type\":\"signature\",\"template\":{\"anchor\":\"{client_sig}\",\"placement\":\"replace\",\"size\":{\"width\":200,\"height\":50}}},{\"recipientEmail\":\"{{ $('Loop over each contract').item.json['Email'] }}\",\"type\":\"date\",\"template\":{\"anchor\":\"{client_date}\",\"placement\":\"replace\",\"size\":{\"width\":120,\"height\":24}}}]",
+        "pdfFile": "data",
+        "resource": "turboSign",
+        "operation": "prepareForSigning",
+        "recipients": "=[{\"name\":\"{{ $('Loop over each contract').item.json['Client Name'] }}\",\"email\":\"{{ $('Loop over each contract').item.json['Email'] }}\",\"signingOrder\":1}]",
+        "documentName": "=Agreement - {{ $('Loop over each contract').item.json['Client Name'] }}",
+        "fileInputMethod": "upload",
+        "additionalFields": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "cbdbde29-4f66-4bff-991e-30f1e6cf7f32",
+      "name": "Mark sent for signature in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        4368,
+        1456
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Loop over each contract').item.json.id }}",
+            "Status": "Sent for signature",
+            "Sent At": "={{ $now.toISO() }}",
+            "Document ID": "={{ $('Send agreement for signature').item.json.documentId }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {},
+        "operation": "update"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "a7a97f01-83f6-4bd0-b1a7-ce6ba2c07829",
+      "name": "Post sent for signature to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4608,
+        1456
+      ],
+      "webhookId": "e415497f-082a-4e51-a471-fc50be21dad9",
+      "parameters": {
+        "text": "=:outbox_tray: *Sent for signature*\n*{{ $('Loop over each contract').item.json['Client Name'] }}* - `{{ $('Loop over each contract').item.json['Email'] }}`\nReminder goes out automatically if unsigned after 3 days.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "bffbe15c-b8de-4085-abc5-8306abde80e2",
+      "name": "Post send failure to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4128,
+        1712
+      ],
+      "webhookId": "50352609-3aad-4aea-b59b-47da4f0036ac",
+      "parameters": {
+        "text": "=:x: *Contract failed to send*\n*{{ $('Loop over each contract').item.json['Client Name'] }}* - `{{ $json.error?.message || $json.error || 'unknown error' }}`",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "d24657c5-520b-49b0-9966-50a837a66743",
+      "name": "Mark failed in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        4368,
+        1712
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Loop over each contract').item.json.id }}",
+            "Notes": "={{ 'Send failed: ' + ($json.error?.message || 'unknown error') }}",
+            "Status": "Failed"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {},
+        "operation": "update"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "b6f2c1e5-6963-4b4d-b816-2bd69b80255f",
+      "name": "Sticky Note 17",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        1712
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1180,
+        "height": 280,
+        "content": "## Lane B - Chase unsigned agreements\n\nRuns daily. Finds everything still out for signature, keeps only rows sent 3 or more days\nago that have not already been reminded, and fires a **first-party TurboSign reminder** -\nthe same reminder email the platform sends, not a separate nudge from a different address.\n\nThe `Reminded At` column is what stops it nagging every single day."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "02646cf6-e123-4c8a-b4a3-df49c7651312",
+      "name": "Every morning",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        2416,
+        2016
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "triggerAtHour": 9
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "7d566025-09f8-42b2-a956-9ef26d4b9190",
+      "name": "Get outstanding agreements from Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        2656,
+        2016
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "options": {},
+        "operation": "search",
+        "filterByFormula": "=OR({Status}=\"Sent for signature\",{Status}=\"Reminded\")"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "28d5759f-8bea-418a-acf7-31a908925524",
+      "name": "Keep only unsigned for 3+ days",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2896,
+        2016
+      ],
+      "parameters": {
+        "jsCode": "// Chase anything sent 3+ days ago that we have not already reminded.\n// Reminding once is the point -- a daily nag is how you get marked as spam.\nconst DAYS = 3;\nconst cutoff = Date.now() - DAYS * 24 * 60 * 60 * 1000;\n\nreturn items.filter((item) => {\n  const f = item.json || {};\n  if (!f['Document ID']) return false;          // never actually sent\n  if (f['Reminded At']) return false;           // already chased once\n  const sentAt = f['Sent At'] ? new Date(f['Sent At']).getTime() : null;\n  return sentAt !== null && sentAt <= cutoff;\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c9a1a8f7-655b-4aed-b19d-f54481218230",
+      "name": "Send reminder with TurboDocx",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocx",
+      "onError": "continueRegularOutput",
+      "maxTries": 2,
+      "position": [
+        3136,
+        2016
+      ],
+      "parameters": {
+        "resource": "turboSign",
+        "operation": "sendReminder",
+        "documentId": "={{ $json['Document ID'] }}",
+        "additionalFields": {}
+      },
+      "retryOnFail": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "9da416ef-7731-474f-a26a-ad6841486690",
+      "name": "Record reminder in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        3376,
+        2016
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Keep only unsigned for 3+ days').item.json.id }}",
+            "Status": "Reminded",
+            "Reminded At": "={{ $now.toISO() }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {},
+        "operation": "update"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "cad9939d-3767-4dc2-b531-edc409e91d32",
+      "name": "Post reminder sent to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3616,
+        2016
+      ],
+      "webhookId": "88f73544-af8b-4462-82e3-318142c15a7b",
+      "parameters": {
+        "text": "=:alarm_clock: *Reminder sent*\n*{{ $('Keep only unsigned for 3+ days').item.json['Client Name'] }}* has not signed after 3 days - nudged at `{{ $('Keep only unsigned for 3+ days').item.json['Email'] }}`.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "1fc7d464-14f5-47b7-904d-d7e4769e4473",
+      "name": "Sticky Note 24",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2352,
+        2400
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 1180,
+        "height": 300,
+        "content": "## Lane C - Settle\n\nTurboDocx calls this webhook the moment a document reaches a terminal state. It registers\nitself when you activate the workflow - there is nothing to configure in TurboDocx.\n\nOn **completed**: pull the executed PDF and its audit trail, file both in Drive, update\nAirtable, announce in Slack, and email accounting with the contract attached.\n\nOn **declined or voided**: update Airtable and tell Slack. Silence on the unhappy path is\nhow deals quietly die."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7ce00370-0622-422d-909b-3ad248c35e49",
+      "name": "Agreement reached a final state",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocxTrigger",
+      "position": [
+        2416,
+        2880
+      ],
+      "webhookId": "a1b2c3d4-0000-4000-8000-000000000001",
+      "parameters": {
+        "events": [
+          "signature.document.completed",
+          "signature.document.voided"
+        ]
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d8aeddf4-a373-4239-8ecc-285be5f25335",
+      "name": "Find the Airtable row by document ID",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        2656,
+        2880
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "options": {},
+        "operation": "search",
+        "filterByFormula": "={Document ID}=\"{{ $json.data.document_id }}\""
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "53458cd7-8c70-46d0-ac73-a50a9c6d28f0",
+      "name": "Signed or killed?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2896,
+        2880
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "c1",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $('Agreement reached a final state').item.json.event }}",
+              "rightValue": "signature.document.completed"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "89705dd9-94e4-4e14-84aa-ea64aaf48f83",
+      "name": "Download signed agreement",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocx",
+      "maxTries": 3,
+      "position": [
+        3168,
+        2752
+      ],
+      "parameters": {
+        "resource": "turboSign",
+        "operation": "downloadDocument",
+        "documentId": "={{ $('Agreement reached a final state').item.json.data.document_id }}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "59ba4b70-63c4-4239-842e-188c42584210",
+      "name": "File signed agreement in Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        3408,
+        2752
+      ],
+      "parameters": {
+        "name": "=Signed - {{ $('Find the Airtable row by document ID').item.json['Client Name'] }}.pdf",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DRIVE_ARCHIVE_FOLDER_ID"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "c0653eb3-b9f9-434a-a388-78f815d080ed",
+      "name": "Get audit trail",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocx",
+      "position": [
+        3648,
+        2752
+      ],
+      "parameters": {
+        "resource": "turboSign",
+        "operation": "getAuditTrail",
+        "documentId": "={{ $('Agreement reached a final state').item.json.data.document_id }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "964ebbc5-f229-426c-a013-1201fca5df2f",
+      "name": "Convert audit trail to a file",
+      "type": "n8n-nodes-base.convertToFile",
+      "position": [
+        3888,
+        2752
+      ],
+      "parameters": {
+        "options": {
+          "fileName": "=audit-trail-{{ $('Agreement reached a final state').item.json.data.document_id }}.json"
+        },
+        "operation": "toJson"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "d18b46de-99d1-41c9-abb5-a699ad5aa9ed",
+      "name": "File audit trail in Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "position": [
+        4128,
+        2752
+      ],
+      "parameters": {
+        "name": "=Audit trail - {{ $('Find the Airtable row by document ID').item.json['Client Name'] }}.json",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_DRIVE_ARCHIVE_FOLDER_ID"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "b2422eaa-41c3-447d-b417-b022566432f0",
+      "name": "Mark signed in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        4368,
+        2752
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Find the Airtable row by document ID').item.json.id }}",
+            "Status": "Signed",
+            "Signed At": "={{ $now.toISO() }}",
+            "Signed Doc URL": "={{ $('File signed agreement in Drive').item.json.webViewLink }}"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {},
+        "operation": "update"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "c9a15b90-b938-41ac-bf8a-b85242968b3e",
+      "name": "Post signed to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        4608,
+        2752
+      ],
+      "webhookId": "c8b21d46-163c-4ed0-8eec-c0aaf1d35e42",
+      "parameters": {
+        "text": "=:white_check_mark: *Agreement signed*\n*{{ $('Find the Airtable row by document ID').item.json['Client Name'] }}* ({{ $('Find the Airtable row by document ID').item.json['Company'] }}) - ${{ $('Find the Airtable row by document ID').item.json['Amount'] }}\nFiled in Drive with its audit trail. Accounting has been emailed.\n<{{ $('File signed agreement in Drive').item.json.webViewLink }}|Open the signed contract in Drive>",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "60c571a4-1ab9-4634-8161-36ddac11f9a5",
+      "name": "Fetch signed PDF for the email",
+      "type": "@turbodocx/n8n-nodes-turbodocx.turboDocx",
+      "maxTries": 2,
+      "position": [
+        4848,
+        2560
+      ],
+      "parameters": {
+        "resource": "turboSign",
+        "operation": "downloadDocument",
+        "documentId": "={{ $('Agreement reached a final state').item.json.data.document_id }}"
+      },
+      "retryOnFail": true,
+      "typeVersion": 1
+    },
+    {
+      "id": "d049078c-ecd5-4134-85b7-a36ae0e68d51",
+      "name": "Email accounting the executed contract",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        4848,
+        2752
+      ],
+      "webhookId": "026f024e-6f01-42fe-8fac-033d3974da98",
+      "parameters": {
+        "sendTo": "accounting@your-company.com",
+        "message": "=<p>A contract has been signed and is ready to bill.</p>\n<ul>\n<li><b>Client:</b> {{ $('Find the Airtable row by document ID').item.json['Client Name'] }}</li>\n<li><b>Company:</b> {{ $('Find the Airtable row by document ID').item.json['Company'] }}</li>\n<li><b>Amount:</b> ${{ $('Find the Airtable row by document ID').item.json['Amount'] }}</li>\n<li><b>Start date:</b> {{ $('Find the Airtable row by document ID').item.json['Start Date'] }}</li>\n</ul>\n<p>The executed PDF is attached, and it is filed in Drive alongside its signature audit trail: {{ $('File signed agreement in Drive').item.json.webViewLink }}</p>",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {}
+            ]
+          }
+        },
+        "subject": "=Executed contract - {{ $('Find the Airtable row by document ID').item.json['Company'] }}"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2abc2eac-0b3a-4c1c-bfb6-365bd4c5ea23",
+      "name": "Mark declined in Airtable",
+      "type": "n8n-nodes-base.airtable",
+      "position": [
+        3168,
+        3072
+      ],
+      "parameters": {
+        "base": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_BASE_ID"
+        },
+        "table": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_AIRTABLE_TABLE_ID"
+        },
+        "columns": {
+          "value": {
+            "id": "={{ $('Find the Airtable row by document ID').item.json.id }}",
+            "Notes": "={{ 'Ended as ' + $('Agreement reached a final state').item.json.event }}",
+            "Status": "Declined"
+          },
+          "schema": [],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [
+            "id"
+          ]
+        },
+        "options": {},
+        "operation": "update"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "2941e47c-d7ae-4494-bfae-bb1c40da3edb",
+      "name": "Post declined to Slack",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3408,
+        3072
+      ],
+      "webhookId": "cec0dd9a-fd84-4b06-88a5-b183c8dacc4d",
+      "parameters": {
+        "text": "=:warning: *Agreement voided or declined*\n*{{ $('Find the Airtable row by document ID').item.json['Client Name'] }}* ({{ $('Find the Airtable row by document ID').item.json['Company'] }})\nEvent: `{{ $('Agreement reached a final state').item.json.event }}` - someone should follow up.",
+        "select": "channel",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "YOUR_SLACK_CHANNEL_ID"
+        },
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "pinData": {},
+  "connections": {
+    "Every morning": {
+      "main": [
+        [
+          {
+            "node": "Get outstanding agreements from Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get audit trail": {
+      "main": [
+        [
+          {
+            "node": "Convert audit trail to a file",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Signed or killed?": {
+      "main": [
+        [
+          {
+            "node": "Download signed agreement",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Mark declined in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post signed to Slack": {
+      "main": [
+        [
+          {
+            "node": "Fetch signed PDF for the email",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over each contract": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Generate agreement with TurboDocx",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark failed in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Loop over each contract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark signed in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Post signed to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download signed agreement": {
+      "main": [
+        [
+          {
+            "node": "File signed agreement in Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File audit trail in Drive": {
+      "main": [
+        [
+          {
+            "node": "Mark signed in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark declined in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Post declined to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark generated in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Post document generated to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post send failure to Slack": {
+      "main": [
+        [
+          {
+            "node": "Mark failed in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post batch started to Slack": {
+      "main": [
+        [
+          {
+            "node": "Get contracts ready to send from Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Record reminder in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Post reminder sent to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send agreement for signature": {
+      "main": [
+        [
+          {
+            "node": "Mark sent for signature in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post send failure to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Send reminder with TurboDocx": {
+      "main": [
+        [
+          {
+            "node": "Record reminder in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert audit trail to a file": {
+      "main": [
+        [
+          {
+            "node": "File audit trail in Drive",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Download the agreement as PDF": {
+      "main": [
+        [
+          {
+            "node": "Send agreement for signature",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post send failure to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch signed PDF for the email": {
+      "main": [
+        [
+          {
+            "node": "Email accounting the executed contract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "File signed agreement in Drive": {
+      "main": [
+        [
+          {
+            "node": "Get audit trail",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Keep only unsigned for 3+ days": {
+      "main": [
+        [
+          {
+            "node": "Send reminder with TurboDocx",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Agreement reached a final state": {
+      "main": [
+        [
+          {
+            "node": "Find the Airtable row by document ID",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Watch contracts folder in Drive": {
+      "main": [
+        [
+          {
+            "node": "Post batch started to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post document generated to Slack": {
+      "main": [
+        [
+          {
+            "node": "Download the agreement as PDF",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post sent for signature to Slack": {
+      "main": [
+        [
+          {
+            "node": "Loop over each contract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate agreement with TurboDocx": {
+      "main": [
+        [
+          {
+            "node": "Mark generated in Airtable",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Post send failure to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Mark sent for signature in Airtable": {
+      "main": [
+        [
+          {
+            "node": "Post sent for signature to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Find the Airtable row by document ID": {
+      "main": [
+        [
+          {
+            "node": "Signed or killed?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get outstanding agreements from Airtable": {
+      "main": [
+        [
+          {
+            "node": "Keep only unsigned for 3+ days",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Get contracts ready to send from Airtable": {
+      "main": [
+        [
+          {
+            "node": "Loop over each contract",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

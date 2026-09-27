@@ -1,4 +1,4 @@
-# filter : 26
+# filter : 31
 
 |id|file|
 |----|----|
@@ -28,3 +28,8 @@
 |15431|[15431_Find_real_estate_deals_from_Facebook_groups_with_GPT-4o_and_Twilio_SMS_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15431_Find_real_estate_deals_from_Facebook_groups_with_GPT-4o_and_Twilio_SMS_alerts.json)|
 |16075|[16075_Filter_WhatsApp_messages_using_a_Google_Sheets_blacklist_and_rate_limiting.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16075_Filter_WhatsApp_messages_using_a_Google_Sheets_blacklist_and_rate_limiting.json)|
 |16467|[16467_Count_Xero_invoices__bills__and_credit_notes_with_a_voided_deleted_filter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16467_Count_Xero_invoices__bills__and_credit_notes_with_a_voided_deleted_filter.json)|
+|17445|[17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17445_Filter_and_deduplicate_AI_news_with_Google_Sheets__OpenAI__and_Hugging_Face.json)|
+|17841|[17841_Log_low-rating_cleanliness_complaints_from_Google_Maps_reviews_with_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17841_Log_low-rating_cleanliness_complaints_from_Google_Maps_reviews_with_Airtable.json)|
+|17895|[17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17895_Monitor_RSS__Atom__and_JSON_feed_changes_with_Apify_Feed_Contract_Monitor.json)|
+|18784|[18784_Scrape_MMC_doctor_records_by_APC_year_and_log_matches_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18784_Scrape_MMC_doctor_records_by_APC_year_and_log_matches_to_Google_Sheets.json)|
+|18806|[18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18806_Monitor_website_changes_with_Google_Sheets__Gemini__and_Telegram_alerts.json)|

@@ -1,0 +1,923 @@
+{
+  "id": "g10QOur3kkEeMvfU",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Build an event-driven pub/sub bus with webhooks, HTTP services, and Slack",
+    "wechat": "youandme10086",
+    "id": 19741,
+    "update_time": "2026-09-27"
+  },
+  "name": "Event-Driven Architecture (Advanced)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "7045bfdc-b480-4dda-8af3-6aaf58fd604a",
+      "name": "Sticky Note - Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1072,
+        -400
+      ],
+      "parameters": {
+        "width": 1088,
+        "height": 940,
+        "content": "## Event-Driven Architecture (Advanced)\n\nA reusable, general-purpose event bus built in n8n. Any producer (webhook, cron, another workflow) publishes an *event envelope* — `{eventType, eventId, source, timestamp, payload}` — into a single **Event Ingress** entry point. From there:\n\n1. **Validation & enrichment** — envelope is schema-checked and stamped with routing metadata\n2. **Event Store (append-only log)** — every event is persisted before anything else happens, so nothing is ever routed without first being durably recorded (event sourcing pattern)\n3. **Router (Switch)** — routes by `eventType` to one or more subscriber branches, fan-out style; unmatched types fall through to a catch-all\n4. **Subscribers** — independent branches (order service, notification service, analytics service...) each with their own try/fail handling — one subscriber failing never blocks another\n5. **Retry with backoff** — a failed subscriber delivery is retried a bounded number of times with increasing delay\n6. **Dead-Letter Queue** — deliveries that exhaust retries are written to a DLQ table/queue and raise a Slack alert, instead of silently vanishing\n7. **Ack** — successful delivery is recorded back on the event store row\n\nThis is the classic **pub/sub + event sourcing + DLQ** trio, implemented with n8n-native building blocks so it runs anywhere n8n runs, with no external broker required (swap the Postgres-style HTTP nodes for Kafka/RabbitMQ/SQS via their REST APIs if you outgrow this).\n\n### Setup\n1. Import into n8n\n2. Set - Event Bus Config: event store endpoint, DLQ endpoint, retry policy, Slack channel, subscriber endpoints\n3. Point each 'Subscriber -' HTTP node at your real service (or replace with a Function/DB node for in-n8n logic)\n4. Wire your real producers (webhooks, other workflows via Execute Workflow, schedule triggers) into 'Event Ingress - Webhook' or trigger this as a sub-workflow with 'Event Ingress - Execute Workflow Trigger'\n5. Activate\n\n### Customize\n- Add a subscriber: duplicate a 'Subscriber -' branch off the Switch node, add its eventType case\n- Change fan-out to fan-in: replace Switch with a Merge if you want every event to hit every subscriber unconditionally\n- Swap the event store / DLQ HTTP nodes for a native Postgres/Airtable node if you prefer"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "aeeaceba-3f5f-4f22-9c29-aae1c6e37390",
+      "name": "Sticky Note - Stage 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        272,
+        -432
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1072,
+        "height": 940,
+        "content": "## 1. Event Ingress, Validation & Durable Log\n\nTwo entry points feed the same pipeline:\n- **Event Ingress - Webhook**: external producers POST an event envelope\n- **Event Ingress - Execute Workflow Trigger**: other n8n workflows publish events by calling this workflow directly (in-process pub/sub, no HTTP hop)\n\nSet - Event Bus Config centralizes the event store URL, DLQ URL, retry policy (max attempts, base delay), subscriber endpoints, and Slack channel.\n\nCode 1 - Validate & Enrich Envelope checks the envelope has eventType, eventId (generates one if missing), source, timestamp, and payload; rejects malformed envelopes immediately (Respond - Invalid Envelope, webhook path only).\n\nHTTP Request - Append to Event Store writes the raw event to an append-only log *before* any routing/delivery happens — this is what makes the bus replayable and auditable: even if every subscriber fails, the event itself is never lost."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "656a5c9d-5d58-403b-8823-7dbb8987558c",
+      "name": "Sticky Note - Stage 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1408,
+        -336
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1104,
+        "height": 940,
+        "content": "## 2. Routing & Fan-Out to Subscribers\n\nSwitch - Route by Event Type inspects `eventType` and sends the event down one or more of the matched branches, in parallel:\n- `order.created` → Subscriber - Order Service\n- `order.created` / `user.signed_up` → Subscriber - Notification Service (multiple types can share a subscriber)\n- any type → Subscriber - Analytics Service (catch-all / audit trail, always fires)\n- unmatched type → Code - Unknown Event Type (logged, not treated as an error)\n\nEach Subscriber node is an independent HTTP call with `continueOnFail` + `retryOnFail` set at the node level for transient-fault tolerance, but the workflow-level retry/backoff/DLQ logic (next stage) is what handles a subscriber that's fully down, not just flaky."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "1196e4ae-8693-4632-a7a3-74de5cbb55c7",
+      "name": "Sticky Note - Stage 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2544,
+        -432
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 1200,
+        "height": 1132,
+        "content": "## 3. Retry, Dead-Letter Queue & Acknowledgement\n\nEach subscriber branch converges into a shared IF - Delivery Failed gate.\n\n- **Success** → HTTP Request - Ack Event Store (mark this event/subscriber pair as delivered) → done\n- **Failure** → Code - Compute Backoff & Retry Count checks how many attempts have been made (tracked in workflow static data, keyed by eventId+subscriber) against the configured max attempts.\n  - If attempts remain → Wait (exponential backoff) → loops back into the same subscriber call\n  - If attempts are exhausted → HTTP Request - Write to Dead Letter Queue persists the event + failure reason + attempt history, then Slack - DLQ Alert notifies the team a message needed manual intervention\n\nThis means a subscriber outage never loses events (they sit safely in the DLQ, replayable later) and never silently fails without anyone knowing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "2ac58e70-a41a-47c6-93fb-b62781246bdf",
+      "name": "Event Ingress - Webhook",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        336,
+        160
+      ],
+      "webhookId": "event-bus-ingress-0001",
+      "parameters": {
+        "path": "event-bus/publish",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "58fe103f-be05-40c3-a2d9-76ed84d3226a",
+      "name": "Event Ingress - Execute Workflow Trigger",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        336,
+        352
+      ],
+      "parameters": {
+        "workflowInputs": {
+          "values": [
+            {
+              "name": "eventType"
+            },
+            {
+              "name": "eventId"
+            },
+            {
+              "name": "source"
+            },
+            {
+              "name": "payload"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "3d406d7d-2372-4c98-b9df-3b5fb1e33443",
+      "name": "Merge - Ingress Sources",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        560,
+        256
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "a183e755-b4d2-4abd-81d9-7ba891c2e32d",
+      "name": "Set - Event Bus Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        784,
+        256
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "name": "eventStoreUrl",
+              "type": "string",
+              "value": "https://YOUR-EVENT-STORE-ENDPOINT.example.com/events"
+            },
+            {
+              "name": "eventStoreAckUrl",
+              "type": "string",
+              "value": "https://YOUR-EVENT-STORE-ENDPOINT.example.com/events/ack"
+            },
+            {
+              "name": "dlqUrl",
+              "type": "string",
+              "value": "https://YOUR-DLQ-ENDPOINT.example.com/dead-letters"
+            },
+            {
+              "name": "maxRetryAttempts",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "name": "baseBackoffSeconds",
+              "type": "number",
+              "value": 5
+            },
+            {
+              "name": "orderServiceUrl",
+              "type": "string",
+              "value": "https://YOUR-ORDER-SERVICE.example.com/webhooks/events"
+            },
+            {
+              "name": "notificationServiceUrl",
+              "type": "string",
+              "value": "https://YOUR-NOTIFICATION-SERVICE.example.com/webhooks/events"
+            },
+            {
+              "name": "analyticsServiceUrl",
+              "type": "string",
+              "value": "https://YOUR-ANALYTICS-SERVICE.example.com/webhooks/events"
+            },
+            {
+              "name": "slackDlqChannel",
+              "type": "string",
+              "value": "#event-bus-dlq-alerts"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "5d125a85-60ac-4ca8-bf84-48e60d83fb6c",
+      "name": "Code 1 - Validate & Enrich Envelope",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1008,
+        256
+      ],
+      "parameters": {
+        "jsCode": "// Normalize whichever ingress fired (webhook body vs execute-workflow inputs)\n// into one event envelope shape, validate required fields, and stamp metadata.\nconst crypto = require('crypto');\nconst cfg = $('Set - Event Bus Config').first().json;\nconst raw = $input.first().json;\n\n// Webhook puts the payload under `body`; Execute Workflow Trigger exposes fields directly.\nconst src = raw.body ? raw.body : raw;\n\nconst eventType = src.eventType || '';\nconst source = src.source || 'unknown';\nconst payload = src.payload !== undefined ? src.payload : {};\nconst eventId = src.eventId || crypto.randomUUID();\nconst timestamp = src.timestamp || new Date().toISOString();\n\nconst missingFields = [];\nif (!eventType) missingFields.push('eventType');\nif (payload === undefined) missingFields.push('payload');\n\nconst valid = missingFields.length === 0;\n\nreturn [{\n  json: {\n    ...cfg,\n    eventId,\n    eventType,\n    source,\n    payload,\n    timestamp,\n    receivedAtIso: new Date().toISOString(),\n    valid,\n    missingFields\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "f5eec878-d71a-4611-a6a6-d149d0a7c070",
+      "name": "IF - Envelope Valid",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1232,
+        256
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "envvalid-cond-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.valid }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "2842dfea-cbec-4778-b9c5-a8c480ac4b62",
+      "name": "Respond - Invalid Envelope",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1456,
+        352
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 400
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'rejected', reason: 'INVALID_ENVELOPE', missingFields: $json.missingFields }) }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "f1f97bc7-621e-458a-b958-1e8459f7d4b9",
+      "name": "HTTP Request - Append to Event Store",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 2,
+      "position": [
+        1456,
+        160
+      ],
+      "parameters": {
+        "url": "={{ $json.eventStoreUrl }}",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, eventType: $json.eventType, source: $json.source, payload: $json.payload, timestamp: $json.timestamp, receivedAt: $json.receivedAtIso, status: 'received' }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "3ac87a2b-73ff-44d1-96ed-58c5108258ca",
+      "name": "Respond - Event Accepted",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        1680,
+        48
+      ],
+      "parameters": {
+        "options": {
+          "responseCode": 202
+        },
+        "respondWith": "json",
+        "responseBody": "={{ JSON.stringify({ status: 'accepted', eventId: $json.eventId }) }}"
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "da3aee84-56ec-4a4d-8bdb-a618a82867a6",
+      "name": "Switch - Route by Event Type",
+      "type": "n8n-nodes-base.switch",
+      "position": [
+        1680,
+        240
+      ],
+      "parameters": {
+        "rules": {
+          "values": [
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "route-order-1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.eventType }}",
+                    "rightValue": "order.created"
+                  }
+                ]
+              }
+            },
+            {
+              "conditions": {
+                "options": {
+                  "version": 1,
+                  "leftValue": "",
+                  "caseSensitive": true,
+                  "typeValidation": "strict"
+                },
+                "combinator": "and",
+                "conditions": [
+                  {
+                    "id": "route-signup-1",
+                    "operator": {
+                      "type": "string",
+                      "operation": "equals"
+                    },
+                    "leftValue": "={{ $json.eventType }}",
+                    "rightValue": "user.signed_up"
+                  }
+                ]
+              }
+            }
+          ]
+        },
+        "options": {
+          "fallbackOutput": "extra",
+          "allMatchingOutputs": true
+        }
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "b01e2110-7df5-4521-b162-cd6e9330e671",
+      "name": "Code - Unknown Event Type",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1904,
+        448
+      ],
+      "parameters": {
+        "jsCode": "// Not an error: an event with no configured subscriber is expected in a\n// growing system. Logged for visibility, still gets recorded to analytics.\nconst item = $input.first().json;\nreturn [{ json: { ...item, note: 'No dedicated subscriber matched this eventType; delivered to analytics only.' } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2ca2bd23-3728-46bd-8f2a-b80d3b6fdf10",
+      "name": "Subscriber - Order Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 1,
+      "position": [
+        1904,
+        64
+      ],
+      "parameters": {
+        "url": "={{ $json.orderServiceUrl }}",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, eventType: $json.eventType, payload: $json.payload, timestamp: $json.timestamp }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "92285be4-bf36-4cf9-9124-28d36b28de73",
+      "name": "Subscriber - Notification Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 1,
+      "position": [
+        1904,
+        256
+      ],
+      "parameters": {
+        "url": "={{ $json.notificationServiceUrl }}",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, eventType: $json.eventType, payload: $json.payload, timestamp: $json.timestamp }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "5db553da-1c16-4eb8-8db5-af2aebbb9fa7",
+      "name": "Subscriber - Analytics Service",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 1,
+      "position": [
+        2128,
+        448
+      ],
+      "parameters": {
+        "url": "={{ $json.analyticsServiceUrl }}",
+        "method": "POST",
+        "options": {
+          "timeout": 10000
+        },
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, eventType: $json.eventType, payload: $json.payload, timestamp: $json.timestamp, source: $json.source }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "58de34a0-f9c1-4643-bc2f-d0a2fbdef472",
+      "name": "Merge - Subscriber Results",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        2128,
+        160
+      ],
+      "parameters": {
+        "mode": "chooseBranch"
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "3db5a057-d9c2-4424-9c3f-5597dd3bc1c1",
+      "name": "Code - Tag Subscriber & Outcome",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2352,
+        80
+      ],
+      "parameters": {
+        "jsCode": "// Determine which subscriber this branch was, and whether the HTTP call succeeded,\n// using n8n's error output shape (continueOnFail routes errors into the same output\n// with an `error` field present).\nconst item = $input.first().json;\nconst nodeName = $execution.customData?.get?.('lastSubscriberNode') || null;\n\n// Identify the source node for this item to know which subscriber it came from.\nconst sourceNodeName = $input.first().pairedItem\n  ? $('Switch - Route by Event Type').first()?.json?.eventType\n  : null;\n\nconst hasError = item.error !== undefined;\n\nreturn [{\n  json: {\n    ...item,\n    deliveryFailed: hasError,\n    deliveryErrorMessage: hasError ? (item.error?.message || String(item.error)) : null\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "ef05d0b2-3af9-4152-a2ce-5009595cd851",
+      "name": "IF - Delivery Failed",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2576,
+        80
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "delivfail-cond-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.deliveryFailed }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "734cc60a-24b8-42f9-92b9-e77cb31cf80c",
+      "name": "HTTP Request - Ack Event Store",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 2,
+      "position": [
+        2800,
+        -16
+      ],
+      "parameters": {
+        "url": "={{ $json.eventStoreAckUrl }}",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, status: 'delivered', deliveredAt: new Date().toISOString() }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "3e7c9721-cc95-4352-9ddc-b5d035e1f8a0",
+      "name": "Code - Compute Backoff & Retry Count",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2800,
+        176
+      ],
+      "parameters": {
+        "jsCode": "// Track delivery attempts per (eventId + eventType branch) in workflow static\n// data, and decide whether to retry (with exponential backoff) or send to DLQ.\nconst item = $input.first().json;\nconst staticData = $getWorkflowStaticData('node');\nif (!staticData.attempts) staticData.attempts = {};\n\nconst attemptKey = item.eventId + '::' + item.eventType;\nconst maxAttempts = item.maxRetryAttempts || 3;\nconst baseDelay = item.baseBackoffSeconds || 5;\n\nconst currentAttempts = (staticData.attempts[attemptKey] || 0) + 1;\nstaticData.attempts[attemptKey] = currentAttempts;\n\nconst attemptsExhausted = currentAttempts >= maxAttempts;\nconst backoffSeconds = attemptsExhausted ? 0 : baseDelay * Math.pow(2, currentAttempts - 1);\n\nif (attemptsExhausted) {\n  delete staticData.attempts[attemptKey];\n}\n\nreturn [{\n  json: {\n    ...item,\n    currentAttempts,\n    maxAttempts,\n    attemptsExhausted,\n    backoffSeconds\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "fed13363-a71e-4b19-896f-187d7b5c3015",
+      "name": "IF - Attempts Exhausted",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3024,
+        176
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 1,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "exhausted-cond-1",
+              "operator": {
+                "type": "boolean",
+                "operation": "true"
+              },
+              "leftValue": "={{ $json.attemptsExhausted }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "af631583-9319-4676-b8ef-b132647739e0",
+      "name": "Wait - Exponential Backoff",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3248,
+        352
+      ],
+      "webhookId": "wait-backoff-node-0001",
+      "parameters": {
+        "amount": "={{ $json.backoffSeconds }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "b50577d7-6bb3-4f31-af7d-64ae0df6e029",
+      "name": "HTTP Request - Write to Dead Letter Queue",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueErrorOutput",
+      "maxTries": 2,
+      "position": [
+        3248,
+        128
+      ],
+      "parameters": {
+        "url": "={{ $json.dlqUrl }}",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ eventId: $json.eventId, eventType: $json.eventType, payload: $json.payload, source: $json.source, failedAt: new Date().toISOString(), attempts: $json.currentAttempts, lastError: $json.deliveryErrorMessage }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "content-type",
+              "value": "application/json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "a5d71fe6-98bb-479f-968d-e14045af9234",
+      "name": "Slack - DLQ Alert",
+      "type": "n8n-nodes-base.slack",
+      "position": [
+        3472,
+        128
+      ],
+      "webhookId": "dlq-alert-webhook-0001",
+      "parameters": {
+        "operation": "postMessage"
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "1f6c0b28-d770-4f12-a1a3-7a8792745674",
+  "nodeGroups": [],
+  "connections": {
+    "IF - Envelope Valid": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Append to Event Store",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Respond - Invalid Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Delivery Failed": {
+      "main": [
+        [
+          {
+            "node": "Code - Compute Backoff & Retry Count",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "HTTP Request - Ack Event Store",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set - Event Bus Config": {
+      "main": [
+        [
+          {
+            "node": "Code 1 - Validate & Enrich Envelope",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Ingress - Webhook": {
+      "main": [
+        [
+          {
+            "node": "Merge - Ingress Sources",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "IF - Attempts Exhausted": {
+      "main": [
+        [
+          {
+            "node": "HTTP Request - Write to Dead Letter Queue",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait - Exponential Backoff",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Ingress Sources": {
+      "main": [
+        [
+          {
+            "node": "Set - Event Bus Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Unknown Event Type": {
+      "main": [
+        [
+          {
+            "node": "Subscriber - Analytics Service",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge - Subscriber Results": {
+      "main": [
+        [
+          {
+            "node": "Code - Tag Subscriber & Outcome",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subscriber - Order Service": {
+      "main": [
+        [
+          {
+            "node": "Merge - Subscriber Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait - Exponential Backoff": {
+      "main": [
+        [
+          {
+            "node": "Merge - Subscriber Results",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Switch - Route by Event Type": {
+      "main": [
+        [
+          {
+            "node": "Subscriber - Order Service",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Subscriber - Notification Service",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Code - Unknown Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Tag Subscriber & Outcome": {
+      "main": [
+        [
+          {
+            "node": "IF - Delivery Failed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Subscriber - Notification Service": {
+      "main": [
+        [
+          {
+            "node": "Merge - Subscriber Results",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "Code 1 - Validate & Enrich Envelope": {
+      "main": [
+        [
+          {
+            "node": "IF - Envelope Valid",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Code - Compute Backoff & Retry Count": {
+      "main": [
+        [
+          {
+            "node": "IF - Attempts Exhausted",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Append to Event Store": {
+      "main": [
+        [
+          {
+            "node": "Respond - Event Accepted",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Switch - Route by Event Type",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Event Ingress - Execute Workflow Trigger": {
+      "main": [
+        [
+          {
+            "node": "Merge - Ingress Sources",
+            "type": "main",
+            "index": 1
+          }
+        ]
+      ]
+    },
+    "HTTP Request - Write to Dead Letter Queue": {
+      "main": [
+        [
+          {
+            "node": "Slack - DLQ Alert",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

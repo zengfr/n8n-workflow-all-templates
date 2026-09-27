@@ -1,4 +1,4 @@
-# zoho : 36
+# zoho : 39
 
 |id|file|
 |----|----|
@@ -38,3 +38,6 @@
 |14935|[14935_Sync_Zoho_CRM_contacts_with_Beex_Contact_Center_in_real_time.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14935_Sync_Zoho_CRM_contacts_with_Beex_Contact_Center_in_real_time.json)|
 |14994|[14994_Send_multi-stage_customer_project_emails_from_Google_Sheets_with_Zoho_ZeptoMail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14994_Send_multi-stage_customer_project_emails_from_Google_Sheets_with_Zoho_ZeptoMail.json)|
 |15246|[15246_Audit_Zoho_CRM_lead_data_quality_and_email_HTML_reports_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15246_Audit_Zoho_CRM_lead_data_quality_and_email_HTML_reports_with_Gmail.json)|
+|17198|[17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17198_Create_Zoho_Books_invoices_from_email_attachments_using_OpenAI_OCR.json)|
+|17582|[17582_Process_invoice_emails_to_Zoho_Books_with_Gmail__Parseur__and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17582_Process_invoice_emails_to_Zoho_Books_with_Gmail__Parseur__and_Google_Drive.json)|
+|18990|[18990_Triage_slowing_Zoho_CRM_deals_with_OpenAI_GPT-4o-mini_and_send_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18990_Triage_slowing_Zoho_CRM_deals_with_OpenAI_GPT-4o-mini_and_send_Slack_alerts.json)|

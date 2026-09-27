@@ -1,4 +1,4 @@
-# buyer : 7
+# buyer : 12
 
 |id|file|
 |----|----|
@@ -9,3 +9,8 @@
 |13831|[13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13831_Match_Zoho_CRM_contacts_to_buyer_personas_using_LinkedIn__Phantombuster_and_OpenAI.json)|
 |15471|[15471_Generate_a_buyer_persona_pain_point_report_using_Olostep__Gemini_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15471_Generate_a_buyer_persona_pain_point_report_using_Olostep__Gemini_and_Google_Docs.json)|
 |16274|[16274_Route_real_estate_buyer_and_seller_leads_with_Claude_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16274_Route_real_estate_buyer_and_seller_leads_with_Claude_and_Google_Sheets.json)|
+|16991|[16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16991_Track_buyer_query_citation_sources_with_GPT-4o_and_Google_Sheets.json)|
+|18329|[18329_Match_new_property_listings_to_buyer_leads_with_Gemini__Gmail_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18329_Match_new_property_listings_to_buyer_leads_with_Gemini__Gmail_and_Sheets.json)|
+|18440|[18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18440_Route_real_estate_buyer_inquiries_with_GPT-4o__HubSpot__Twilio_and_Slack.json)|
+|19185|[19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19185_Capture_Reddit_buyer-intent_leads_with_Apify__Google_Gemini__and_Sheets.json)|
+|19404|[19404_Mine_YouTube_buyer_objections_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19404_Mine_YouTube_buyer_objections_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|

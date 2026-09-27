@@ -1,4 +1,4 @@
-# clip : 6
+# clip : 11
 
 |id|file|
 |----|----|
@@ -8,3 +8,8 @@
 |14191|[14191_AI_YouTube_Shorts_Creator______Prompt-Based_Clipping__Dubbing___Social_Upload.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14191_AI_YouTube_Shorts_Creator______Prompt-Based_Clipping__Dubbing___Social_Upload.json)|
 |14713|[14713_Create_an_interview_clip_library_using_WayinVideo__Google_Drive_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14713_Create_an_interview_clip_library_using_WayinVideo__Google_Drive_and_Sheets.json)|
 |15567|[15567_Build_employee_onboarding_clip_libraries_with_WayinVideo__Google_Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15567_Build_employee_onboarding_clip_libraries_with_WayinVideo__Google_Drive_and_Gmail.json)|
+|17261|[17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17261_Create_Ken_Burns_zoom_video_clips_from_text_prompts_with_Pollinations_and_FFmpeg.json)|
+|17644|[17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17644_Create_short_social_clips_from_long_videos_with_Opus_Clip__Airtable__Cloudinary_and_Buffer.json)|
+|18389|[18389_Generate_YouTube_clip_ideas_and_Google_Docs_reports_with_Apify_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18389_Generate_YouTube_clip_ideas_and_Google_Docs_reports_with_Apify_and_OpenRouter.json)|
+|18584|[18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18584_Clip_YouTube_videos_into_shorts_with_OpenShorts_and_Telegram_approval.json)|
+|19252|[19252_Generate_YouTube_video_clips_with_Reka_Vision__Google_Sheets__Gmail__and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19252_Generate_YouTube_video_clips_with_Reka_Vision__Google_Sheets__Gmail__and_Telegram_alerts.json)|

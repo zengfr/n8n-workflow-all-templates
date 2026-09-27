@@ -1,4 +1,4 @@
-# expenses : 23
+# expenses : 33
 
 |id|file|
 |----|----|
@@ -25,3 +25,13 @@
 |15672|[15672_Manage_email__calendar__tasks_and_expenses_from_Telegram_with_GPT-4o_and_Google.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15672_Manage_email__calendar__tasks_and_expenses_from_Telegram_with_GPT-4o_and_Google.json)|
 |16431|[16431_Track_email_expenses_from_Gmail_with_OpenAI__Google_Sheets__and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16431_Track_email_expenses_from_Gmail_with_OpenAI__Google_Sheets__and_Slack_alerts.json)|
 |16520|[16520_Track_expenses_from_phone_notifications_with_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16520_Track_expenses_from_phone_notifications_with_Google_Gemini_and_Google_Sheets.json)|
+|17134|[17134_Extract_and_log_Gmail_receipt_expenses_with_OpenAI__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17134_Extract_and_log_Gmail_receipt_expenses_with_OpenAI__Sheets_and_Airtable.json)|
+|17380|[17380_Extract_receipts_from_Gmail_with_Claude_and_log_expenses_to_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17380_Extract_receipts_from_Gmail_with_Claude_and_log_expenses_to_Google_Sheets.json)|
+|17620|[17620_Log_LINE_receipt_photos_to_Google_Sheets_using_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17620_Log_LINE_receipt_photos_to_Google_Sheets_using_OpenAI.json)|
+|17706|[17706_Track_and_log_receipt_expenses_in_Google_Sheets_with_Gmail__Drive__and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17706_Track_and_log_receipt_expenses_in_Google_Sheets_with_Gmail__Drive__and_Claude.json)|
+|18153|[18153_Approve_employee_expenses_with_OpenAI__Google_Sheets__Telegram__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18153_Approve_employee_expenses_with_OpenAI__Google_Sheets__Telegram__and_Gmail.json)|
+|18286|[18286_Track_receipt_expenses_from_Telegram_using_Google_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18286_Track_receipt_expenses_from_Telegram_using_Google_Gemini_and_Google_Sheets.json)|
+|18315|[18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18315_Submit_and_approve_employee_expenses_with_Odoo__Slack__and_Gmail.json)|
+|19130|[19130_Track_and_classify_expenses_with_Mindee_OCR__GPT-4o__PostgreSQL_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19130_Track_and_classify_expenses_with_Mindee_OCR__GPT-4o__PostgreSQL_and_Google_Drive.json)|
+|19225|[19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19225_Track_employee_expense_receipts_from_Telegram_with_GPT-4o-mini_and_Google_Sheets.json)|
+|19619|[19619_Log_receipt_expenses_in_Notion_with_Gmail__Telegram__and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19619_Log_receipt_expenses_in_Notion_with_Gmail__Telegram__and_OpenAI.json)|

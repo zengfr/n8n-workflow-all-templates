@@ -1,0 +1,525 @@
+{
+  "id": "pdfops-stripe-invoice-storage",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Generate Stripe invoice PDFs with PDFops, S3, Gmail, Sheets, and Slack",
+    "wechat": "youandme10086",
+    "id": 18284,
+    "update_time": "2026-09-27"
+  },
+  "name": "Create invoice PDFs from Stripe payments, email them and archive to S3",
+  "nodes": [
+    {
+      "id": "note-overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -840,
+        -120
+      ],
+      "parameters": {
+        "width": 560,
+        "height": 1120,
+        "content": "## Create invoice PDFs from Stripe payments, email them and archive to S3\n\nEvery successful Stripe payment becomes an archival invoice PDF — emailed to the customer, stored in S3, logged to a ledger. No invoicing service.\n\nThe trap this handles: **Stripe reports amounts in the smallest currency unit, but not every currency has 100 of them.** JPY, KRW and 13 others are zero-decimal, so the usual `amount / 100` silently issues an invoice 100x too small.\n\n### How it works\n- **Payment Succeeded** fires on `payment_intent.succeeded`; **Has Billable Amount?** drops $0 authorisations and free-trial events.\n- **Fetch Stripe Customer** resolves the real name and email; guest checkouts fall back to the receipt email.\n- **Build Invoice Payload** handles zero-decimal currencies and derives the net when a tax rate is set.\n- **PDFops Generate Invoice** renders deterministically — the same JSON always produces a byte-identical PDF.\n- The PDF fans out: **S3** archives, **Gmail** sends, **Sheets** logs. Failures alert **Slack**.\n\n### Setup\n1. Install the **PDFops** community node (`n8n-nodes-pdfops`) — verified: one-click install on n8n Cloud (search \"PDFops\" in the nodes panel), or Settings → Community Nodes on self-hosted.\n2. Connect **Stripe**, **AWS**, **Gmail**, **Sheets** and **Slack** credentials.\n3. Open **Set Invoice Defaults** for company name, prefix, tax rate and bucket.\n4. Set your spreadsheet on **Log to Invoice Ledger** and your channel on **Alert Billing Channel**.\n5. *(Optional)* Add a **PDFops API** credential — keyless works at 100 req/IP/month.\n\n### Customization tips\n- Drop the Sheets or Slack branch if you only need the archive.\n- Swap S3 for Drive or Dropbox without touching the PDF step.\n- `minimumAmount` is in Stripe's smallest unit — 500 means $5.00.\n- Leave `taxRate` at 0 for an invoice total that equals the charge exactly."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-section-1",
+      "name": "Section 1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -160,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 700,
+        "height": 700,
+        "content": "## 1. Catch the payment, skip what isn't billable\nThe Stripe trigger fires on every successful payment. **Set Invoice Defaults** is the one place to edit company details, tax and bucket. Zero-amount events stop here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-section-2",
+      "name": "Section 2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        560,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 700,
+        "content": "## 2. Resolve the customer, shape the invoice\nLook up the real customer, then map the charge — handling zero-decimal currencies and deriving tax from the charged total."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-section-3",
+      "name": "Section 3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1020,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 660,
+        "height": 700,
+        "content": "## 3. Render once, deliver three ways\nOne deterministic PDF, then fan out: archive to S3, email the customer when one is on file, and append a row to the invoice ledger."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-section-4",
+      "name": "Section 4",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        960,
+        700
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 480,
+        "height": 280,
+        "content": "## Failure path\nA failed render posts to Slack with the payment id, so a missing invoice is noticed instead of silently never existing."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "trigger-stripe",
+      "name": "Payment Succeeded",
+      "type": "n8n-nodes-base.stripeTrigger",
+      "position": [
+        -80,
+        180
+      ],
+      "parameters": {
+        "events": [
+          "payment_intent.succeeded"
+        ]
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "set-invoice-defaults",
+      "name": "Set Invoice Defaults",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        140,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-company",
+              "name": "companyName",
+              "type": "string",
+              "value": "Your Company Inc"
+            },
+            {
+              "id": "cfg-prefix",
+              "name": "invoicePrefix",
+              "type": "string",
+              "value": "INV"
+            },
+            {
+              "id": "cfg-tax",
+              "name": "taxRate",
+              "type": "number",
+              "value": 0
+            },
+            {
+              "id": "cfg-line",
+              "name": "defaultLineItem",
+              "type": "string",
+              "value": "Payment received"
+            },
+            {
+              "id": "cfg-notes",
+              "name": "invoiceNotes",
+              "type": "string",
+              "value": "Thank you for your business."
+            },
+            {
+              "id": "cfg-bucket",
+              "name": "s3Bucket",
+              "type": "string",
+              "value": "your-invoices-bucket"
+            },
+            {
+              "id": "cfg-min",
+              "name": "minimumAmount",
+              "type": "number",
+              "value": 1
+            }
+          ]
+        },
+        "includeOtherFields": true
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "if-billable",
+      "name": "Has Billable Amount?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        360,
+        180
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-billable",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ ($json.data.object.amount_received || $json.data.object.amount || 0) >= $json.minimumAmount }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "noop-skip",
+      "name": "Skip Zero-Amount Payment",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        360,
+        440
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "stripe-customer",
+      "name": "Fetch Stripe Customer",
+      "type": "n8n-nodes-base.stripe",
+      "onError": "continueRegularOutput",
+      "position": [
+        580,
+        180
+      ],
+      "parameters": {
+        "resource": "customer",
+        "operation": "get",
+        "customerId": "={{ $json.data.object.customer }}"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "code-build-invoice",
+      "name": "Build Invoice Payload",
+      "type": "n8n-nodes-base.code",
+      "onError": "continueErrorOutput",
+      "position": [
+        800,
+        180
+      ],
+      "parameters": {
+        "jsCode": "// Stripe reports amounts in the smallest currency unit — but not every currency\n// has 100 of them. JPY, KRW and 13 others are zero-decimal, so the reflexive\n// `amount / 100` issues an invoice 100x too small. Check before dividing.\nconst ZERO_DECIMAL = ['bif', 'clp', 'djf', 'gnf', 'jpy', 'kmf', 'krw', 'mga', 'pyg', 'rwf', 'ugx', 'vnd', 'vuv', 'xaf', 'xof', 'xpf'];\n\nconst cfg = $('Set Invoice Defaults').first().json;\n// The Stripe Trigger emits the Event envelope, not the PaymentIntent —\n// the object itself is nested at data.object.\nconst payment = $('Payment Succeeded').first().json.data.object;\nconst customer = $input.first().json || {};\n\nconst currency = (payment.currency || 'usd').toLowerCase();\nconst zeroDecimal = ZERO_DECIMAL.includes(currency);\nconst decimals = zeroDecimal ? 0 : 2;\nconst round = (v) => Number(v.toFixed(decimals));\n\nconst total = round((payment.amount_received || payment.amount || 0) / (zeroDecimal ? 1 : 100));\n\n// If a tax rate is set, derive the net so the invoice shows net + tax. Note the\n// limit: PDFops recomputes subtotal -> tax -> total from unit_price, and roughly\n// 10% of (amount, rate) pairs have NO 2-decimal net that multiplies back to the\n// exact charged total — it is a representability limit, not a rounding bug.\n// Leave taxRate at 0 (the default) if you need the invoice total to equal the\n// charge exactly; the sticky says so too.\nconst rate = Number(cfg.taxRate) || 0;\nconst unitPrice = round(rate > 0 ? total / (1 + rate / 100) : total);\n\n// Guest checkouts have no customer object — fall back to the receipt email.\nconst billTo = customer.name || customer.email || payment.receipt_email || 'Customer';\n\nreturn [\n  {\n    json: {\n      invoice: {\n        from: cfg.companyName,\n        to: billTo,\n        invoice_number: `${cfg.invoicePrefix}-${String(payment.id).slice(-8).toUpperCase()}`,\n        date: new Date((payment.created || Date.now() / 1000) * 1000).toISOString().slice(0, 10),\n        currency: currency.toUpperCase(),\n        tax_rate: rate,\n        notes: cfg.invoiceNotes,\n        items: [\n          {\n            description: payment.description || cfg.defaultLineItem,\n            quantity: 1,\n            unit_price: unitPrice,\n          },\n        ],\n      },\n      customerEmail: customer.email || payment.receipt_email || '',\n      paymentId: payment.id,\n      chargedTotal: total,\n      s3Bucket: cfg.s3Bucket,\n    },\n  },\n];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "pdfops-invoice",
+      "name": "PDFops Generate Invoice",
+      "type": "n8n-nodes-pdfops.pdfops",
+      "onError": "continueErrorOutput",
+      "position": [
+        1040,
+        180
+      ],
+      "parameters": {
+        "invoice": "={{ $json.invoice }}",
+        "fileName": "={{ $json.invoice.invoice_number }}.pdf",
+        "operation": "invoice",
+        "outputBinaryPropertyName": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "s3-upload",
+      "name": "Archive to S3",
+      "type": "n8n-nodes-base.awsS3",
+      "onError": "continueRegularOutput",
+      "position": [
+        1260,
+        180
+      ],
+      "parameters": {
+        "fileName": "={{ 'invoices/' + $('Build Invoice Payload').item.json.invoice.invoice_number + '.pdf' }}",
+        "resource": "file",
+        "operation": "upload",
+        "binaryData": true,
+        "bucketName": "={{ $('Build Invoice Payload').item.json.s3Bucket }}",
+        "additionalFields": {},
+        "binaryPropertyName": "data"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "gmail-invoice",
+      "name": "Email Invoice to Customer",
+      "type": "n8n-nodes-base.gmail",
+      "onError": "continueRegularOutput",
+      "position": [
+        1480,
+        400
+      ],
+      "parameters": {
+        "sendTo": "={{ $('Build Invoice Payload').item.json.customerEmail }}",
+        "message": "Thank you for your payment. Your invoice is attached.",
+        "options": {
+          "attachmentsUi": {
+            "attachmentsBinary": [
+              {
+                "property": "data"
+              }
+            ]
+          }
+        },
+        "subject": "={{ 'Invoice ' + $('Build Invoice Payload').item.json.invoice.invoice_number }}",
+        "resource": "message",
+        "emailType": "text",
+        "operation": "send"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "sheets-ledger",
+      "name": "Log to Invoice Ledger",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "position": [
+        1480,
+        180
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "Date": "={{ $('Build Invoice Payload').item.json.invoice.date }}",
+            "Total": "={{ $('Build Invoice Payload').item.json.chargedTotal }}",
+            "Invoice": "={{ $('Build Invoice Payload').item.json.invoice.invoice_number }}",
+            "Currency": "={{ $('Build Invoice Payload').item.json.invoice.currency }}",
+            "Customer": "={{ $('Build Invoice Payload').item.json.invoice.to }}",
+            "Payment ID": "={{ $('Build Invoice Payload').item.json.paymentId }}"
+          },
+          "mappingMode": "defineBelow"
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "mode": "name",
+          "value": "Invoices"
+        },
+        "documentId": {
+          "mode": "url",
+          "value": "https://docs.google.com/spreadsheets/d/REPLACE_WITH_YOUR_SHEET_ID/edit"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "slack-alert",
+      "name": "Alert Billing Channel",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "position": [
+        1040,
+        820
+      ],
+      "parameters": {
+        "text": "={{ 'Invoice issue for Stripe payment ' + ($('Build Invoice Payload').item.json.paymentId || 'unknown') + ' — ' + ($json.error ? ('render FAILED, no invoice produced: ' + ($json.error.message || $json.error)) : 'no customer email on file; invoice archived to S3 but not sent.') }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "mode": "name",
+          "value": "#billing"
+        },
+        "operation": "post",
+        "otherOptions": {}
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "if-has-email",
+      "name": "Has Customer Email?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1260,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-has-email",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ !!$('Build Invoice Payload').item.json.customerEmail }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    }
+  ],
+  "active": false,
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Archive to S3": {
+      "main": [
+        [
+          {
+            "node": "Log to Invoice Ledger",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Payment Succeeded": {
+      "main": [
+        [
+          {
+            "node": "Set Invoice Defaults",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Customer Email?": {
+      "main": [
+        [
+          {
+            "node": "Email Invoice to Customer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Billing Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Has Billable Amount?": {
+      "main": [
+        [
+          {
+            "node": "Fetch Stripe Customer",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Skip Zero-Amount Payment",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Invoice Defaults": {
+      "main": [
+        [
+          {
+            "node": "Has Billable Amount?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Invoice Payload": {
+      "main": [
+        [
+          {
+            "node": "PDFops Generate Invoice",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Billing Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Stripe Customer": {
+      "main": [
+        [
+          {
+            "node": "Build Invoice Payload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "PDFops Generate Invoice": {
+      "main": [
+        [
+          {
+            "node": "Archive to S3",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Has Customer Email?",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Alert Billing Channel",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

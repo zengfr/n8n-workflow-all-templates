@@ -1,4 +1,4 @@
-# dual : 12
+# dual : 13
 
 |id|file|
 |----|----|
@@ -14,3 +14,4 @@
 |12990|[12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12990_Evaluate_automotive_component_compliance_with_OpenAI_GPT-4.1_and_regulatory_APIs.json)|
 |12991|[12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/29/12991_Prioritize_vehicle_maintenance_with_Anthropic_Claude_using_telemetry_and_history.json)|
 |16537|[16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16537_Answer_BigQuery_questions_in_Microsoft_Teams_with_Claude_3.5_dual_agents.json)|
+|18563|[18563_Build_a_dual-stage_RAG_chat_assistant_with_Google_Drive__Ollama__Pinecone_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18563_Build_a_dual-stage_RAG_chat_assistant_with_Google_Drive__Ollama__Pinecone_and_Gemini.json)|

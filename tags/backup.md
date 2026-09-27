@@ -1,4 +1,4 @@
-# backup : 75
+# backup : 81
 
 |id|file|
 |----|----|
@@ -77,3 +77,9 @@
 |16174|[16174_Route_API_requests_via_webhook_with_retries_and_backup_endpoints.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16174_Route_API_requests_via_webhook_with_retries_and_backup_endpoints.json)|
 |16191|[16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16191_Back_up_and_restore_n8n_Docker_workflows_and_credentials_with_GitHub_and_SSH.json)|
 |16701|[16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16701_Audit_Google_Drive_backup_freshness_with_Google_Sheets_and_Slack.json)|
+|16810|[16810_Back_up_all_workflows_to_GitHub_with_daily_schedule_and_Telegram__backup.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16810_Back_up_all_workflows_to_GitHub_with_daily_schedule_and_Telegram__backup.json)|
+|16837|[16837_Back_up_workflows_daily_to_GitHub_with_incremental_updates.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16837_Back_up_workflows_daily_to_GitHub_with_incremental_updates.json)|
+|18431|[18431_File_supplier_invoices_from_Gmail_to_Google_Sheets_with_Gemini_and_Telegram_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18431_File_supplier_invoices_from_Gmail_to_Google_Sheets_with_Gemini_and_Telegram_alerts.json)|
+|18512|[18512_Back_up_workflows_to_GitHub_with_deterministic_JSON_exports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18512_Back_up_workflows_to_GitHub_with_deterministic_JSON_exports.json)|
+|18799|[18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18799_Back_up_Linux_servers_to_a_remote_server_using_Borg_and_SSH.json)|
+|19233|[19233_Score_DR_readiness_and_create_remediation_and_alerts_from_DR_tooling.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19233_Score_DR_readiness_and_create_remediation_and_alerts_from_DR_tooling.json)|

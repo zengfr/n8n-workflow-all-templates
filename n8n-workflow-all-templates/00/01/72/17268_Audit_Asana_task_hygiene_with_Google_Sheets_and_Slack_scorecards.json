@@ -1,0 +1,571 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Audit Asana task hygiene with Google Sheets and Slack scorecards",
+    "wechat": "youandme10086",
+    "id": 17268,
+    "update_time": "2026-09-27"
+  },
+  "name": "Audit Asana task hygiene and log a weekly scorecard to Google Sheets and Slack",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "trigger",
+      "name": "Every Monday at 8am",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        16,
+        128
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "weeks",
+              "triggerAtDay": [
+                1
+              ],
+              "triggerAtHour": 8,
+              "weeksInterval": 1,
+              "triggerAtMinute": 0
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.3
+    },
+    {
+      "id": "config",
+      "name": "Set Audit Config",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        256,
+        128
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cfg-project",
+              "name": "projectGid",
+              "type": "string",
+              "value": "REPLACE_WITH_ASANA_PROJECT_GID"
+            },
+            {
+              "id": "cfg-channel",
+              "name": "slackChannel",
+              "type": "string",
+              "value": "REPLACE_WITH_SLACK_CHANNEL_ID"
+            },
+            {
+              "id": "cfg-sheet",
+              "name": "auditSheetUrl",
+              "type": "string",
+              "value": "REPLACE_WITH_AUDIT_SHEET_URL"
+            },
+            {
+              "id": "cfg-section",
+              "name": "checkSection",
+              "type": "boolean",
+              "value": false
+            },
+            {
+              "id": "cfg-desc",
+              "name": "checkDescription",
+              "type": "boolean",
+              "value": false
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "http",
+      "name": "Fetch Asana Tasks",
+      "type": "n8n-nodes-base.httpRequest",
+      "maxTries": 3,
+      "position": [
+        672,
+        128
+      ],
+      "parameters": {
+        "url": "=https://app.asana.com/api/1.0/projects/{{ $('Set Audit Config').item.json.projectGid }}/tasks",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "opt_fields",
+              "value": "name,completed,assignee.name,due_on,notes,memberships.section.name,permalink_url"
+            },
+            {
+              "name": "limit",
+              "value": "100"
+            }
+          ]
+        },
+        "nodeCredentialType": "asanaApi"
+      },
+      "credentials": {
+        "asanaApi": {
+          "id": "REPLACE_WITH_YOUR_ASANA_CREDENTIAL",
+          "name": "Asana account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.4,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "split",
+      "name": "Split Task List",
+      "type": "n8n-nodes-base.splitOut",
+      "position": [
+        1056,
+        128
+      ],
+      "parameters": {
+        "include": "noOtherFields",
+        "options": {},
+        "fieldToSplitOut": "data"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "filter",
+      "name": "Filter to Open Tasks",
+      "type": "n8n-nodes-base.filter",
+      "position": [
+        1264,
+        128
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "cond-open",
+              "operator": {
+                "type": "boolean",
+                "operation": "false",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.completed }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "score",
+      "name": "Score Task Hygiene",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1472,
+        128
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ============================================================================\n// SCORE TASK HYGIENE\n// Runs once over every OPEN task passed in from the filter. Each task is checked\n// against the completeness rules, and ONE audit row is emitted per FAILING task\n// (a task with at least one violation). Fully-fielded tasks are skipped here, so\n// the Google Sheets append only ever logs a task that needs attention.\n//\n// Read-only: this node never writes anything back to Asana.\n// ============================================================================\n\nconst cfg = $('Set Audit Config').first().json;\nconst checkSection = cfg.checkSection === true || cfg.checkSection === 'true';\nconst checkDescription = cfg.checkDescription === true || cfg.checkDescription === 'true';\nconst auditDate = $now.toFormat('yyyy-LL-dd');\n\nconst rows = [];\n\nfor (const item of $input.all()) {\n  const t = item.json || {};\n  const reasons = [];\n\n  // Assignee: Asana returns assignee:null when nobody is assigned.\n  const assigneeName = (t.assignee && (t.assignee.name || t.assignee.gid)) ? (t.assignee.name || 'assigned') : '';\n  if (!t.assignee) reasons.push('no_assignee');\n\n  // Due date: due_on is a yyyy-mm-dd string, or null when no date is set.\n  if (!t.due_on) reasons.push('no_due_date');\n\n  // Section: the task's first project membership carries the section name.\n  let sectionName = '';\n  if (Array.isArray(t.memberships) && t.memberships.length && t.memberships[0] && t.memberships[0].section) {\n    sectionName = t.memberships[0].section.name || '';\n  }\n  if (checkSection && !sectionName) reasons.push('no_section');\n\n  // Description: Asana calls the description \"notes\".\n  const notes = (t.notes || '').toString().trim();\n  if (checkDescription && !notes) reasons.push('empty_description');\n\n  if (reasons.length === 0) continue; // only flagged tasks reach the audit log\n\n  rows.push({\n    json: {\n      audit_date: auditDate,\n      task_gid: t.gid || '',\n      task_name: t.name || '(unnamed task)',\n      assignee: assigneeName,\n      section: sectionName,\n      due_on: t.due_on || '',\n      reason_codes: reasons.join(','),\n      permalink_url: t.permalink_url || '',\n    },\n  });\n}\n\nreturn rows;\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sheets",
+      "name": "Append Audit Rows in Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1680,
+        128
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "due_on": "={{ $json.due_on }}",
+            "section": "={{ $json.section }}",
+            "assignee": "={{ $json.assignee }}",
+            "task_gid": "={{ $json.task_gid }}",
+            "task_name": "={{ $json.task_name }}",
+            "audit_date": "={{ $json.audit_date }}",
+            "reason_codes": "={{ $json.reason_codes }}",
+            "permalink_url": "={{ $json.permalink_url }}"
+          },
+          "schema": [
+            {
+              "id": "audit_date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "audit_date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "task_gid",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "task_gid",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "task_name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "task_name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "assignee",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "assignee",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "section",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "section",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "due_on",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "due_on",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "reason_codes",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "reason_codes",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "permalink_url",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "permalink_url",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "resource": "sheet",
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "authentication": "oAuth2"
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "REPLACE_WITH_YOUR_GOOGLE_SHEETS_CREDENTIAL",
+          "name": "Google Sheets account"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.7,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "scorecard",
+      "name": "Build Slack Scorecard",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1104,
+        560
+      ],
+      "parameters": {
+        "mode": "runOnceForAllItems",
+        "jsCode": "// ============================================================================\n// BUILD SLACK SCORECARD\n// Reads the full task list straight from the Asana fetch (so the scorecard posts\n// every week even when nothing is flagged, or when there are zero open tasks) and\n// computes the run-level numbers deterministically:\n//   - open task count\n//   - how many tasks fail each enabled check\n//   - overall percent of open tasks that are fully fielded\n//   - the top offenders (most failing checks first)\n// Emits ONE scorecard item. Every number here is computed in plain code; no model\n// is involved in the scoring.\n// ============================================================================\n\nconst cfg = $('Set Audit Config').first().json;\nconst checkSection = cfg.checkSection === true || cfg.checkSection === 'true';\nconst checkDescription = cfg.checkDescription === true || cfg.checkDescription === 'true';\nconst sheetUrl = (cfg.auditSheetUrl || '').toString().trim();\nconst auditDate = $now.toFormat('yyyy-LL-dd');\n\nconst resp = $('Fetch Asana Tasks').first().json || {};\nconst all = Array.isArray(resp.data) ? resp.data : [];\nconst open = all.filter((t) => t && t.completed !== true);\n\nlet noAssignee = 0, noDue = 0, noSection = 0, emptyDesc = 0;\nconst offenders = [];\n\nfor (const t of open) {\n  const reasons = [];\n  if (!t.assignee) { noAssignee++; reasons.push('no_assignee'); }\n  if (!t.due_on) { noDue++; reasons.push('no_due_date'); }\n\n  let sectionName = '';\n  if (Array.isArray(t.memberships) && t.memberships.length && t.memberships[0] && t.memberships[0].section) {\n    sectionName = t.memberships[0].section.name || '';\n  }\n  if (checkSection && !sectionName) { noSection++; reasons.push('no_section'); }\n\n  const notes = (t.notes || '').toString().trim();\n  if (checkDescription && !notes) { emptyDesc++; reasons.push('empty_description'); }\n\n  if (reasons.length) offenders.push({ name: t.name || '(unnamed task)', count: reasons.length, reasons });\n}\n\nconst openCount = open.length;\nconst flaggedCount = offenders.length;\nconst fullyFielded = openCount - flaggedCount;\nconst pct = openCount ? Math.round((fullyFielded / openCount) * 100) : 100;\n\noffenders.sort((a, b) => b.count - a.count);\nconst top = offenders.slice(0, 5);\n\nconst NL = String.fromCharCode(10);\nconst lines = [];\nlines.push(':bar_chart: *Asana task hygiene scorecard*  (' + auditDate + ')');\nlines.push(fullyFielded + ' of ' + openCount + ' open task' + (openCount === 1 ? '' : 's') + ' fully fielded (' + pct + '%). ' + flaggedCount + ' flagged.');\nlines.push('');\nlines.push(':bust_in_silhouette: Missing assignee: ' + noAssignee);\nlines.push(':calendar: Missing due date: ' + noDue);\nif (checkSection) lines.push(':card_index_dividers: Missing section: ' + noSection);\nif (checkDescription) lines.push(':memo: Empty description: ' + emptyDesc);\nif (top.length) {\n  lines.push('');\n  lines.push('*Top offenders*');\n  for (const o of top) lines.push('- ' + o.name + '  (' + o.reasons.join(', ') + ')');\n}\nif (sheetUrl) {\n  lines.push('');\n  lines.push('Full audit log: ' + sheetUrl);\n}\nconst scorecardText = lines.join(NL);\n\nreturn [{\n  json: {\n    auditDate,\n    openCount,\n    flaggedCount,\n    fullyFielded,\n    pctFullyFielded: pct,\n    counts: { noAssignee, noDue, noSection, emptyDesc },\n    topOffenders: top,\n    scorecardText,\n  },\n}];\n",
+        "language": "javaScript"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "slack",
+      "name": "Post Scorecard to Slack",
+      "type": "n8n-nodes-base.slack",
+      "onError": "continueRegularOutput",
+      "maxTries": 3,
+      "position": [
+        1376,
+        560
+      ],
+      "parameters": {
+        "text": "={{ $json.scorecardText }}",
+        "select": "channel",
+        "resource": "message",
+        "channelId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Set Audit Config').item.json.slackChannel }}"
+        },
+        "operation": "post",
+        "messageType": "text",
+        "otherOptions": {
+          "includeLinkToWorkflow": false
+        }
+      },
+      "credentials": {
+        "slackApi": {
+          "id": "REPLACE_WITH_YOUR_SLACK_CREDENTIAL",
+          "name": "Slack account"
+        }
+      },
+      "executeOnce": true,
+      "retryOnFail": true,
+      "typeVersion": 2.5,
+      "waitBetweenTries": 5000
+    },
+    {
+      "id": "done",
+      "name": "Finish Audit Run",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        1616,
+        560
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "note-overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -816
+      ],
+      "parameters": {
+        "width": 1400,
+        "height": 668,
+        "content": "## Audit Asana task hygiene and log a weekly scorecard to Google Sheets and Slack\n\nScans one Asana project once a week for open tasks missing an assignee or a due date (with optional section and description checks), logs every flagged task to a Google Sheet with comma-joined reason codes, and posts a field-completeness scorecard to Slack. Reads from Asana over the REST API and writes nothing back.\n\n### How it works\n\n1. A schedule trigger fires every Monday morning and a Set node holds the project, sheet link, Slack channel, and two optional check toggles.\n2. The project tasks are fetched read-only from the Asana API, then split into one item per task and filtered to open tasks only.\n3. A Code node scores each open task and emits one row per flagged task with its reason codes joined by commas.\n4. Every flagged task is appended to the audit sheet, one row per task.\n5. A second Code node computes the completeness numbers and posts a scorecard to Slack with the top offenders and a link to the sheet.\n\n### Setup steps\n\n- [ ] Add an Asana Personal Access Token credential and select it on `Fetch Asana Tasks`.\n- [ ] Open `Set Audit Config` and set `projectGid`, `slackChannel`, and `auditSheetUrl`.\n- [ ] Connect a Google Sheets credential and pick the spreadsheet and tab on `Append Audit Rows in Sheets`.\n- [ ] Connect a Slack credential on `Post Scorecard to Slack`.\n- [ ] Add the header row to your audit sheet: audit_date, task_gid, task_name, assignee, section, due_on, reason_codes, permalink_url.\n\n### Customization\n\nTurn on `checkSection` or `checkDescription` in `Set Audit Config` to also flag tasks with no section or an empty description. Change the Monday 8am schedule to any cadence."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-trigger",
+      "name": "Trigger and configure note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 492,
+        "height": 376,
+        "content": "## Trigger and configure\n\nThe schedule fires weekly. `Set Audit Config` is the one place you set the project, the Slack channel, the audit sheet link, and the two optional check toggles."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-read",
+      "name": "Read Asana note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        496,
+        -80
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 452,
+        "height": 376,
+        "content": "## Read Asana read-only\n\nFetches the project tasks over the Asana REST API with the fields the audit needs (assignee, due date, section, notes). This is a read. Nothing is written back to Asana."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-score",
+      "name": "Score note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1008,
+        -48
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 876,
+        "height": 372,
+        "content": "## Score hygiene and log flagged tasks\n\nSplit the task list, keep only open tasks, then score each one. A task that fails any enabled check becomes one audit row with its reason codes joined by commas, appended to the sheet."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-scorecard",
+      "name": "Scorecard note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1008,
+        384
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 356,
+        "content": "## Build and post the scorecard\n\nEvery number is computed in code from the open tasks: assignee coverage, due-date coverage, percent fully fielded, and the top offenders. The scorecard posts to Slack every run, even a clean week."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note-groq",
+      "name": "Optional summary note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        144,
+        368
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 580,
+        "height": 216,
+        "content": "## Optional: plain-English summary\n\nThe scorecard is fully deterministic. To add a one-line human summary on top of the numbers, add a Groq HTTP node after `Build Slack Scorecard` that reads the computed counts and prepends its sentence to the Slack text. Keep the model out of the scoring path. Off by default."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Split Task List": {
+      "main": [
+        [
+          {
+            "node": "Filter to Open Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Audit Config": {
+      "main": [
+        [
+          {
+            "node": "Fetch Asana Tasks",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Fetch Asana Tasks": {
+      "main": [
+        [
+          {
+            "node": "Split Task List",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Build Slack Scorecard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Score Task Hygiene": {
+      "main": [
+        [
+          {
+            "node": "Append Audit Rows in Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every Monday at 8am": {
+      "main": [
+        [
+          {
+            "node": "Set Audit Config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Filter to Open Tasks": {
+      "main": [
+        [
+          {
+            "node": "Score Task Hygiene",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Slack Scorecard": {
+      "main": [
+        [
+          {
+            "node": "Post Scorecard to Slack",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Post Scorecard to Slack": {
+      "main": [
+        [
+          {
+            "node": "Finish Audit Run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

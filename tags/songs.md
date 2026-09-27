@@ -1,4 +1,4 @@
-# songs : 5
+# songs : 7
 
 |id|file|
 |----|----|
@@ -7,3 +7,5 @@
 |2634|[2634_Spotify_Sync_Liked_Songs_to_Playlist.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/26/2634_Spotify_Sync_Liked_Songs_to_Playlist.json)|
 |3814|[3814_Generate_AI_Songs___Music_Videos_Using_Suno_API__Flux__Runway_and_Creatomate.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/38/3814_Generate_AI_Songs___Music_Videos_Using_Suno_API__Flux__Runway_and_Creatomate.json)|
 |13826|[13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/38/13826_Generate_AI_songs_from_text_prompts_with_Suno__OpenAI__Google_Drive_and_Slack.json)|
+|16900|[16900_Generate_AI_songs_from_Telegram_prompts_with_OpenAI_and_Suno.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16900_Generate_AI_songs_from_Telegram_prompts_with_OpenAI_and_Suno.json)|
+|18985|[18985_Send_a_daily_digest_of_popular_MemoTune_AI_songs_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18985_Send_a_daily_digest_of_popular_MemoTune_AI_songs_to_Slack.json)|

@@ -1,4 +1,4 @@
-# collector : 13
+# collector : 18
 
 |id|file|
 |----|----|
@@ -15,3 +15,8 @@
 |14916|[14916_Collect_and_publish_customer_testimonials_with_Claude__email__CRM_and_review_sites.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/49/14916_Collect_and_publish_customer_testimonials_with_Claude__email__CRM_and_review_sites.json)|
 |15321|[15321_Collect_SOC_2_AWS_IAM_evidence_to_Google_Sheets_with_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15321_Collect_SOC_2_AWS_IAM_evidence_to_Google_Sheets_with_Gmail_alerts.json)|
 |16442|[16442_Summarize_daily_standups_from_Google_Sheets_with_Gemini_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16442_Summarize_daily_standups_from_Google_Sheets_with_Gemini_and_Slack.json)|
+|17133|[17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17133_Aggregate_daily_tech_trends_from_Hacker_News__TechCrunch_and_YouTube_into_a_Data_Table.json)|
+|17441|[17441_Stream_daily_tech_trends_from_an_n8n_Data_Table_to_SwiftBar_via_webhook.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17441_Stream_daily_tech_trends_from_an_n8n_Data_Table_to_SwiftBar_via_webhook.json)|
+|17886|[17886_Stream_daily_tech_trends_from_a_Data_Table_to_the_macOS_menu_bar_with_SwiftBar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17886_Stream_daily_tech_trends_from_a_Data_Table_to_the_macOS_menu_bar_with_SwiftBar.json)|
+|17922|[17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17922_Serve_tech_trends_for_desktop_widgets_via_JSON_webhook_from_Data_Table.json)|
+|18550|[18550_Collect_and_store_webhook_leads_in_n8n_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18550_Collect_and_store_webhook_leads_in_n8n_Data_Tables.json)|

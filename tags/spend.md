@@ -1,4 +1,4 @@
-# spend : 8
+# spend : 14
 
 |id|file|
 |----|----|
@@ -10,3 +10,9 @@
 |16583|[16583_Monitor_budget_variance_with_Google_Sheets__Gemini__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16583_Monitor_budget_variance_with_Google_Sheets__Gemini__Slack__and_Gmail.json)|
 |16584|[16584_Detect_maverick_spend_and_alert_reviewers_via_Slack__Gmail__Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16584_Detect_maverick_spend_and_alert_reviewers_via_Slack__Gmail__Sheets_and_Gemini.json)|
 |16792|[16792_Log_multi-platform_ad_spend_to_Airtable_from_Meta__Google__TikTok__and_Taboola.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16792_Log_multi-platform_ad_spend_to_Airtable_from_Meta__Google__TikTok__and_Taboola.json)|
+|17012|[17012_Find_wasted_Meta_ad_spend_by_placement__region__age_and_hour_with_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17012_Find_wasted_Meta_ad_spend_by_placement__region__age_and_hour_with_Claude.json)|
+|17265|[17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17265_Monitor_procurement_spend_and_risks_with_Google_Sheets__Groq_Llama_and_Gmail.json)|
+|17291|[17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17291_Gate_paid_ad_creative_with_Spendict_before_sending_to_ad_platforms.json)|
+|17606|[17606_Flag_Meta_Audience_Network_wasted_spend_with_Meta_Marketing_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17606_Flag_Meta_Audience_Network_wasted_spend_with_Meta_Marketing_API_and_Claude.json)|
+|18393|[18393_Analyze_procurement_spend_with_Google_Sheets__Groq_Llama_3.3__Notion__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18393_Analyze_procurement_spend_with_Google_Sheets__Groq_Llama_3.3__Notion__and_Gmail.json)|
+|19568|[19568_Track_grant_deadlines_and_spend_down_with_OpenAI__Google_Sheets__Gmail_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/95/19568_Track_grant_deadlines_and_spend_down_with_OpenAI__Google_Sheets__Gmail_and_Telegram.json)|

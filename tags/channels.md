@@ -1,4 +1,4 @@
-# channels : 21
+# channels : 25
 
 |id|file|
 |----|----|
@@ -23,3 +23,7 @@
 |15304|[15304_Triage_support_tickets_by_GPT-4o_sentiment_and_route_them_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15304_Triage_support_tickets_by_GPT-4o_sentiment_and_route_them_to_Slack.json)|
 |15366|[15366_Route_and_prioritize_support_emails_to_Slack_channels_with_easybits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15366_Route_and_prioritize_support_emails_to_Slack_channels_with_easybits.json)|
 |16435|[16435_Promote_YouTube_uploads_to_social_channels_with_DeepSeek_and_Posta.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16435_Promote_YouTube_uploads_to_social_channels_with_DeepSeek_and_Posta.json)|
+|17149|[17149_Generate_AI_captions_and_auto-post_random_images_to_Nimply_channels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17149_Generate_AI_captions_and_auto-post_random_images_to_Nimply_channels.json)|
+|17734|[17734_Monitor_Telegram_channel_intelligence_with_Apify__OpenAI__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17734_Monitor_Telegram_channel_intelligence_with_Apify__OpenAI__Google_Sheets__and_Telegram.json)|
+|17899|[17899_Post_DocupletionForms_form_submissions_to_Slack_channels.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17899_Post_DocupletionForms_form_submissions_to_Slack_channels.json)|
+|18255|[18255_Identify_competitor_YouTube_outlier_videos_with_Bright_Data__OpenAI__Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18255_Identify_competitor_YouTube_outlier_videos_with_Bright_Data__OpenAI__Sheets_and_Slack.json)|

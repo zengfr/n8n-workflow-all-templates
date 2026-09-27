@@ -1,4 +1,4 @@
-# term : 11
+# term : 13
 
 |id|file|
 |----|----|
@@ -13,3 +13,5 @@
 |12478|[12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/24/12478_Automate_client_onboarding_with_Asana__Google_Docs__Gmail__Slack_and_Sheets.json)|
 |14449|[14449_Analyze_Google_Ads_search_terms_with_AI_and_send_wastage_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/44/14449_Analyze_Google_Ads_search_terms_with_AI_and_send_wastage_alerts.json)|
 |15921|[15921_Research_SEO_keywords_from_a_seed_term_with_Keupera_and_n8n_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15921_Research_SEO_keywords_from_a_seed_term_with_Keupera_and_n8n_data_tables.json)|
+|18332|[18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18332_Manage_rental_guest_messaging_and_cleaning_ops_with_Deepseek_and_Google_Sheets.json)|
+|18363|[18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18363_Manage_short-term_rental_guest_messages_and_cleaning_tasks_with_Deepseek_and_Google_Sheets.json)|

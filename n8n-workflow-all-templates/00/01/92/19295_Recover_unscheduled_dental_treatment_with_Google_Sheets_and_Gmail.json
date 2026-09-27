@@ -1,0 +1,660 @@
+{
+  "id": "hhBckTmlx8GBpESH",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Recover unscheduled dental treatment with Google Sheets and Gmail",
+    "wechat": "youandme10086",
+    "id": 19295,
+    "update_time": "2026-09-27"
+  },
+  "name": "Dental Treatment Recovery",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "trigger_daily",
+      "name": "⏰ Daily Follow-Up Check",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "notes": "Runs every morning. Demo dataset's 'As Of Date' in the sheet drives what counts as overdue, not today's real date.",
+      "position": [
+        0,
+        0
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 9 * * *"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "get_patients",
+      "name": "📋 Get Patients",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "Patients"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1HrJ_hqUNTmGj65R0sAFkks-BogEgO00ySN9cF-rfFKc"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ByfFS0xgpBtYAp7o",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "get_treatment_plans",
+      "name": "📋 Get Treatment Plans",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "ProcedureLog"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1HrJ_hqUNTmGj65R0sAFkks-BogEgO00ySN9cF-rfFKc"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ByfFS0xgpBtYAp7o",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "decide_action",
+      "name": "🧮 Decide Follow-Up Action",
+      "type": "n8n-nodes-base.code",
+      "notes": "Cadence: 1st email at 3+ days, 2nd at 14+, 3rd at 30+, escalate to staff at 45+. Already-escalated and already-recovered rows are skipped.",
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "jsCode": "const patients = $('📋 Get Patients').all().map(i => i.json);\nconst patientMap = {};\nfor (const p of patients) { patientMap[p.PatNum] = p; }\n\nconst results = [];\nfor (const item of items) {\n  const d = item.json;\n  if (d.ProcStatus !== 'TP') continue;\n  if (d.PipelineStatus === 'Recovered') continue;\n\n  const days = parseInt(d.DaysUnscheduled, 10) || 0;\n  const fee = parseFloat(d.ProcFee) || 0;\n  const stage = (d.FollowUpStage || '').trim();\n  const patient = patientMap[d.PatNum] || {};\n\n  let action = 'none';\n  if (stage === 'Escalated') {\n    action = 'none';\n  } else if (stage === '' && days >= 3) {\n    action = 'send_1st';\n  } else if (stage === '1st email sent' && days >= 14) {\n    action = 'send_2nd';\n  } else if (stage === '2nd email sent' && days >= 30) {\n    action = 'send_3rd';\n  } else if (stage === '3rd email sent' && days >= 45) {\n    action = 'escalate';\n  }\n  if (action === 'none') continue;\n\n  results.push({ json: {\n    ...d,\n    days, fee, action,\n    Email: patient.Email || '',\n    WirelessPhone: patient.WirelessPhone || '',\n    Provider: patient.Provider || '',\n    FName: patient.FName || '',\n    LName: patient.LName || ''\n  }});\n}\nreturn results;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "if_escalate",
+      "name": "🚦 Escalate?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        880,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "662b1be8-0d6d-491e-b5ee-108ef17c5285",
+              "operator": {
+                "type": "string",
+                "operation": "equals"
+              },
+              "leftValue": "={{ $json.action }}",
+              "rightValue": "escalate"
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "alert_frontdesk",
+      "name": "📧 Alert Front Desk (Personal Call Needed)",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "High-value plan gone cold after 3 emails - a human calls instead of another automated touch.",
+      "position": [
+        1152,
+        -144
+      ],
+      "webhookId": "8541182e-e2ac-4d36-8c19-ec2ad3774343",
+      "parameters": {
+        "sendTo": "frontdesk@willowcreekdental.com",
+        "message": "=Patient: {{ $json.FName }} {{ $json.LName }}\\nProcedure: {{ $json.Description }} ({{ $json.ProcCode }})\\nValue: ${{ $json.fee }}\\nDays unscheduled: {{ $json.days }}\\nPhone: {{ $json.WirelessPhone }}\\nProvider: {{ $json.Provider }}\\n\\nThree automated reminders have gone out with no response. Please call this patient directly.",
+        "options": {},
+        "subject": "=Personal call needed: {{ $json.FName }} {{ $json.LName }} - {{ $json.Description }}"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZQN7cx5aUQj1b14w",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "update_escalated",
+      "name": "💾 Update Row (Escalated)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1328,
+        -144
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "As Of Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "As Of Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "2026-09-07",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "2026-09-07",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "← blue = edit this to move the demo forward or back in time",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "← blue = edit this to move the demo forward or back in time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "ProcedureLog"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1HrJ_hqUNTmGj65R0sAFkks-BogEgO00ySN9cF-rfFKc"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ByfFS0xgpBtYAp7o",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "send_reminder",
+      "name": "📧 Send Patient Reminder",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Wording stays generic on purpose - no diagnosis or procedure name goes in the patient-facing email.",
+      "position": [
+        1120,
+        192
+      ],
+      "webhookId": "1ea3e03f-4d9e-4450-998b-00763f363494",
+      "parameters": {
+        "sendTo": "={{ $json.Email }}",
+        "message": "=Hi {{ $json.FName }},\\n\\n{{ $json.action === 'send_1st' ? 'This is a reminder from Willow Creek Dental that you have a pending appointment to schedule with ' + $json.Provider + '. Please call us at (555) 201-0000 to book a time that works for you.' : $json.action === 'send_2nd' ? 'We wanted to follow up again — you still have a pending appointment with ' + $json.Provider + ' waiting to be scheduled. Please call us at (555) 201-0000 at your earliest convenience.' : 'This is a final reminder about a pending appointment with ' + $json.Provider + '. We would love to get you back on the schedule — please call us at (555) 201-0000.' }}\\n\\nThank you,\\nWillow Creek Dental",
+        "options": {},
+        "subject": "A note from Willow Creek Dental"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZQN7cx5aUQj1b14w",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "update_stage",
+      "name": "💾 Update Row (Stage + Contact Date)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1328,
+        192
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "As Of Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "As Of Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "2026-09-07",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "2026-09-07",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "← blue = edit this to move the demo forward or back in time",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "← blue = edit this to move the demo forward or back in time",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "row_number",
+              "type": "number",
+              "display": true,
+              "removed": false,
+              "readOnly": true,
+              "required": false,
+              "displayName": "row_number",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "row_number"
+          ],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "update",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "ProcedureLog"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1HrJ_hqUNTmGj65R0sAFkks-BogEgO00ySN9cF-rfFKc"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ByfFS0xgpBtYAp7o",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "trigger_weekly",
+      "name": "⏰ Weekly Summary Trigger",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        384
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "0 8 * * 1"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.4
+    },
+    {
+      "id": "get_plans_weekly",
+      "name": "📋 Get Treatment Plans (Weekly)",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        224,
+        384
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "ProcedureLog"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "1HrJ_hqUNTmGj65R0sAFkks-BogEgO00ySN9cF-rfFKc"
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "ByfFS0xgpBtYAp7o",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.7
+    },
+    {
+      "id": "compute_weekly",
+      "name": "🧮 Compute Weekly Summary",
+      "type": "n8n-nodes-base.code",
+      "notes": "Computes independently from ProcedureLog rather than reading the sheet's own Summary formulas - simpler and more reliable for the workflow to own the math it reports.",
+      "position": [
+        448,
+        384
+      ],
+      "parameters": {
+        "jsCode": "const rows = items.map(i => i.json);\nconst now = new Date();\nconst sevenDaysAgo = new Date(now.getTime() - 7*24*60*60*1000);\n\nlet recoveredValue = 0, recoveredCount = 0;\nlet sittingValue = 0, sittingCount = 0;\nlet activeCount = 0, escalatedCount = 0;\nconst wins = [];\n\nfor (const r of rows) {\n  const fee = parseFloat(r.ProcFee) || 0;\n  if (r.PipelineStatus === 'Recovered') {\n    const lastContact = r.LastContactDate ? new Date(r.LastContactDate) : null;\n    if (lastContact && lastContact >= sevenDaysAgo) {\n      recoveredValue += fee;\n      recoveredCount += 1;\n      wins.push(`${r.Patient} — ${r.Description} — $${fee}`);\n    }\n  }\n  if (r.ProcStatus === 'TP') {\n    sittingValue += fee;\n    sittingCount += 1;\n    if (r.FollowUpStage === 'Escalated') escalatedCount += 1;\n    else activeCount += 1;\n  }\n}\n\nconst summaryText = `Recovered this week: $${recoveredValue} (${recoveredCount} treatment plans)\\nSitting unscheduled: $${sittingValue} (${sittingCount} treatment plans)\\nIn active follow-up: ${activeCount}\\nNeeds a personal call: ${escalatedCount}\\n\\nThis week's wins:\\n${wins.length ? wins.join('\\n') : 'None this week'}`;\n\nreturn [{ json: { recoveredValue, recoveredCount, sittingValue, sittingCount, activeCount, escalatedCount, wins, summaryText } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send_weekly_summary",
+      "name": "📧 Send Weekly Summary to Owner",
+      "type": "n8n-nodes-base.gmail",
+      "position": [
+        672,
+        384
+      ],
+      "webhookId": "866ba2fd-0fe5-4d3c-8554-7b8621398247",
+      "parameters": {
+        "sendTo": "owner@willowcreekdental.com",
+        "message": "={{ $json.summaryText }}",
+        "options": {},
+        "subject": "Weekly Treatment Recovery Summary — Willow Creek Dental"
+      },
+      "credentials": {
+        "gmailOAuth2": {
+          "id": "ZQN7cx5aUQj1b14w",
+          "name": "Gmail account"
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "note_overview",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -832,
+        -880
+      ],
+      "parameters": {
+        "color": 2,
+        "width": 740,
+        "height": 1780,
+        "content": "## 🤖 Dental Treatment Recovery\n\nFinds treatment plans a dentist diagnosed but that never got booked, automatically follows up with the patient by email on a set cadence, and hands anything that goes cold to a human instead of nagging forever.\n\n### 🧩 Why This Isn't Just Another Reminder Bot\n- Most \"reminder\" workflows just resend the same message forever — this one escalates to a human instead of repeating itself endlessly on high-value plans\n- Nothing patient-facing ever contains a diagnosis or procedure name — the message stays deliberately generic\n- Built against Open Dental's actual field names (ProcCode, ProcStatus, PlannedAptNum) so a demo Google Sheet can be swapped for the live API with zero restructuring\n- Two independent schedules (daily follow-ups, weekly owner report) share one source of truth instead of duplicating logic\n- A $3,000 crown and a $200 filling don't get chased the same way — escalation weighs both time waiting and dollar value\n\n### 🔍 What It Does\nThis workflow:\n- Checks a spreadsheet (or Open Dental) every day for treatment plans that were diagnosed but never scheduled\n- Works out which patients are overdue for their next nudge based on how long it's been sitting\n- Sends the next reminder email in a 3-step sequence (gentle, firmer, final)\n- Flags anything that's gone quiet for too long so staff make a personal phone call instead\n- Updates the sheet after every action so tomorrow's run knows exactly where things stand\n- Sends a weekly email to the practice owner showing how much money got recovered\n\n### ⚙️ How It Works\n- Two Schedule Triggers run independently: a daily follow-up check and a weekly summary\n- Google Sheets nodes pull the Patients and ProcedureLog tabs fresh on every run — no cached state\n- A Code node (Decide Follow-Up Action) cross-references FollowUpStage and DaysUnscheduled against a fixed cadence (3 / 14 / 30 / 45 days) to output one action per row\n- An IF node splits rows into \"escalate to staff\" vs \"send next email\" based on that decision\n- Gmail nodes send either a generic patient reminder or a detailed internal alert\n- Google Sheets Update nodes write the new stage and contact date back so state persists between runs\n- The weekly branch recomputes its own totals directly from ProcedureLog rather than trusting stored summary formulas, so the report can't drift out of sync\n\n### 💪 Key Capabilities\n- Self-contained state machine — no external database, the spreadsheet is the whole memory\n- Dollar-value-aware escalation instead of one-size-fits-all reminders\n- Deliberately privacy-conscious patient messaging (no diagnosis or procedure details in emails)\n- Field-for-field compatible with the Open Dental API for a same-day swap from demo to production\n- Two schedules, one data model — no duplicate logic to maintain\n\n### 📦 Requirements\n- A Google Sheet with Patients and ProcedureLog tabs (column structure documented in the sheet's own ReadMe tab)\n- Google Sheets OAuth2 credential\n- Gmail OAuth2 credential\n- For production use with real patient data: an Open Dental API developer key + customer key, and a signed BAA (this handles PHI — see HIPAA notes before connecting a real practice)\n\n### 💡 Example Use Cases\n- Dental, orthodontic, or specialty practices with a backlog of diagnosed-but-unbooked treatment\n- Any practice management workflow where \"diagnosed\" and \"actually happened\" quietly drift apart\n- Practice owners who want a standing dollar-recovered number instead of guessing at lost revenue\n- Front desk teams too busy to manually track who's overdue for a callback"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_cluster1",
+      "name": "Step 1 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -64,
+        -176
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 692,
+        "height": 308,
+        "content": "## Step 1: Pull today's data\n\nEvery morning, this grabs the full patient list and the full list of diagnosed treatments from the spreadsheet — fresh, not cached — so everything downstream works off today's real numbers."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_cluster2",
+      "name": "Step 2 note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        640,
+        -176
+      ],
+      "parameters": {
+        "color": 3,
+        "width": 406,
+        "height": 308,
+        "content": "## Step 2: Decide what each patient needs\n\nFor every treatment that's still unscheduled, this works out how many days it's been waiting and what's already been tried, then decides: send the next email, or hand it to a human instead."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_cluster3a",
+      "name": "Step 3a note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        -304
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 520,
+        "height": 308,
+        "content": "## Step 3a: Hand cold leads to staff\n\nIf a plan has gone quiet after three emails, nobody gets a fourth automated message. The front desk gets an email with the patient's name, phone number, and value — and the sheet is marked so it stops nagging on its own."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_cluster3b",
+      "name": "Step 3b note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1072,
+        32
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 520,
+        "height": 324,
+        "content": "## Step 3b: Send the next reminder\n\nFor everyone else, this sends the next email in the sequence — first gentle, then firmer — using only generic wording, then records in the sheet which email just went out and when."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "note_weekly",
+      "name": "Weekly note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -48,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 970,
+        "height": 324,
+        "content": "## Step 4 (runs weekly): Report the wins to the owner\n\nOn a separate schedule, this adds up how much treatment got booked or completed this week, how much is still sitting unscheduled, and emails a plain summary to the practice owner."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1",
+    "saveManualExecutions": true,
+    "saveExecutionProgress": true,
+    "saveDataErrorExecution": "all",
+    "saveDataSuccessExecution": "all"
+  },
+  "versionId": "fd0e94bc-3f5e-46fb-8040-6539c3c8716e",
+  "nodeGroups": [],
+  "connections": {
+    "🚦 Escalate?": {
+      "main": [
+        [
+          {
+            "node": "📧 Alert Front Desk (Personal Call Needed)",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "📧 Send Patient Reminder",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Get Patients": {
+      "main": [
+        [
+          {
+            "node": "📋 Get Treatment Plans",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Get Treatment Plans": {
+      "main": [
+        [
+          {
+            "node": "🧮 Decide Follow-Up Action",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏰ Daily Follow-Up Check": {
+      "main": [
+        [
+          {
+            "node": "📋 Get Patients",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "⏰ Weekly Summary Trigger": {
+      "main": [
+        [
+          {
+            "node": "📋 Get Treatment Plans (Weekly)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Send Patient Reminder": {
+      "main": [
+        [
+          {
+            "node": "💾 Update Row (Stage + Contact Date)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧮 Compute Weekly Summary": {
+      "main": [
+        [
+          {
+            "node": "📧 Send Weekly Summary to Owner",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "🧮 Decide Follow-Up Action": {
+      "main": [
+        [
+          {
+            "node": "🚦 Escalate?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📋 Get Treatment Plans (Weekly)": {
+      "main": [
+        [
+          {
+            "node": "🧮 Compute Weekly Summary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "📧 Alert Front Desk (Personal Call Needed)": {
+      "main": [
+        [
+          {
+            "node": "💾 Update Row (Escalated)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# dns : 8
+# dns : 14
 
 |id|file|
 |----|----|
@@ -10,3 +10,9 @@
 |10200|[10200_Perform_Multi-type_DNS_Lookups_with_Google_s_Free_Public_DNS_Service.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/02/10200_Perform_Multi-type_DNS_Lookups_with_Google_s_Free_Public_DNS_Service.json)|
 |10740|[10740_Automate_External_Attack_Surface_Mapping_with_Shodan_API_and_DNS_Lookups.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/07/10740_Automate_External_Attack_Surface_Mapping_with_Shodan_API_and_DNS_Lookups.json)|
 |14127|[14127_Score_DNS_threats_with_VirusTotal__Abuse.ch__HashiCorp_Vault_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14127_Score_DNS_threats_with_VirusTotal__Abuse.ch__HashiCorp_Vault_and_Gemini.json)|
+|17048|[17048_Monitor_Hostinger_email_DNS_records_weekly_and_send_alert_emails_via_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17048_Monitor_Hostinger_email_DNS_records_weekly_and_send_alert_emails_via_SMTP.json)|
+|18449|[18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18449_Monitor_DNS_and_domain_security_drift_with_DNSSEC__expiry_checks_and_alerts.json)|
+|18454|[18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18454_Screen_vendor_bank_change_requests_with_Groq__Google_DNS_and_data_tables.json)|
+|18583|[18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18583_Audit_SPF_DNS_lookup_limits_with_Google_DNS__Slack__and_Gmail.json)|
+|18788|[18788_Validate_email_deliverability_via_webhook_using_Google_and_Cloudflare_DNS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18788_Validate_email_deliverability_via_webhook_using_Google_and_Cloudflare_DNS.json)|
+|18978|[18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18978_Validate_signup_email_addresses_with_DNS_checks_and_Data_Tables.json)|

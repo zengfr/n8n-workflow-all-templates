@@ -1,0 +1,924 @@
+{
+  "name": "Chase unanswered quotes by SMS with Twilio and stop when the customer replies",
+  "nodes": [
+    {
+      "id": "031c42e4-53ad-44fb-a507-7cf817dc927d",
+      "name": "Quote sent",
+      "type": "n8n-nodes-base.webhook",
+      "position": [
+        200,
+        400
+      ],
+      "webhookId": "0464c850-e467-4b53-9061-858b0f03ef6f",
+      "parameters": {
+        "path": "quote-chase",
+        "options": {},
+        "httpMethod": "POST",
+        "responseMode": "responseNode"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "cd6544a1-0b59-4dad-b7e4-9a059307e0e2",
+      "name": "Your settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        420,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "cea1fa7f-02bd-4781-9108-1841fff3b4d5",
+              "name": "business_name",
+              "type": "string",
+              "value": "Your Business"
+            },
+            {
+              "id": "b0c31bac-a0b2-4afd-8600-93b26abf5a41",
+              "name": "business_number",
+              "type": "string",
+              "value": "+1234567890"
+            },
+            {
+              "id": "a31ee841-15d5-46f1-826b-cf3f29a8551d",
+              "name": "owner_cell",
+              "type": "string",
+              "value": "+1234567890"
+            },
+            {
+              "id": "d244a319-9acc-4d30-82b6-7054934e422b",
+              "name": "timezone",
+              "type": "string",
+              "value": "America/New_York"
+            },
+            {
+              "id": "514f033a-3afb-4ebe-a556-e720ef40cae0",
+              "name": "wait_1_days",
+              "type": "number",
+              "value": 2
+            },
+            {
+              "id": "d103dd44-453a-4be5-8c81-1b985908c73d",
+              "name": "wait_2_days",
+              "type": "number",
+              "value": 3
+            },
+            {
+              "id": "a6fa40bc-a973-49e9-b30f-c1f353ee5771",
+              "name": "wait_3_days",
+              "type": "number",
+              "value": 4
+            },
+            {
+              "id": "4aeb9e31-4e22-4a79-8d26-8eceee66f5cc",
+              "name": "nudge_1_text",
+              "type": "string",
+              "value": "Hi {name}, just checking you got the quote from {business} for {job}. Any questions at all, reply here."
+            },
+            {
+              "id": "331c3eeb-d3e6-480e-8a79-95159e861490",
+              "name": "nudge_2_text",
+              "type": "string",
+              "value": "Hi {name}, following up on the {job} quote. Happy to walk through it or adjust the scope if the number is off. Just reply."
+            },
+            {
+              "id": "68f9e46e-abc0-4bd6-b50f-855a69d3744e",
+              "name": "nudge_3_text",
+              "type": "string",
+              "value": "Last one from me {name}. If the timing is not right, no problem. If you want to go ahead, just reply and we will get you booked in."
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "8dc2b6e9-2ec8-496b-a187-1ec6e41e5b86",
+      "name": "Prepare the chase",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        640,
+        400
+      ],
+      "parameters": {
+        "jsCode": "// Everything the chase needs is worked out once, here, so the rest of the workflow only reads it.\nconst s = $('Your settings').first().json;\nconst b = $('Quote sent').first().json.body || {};\n\nconst digits = String(b.phone || '').replace(/[^0-9]/g, '');\nlet phone = '';\nif (digits.length === 10) phone = '+1' + digits;\nelse if (digits.length === 11 && digits.startsWith('1')) phone = '+' + digits;\nelse if (digits.length > 11) phone = '+' + digits;\nconst pretty = phone ? phone.replace(/^\\+1(\\d{3})(\\d{3})(\\d{4})$/, '($1) $2-$3') : '';\n\nconst name = String(b.name || '').trim();\nconst who = name || 'there';\nconst amount = String(b.amount || '').trim();\nconst money = amount ? (amount.startsWith('$') ? amount : '$' + amount) : '';\nconst job = String(b.job || 'the work').trim();\nconst link = String(b.quote_url || '').trim();\n\n// Read the waits explicitly. A plain \"value || default\" would throw away a configured 0,\n// which is exactly what you set while testing.\nconst num = (v, dflt) => {\n  if (v === null || v === undefined || String(v).trim() === '') return dflt;\n  const n = Number(v);\n  return Number.isFinite(n) && n >= 0 ? n : dflt;\n};\nconst d1 = num(s.wait_1_days, 2), d2 = num(s.wait_2_days, 3), d3 = num(s.wait_3_days, 4);\n\nconst tz = s.timezone || 'America/New_York';\nconst now = DateTime.now().setZone(tz);\n// A wait of a day or more lands at 10am local, never overnight. A shorter wait fires as soon as it is due.\nconst at = (days) => days >= 1\n  ? now.plus({ days }).set({ hour: 10, minute: 0, second: 0, millisecond: 0 }).toUTC().toISO()\n  : now.plus({ days }).toUTC().toISO();\n\nconst fill = (t) => String(t || '')\n  .replace(/\\{name\\}/g, who).replace(/\\{business\\}/g, s.business_name || 'us')\n  .replace(/\\{amount\\}/g, money).replace(/\\{job\\}/g, job).replace(/\\{link\\}/g, link)\n  .replace(/\\s+/g, ' ').trim();\n\nreturn [{ json: {\n  ok: !!phone && !!s.business_number && !!s.owner_cell,\n  phone, pretty, name: who, amount: money, job,\n  business_number: s.business_number,\n  owner_cell: s.owner_cell,\n  started_at: now.toUTC().toISO(),\n  // Twilio filters by calendar day, so ask for everything since yesterday and compare exact times after.\n  since_day: now.toUTC().minus({ days: 1 }).toFormat('yyyy-MM-dd'),\n  nudge_1: fill(s.nudge_1_text), nudge_2: fill(s.nudge_2_text), nudge_3: fill(s.nudge_3_text),\n  nudge_1_at: at(d1), nudge_2_at: at(d1 + d2), nudge_3_at: at(d1 + d2 + d3),\n  owner_start: 'Quote chase started: ' + who + ' ' + pretty + (money ? ', ' + money : '') + ', ' + job + '.',\n  owner_replied: who + ' ' + pretty + ' replied about the ' + job + ' quote. Chase stopped, over to you.',\n  owner_done: who + ' ' + pretty + ' never replied about the ' + job + ' quote. Three texts sent, chase closed.'\n} }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "1ffa48d7-e927-4bfa-bed0-2de7e0706586",
+      "name": "Answer the webhook",
+      "type": "n8n-nodes-base.respondToWebhook",
+      "position": [
+        860,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "respondWith": "json",
+        "responseBody": "={{ { \"ok\": true } }}"
+      },
+      "typeVersion": 1.5
+    },
+    {
+      "id": "d2e545f1-daaa-41f7-a045-ceb21041ce3d",
+      "name": "Usable phone?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1080,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "4492e096-3f83-4bf5-814d-7aed2052ed8b",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('Prepare the chase').first().json.ok === true }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "4a65db29-97c9-45d2-986f-ffe5544e8c0a",
+      "name": "Tell the owner",
+      "type": "n8n-nodes-base.twilio",
+      "position": [
+        1300,
+        400
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare the chase').first().json.owner_cell }}",
+        "from": "={{ $('Prepare the chase').first().json.business_number }}",
+        "message": "={{ $('Prepare the chase').first().json.owner_start }}",
+        "options": {},
+        "resource": "sms",
+        "operation": "send",
+        "toWhatsapp": false
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8b1fe3d3-7d56-460d-a8ad-0fe303225e25",
+      "name": "Wait for nudge 1",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1520,
+        400
+      ],
+      "webhookId": "41b94752-005c-4418-8a8d-7de86b91d849",
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $('Prepare the chase').first().json.nudge_1_at }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "380339b7-91bd-4c26-931e-27a3cdf09b66",
+      "name": "Check for a reply 1",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1740,
+        400
+      ],
+      "parameters": {
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $('Tell the owner').first().json.account_sid || $('Tell the owner').first().json.accountSid }}/Messages.json",
+        "method": "GET",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{ $('Prepare the chase').first().json.phone }}"
+            },
+            {
+              "name": "To",
+              "value": "={{ $('Prepare the chase').first().json.business_number }}"
+            },
+            {
+              "name": "DateSent>",
+              "value": "={{ $('Prepare the chase').first().json.since_day }}"
+            },
+            {
+              "name": "PageSize",
+              "value": "50"
+            }
+          ]
+        },
+        "nodeCredentialType": "twilioApi"
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "9bc8a760-8420-4a43-96a2-bbd9722e119e",
+      "name": "Replied before 1?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1960,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "91af5219-dd82-4c32-a489-42bd92eb5def",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ ($json.messages || []).some(m => new Date(m.date_sent) >= new Date($('Prepare the chase').first().json.started_at)) }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "42565dec-fdbf-4f00-9d56-87afdf6d7af2",
+      "name": "Nudge 1",
+      "type": "n8n-nodes-base.twilio",
+      "position": [
+        2180,
+        400
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare the chase').first().json.phone }}",
+        "from": "={{ $('Prepare the chase').first().json.business_number }}",
+        "message": "={{ $('Prepare the chase').first().json.nudge_1 }}",
+        "options": {},
+        "resource": "sms",
+        "operation": "send",
+        "toWhatsapp": false
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b01a48ed-0d80-4e93-a481-8da18eca9cb8",
+      "name": "Wait for nudge 2",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        2400,
+        400
+      ],
+      "webhookId": "17e7328e-94a6-45dd-b85f-5bbb55d7ed6d",
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $('Prepare the chase').first().json.nudge_2_at }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "ecb26c4f-369f-4008-9a5f-89e68386b47f",
+      "name": "Check for a reply 2",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2620,
+        400
+      ],
+      "parameters": {
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $('Tell the owner').first().json.account_sid || $('Tell the owner').first().json.accountSid }}/Messages.json",
+        "method": "GET",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{ $('Prepare the chase').first().json.phone }}"
+            },
+            {
+              "name": "To",
+              "value": "={{ $('Prepare the chase').first().json.business_number }}"
+            },
+            {
+              "name": "DateSent>",
+              "value": "={{ $('Prepare the chase').first().json.since_day }}"
+            },
+            {
+              "name": "PageSize",
+              "value": "50"
+            }
+          ]
+        },
+        "nodeCredentialType": "twilioApi"
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "7d75059c-acfd-4735-86c0-1d10d076051b",
+      "name": "Replied before 2?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        2840,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "712ff398-1137-45c9-a24b-069a8b45a2ac",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ ($json.messages || []).some(m => new Date(m.date_sent) >= new Date($('Prepare the chase').first().json.started_at)) }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "16f8dce8-890d-42c9-b62c-8bccafc02dd4",
+      "name": "Nudge 2",
+      "type": "n8n-nodes-base.twilio",
+      "position": [
+        3060,
+        400
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare the chase').first().json.phone }}",
+        "from": "={{ $('Prepare the chase').first().json.business_number }}",
+        "message": "={{ $('Prepare the chase').first().json.nudge_2 }}",
+        "options": {},
+        "resource": "sms",
+        "operation": "send",
+        "toWhatsapp": false
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0473052f-a04b-4cdb-a507-df04e53bf606",
+      "name": "Wait for nudge 3",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        3280,
+        400
+      ],
+      "webhookId": "23d79113-9e1c-448c-a52b-5bcf94437af1",
+      "parameters": {
+        "resume": "specificTime",
+        "dateTime": "={{ $('Prepare the chase').first().json.nudge_3_at }}"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "2ec53cd8-6853-4caf-b10c-5d8cf49a0e46",
+      "name": "Check for a reply 3",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3500,
+        400
+      ],
+      "parameters": {
+        "url": "=https://api.twilio.com/2010-04-01/Accounts/{{ $('Tell the owner').first().json.account_sid || $('Tell the owner').first().json.accountSid }}/Messages.json",
+        "method": "GET",
+        "options": {},
+        "sendQuery": true,
+        "authentication": "predefinedCredentialType",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "From",
+              "value": "={{ $('Prepare the chase').first().json.phone }}"
+            },
+            {
+              "name": "To",
+              "value": "={{ $('Prepare the chase').first().json.business_number }}"
+            },
+            {
+              "name": "DateSent>",
+              "value": "={{ $('Prepare the chase').first().json.since_day }}"
+            },
+            {
+              "name": "PageSize",
+              "value": "50"
+            }
+          ]
+        },
+        "nodeCredentialType": "twilioApi"
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "1a584525-e6d4-426b-b1c4-e3db58fb5352",
+      "name": "Replied before 3?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        3720,
+        400
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "7ac7f84d-8e7a-48fc-85c5-9d4014a74266",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ ($json.messages || []).some(m => new Date(m.date_sent) >= new Date($('Prepare the chase').first().json.started_at)) }}",
+              "rightValue": ""
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "f7238c68-8ca9-4eae-b92c-4264b3ae865c",
+      "name": "Nudge 3",
+      "type": "n8n-nodes-base.twilio",
+      "position": [
+        3940,
+        400
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare the chase').first().json.phone }}",
+        "from": "={{ $('Prepare the chase').first().json.business_number }}",
+        "message": "={{ $('Prepare the chase').first().json.nudge_3 }}",
+        "options": {},
+        "resource": "sms",
+        "operation": "send",
+        "toWhatsapp": false
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "dce69e6d-fc3a-447d-834f-1deb30ac9981",
+      "name": "Tell the owner it closed",
+      "type": "n8n-nodes-base.twilio",
+      "position": [
+        4160,
+        400
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare the chase').first().json.owner_cell }}",
+        "from": "={{ $('Prepare the chase').first().json.business_number }}",
+        "message": "={{ $('Prepare the chase').first().json.owner_done }}",
+        "options": {},
+        "resource": "sms",
+        "operation": "send",
+        "toWhatsapp": false
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "00495a76-6200-4ec9-9fcd-3e4b18f097e5",
+      "name": "Tell the owner they replied",
+      "type": "n8n-nodes-base.twilio",
+      "position": [
+        2840,
+        100
+      ],
+      "parameters": {
+        "to": "={{ $('Prepare the chase').first().json.owner_cell }}",
+        "from": "={{ $('Prepare the chase').first().json.business_number }}",
+        "message": "={{ $('Prepare the chase').first().json.owner_replied }}",
+        "options": {},
+        "resource": "sms",
+        "operation": "send",
+        "toWhatsapp": false
+      },
+      "credentials": {
+        "twilioApi": {
+          "id": "credential-id",
+          "name": "Twilio account"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3265b57d-464b-44f2-bfad-17b7e0d47ee4",
+      "name": "Note 0cd41c",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        -620
+      ],
+      "parameters": {
+        "color": 1,
+        "width": 920,
+        "height": 580,
+        "content": "## Chase unanswered quotes by SMS, and stop the moment they reply\n\n**Who it is for:** service businesses that send quotes and lose jobs to silence. Plumbers, HVAC, roofers, cleaners, contractors.\n\n**How it works**\n1. Post a quote to the webhook with a phone, name, amount, job and an optional quote link.\n2. You get a text saying the chase has started.\n3. Up to three nudges go out, by default 2, 5 and 9 days later, each at 10am in your time zone.\n4. Before every nudge it asks Twilio whether the customer has texted your number since the quote went out. If they have, the chase stops and you get told.\n5. If they never reply, you get a text when the chase closes.\n\nThere is no database to set up. Twilio already knows whether they replied.\n\n**Setup steps**\n1. Select your Twilio credential on the five Twilio nodes and the three reply checks.\n2. Fill in **Your settings**: business name, your Twilio number, your cell, your time zone. Edit the nudge wording if you like.\n3. Activate the workflow and POST to the production URL of **Quote sent**."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "fa2e9ede-b2ac-4266-92fd-b3da3f0eda30",
+      "name": "Note 10ff86",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1080,
+        "height": 320,
+        "content": "### 1. Receive the quote\nAnswers the webhook straight away, then runs the chase in the background. A missing or bad phone number stops it here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "e2e0a71c-224d-4990-9568-ccdff604ad71",
+      "name": "Note d925a7",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1240,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 2860,
+        "height": 320,
+        "content": "### 2. Wait, check, nudge\nThree rounds. Each one waits until 10am on the day, asks Twilio for any text from the customer since the quote went out, and only sends a nudge if there is none."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0377d288-9ecd-4124-943e-301fc99651d9",
+      "name": "Note de494e",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2780,
+        -60
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 260,
+        "height": 260,
+        "content": "### 3a. They replied\nThe chase stops and the conversation is yours."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "0c3cbf67-bceb-4568-a701-c8c8280d4b49",
+      "name": "Note e14ed5",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        4100,
+        240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 300,
+        "height": 320,
+        "content": "### 3b. No answer\nThree nudges, nothing back. You hear about it and the chase closes."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "c12caccb-4a45-44a3-abae-cd2fb891a69c",
+      "name": "Note 76ab9c",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        140,
+        600
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 420,
+        "height": 160,
+        "content": "**Testing tip:** set the three waits to 0.002 (about three minutes) in **Your settings**, use your own cell as the customer, and reply to a nudge to watch it stop."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "Nudge 1": {
+      "main": [
+        [
+          {
+            "node": "Wait for nudge 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nudge 2": {
+      "main": [
+        [
+          {
+            "node": "Wait for nudge 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Nudge 3": {
+      "main": [
+        [
+          {
+            "node": "Tell the owner it closed",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Quote sent": {
+      "main": [
+        [
+          {
+            "node": "Your settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Usable phone?": {
+      "main": [
+        [
+          {
+            "node": "Tell the owner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        []
+      ]
+    },
+    "Your settings": {
+      "main": [
+        [
+          {
+            "node": "Prepare the chase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Tell the owner": {
+      "main": [
+        [
+          {
+            "node": "Wait for nudge 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for nudge 1": {
+      "main": [
+        [
+          {
+            "node": "Check for a reply 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for nudge 2": {
+      "main": [
+        [
+          {
+            "node": "Check for a reply 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait for nudge 3": {
+      "main": [
+        [
+          {
+            "node": "Check for a reply 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Prepare the chase": {
+      "main": [
+        [
+          {
+            "node": "Answer the webhook",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replied before 1?": {
+      "main": [
+        [
+          {
+            "node": "Tell the owner they replied",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nudge 1",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replied before 2?": {
+      "main": [
+        [
+          {
+            "node": "Tell the owner they replied",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nudge 2",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Replied before 3?": {
+      "main": [
+        [
+          {
+            "node": "Tell the owner they replied",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Nudge 3",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Answer the webhook": {
+      "main": [
+        [
+          {
+            "node": "Usable phone?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for a reply 1": {
+      "main": [
+        [
+          {
+            "node": "Replied before 1?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for a reply 2": {
+      "main": [
+        [
+          {
+            "node": "Replied before 2?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check for a reply 3": {
+      "main": [
+        [
+          {
+            "node": "Replied before 3?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Chase unanswered quotes by SMS with Twilio and a webhook",
+    "wechat": "youandme10086",
+    "id": 19773,
+    "update_time": "2026-09-27"
+  }
+}

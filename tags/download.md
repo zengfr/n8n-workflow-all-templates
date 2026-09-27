@@ -1,4 +1,4 @@
-# download : 34
+# download : 38
 
 |id|file|
 |----|----|
@@ -36,3 +36,7 @@
 |13925|[13925_Download_KSeF__Poland_s_e-invoicing_system__invoices_to_an_Excel_spreadsheet.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13925_Download_KSeF__Poland_s_e-invoicing_system__invoices_to_an_Excel_spreadsheet.json)|
 |15406|[15406_Download_KSeF_invoices_to_NocoDB_and_email_formatted_HTML_copies.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15406_Download_KSeF_invoices_to_NocoDB_and_email_formatted_HTML_copies.json)|
 |15444|[15444_Extract_sitemap_URLs_in_bulk_via_chat_and_export_them_to_a_CSV_download_link.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15444_Extract_sitemap_URLs_in_bulk_via_chat_and_export_them_to_a_CSV_download_link.json)|
+|16972|[16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16972_Generate_llms.txt_from_a_website_sitemap_using_forms_and_HTTP_requests.json)|
+|18629|[18629_Audit_prospect_websites_and_generate_HTML_SEO_reports_with_Bright_Data_and_GPT-5.6.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18629_Audit_prospect_websites_and_generate_HTML_SEO_reports_with_Bright_Data_and_GPT-5.6.json)|
+|19117|[19117_Publish_YouTube_videos_with_OpenAI_and_HTTP_file_download.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19117_Publish_YouTube_videos_with_OpenAI_and_HTTP_file_download.json)|
+|19191|[19191_Notify_on_anomalous_Google_Drive_access_and_send_weekly_email_summaries.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19191_Notify_on_anomalous_Google_Drive_access_and_send_weekly_email_summaries.json)|

@@ -1,4 +1,4 @@
-# medical : 23
+# medical : 27
 
 |id|file|
 |----|----|
@@ -25,3 +25,7 @@
 |13589|[13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/35/13589_Automate_medical_claims_processing_with_GPT-4_multi-agent_orchestration.json)|
 |16719|[16719_Route_medical_equipment_form_leads_to_Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16719_Route_medical_equipment_form_leads_to_Google_Sheets_and_Slack.json)|
 |16756|[16756_Draft_personalized_cold_emails_from_Google_Sheets_with_Apify_and_GPT-4o_mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16756_Draft_personalized_cold_emails_from_Google_Sheets_with_Apify_and_GPT-4o_mini.json)|
+|16899|[16899_Explain_prescription_PDFs_for_patients_with_GPT-4o-mini__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16899_Explain_prescription_PDFs_for_patients_with_GPT-4o-mini__Gmail_and_Google_Sheets.json)|
+|17100|[17100_Generate_clinical_guideline_reports_with_Google_Sheets__Gemini_and_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17100_Generate_clinical_guideline_reports_with_Google_Sheets__Gemini_and_Docs.json)|
+|18988|[18988_Manage_medical_appointment_bookings_and_reminders_with_Google_Sheets__Calendar__Gmail__and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18988_Manage_medical_appointment_bookings_and_reminders_with_Google_Sheets__Calendar__Gmail__and_Supabase.json)|
+|19134|[19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19134_Route_medical_info_requests_and_safety_events_with_Claude_and_Slack.json)|

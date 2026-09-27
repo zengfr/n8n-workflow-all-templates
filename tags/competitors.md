@@ -1,4 +1,4 @@
-# competitors : 11
+# competitors : 19
 
 |id|file|
 |----|----|
@@ -13,3 +13,11 @@
 |15662|[15662_Monitor_TikTok_competitors_with_Scavio_AI__Google_Sheets__and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15662_Monitor_TikTok_competitors_with_Scavio_AI__Google_Sheets__and_Gmail_alerts.json)|
 |16413|[16413_Analyze_Google_Ads_competitors_with_Bright_Data__OpenRouter_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16413_Analyze_Google_Ads_competitors_with_Bright_Data__OpenRouter_and_OpenAI.json)|
 |16742|[16742_Monitor_AI_search_citations_and_competitors_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16742_Monitor_AI_search_citations_and_competitors_with_OpenAI__Google_Sheets__and_Gmail.json)|
+|17754|[17754_Monitor_competitors_daily_with_OpenAI__Notion__Google_Sheets__Slack__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17754_Monitor_competitors_daily_with_OpenAI__Notion__Google_Sheets__Slack__and_Gmail.json)|
+|18803|[18803_Monitor_competitor_brand_bidding_with_Bright_Data__GPT-5.6_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18803_Monitor_competitor_brand_bidding_with_Bright_Data__GPT-5.6_and_Slack.json)|
+|18845|[18845_Send_daily_competitor_intel_briefs_to_Slack_with_API_Direct_and_OpenAI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18845_Send_daily_competitor_intel_briefs_to_Slack_with_API_Direct_and_OpenAI.json)|
+|18963|[18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18963_Find_YouTube_content_gaps_with_Apify__Google_Sheets__Notion__and_Slack.json)|
+|19157|[19157_Transcribe_LinkedIn_Ad_Library_video_ads_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19157_Transcribe_LinkedIn_Ad_Library_video_ads_to_Google_Sheets_with_Apify.json)|
+|19238|[19238_Track_organic_SEO_market_share_with_DataForSEO__OpenAI_and_Google_Docs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19238_Track_organic_SEO_market_share_with_DataForSEO__OpenAI_and_Google_Docs.json)|
+|19299|[19299_Monitor_competitors__Google_Ads_with_Apify__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19299_Monitor_competitors__Google_Ads_with_Apify__Google_Sheets__Slack_and_Gmail.json)|
+|19403|[19403_Benchmark_LinkedIn_post_engagement_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19403_Benchmark_LinkedIn_post_engagement_with_Bright_Data__OpenAI__Google_Sheets_and_Slack.json)|

@@ -1,4 +1,4 @@
-# plans : 12
+# plans : 18
 
 |id|file|
 |----|----|
@@ -14,3 +14,9 @@
 |13995|[13995_Generate_research-backed_curriculum_plans_with_GPT-4o__Perplexity_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/39/13995_Generate_research-backed_curriculum_plans_with_GPT-4o__Perplexity_and_Google_Sheets.json)|
 |16561|[16561_Generate_personalized_financial_plans_with_Google_Gemini__Sheets__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16561_Generate_personalized_financial_plans_with_Google_Gemini__Sheets__Drive_and_Gmail.json)|
 |16759|[16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16759_Validate_startup_ideas_and_generate_business_plans_with_Claude_and_SendGrid.json)|
+|16871|[16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16871_Predict_supplier_churn_and_generate_retention_plans_with_Notion__Slack__and_Groq.json)|
+|16977|[16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16977_Validate_startup_ideas_and_generate_business_plans_from_Telegram_with_Perplexity_and_GPT-4o.json)|
+|17318|[17318_Create_PDF_flashcards__quizzes__and_study_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17318_Create_PDF_flashcards__quizzes__and_study_plans_with_Gemini_and_Google_Sheets.json)|
+|17415|[17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17415_Identify_plants_from_photos_and_send_care_plans_with_Gemini_and_Google_Sheets.json)|
+|17801|[17801_Generate_personalized_wealth_plans_from_Google_Sheets_using_Groq_Llama_3.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17801_Generate_personalized_wealth_plans_from_Google_Sheets_using_Groq_Llama_3.json)|
+|18511|[18511_Create_realistic_exam_study_plans_via_Telegram_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18511_Create_realistic_exam_study_plans_via_Telegram_with_Gemini_and_Google_Sheets.json)|

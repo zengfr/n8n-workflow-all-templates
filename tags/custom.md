@@ -1,4 +1,4 @@
-# custom : 69
+# custom : 76
 
 |id|file|
 |----|----|
@@ -71,3 +71,10 @@
 |15575|[15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15575_Generate_and_host_dynamic_interactive_forms_from_Google_Sheets_with_CustomJS.json)|
 |16027|[16027_Draft_and_approve_Gmail_replies_with_OpenAI_and_CustomJS.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16027_Draft_and_approve_Gmail_replies_with_OpenAI_and_CustomJS.json)|
 |16656|[16656_Sync_Etsy_customers_with_Meta_custom_audiences_using_hashed_emails.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16656_Sync_Etsy_customers_with_Meta_custom_audiences_using_hashed_emails.json)|
+|18697|[18697_Triage_and_escalate_Twenty_CRM_support_cases_with_owner_tasks.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18697_Triage_and_escalate_Twenty_CRM_support_cases_with_owner_tasks.json)|
+|19119|[19119_Sync_NPD_product_pricing_from_Google_Sheets_to_GoHighLevel_custom_objects.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/91/19119_Sync_NPD_product_pricing_from_Google_Sheets_to_GoHighLevel_custom_objects.json)|
+|19201|[19201_Migrate_Salesforce_product_catalog_from_Google_Sheets_to_GoHighLevel_custom_objects.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19201_Migrate_Salesforce_product_catalog_from_Google_Sheets_to_GoHighLevel_custom_objects.json)|
+|19202|[19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19202_Create_GoHighLevel_business_custom_fields_from_Google_Sheets_with_Slack_alerts.json)|
+|19309|[19309_Sync_Salesforce_pricebook_entries_to_GoHighLevel_custom_objects_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19309_Sync_Salesforce_pricebook_entries_to_GoHighLevel_custom_objects_with_Google_Sheets.json)|
+|19373|[19373_Migrate_Salesforce_opportunity_line_items_to_GoHighLevel_with_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19373_Migrate_Salesforce_opportunity_line_items_to_GoHighLevel_with_Google_Sheets.json)|
+|19734|[19734_Triage_inbound_email_with_IMAP__custom_AI_HTTP_APIs_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19734_Triage_inbound_email_with_IMAP__custom_AI_HTTP_APIs_and_SMTP.json)|

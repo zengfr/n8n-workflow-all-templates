@@ -1,4 +1,4 @@
-# financial : 55
+# financial : 58
 
 |id|file|
 |----|----|
@@ -57,3 +57,6 @@
 |16459|[16459_Send_daily_executive_financial_briefings_with_Google_Sheets__GPT-4o-mini__Notion_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16459_Send_daily_executive_financial_briefings_with_Google_Sheets__GPT-4o-mini__Notion_and_Telegram.json)|
 |16561|[16561_Generate_personalized_financial_plans_with_Google_Gemini__Sheets__Drive_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16561_Generate_personalized_financial_plans_with_Google_Gemini__Sheets__Drive_and_Gmail.json)|
 |16635|[16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16635_Index_and_query_financial_documents_with_Qdrant_and_Mistral.json)|
+|17038|[17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17038_Generate_executive_decision_briefings_from_APIs_with_OpenAI_and_Google_Sheets.json)|
+|17361|[17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17361_Stress-test_personal_finances_for_life_events_with_Plaid-style_data_and_Claude.json)|
+|17689|[17689_Send_financial_market_email_alerts_with_Tradient__GPT-4o_mini__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17689_Send_financial_market_email_alerts_with_Tradient__GPT-4o_mini__and_Gmail.json)|

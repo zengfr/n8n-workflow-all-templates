@@ -1,4 +1,4 @@
-# pulse : 8
+# pulse : 9
 
 |id|file|
 |----|----|
@@ -10,3 +10,4 @@
 |8170|[8170_Weekly_Gratitude_Pulse__Automated_Appreciation_DMs_for_Slack___Discord_Communities.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/81/8170_Weekly_Gratitude_Pulse__Automated_Appreciation_DMs_for_Slack___Discord_Communities.json)|
 |8573|[8573_Forum_Pulse_for_Telegram__Community_Monitoring_with_Gemini___Groq_AI_Models.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/85/8573_Forum_Pulse_for_Telegram__Community_Monitoring_with_Gemini___Groq_AI_Models.json)|
 |16507|[16507_Send_adaptive_daily_Supabase_product_pulse_emails_with_Claude_and_SMTP.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/65/16507_Send_adaptive_daily_Supabase_product_pulse_emails_with_Claude_and_SMTP.json)|
+|17491|[17491_Monitor_scraper_and_endpoint_health_with_Datasource_Pulse_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17491_Monitor_scraper_and_endpoint_health_with_Datasource_Pulse_and_Slack_alerts.json)|

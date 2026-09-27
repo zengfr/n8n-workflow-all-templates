@@ -1,4 +1,4 @@
-# prioritize : 11
+# prioritize : 14
 
 |id|file|
 |----|----|
@@ -13,3 +13,6 @@
 |14348|[14348_Score_multi-signal_buying_intent_and_prioritize_leads_with_PredictLeads__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/43/14348_Score_multi-signal_buying_intent_and_prioritize_leads_with_PredictLeads__Google_Sheets__and_Slack.json)|
 |15366|[15366_Route_and_prioritize_support_emails_to_Slack_channels_with_easybits.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/53/15366_Route_and_prioritize_support_emails_to_Slack_channels_with_easybits.json)|
 |16434|[16434_Prioritize_exception_queues_with_Gemini__Google_Sheets__Slack_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16434_Prioritize_exception_queues_with_Gemini__Google_Sheets__Slack_and_Gmail.json)|
+|17782|[17782_Prioritize_and_report_Wazuh_vulnerabilities_with_EPSS_and_CISA_KEV.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17782_Prioritize_and_report_Wazuh_vulnerabilities_with_EPSS_and_CISA_KEV.json)|
+|18895|[18895_Prioritize_sourcing_projects_with_Notion__Groq__Slack__and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18895_Prioritize_sourcing_projects_with_Notion__Groq__Slack__and_Gmail_alerts.json)|
+|19431|[19431_Enrich_business_prospects_and_prioritize_outreach_with_OpenMart_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19431_Enrich_business_prospects_and_prioritize_outreach_with_OpenMart_and_Google_Sheets.json)|

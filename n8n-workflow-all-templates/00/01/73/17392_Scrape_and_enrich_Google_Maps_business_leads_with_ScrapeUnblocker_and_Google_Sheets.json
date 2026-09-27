@@ -1,0 +1,527 @@
+{
+  "id": "f9AthtT0W1WRa0iy",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Scrape and enrich Google Maps business leads with ScrapeUnblocker and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 17392,
+    "update_time": "2026-09-27"
+  },
+  "name": "Template 2- Google Maps Lead Scraper",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "44c1fd25-8db4-45fe-9a28-d2082319ee8c",
+      "name": "When clicking 'Execute workflow'",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        1952,
+        352
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "55876714-757c-42d4-b240-e592107b0c19",
+      "name": "Set Keyword & City",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        2176,
+        352
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "asg-keyword",
+              "name": "keyword",
+              "type": "string",
+              "value": "plumber"
+            },
+            {
+              "id": "asg-city",
+              "name": "city",
+              "type": "string",
+              "value": "Manchester"
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "65bb44dc-75fa-4d16-b43e-760599c3ad10",
+      "name": "ScrapeUnblocker",
+      "type": "n8n-nodes-scrapeunblocker.scrapeUnblocker",
+      "position": [
+        2400,
+        352
+      ],
+      "parameters": {
+        "url": "={{ 'https://www.google.com/maps/search/' + encodeURIComponent(($json.keyword + ' ' + $json.city).trim()) }}",
+        "proxy_country": "US"
+      },
+      "credentials": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "41a6412d-c207-4f15-a435-a1d4f4c7ad99",
+      "name": "Extract Map Listings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2608,
+        352
+      ],
+      "parameters": {
+        "jsCode": "// ===== SHARED BOILERPLATE (same in every template) =====\nlet html = \"\";\nconst first = $input.first();\nif (first) {\n  const j = first.json;\n  if (typeof j === 'string') {\n    html = j;\n  } else if (j && typeof j === 'object') {\n    html = j.data || j.html || j.body || JSON.stringify(j);\n  }\n}\nif (!html || html.trim() === \"\" || html === \"{}\") {\n  return [{ json: { error: \"No HTML received. Check the ScrapeUnblocker node output to ensure it is actually loading the page.\" } }];\n}\n// ===== END BOILERPLATE =====\n\n// Search context (set before scraping)\nlet keyword = \"\", city = \"\";\ntry {\n  const ctx = $('Set Keyword & City').first().json;\n  keyword = ctx.keyword || \"\";\n  city = ctx.city || \"\";\n} catch (e) {}\nconst today = new Date().toISOString().split('T')[0];\n\n// helpers\nconst grab = (s, re) => { const m = s.match(re); return m ? m[1].trim() : \"\"; };\nconst decode = (t) => t\n  .replace(/&amp;/g, '&').replace(/&#39;/g, \"'\").replace(/&quot;/g, '\"')\n  .replace(/&lt;/g, '<').replace(/&gt;/g, '>').replace(/&nbsp;/g, ' ').trim();\n\n// One chunk per result card\nconst chunks = html.split(/class=\"hfpxzc\"/i);\n\nconst leads = [];\nfor (let i = 1; i < chunks.length; i++) {\n  const c = chunks[i];\n\n  // NAME: read from the headline div INSIDE the card.\n  // (The anchor's aria-label sits BEFORE the split point, so it belongs to the previous card — do not use it.)\n  const name = decode(grab(c, /class=\"qBF1Pd[^\"]*\">\\s*([^<]+?)\\s*</i));\n  if (!name) continue;\n\n  const rating   = grab(c, /class=\"MW4etd\">\\s*([\\d.]+)/i);\n  const reviews  = grab(c, /aria-label=\"[\\d.]+ stars\\s*([\\d,]+)\\s*[Rr]eview/i).replace(/,/g, '');\n  const category = decode(grab(c, /class=\"W4Efsd\">\\s*<span>\\s*<span>\\s*([^<]+?)\\s*</i));\n  const phone    = grab(c, /class=\"UsdlK\">\\s*([^<]+?)\\s*</i);\n  const website  = grab(c, /aria-label=\"Visit[^\"]*website\"[\\s\\S]*?href=\"([^\"]+)\"/i);\n\n  // LAT / LNG: embedded in the place URL as !3dLAT!4dLNG\n  const coord = c.match(/!3d(-?\\d+\\.\\d+)!4d(-?\\d+\\.\\d+)/);\n  const lat = coord ? coord[1] : \"\";\n  const lng = coord ? coord[2] : \"\";\n\n  // ADDRESS: often absent for service businesses (Maps shows category + hours instead).\n  // Best-effort: pick a W4Efsd text block that actually looks like an address (has a digit AND a comma).\n  let address = \"\";\n  const blocks = c.match(/class=\"W4Efsd\">\\s*<span>\\s*<span>\\s*([^<]+?)\\s*</gi) || [];\n  for (const b of blocks) {\n    const txt = decode(b.replace(/class=\"W4Efsd\">\\s*<span>\\s*<span>\\s*/i, \"\").replace(/\\s*<$/, \"\"));\n    if (/\\d/.test(txt) && /,/.test(txt)) { address = txt; break; }\n  }\n\n  leads.push({\n    json: {\n      Name: name,\n      Rating: rating,\n      Reviews: reviews,\n      Category: category,\n      Address: address,\n      Latitude: lat,\n      Longitude: lng,\n      Phone: phone,\n      Website: website,\n      Keyword: keyword,\n      City: city,\n      Date: today\n    }\n  });\n}\n\nif (leads.length === 0) {\n  return [{ json: { error: \"HTML received but 0 listings parsed. Class names may have changed — inspect the ScrapeUnblocker output and adjust selectors.\", scraped_chars: html.length } }];\n}\n\nreturn leads;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "8359aa0a-4378-4745-853f-1da51b6a0593",
+      "name": "Clean & Dedupe Leads",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2816,
+        352
+      ],
+      "parameters": {
+        "jsCode": "const seen = new Set();\nconst out = [];\n\nfor (const item of $input.all()) {\n  const j = item.json;\n  if (j.error) { out.push({ json: j }); continue; }\n\n  const key = (j.Name || \"\").toLowerCase().trim();\n  if (!key || seen.has(key)) continue;\n  seen.add(key);\n\n  const phone = (j.Phone || \"\").replace(/[^\\d+]/g, \"\");\n\n  out.push({\n    json: {\n      Name: j.Name || \"\",\n      Rating: j.Rating || \"\",\n      Reviews: j.Reviews || \"\",\n      Category: j.Category || \"\",\n      Address: j.Address || \"\",\n      Latitude: j.Latitude || \"\",\n      Longitude: j.Longitude || \"\",\n      Phone: phone,\n      Website: j.Website || \"\",\n      Keyword: j.Keyword || \"\",\n      City: j.City || \"\",\n      Date: j.Date || \"\"\n    }\n  });\n}\n\nreturn out;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "58089616-59f6-4200-9be0-15e83152637f",
+      "name": "Save Leads to Sheet",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        3680,
+        352
+      ],
+      "parameters": {
+        "columns": {
+          "value": {
+            "City": "={{ $json.City }}",
+            "Date": "={{ $json.Date }}",
+            "Name": "={{ $json.Name }}",
+            "Phone": "={{ $json.Phone }}",
+            "Rating": "={{ $json.Rating }}",
+            "Address": "={{ $json.Address }}",
+            "GeoCity": "={{ $json.GeoCity }}",
+            "Keyword": "={{ $json.Keyword }}",
+            "Website": "={{ $json.Website }}",
+            "Category": "={{ $json.Category }}",
+            "Latitude": "={{ $json.Latitude }}",
+            "Postcode": "={{ $json.Postcode }}",
+            "Longitude": "={{ $json.Longitude }}",
+            "FullAddress": "={{ $json.FullAddress }}",
+            "GeoConfidence": "={{ $json.GeoConfidence }}"
+          },
+          "schema": [
+            {
+              "id": "Name",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Name",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Rating",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Rating",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Category",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Category",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Address",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Address",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "FullAddress",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "FullAddress",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Postcode",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Postcode",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GeoCity",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "GeoCity",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Latitude",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Latitude",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Longitude",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Longitude",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Phone",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Phone",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Website",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Website",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Keyword",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Keyword",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "City",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "City",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "Date",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "Date",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "GeoConfidence",
+              "type": "string",
+              "display": true,
+              "required": false,
+              "displayName": "GeoConfidence",
+              "defaultMatch": false,
+              "canBeUsedToMatch": true
+            }
+          ],
+          "mappingMode": "defineBelow",
+          "matchingColumns": [],
+          "attemptToConvertTypes": false,
+          "convertFieldsToString": false
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": "gid=0",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U_C0G2_iLcdadsmygjk3hqEyD4Rn7OzxnxapP7s-zXM/edit#gid=0",
+          "cachedResultName": "Leads"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "1U_C0G2_iLcdadsmygjk3hqEyD4Rn7OzxnxapP7s-zXM",
+          "cachedResultUrl": "https://docs.google.com/spreadsheets/d/1U_C0G2_iLcdadsmygjk3hqEyD4Rn7OzxnxapP7s-zXM/edit?usp=drivesdk",
+          "cachedResultName": "Google Maps Lead Scraper"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "6ed04089-70ba-4623-b32d-afa5ceccad94",
+      "name": "Get Adresses",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        3264,
+        352
+      ],
+      "parameters": {
+        "url": "https://nominatim.openstreetmap.org/reverse",
+        "options": {},
+        "sendQuery": true,
+        "sendHeaders": true,
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "format",
+              "value": "jsonv2"
+            },
+            {
+              "name": "lat",
+              "value": "={{ $json.Latitude }}"
+            },
+            {
+              "name": "lon",
+              "value": "={{ $json.Longitude }}"
+            },
+            {
+              "name": "addressdetails",
+              "value": "1"
+            }
+          ]
+        },
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "User-Agent",
+              "value": "ProfitableMedia-LeadTool/1.0 (user@example.com@email.com)"
+            }
+          ]
+        }
+      },
+      "typeVersion": 4.4
+    },
+    {
+      "id": "0d98f492-0b1d-4244-9d03-1061010e8b26",
+      "name": "Parse the output",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3472,
+        352
+      ],
+      "parameters": {
+        "jsCode": "// HTTP node (Reverse Geocode) item pairing ki wajah se ye current lead deta hai\nconst lead = $('Clean & Dedupe Leads').item.json;\n\n// Nominatim ka response is node ke input me hai\nconst geo = $json || {};\nconst a = geo.address || {};\n\n// Full address (Nominatim ka display_name)\nconst fullAddress = geo.display_name || \"\";\n\n// Clean/short address (country/state hata ke)\nconst parts = [\n  a.house_number,\n  a.road,\n  (a.suburb || a.town || a.village || a.quarter),\n  a.city,\n  a.postcode\n].filter(Boolean);\nconst cleanAddress = parts.join(\", \");\n\nconst postcode = a.postcode || \"\";\nconst city = a.city || a.town || a.village || \"\";\n\n// Quality flag: postcode na mile to pin shaky hai (jaise galat Google pin)\nconst geoConfidence = postcode ? \"yes\" : \"check\";\n\nreturn [{\n  json: {\n    // --- saari previous fields waise ki waise ---\n    ...lead,\n\n    // --- address fields add ---\n    Address: cleanAddress || fullAddress,\n    FullAddress: fullAddress,\n    Postcode: postcode,\n    GeoCity: city,\n    GeoConfidence: geoConfidence\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "37daf016-28d8-4480-8d5c-ef89c3280876",
+      "name": "Loop over Leads",
+      "type": "n8n-nodes-base.splitInBatches",
+      "position": [
+        3056,
+        352
+      ],
+      "parameters": {
+        "options": {}
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "f4004d5c-6c84-4c09-ae91-f915f481a602",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1216,
+        96
+      ],
+      "parameters": {
+        "width": 592,
+        "height": 688,
+        "content": "## Google Maps Lead Scraper & Reverse Geocoder\n\n### How It Works\n* **Triggers & Search:** Takes a target `keyword` and `city`, then fetches Google Maps HTML via **ScrapeUnblocker**.\n* **Extraction:** Parses card HTML using regex to extract business name, rating, reviews, category, phone, website, and `Lat`/`Lng` coordinates.\n* **Cleaning:** Sanitizes phone numbers and removes duplicate business entries by name.\n* **Enrichment:** Loops each lead through **Nominatim (OpenStreetMap)** to convert coordinates into structured full addresses, postcodes, and a `GeoConfidence` score.\n* **Storage:** Appends all enriched lead data directly to your designated **Google Sheet**.\n\n### Quick Setup Checklist\n1. **ScrapeUnblocker:** Connect active credentials.\n2. **Google Sheets:** Authenticate account and verify spreadsheet ID, sheet name (`Leads`), and column mappings.\n3. **HTTP Request:** Ensure the `User-Agent` header in **Get Adresses** remains set for OpenStreetMap compliance."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "8f21eeeb-011a-4f96-8916-9488b2de03cf",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1888,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 448,
+        "height": 368,
+        "content": "## 1. Input Parameters & Map Scraping\nDefines search criteria (keyword & city), constructs the encoded Google Maps URL, and fetches page HTML via ScrapeUnblocker."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "9fce125f-1c58-4733-97c7-04d2e9aab5b7",
+      "name": "Sticky Note2",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2368,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 592,
+        "height": 368,
+        "content": "## 2. Parsing, Cleaning & Deduplication\n"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "868407db-9b50-4e02-87d0-bd768292836b",
+      "name": "Sticky Note3",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2992,
+        160
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 880,
+        "height": 384,
+        "content": "## 3. Reverse Geocoding Loop & Google Sheets Export\nLoops through extracted leads, calls Nominatim to convert Lat/Lng into structured postal addresses, and appends enriched records to Google Sheets."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "versionId": "092615a1-9257-46e3-a723-04e0e60b17a0",
+  "nodeGroups": [],
+  "connections": {
+    "Get Adresses": {
+      "main": [
+        [
+          {
+            "node": "Parse the output",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Loop over Leads": {
+      "main": [
+        [],
+        [
+          {
+            "node": "Get Adresses",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "ScrapeUnblocker": {
+      "main": [
+        [
+          {
+            "node": "Extract Map Listings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Parse the output": {
+      "main": [
+        [
+          {
+            "node": "Save Leads to Sheet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Set Keyword & City": {
+      "main": [
+        [
+          {
+            "node": "ScrapeUnblocker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Save Leads to Sheet": {
+      "main": [
+        [
+          {
+            "node": "Loop over Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Clean & Dedupe Leads": {
+      "main": [
+        [
+          {
+            "node": "Loop over Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Extract Map Listings": {
+      "main": [
+        [
+          {
+            "node": "Clean & Dedupe Leads",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When clicking 'Execute workflow'": {
+      "main": [
+        [
+          {
+            "node": "Set Keyword & City",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

@@ -1,4 +1,4 @@
-# play : 13
+# play : 16
 
 |id|file|
 |----|----|
@@ -15,3 +15,6 @@
 |13180|[13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/31/13180_Triage_Slack_and_Gmail_requests_with_an_AI-powered_intake_layer.json)|
 |15166|[15166_Send_Slack_alerts_for_new_app_reviews_from_Google_Play_and_App_Store_with_DataForSEO.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15166_Send_Slack_alerts_for_new_app_reviews_from_Google_Play_and_App_Store_with_DataForSEO.json)|
 |15675|[15675_Delay_football_goal_alerts_with_API-Football__Google_Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15675_Delay_football_goal_alerts_with_API-Football__Google_Sheets_and_Gmail.json)|
+|17552|[17552_Score_customer_churn_risk_and_send_save-play_emails_with_Claude_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17552_Score_customer_churn_risk_and_send_save-play_emails_with_Claude_and_Gmail.json)|
+|17907|[17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17907_Track_Google_Play_keyword_rankings_weekly_with_Apify_and_Google_Sheets.json)|
+|19396|[19396_Review_Google_Play_app_feedback_and_replies_with_Apify_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19396_Review_Google_Play_app_feedback_and_replies_with_Apify_and_Google_Sheets.json)|

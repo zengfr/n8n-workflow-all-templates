@@ -1,4 +1,4 @@
-# usage : 25
+# usage : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |14709|[14709_Monitor_partner_API_usage_with_Slack__Jira_and_Gmail_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14709_Monitor_partner_API_usage_with_Slack__Jira_and_Gmail_alerts.json)|
 |15920|[15920_Email_weekly_AI_agent_cost_and_token_reports_with_Alephant_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15920_Email_weekly_AI_agent_cost_and_token_reports_with_Alephant_and_Gmail.json)|
 |16167|[16167_Monitor_GitHub_Actions_budget_and_send_usage_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16167_Monitor_GitHub_Actions_budget_and_send_usage_alerts_to_Slack.json)|
+|18213|[18213_Monitor_solar_generation_and_grid_usage_with_Open-Meteo_data_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18213_Monitor_solar_generation_and_grid_usage_with_Open-Meteo_data_and_Slack_alerts.json)|
+|18615|[18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18615_Meter_AI_token_usage_and_prepaid_Lago_credits_with_webhook_receipts.json)|

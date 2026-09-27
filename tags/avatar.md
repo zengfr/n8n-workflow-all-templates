@@ -1,4 +1,4 @@
-# avatar : 21
+# avatar : 25
 
 |id|file|
 |----|----|
@@ -23,3 +23,7 @@
 |13024|[13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/30/13024_Create_and_publish_AI_avatar_short_videos_with_Gemini__HeyGen_and_Google_Sheets.json)|
 |14190|[14190_Clone_a_voice_and_create_talking_avatar_videos_using_Anthropic_and_deAPI.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14190_Clone_a_voice_and_create_talking_avatar_videos_using_Anthropic_and_deAPI.json)|
 |15750|[15750_Turn_RSS_feed_content_into_AI_avatar_videos_with_HeyGen__Claude__and_PostPulse.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/57/15750_Turn_RSS_feed_content_into_AI_avatar_videos_with_HeyGen__Claude__and_PostPulse.json)|
+|16939|[16939_Create_talking_avatar_TikTok_videos_with_Seedance__OpenAI_and_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16939_Create_talking_avatar_TikTok_videos_with_Seedance__OpenAI_and_Blotato.json)|
+|17160|[17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17160_Create_daily_industry_news_avatar_videos_with_Perplexity__Browserless__HeyGen__Telegram_and_Google_Drive.json)|
+|18634|[18634_Create_news_anchor_avatar_videos_from_Slack_with_OpenAI_and_HeyGen.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18634_Create_news_anchor_avatar_videos_from_Slack_with_OpenAI_and_HeyGen.json)|
+|18898|[18898_Fetch_YouTube_channel_banner_and_avatar_images_with_YouTubeThumb.com.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18898_Fetch_YouTube_channel_banner_and_avatar_images_with_YouTubeThumb.com.json)|

@@ -1,4 +1,4 @@
-# visuals : 5
+# visuals : 9
 
 |id|file|
 |----|----|
@@ -7,3 +7,7 @@
 |8843|[8843_Transform_Product_Photos_into_Studio-Quality_Visuals_with_Nano_Banana___Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/00/88/8843_Transform_Product_Photos_into_Studio-Quality_Visuals_with_Nano_Banana___Telegram.json)|
 |13340|[13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13340_Repurpose_viral_content_into_AI_visuals_and_post_to_Instagram_and_Facebook_with_Blotato.json)|
 |13357|[13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/33/13357_Generate_multi-format_social_visuals_with_Abyssale_and_publish_via_Blotato.json)|
+|17267|[17267_Create_social_visuals_from_blog_RSS_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17267_Create_social_visuals_from_blog_RSS_with_Canvora_and_Slack.json)|
+|17278|[17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17278_Create_weekly_social_visuals_from_OpenAI_ideas_with_Canvora_and_Slack.json)|
+|17467|[17467_Create_daily_branded_content_visuals_from_Google_Sheets_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17467_Create_daily_branded_content_visuals_from_Google_Sheets_with_Canvora_and_Slack.json)|
+|17530|[17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17530_Create_multilingual_marketing_visuals_with_Canvora_and_Slack.json)|

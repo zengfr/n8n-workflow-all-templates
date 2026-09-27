@@ -1,4 +1,4 @@
-# hiring : 23
+# hiring : 31
 
 |id|file|
 |----|----|
@@ -25,3 +25,11 @@
 |15533|[15533_Track_LinkedIn_hiring_signals_with_Bright_Data__OpenAI__Airtable__HubSpot_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15533_Track_LinkedIn_hiring_signals_with_Bright_Data__OpenAI__Airtable__HubSpot_and_Slack.json)|
 |16226|[16226_Track_customer_support_hiring_signals_with_Coresignal__Elasticsearch__and_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16226_Track_customer_support_hiring_signals_with_Coresignal__Elasticsearch__and_HubSpot.json)|
 |16634|[16634_Scrape_Hacker_News_hiring_threads_with_OpenAI_GPT-4o-mini_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16634_Scrape_Hacker_News_hiring_threads_with_OpenAI_GPT-4o-mini_and_Airtable.json)|
+|17172|[17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17172_Screen_resumes_and_route_hiring_decisions_with_Airtable__DeepSeek__and_gotoHuman.json)|
+|17743|[17743_Build_a_LinkedIn_hiring-signal_data_table_with_Apify_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17743_Build_a_LinkedIn_hiring-signal_data_table_with_Apify_and_Slack.json)|
+|17781|[17781_Log_weekly_LinkedIn_hiring_signals_to_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17781_Log_weekly_LinkedIn_hiring_signals_to_Google_Sheets_with_Apify.json)|
+|17855|[17855_Create_sales_and_growth_hiring_leads_CSV_from_careers_pages_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17855_Create_sales_and_growth_hiring_leads_CSV_from_careers_pages_with_Apify.json)|
+|18126|[18126_Send_weekly_HR_job_and_contact_digests_to_Slack_with_Coresignal.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18126_Send_weekly_HR_job_and_contact_digests_to_Slack_with_Coresignal.json)|
+|18786|[18786_Send_UK_hiring-signal_leads_from_Apify_to_Instantly.ai_campaigns_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18786_Send_UK_hiring-signal_leads_from_Apify_to_Instantly.ai_campaigns_and_Google_Sheets.json)|
+|19081|[19081_Qualify_LinkedIn_hiring_signals_and_draft_outreach_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19081_Qualify_LinkedIn_hiring_signals_and_draft_outreach_with_Gemini_and_Google_Sheets.json)|
+|19322|[19322_Log_new_hiring_leads_from_Apify_to_Sheets_with_GPT-4o-mini_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19322_Log_new_hiring_leads_from_Apify_to_Sheets_with_GPT-4o-mini_and_Slack_alerts.json)|

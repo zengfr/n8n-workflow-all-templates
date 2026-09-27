@@ -1,4 +1,4 @@
-# flow : 37
+# flow : 39
 
 |id|file|
 |----|----|
@@ -39,3 +39,5 @@
 |15976|[15976_Normalize_and_validate_customer_data_with_Google_Sheets_highlights.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15976_Normalize_and_validate_customer_data_with_Google_Sheets_highlights.json)|
 |16101|[16101_Send_weekly_Taiwan_foreign_flow_reports_to_Telegram_using_TWSE_T86.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16101_Send_weekly_Taiwan_foreign_flow_reports_to_Telegram_using_TWSE_T86.json)|
 |16161|[16161_Create_and_approve_social_posts_with_Google_Sheets__Slack_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16161_Create_and_approve_social_posts_with_Google_Sheets__Slack_and_Gemini.json)|
+|17046|[17046_Handle_WhatsApp_support_chats_with_OpenRouter__Pinecone__and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17046_Handle_WhatsApp_support_chats_with_OpenRouter__Pinecone__and_Gemini.json)|
+|18833|[18833_Monitor_Zillow_deals_by_ZIP_with_APIllow__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/88/18833_Monitor_Zillow_deals_by_ZIP_with_APIllow__Google_Sheets__and_Slack.json)|

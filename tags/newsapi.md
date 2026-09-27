@@ -1,4 +1,4 @@
-# newsapi : 22
+# newsapi : 27
 
 |id|file|
 |----|----|
@@ -24,3 +24,8 @@
 |15649|[15649_Analyze_stocks_via_Telegram_with_GPT_4__TwelveData__NewsAPI_and_chart_images.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15649_Analyze_stocks_via_Telegram_with_GPT_4__TwelveData__NewsAPI_and_chart_images.json)|
 |15680|[15680_Analyze_stocks_from_Telegram_using_GPT-4__TwelveData__NewsAPI_and_Chart-IMG.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/56/15680_Analyze_stocks_from_Telegram_using_GPT-4__TwelveData__NewsAPI_and_Chart-IMG.json)|
 |16264|[16264_Track_investor_behavior_with_NewsAPI__Gemini__Groq_and_Slack_alerts.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16264_Track_investor_behavior_with_NewsAPI__Gemini__Groq_and_Slack_alerts.json)|
+|17791|[17791_Send_pre-meeting_company_news_summaries_with_Google_Calendar__NewsAPI__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17791_Send_pre-meeting_company_news_summaries_with_Google_Calendar__NewsAPI__and_Gmail.json)|
+|17853|[17853_Enrich_inbound_leads_with_OpenAI__NewsAPI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/78/17853_Enrich_inbound_leads_with_OpenAI__NewsAPI__Google_Sheets__and_Gmail.json)|
+|18307|[18307_Create_daily_AI_news_LinkedIn_posts_using_OpenAI__NewsAPI__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/83/18307_Create_daily_AI_news_LinkedIn_posts_using_OpenAI__NewsAPI__Gmail_and_Google_Sheets.json)|
+|18721|[18721_Monitor_supplier_risk_with_Notion__NewsAPI__Groq__MongoDB__Gmail_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18721_Monitor_supplier_risk_with_Notion__NewsAPI__Groq__MongoDB__Gmail_and_Slack.json)|
+|19263|[19263_Post_witty_daily_tweets_with_Groq__NewsAPI__Google_Trends__and_X.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19263_Post_witty_daily_tweets_with_Groq__NewsAPI__Google_Trends__and_X.json)|

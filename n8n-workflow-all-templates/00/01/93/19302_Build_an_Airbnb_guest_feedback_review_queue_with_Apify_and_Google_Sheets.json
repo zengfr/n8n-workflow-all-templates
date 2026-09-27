@@ -1,0 +1,733 @@
+{
+  "name": "Build an Airbnb guest-feedback review queue with Apify and Google Sheets",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "2ea024fe5d60625b196c1241",
+      "name": "Start manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        160
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "5f958406ecc8da18c725fe23",
+      "name": "Review settings",
+      "type": "n8n-nodes-base.set",
+      "position": [
+        240,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "assignments": {
+          "assignments": [
+            {
+              "id": "c04638b4daebe858468773a1",
+              "name": "listingUrl",
+              "type": "string",
+              "value": "https://www.airbnb.com/rooms/12937"
+            },
+            {
+              "id": "a4d0d3f822bbcd63bf45c822",
+              "name": "spreadsheetId",
+              "type": "string",
+              "value": "REPLACE_WITH_SPREADSHEET_ID"
+            },
+            {
+              "id": "46aae3d8c402ba5174e0c5e0",
+              "name": "sheetName",
+              "type": "string",
+              "value": "Airbnb Feedback"
+            },
+            {
+              "id": "7b54dc8f4a0b5e4a355a3329",
+              "name": "maxCostPerRunUsd",
+              "type": "number",
+              "value": 0.15
+            }
+          ]
+        }
+      },
+      "typeVersion": 3.4
+    },
+    {
+      "id": "506e58ea70fefcb5155d812a",
+      "name": "Validate settings",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        480,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='hSKs25yGazR4KwPAc';\nconst BUILD_ID='b4lTdiPgGLkN2ezuQ';\nconst BUILD_TAG='rel-airbnb-reviews-20260901c';\nconst COLUMNS=['upsertKey','listingId','reviewId','reviewDate','rating','reviewText','language','hostResponse','responseDate','reviewPriority','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const match=String(c.listingUrl??'').trim().match(/^https:\\/\\/(?:www\\.)?airbnb\\.com\\/rooms\\/(\\d+)\\/?(?:\\?[^#]*)?$/);\n if(!match)throw Error('Enter one public airbnb.com/rooms listing URL.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId)||!String(c.sheetName??'').trim())throw Error('Set your spreadsheet ID and tab before paid work.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.1||cap>0.5)throw Error('Set an Actor charge cap from $0.10 to $0.50.');\n const listingUrl='https://www.airbnb.com/rooms/'+match[1];\n return {...c,listingUrl,listingId:match[1],maxCostPerRunUsd:cap,actorInput:{listingUrls:[{url:listingUrl}],maxReviewsPerListing:25,scrapeMode:'fast_recent',sortBy:'MOST_RECENT',locale:'en-US',includeReviewerPublicFields:false,includeHostResponses:true,incrementalMode:'raw',includeUnchanged:true,stateNamespace:'default',pageSize:50,concurrency:1,maxRequests:6,maxRuntimeSecs:120,maxCostUsd:0.25,requestTimeoutSecs:30}};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run before any manual retry.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n const t=s.targets?.[0],n=s.totals?.datasetRows;\n if(s.source?.class!=='PUBLIC_FIRST_PARTY'||s.targets?.length!==1||s.input?.incrementalMode!=='raw'||s.input?.maxReviewsPerListing!==25||!t||t.errorCode||t.stoppedByBillingLimit||t.chargeLimitedRowsSuppressed)throw Error('Unverified review window; Sheet unchanged.');\n if(!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(t.coverageState)|| (t.coverageState==='CAPPED'&&!t.capReached))throw Error('Untrusted coverage; Sheet unchanged.');\n if(!Number.isInteger(n)||n<0||n>25||n!==t.deliveredReviews||n!==t.emittedReviews||s.totals.uniqueReviewKeys!==n)throw Error('Review counts do not reconcile.');\n return n;\n}\nfunction reconcile({config,run,summary,rows}){\n if(!Array.isArray(rows)||rows.length!==bounds(summary))throw Error('Dataset count mismatch.');\n const target=summary.targets[0];if(target.listingId!==config.listingId)throw Error('Wrong listing.');\n const b=summary.billing;if(!b?.pricingActive||b.pricingModel!=='PAY_PER_EVENT'||b.accountingMode!=='ACTOR_CHARGE'||b.reviewChargeLimitReached||b.monitorTargetChargeLimitReached||b.startChargeLimitReached)throw Error('Unverified billing.');\n let charge=0;for(const [event,count]of Object.entries({actor_start:1,monitor_target:0,review_result:rows.length})){\n const price=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.[event]?.eventPriceUsd;\n if(!Number.isFinite(price)||price<0||b.effectiveRuntimePricesUsd?.[event]!==price||b.chargedEventCounts?.[event]!==count||b.deliveredPaidEventCounts?.[event]!==count||b.intendedEventCounts?.[event]!==count)throw Error('Billing counts or prices differ.');charge+=price*count;}\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\n const seen=new Set();return rows.map(r=>{\n if(!/^\\d+$/.test(r.reviewId??'')||r.listingId!==config.listingId||seen.has(r.reviewId)||r.state!=='CURRENT'||r.coverageState!==target.coverageState||!Number.isFinite(Date.parse(r.collectedAt)))throw Error('Invalid review identity or observation.');seen.add(r.reviewId);\n const rating=typeof r.rating==='number'&&r.rating>=1&&r.rating<=5?r.rating:'';\n const answered=Boolean(String(r.hostResponseText??'').trim());\n return {upsertKey:'airbnb-feedback|'+r.listingId+'|'+r.reviewId,listingId:r.listingId,reviewId:r.reviewId,reviewDate:r.createdAt??'',rating,reviewText:String(r.text??'').replace(/<br\\s*\\/?\\s*>/gi,'\\n'),language:r.language??'',hostResponse:r.hostResponseText??'',responseDate:r.hostResponseDate??'',reviewPriority:answered?'RESPONSE_PRESENT':rating===''?'CHECK_RATING':rating<4?'LOW_RATING_NO_RESPONSE':'NO_RESPONSE_OBSERVED',listingUrl:config.listingUrl,observedAt:r.collectedAt,coverageStatus:target.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};\n });\n}\n\nreturn [{json:preflight($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "093232c1ef57bae4e437b3ff",
+      "name": "Run Airbnb once",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        880,
+        160
+      ],
+      "parameters": {
+        "url": "https://api.apify.com/v2/acts/hSKs25yGazR4KwPAc/runs",
+        "method": "POST",
+        "options": {
+          "timeout": 70000
+        },
+        "jsonBody": "={{ JSON.stringify($('Validate settings').first().json.actorInput) }}",
+        "sendBody": true,
+        "sendQuery": true,
+        "specifyBody": "json",
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "build",
+              "value": "rel-airbnb-reviews-20260901c"
+            },
+            {
+              "name": "timeout",
+              "value": "300"
+            },
+            {
+              "name": "memory",
+              "value": "512"
+            },
+            {
+              "name": "waitForFinish",
+              "value": "60"
+            },
+            {
+              "name": "maxTotalChargeUsd",
+              "value": "={{ $('Validate settings').first().json.maxCostPerRunUsd }}"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "c37bd253b30adeec5abe010e",
+      "name": "Check run status",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1120,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='hSKs25yGazR4KwPAc';\nconst BUILD_ID='b4lTdiPgGLkN2ezuQ';\nconst BUILD_TAG='rel-airbnb-reviews-20260901c';\nconst COLUMNS=['upsertKey','listingId','reviewId','reviewDate','rating','reviewText','language','hostResponse','responseDate','reviewPriority','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const match=String(c.listingUrl??'').trim().match(/^https:\\/\\/(?:www\\.)?airbnb\\.com\\/rooms\\/(\\d+)\\/?(?:\\?[^#]*)?$/);\n if(!match)throw Error('Enter one public airbnb.com/rooms listing URL.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId)||!String(c.sheetName??'').trim())throw Error('Set your spreadsheet ID and tab before paid work.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.1||cap>0.5)throw Error('Set an Actor charge cap from $0.10 to $0.50.');\n const listingUrl='https://www.airbnb.com/rooms/'+match[1];\n return {...c,listingUrl,listingId:match[1],maxCostPerRunUsd:cap,actorInput:{listingUrls:[{url:listingUrl}],maxReviewsPerListing:25,scrapeMode:'fast_recent',sortBy:'MOST_RECENT',locale:'en-US',includeReviewerPublicFields:false,includeHostResponses:true,incrementalMode:'raw',includeUnchanged:true,stateNamespace:'default',pageSize:50,concurrency:1,maxRequests:6,maxRuntimeSecs:120,maxCostUsd:0.25,requestTimeoutSecs:30}};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run before any manual retry.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n const t=s.targets?.[0],n=s.totals?.datasetRows;\n if(s.source?.class!=='PUBLIC_FIRST_PARTY'||s.targets?.length!==1||s.input?.incrementalMode!=='raw'||s.input?.maxReviewsPerListing!==25||!t||t.errorCode||t.stoppedByBillingLimit||t.chargeLimitedRowsSuppressed)throw Error('Unverified review window; Sheet unchanged.');\n if(!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(t.coverageState)|| (t.coverageState==='CAPPED'&&!t.capReached))throw Error('Untrusted coverage; Sheet unchanged.');\n if(!Number.isInteger(n)||n<0||n>25||n!==t.deliveredReviews||n!==t.emittedReviews||s.totals.uniqueReviewKeys!==n)throw Error('Review counts do not reconcile.');\n return n;\n}\nfunction reconcile({config,run,summary,rows}){\n if(!Array.isArray(rows)||rows.length!==bounds(summary))throw Error('Dataset count mismatch.');\n const target=summary.targets[0];if(target.listingId!==config.listingId)throw Error('Wrong listing.');\n const b=summary.billing;if(!b?.pricingActive||b.pricingModel!=='PAY_PER_EVENT'||b.accountingMode!=='ACTOR_CHARGE'||b.reviewChargeLimitReached||b.monitorTargetChargeLimitReached||b.startChargeLimitReached)throw Error('Unverified billing.');\n let charge=0;for(const [event,count]of Object.entries({actor_start:1,monitor_target:0,review_result:rows.length})){\n const price=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.[event]?.eventPriceUsd;\n if(!Number.isFinite(price)||price<0||b.effectiveRuntimePricesUsd?.[event]!==price||b.chargedEventCounts?.[event]!==count||b.deliveredPaidEventCounts?.[event]!==count||b.intendedEventCounts?.[event]!==count)throw Error('Billing counts or prices differ.');charge+=price*count;}\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\n const seen=new Set();return rows.map(r=>{\n if(!/^\\d+$/.test(r.reviewId??'')||r.listingId!==config.listingId||seen.has(r.reviewId)||r.state!=='CURRENT'||r.coverageState!==target.coverageState||!Number.isFinite(Date.parse(r.collectedAt)))throw Error('Invalid review identity or observation.');seen.add(r.reviewId);\n const rating=typeof r.rating==='number'&&r.rating>=1&&r.rating<=5?r.rating:'';\n const answered=Boolean(String(r.hostResponseText??'').trim());\n return {upsertKey:'airbnb-feedback|'+r.listingId+'|'+r.reviewId,listingId:r.listingId,reviewId:r.reviewId,reviewDate:r.createdAt??'',rating,reviewText:String(r.text??'').replace(/<br\\s*\\/?\\s*>/gi,'\\n'),language:r.language??'',hostResponse:r.hostResponseText??'',responseDate:r.hostResponseDate??'',reviewPriority:answered?'RESPONSE_PRESENT':rating===''?'CHECK_RATING':rating<4?'LOW_RATING_NO_RESPONSE':'NO_RESPONSE_OBSERVED',listingUrl:config.listingUrl,observedAt:r.collectedAt,coverageStatus:target.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};\n });\n}\n\nreturn [{json:classify($input.first().json)}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "dc7ff7342c9f57af9170609d",
+      "name": "Run finished?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1360,
+        160
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "e971b5a9709d80a6bde329c5",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ready }}",
+              "rightValue": true
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "dafc8d63f576c9246005ef35",
+      "name": "Wait five seconds",
+      "type": "n8n-nodes-base.wait",
+      "position": [
+        1360,
+        432
+      ],
+      "webhookId": "e6293fbe70e86830784232ca",
+      "parameters": {
+        "unit": "seconds",
+        "amount": 5,
+        "resume": "timeInterval"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "5e38067d08e222f2664bbab0",
+      "name": "Read existing run",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1120,
+        432
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/actor-runs/' + $json.run.id }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b63cb01bb9b5adb9b33a6e74",
+      "name": "Read authoritative output",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1776,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/key-value-stores/' + $('Check run status').item.json.run.defaultKeyValueStoreId + '/records/OUTPUT' }}",
+        "options": {
+          "timeout": 70000
+        },
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth"
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "b686ad84b6cc7f9e791ab9c1",
+      "name": "Check output bounds",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2016,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='hSKs25yGazR4KwPAc';\nconst BUILD_ID='b4lTdiPgGLkN2ezuQ';\nconst BUILD_TAG='rel-airbnb-reviews-20260901c';\nconst COLUMNS=['upsertKey','listingId','reviewId','reviewDate','rating','reviewText','language','hostResponse','responseDate','reviewPriority','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const match=String(c.listingUrl??'').trim().match(/^https:\\/\\/(?:www\\.)?airbnb\\.com\\/rooms\\/(\\d+)\\/?(?:\\?[^#]*)?$/);\n if(!match)throw Error('Enter one public airbnb.com/rooms listing URL.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId)||!String(c.sheetName??'').trim())throw Error('Set your spreadsheet ID and tab before paid work.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.1||cap>0.5)throw Error('Set an Actor charge cap from $0.10 to $0.50.');\n const listingUrl='https://www.airbnb.com/rooms/'+match[1];\n return {...c,listingUrl,listingId:match[1],maxCostPerRunUsd:cap,actorInput:{listingUrls:[{url:listingUrl}],maxReviewsPerListing:25,scrapeMode:'fast_recent',sortBy:'MOST_RECENT',locale:'en-US',includeReviewerPublicFields:false,includeHostResponses:true,incrementalMode:'raw',includeUnchanged:true,stateNamespace:'default',pageSize:50,concurrency:1,maxRequests:6,maxRuntimeSecs:120,maxCostUsd:0.25,requestTimeoutSecs:30}};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run before any manual retry.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n const t=s.targets?.[0],n=s.totals?.datasetRows;\n if(s.source?.class!=='PUBLIC_FIRST_PARTY'||s.targets?.length!==1||s.input?.incrementalMode!=='raw'||s.input?.maxReviewsPerListing!==25||!t||t.errorCode||t.stoppedByBillingLimit||t.chargeLimitedRowsSuppressed)throw Error('Unverified review window; Sheet unchanged.');\n if(!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(t.coverageState)|| (t.coverageState==='CAPPED'&&!t.capReached))throw Error('Untrusted coverage; Sheet unchanged.');\n if(!Number.isInteger(n)||n<0||n>25||n!==t.deliveredReviews||n!==t.emittedReviews||s.totals.uniqueReviewKeys!==n)throw Error('Review counts do not reconcile.');\n return n;\n}\nfunction reconcile({config,run,summary,rows}){\n if(!Array.isArray(rows)||rows.length!==bounds(summary))throw Error('Dataset count mismatch.');\n const target=summary.targets[0];if(target.listingId!==config.listingId)throw Error('Wrong listing.');\n const b=summary.billing;if(!b?.pricingActive||b.pricingModel!=='PAY_PER_EVENT'||b.accountingMode!=='ACTOR_CHARGE'||b.reviewChargeLimitReached||b.monitorTargetChargeLimitReached||b.startChargeLimitReached)throw Error('Unverified billing.');\n let charge=0;for(const [event,count]of Object.entries({actor_start:1,monitor_target:0,review_result:rows.length})){\n const price=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.[event]?.eventPriceUsd;\n if(!Number.isFinite(price)||price<0||b.effectiveRuntimePricesUsd?.[event]!==price||b.chargedEventCounts?.[event]!==count||b.deliveredPaidEventCounts?.[event]!==count||b.intendedEventCounts?.[event]!==count)throw Error('Billing counts or prices differ.');charge+=price*count;}\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\n const seen=new Set();return rows.map(r=>{\n if(!/^\\d+$/.test(r.reviewId??'')||r.listingId!==config.listingId||seen.has(r.reviewId)||r.state!=='CURRENT'||r.coverageState!==target.coverageState||!Number.isFinite(Date.parse(r.collectedAt)))throw Error('Invalid review identity or observation.');seen.add(r.reviewId);\n const rating=typeof r.rating==='number'&&r.rating>=1&&r.rating<=5?r.rating:'';\n const answered=Boolean(String(r.hostResponseText??'').trim());\n return {upsertKey:'airbnb-feedback|'+r.listingId+'|'+r.reviewId,listingId:r.listingId,reviewId:r.reviewId,reviewDate:r.createdAt??'',rating,reviewText:String(r.text??'').replace(/<br\\s*\\/?\\s*>/gi,'\\n'),language:r.language??'',hostResponse:r.hostResponseText??'',responseDate:r.hostResponseDate??'',reviewPriority:answered?'RESPONSE_PRESENT':rating===''?'CHECK_RATING':rating<4?'LOW_RATING_NO_RESPONSE':'NO_RESPONSE_OBSERVED',listingUrl:config.listingUrl,observedAt:r.collectedAt,coverageStatus:target.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};\n });\n}\n\nconst summary=$input.first().json; bounds(summary); return [{json:{summary,run:$('Check run status').item.json.run}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "2f1112f00966ef3844aeb241",
+      "name": "Read complete bounded dataset",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        2256,
+        160
+      ],
+      "parameters": {
+        "url": "={{ 'https://api.apify.com/v2/datasets/' + $json.run.defaultDatasetId + '/items' }}",
+        "options": {
+          "timeout": 70000,
+          "response": {
+            "response": {
+              "fullResponse": true,
+              "responseFormat": "json"
+            }
+          }
+        },
+        "sendQuery": true,
+        "authentication": "genericCredentialType",
+        "genericAuthType": "httpHeaderAuth",
+        "queryParameters": {
+          "parameters": [
+            {
+              "name": "limit",
+              "value": "26"
+            },
+            {
+              "name": "clean",
+              "value": "true"
+            },
+            {
+              "name": "format",
+              "value": "json"
+            }
+          ]
+        }
+      },
+      "retryOnFail": false,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "62b63459c7f8e6c209d2645e",
+      "name": "Build verified Sheet rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        2656,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='hSKs25yGazR4KwPAc';\nconst BUILD_ID='b4lTdiPgGLkN2ezuQ';\nconst BUILD_TAG='rel-airbnb-reviews-20260901c';\nconst COLUMNS=['upsertKey','listingId','reviewId','reviewDate','rating','reviewText','language','hostResponse','responseDate','reviewPriority','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const match=String(c.listingUrl??'').trim().match(/^https:\\/\\/(?:www\\.)?airbnb\\.com\\/rooms\\/(\\d+)\\/?(?:\\?[^#]*)?$/);\n if(!match)throw Error('Enter one public airbnb.com/rooms listing URL.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId)||!String(c.sheetName??'').trim())throw Error('Set your spreadsheet ID and tab before paid work.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.1||cap>0.5)throw Error('Set an Actor charge cap from $0.10 to $0.50.');\n const listingUrl='https://www.airbnb.com/rooms/'+match[1];\n return {...c,listingUrl,listingId:match[1],maxCostPerRunUsd:cap,actorInput:{listingUrls:[{url:listingUrl}],maxReviewsPerListing:25,scrapeMode:'fast_recent',sortBy:'MOST_RECENT',locale:'en-US',includeReviewerPublicFields:false,includeHostResponses:true,incrementalMode:'raw',includeUnchanged:true,stateNamespace:'default',pageSize:50,concurrency:1,maxRequests:6,maxRuntimeSecs:120,maxCostUsd:0.25,requestTimeoutSecs:30}};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run before any manual retry.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n const t=s.targets?.[0],n=s.totals?.datasetRows;\n if(s.source?.class!=='PUBLIC_FIRST_PARTY'||s.targets?.length!==1||s.input?.incrementalMode!=='raw'||s.input?.maxReviewsPerListing!==25||!t||t.errorCode||t.stoppedByBillingLimit||t.chargeLimitedRowsSuppressed)throw Error('Unverified review window; Sheet unchanged.');\n if(!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(t.coverageState)|| (t.coverageState==='CAPPED'&&!t.capReached))throw Error('Untrusted coverage; Sheet unchanged.');\n if(!Number.isInteger(n)||n<0||n>25||n!==t.deliveredReviews||n!==t.emittedReviews||s.totals.uniqueReviewKeys!==n)throw Error('Review counts do not reconcile.');\n return n;\n}\nfunction reconcile({config,run,summary,rows}){\n if(!Array.isArray(rows)||rows.length!==bounds(summary))throw Error('Dataset count mismatch.');\n const target=summary.targets[0];if(target.listingId!==config.listingId)throw Error('Wrong listing.');\n const b=summary.billing;if(!b?.pricingActive||b.pricingModel!=='PAY_PER_EVENT'||b.accountingMode!=='ACTOR_CHARGE'||b.reviewChargeLimitReached||b.monitorTargetChargeLimitReached||b.startChargeLimitReached)throw Error('Unverified billing.');\n let charge=0;for(const [event,count]of Object.entries({actor_start:1,monitor_target:0,review_result:rows.length})){\n const price=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.[event]?.eventPriceUsd;\n if(!Number.isFinite(price)||price<0||b.effectiveRuntimePricesUsd?.[event]!==price||b.chargedEventCounts?.[event]!==count||b.deliveredPaidEventCounts?.[event]!==count||b.intendedEventCounts?.[event]!==count)throw Error('Billing counts or prices differ.');charge+=price*count;}\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\n const seen=new Set();return rows.map(r=>{\n if(!/^\\d+$/.test(r.reviewId??'')||r.listingId!==config.listingId||seen.has(r.reviewId)||r.state!=='CURRENT'||r.coverageState!==target.coverageState||!Number.isFinite(Date.parse(r.collectedAt)))throw Error('Invalid review identity or observation.');seen.add(r.reviewId);\n const rating=typeof r.rating==='number'&&r.rating>=1&&r.rating<=5?r.rating:'';\n const answered=Boolean(String(r.hostResponseText??'').trim());\n return {upsertKey:'airbnb-feedback|'+r.listingId+'|'+r.reviewId,listingId:r.listingId,reviewId:r.reviewId,reviewDate:r.createdAt??'',rating,reviewText:String(r.text??'').replace(/<br\\s*\\/?\\s*>/gi,'\\n'),language:r.language??'',hostResponse:r.hostResponseText??'',responseDate:r.hostResponseDate??'',reviewPriority:answered?'RESPONSE_PRESENT':rating===''?'CHECK_RATING':rating<4?'LOW_RATING_NO_RESPONSE':'NO_RESPONSE_OBSERVED',listingUrl:config.listingUrl,observedAt:r.collectedAt,coverageStatus:target.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};\n });\n}\n\nconst bound=$('Check output bounds').first().json; const rows=$input.first().json.body; if(!Array.isArray(rows)||rows.length>=26)throw Error('Dataset is invalid or larger than the supported delivery window; inspect original run.'); return reconcile({config:$('Validate settings').first().json,run:bound.run,summary:bound.summary,rows}).map(json=>({json}));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "c8ede65633032c4044e1e873",
+      "name": "Upsert review queue in Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "maxTries": 2,
+      "position": [
+        2896,
+        160
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [
+            {
+              "id": "upsertKey",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "upsertKey",
+              "defaultMatch": true,
+              "canBeUsedToMatch": true
+            },
+            {
+              "id": "listingId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "listingId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "reviewId",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reviewId",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "reviewDate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reviewDate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "rating",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "rating",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "reviewText",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reviewText",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "language",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "language",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "hostResponse",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "hostResponse",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "responseDate",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "responseDate",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "reviewPriority",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "reviewPriority",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "listingUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "listingUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "observedAt",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "observedAt",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "coverageStatus",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "coverageStatus",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "estimatedActorChargeUsd",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "estimatedActorChargeUsd",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            },
+            {
+              "id": "runUrl",
+              "type": "string",
+              "display": true,
+              "removed": false,
+              "required": false,
+              "displayName": "runUrl",
+              "defaultMatch": false,
+              "canBeUsedToMatch": false
+            }
+          ],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "upsertKey"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('Validate settings').first().json.sheetName }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('Validate settings').first().json.spreadsheetId }}"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.6,
+      "waitBetweenTries": 2000
+    },
+    {
+      "id": "f9fb64f708c5fbb20f9cb39d",
+      "name": "Return delivery receipt",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        3136,
+        160
+      ],
+      "parameters": {
+        "jsCode": "const ACTOR_ID='hSKs25yGazR4KwPAc';\nconst BUILD_ID='b4lTdiPgGLkN2ezuQ';\nconst BUILD_TAG='rel-airbnb-reviews-20260901c';\nconst COLUMNS=['upsertKey','listingId','reviewId','reviewDate','rating','reviewText','language','hostResponse','responseDate','reviewPriority','listingUrl','observedAt','coverageStatus','estimatedActorChargeUsd','runUrl'];\nfunction preflight(c){\n const match=String(c.listingUrl??'').trim().match(/^https:\\/\\/(?:www\\.)?airbnb\\.com\\/rooms\\/(\\d+)\\/?(?:\\?[^#]*)?$/);\n if(!match)throw Error('Enter one public airbnb.com/rooms listing URL.');\n if(!/^[A-Za-z0-9_-]{20,}$/.test(c.spreadsheetId??'')||/REPLACE/.test(c.spreadsheetId)||!String(c.sheetName??'').trim())throw Error('Set your spreadsheet ID and tab before paid work.');\n const cap=Number(c.maxCostPerRunUsd);if(!Number.isFinite(cap)||cap<0.1||cap>0.5)throw Error('Set an Actor charge cap from $0.10 to $0.50.');\n const listingUrl='https://www.airbnb.com/rooms/'+match[1];\n return {...c,listingUrl,listingId:match[1],maxCostPerRunUsd:cap,actorInput:{listingUrls:[{url:listingUrl}],maxReviewsPerListing:25,scrapeMode:'fast_recent',sortBy:'MOST_RECENT',locale:'en-US',includeReviewerPublicFields:false,includeHostResponses:true,incrementalMode:'raw',includeUnchanged:true,stateNamespace:'default',pageSize:50,concurrency:1,maxRequests:6,maxRuntimeSecs:120,maxCostUsd:0.25,requestTimeoutSecs:30}};\n}\nfunction classify(response,now=Date.now()){\n const run=response.data??response;if(!run.id||run.actId!==ACTOR_ID||run.buildId!==BUILD_ID)throw Error('Unexpected Actor or immutable build.');\n if(!['READY','RUNNING','SUCCEEDED'].includes(run.status))throw Error('Actor '+run.status+'; inspect original run '+run.id+'. No Sheet write.');\n if(run.status!=='SUCCEEDED'&&(!Number.isFinite(Date.parse(run.startedAt))||now-Date.parse(run.startedAt)>360000))throw Error('Polling deadline exceeded; inspect original run before any manual retry.');\n if(run.status==='SUCCEEDED'&&(!run.defaultDatasetId||!run.defaultKeyValueStoreId))throw Error('Missing run storage.');return {run,ready:run.status==='SUCCEEDED'};\n}\nfunction bounds(s){\n const t=s.targets?.[0],n=s.totals?.datasetRows;\n if(s.source?.class!=='PUBLIC_FIRST_PARTY'||s.targets?.length!==1||s.input?.incrementalMode!=='raw'||s.input?.maxReviewsPerListing!==25||!t||t.errorCode||t.stoppedByBillingLimit||t.chargeLimitedRowsSuppressed)throw Error('Unverified review window; Sheet unchanged.');\n if(!['COMPLETE','CAPPED','EMPTY_CONFIRMED'].includes(t.coverageState)|| (t.coverageState==='CAPPED'&&!t.capReached))throw Error('Untrusted coverage; Sheet unchanged.');\n if(!Number.isInteger(n)||n<0||n>25||n!==t.deliveredReviews||n!==t.emittedReviews||s.totals.uniqueReviewKeys!==n)throw Error('Review counts do not reconcile.');\n return n;\n}\nfunction reconcile({config,run,summary,rows}){\n if(!Array.isArray(rows)||rows.length!==bounds(summary))throw Error('Dataset count mismatch.');\n const target=summary.targets[0];if(target.listingId!==config.listingId)throw Error('Wrong listing.');\n const b=summary.billing;if(!b?.pricingActive||b.pricingModel!=='PAY_PER_EVENT'||b.accountingMode!=='ACTOR_CHARGE'||b.reviewChargeLimitReached||b.monitorTargetChargeLimitReached||b.startChargeLimitReached)throw Error('Unverified billing.');\n let charge=0;for(const [event,count]of Object.entries({actor_start:1,monitor_target:0,review_result:rows.length})){\n const price=run.pricingInfo?.pricingPerEvent?.actorChargeEvents?.[event]?.eventPriceUsd;\n if(!Number.isFinite(price)||price<0||b.effectiveRuntimePricesUsd?.[event]!==price||b.chargedEventCounts?.[event]!==count||b.deliveredPaidEventCounts?.[event]!==count||b.intendedEventCounts?.[event]!==count)throw Error('Billing counts or prices differ.');charge+=price*count;}\n if(charge>config.maxCostPerRunUsd+1e-9)throw Error('Actor charge estimate exceeds cap.');\n const seen=new Set();return rows.map(r=>{\n if(!/^\\d+$/.test(r.reviewId??'')||r.listingId!==config.listingId||seen.has(r.reviewId)||r.state!=='CURRENT'||r.coverageState!==target.coverageState||!Number.isFinite(Date.parse(r.collectedAt)))throw Error('Invalid review identity or observation.');seen.add(r.reviewId);\n const rating=typeof r.rating==='number'&&r.rating>=1&&r.rating<=5?r.rating:'';\n const answered=Boolean(String(r.hostResponseText??'').trim());\n return {upsertKey:'airbnb-feedback|'+r.listingId+'|'+r.reviewId,listingId:r.listingId,reviewId:r.reviewId,reviewDate:r.createdAt??'',rating,reviewText:String(r.text??'').replace(/<br\\s*\\/?\\s*>/gi,'\\n'),language:r.language??'',hostResponse:r.hostResponseText??'',responseDate:r.hostResponseDate??'',reviewPriority:answered?'RESPONSE_PRESENT':rating===''?'CHECK_RATING':rating<4?'LOW_RATING_NO_RESPONSE':'NO_RESPONSE_OBSERVED',listingUrl:config.listingUrl,observedAt:r.collectedAt,coverageStatus:target.coverageState,estimatedActorChargeUsd:Number(charge.toFixed(9)),runUrl:'https://console.apify.com/actors/runs/'+run.id};\n });\n}\n\nconst rows=$('Build verified Sheet rows').all().map(x=>x.json); return [{json:{status:'SHEETS_WRITTEN',rows:rows.length,coverageStatus:rows[0].coverageStatus,estimatedActorChargeUsd:rows[0].estimatedActorChargeUsd,runUrl:rows[0].runUrl}}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a8da03b5fa5c2c33a4b245d4",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        -1056
+      ],
+      "parameters": {
+        "width": 1120,
+        "height": 900,
+        "content": "## Build an Airbnb guest-feedback review queue\n\nReview recent guest feedback in one spreadsheet. Hosts and property managers can identify low ratings without an observed public host response, read the original review and decide what deserves personal attention. No AI account is required, and the workflow never posts replies.\n\n### How it works\nOne Apify run reads up to 25 recent reviews from a public listing. It includes ratings and public host responses, without reviewer profile fields. Verified rows receive a review-priority label based only on the observed rating and response. Missing ratings are flagged for checking instead of treated as negative. A stable listing-and-review key updates the same Sheet row on repeats. CAPPED means a recent sample, not the full review history. Older observations remain in the Sheet with their last observation time; absence from a later sample never proves deletion. Failed source or billing checks stop delivery.\n\n### Setup\n1. Create an Apify Header Auth credential: name Authorization, value Bearer followed by your token. Select it on all four HTTP nodes.\n2. Connect Google Sheets OAuth2 on the delivery node. Create an Airbnb Feedback tab using the supplied CSV headers.\n3. Enter your spreadsheet ID and one public listing URL in Review settings. The example listing demonstrates the format and is not our property.\n4. Run manually, then filter reviewPriority for LOW_RATING_NO_RESPONSE. Read the context before deciding whether to respond on Airbnb.\n5. Repeat sequentially. Each delivered review is billable again. The default $0.15 Actor charge cap is a limit, not an estimate. No credits or Telegram notifications are included."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "15ffdc387845403c5d6fb2ed",
+      "name": "Configure",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -96,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 800,
+        "height": 680,
+        "content": "## 1. Configure\nSet one public Airbnb listing and your Sheet destination. Invalid URLs and missing destinations stop before paid work."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "102ff630e6b6df13d9c5bb65",
+      "name": "Run",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        784,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 2. Read recent reviews\nStart one bounded Actor run. Poll the same run until complete; never automatically retry the paid start."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "b29c07abc1d303e626b2de0c",
+      "name": "Verify",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1680,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 3. Verify the sample\nReconcile coverage, review identities and billing. CAPPED is a bounded recent window. Source failures stop delivery."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "701770d118a889649887a50c",
+      "name": "Deliver",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        2560,
+        0
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 820,
+        "height": 680,
+        "content": "## 4. Review guest feedback\nUpdate one row per listing and review. Filter priority labels for human review. Public response presence is an observation, not a guarantee that a response is needed."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "executionOrder": "v1",
+    "executionTimeout": 480
+  },
+  "connections": {
+    "Run finished?": {
+      "main": [
+        [
+          {
+            "node": "Read authoritative output",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "Wait five seconds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Start manually": {
+      "main": [
+        [
+          {
+            "node": "Review settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Review settings": {
+      "main": [
+        [
+          {
+            "node": "Validate settings",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run Airbnb once": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check run status": {
+      "main": [
+        [
+          {
+            "node": "Run finished?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read existing run": {
+      "main": [
+        [
+          {
+            "node": "Check run status",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate settings": {
+      "main": [
+        [
+          {
+            "node": "Run Airbnb once",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Wait five seconds": {
+      "main": [
+        [
+          {
+            "node": "Read existing run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Check output bounds": {
+      "main": [
+        [
+          {
+            "node": "Read complete bounded dataset",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build verified Sheet rows": {
+      "main": [
+        [
+          {
+            "node": "Upsert review queue in Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read authoritative output": {
+      "main": [
+        [
+          {
+            "node": "Check output bounds",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Read complete bounded dataset": {
+      "main": [
+        [
+          {
+            "node": "Build verified Sheet rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upsert review queue in Google Sheets": {
+      "main": [
+        [
+          {
+            "node": "Return delivery receipt",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Build an Airbnb guest feedback review queue with Apify and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 19302,
+    "update_time": "2026-09-27"
+  }
+}

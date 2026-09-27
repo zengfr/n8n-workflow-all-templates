@@ -1,4 +1,4 @@
-# case : 12
+# case : 17
 
 |id|file|
 |----|----|
@@ -14,3 +14,8 @@
 |13430|[13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13430_Monitor_academic_integrity_signals_with_GPT-4o__email_alerts_and_case_archiving.json)|
 |15411|[15411_Local_Business_Lead_Discovery_and_Enrichment_Agent.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/54/15411_Local_Business_Lead_Discovery_and_Enrichment_Agent.json)|
 |16749|[16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16749_Upload_CSV_test_cases_to_Qase_and_send_completion_alerts_to_Slack.json)|
+|18561|[18561_Route_SMS_conflict_case_commands_via_webhook_using_Google_Sheets_and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18561_Route_SMS_conflict_case_commands_via_webhook_using_Google_Sheets_and_Telegram.json)|
+|18647|[18647_Send_daily_case-priority_email_digests_from_Clio_to_firm_attorneys.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/86/18647_Send_daily_case-priority_email_digests_from_Clio_to_firm_attorneys.json)|
+|18745|[18745_Publish_CourtListener_case_summaries_to_WordPress_with_OpenAI_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18745_Publish_CourtListener_case_summaries_to_WordPress_with_OpenAI_GPT-4o-mini.json)|
+|19284|[19284_Draft_case_study_one-pagers_from_Closed_Won_deals_in_Google_Sheets_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19284_Draft_case_study_one-pagers_from_Closed_Won_deals_in_Google_Sheets_and_email.json)|
+|19355|[19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19355_Generate_mobile_QA_test_cases_and_coverage_gaps_with_ClickUp_and_Claude.json)|

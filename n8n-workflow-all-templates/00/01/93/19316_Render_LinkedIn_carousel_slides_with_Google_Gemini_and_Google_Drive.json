@@ -1,0 +1,465 @@
+{
+  "id": "hsv0aHyV0p3hlQVC",
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Render LinkedIn carousel slides with Google Gemini and Google Drive",
+    "wechat": "youandme10086",
+    "id": 19316,
+    "update_time": "2026-09-27"
+  },
+  "name": "Render LinkedIn Slide (sub)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "3d6d89df-bbe2-47e1-a303-b8ae84da0435",
+      "name": "Overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -1328,
+        -272
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 460,
+        "height": 484,
+        "content": "## Render LinkedIn Slide (sub)\n\nCalled once per slide by the parent carousel workflow (via Execute Workflow). For a single slide it:\n1. Generates an image with **Google Gemini**\n2. Uploads it to the **LinkedIn Images API**\n3. Returns only the image **URN** (no binary) so the parent stays memory-light\n\n**Input the parent must pass:** `image_prompt`, `author_urn`, `linkedin_version`, `image_aspect`, `image_size`, `slide_index` (and optional `alt_text`).\n\n**Credentials to set up:**\n- Google Gemini API key (query auth) → *Generate Slide Image*\n- LinkedIn OAuth2 → *LinkedIn: Initialize Upload*\n- Google Drive OAuth2 → *Upload Preview to Drive* (optional preview copy)"
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "d2d0180e-3108-4faf-a751-daa3af99849a",
+      "name": "Validate",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -384,
+        -240
+      ],
+      "parameters": {
+        "color": 5,
+        "width": 220,
+        "height": 404,
+        "content": "## 1. Validate slide input\n\nConfirms the parent handed over every field a slide needs and throws a clear, named error if any is missing — so an omitted field never turns into an opaque Gemini 400 later on."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "68e0b5fb-932c-4ac8-ac96-8a1c89162b52",
+      "name": "Generate + Retry",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -144,
+        -304
+      ],
+      "parameters": {
+        "color": 6,
+        "width": 432,
+        "height": 684,
+        "content": "## 2. Generate image + retry on refusal\n\nCalls Gemini to render the slide. The response is fetched as a **file (not JSON)** to keep megabytes of base64 out of memory. *Convert Base64 to Binary* extracts the image and flags refusals.\n\nGemini returns HTTP 200 with no image on ~1 call in 5, so *Has Image?* loops refusals back through *Retry Guard* (up to 3 attempts) before failing the slide."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "3d0e8953-62fb-4c72-b559-75eae2bdc862",
+      "name": "Upload + Return",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        544,
+        -304
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1020,
+        "height": 524,
+        "content": "## 3. Upload to LinkedIn & return URN\n\nInitializes a LinkedIn image upload, PUTs the image bytes to the returned upload URL, then returns **only** the image URN + alt text to the parent.\n\n*Upload Preview to Drive* optionally saves a viewable copy to Google Drive. Returning JSON-only (no binary) is what keeps the parent carousel memory-light."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000001",
+      "name": "When Executed by Parent",
+      "type": "n8n-nodes-base.executeWorkflowTrigger",
+      "position": [
+        -528,
+        0
+      ],
+      "parameters": {
+        "inputSource": "passthrough"
+      },
+      "typeVersion": 1.1
+    },
+    {
+      "id": "a3000000-0000-4000-8000-000000000011",
+      "name": "Validate Slide Input",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -336,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Check the parent actually handed us a slide, and say something useful when it\n// did not. Nothing here calls an API, so this costs nothing and runs in ~1 ms.\n//\n// Why this node exists (executions 599-602, 2026-08-26): the HTTP node builds its\n// body with JSON.stringify({ contents: [{ parts: [{ text: $json.image_prompt }] }] }).\n// JSON.stringify DROPS a key whose value is undefined, so a missing image_prompt\n// posts parts: [{}] and Gemini answers\n//   400 * GenerateContentRequest.contents[0].parts[0].data:\n//        required oneof field 'data' must have one initialized field\n// which names neither the field that was missing nor the workflow that omitted\n// it. An empty string does the same thing -- protobuf treats \"\" in a oneof as\n// unset. Three attempts were burned on that before anyone could see why.\nconst REQUIRED = ['image_prompt', 'author_urn', 'linkedin_version', 'image_aspect', 'image_size'];\n\nreturn $input.all().map(function (item, i) {\n  const j = item.json || {};\n\n  const missing = REQUIRED.filter(function (k) {\n    return typeof j[k] !== 'string' ? j[k] == null : !j[k].trim();\n  });\n  // slide_index is legitimately 0, so it cannot be checked for falsiness.\n  if (j.slide_index === undefined || j.slide_index === null) missing.push('slide_index');\n\n  if (missing.length) {\n    // n8n substitutes this placeholder for every node's data when a worker dies,\n    // and the editor keeps showing it on the canvas afterwards. Running a single\n    // node with \"Test step\" then feeds the placeholder into it as real input.\n    const stale = j.isArtificialRecoveredEventItem\n      ? ' The input is n8n\\'s placeholder for a crashed execution, so this was started from stale canvas data — ' +\n        'run the parent workflow from its trigger rather than testing this node on its own.'\n      : ' Input item ' + i + ' had keys: [' + Object.keys(j).join(', ') + '].';\n\n    throw new Error(\n      'Render LinkedIn Slide (sub) was called without: ' + missing.join(', ') + '.' + stale +\n      ' Nothing was sent to Gemini and nothing was uploaded.'\n    );\n  }\n\n  return item;\n});\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000002",
+      "name": "Generate Slide Image",
+      "type": "n8n-nodes-base.httpRequest",
+      "onError": "continueRegularOutput",
+      "position": [
+        -112,
+        0
+      ],
+      "parameters": {
+        "url": "https://generativelanguage.googleapis.com/v1beta/models/gemini-3-pro-image-preview:generateContent",
+        "method": "POST",
+        "options": {
+          "response": {
+            "response": {
+              "responseFormat": "file",
+              "outputPropertyName": "response"
+            }
+          }
+        },
+        "jsonBody": "={{ JSON.stringify({ contents: [ { parts: [ { text: $json.image_prompt } ] } ], generationConfig: { imageConfig: { aspectRatio: $json.image_aspect, imageSize: $json.image_size } } }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "googlePalmApi"
+      },
+      "credentials": {
+        "googlePalmApi": {
+          "id": "bW67OWjaRNvcsUPS",
+          "name": "Google Gemini(PaLM) Api account 2"
+        }
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000005",
+      "name": "Convert Base64 to Binary",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        352,
+        -96
+      ],
+      "parameters": {
+        "jsCode": "// Pull the inline image out of the Gemini envelope and hand it downstream as a\n// binary named \"data\".\n//\n// THE RESPONSE ARRIVES AS A FILE, NOT AS JSON. \"Generate Slide Image\" is set to\n// responseFormat: \"file\", and that is the whole memory fix (execution 595,\n// 2026-08-26, crashed the worker on slide 2 of 4). A JSON response puts ~3.4 MB\n// of base64 into this execution's runData, which n8n holds in RAM for the entire\n// run -- and it was held TWICE, once on the HTTP node and once on the IF node\n// that read it. ~15 MB retained per slide, ~30 MB of V8 heap, times a carousel.\n// A binary response is spooled to the filesystem and costs runData nothing.\n//\n// This node also owns the refusal check now, which is why it sits BEFORE\n// \"Has Image?\" rather than after it. It must therefore never throw on a refusal:\n// it emits { ok: false, reason } and lets \"Has Image?\" route to the retry, since\n// Gemini answers 200-with-no-image on roughly one call in five.\n\nfunction extractImage(json) {\n  const cands = (json && json.candidates) || [];\n  for (const cand of cands) {\n    const parts = (cand && cand.content && cand.content.parts) || [];\n    for (const p of parts) {\n      const inline = p.inlineData || p.inline_data;\n      if (inline && inline.data) {\n        return { data: inline.data, mime: inline.mimeType || inline.mime_type || 'image/png' };\n      }\n    }\n  }\n  return null;\n}\n\nfunction extFor(mime) {\n  if (mime.indexOf('jpeg') !== -1 || mime.indexOf('jpg') !== -1) return 'jpg';\n  if (mime.indexOf('webp') !== -1) return 'webp';\n  return 'png';\n}\n\n// Never put the raw payload in the returned json -- that is the base64 coming\n// straight back into runData through the side door.\nfunction describe(json) {\n  const j = json || {};\n  const cand = (j.candidates || [])[0] || {};\n  const bits = [];\n  if (cand.finishReason) bits.push('finishReason=' + cand.finishReason);\n  if (j.promptFeedback && j.promptFeedback.blockReason) bits.push('blockReason=' + j.promptFeedback.blockReason);\n  if (j.error) bits.push('httpError=' + JSON.stringify(j.error).slice(0, 200));\n  if (!bits.length) bits.push('no image part and no reason given; top-level keys: ' + Object.keys(j).join(','));\n  return bits.join(' | ').slice(0, 400);\n}\n\nconst cfg = $('When Executed by Parent').first().json;\nconst items = $input.all();\nconst out = [];\n\nfor (let i = 0; i < items.length; i++) {\n  let payload = null;\n  let failure = '';\n\n  if ((items[i].binary || {}).response) {\n    try {\n      const raw = await this.helpers.getBinaryDataBuffer(i, 'response');\n      payload = JSON.parse(raw.toString('utf8'));\n    } catch (e) {\n      failure = 'the Gemini response could not be read or parsed: ' + String(e && e.message ? e.message : e).slice(0, 200);\n    }\n  } else {\n    // \"Generate Slide Image\" is onError: continueRegularOutput, so a transport\n    // failure or a 4xx/5xx arrives here as a plain json item carrying `error`\n    // and no binary at all.\n    payload = items[i].json || {};\n  }\n\n  const img = failure ? null : extractImage(payload);\n\n  if (!img) {\n    out.push({\n      json: {\n        ok: false,\n        slideIndex: cfg.slide_index,\n        reason: failure || describe(payload)\n      }\n    });\n    continue;\n  }\n\n  const buf = Buffer.from(img.data, 'base64');\n\n  // LinkedIn rejects images over 10 MB on the Images API. 1:1 @ 2K lands well\n  // under that, but route an oversize frame back through the retry rather than\n  // failing the slide -- a fresh generation is usually smaller, and if three in\n  // a row are not, Retry Guard reports this reason.\n  if (buf.length > 10 * 1024 * 1024) {\n    out.push({\n      json: {\n        ok: false,\n        slideIndex: cfg.slide_index,\n        reason: 'image is ' + Math.round(buf.length / 1048576) + ' MB, over LinkedIn\\'s 10 MB limit. ' +\n          'If this repeats, drop IMAGE_SIZE from 2K to 1K in the parent Config node.'\n      }\n    });\n    continue;\n  }\n\n  const fileName = 'slide-' + cfg.slide_index + '-' + $execution.id + '.' + extFor(img.mime);\n  const bin = await this.helpers.prepareBinaryData(buf, fileName, img.mime);\n\n  out.push({\n    json: {\n      ok: true,\n      slideIndex: cfg.slide_index,\n      altText: cfg.alt_text,\n      authorUrn: cfg.author_urn,\n      linkedinVersion: cfg.linkedin_version,\n      fileName: fileName,\n      mime: img.mime,\n      bytes: buf.length\n    },\n    binary: { data: bin }\n  });\n}\n\nreturn out;\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000003",
+      "name": "Has Image?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        128,
+        0
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "strict"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-inline-image",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json.ok }}",
+              "rightValue": ""
+            }
+          ]
+        }
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000006",
+      "name": "Upload Preview to Drive",
+      "type": "n8n-nodes-base.googleDrive",
+      "onError": "continueRegularOutput",
+      "position": [
+        576,
+        -96
+      ],
+      "parameters": {
+        "name": "={{ $json.fileName }}",
+        "driveId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "My Drive"
+        },
+        "options": {},
+        "folderId": {
+          "__rl": true,
+          "mode": "list",
+          "value": "root",
+          "cachedResultName": "/ (Root folder)"
+        }
+      },
+      "credentials": {
+        "googleDriveOAuth2Api": {
+          "id": "djtloY2zxlHCUnng",
+          "name": "Google Drive account 3"
+        }
+      },
+      "typeVersion": 3
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000007",
+      "name": "LinkedIn: Initialize Upload",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        800,
+        -96
+      ],
+      "parameters": {
+        "url": "https://api.linkedin.com/rest/images?action=initializeUpload",
+        "method": "POST",
+        "options": {},
+        "jsonBody": "={{ JSON.stringify({ initializeUploadRequest: { owner: $('When Executed by Parent').first().json.author_urn } }) }}",
+        "sendBody": true,
+        "sendHeaders": true,
+        "specifyBody": "json",
+        "authentication": "predefinedCredentialType",
+        "headerParameters": {
+          "parameters": [
+            {
+              "name": "LinkedIn-Version",
+              "value": "={{ $('When Executed by Parent').first().json.linkedin_version }}"
+            },
+            {
+              "name": "X-Restli-Protocol-Version",
+              "value": "2.0.0"
+            },
+            {
+              "name": "Content-Type",
+              "value": "application/json"
+            }
+          ]
+        },
+        "nodeCredentialType": "linkedInOAuth2Api"
+      },
+      "credentials": {
+        "linkedInOAuth2Api": {
+          "id": "bJTML0eIqkApfWRx",
+          "name": "LinkedIn account prakhyat"
+        }
+      },
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000004",
+      "name": "Retry Guard",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        -112,
+        224
+      ],
+      "parameters": {
+        "jsCode": "// Gemini answers HTTP 200 with no image on roughly one call in five (measured on\n// the Instagram engine: 2 refusals across 11 calls, either promptFeedback\n// .blockReason=OTHER or a candidate with finishReason=OTHER and no inline part).\n//\n// retryOnFail on the HTTP node cannot help with that -- the call SUCCEEDED, so\n// there is nothing for n8n to retry. Looping back to the generator is the only\n// thing that makes a genuinely new call. Doing it here, inside the per-slide\n// sub-workflow, retries just the slide that was refused; putting the retry on the\n// parent's Execute Workflow node would regenerate every slide in the carousel.\n//\n// The input here is now \"Convert Base64 to Binary\"'s small { ok:false, reason }\n// item, not the raw Gemini envelope -- the envelope never reaches runData any\n// more, which is what keeps a carousel inside the worker's memory.\nconst MAX_ATTEMPTS = 3;\n\nconst j = $input.first().json || {};\n\nif ($runIndex + 1 >= MAX_ATTEMPTS) {\n  throw new Error(\n    'Gemini returned no usable image after ' + MAX_ATTEMPTS + ' attempts for slide ' +\n    ($('When Executed by Parent').first().json.slide_index) + '. Last reason: ' + (j.reason || 'unknown')\n  );\n}\n\n// Re-feed the ORIGINAL trigger item, not $input -- $input here is the failure\n// record, which has no image_prompt on it.\nreturn $('When Executed by Parent').all();\n"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000008",
+      "name": "Merge Upload URL + Binary",
+      "type": "n8n-nodes-base.merge",
+      "position": [
+        1008,
+        0
+      ],
+      "parameters": {
+        "mode": "combine",
+        "options": {},
+        "combineBy": "combineByPosition"
+      },
+      "typeVersion": 3.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000009",
+      "name": "Upload Image Bytes",
+      "type": "n8n-nodes-base.httpRequest",
+      "position": [
+        1232,
+        0
+      ],
+      "parameters": {
+        "url": "={{ $json.value.uploadUrl }}",
+        "method": "PUT",
+        "options": {},
+        "sendBody": true,
+        "contentType": "binaryData",
+        "inputDataFieldName": "data"
+      },
+      "retryOnFail": true,
+      "typeVersion": 4.2
+    },
+    {
+      "id": "a1000000-0000-4000-8000-000000000010",
+      "name": "Return URN Only",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1456,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Re-read everything by NODE REFERENCE, never off $input.\n//\n// The PUT above and the Drive node both emit their own API response and drop the\n// upstream json, so reading $input here would return a populated-looking item\n// with none of the fields we care about. That exact mistake returned \"{}\" to the\n// parent on the Instagram engine (execution 383) and surfaced two nodes later as\n// an opaque \"Bad request\" from the publish call.\n//\n// Returning json only (no binary) is the whole point of this node: Execute\n// Workflow copies whatever the last node emits, so passing the image back would\n// undo the memory saving this sub-workflow exists to provide.\nconst init = $('LinkedIn: Initialize Upload').all();\n// NOT $('Convert Base64 to Binary') -- that node runs once per generation\n// attempt, so a node reference to it can resolve to a refused attempt. The\n// trigger runs exactly once and is where all of this came from anyway.\nconst cfg = $('When Executed by Parent').first().json;\n\nlet drive = [];\ntry { drive = $('Upload Preview to Drive').all(); } catch (e) { drive = []; }\n\nreturn $input.all().map(function (item, i) {\n  const iv = (((init[i] || init[0] || {}).json) || {}).value || {};\n  const dj = ((drive[i] || drive[0] || {}).json) || {};\n\n  if (!iv.image) {\n    throw new Error('LinkedIn initializeUpload returned no image URN for slide ' +\n      cfg.slide_index + '. Response: ' + JSON.stringify((init[i] || init[0] || {}).json).slice(0, 400));\n  }\n\n  return {\n    json: {\n      imageUrn: iv.image,\n      slideIndex: cfg.slide_index,\n      altText: cfg.alt_text,\n      previewUrl: dj.webViewLink || null\n    }\n  };\n});"
+      },
+      "typeVersion": 2
+    }
+  ],
+  "active": true,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "callerPolicy": "workflowsFromSameOwner",
+    "availableInMCP": false,
+    "executionOrder": "v1"
+  },
+  "versionId": "35442fab-c974-483c-8940-23edda5da753",
+  "nodeGroups": [],
+  "connections": {
+    "Has Image?": {
+      "main": [
+        [
+          {
+            "node": "Upload Preview to Drive",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "Merge Upload URL + Binary",
+            "type": "main",
+            "index": 1
+          }
+        ],
+        [
+          {
+            "node": "Retry Guard",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Retry Guard": {
+      "main": [
+        [
+          {
+            "node": "Generate Slide Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Image Bytes": {
+      "main": [
+        [
+          {
+            "node": "Return URN Only",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Generate Slide Image": {
+      "main": [
+        [
+          {
+            "node": "Convert Base64 to Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Validate Slide Input": {
+      "main": [
+        [
+          {
+            "node": "Generate Slide Image",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Upload Preview to Drive": {
+      "main": [
+        [
+          {
+            "node": "LinkedIn: Initialize Upload",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "When Executed by Parent": {
+      "main": [
+        [
+          {
+            "node": "Validate Slide Input",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Convert Base64 to Binary": {
+      "main": [
+        [
+          {
+            "node": "Has Image?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Merge Upload URL + Binary": {
+      "main": [
+        [
+          {
+            "node": "Upload Image Bytes",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "LinkedIn: Initialize Upload": {
+      "main": [
+        [
+          {
+            "node": "Merge Upload URL + Binary",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

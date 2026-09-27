@@ -1,4 +1,4 @@
-# calculator : 6
+# calculator : 10
 
 |id|file|
 |----|----|
@@ -8,3 +8,7 @@
 |11426|[11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/14/11426_Daily_Crypto_Yield_Monitor__Track_Top_Binance_Earn_APY_Rates_with_Earnings_Calculator.json)|
 |11674|[11674_Automate_Fundamental_Stock_Analysis_with_FinnHub_Data_and_Google_Sheets_DCF_Calculator.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/16/11674_Automate_Fundamental_Stock_Analysis_with_FinnHub_Data_and_Google_Sheets_DCF_Calculator.json)|
 |15177|[15177_Track_AI_agent_token_costs_and_store_receipts_with_the_n8n_API_and_Data_Tables.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/51/15177_Track_AI_agent_token_costs_and_store_receipts_with_the_n8n_API_and_Data_Tables.json)|
+|16927|[16927_Track_SIP_goals_with_OpenAI_ChatGPT__Gmail_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16927_Track_SIP_goals_with_OpenAI_ChatGPT__Gmail_and_Google_Sheets.json)|
+|16971|[16971_Calculate_profit_margin_and_markup_with_interactive_web_forms.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/69/16971_Calculate_profit_margin_and_markup_with_interactive_web_forms.json)|
+|17004|[17004_Calculate_Shopify_variant_prices_from_Google_Sheets_with_Slack_approvals.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17004_Calculate_Shopify_variant_prices_from_Google_Sheets_with_Slack_approvals.json)|
+|17045|[17045_Calculate_court_deadlines_with_Google_Calendar__Outlook__and_Clio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17045_Calculate_court_deadlines_with_Google_Calendar__Outlook__and_Clio.json)|

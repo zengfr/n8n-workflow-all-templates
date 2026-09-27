@@ -1,4 +1,4 @@
-# slides : 24
+# slides : 28
 
 |id|file|
 |----|----|
@@ -26,3 +26,7 @@
 |13219|[13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/32/13219_Generate_bulk_certificates_from_Google_Sheets_and_Google_Slides.json)|
 |14081|[14081_Generate_bulk_Google_Slides_certificates___as_PDFs_and_email_them_with_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/40/14081_Generate_bulk_Google_Slides_certificates___as_PDFs_and_email_them_with_Gmail.json)|
 |14762|[14762_Generate_UK_M_A_research__pitch_decks_and_briefs_from_Slack_using_Anthropic_and_Google_Docs_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/47/14762_Generate_UK_M_A_research__pitch_decks_and_briefs_from_Slack_using_Anthropic_and_Google_Docs_Slides.json)|
+|16804|[16804_Generate_sales_call_proposals_with_GPT-4o__Google_Slides__PandaDoc__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16804_Generate_sales_call_proposals_with_GPT-4o__Google_Slides__PandaDoc__and_Gmail.json)|
+|17309|[17309_Generate_client_proposals_from_form_inputs_with_OpenAI__Google_Slides__and_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17309_Generate_client_proposals_from_form_inputs_with_OpenAI__Google_Slides__and_Drive.json)|
+|19316|[19316_Render_LinkedIn_carousel_slides_with_Google_Gemini_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/93/19316_Render_LinkedIn_carousel_slides_with_Google_Gemini_and_Google_Drive.json)|
+|19723|[19723_Generate_consulting_sales_proposals_with_Google_Gemini_and_Google_Slides.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/97/19723_Generate_consulting_sales_proposals_with_Google_Gemini_and_Google_Slides.json)|

@@ -1,4 +1,4 @@
-# pagespeed : 8
+# pagespeed : 10
 
 |id|file|
 |----|----|
@@ -10,3 +10,5 @@
 |15252|[15252_Run_automated_SEO_audits_with_Screaming_Frog_CLI__PageSpeed__PDF_and_Excel_fixes.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/52/15252_Run_automated_SEO_audits_with_Screaming_Frog_CLI__PageSpeed__PDF_and_Excel_fixes.json)|
 |15548|[15548_Export_Google_PageSpeed_Insights_data_to_CSV_for_multiple_URLs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/55/15548_Export_Google_PageSpeed_Insights_data_to_CSV_for_multiple_URLs.json)|
 |15911|[15911_Monitor_Core_Web_Vitals_at_scale_with_PageSpeed_API_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/59/15911_Monitor_Core_Web_Vitals_at_scale_with_PageSpeed_API_and_Google_Sheets.json)|
+|17752|[17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17752_Log_weekly_SEO_technical_audits_with_Google_PageSpeed__Search_Console__and_Sheets.json)|
+|17796|[17796_Send_daily_Core_Web_Vitals_email_reports_with_PageSpeed_Insights_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/77/17796_Send_daily_Core_Web_Vitals_email_reports_with_PageSpeed_Insights_and_Gmail.json)|

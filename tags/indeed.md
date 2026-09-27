@@ -1,4 +1,4 @@
-# indeed : 14
+# indeed : 15
 
 |id|file|
 |----|----|
@@ -16,3 +16,4 @@
 |11574|[11574_Extract_Sales_Leads_from_Google_Jobs__LinkedIn___Indeed_with_GPT-4o_and_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/15/11574_Extract_Sales_Leads_from_Google_Jobs__LinkedIn___Indeed_with_GPT-4o_and_Apify.json)|
 |12355|[12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/23/12355_Find_jobs_on_Indeed_via_Telegram_using_BrowserAct_and_Gemini.json)|
 |15854|[15854_Score_and_triage_Indeed_CVs_with_Mistral_OCR__Groq__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/58/15854_Score_and_triage_Indeed_CVs_with_Mistral_OCR__Groq__and_Google_Sheets.json)|
+|18039|[18039_Scrape_Indeed_job_listings_into_dated_Google_Sheets_with_Apify.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/80/18039_Scrape_Indeed_job_listings_into_dated_Google_Sheets_with_Apify.json)|

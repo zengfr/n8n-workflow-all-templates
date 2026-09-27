@@ -1,0 +1,257 @@
+{
+  "name": "Extract Decisions and Action Items from Multi-Page Meeting Minutes to Google Sheets (LDX hub Accordion Pipeline)",
+  "tags": [],
+  "nodes": [
+    {
+      "id": "a80422cc-61e1-4be4-8d80-115497ad38c6",
+      "name": "On form submission",
+      "type": "n8n-nodes-base.formTrigger",
+      "position": [
+        0,
+        0
+      ],
+      "webhookId": "",
+      "parameters": {
+        "options": {
+          "buttonLabel": "Extract"
+        },
+        "formTitle": "Meeting Minutes → Action Items",
+        "formFields": {
+          "values": [
+            {
+              "fieldName": "minutes_file",
+              "fieldType": "file",
+              "fieldLabel": "Meeting Minutes (PDF)",
+              "multipleFiles": false,
+              "requiredField": true,
+              "acceptFileTypes": ".pdf"
+            }
+          ]
+        },
+        "formDescription": "Upload multi-page meeting minutes as a PDF. LDX hub splits the document into agenda segments and extracts every decision and action item into Google Sheets — one row per item."
+      },
+      "typeVersion": 2.5
+    },
+    {
+      "id": "0a7904f2-34ec-407f-8b02-9d1448084162",
+      "name": "AnalyzeDoc: Segment by Agenda",
+      "type": "n8n-nodes-ldxhub.ldxHub",
+      "position": [
+        224,
+        0
+      ],
+      "parameters": {
+        "model": "google/gemini-3.5-flash@high",
+        "resource": "analyzeDoc",
+        "output_format": "json",
+        "system_prompt": "You are given meeting minutes that may span many pages. Split the document into one item per agenda topic.\n\nRules:\n- Cover the entire document: every agenda topic becomes exactly one item, in document order.\n- An agenda topic may continue across page boundaries — keep it as one single item; never split a topic by page and never merge different topics.\n- agenda_no: the topic number as written in the document (integer). If topics are unnumbered, use the 1-based position.\n- agenda_title: the topic heading as written.\n- content: the full text of that topic's section, transcribed faithfully in the original language (do not summarize, translate, or omit anything). Keep all decisions, action items, owners, and deadlines exactly as written.\n- Do not include the meeting header (title, date, attendees) or page headers/footers in any item's content.",
+        "example_output": "{\"items\":[{\"agenda_no\":1,\"agenda_title\":\"\",\"content\":\"\"}]}",
+        "pollingSettings": {
+          "serverWaitSeconds": 10,
+          "pollingMaxAttempts": 180
+        },
+        "binaryPropertyName": "minutes_file"
+      },
+      "credentials": {
+        "ldxHubApi": {
+          "id": "",
+          "name": "LDXhub API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "f1e46338-d47e-4ec5-84c6-43b4184fc621",
+      "name": "Build Extraction Batch (JSONL)",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        448,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Stage 1 output -> Stage 2 input: expand the segment array into a JSONL batch\nconst buffer = await this.helpers.getBinaryDataBuffer(0, 'minutes_file');\nconst segmented = JSON.parse(buffer.toString('utf8'));\nconst segments = segmented.items || [];\nif (!segments.length) {\n  throw new Error('Segmenter returned no items — check the AnalyzeDoc output');\n}\n\n// One JSONL line per segment. {\"text\": \"...\"} is the StructFlow input format.\nconst lines = segments.map((s) =>\n  JSON.stringify({\n    text: `[Agenda ${s.agenda_no}] ${s.agenda_title}\\n\\n${s.content}`,\n  }),\n);\n\nconst jsonl = Buffer.from(lines.join('\\n'), 'utf8');\nconst binary = await this.helpers.prepareBinaryData(jsonl, 'segments.jsonl', 'application/jsonl');\nreturn [{ json: { segment_count: segments.length }, binary: { segments_jsonl: binary } }];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "0d076400-2a0f-4605-8232-2e596a2dd42a",
+      "name": "StructFlow: Extract Decisions & Actions",
+      "type": "n8n-nodes-ldxhub.ldxHub",
+      "position": [
+        672,
+        0
+      ],
+      "parameters": {
+        "model": "google/gemini-3.5-flash",
+        "resource": "structFlow",
+        "inputMode": "binary",
+        "system_prompt": "The input text is one agenda segment from meeting minutes. The first line is a header in the form \"[Agenda N] Title\". Extract every decision and every action item from the segment.\n\nRules:\n- agenda_no / agenda_title: copy from the header line (agenda_no as an integer).\n- items: one element per decision or action item found in the text. Return an empty array if there are none.\n- item_type: \"decision\" for decisions and agreements, \"action\" for tasks someone has to do.\n- item: the decision or task itself, in the original language, without the owner and deadline parts.\n- owner: the responsible person or team as written; \"\" if not stated.\n- due_date: the deadline in ISO 8601 format (YYYY-MM-DD) when an exact date is given; otherwise copy the deadline expression as written (e.g. \"next meeting\"); \"\" if none.",
+        "example_output": "{\"agenda_no\":1,\"agenda_title\":\"\",\"items\":[{\"item_type\":\"action\",\"item\":\"\",\"owner\":\"\",\"due_date\":\"\"}]}",
+        "pollingSettings": {
+          "serverWaitSeconds": 10,
+          "pollingMaxAttempts": 180
+        },
+        "binaryPropertyName": "segments_jsonl"
+      },
+      "credentials": {
+        "ldxHubApi": {
+          "id": "",
+          "name": "LDXhub API"
+        }
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "6ce71181-4ca5-42d4-a5f1-60480962b46e",
+      "name": "Expand Segments to Rows",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        896,
+        0
+      ],
+      "parameters": {
+        "jsCode": "// Stage 2 output (JSONL, one result per segment) -> one n8n item per decision/action\nconst buffer = await this.helpers.getBinaryDataBuffer(0, 'segments_jsonl');\nconst rows = [];\n\nfor (const line of buffer.toString('utf8').split('\\n')) {\n  const trimmed = line.trim();\n  if (!trimmed) continue;\n  let record;\n  try {\n    record = JSON.parse(trimmed);\n  } catch (error) {\n    continue;\n  }\n  if (record.$error) continue; // a failed segment does not break the others\n  const output = record.output !== undefined ? record.output : record;\n  for (const item of output.items || []) {\n    rows.push({\n      json: {\n        agenda_no: output.agenda_no ?? '',\n        agenda_title: output.agenda_title ?? '',\n        item_type: item.item_type ?? '',\n        item: item.item ?? '',\n        owner: item.owner ?? '',\n        due_date: item.due_date ?? '',\n      },\n    });\n  }\n}\n\nif (!rows.length) {\n  throw new Error('No decisions or action items were extracted');\n}\nreturn rows;"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "e324bf30-dfea-4246-8c63-5766596ae1e2",
+      "name": "Append Rows to Google Sheets",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        1120,
+        0
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": []
+        },
+        "options": {},
+        "operation": "append",
+        "sheetName": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "list",
+          "value": ""
+        }
+      },
+      "credentials": {
+        "googleSheetsOAuth2Api": {
+          "id": "",
+          "name": "Google Sheets account"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "aa1ef53c-cd95-43eb-9bf1-eca488500ae9",
+      "name": "Sticky Note",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -560,
+        -200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 500,
+        "height": 940,
+        "content": "## Accordion Pipeline: Meeting Minutes → Action Items\nUpload multi-page meeting minutes (PDF) via the built-in form. Stage 1 — **LDX hub AnalyzeDoc** reads the whole document and splits it into agenda segments *by meaning* (a topic that crosses a page boundary stays in one piece). Stage 2 — **LDX hub StructFlow** extracts every decision and action item from each segment. One document in, N rows out.\n\n**Setup**\n1. Install the verified community node `n8n-nodes-ldxhub` (v0.10.0 or later) and create an **LDXhub API** credential — get a free API key at https://gw.portal.ldxhub.io (25,000 credits/month, no credit card).\n2. Create a Google Sheet with this header row:\n`agenda_no, agenda_title, item_type, item, owner, due_date`\n3. In **Append Rows to Google Sheets**, select your Google credential, spreadsheet, and sheet.\n4. After picking the sheet, set Mapping Column Mode back to **Map Automatically** — n8n switches it to manual when a sheet is selected.\n5. Activate the workflow, open the form URL, and upload the minutes.\n\nNote: one run executes two AI jobs (segmenter + extractor)."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "7fa502a7-9284-4716-90ea-14e1e9740e5a",
+      "name": "Sticky Note1",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        500,
+        -340
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 440,
+        "height": 280,
+        "content": "## The accordion convention\nStage 1 must return `{\"items\": [...]}` — the Code node between the stages expands that array into one record per element. Keep the `items` key and this template adapts to any long document: contracts (one item per clause), papers (per section), reports (per chapter). Just edit the two prompts and Example Outputs."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "active": false,
+  "pinData": {},
+  "settings": {
+    "binaryMode": "separate",
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "On form submission": {
+      "main": [
+        [
+          {
+            "node": "AnalyzeDoc: Segment by Agenda",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Expand Segments to Rows": {
+      "main": [
+        [
+          {
+            "node": "Append Rows to Google Sheets",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "AnalyzeDoc: Segment by Agenda": {
+      "main": [
+        [
+          {
+            "node": "Build Extraction Batch (JSONL)",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Build Extraction Batch (JSONL)": {
+      "main": [
+        [
+          {
+            "node": "StructFlow: Extract Decisions & Actions",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "StructFlow: Extract Decisions & Actions": {
+      "main": [
+        [
+          {
+            "node": "Expand Segments to Rows",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  },
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "site2": "https://tokenyep.com/",
+    "name": "Extract meeting decisions and action items with LDX hub (Gemini) and Google Sheets",
+    "wechat": "youandme10086",
+    "id": 16999,
+    "update_time": "2026-09-27"
+  }
+}

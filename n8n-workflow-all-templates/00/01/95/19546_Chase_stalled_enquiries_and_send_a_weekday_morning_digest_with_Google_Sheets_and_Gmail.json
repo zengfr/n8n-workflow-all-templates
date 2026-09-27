@@ -1,0 +1,693 @@
+{
+  "meta": {
+    "site": "https://github.com/zengfr/n8n-workflow-all-templates",
+    "tokenfree": "https://tokenyep.com/",
+    "name": "Chase stalled enquiries and send a weekday morning digest with Google Sheets and Gmail",
+    "wechat": "youandme10086",
+    "id": 19546,
+    "update_time": "2026-09-27"
+  },
+  "name": "Chase stalled enquiries and email a daily digest from Google Sheets",
+  "tags": [
+    "cleaning",
+    "enquiries"
+  ],
+  "nodes": [
+    {
+      "id": "manual2",
+      "name": "Run once manually",
+      "type": "n8n-nodes-base.manualTrigger",
+      "position": [
+        0,
+        200
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sched2",
+      "name": "Every weekday at 08:30",
+      "type": "n8n-nodes-base.scheduleTrigger",
+      "position": [
+        0,
+        380
+      ],
+      "parameters": {
+        "rule": {
+          "interval": [
+            {
+              "field": "cronExpression",
+              "expression": "30 8 * * 1-5"
+            }
+          ]
+        }
+      },
+      "typeVersion": 1.2
+    },
+    {
+      "id": "cfg2",
+      "name": "config",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        220,
+        290
+      ],
+      "parameters": {
+        "jsCode": "// COMMERCIAL CLEANING — ENQUIRY PIPELINE — CONFIG\n// Everything you might want to change lives in this one node. Nothing else in either\n// workflow needs editing.\n//\n// This same block appears in BOTH workflows (\"01 capture and reply\" and\n// \"02 chase and digest\"). If you change it in one, paste it into the other.\n\n// ---------------------------------------------------------------- Your tracking sheet\n// The id is the long code in the sheet's web address:\n// docs.google.com/spreadsheets/d/<THIS BIT>/edit\nconst TRACKER_SHEET_ID = '';\nconst TRACKER_TAB      = 'Enquiries';\n\n// The column headings, exactly as they appear in row 1 of the sheet.\nconst COLUMNS = {\n  ref:          'Ref',\n  received:     'Received',\n  stage:        'Stage',\n  owner:        'Owner',\n  owner_email:  'Owner email',\n  company:      'Company',\n  contact:      'Contact',\n  email:        'Email',\n  phone:        'Phone',\n  postcode:     'Postcode',\n  area:         'Area',\n  premises:     'Premises',\n  message:      'What they said',\n  sqft:         'Sq ft',\n  frequency:    'Frequency',\n  access:       'Access',\n  last_touch:   'Last touch',\n  chases_sent:  'Chases sent',\n  next_action:  'Next action',\n  notes:        'Notes'\n};\n\n// ---------------------------------------------------------------- Who quotes where\n// Postcodes are matched on the longest prefix that fits, so 'SW1' beats 'SW'.\n// Spaces and case are ignored: \"sw1a 1aa\" matches 'SW1A', 'SW1' or 'SW'.\nconst AREAS = [\n  { area: 'North',      owner: 'Sam',   email: '', postcodes: ['N', 'EN', 'HA', 'NW'] },\n  { area: 'South',      owner: 'Priya', email: '', postcodes: ['SW', 'SE', 'CR', 'BR'] },\n  { area: 'East',       owner: 'Dan',   email: '', postcodes: ['E', 'IG', 'RM'] },\n  { area: 'West',       owner: 'Priya', email: '', postcodes: ['W', 'UB', 'TW'] },\n  { area: 'Central',    owner: 'Sam',   email: '', postcodes: ['EC', 'WC'] }\n];\n\n// Anything that does not match an area above, or arrives with no postcode at all.\nconst FALLBACK = { area: 'Unassigned', owner: 'Office', email: '' };\n\n// ---------------------------------------------------------------- The first reply\nconst COMPANY_NAME = 'Your Cleaning Company';\nconst FROM_NAME    = 'Your Cleaning Company';\nconst REPLY_TO     = '';          // where replies from customers should land\nconst PHONE        = '';\nconst WEBSITE      = '';\n\n// The questions you always end up asking. Add or reword freely; the email and the\n// sheet columns follow whatever is in this list.\nconst QUESTIONS = [\n  'Roughly how many square feet is the space, or how many rooms and floors?',\n  'How often would you like it cleaned — daily, a few times a week, weekly, or a one-off?',\n  'When can our team get access, and is there anything they need to get in (keys, fob, alarm code)?'\n];\n\n// ---------------------------------------------------------------- Chasing\nconst CHASE_AFTER_HOURS = 48;   // no movement for this long and the owner gets a nudge\nconst CHASE_MAX         = 2;    // stop nudging after this many, so nobody gets spammed\nconst DIGEST_TO         = '';   // who gets the morning summary. Blank = no digest.\nconst DIGEST_ALWAYS     = true; // send the digest even on a quiet day\n\n// The stages a job moves through. Anything in OPEN_STAGES is still live and can be\n// chased; anything else is finished and is left alone.\nconst STAGE_ON_ARRIVAL  = 'New';\nconst STAGE_AFTER_REPLY = 'Questions sent';\nconst OPEN_STAGES       = ['New', 'Questions sent', 'Answers in', 'Quoting', 'Quoted'];\n\n// ---------------------------------------------------------------- Safety switch\n//   TEST_RUN true,  TEST_EMAIL blank -> PREVIEW. Nothing is emailed. The sheet is still\n//                                      written, so you can watch enquiries land.\n//   TEST_RUN true,  TEST_EMAIL set   -> TEST. Emails really send, but every one goes to\n//                                      TEST_EMAIL instead of the customer.\n//   TEST_RUN false                   -> LIVE. Customers get the real thing.\nconst TEST_RUN   = true;\nconst TEST_EMAIL = '';\n\nconst MODE = TEST_RUN !== true ? 'live'\n  : (TEST_EMAIL.trim() !== '' ? 'test' : 'preview');\n\nreturn [{\n  json: {\n    tracker_sheet_id: TRACKER_SHEET_ID,\n    tracker_tab:      TRACKER_TAB,\n    columns:          COLUMNS,\n\n    areas:    AREAS,\n    fallback: FALLBACK,\n\n    company_name: COMPANY_NAME,\n    from_name:    FROM_NAME,\n    reply_to:     REPLY_TO.trim(),\n    phone:        PHONE.trim(),\n    website:      WEBSITE.trim(),\n    questions:    QUESTIONS,\n\n    chase_after_hours: Number(CHASE_AFTER_HOURS) || 48,\n    chase_max:         Number(CHASE_MAX) || 0,\n    digest_to:         DIGEST_TO.trim(),\n    digest_always:     DIGEST_ALWAYS === true,\n\n    stage_on_arrival:  STAGE_ON_ARRIVAL,\n    stage_after_reply: STAGE_AFTER_REPLY,\n    open_stages:       OPEN_STAGES,\n\n    // derived flags - the gates read these, never the raw constants\n    mode:          MODE,\n    preview_only:  MODE === 'preview',\n    test_send:     MODE === 'test',\n    live_send:     MODE === 'live',\n    send_enabled:  MODE !== 'preview',\n    test_email:    TEST_EMAIL.trim(),\n    digest_enabled: DIGEST_TO.trim() !== ''\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sheet-read",
+      "name": "[cred] Sheets - read the tracker",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        440,
+        290
+      ],
+      "parameters": {
+        "options": {},
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('config').first().json.tracker_tab }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.tracker_sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "quiet",
+      "name": "find what has gone quiet",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        660,
+        290
+      ],
+      "parameters": {
+        "jsCode": "// Read the whole tracker once and work out two things: what has gone quiet and needs\n// a nudge, and what the board looks like this morning.\nconst cfg = $('config').first().json;\nconst C = cfg.columns;\nconst rows = $input.all().map((i) => i.json);\n\nconst val = (row, key) => String(row[C[key]] ?? '').trim();\nconst openStages = (cfg.open_stages || []).map((s) => s.toLowerCase());\n\n// This one function decides whether anything ever gets chased, so it has to cope with\n// every shape a date can arrive in: what we write, what a human types, and what Sheets\n// turns a cell into if someone reformats it. A date it cannot read means an enquiry that\n// is never chased and nothing to say why - so unreadable is worth being loud about.\nconst parseWhen = (s) => {\n  const raw = String(s ?? '').trim();\n  if (!raw) return null;\n\n  // \"2026-08-31 09:14\" or \"2026-08-31\" - what this workflow writes.\n  const isoish = raw.match(/^(\\d{4})-(\\d{2})-(\\d{2})(?:[ T](\\d{2}):(\\d{2}))?/);\n  if (isoish) {\n    return new Date(Date.UTC(+isoish[1], +isoish[2] - 1, +isoish[3],\n                             +(isoish[4] || 0), +(isoish[5] || 0)));\n  }\n\n  // \"31/08/2026 09:14\" or \"31-08-2026\" - a person typed it, or Sheets reformatted it.\n  // Day-first unless the first number cannot be a day, because this is a UK sheet.\n  const slashed = raw.match(/^(\\d{1,2})[\\/.-](\\d{1,2})[\\/.-](\\d{4})(?:[ T](\\d{1,2}):(\\d{2}))?/);\n  if (slashed) {\n    let day = +slashed[1], month = +slashed[2];\n    if (day > 12 && month <= 12) { /* unambiguous day-first */ }\n    else if (month > 12 && day <= 12) { const t = day; day = month; month = t; }\n    return new Date(Date.UTC(+slashed[3], month - 1, day, +(slashed[4] || 0), +(slashed[5] || 0)));\n  }\n\n  // A bare Google Sheets serial number, whose epoch is 30 Dec 1899.\n  if (/^\\d+(\\.\\d+)?$/.test(raw)) {\n    const serial = Number(raw);\n    if (serial > 20000 && serial < 90000) {\n      return new Date(Date.UTC(1899, 11, 30) + Math.round(serial * 86400000));\n    }\n  }\n\n  const loose = new Date(raw);\n  return isNaN(loose.getTime()) ? null : loose;\n};\n\nconst now = Date.now();\nconst cutoffMs = (cfg.chase_after_hours || 48) * 3600 * 1000;\n\nconst board = {};\nconst stalled = [];\nconst noOwnerEmail = [];\nlet open = 0;\n\nfor (let i = 0; i < rows.length; i++) {\n  const row = rows[i];\n  const ref = val(row, 'ref');\n  if (!ref) continue;\n\n  const stage = val(row, 'stage') || 'New';\n  board[stage] = (board[stage] || 0) + 1;\n\n  if (!openStages.includes(stage.toLowerCase())) continue;\n  open++;\n\n  const touched = parseWhen(val(row, 'last_touch')) || parseWhen(val(row, 'received'));\n  const quietFor = touched ? now - touched.getTime() : null;\n  const chases = Number(val(row, 'chases_sent')) || 0;\n\n  if (quietFor === null || quietFor < cutoffMs) continue;\n  if (cfg.chase_max > 0 && chases >= cfg.chase_max) continue;\n\n  const entry = {\n    _row_number: i + 2,\n    ref,\n    stage,\n    owner: val(row, 'owner') || 'Office',\n    owner_email: val(row, 'owner_email'),\n    company: val(row, 'company') || val(row, 'contact') || val(row, 'email'),\n    contact: val(row, 'contact'),\n    email: val(row, 'email'),\n    phone: val(row, 'phone'),\n    area: val(row, 'area'),\n    postcode: val(row, 'postcode'),\n    next_action: val(row, 'next_action'),\n    chases_sent: chases,\n    quiet_hours: Math.floor(quietFor / 3600000),\n    notes: val(row, 'notes')\n  };\n\n  if (entry.owner_email) stalled.push(entry);\n  else noOwnerEmail.push(entry);\n}\n\n// One email per owner, listing everything of theirs that has gone quiet, rather than\n// one email per enquiry. Nobody wants six separate nudges.\nconst byOwner = {};\nfor (const s of stalled) {\n  const key = s.owner_email.toLowerCase();\n  if (!byOwner[key]) byOwner[key] = { owner: s.owner, owner_email: s.owner_email, items: [] };\n  byOwner[key].items.push(s);\n}\nfor (const group of Object.values(byOwner)) {\n  group.items.sort((a, b) => b.quiet_hours - a.quiet_hours);\n}\n\nconst groups = Object.values(byOwner);\n\nreturn [{\n  json: {\n    _has_stalled: groups.length > 0,\n    groups,\n    stalled_count: stalled.length,\n    no_owner_email: noOwnerEmail,\n    board,\n    open_count: open,\n    rows_read: rows.length,\n    cutoff_hours: cfg.chase_after_hours\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "has-stalled",
+      "name": "anything to chase?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        880,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "has-stalled-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._has_stalled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stop-quiet",
+      "name": "STOP: nothing stalled",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1100,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// Nothing has gone quiet. The digest still goes out on the other branch.\nreturn $input.all().map((i) => ({ json: Object.assign({}, i.json, { _outcome: 'nothing_stalled' }) }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "split-owner",
+      "name": "split by owner",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1100,
+        60
+      ],
+      "parameters": {
+        "jsCode": "// One item per owner, so the Gmail node sends one nudge each.\nconst analysis = $input.first().json;\nreturn (analysis.groups || []).map((g) => ({ json: g }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "nudge",
+      "name": "write the nudge",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        60
+      ],
+      "parameters": {
+        "jsCode": "// The nudge to one owner. It names the enquiries, says how long each has been sitting,\n// and gives a one-line next action - a reminder you can act on without opening a tab.\nconst cfg = $('config').first().json;\nconst g = $input.first().json;\n\nconst esc = (s) => String(s ?? '')\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\n  .replace(/\"/g, '&quot;').replace(/'/g, '&#39;');\n\nconst INK = '#1b1d21', MUTED = '#5c6470', LINE = '#e4e7eb', WARN = '#b4531a';\nconst FONT = \"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif\";\n\nconst days = (h) => h >= 48 ? Math.floor(h / 24) + ' days' : h + ' hours';\n\nconst rowsHtml = g.items.map((it) =>\n  '<tr>' +\n  '<td style=\"padding:10px 14px 10px 0;border-top:1px solid ' + LINE + ';font:600 14px/1.5 ' + FONT + ';color:' + INK + '\">' +\n    esc(it.company) + '<br><span style=\"font-weight:400;color:' + MUTED + '\">' + esc(it.ref) +\n    (it.postcode ? ' &middot; ' + esc(it.postcode) : '') + '</span></td>' +\n  '<td style=\"padding:10px 14px 10px 0;border-top:1px solid ' + LINE + ';font:400 14px/1.5 ' + FONT + ';color:' + WARN + ';white-space:nowrap\">' +\n    esc(days(it.quiet_hours)) + '</td>' +\n  '<td style=\"padding:10px 0;border-top:1px solid ' + LINE + ';font:400 14px/1.5 ' + FONT + ';color:' + MUTED + '\">' +\n    esc(it.stage) + (it.next_action ? '<br>' + esc(it.next_action) : '') + '</td>' +\n  '</tr>').join('');\n\nconst html =\n  '<div style=\"font:400 15px/1.6 ' + FONT + ';color:' + INK + ';max-width:600px\">' +\n  '<p style=\"margin:0 0 4px\"><strong>' + esc(g.owner) + '</strong>, ' + g.items.length +\n  (g.items.length === 1 ? ' enquiry has' : ' enquiries have') + ' had no movement for over ' +\n  esc(String(cfg.chase_after_hours)) + ' hours.</p>' +\n  '<p style=\"margin:0 0 18px;color:' + MUTED + '\">Chase it, quote it, or mark it lost in the sheet — any of the three clears it from this list.</p>' +\n  '<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">' + rowsHtml + '</table>' +\n  '</div>';\n\nconst text = [\n  g.owner + ', ' + g.items.length + (g.items.length === 1 ? ' enquiry has' : ' enquiries have') +\n    ' had no movement for over ' + cfg.chase_after_hours + ' hours.',\n  'Chase it, quote it, or mark it lost in the sheet - any of the three clears it from this list.',\n  ''\n].concat(g.items.map((it) =>\n  '- ' + it.company + ' (' + it.ref + (it.postcode ? ', ' + it.postcode : '') + ')' +\n  '\\n  quiet for ' + days(it.quiet_hours) + ', stage: ' + it.stage +\n  (it.next_action ? '\\n  next: ' + it.next_action : '')\n)).join('\\n');\n\nreturn [{\n  json: Object.assign({}, g, {\n    nudge_subject: g.items.length + (g.items.length === 1 ? ' enquiry needs' : ' enquiries need') +\n      ' a chase — ' + g.owner,\n    nudge_html: html,\n    nudge_text: text\n  })\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sending2",
+      "name": "sending the nudges?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1540,
+        60
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "sending2-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $('config').first().json.send_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stop-prev2",
+      "name": "STOP: preview - nudges not sent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1760,
+        240
+      ],
+      "parameters": {
+        "jsCode": "// PREVIEW mode: the nudges and the digest were built but not sent. Open this node's\n// output to read them.\nreturn $input.all().map((i) => ({ json: Object.assign({}, i.json, { _outcome: 'preview' }) }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "mail-nudge",
+      "name": "[cred] Gmail - nudge the owner",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Plain-text alternative is on the item as nudge_text",
+      "onError": "continueRegularOutput",
+      "position": [
+        1760,
+        60
+      ],
+      "parameters": {
+        "sendTo": "={{ $('config').first().json.test_send ? $('config').first().json.test_email : $json.owner_email }}",
+        "message": "={{ $('write the nudge').first().json.nudge_html }}",
+        "options": {
+          "replyTo": "={{ $('config').first().json.reply_to }}",
+          "senderName": "={{ $('config').first().json.from_name }}",
+          "appendAttribution": false
+        },
+        "subject": "={{ $('config').first().json.test_send ? ('[TEST -> ' + $json.owner_email + '] ' + $json.nudge_subject) : $json.nudge_subject }}",
+        "emailType": "html"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "record-chase",
+      "name": "record the chase",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1980,
+        60
+      ],
+      "parameters": {
+        "jsCode": "// Bump the chase counter on every row we just nudged, so the second reminder is the\n// last one and nobody gets a daily drip about the same job.\nconst cfg = $('config').first().json;\nconst C = cfg.columns;\nconst g = $('write the nudge').first().json;\nconst stamp = new Date().toISOString().slice(0, 16).replace('T', ' ');\n\nreturn (g.items || []).map((it) => {\n  const row = {};\n  row[C.ref]         = it.ref;\n  row[C.chases_sent] = (Number(it.chases_sent) || 0) + 1;\n  row[C.notes]       = [it.notes, stamp + ': chased ' + it.owner].filter(Boolean).join(' | ').slice(0, 900);\n  return { json: Object.assign({}, row, { _ref: it.ref, _owner: it.owner }) };\n});"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "sheet-chase",
+      "name": "[cred] Sheets - record the chase",
+      "type": "n8n-nodes-base.googleSheets",
+      "position": [
+        2200,
+        60
+      ],
+      "parameters": {
+        "columns": {
+          "value": {},
+          "schema": [],
+          "mappingMode": "autoMapInputData",
+          "matchingColumns": [
+            "Ref"
+          ]
+        },
+        "options": {
+          "cellFormat": "RAW"
+        },
+        "operation": "appendOrUpdate",
+        "sheetName": {
+          "__rl": true,
+          "mode": "name",
+          "value": "={{ $('config').first().json.tracker_tab }}"
+        },
+        "documentId": {
+          "__rl": true,
+          "mode": "id",
+          "value": "={{ $('config').first().json.tracker_sheet_id }}"
+        }
+      },
+      "typeVersion": 4.5
+    },
+    {
+      "id": "digest",
+      "name": "build the morning digest",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        880,
+        520
+      ],
+      "parameters": {
+        "jsCode": "// The at-a-glance email. Everything open, grouped by stage, oldest first, on one\n// screen. This is the \"what stage is everything at\" answer without opening the sheet.\nconst cfg = $('config').first().json;\nconst a = $input.first().json;\n\nconst esc = (s) => String(s ?? '')\n  .replace(/&/g, '&amp;').replace(/</g, '&lt;').replace(/>/g, '&gt;')\n  .replace(/\"/g, '&quot;').replace(/'/g, '&#39;');\n\nconst INK = '#1b1d21', MUTED = '#5c6470', LINE = '#e4e7eb', WARN = '#b4531a', OK = '#1a6b4a';\nconst FONT = \"-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif\";\n\nconst today = new Date().toISOString().slice(0, 10);\nconst board = a.board || {};\nconst ordered = (cfg.open_stages || []).concat(\n  Object.keys(board).filter((s) => !(cfg.open_stages || []).includes(s)));\n\nconst tiles = ordered.filter((s) => board[s]).map((stage) => {\n  const live = (cfg.open_stages || []).includes(stage);\n  return '<td style=\"padding:0 10px 10px 0\" valign=\"top\">' +\n    '<div style=\"min-width:104px;padding:12px 14px;border:1px solid ' + LINE + ';border-radius:8px\">' +\n    '<div style=\"font:700 22px/1 ' + FONT + ';color:' + (live ? INK : MUTED) + '\">' + board[stage] + '</div>' +\n    '<div style=\"margin-top:4px;font:400 12px/1.3 ' + FONT + ';color:' + MUTED + '\">' + esc(stage) + '</div>' +\n    '</div></td>';\n}).join('');\n\nconst stalledRows = [].concat(...(a.groups || []).map((g) => g.items))\n  .sort((x, y) => y.quiet_hours - x.quiet_hours);\n\nconst stalledHtml = stalledRows.length\n  ? '<p style=\"margin:22px 0 8px;font:600 12px/1.4 ' + FONT + ';letter-spacing:.07em;text-transform:uppercase;color:' + MUTED + '\">Gone quiet</p>' +\n    '<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\" width=\"100%\">' +\n    stalledRows.map((it) =>\n      '<tr><td style=\"padding:8px 12px 8px 0;border-top:1px solid ' + LINE + ';font:400 14px/1.5 ' + FONT + ';color:' + INK + '\">' +\n      esc(it.company) + ' <span style=\"color:' + MUTED + '\">' + esc(it.ref) + '</span></td>' +\n      '<td style=\"padding:8px 12px 8px 0;border-top:1px solid ' + LINE + ';font:400 14px/1.5 ' + FONT + ';color:' + MUTED + '\">' + esc(it.owner) + '</td>' +\n      '<td style=\"padding:8px 0;border-top:1px solid ' + LINE + ';font:400 14px/1.5 ' + FONT + ';color:' + WARN + ';white-space:nowrap\">' +\n      Math.floor(it.quiet_hours / 24) + 'd</td></tr>').join('') +\n    '</table>'\n  : '<p style=\"margin:22px 0 0;font:400 15px/1.6 ' + FONT + ';color:' + OK + '\">Nothing has gone quiet. Everything open has been touched in the last ' + esc(String(a.cutoff_hours)) + ' hours.</p>';\n\nconst orphanHtml = (a.no_owner_email || []).length\n  ? '<p style=\"margin:22px 0 8px;font:600 12px/1.4 ' + FONT + ';letter-spacing:.07em;text-transform:uppercase;color:' + WARN + '\">No owner email — nobody was nudged</p>' +\n    '<p style=\"margin:0;font:400 14px/1.6 ' + FONT + ';color:' + MUTED + '\">' +\n    a.no_owner_email.map((o) => esc(o.ref + ' ' + o.company + ' (' + o.owner + ')')).join('<br>') +\n    '<br><br>Add their address to the area list in the config node.</p>'\n  : '';\n\nconst html =\n  '<div style=\"font:400 15px/1.6 ' + FONT + ';color:' + INK + ';max-width:640px\">' +\n  '<p style=\"margin:0 0 4px;font:600 17px/1.3 ' + FONT + '\">Enquiries — ' + today + '</p>' +\n  '<p style=\"margin:0 0 18px;color:' + MUTED + '\">' + a.open_count + ' open, ' +\n  a.stalled_count + ' gone quiet past ' + esc(String(a.cutoff_hours)) + ' hours.</p>' +\n  '<table cellpadding=\"0\" cellspacing=\"0\" border=\"0\"><tr>' + tiles + '</tr></table>' +\n  stalledHtml + orphanHtml +\n  '</div>';\n\nconst text = ['Enquiries - ' + today, '',\n  a.open_count + ' open, ' + a.stalled_count + ' gone quiet past ' + a.cutoff_hours + ' hours.', '']\n  .concat(ordered.filter((s) => board[s]).map((s) => '  ' + String(board[s]).padStart(3) + '  ' + s))\n  .concat(stalledRows.length ? ['', 'GONE QUIET', ''].concat(stalledRows.map((it) =>\n    '  ' + Math.floor(it.quiet_hours / 24) + 'd  ' + it.company + ' (' + it.ref + ') - ' + it.owner)) : ['', 'Nothing has gone quiet.'])\n  .join('\\n');\n\nreturn [{\n  json: {\n    digest_subject: 'Enquiries — ' + a.open_count + ' open, ' + a.stalled_count + ' need chasing',\n    digest_html: html,\n    digest_text: text,\n    _send_digest: cfg.digest_enabled && (cfg.digest_always || a.open_count > 0),\n    board,\n    open_count: a.open_count,\n    stalled_count: a.stalled_count\n  }\n}];"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "send-digest",
+      "name": "send the digest?",
+      "type": "n8n-nodes-base.if",
+      "position": [
+        1100,
+        520
+      ],
+      "parameters": {
+        "options": {},
+        "conditions": {
+          "options": {
+            "version": 2,
+            "leftValue": "",
+            "caseSensitive": true,
+            "typeValidation": "loose"
+          },
+          "combinator": "and",
+          "conditions": [
+            {
+              "id": "send-digest-c",
+              "operator": {
+                "type": "boolean",
+                "operation": "true",
+                "singleValue": true
+              },
+              "leftValue": "={{ $json._send_digest && $('config').first().json.send_enabled }}",
+              "rightValue": "true"
+            }
+          ]
+        },
+        "looseTypeValidation": true
+      },
+      "typeVersion": 2.2
+    },
+    {
+      "id": "stop-digest",
+      "name": "STOP: digest not sent",
+      "type": "n8n-nodes-base.code",
+      "position": [
+        1320,
+        700
+      ],
+      "parameters": {
+        "jsCode": "// PREVIEW mode: the nudges and the digest were built but not sent. Open this node's\n// output to read them.\nreturn $input.all().map((i) => ({ json: Object.assign({}, i.json, { _outcome: 'preview' }) }));"
+      },
+      "typeVersion": 2
+    },
+    {
+      "id": "mail-digest",
+      "name": "[cred] Gmail - send the digest",
+      "type": "n8n-nodes-base.gmail",
+      "notes": "Plain-text alternative is on the item as digest_text",
+      "onError": "continueRegularOutput",
+      "position": [
+        1320,
+        520
+      ],
+      "parameters": {
+        "sendTo": "={{ $('config').first().json.test_send ? $('config').first().json.test_email : $('config').first().json.digest_to }}",
+        "message": "={{ $('build the morning digest').first().json.digest_html }}",
+        "options": {
+          "replyTo": "={{ $('config').first().json.reply_to }}",
+          "senderName": "={{ $('config').first().json.from_name }}",
+          "appendAttribution": false
+        },
+        "subject": "={{ $('build the morning digest').first().json.digest_subject }}",
+        "emailType": "html"
+      },
+      "typeVersion": 2.1
+    },
+    {
+      "id": "end2",
+      "name": "End of run",
+      "type": "n8n-nodes-base.noOp",
+      "position": [
+        2640,
+        290
+      ],
+      "parameters": {},
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-overview",
+      "name": "Sticky Note - Template overview",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -720
+      ],
+      "parameters": {
+        "color": 4,
+        "width": 760,
+        "height": 640,
+        "content": "## Chase stalled enquiries and email a daily digest from Google Sheets\n\n**Who's it for**\nCommercial cleaning companies, and any small sales team, that tracks enquiries in a Google Sheet and keeps losing work simply because nobody followed up in time.\n\n**How it works**\nEvery weekday at 08:30 the workflow reads the whole tracker once. Any enquiry still at an open stage that has had no movement for `CHASE_AFTER_HOURS` (48 by default) is collected and grouped by owner, then each owner gets one nudge listing all of theirs - never one email per enquiry. Chasing stops after `CHASE_MAX` reminders, and the chase count is written back to the sheet so nobody gets a daily drip about the same job. From the same read it builds a morning digest: every open enquiry counted by stage, everything that has gone quiet, and any row with no owner email. Moving a row to Won or Lost takes it out of both.\n\n**How to set up**\n1. Attach a Google Sheets credential and a Gmail credential to the four `[cred]` nodes.\n2. Open `config` and set `TRACKER_SHEET_ID`, the area-to-owner list and `DIGEST_TO`.\n3. Leave `TEST_RUN = true` for the first run, read what the STOP nodes produced, then set it to `false`.\n\n**Requirements**\nA Google account for Sheets and Gmail, and a tracker sheet with an `Enquiries` tab whose headings match `COLUMNS`.\n\n**How to customize**\n`CHASE_AFTER_HOURS`, `CHASE_MAX` and `OPEN_STAGES` in `config` decide what counts as stalled. The email wording lives in `write the nudge` and `build the morning digest`."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec1",
+      "name": "Sticky Note - Start and read",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        -40,
+        -40
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 720,
+        "height": 220,
+        "content": "### 1. Start, settings, and one read of the tracker\n\n`Run once manually` is for testing; `Every weekday at 08:30` is what runs in production. Both feed `config`, the single node holding every setting - sheet id, column headings, areas and owners, chase timings and the test switch.\n\n`[cred] Sheets - read the tracker` pulls the whole `Enquiries` tab once, and `find what has gone quiet` sorts every row into the stage counts and the list of open enquiries with no recent movement."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec2",
+      "name": "Sticky Note - Chase",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        -240
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 1300,
+        "height": 260,
+        "content": "### 2. Decide who to chase, then write one nudge per owner\n\n`anything to chase?` takes the top branch only when something is actually stalled; otherwise **STOP: nothing stalled** ends that side quietly and the digest still goes out.\n\n`split by owner` turns the grouped result into one item per person. `write the nudge` builds that person's email: the enquiries, how long each has been sitting, the stage and the next action.\n\n`sending the nudges?` is the safety gate. While `TEST_RUN = true` and `TEST_EMAIL` is blank, everything stops at **STOP: preview - nudges not sent** and you read the drafts in that node's output. Set `TEST_EMAIL` and the real emails send, but to you."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec3",
+      "name": "Sticky Note - Record the chase",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        1980,
+        200
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 600,
+        "height": 260,
+        "content": "### 3. Write the chase back to the sheet\n\n`record the chase` bumps **Chases sent** on every row that was just nudged and adds a dated line to **Notes**. `[cred] Sheets - record the chase` writes them back, matched on **Ref**.\n\nThat counter is what stops the same job being chased every morning forever. If you rename the column, change `COLUMNS.chases_sent` in `config` **and** the *Column to match on* here."
+      },
+      "typeVersion": 1
+    },
+    {
+      "id": "sticky-sec4",
+      "name": "Sticky Note - Morning digest",
+      "type": "n8n-nodes-base.stickyNote",
+      "position": [
+        880,
+        840
+      ],
+      "parameters": {
+        "color": 7,
+        "width": 940,
+        "height": 240,
+        "content": "### 4. The morning digest\n\n`build the morning digest` runs from the same single read, so the summary costs nothing extra: every open enquiry counted by stage, everything that has gone quiet oldest first, and any row whose owner has no email address on file.\n\n`send the digest?` checks that `DIGEST_TO` is set and that sending is enabled. In preview mode it stops, fully built, at **STOP: digest not sent**. `[cred] Gmail - send the digest` sends it, and every path meets at `End of run`."
+      },
+      "typeVersion": 1
+    }
+  ],
+  "settings": {
+    "executionOrder": "v1"
+  },
+  "connections": {
+    "config": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - read the tracker",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "split by owner": {
+      "main": [
+        [
+          {
+            "node": "write the nudge",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "write the nudge": {
+      "main": [
+        [
+          {
+            "node": "sending the nudges?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "record the chase": {
+      "main": [
+        [
+          {
+            "node": "[cred] Sheets - record the chase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "send the digest?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Gmail - send the digest",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: digest not sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Run once manually": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "anything to chase?": {
+      "main": [
+        [
+          {
+            "node": "split by owner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: nothing stalled",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "sending the nudges?": {
+      "main": [
+        [
+          {
+            "node": "[cred] Gmail - nudge the owner",
+            "type": "main",
+            "index": 0
+          }
+        ],
+        [
+          {
+            "node": "STOP: preview - nudges not sent",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: digest not sent": {
+      "main": [
+        [
+          {
+            "node": "End of run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: nothing stalled": {
+      "main": [
+        [
+          {
+            "node": "End of run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "Every weekday at 08:30": {
+      "main": [
+        [
+          {
+            "node": "config",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "build the morning digest": {
+      "main": [
+        [
+          {
+            "node": "send the digest?",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "find what has gone quiet": {
+      "main": [
+        [
+          {
+            "node": "anything to chase?",
+            "type": "main",
+            "index": 0
+          },
+          {
+            "node": "build the morning digest",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Gmail - nudge the owner": {
+      "main": [
+        [
+          {
+            "node": "record the chase",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Gmail - send the digest": {
+      "main": [
+        [
+          {
+            "node": "End of run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "STOP: preview - nudges not sent": {
+      "main": [
+        [
+          {
+            "node": "End of run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - read the tracker": {
+      "main": [
+        [
+          {
+            "node": "find what has gone quiet",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    },
+    "[cred] Sheets - record the chase": {
+      "main": [
+        [
+          {
+            "node": "End of run",
+            "type": "main",
+            "index": 0
+          }
+        ]
+      ]
+    }
+  }
+}

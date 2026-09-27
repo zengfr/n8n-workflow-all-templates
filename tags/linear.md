@@ -1,4 +1,4 @@
-# linear : 25
+# linear : 27
 
 |id|file|
 |----|----|
@@ -27,3 +27,5 @@
 |16393|[16393_Detect_and_route_customer_escalations_with_Claude__Slack_and_Linear.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/63/16393_Detect_and_route_customer_escalations_with_Claude__Slack_and_Linear.json)|
 |16402|[16402_Route_CI_CD_failure_alerts_with_OpenAI__Slack__Linear__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16402_Route_CI_CD_failure_alerts_with_OpenAI__Slack__Linear__Sheets_and_Gmail.json)|
 |16632|[16632_Detect_visual_regressions_with_Apify__Google_Gemini__Sheets_and_Linear.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16632_Detect_visual_regressions_with_Apify__Google_Gemini__Sheets_and_Linear.json)|
+|17014|[17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17014_Build_multi-touch_attribution_reports_with_Supabase_multi-model_MTA.json)|
+|19097|[19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/90/19097_Triage_support_tickets_with_OpenAI__HubSpot__Slack__Linear__and_Google_Sheets.json)|

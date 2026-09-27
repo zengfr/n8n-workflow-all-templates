@@ -1,4 +1,4 @@
-# creators : 19
+# creators : 21
 
 |id|file|
 |----|----|
@@ -21,3 +21,5 @@
 |13495|[13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13495_Identify_creator_attendees_from_Eventbrite_with_influencers.club_and_SendGrid.json)|
 |13496|[13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/34/13496_Find_new_creators_and_lookalikes_using_influencers.club_and_sync_to_HubSpot.json)|
 |16211|[16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/62/16211_Discover_Instagram_creators_with_ScrapingBee__Google_Sheets__and_Telegram.json)|
+|16838|[16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16838_Log_Airtable_worklogs_to_Tempo_with_Jira_and_Slack_notifications.json)|
+|18727|[18727_Vet_Instagram_creators_for_real_engagement_with_Bright_Data__GPT-5.6_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18727_Vet_Instagram_creators_for_real_engagement_with_Bright_Data__GPT-5.6_and_Google_Sheets.json)|

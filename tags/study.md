@@ -1,4 +1,4 @@
-# study : 6
+# study : 12
 
 |id|file|
 |----|----|
@@ -8,3 +8,9 @@
 |14193|[14193_Generate_AI_math_RPG_quests_from_study_logs_with_Google_Sheets_and_OpenRouter.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/41/14193_Generate_AI_math_RPG_quests_from_study_logs_with_Google_Sheets_and_OpenRouter.json)|
 |16028|[16028_Plan_daily_study_schedules_with_GPT-4o-mini__Google_Calendar__Sheets_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16028_Plan_daily_study_schedules_with_GPT-4o-mini__Google_Calendar__Sheets_and_Gmail.json)|
 |16147|[16147_Send_lecture_study_digests_to_WhatsApp_with_WayinVideo__GPT-4o-mini_and_Twilio.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16147_Send_lecture_study_digests_to_WhatsApp_with_WayinVideo__GPT-4o-mini_and_Twilio.json)|
+|17318|[17318_Create_PDF_flashcards__quizzes__and_study_plans_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/73/17318_Create_PDF_flashcards__quizzes__and_study_plans_with_Gemini_and_Google_Sheets.json)|
+|18210|[18210_Generate_RAG-based_study_flashcards_from_notes_with_OpenAI_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18210_Generate_RAG-based_study_flashcards_from_notes_with_OpenAI_and_Slack.json)|
+|18511|[18511_Create_realistic_exam_study_plans_via_Telegram_with_Gemini_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/85/18511_Create_realistic_exam_study_plans_via_Telegram_with_Gemini_and_Google_Sheets.json)|
+|18986|[18986_Plan_study_sessions_from_syllabus_PDFs_with_Gemini__Google_Calendar__and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/89/18986_Plan_study_sessions_from_syllabus_PDFs_with_Gemini__Google_Calendar__and_Sheets.json)|
+|19284|[19284_Draft_case_study_one-pagers_from_Closed_Won_deals_in_Google_Sheets_and_email.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19284_Draft_case_study_one-pagers_from_Closed_Won_deals_in_Google_Sheets_and_email.json)|
+|19806|[19806_Create_technical_interview_study_guides_with_OpenAI__Google_Sheets__and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/98/19806_Create_technical_interview_study_guides_with_OpenAI__Google_Sheets__and_Gmail.json)|

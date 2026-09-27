@@ -1,4 +1,4 @@
-# memory : 53
+# memory : 62
 
 |id|file|
 |----|----|
@@ -55,3 +55,12 @@
 |16052|[16052_Run_a_multi-session_chat_agent_with_OpenAI_and_data_table_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16052_Run_a_multi-session_chat_agent_with_OpenAI_and_data_table_memory.json)|
 |16094|[16094_Tutor_English_chat_messages_using_OpenRouter_with_Postgres_memory_and_log_to_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/60/16094_Tutor_English_chat_messages_using_OpenRouter_with_Postgres_memory_and_log_to_Supabase.json)|
 |16117|[16117_Run_a_skills-based_knowledge_chatbot_with_Google_Sheets_and_GPT-4o-mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/61/16117_Run_a_skills-based_knowledge_chatbot_with_Google_Sheets_and_GPT-4o-mini.json)|
+|17134|[17134_Extract_and_log_Gmail_receipt_expenses_with_OpenAI__Sheets_and_Airtable.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/71/17134_Extract_and_log_Gmail_receipt_expenses_with_OpenAI__Sheets_and_Airtable.json)|
+|17220|[17220_Handle_WhatsApp_support_text_and_voice_messages_with_OpenAI_GPT-5_Mini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17220_Handle_WhatsApp_support_text_and_voice_messages_with_OpenAI_GPT-5_Mini.json)|
+|17231|[17231_Run_a_Telegram_voice_assistant_with_OpenAI_GPT-5_Mini_and_Google_Calendar.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/72/17231_Run_a_Telegram_voice_assistant_with_OpenAI_GPT-5_Mini_and_Google_Calendar.json)|
+|17520|[17520_Power_your_website_chat_with_OpenAI_GPT-4o-mini_and_session_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/75/17520_Power_your_website_chat_with_OpenAI_GPT-4o-mini_and_session_memory.json)|
+|17905|[17905_Answer_Telegram_messages_with_GPT-5__Perplexity__Wikipedia__and_memory.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17905_Answer_Telegram_messages_with_GPT-5__Perplexity__Wikipedia__and_memory.json)|
+|17966|[17966_Build_a_multi-agent_support_triage_system_with_Amazon_Bedrock_AgentCore_and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17966_Build_a_multi-agent_support_triage_system_with_Amazon_Bedrock_AgentCore_and_Slack.json)|
+|18212|[18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/82/18212_Coach_job_interviews_with_Whisper__GPT-4.1__and_OpenAI_text-to-speech.json)|
+|18771|[18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18771_Handle_omni-channel_customer_support_with_OpenRouter_and_ElevenLabs.json)|
+|19254|[19254_Design_UI_screens_from_chat_with_Google_Stitch__Gemini__Telegram_and_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19254_Design_UI_screens_from_chat_with_Google_Stitch__Gemini__Telegram_and_Sheets.json)|

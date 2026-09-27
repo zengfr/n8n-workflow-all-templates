@@ -1,4 +1,4 @@
-# quality : 39
+# quality : 52
 
 |id|file|
 |----|----|
@@ -41,3 +41,16 @@
 |16494|[16494_Find_and_log_high-quality_domain_contacts_with_Tomba_and_Google_Sheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/64/16494_Find_and_log_high-quality_domain_contacts_with_Tomba_and_Google_Sheets.json)|
 |16693|[16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/66/16693_Review_Jira_ticket_quality_with_OpenRouter_GPT_and_coaching_comments.json)|
 |16785|[16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/67/16785_Test_IVR_call_quality_with_CALL-E_API_from_a_phone_task_list.json)|
+|16892|[16892_Extend_videos_with_audio_using_Fal__OpenAI__and_Upload-Post_for_TikTok.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/68/16892_Extend_videos_with_audio_using_Fal__OpenAI__and_Upload-Post_for_TikTok.json)|
+|17011|[17011_Monitor_Meta_CAPI_event_match_quality_with_Meta_Graph_API_and_Claude.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17011_Monitor_Meta_CAPI_event_match_quality_with_Meta_Graph_API_and_Claude.json)|
+|17064|[17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/70/17064_Generate_and_vet_ad_creative_with_OpenAI__Spendict__Google_Sheets__and_Slack.json)|
+|17456|[17456_Grade_cold_outreach_emails_and_generate_an_HTML_report_with_OpenAI_GPT-4.1.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/74/17456_Grade_cold_outreach_emails_and_generate_an_HTML_report_with_OpenAI_GPT-4.1.json)|
+|17610|[17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/76/17610_Identify_and_fix_low-quality_Meta_ads_with_OpenAI_and_Gmail_reports.json)|
+|17972|[17972_Inspect_product_quality_from_Telegram_photos_with_Google_Sheets_and_Gemini.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/79/17972_Inspect_product_quality_from_Telegram_photos_with_Google_Sheets_and_Gemini.json)|
+|18128|[18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/81/18128_Route_commodity_sample_quality_approvals_with_Telegram__Claude_and_spreadsheets.json)|
+|18444|[18444_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_HubSpot_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/84/18444_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_HubSpot_and_Gmail.json)|
+|18715|[18715_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_Salesforce_and_Gmail.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18715_Qualify_Webflow_leads_and_sync_high-quality_contacts_with_Salesforce_and_Gmail.json)|
+|18798|[18798_Triage_and_answer_college_WhatsApp_enquiries_with_OpenAI_and_Supabase.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/87/18798_Triage_and_answer_college_WhatsApp_enquiries_with_OpenAI_and_Supabase.json)|
+|19214|[19214_Generate_quality-checked_YouTube_thumbnails_with_OpenAI_and_Google_Drive.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/92/19214_Generate_quality-checked_YouTube_thumbnails_with_OpenAI_and_Google_Drive.json)|
+|19432|[19432_Audit_CRM_lead_data_quality_with_Google_Sheets_and_NeverBounce.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/94/19432_Audit_CRM_lead_data_quality_with_Google_Sheets_and_NeverBounce.json)|
+|19644|[19644_Create_verified_image_derivatives_and_print_reports_with_native_resizing.json](https://github.com/zengfr/n8n-workflow-all-templates/blob/main/n8n-workflow-all-templates/00/01/96/19644_Create_verified_image_derivatives_and_print_reports_with_native_resizing.json)|
